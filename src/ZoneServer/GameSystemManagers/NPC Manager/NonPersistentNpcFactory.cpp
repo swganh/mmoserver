@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Zoneserver/Objects/Inventory.h"
 #include "Zoneserver/Objects/LairObject.h"
 #include "ZoneServer/GameSystemManagers/NPC Manager/NPCObject.h"
-#include "Zoneserver/Objects/ObjectFactoryCallback.h"
+#include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
 #include "QuestGiver.h"
 #include "Trainer.h"
 #include "Zoneserver/Objects/Weapon.h"
@@ -645,7 +645,7 @@ void NonPersistentNpcFactory::_setupDatabindings()
     mNonPersistentNpcBinding->addField(swganh::database::DFT_uint8,offsetof(NPCObject,mPosture),1,2);
     mNonPersistentNpcBinding->addField(swganh::database::DFT_uint64,offsetof(NPCObject,mState),8,3);
     mNonPersistentNpcBinding->addField(swganh::database::DFT_uint16,offsetof(NPCObject,mCL),2,4);
-    mNonPersistentNpcBinding->addField(swganh::database::DFT_bstring,offsetof(NPCObject,mModel),255,5);
+	mNonPersistentNpcBinding->addField(swganh::database::DFT_stdstring,offsetof(NPCObject,template_string_),255,5);
     mNonPersistentNpcBinding->addField(swganh::database::DFT_bstring,offsetof(NPCObject,mSpecies),255,6);
     mNonPersistentNpcBinding->addField(swganh::database::DFT_bstring,offsetof(NPCObject,mSpeciesGroup),255,7);
     mNonPersistentNpcBinding->addField(swganh::database::DFT_bstring,offsetof(NPCObject,mFaction),32,8);

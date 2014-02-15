@@ -50,7 +50,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer/GameSystemManagers/Buff Manager/BuffManager.h"
 #include "ZoneServer/Objects/Inventory.h"
-#include "ZoneServer/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/GameSystemManagers/Spatial Index Manager/SpatialIndexManager.h"
 #include "ZoneServer/GameSystemManagers/State Manager/StateManager.h"
@@ -140,7 +140,7 @@ void CharacterLoginHandler::_processCmdSceneReady(Message* message, DispatchClie
         // Update: The same apply to frindsList.
         gMessageLib->sendFriendListPlay9(player);
         gMessageLib->sendIgnoreListPlay9(player);
-        gMessageLib->sendSceneReadyToChat(client);	// will get any mails received when offline. The point is: Notidy about new mails AFTER the user have got the "logged in" message.
+        gMessageLib->sendSceneReadyToChat(client);	// will get any mails received when offline. The point is: Notify about new mails AFTER the user have got the "logged in" message.
 
         //Initialise the buffs
         gBuffManager->InitBuffs(player);
@@ -175,6 +175,8 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
 	//this exact character is currently being logged out ...
     if((playerObject) && playerObject->isLinkDead())
     {
+			LOG(info) << "CharacterLoginHandler::_processSelectCharacter - if((playerObject) && playerObject->isLinkDead())";
+
         // Remove old client, if any.
         delete playerObject->getClient();
 
@@ -223,7 +225,7 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
         //so just ignore it ????
 
         //we might want to wait and then reload the character
-
+		LOG(info) << "CharacterLoginHandler::_processSelectCharacter - else if(playerObject  && playerObject->isBeingDestroyed())";
         // Remove old client, if any.
         delete playerObject->getClient();
 

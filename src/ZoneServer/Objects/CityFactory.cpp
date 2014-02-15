@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DatabaseResult.h"
 
 #include "City.h"
-#include "ZoneServer/Objects/ObjectFactoryCallback.h"
+#include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
 
 
 CityFactory::CityFactory(swganh::app::SwganhKernel*	kernel) : FactoryBase(kernel)

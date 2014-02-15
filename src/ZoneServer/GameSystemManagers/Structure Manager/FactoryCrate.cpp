@@ -42,7 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer/Objects/Inventory.h"
 #include "ZoneServer/Objects/Item_Enums.h"
-#include "ZoneServer/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/GameSystemManagers/Structure Manager/StructureManager.h"
 #include "ZoneServer/WorldManager.h"
@@ -160,7 +160,7 @@ void FactoryCrate::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8
 
 TangibleObject*	FactoryCrate::getLinkedObject()
 {
-    ObjectIDList*			ol = this->getObjects();
+    ObjectIDList*			ol = this->GetObjectData();
     ObjectIDList::iterator	it = ol->begin();
 
     //just get the first linked object - crates only have the one

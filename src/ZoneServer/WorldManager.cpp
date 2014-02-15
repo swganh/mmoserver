@@ -70,7 +70,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/GameSystemManagers/Mission Manager/MissionObject.h"
 #include "Zoneserver/GameSystemManagers/NPC Manager/NpcManager.h"
 #include "ZoneServer/GameSystemManagers/NPC Manager/NPCObject.h"
-#include "ZoneServer/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceManager.h"
@@ -86,8 +86,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <anh\app\swganh_kernel.h>
 #include "anh/app/swganh_app.h"
-#include <ZoneServer\Services\scene_events.h>
 
+#include <ZoneServer\Services\scene_events.h>
+#include "ZoneServer\Services\equipment\equipment_service.h"
 using std::dynamic_pointer_cast;
 using std::shared_ptr;
 
@@ -581,11 +582,11 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
                 // add it to the world, if it holds an item
                 if(item)
                 {
-                    Inventory* temp =  dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-                    if(!temp) continue;
+					auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player, "inventory");
+                    if(!inventory) continue;
 
-                    item->setParentId(temp->getId());
-                    dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->addObject(item);
+                    item->setParentId(inventory->getId());
+					inventory->InitializeObject(item);
                     gWorldManager->addObject(item,true);
 
                     gMessageLib->sendCreateTano(item,player);

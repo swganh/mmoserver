@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/bstring.h"
 #include "Utils/PriorityVector.h"
 #include "DatabaseManager/DatabaseCallback.h"
-#include "ZoneServer/Objects/ObjectFactoryCallback.h"
+#include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
 #include "ObjControllerEvent.h"
 #include <boost/pool/pool.hpp>
 #include "ZoneServer/GameSystemManagers/Spatial Index Manager/Zmap.h"

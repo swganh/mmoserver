@@ -36,7 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/GameSystemManagers/Crafting Manager/ManufacturingSchematic.h"
 #include "ZoneServer/GameSystemManagers/NPC Manager/NPCObject.h"
 #include "ZoneServer/ObjectController/ObjectControllerOpcodes.h"
-#include "ZoneServer/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/ProfessionManagers/Artisan Manager/ArtisanManager.h"
 #include "ZoneServer/GameSystemManagers/Travel Manager/TravelTerminal.h"
@@ -107,7 +107,7 @@ bool MessageLib::sendCreateObjectByCRC(Object* object,const PlayerObject* const 
     mMessageFactory->addFloat(object->mPosition.z);
 
     if(!player)
-        mMessageFactory->addUint32(object->getModelString().getCrc());
+        mMessageFactory->addUint32(common::memcrc(object->GetTemplate()));
     else
         mMessageFactory->addUint32(0x619bae21); // shared_player.iff
 
@@ -488,7 +488,7 @@ bool MessageLib::sendStartScene(uint64 zoneId,PlayerObject* player)
     mMessageFactory->addFloat(player->mPosition.y);
     mMessageFactory->addFloat(player->mPosition.z);
 
-    mMessageFactory->addString(player->getModelString());
+    mMessageFactory->addString(player->GetTemplate());
     mMessageFactory->addUint64(zoneId);
 
     (player->getClient())->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(), CR_Client, 9);

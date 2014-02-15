@@ -67,11 +67,12 @@ public:
     void	setCategoryId(uint16 cat) {
         mCatId = cat;
     }
-    BString	getModel() {
-        return mModel;
+
+    std::string	GetTemplate() {
+        return template_string;
     }
-    void	setModel(const BString model) {
-        mModel = model;
+    void	SetTemplate(const std::string model) {
+        template_string = model;
     }
     BString	getContainerModel();
     BString	getTypeName() {
@@ -95,14 +96,14 @@ public:
 
 private:
 
-    uint32	mId;
-    BString	mName;
-    BString	mTypeName;
-    BString	mDescriptor;
-    BString	mModel;
-    uint16	mCatId;
-    uint32  mCategoryBazaar;
-    BString	mResourceType;
+    uint32			mId;
+    BString			mName;
+    BString			mTypeName;
+    BString			mDescriptor;
+    std::string		template_string;
+    uint16			mCatId;
+    uint32			mCategoryBazaar;
+    BString			mResourceType;
 };
 
 //=============================================================================

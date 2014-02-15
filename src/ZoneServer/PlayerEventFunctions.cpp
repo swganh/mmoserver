@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
-#include "ZoneServer/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 
 #include "ZoneServer/ProfessionManagers/Medic Manager/WoundTreatmentEvent.h"
 #include "ZoneServer/ProfessionManagers/Medic Manager/QuickHealInjuryTreatmentEvent.h"

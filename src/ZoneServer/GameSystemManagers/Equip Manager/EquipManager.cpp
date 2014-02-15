@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/GameSystemManagers/Spatial Index Manager/SpatialIndexManager.h"
 #include "ZoneServer/Objects/Inventory.h"
-#include <ZoneServer/Objects/Object.h>
+#include <ZoneServer/Objects/Object/Object.h>
 #include <ZoneServer/Objects/Item.h>
 //#include "ZoneServer/Objects/Weapon.h"
 #include "ZoneServer/WorldManager.h"

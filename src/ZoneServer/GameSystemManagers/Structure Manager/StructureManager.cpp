@@ -40,7 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Zoneserver/Objects/Datapad.h"
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceContainer.h"
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceType.h"
-#include "ZoneServer/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/GameSystemManagers/Crafting Manager/ManufacturingSchematic.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "PlayerStructure.h"
@@ -52,6 +52,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageFactory.h"
 #include "Zoneserver/Objects/Deed.h"
+
+#include "ZoneServer\Services\equipment\equipment_service.h"
 
 #include "Common/OutOfBand.h"
 #include "MessageLib/MessageLib.h"
@@ -1208,12 +1210,12 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 					}
 
 					TangibleObject* hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getIngredientHopper()));
-					if(hopper&&hopper->getObjects()->size())	{
+					if(hopper && hopper->getHeadCount())	{
 						gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure","clear_input_hopper_for_delete"),player);
 						return;
 					}
 					hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getOutputHopper()));
-					if(hopper&&hopper->getObjects()->size())	{
+					if(hopper&&hopper->getHeadCount())	{
 						gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure","clear_output_hopper_for_delete"),player);
 						return;
 					}
@@ -1312,15 +1314,13 @@ void StructureManager::TransferStructureOwnership(StructureAsyncCommand command)
 
 uint32 StructureManager::getCurrentPower(PlayerObject* player)
 {
-    ObjectIDList*			invObjects	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
-    ObjectIDList::iterator	listIt		= invObjects->begin();
-
     uint32 power = 0;
 
-    while(listIt != invObjects->end())
-    {
+	auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player, "inventory");
+	inventory->ViewObjects(player, 0, true, [&] (Object* object) {
+
         // we are looking for resource containers
-        ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById((*listIt)));
+        ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(object);
         if(resCont)
         {
             uint16 category = resCont->getResource()->getType()->getCategoryId();
@@ -1339,25 +1339,19 @@ uint32 StructureManager::getCurrentPower(PlayerObject* player)
 
                 power += containerPower;
             }
-
-
         }
-
-        ++listIt;
-    }
+    });
 
     return power;
 }
 
 uint32 StructureManager::deductPower(PlayerObject* player, uint32 amount)
 {
-    ObjectIDList*			invObjects	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
-    ObjectIDList::iterator	listIt		= invObjects->begin();
+    auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player, "inventory");
+	inventory->ViewObjects(player, 0, true, [&] (Object* object) {
 
-    while(listIt != invObjects->end())
-    {
         // we are looking for resource containers
-        ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById((*listIt)));
+        ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(object);
         if(resCont)
         {
             uint16 category = resCont->getResource()->getType()->getCategoryId();
@@ -1393,7 +1387,7 @@ uint32 StructureManager::deductPower(PlayerObject* player, uint32 amount)
 					gContainerManager->deleteObject(resCont, container);
 
                     amount -= tdAmount;
-                    break;
+                    return;
                 }
                 else
                 {
@@ -1408,9 +1402,7 @@ uint32 StructureManager::deductPower(PlayerObject* player, uint32 amount)
 
 
         }
-
-        ++listIt;
-    }
+    });
 
     if(amount>0)
     {

@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ElevatorTerminal.h"
 #include "InsuranceTerminal.h"
 #include "MissionTerminal.h"
-#include "ZoneServer/Objects/ObjectFactoryCallback.h"
+#include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
 #include "ZoneServer/GameSystemManagers/Travel Manager/TravelTerminal.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -230,25 +230,8 @@ Terminal* TerminalFactory::_createTerminal(swganh::database::DatabaseResult* res
         terminal = new Terminal();
         terminal->setTangibleType(tanType);
 
-        swganh::database::DataBinding* terminalBinding = mDatabase->createDataBinding(14);
-        terminalBinding->addField(swganh::database::DFT_uint64,offsetof(Terminal,mId),8,0);
-        terminalBinding->addField(swganh::database::DFT_uint64,offsetof(Terminal,mParentId),8,1);
-        terminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mDirection.x),4,2);
-        terminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mDirection.y),4,3);
-        terminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mDirection.z),4,4);
-        terminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mDirection.w),4,5);
-        terminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mPosition.x),4,6);
-        terminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mPosition.y),4,7);
-        terminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mPosition.z),4,8);
-        terminalBinding->addField(swganh::database::DFT_uint32,offsetof(Terminal,mTerminalType),4,9);
-        terminalBinding->addField(swganh::database::DFT_bstring,offsetof(Terminal,mModel),256,10);
-        terminalBinding->addField(swganh::database::DFT_bstring,offsetof(Terminal,mName),64,11);
-        terminalBinding->addField(swganh::database::DFT_bstring,offsetof(Terminal,mNameFile),64,12);
-        terminalBinding->addField(swganh::database::DFT_bstring,offsetof(Terminal,mCustomName),256,15);
+        result->getNextRow(mTerminalBinding,(void*)terminal);
 
-        result->getNextRow(terminalBinding,(void*)terminal);
-
-        mDatabase->destroyDataBinding(terminalBinding);
 
         terminal->setLoadState(LoadState_Loaded);
     }
@@ -259,25 +242,9 @@ Terminal* TerminalFactory::_createTerminal(swganh::database::DatabaseResult* res
         terminal = new PlayerStructureTerminal();
         terminal->setTangibleType(tanType);
 
-        swganh::database::DataBinding* terminalBinding = mDatabase->createDataBinding(14);
-        terminalBinding->addField(swganh::database::DFT_uint64,offsetof(Terminal,mId),8,0);
-        terminalBinding->addField(swganh::database::DFT_uint64,offsetof(Terminal,mParentId),8,1);
-        terminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mDirection.x),4,2);
-        terminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mDirection.y),4,3);
-        terminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mDirection.z),4,4);
-        terminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mDirection.w),4,5);
-        terminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mPosition.x),4,6);
-        terminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mPosition.y),4,7);
-        terminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mPosition.z),4,8);
-        terminalBinding->addField(swganh::database::DFT_uint32,offsetof(Terminal,mTerminalType),4,9);
-        terminalBinding->addField(swganh::database::DFT_bstring,offsetof(Terminal,mModel),256,10);
-        terminalBinding->addField(swganh::database::DFT_bstring,offsetof(Terminal,mName),64,11);
-        terminalBinding->addField(swganh::database::DFT_bstring,offsetof(Terminal,mNameFile),64,12);
-        terminalBinding->addField(swganh::database::DFT_bstring,offsetof(Terminal,mCustomName),256,15);
+      
 
-        result->getNextRow(terminalBinding,(void*)terminal);
-
-        mDatabase->destroyDataBinding(terminalBinding);
+        result->getNextRow(mTerminalBinding,(void*)terminal);
 
         terminal->setLoadState(LoadState_Loaded);
     }
@@ -287,7 +254,7 @@ Terminal* TerminalFactory::_createTerminal(swganh::database::DatabaseResult* res
     {
         terminal = new BankTerminal();
         terminal->setTangibleType(tanType);
-        result->getNextRow(mBankMainDataBinding,(void*)terminal);
+        result->getNextRow(mTerminalBinding,(void*)terminal);
         terminal->setLoadState(LoadState_Loaded);
 
     }
@@ -297,7 +264,7 @@ Terminal* TerminalFactory::_createTerminal(swganh::database::DatabaseResult* res
     {
         terminal = new CharacterBuilderTerminal();
         terminal->setTangibleType(tanType);
-        result->getNextRow(mCharacterBuilderMainDataBinding,(void*)terminal);
+        result->getNextRow(mTerminalBinding,(void*)terminal);
         terminal->setLoadState(LoadState_Loaded);
     }
     break;
@@ -306,7 +273,7 @@ Terminal* TerminalFactory::_createTerminal(swganh::database::DatabaseResult* res
     {
         terminal = new BazaarTerminal();
         terminal->setTangibleType(tanType);
-        result->getNextRow(mBazaarMainDataBinding,(void*)terminal);
+        result->getNextRow(mTerminalBinding,(void*)terminal);
         terminal->setLoadState(LoadState_Loaded);
     }
     break;
@@ -315,7 +282,7 @@ Terminal* TerminalFactory::_createTerminal(swganh::database::DatabaseResult* res
     {
         terminal = new CloningTerminal();
         terminal->setTangibleType(tanType);
-        result->getNextRow(mCloningMainDataBinding,(void*)terminal);
+        result->getNextRow(mTerminalBinding,(void*)terminal);
         terminal->setLoadState(LoadState_Loaded);
     }
     break;
@@ -324,7 +291,7 @@ Terminal* TerminalFactory::_createTerminal(swganh::database::DatabaseResult* res
     {
         terminal = new InsuranceTerminal();
         terminal->setTangibleType(tanType);
-        result->getNextRow(mInsuranceMainDataBinding,(void*)terminal);
+        result->getNextRow(mTerminalBinding,(void*)terminal);
         terminal->setLoadState(LoadState_Loaded);
     }
     break;
@@ -342,7 +309,7 @@ Terminal* TerminalFactory::_createTerminal(swganh::database::DatabaseResult* res
         terminal = new MissionTerminal();
         terminal->setTangibleType(tanType);
 
-        result->getNextRow(mMissionMainDataBinding,(void*)terminal);
+        result->getNextRow(mTerminalBinding,(void*)terminal);
 
         terminal->setLoadState(LoadState_Loaded);
     }
@@ -380,25 +347,8 @@ Terminal* TerminalFactory::_createTerminal(swganh::database::DatabaseResult* res
         terminal = new Terminal();
         terminal->setTangibleType(tanType);
 
-        swganh::database::DataBinding* terminalBinding = mDatabase->createDataBinding(14);
-        terminalBinding->addField(swganh::database::DFT_uint64,offsetof(Terminal,mId),8,0);
-        terminalBinding->addField(swganh::database::DFT_uint64,offsetof(Terminal,mParentId),8,1);
-        terminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mDirection.x),4,2);
-        terminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mDirection.y),4,3);
-        terminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mDirection.z),4,4);
-        terminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mDirection.w),4,5);
-        terminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mPosition.x),4,6);
-        terminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mPosition.y),4,7);
-        terminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mPosition.z),4,8);
-        terminalBinding->addField(swganh::database::DFT_uint32,offsetof(Terminal,mTerminalType),4,9);
-        terminalBinding->addField(swganh::database::DFT_bstring,offsetof(Terminal,mModel),256,10);
-        terminalBinding->addField(swganh::database::DFT_bstring,offsetof(Terminal,mName),64,11);
-        terminalBinding->addField(swganh::database::DFT_bstring,offsetof(Terminal,mNameFile),64,12);
-        terminalBinding->addField(swganh::database::DFT_bstring,offsetof(Terminal,mCustomName),256,15);
-
-        result->getNextRow(terminalBinding,(void*)terminal);
-
-        mDatabase->destroyDataBinding(terminalBinding);
+        
+        result->getNextRow(mTerminalBinding,(void*)terminal);
 
         terminal->setLoadState(LoadState_Loaded);
     }
@@ -414,91 +364,12 @@ Terminal* TerminalFactory::_createTerminal(swganh::database::DatabaseResult* res
 
 void TerminalFactory::_setupDatabindings()
 {
-    // mission terminal
-    mMissionMainDataBinding = mDatabase->createDataBinding(13);
-    mMissionMainDataBinding->addField(swganh::database::DFT_uint64,offsetof(MissionTerminal,mId),8,0);
-    mMissionMainDataBinding->addField(swganh::database::DFT_uint64,offsetof(MissionTerminal,mParentId),8,1);
-    mMissionMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(MissionTerminal,mModel),256,10);
-    mMissionMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(MissionTerminal,mName),64,11);
-    mMissionMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(MissionTerminal,mNameFile),64,12);
-    mMissionMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(MissionTerminal,mCustomName),256,15);
-    mMissionMainDataBinding->addField(swganh::database::DFT_float,offsetof(MissionTerminal,mDirection.x),4,2);
-    mMissionMainDataBinding->addField(swganh::database::DFT_float,offsetof(MissionTerminal,mDirection.y),4,3);
-    mMissionMainDataBinding->addField(swganh::database::DFT_float,offsetof(MissionTerminal,mDirection.z),4,4);
-    mMissionMainDataBinding->addField(swganh::database::DFT_float,offsetof(MissionTerminal,mDirection.w),4,5);
-    mMissionMainDataBinding->addField(swganh::database::DFT_float,offsetof(MissionTerminal,mPosition.x),4,6);
-    mMissionMainDataBinding->addField(swganh::database::DFT_float,offsetof(MissionTerminal,mPosition.y),4,7);
-    mMissionMainDataBinding->addField(swganh::database::DFT_float,offsetof(MissionTerminal,mPosition.z),4,8);
-
-    // bazaar terminal
-    mBazaarMainDataBinding = mDatabase->createDataBinding(13);
-    mBazaarMainDataBinding->addField(swganh::database::DFT_uint64,offsetof(BazaarTerminal,mId),8,0);
-    mBazaarMainDataBinding->addField(swganh::database::DFT_uint64,offsetof(BazaarTerminal,mParentId),8,1);
-    mBazaarMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(BazaarTerminal,mModel),256,10);
-    mBazaarMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(BazaarTerminal,mName),64,11);
-    mBazaarMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(BazaarTerminal,mNameFile),64,12);
-    mBazaarMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(BazaarTerminal,mCustomName),256,15);
-    mBazaarMainDataBinding->addField(swganh::database::DFT_float,offsetof(BazaarTerminal,mDirection.x),4,2);
-    mBazaarMainDataBinding->addField(swganh::database::DFT_float,offsetof(BazaarTerminal,mDirection.y),4,3);
-    mBazaarMainDataBinding->addField(swganh::database::DFT_float,offsetof(BazaarTerminal,mDirection.z),4,4);
-    mBazaarMainDataBinding->addField(swganh::database::DFT_float,offsetof(BazaarTerminal,mDirection.w),4,5);
-    mBazaarMainDataBinding->addField(swganh::database::DFT_float,offsetof(BazaarTerminal,mPosition.x),4,6);
-    mBazaarMainDataBinding->addField(swganh::database::DFT_float,offsetof(BazaarTerminal,mPosition.y),4,7);
-    mBazaarMainDataBinding->addField(swganh::database::DFT_float,offsetof(BazaarTerminal,mPosition.z),4,8);
-
-    // cloning terminal
-    mCloningMainDataBinding = mDatabase->createDataBinding(13);
-    mCloningMainDataBinding->addField(swganh::database::DFT_uint64,offsetof(CloningTerminal,mId),8,0);
-    mCloningMainDataBinding->addField(swganh::database::DFT_uint64,offsetof(CloningTerminal,mParentId),8,1);
-    mCloningMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(CloningTerminal,mModel),256,10);
-    mCloningMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(CloningTerminal,mName),64,11);
-    mCloningMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(CloningTerminal,mNameFile),64,12);
-    mCloningMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(CloningTerminal,mCustomName),256,15);
-    mCloningMainDataBinding->addField(swganh::database::DFT_float,offsetof(CloningTerminal,mDirection.x),4,2);
-    mCloningMainDataBinding->addField(swganh::database::DFT_float,offsetof(CloningTerminal,mDirection.y),4,3);
-    mCloningMainDataBinding->addField(swganh::database::DFT_float,offsetof(CloningTerminal,mDirection.z),4,4);
-    mCloningMainDataBinding->addField(swganh::database::DFT_float,offsetof(CloningTerminal,mDirection.w),4,5);
-    mCloningMainDataBinding->addField(swganh::database::DFT_float,offsetof(CloningTerminal,mPosition.x),4,6);
-    mCloningMainDataBinding->addField(swganh::database::DFT_float,offsetof(CloningTerminal,mPosition.y),4,7);
-    mCloningMainDataBinding->addField(swganh::database::DFT_float,offsetof(CloningTerminal,mPosition.z),4,8);
-
-    // insurance terminal
-    mInsuranceMainDataBinding = mDatabase->createDataBinding(13);
-    mInsuranceMainDataBinding->addField(swganh::database::DFT_uint64,offsetof(InsuranceTerminal,mId),8,0);
-    mInsuranceMainDataBinding->addField(swganh::database::DFT_uint64,offsetof(InsuranceTerminal,mParentId),8,1);
-    mInsuranceMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(InsuranceTerminal,mModel),256,10);
-    mInsuranceMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(InsuranceTerminal,mName),64,11);
-    mInsuranceMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(InsuranceTerminal,mNameFile),64,12);
-    mInsuranceMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(InsuranceTerminal,mCustomName),256,15);
-    mInsuranceMainDataBinding->addField(swganh::database::DFT_float,offsetof(InsuranceTerminal,mDirection.x),4,2);
-    mInsuranceMainDataBinding->addField(swganh::database::DFT_float,offsetof(InsuranceTerminal,mDirection.y),4,3);
-    mInsuranceMainDataBinding->addField(swganh::database::DFT_float,offsetof(InsuranceTerminal,mDirection.z),4,4);
-    mInsuranceMainDataBinding->addField(swganh::database::DFT_float,offsetof(InsuranceTerminal,mDirection.w),4,5);
-    mInsuranceMainDataBinding->addField(swganh::database::DFT_float,offsetof(InsuranceTerminal,mPosition.x),4,6);
-    mInsuranceMainDataBinding->addField(swganh::database::DFT_float,offsetof(InsuranceTerminal,mPosition.y),4,7);
-    mInsuranceMainDataBinding->addField(swganh::database::DFT_float,offsetof(InsuranceTerminal,mPosition.z),4,8);
-
-    // character builder terminal
-    mCharacterBuilderMainDataBinding = mDatabase->createDataBinding(13);
-    mCharacterBuilderMainDataBinding->addField(swganh::database::DFT_uint64,offsetof(CharacterBuilderTerminal,mId),8,0);
-    mCharacterBuilderMainDataBinding->addField(swganh::database::DFT_uint64,offsetof(CharacterBuilderTerminal,mParentId),8,1);
-    mCharacterBuilderMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(CharacterBuilderTerminal,mModel),256,10);
-    mCharacterBuilderMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(CharacterBuilderTerminal,mName),64,11);
-    mCharacterBuilderMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(CharacterBuilderTerminal,mNameFile),64,12);
-    mCharacterBuilderMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(CharacterBuilderTerminal,mCustomName),256,15);
-    mCharacterBuilderMainDataBinding->addField(swganh::database::DFT_float,offsetof(CharacterBuilderTerminal,mDirection.x),4,2);
-    mCharacterBuilderMainDataBinding->addField(swganh::database::DFT_float,offsetof(CharacterBuilderTerminal,mDirection.y),4,3);
-    mCharacterBuilderMainDataBinding->addField(swganh::database::DFT_float,offsetof(CharacterBuilderTerminal,mDirection.z),4,4);
-    mCharacterBuilderMainDataBinding->addField(swganh::database::DFT_float,offsetof(CharacterBuilderTerminal,mDirection.w),4,5);
-    mCharacterBuilderMainDataBinding->addField(swganh::database::DFT_float,offsetof(CharacterBuilderTerminal,mPosition.x),4,6);
-    mCharacterBuilderMainDataBinding->addField(swganh::database::DFT_float,offsetof(CharacterBuilderTerminal,mPosition.y),4,7);
-    mCharacterBuilderMainDataBinding->addField(swganh::database::DFT_float,offsetof(CharacterBuilderTerminal,mPosition.z),4,8);
-
+    
     // travel terminal
     mTravelMainDataBinding = mDatabase->createDataBinding(15);
     mTravelMainDataBinding->addField(swganh::database::DFT_uint64,offsetof(TravelTerminal,mId),8,0);
     mTravelMainDataBinding->addField(swganh::database::DFT_uint64,offsetof(TravelTerminal,mParentId),8,1);
-    mTravelMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(TravelTerminal,mModel),256,10);
+	mTravelMainDataBinding->addField(swganh::database::DFT_string,offsetof(TravelTerminal,template_string_),256,10);
     mTravelMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(TravelTerminal,mName),64,11);
     mTravelMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(TravelTerminal,mNameFile),64,12);
     mTravelMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(TravelTerminal,mPositionDescriptor),128,13);
@@ -513,27 +384,28 @@ void TerminalFactory::_setupDatabindings()
     mTravelMainDataBinding->addField(swganh::database::DFT_float,offsetof(TravelTerminal,mPosition.z),4,8);
 
 
-    // bank terminal
-    mBankMainDataBinding = mDatabase->createDataBinding(13);
-    mBankMainDataBinding->addField(swganh::database::DFT_uint64,offsetof(BankTerminal,mId),8,0);
-    mBankMainDataBinding->addField(swganh::database::DFT_uint64,offsetof(BankTerminal,mParentId),8,1);
-    mBankMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(BankTerminal,mModel),256,10);
-    mBankMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(BankTerminal,mName),64,11);
-    mBankMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(BankTerminal,mNameFile),64,12);
-    mBankMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(BankTerminal,mCustomName),256,15);
-    mBankMainDataBinding->addField(swganh::database::DFT_float,offsetof(BankTerminal,mDirection.x),4,2);
-    mBankMainDataBinding->addField(swganh::database::DFT_float,offsetof(BankTerminal,mDirection.y),4,3);
-    mBankMainDataBinding->addField(swganh::database::DFT_float,offsetof(BankTerminal,mDirection.z),4,4);
-    mBankMainDataBinding->addField(swganh::database::DFT_float,offsetof(BankTerminal,mDirection.w),4,5);
-    mBankMainDataBinding->addField(swganh::database::DFT_float,offsetof(BankTerminal,mPosition.x),4,6);
-    mBankMainDataBinding->addField(swganh::database::DFT_float,offsetof(BankTerminal,mPosition.y),4,7);
-    mBankMainDataBinding->addField(swganh::database::DFT_float,offsetof(BankTerminal,mPosition.z),4,8);
+    
+    mTerminalBinding= mDatabase->createDataBinding(13);
+    mTerminalBinding->addField(swganh::database::DFT_uint64,offsetof(Terminal,mId),8,0);
+    mTerminalBinding->addField(swganh::database::DFT_uint64,offsetof(Terminal,mParentId),8,1);
+	mTerminalBinding->addField(swganh::database::DFT_stdstring,offsetof(Terminal,template_string_),256,10);
+    mTerminalBinding->addField(swganh::database::DFT_bstring,offsetof(Terminal,mName),64,11);
+    mTerminalBinding->addField(swganh::database::DFT_bstring,offsetof(Terminal,mNameFile),64,12);
+    mTerminalBinding->addField(swganh::database::DFT_bstring,offsetof(Terminal,mCustomName),256,15);
+    mTerminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mDirection.x),4,2);
+    mTerminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mDirection.y),4,3);
+    mTerminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mDirection.z),4,4);
+    mTerminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mDirection.w),4,5);
+    mTerminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mPosition.x),4,6);
+    mTerminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mPosition.y),4,7);
+    mTerminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mPosition.z),4,8);
+	mTerminalBinding->addField(swganh::database::DFT_uint32,offsetof(Terminal,mTerminalType),4,9);
 
     // elevator terminal main data
     mElevatorMainDataBinding = mDatabase->createDataBinding(13);
     mElevatorMainDataBinding->addField(swganh::database::DFT_uint64,offsetof(ElevatorTerminal,mId),8,0);
     mElevatorMainDataBinding->addField(swganh::database::DFT_uint64,offsetof(ElevatorTerminal,mParentId),8,1);
-    mElevatorMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(ElevatorTerminal,mModel),256,10);
+	mElevatorMainDataBinding->addField(swganh::database::DFT_stdstring,offsetof(ElevatorTerminal,template_string_),256,10);
     mElevatorMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(ElevatorTerminal,mName),64,11);
     mElevatorMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(ElevatorTerminal,mNameFile),64,12);
     mElevatorMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(ElevatorTerminal,mCustomName),256,15);
@@ -574,13 +446,10 @@ void TerminalFactory::_setupDatabindings()
 
 void TerminalFactory::_destroyDatabindings()
 {
-    mDatabase->destroyDataBinding(mBazaarMainDataBinding);
-    mDatabase->destroyDataBinding(mCloningMainDataBinding);
-    mDatabase->destroyDataBinding(mInsuranceMainDataBinding);
-    mDatabase->destroyDataBinding(mMissionMainDataBinding);
+    
     mDatabase->destroyDataBinding(mTravelMainDataBinding);
-    mDatabase->destroyDataBinding(mBankMainDataBinding);
-    mDatabase->destroyDataBinding(mCharacterBuilderMainDataBinding);
+    mDatabase->destroyDataBinding(mTerminalBinding);
+    
     mDatabase->destroyDataBinding(mElevatorMainDataBinding);
     mDatabase->destroyDataBinding(mElevetorDataUpBinding);
     mDatabase->destroyDataBinding(mElevetorDataDownBinding);

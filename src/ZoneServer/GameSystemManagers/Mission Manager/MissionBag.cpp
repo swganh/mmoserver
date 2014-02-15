@@ -40,7 +40,7 @@ MissionBag::MissionBag() : TangibleObject()
 
 //=============================================================================
 
-MissionBag::MissionBag(uint64 id,PlayerObject* parent,BString model,BString name,BString file) : TangibleObject(id,parent->getId(),model,TanGroup_PlayerInternal,TanType_MissionBag,name,file),
+MissionBag::MissionBag(uint64 id,PlayerObject* parent,std::string model,BString name,BString file) : TangibleObject(id,parent->getId(),model,TanGroup_PlayerInternal,TanType_MissionBag,name,file),
     mCapacity(14)
 {
     mTanGroup = TanGroup_PlayerInternal;

@@ -33,12 +33,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Zoneserver/objects/IntangibleObject.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "Zoneserver/Objects/Item.h"
-#include "ZoneServer/GameSystemManagers/Crafting Manager/ManufacturingSchematic.h"
-#include "ZoneServer/Objects/ObjectFactoryCallback.h"
+#include "ZoneServer\Objects\Object\ObjectManager.h"
+
+#include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
 #include "ZoneServer/Objects/Tangible Object/TangibleFactory.h"
 #include "Zoneserver/Objects/VehicleControllerFactory.h"
 #include "Zoneserver/Objects/waypoints/WaypointFactory.h"
 #include "Zoneserver/Objects/waypoints/WaypointObject.h"
+
+#include "ZoneServer/GameSystemManagers/Crafting Manager/ManufacturingSchematic.h"
+
 #include "ZoneServer/WorldManager.h"
 
 #include "DatabaseManager/Database.h"
@@ -302,7 +306,9 @@ Datapad* DatapadFactory::_createDatapad(swganh::database::DatabaseResult* result
 
     // get our results
     result->getNextRow(mDatapadBinding,(void*)datapad);
-    datapad->setParentId(datapad->mId - 3);
+    datapad->setParentId(datapad->mId - DATAPAD_OFFSET);
+	gObjectManager->LoadSlotsForObject(datapad);
+	
 
 	gWorldManager->addObject(datapad, true);
 
@@ -316,7 +322,7 @@ void DatapadFactory::_setupDatabindings()
     // datapad binding
     mDatapadBinding = mDatabase->createDataBinding(4);
     mDatapadBinding->addField(swganh::database::DFT_uint64,offsetof(Datapad,mId),8,0);
-    mDatapadBinding->addField(swganh::database::DFT_bstring,offsetof(Datapad,mModel),256,1);
+	mDatapadBinding->addField(swganh::database::DFT_stdstring,offsetof(Datapad,template_string_),256,1);
     mDatapadBinding->addField(swganh::database::DFT_bstring,offsetof(Datapad,mName),64,2);
     mDatapadBinding->addField(swganh::database::DFT_bstring,offsetof(Datapad,mNameFile),64,3);
 }

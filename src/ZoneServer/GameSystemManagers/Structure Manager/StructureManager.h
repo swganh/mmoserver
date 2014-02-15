@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <list>
 
 #include "DatabaseManager/DatabaseCallback.h"
-#include "ZoneServer/Objects/ObjectFactoryCallback.h"
+#include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
 #include "ZoneServer/Objects/Tangible Object/TangibleEnums.h"
 #include "ZoneServer/WorldManager.h"
 #include "anh/utils/Scheduler.h"

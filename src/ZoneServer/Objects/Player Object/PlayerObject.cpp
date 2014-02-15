@@ -1360,7 +1360,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,std::u16string inpu
 
         // its a skill - offer to teach it
         sprintf(text,"@skl_n:%s",skill->mName.getAnsi());
-        sprintf(caption,"%s offers to teach you : %s",first_name,text);
+        sprintf(caption,"%s offers to teach you : %s",first_name.c_str(),text);
 
         gUIManager->createNewSkillTeachMessageBox(this,"askteach",caption,text,pupilObject,SUI_MB_OKCANCEL,skillSelectBox->getPupil(),skill);
     }
@@ -1945,7 +1945,7 @@ EMLocationType PlayerObject::getPlayerLocation()
     {
         if(Object* object = dynamic_cast<Object*>(gWorldManager->getObjectById(cell->getParentId())))
         {
-            if(strstr(object->getModelString().getAnsi(),"cantina"))
+            if(strstr(object->GetTemplate().c_str(),"cantina"))
             {
                 return EMLocation_Cantina;
             }

@@ -82,6 +82,11 @@ public:
 
 
 private:
+	/*	@brief	getCraftingStationTool searches our inventory for a crafting tool fitting to the supplied crafting station
+	*	@param	PlayerObject* player the player who wants to craft
+	*	@param	CraftingStation* station the crafting station he used
+	*	returns	CraftingTool* the crafting tool we found that fittet to the station
+	*/
     CraftingTool*			getCraftingStationTool(PlayerObject* player, CraftingStation* station);
 
     static CraftingManager*	mSingleton;

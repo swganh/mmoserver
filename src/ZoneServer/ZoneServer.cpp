@@ -47,24 +47,30 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/GameSystemManagers/Group Manager/GroupManager.h"
 #include "Zoneserver/ProfessionManagers/Medic Manager/MedicManager.h"
 #include "Zoneserver/GameSystemManagers/NPC Manager/NpcManager.h"
-#include "Zoneserver/ProfessionManagers/Scout Manager/ScoutManager.h"
 #include "ZoneServer/GameSystemManagers/Skill Manager/SkillManager.h"
 #include "ZoneServer/GameSystemManagers/State Manager/StateManager.h"
 #include "ZoneServer/GameSystemManagers/Structure Manager/StructureManager.h"
 #include "ZoneServer/GameSystemManagers/Trade Manager/TradeManager.h"
 #include "ZoneServer/GameSystemManagers/UI Manager/UIManager.h"
+
+#include "Zoneserver/ProfessionManagers/Scout Manager/ScoutManager.h"
+
+#include "ZoneServer\Objects\Object\ObjectManager.h"
 #include "ZoneServer/WorldManager.h"
 
 #include <ZoneServer\Services\terrain\terrain_init.h>
 #include <ZoneServer\Services\ham\ham_init.h>
+#include <ZoneServer\Services\simulation\simulation_init.h>
+#include <ZoneServer\Services\equipment\equipment_init.h>
 
 #include "Zoneserver/Objects/Food.h"
+
 #include "Zoneserver/Objects/NonPersistentItemFactory.h"
 #include "Zoneserver/GameSystemManagers/NPC Manager/NonPersistentNpcFactory.h"
 #include "ZoneServer/Objects/nonPersistantObjectFactory.h"
 #include "ZoneServer/ObjectController/ObjectControllerCommandMap.h"
 #include "ZoneServer/ObjectController/ObjectControllerDispatch.h"
-#include "ZoneServer/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/GameSystemManagers/Travel Manager/TravelMapHandler.h"
 #include "ZoneServer/WorldConfig.h"
 
@@ -194,6 +200,8 @@ ZoneServer::ZoneServer(int argc, char* argv[], swganh::app::SwganhKernel*	kernel
 
 	swganh::terrain::Initialize(kernel_);
 	swganh::ham::Initialize(kernel_);
+	//swganh::simulation::Initialize(kernel_);
+	swganh::equipment::Initialize(kernel_);
 
 	// Load core services
     LoadCoreServices_();
@@ -253,6 +261,8 @@ ZoneServer::ZoneServer(int argc, char* argv[], swganh::app::SwganhKernel*	kernel
 
     //attribute commands for food buffs
     FoodCommandMapClass::Init();
+
+	swganh::object::ObjectManager::Init(kernel_);
 
     //structure manager callback functions
     StructureManagerCommandMapClass::Init();

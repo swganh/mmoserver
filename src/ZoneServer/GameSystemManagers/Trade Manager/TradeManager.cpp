@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/Objects/CharacterBuilderTerminal.h"
 #include "ZoneServer/Objects/Datapad.h"
 #include "Zoneserver/Objects/Inventory.h"
-#include "ZoneServer/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/GameSystemManagers/Treasury Manager/TreasuryManager.h"
 #include "Zoneserver/Objects/waypoints/WaypointObject.h"

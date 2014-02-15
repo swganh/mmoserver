@@ -39,12 +39,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 CellObject::CellObject() : StaticObject()
 {
     mType = ObjType_Cell;
-    mModel = "object/cell/shared_cell.iff";
+    //mModel = "object/cell/shared_cell.iff";
+	SetTemplate("object/cell/shared_cell.iff");
+	
 }
 
 //=============================================================================
 
-CellObject::CellObject(uint64 id,uint64 parentId,BString model) : StaticObject(id,parentId,model,ObjType_Cell)
+CellObject::CellObject(uint64 id,uint64 parentId,std::string model) : StaticObject(id,parentId,model,ObjType_Cell)
 {
 }
 
@@ -62,17 +64,16 @@ CellObject::~CellObject()
 // to be placed in the gameworld
 
 void CellObject::prepareDestruction() {
-    //iterate through contained Objects
-    ObjectIDList cell_objects = getContainerContentCopy();
-	
-    std::for_each(cell_objects.begin(), cell_objects.end(), [=] (uint64_t object_id) {
-        Object* object = gWorldManager->getObjectById(object_id);
+    
+	//iterate through contained Objects
+	//everything still inside gets removed from memory
+	this->ViewObjects(this, 0,false, [&] (Object* object)	{
 		if(!object)	{
 			LOG(error) << "CellObject::prepareDestruction() cell : " << this->getId();
-			LOG(error) << "object : " << object_id << "couldnt be found in the world Object Map";
+			LOG(error) << "object not found";
 			return;
 		}
-		
+	
         //we should have gotten rid of them by now!
         if(object->getType() == ObjType_Player) {
             LOG(error) << "CellObject::prepareDestruction() cell : " << this->getId() << "theres still a player here :(";
@@ -91,11 +92,9 @@ void CellObject::prepareDestruction() {
         }
 		//ok everything left inside will be destroyed
 		//gWorldManager->destroyObject(object); will remove it out of the si, too (and thus out of the cell)
-		//so we are using a copy of the cell_objects list
+		
         gWorldManager->destroyObject(object);
     });
-
-    cell_objects.erase(cell_objects.begin(), cell_objects.end());
 }
 //=============================================================================
 

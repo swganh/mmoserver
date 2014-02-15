@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/bstring.h"
 #include "Utils/typedefs.h"
 #include "DatabaseManager/DatabaseCallback.h"
+#include <string>
 
 //=============================================================================
 namespace swganh	{
@@ -177,9 +178,10 @@ class Type1_QueryContainer
 public:
 
     Type1_QueryContainer() {}
-    uint32	mVolume;
-    uint64	mId;
-    BString	mString;
+    uint32		mVolume;
+    uint64		mId;
+    BString		mString;
+	std::string mTemplate;
 
 };
 

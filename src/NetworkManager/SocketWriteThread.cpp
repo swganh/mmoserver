@@ -91,10 +91,6 @@ SocketWriteThread::SocketWriteThread(SOCKET socket, Service* service, bool serve
         mMessageMaxSize = network_configuration.getServerToClientReliableSize();
     }
 
-
-    // We do have a global clock object, don't use seperate clock and times for every process.
-    // mClock = new Anh_Utils::Clock();
-
     // Create our CompCryptor object.
     mCompCryptor = new CompCryptor();
 
@@ -103,11 +99,12 @@ SocketWriteThread::SocketWriteThread(SOCKET socket, Service* service, bool serve
 
     mThread = boost::move(t);
 
-//#ifdef _WIN32
-//    HANDLE mtheHandle = mThread.native_handle();
-//	SetPriorityClass(mtheHandle,NORMAL_PRIORITY_CLASS);
-    //SetPriorityClass(mtheHandle,REALTIME_PRIORITY_CLASS);
-//#endif
+	#ifdef _WIN32
+	    HANDLE mtheHandle = mThread.native_handle();
+		//SetPriorityClass(mtheHandle,NORMAL_PRIORITY_CLASS);
+		SetPriorityClass(mtheHandle,HIGH_PRIORITY_CLASS);
+		//SetPriorityClass(mtheHandle,REALTIME_PRIORITY_CLASS);
+	#endif
 
 
     //our thread load values

@@ -1,3 +1,4 @@
+
 /*
 ---------------------------------------------------------------------------------------
 This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
@@ -25,37 +26,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef ANH_ZONESERVER_TANGIBLE_CONTAINER_H
-#define ANH_ZONESERVER_TANGIBLE_CONTAINER_H
+#include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
 
-#include "ZoneServer/Objects/Tangible Object/TangibleObject.h"
-#include "ZoneServer/Objects/ObjectFactoryCallback.h"
-
-class CreatureObject;
-
-//=============================================================================
-
-class Container : public TangibleObject
+ObjectFactoryCallback::ObjectFactoryCallback()
 {
-    friend class ContainerObjectFactory;
+}
 
-public:
-
-    Container();
-    ~Container();
-
-    CreatureObject* getParent() {
-        return mParent;
-    }
-    void		setParent(CreatureObject* creature) {
-        mParent = creature;
-    }
-
-private:
-    CreatureObject*		mParent;
-};
-
-//=============================================================================
-
-#endif
-
+ObjectFactoryCallback::~ObjectFactoryCallback()
+{
+}

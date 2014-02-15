@@ -25,7 +25,7 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
-#include "ZoneServer/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "HarvesterObject.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "Zoneserver/Objects/Inventory.h"
@@ -33,6 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceContainer.h"
 #include "ZoneServer/GameSystemManagers/Structure Manager/StructureManager.h"
 #include "ZoneServer/GameSystemManagers/UI Manager/UIManager.h"
+
+#include "ZoneServer\Services\equipment\equipment_service.h"
 
 #include "MessageLib/MessageLib.h"
 
@@ -287,16 +289,13 @@ void HarvesterObject::prepareCustomRadialMenu(CreatureObject* creatureObject, ui
 void HarvesterObject::createResourceContainer(uint64 resID, PlayerObject* player, uint32 amount)
 {
     //now create the resource container
+	uint32 rAmount = amount;
 
-    ObjectIDList*			invObjects	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
-    ObjectIDList::iterator	listIt		= invObjects->begin();
+    auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player, "inventory");
+	inventory->ViewObjects(player, 0, true, [&] (Object* object) {
 
-    uint32 rAmount = amount;
-
-    while(listIt != invObjects->end())
-    {
         // we are looking for resource containers
-        ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById((*listIt)));
+        ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(object);
         if(resCont)
         {
             uint32 targetAmount	= resCont->getAmount();
@@ -331,9 +330,7 @@ void HarvesterObject::createResourceContainer(uint64 resID, PlayerObject* player
                 }
             }
         }
-
-        ++listIt;
-    }
+    });
 
     // or need to create a new one
 

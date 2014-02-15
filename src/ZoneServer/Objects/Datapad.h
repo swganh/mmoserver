@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_ZONESERVER_TANGIBLE_DATAPAD_H
 
 #include "ZoneServer/Objects/Tangible Object/TangibleObject.h"
-#include "ZoneServer/Objects/ObjectFactoryCallback.h"
+#include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
 #include <MessageLib\messages\containers\network_map.h>
 #include <MessageLib\messages\containers\network_vector.h>
 

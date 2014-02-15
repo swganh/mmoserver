@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "TicketCollector.h"
 #include "Zoneserver/Objects/Inventory.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
-#include "ZoneServer/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/Objects/Shuttle.h"
 #include "ZoneServer/GameSystemManagers/Travel Manager/TravelMapHandler.h"
 #include "TravelTicket.h"
@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/GameSystemManagers/UI Manager/UIManager.h"
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/GameSystemManagers/Container Manager/ContainerManager.h"
+#include "ZoneServer\Services\equipment\equipment_service.h"
 #include "MessageLib/MessageLib.h"
 
 #include <time.h>
@@ -112,12 +113,11 @@ void TicketCollector::_createTicketSelectMenu(PlayerObject* playerObject)
     StringVector	availableTickets;
     uint32			zoneId = gWorldManager->getZoneId();
 
-    ObjectIDList*			invObjects	= dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
-    ObjectIDList::iterator	it			= invObjects->begin();
+	auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(playerObject, "inventory");
 
-    while(it != invObjects->end())
-    {
-        if(TravelTicket* ticket = dynamic_cast<TravelTicket*>(gWorldManager->getObjectById((*it))))
+	inventory->ViewObjects(playerObject, 0, true, [&] (Object* object) {
+    
+		if(TravelTicket* ticket = dynamic_cast<TravelTicket*>(object))
         {
             BString srcPoint		= (int8*)((ticket->getAttribute<std::string>("travel_departure_point")).c_str());
             uint16 srcPlanetId	= static_cast<uint16>(gWorldManager->getPlanetIdByName(ticket->getAttribute<std::string>("travel_departure_planet")));
@@ -129,8 +129,7 @@ void TicketCollector::_createTicketSelectMenu(PlayerObject* playerObject)
                 availableTickets.push_back(dstPoint.getAnsi());
             }
         }
-        ++it;
-    }
+    });
 
     gUIManager->createNewListBox(this,"handleticketselect","select destination","Select destination",availableTickets,playerObject);
 }
@@ -156,12 +155,10 @@ void TicketCollector::handleUIEvent(uint32 action,int32 element,std::u16string i
             return;
         }
 
-        ObjectIDList*			invObjects	= dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
-        ObjectIDList::iterator	it			= invObjects->begin();
+        auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(playerObject, "inventory");
 
-        while(it != invObjects->end())
-        {
-            if(TravelTicket* ticket = dynamic_cast<TravelTicket*>(gWorldManager->getObjectById((*it))))
+		inventory->ViewObjects(playerObject, 0, true, [&] (Object* object) {
+            if(TravelTicket* ticket = dynamic_cast<TravelTicket*>(object))
             {
                 std::string srcPoint		= ticket->getAttribute<std::string>("travel_departure_point");
                 std::string dstPointStr	= ticket->getAttribute<std::string>("travel_arrival_point");
@@ -201,12 +198,10 @@ void TicketCollector::handleUIEvent(uint32 action,int32 element,std::u16string i
                     {
                         DLOG(info) << "TicketCollector: Error getting TravelPoint";
                     }
-                    break;
+                    return;
                 }
             }
-
-            ++it;
-        }
+        });
     }
 }
 

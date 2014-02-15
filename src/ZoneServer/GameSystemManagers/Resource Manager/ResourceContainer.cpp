@@ -114,7 +114,7 @@ void ResourceContainer::setMaxAmount(uint32 max)
 
 BString ResourceContainer::getBazaarTang()
 {
-    return getModelString();
+    return GetTemplate().c_str();
 }
 
 //=============================================================================

@@ -3,7 +3,7 @@
 #include <cassert>
 #include <algorithm>
 
-#include "ZoneServer/Objects/Object.h"
+#include "ZoneServer/Objects/Object/Object.h"
 #include "ZoneServer/Objects/RegionObject.h"
 //#include "PlayerObject.h"
 

@@ -36,7 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/GameSystemManagers/Structure Manager/HarvesterObject.h"
 #include "ZoneServer/GameSystemManagers/Structure Manager//FactoryObject.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
-#include "ZoneServer/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
 #include "ZoneServer/ObjectController/ObjectControllerOpcodes.h"

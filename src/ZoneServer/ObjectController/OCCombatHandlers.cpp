@@ -33,11 +33,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Zoneserver/ObjectController/ObjectController.h"
 #include "ZoneServer/ObjectController/ObjectControllerOpcodes.h"
 #include "ZoneServer/ObjectController/ObjectControllerCommandMap.h"
-#include "ZoneServer/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/GameSystemManagers/State Manager/StateManager.h"
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/GameSystemManagers/Container Manager/ContainerManager.h"
+
+#include "ZoneServer\Services\equipment\equipment_service.h"
 
 #include "MessageLib/MessageLib.h"
 
@@ -407,13 +409,9 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
                 inventory->setCredits(0);
 
                 // Get all items from creature inventory.
-                ObjectIDList*			invObjList	= inventory->getObjects();
-                ObjectIDList::iterator	invObjectIt = invObjList->begin();
                 int32 lootedItems = 0;
-
-                while (invObjectIt != invObjList->end())
-                {
-                    Object* object = gWorldManager->getObjectById((*invObjectIt));
+				auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(creatureObject, "inventory");
+				inventory->ViewObjects(creatureObject, 0, true, [&] (Object* object) {
 
                     // Move the object to player inventory.
                     Item* item = dynamic_cast<Item*>(object);
@@ -427,16 +425,13 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
                             gObjectFactory->requestNewDefaultItem(playerInventory, item->getItemFamily(), item->getItemType(), playerInventory->getId(), 99, glm::vec3(), "");
 
                             //remove from container - destroy for watching players
-							gContainerManager->destroyObjectToRegisteredPlayers(inventory,(*invObjectIt), true);
+							gContainerManager->destroyObjectToRegisteredPlayers(inventory, object->getId(), true);
 				
                         }
                         lootedItems++;
                     }
-                    else
-                    {
-                        invObjectIt++;
-                    }
-                }
+                    
+                });
 
                 // This is used as "have we lotted anything?"
                 // TODO: More accurate loot messages when there are items left, inventory full etc...

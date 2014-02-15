@@ -155,15 +155,15 @@ CraftingTool* CraftingManager::getCraftingStationTool(PlayerObject* playerObject
     CraftingTool*	tool	= NULL;
     int32 stationType = station->getItemType();
     Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-    ObjectIDList::iterator It = inventory->getObjects()->begin();
-    while(It != inventory->getObjects()->end())
-    {
-        Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById((*It)));
-        if(!item)
-        {
-            It++;
-            continue;
+
+	inventory->__InternalViewObjects(playerObject, 0, true, [&] (Object* object)	{
+    
+	
+        Item* item = dynamic_cast<Item*>(object);
+        if(!item)        {
+            return;
         }
+
         int32 itemType = item->getItemType();
         switch (stationType)
         {
@@ -221,11 +221,11 @@ CraftingTool* CraftingManager::getCraftingStationTool(PlayerObject* playerObject
         if(tool)
         {
             // found it now jump out
-            break;
+            return;
         }
-        ++It;
-        continue;
-    }
+        
+	});
+
     return tool;
 }
 //======================================================================================================================
@@ -582,7 +582,6 @@ bool CraftingManager::HandleCreateManufactureSchematic(Object* object, Object* t
         return false;
     }
 
-    //gLogger->hexDump(message->getData(),message->getSize());
     session->createManufactureSchematic(counter);
     return true;
 }

@@ -92,31 +92,31 @@ TangibleObject* FireworkManager::createFirework(uint32 typeId, PlayerObject* pla
 	switch(typeId)
 	{
 	case ItemType_Firework_Type_1: 
-		firework->setModelString("object/static/firework/shared_fx_01.iff");
+		firework->SetTemplate("object/static/firework/shared_fx_01.iff");
 		break;
 	case ItemType_Firework_Type_2:
-		firework->setModelString("object/static/firework/shared_fx_02.iff");
+		firework->SetTemplate("object/static/firework/shared_fx_02.iff");
 		break;
 	case ItemType_Firework_Type_3: 
-		firework->setModelString("object/static/firework/shared_fx_03.iff");
+		firework->SetTemplate("object/static/firework/shared_fx_03.iff");
 		break;
 	case ItemType_Firework_Type_4: 
-		firework->setModelString("object/static/firework/shared_fx_04.iff");
+		firework->SetTemplate("object/static/firework/shared_fx_04.iff");
 		break;
 	case ItemType_Firework_Type_5: 
-		firework->setModelString("object/static/firework/shared_fx_05.iff");
+		firework->SetTemplate("object/static/firework/shared_fx_05.iff");
 		break;
 	case ItemType_Firework_Type_10: 
-		firework->setModelString("object/static/firework/shared_fx_10.iff");
+		firework->SetTemplate("object/static/firework/shared_fx_10.iff");
 		break;
 	case ItemType_Firework_Type_11: 
-		firework->setModelString("object/static/firework/shared_fx_11.iff");
+		firework->SetTemplate("object/static/firework/shared_fx_11.iff");
 		break;
 	case ItemType_Firework_Type_18: 
-		firework->setModelString("object/static/firework/shared_fx_18.iff");
+		firework->SetTemplate("object/static/firework/shared_fx_18.iff");
 		break;
 	case ItemType_Firework_Show: 
-		firework->setModelString("object/static/firework/shared_show_launcher.iff");
+		firework->SetTemplate("object/static/firework/shared_show_launcher.iff");
 		break;
 
 	default:

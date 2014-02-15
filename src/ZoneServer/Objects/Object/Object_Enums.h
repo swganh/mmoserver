@@ -69,6 +69,7 @@ enum ViewType :
         VIEW_9
     };
 
+//Attribute numbers as per the db
 enum AttributeType
 {
     AttrType_None						=	0,

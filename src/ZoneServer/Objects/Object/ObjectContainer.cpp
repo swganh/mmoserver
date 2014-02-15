@@ -50,7 +50,7 @@ ObjectContainer::ObjectContainer()
 //=============================================================================
 
 
-ObjectContainer::ObjectContainer(uint64 id,uint64 parentId,BString model,ObjectType type)
+ObjectContainer::ObjectContainer(uint64 id,uint64 parentId,std::string model,ObjectType type)
     :Object(id,parentId,model,ObjType_Tangible)
 {
     mCapacity = 0;

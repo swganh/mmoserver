@@ -30,8 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Datapad.h"
 #include "ZoneServer/Objects/FactoryBase.h"
 #include "Zoneserver/objects/IntangibleObject.h"
-#include "ZoneServer/Objects/Object.h"
-#include "Zoneserver/Objects/ObjectFactoryCallback.h"
+#include "ZoneServer/Objects/Object/Object.h"
+#include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
 #include "Zoneserver/Objects/Player Object/PlayerObject.h"
 #include "VehicleController.h"
 #include "ZoneServer/WorldManager.h"
@@ -242,8 +242,8 @@ void VehicleControllerFactory::_setupDatabindings()
 {
     //1vehicle_object_string, 1vehicle_itno_object_string, 2vehicle_name_file, 3vehicle_detail_file, 4vehicle_name
     mVehicleItno_Binding = mDatabase->createDataBinding(5);
-    mVehicleItno_Binding->addField(swganh::database::DFT_bstring,offsetof(VehicleController,mPhysicalModel),256,0); //creo model
-    mVehicleItno_Binding->addField(swganh::database::DFT_bstring,offsetof(VehicleController,mModel),256,1);
+	mVehicleItno_Binding->addField(swganh::database::DFT_stdstring,offsetof(VehicleController,mPhysicalModel),256,0); //creo model
+	mVehicleItno_Binding->addField(swganh::database::DFT_stdstring,offsetof(VehicleController,template_string_),256,1);
     mVehicleItno_Binding->addField(swganh::database::DFT_bstring,offsetof(VehicleController,mNameFile),64,2);
     mVehicleItno_Binding->addField(swganh::database::DFT_bstring,offsetof(VehicleController,mDetailFile),64,3);
     mVehicleItno_Binding->addField(swganh::database::DFT_bstring,offsetof(VehicleController,mName),64,4);

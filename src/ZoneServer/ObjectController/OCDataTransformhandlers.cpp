@@ -122,7 +122,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
         CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
         if(cell)
         {
-            cell->removeObject(player);
+            cell->RemoveObject(player, player);
         }
         else
         {
@@ -266,7 +266,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 
         if (oldParentId != 0)	{
             if((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(oldParentId))))	{
-                cell->removeObject(player);
+                cell->RemoveObject(player, player);
             }
             else	{
                 DLOG(info) << "Error removing  " << player->getId() << " from cell " << oldParentId;
@@ -300,7 +300,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
         // put us into new cell
         gMessageLib->broadcastContainmentMessage(player->getId(),parentId,4,player);
         if((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId))))	{
-            cell->addObjectSecure(player);
+            cell->InitializeObject(player);
             // Inform tutorial about cell change.
             if (gWorldConfig->isTutorial())
             {

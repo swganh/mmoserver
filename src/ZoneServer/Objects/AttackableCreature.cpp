@@ -153,7 +153,7 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
         break;
 
         case radId_loot:
-        {
+        {/*
             // First, we have to have a connected player..
             if (playerObject->isConnected() && !playerObject->isDead() && !playerObject->isIncapacitated() && this->isDead())
             {
@@ -287,7 +287,9 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
                     gMessageLib->SendSystemMessage(common::OutOfBand("error_message", "no_corpse_permission"), playerObject);
                 }
             }
+			*/
         }
+		
         break;
 
         case radId_serverHarvestCorpse: //NORMAL HARVEST CORPSE!
@@ -534,9 +536,10 @@ void AttackableCreature::equipPrimaryWeapon(void)
 {
     if (mPrimaryWeapon)
     {
-        this->mEquipManager.removeEquippedObject(CreatureEquipSlot_Hold_Left);
+        
 
         // if (!this->getEquipManager()->addEquippedObject(mPrimaryWeapon))
+		/*
         if (this->mEquipManager.addEquippedObject(CreatureEquipSlot_Hold_Left, mPrimaryWeapon))
         {
             mPrimaryWeapon->setParentId(this->getId());
@@ -561,11 +564,8 @@ void AttackableCreature::equipPrimaryWeapon(void)
             	gMessageLib->sendWeaponIdUpdate(this);
             	gMessageLib->sendEquippedListUpdate_InRange(this);
             	*/
-        }
-        else
-        {
-            //gLogger->log(LogManager::DEBUG,"AttackableCreature::equipPrimaryWeapon() Can't equip primary weapon");
-        }
+      //  }
+        
     }
 }
 
@@ -573,7 +573,7 @@ void AttackableCreature::equipPrimaryWeapon(void)
 void AttackableCreature::equipSecondaryWeapon(void)
 {
     if (mSecondaryWeapon)
-    {
+    {/*
         if (this->mEquipManager.addEquippedObject(CreatureEquipSlot_Hold_Left, mSecondaryWeapon))
         {
             gMessageLib->sendEquippedListUpdate_InRange(this);
@@ -583,6 +583,7 @@ void AttackableCreature::equipSecondaryWeapon(void)
         {
             //gLogger->log(LogManager::DEBUG,"AttackableCreature::equipWeapon() Can't equip secondary weapon\n");
         }
+		*/
     }
 }
 
@@ -591,7 +592,7 @@ void AttackableCreature::unequipWeapon(void)
     Weapon* weapon = dynamic_cast<Weapon*>(this->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left));
     if (weapon)
     {
-        this->mEquipManager.removeEquippedObject(CreatureEquipSlot_Hold_Left);
+        //this->mEquipManager.removeEquippedObject(CreatureEquipSlot_Hold_Left);
 
         gMessageLib->sendContainmentMessage_InRange(weapon->getId(), this->getId(), 0xffffffff, this);
         gMessageLib->sendDestroyObject(weapon->getId(), this);
@@ -609,6 +610,7 @@ void AttackableCreature::unequipWeapon(void)
         }
         */
     }
+	/*
 
     // if weapon slot is empty, equip the unarmed default weapon
     if (!this->mEquipManager.getEquippedObject(CreatureEquipSlot_Hold_Left))
@@ -620,6 +622,7 @@ void AttackableCreature::unequipWeapon(void)
         // TEST
         // gMessageLib->sendCreateCreature(this,defenderPlayer);
     }
+	*/
 }
 
 

@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_HARVESTER_OBJECT_FACTORY_H
 #define ANH_ZONESERVER_HARVESTER_OBJECT_FACTORY_H
 
-#include "ZoneServer/Objects/ObjectFactoryCallback.h"
+#include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
 #include "ZoneServer/Objects/FactoryBase.h"
 
 #define gHarvesterFactory HarvesterFactory::getSingletonPtr()

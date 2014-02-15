@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <memory>
 
-#include "ZoneServer\Objects\Object_Enums.h"
+#include "ZoneServer\Objects\Object\Object_Enums.h"
 #include "ZoneServer\Objects\Creature Object\creature_message_builder.h"
 #include "ZoneServer\Objects\Creature Object\CreatureObject.h"
 #include "ZoneServer\Objects\Player Object\PlayerObject.h"
@@ -42,7 +42,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageDispatch.h"
 #include "NetworkManager/MessageFactory.h"
 #include "NetworkManager/MessageOpcodes.h"
-#include "ZoneServer\Objects\Object_Enums.h"
 
 #include "MessageLib/MessageLib.h"
 

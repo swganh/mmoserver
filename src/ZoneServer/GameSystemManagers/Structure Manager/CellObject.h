@@ -47,7 +47,7 @@ public:
     //alternatively keep this for creatureObjects
 
     CellObject();
-    CellObject(uint64 id,uint64 parentId,const BString model = "object/cell/shared_cell.iff");
+    CellObject(uint64 id,uint64 parentId,const std::string model = "object/cell/shared_cell.iff");
     ~CellObject();
 
     uint32		getLoadCount() {

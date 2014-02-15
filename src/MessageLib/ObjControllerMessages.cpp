@@ -59,7 +59,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/GameSystemManagers/Crafting Manager/ManufacturingSchematic.h"
 #include "ZoneServer/GameSystemManagers/NPC Manager/NPCObject.h"
 #include "ZoneServer/ObjectController/ObjectControllerOpcodes.h"
-#include "ZoneServer/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/GameSystemManagers/Crafting Manager/SchematicManager.h"
 #include "ZoneServer/Tutorial.h"
@@ -985,7 +985,7 @@ bool MessageLib::sendBiography(PlayerObject* playerObject,PlayerObject* targetOb
 // character match results
 //
 
-bool MessageLib::sendCharacterMatchResults(const PlayerList* const matched_players, const PlayerObject* const target) const {
+bool MessageLib::sendCharacterMatchResults(const PlayerList* const matched_players, PlayerObject*  target) const {
     if(!target->isConnected()) {
         return false;
     }
@@ -1700,7 +1700,7 @@ void MessageLib::sendImageDesignStartMessage(PlayerObject* srcObject,PlayerObjec
         if(parentObject)
         {
             // BString modelname = object->getModelString();
-            if(strstr(parentObject->getModelString().getAnsi(),"salon") == NULL)
+            if(strstr(parentObject->GetTemplate().c_str(),"salon") == NULL)
             {
                 parentID = 0;
             }

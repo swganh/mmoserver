@@ -231,7 +231,7 @@ void HouseFactory::_createHouse(swganh::database::DatabaseResult* result, HouseO
     }
 
     result->getNextRow(mHouseBinding,house);
-
+//	house->SetTemplate(house->mModel.getAnsi());
     house->setLoadState(LoadState_Loaded);
     house->setType(ObjType_Building);
     house->mCustomName.convert(BSTRType_Unicode16);
@@ -275,7 +275,7 @@ void HouseFactory::_setupDatabindings()
     mHouseBinding->addField(swganh::database::DFT_float,offsetof(HouseObject,mPosition.z),4,8);
 
     mHouseBinding->addField(swganh::database::DFT_uint32,offsetof(HouseObject,mHouseFamily),4,9);//thats the structure_type_data ID
-    mHouseBinding->addField(swganh::database::DFT_bstring,offsetof(HouseObject,mModel),256,10);
+	mHouseBinding->addField(swganh::database::DFT_stdstring,offsetof(HouseObject,template_string_),256,10);
     mHouseBinding->addField(swganh::database::DFT_bstring,offsetof(HouseObject,mName),256,11);
     mHouseBinding->addField(swganh::database::DFT_bstring,offsetof(HouseObject,mNameFile),256,12);
     mHouseBinding->addField(swganh::database::DFT_bstring,offsetof(HouseObject,mCustomName),256,13);

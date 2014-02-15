@@ -31,6 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "FactoryCrate.h"
 
 #include "ZoneServer/Objects/Deed.h"
+#include "ZoneServer\Objects\Object\ObjectManager.h"
+
 #include "FactoryObject.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceContainer.h"
@@ -289,11 +291,13 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,swganh::database::Datab
 
             if(strcmp(queryContainer.mString.getAnsi(),"input") == 0)
             {
+				queryContainer.mTemplate = "object/tangible/hopper/shared_manufacture_installation_ingredient_hopper_1.iff";
                 gTangibleFactory->requestObject(this,queryContainer.mId,TanGroup_Hopper,0,NULL);
             }
 
             else if(strcmp(queryContainer.mString.getAnsi(),"output") == 0)
             {
+				queryContainer.mTemplate = "object/tangible/hopper/shared_manufacture_installation_output_hopper_1.iff";
                 gTangibleFactory->requestObject(this,queryContainer.mId,TanGroup_Hopper,0,NULL);
             }
 
@@ -348,10 +352,12 @@ void FactoryFactory::_createFactory(swganh::database::DatabaseResult* result, Fa
 
     result->getNextRow(mFactoryBinding,factory);
 
+	//factory->SetTemplate(factory->mModel.getAnsi());
     factory->setLoadState(LoadState_Loaded);
     factory->setType(ObjType_Structure);
     factory->mCustomName.convert(BSTRType_Unicode16);
     factory->setCapacity(2); // we want to load 2 hoppers!
+	gObjectManager->LoadSlotsForObject(factory);
 }
 
 //=============================================================================
@@ -401,7 +407,7 @@ void FactoryFactory::_setupDatabindings()
     mFactoryBinding->addField(swganh::database::DFT_float,offsetof(FactoryObject,mPosition.z),4,8);
 
     mFactoryBinding->addField(swganh::database::DFT_uint32,offsetof(FactoryObject,mFactoryFamily),4,9);//thats the structure_type_data ID
-    mFactoryBinding->addField(swganh::database::DFT_bstring,offsetof(FactoryObject,mModel),256,10);
+	mFactoryBinding->addField(swganh::database::DFT_stdstring,offsetof(FactoryObject,template_string_),256,10);
     mFactoryBinding->addField(swganh::database::DFT_bstring,offsetof(FactoryObject,mName),256,11);
     mFactoryBinding->addField(swganh::database::DFT_bstring,offsetof(FactoryObject,mNameFile),256,12);
     mFactoryBinding->addField(swganh::database::DFT_bstring,offsetof(FactoryObject,mCustomName),256,13);
@@ -460,12 +466,14 @@ void FactoryFactory::handleObjectReady(Object* object,DispatchClient* client)
     if(strcmp(tangible->getName().getAnsi(),"ingredient_hopper")==0)
     {
         factory->setIngredientHopper(object->getId());
-        factory->addObject(object);
+		object->SetTemplate("object/tangible/hopper/shared_manufacture_installation_ingredient_hopper_1.iff");
+        factory->InitializeObject(object);
     }
     else if(strcmp(tangible->getName().getAnsi(),"output_hopper")==0)
     {
         factory->setOutputHopper(object->getId());
-        factory->addObject(object);
+		object->SetTemplate("object/tangible/hopper/shared_manufacture_installation_output_hopper_1.iff");
+        factory->InitializeObject(object);
     }
     else
     {

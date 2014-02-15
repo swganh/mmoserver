@@ -79,13 +79,9 @@ private:
     static TerminalFactory*		mSingleton;
     static bool					mInsFlag;
 
-    swganh::database::DataBinding*				mBazaarMainDataBinding;
-    swganh::database::DataBinding*				mCloningMainDataBinding;
-    swganh::database::DataBinding*				mInsuranceMainDataBinding;
-    swganh::database::DataBinding*				mCharacterBuilderMainDataBinding;
-    swganh::database::DataBinding*				mMissionMainDataBinding;
-    swganh::database::DataBinding*				mTravelMainDataBinding;
-    swganh::database::DataBinding*				mBankMainDataBinding;
+    
+	swganh::database::DataBinding*				mTravelMainDataBinding;
+    swganh::database::DataBinding*				mTerminalBinding;
     swganh::database::DataBinding*				mElevatorMainDataBinding;
     swganh::database::DataBinding*				mElevetorDataUpBinding;
     swganh::database::DataBinding*				mElevetorDataDownBinding;

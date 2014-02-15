@@ -29,8 +29,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Zoneserver/Objects/CampTerminal.h"
 #include "ZoneServer/Objects/Item_Enums.h"
 #include "ZoneServer/Objects/nonPersistantObjectFactory.h"
-#include "ZoneServer/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
+#include "ZoneServer\Objects\Object\ObjectManager.h"
 #include "Zoneserver/ProfessionManagers/Scout Manager/ScoutManager.h"
 #include "Zoneserver/ProfessionManagers/Scout Manager/Scout.h"
 #include "ZoneServer/GameSystemManagers/Structure Manager/StructureManager.h"
@@ -112,11 +113,12 @@ bool ScoutManager::createCamp(uint32 typeId,uint64 parentId, const glm::vec3& po
 
 	camp->setOwner(player->getId());
 
-	camp->setModelString(deedData->structureObjectString);
+	camp->SetTemplate(deedData->structureObjectString.getAnsi());
 	camp->setName(deedData->stf_name.getAnsi());
 	camp->setNameFile(deedData->stf_file.getAnsi());
 
 	//create it in the world
+	gObjectManager->LoadSlotsForObject(camp);
 	gWorldManager->addObject(camp);	
 
 	//now get all the respective templates chairs/fires/torches and stuff

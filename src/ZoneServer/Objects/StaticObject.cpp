@@ -36,7 +36,7 @@ StaticObject::StaticObject() : Object()
 }
 
 //=============================================================================
-StaticObject::StaticObject(uint64 id,uint64 parentId,BString model,ObjectType type)
+StaticObject::StaticObject(uint64 id,uint64 parentId,std::string model,ObjectType type)
 			 :Object(id,parentId,model,type)
 {
 }

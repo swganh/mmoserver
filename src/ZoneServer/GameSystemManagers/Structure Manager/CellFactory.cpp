@@ -34,13 +34,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //#include "ZoneServer/Objects/Creature Object/CreatureObject.h"
 #include "Zoneserver/objects/PlayerStructureTerminal.h"
-#include "Zoneserver/objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "Zoneserver/objects/Shuttle.h"
 #include "ZoneServer/WorldManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
 #include "Utils/utils.h"
+
+#include "ZoneServer\Objects\Object\ObjectManager.h"
 
 //=============================================================================
 
@@ -186,14 +188,17 @@ CellObject* CellFactory::_createCell(swganh::database::DatabaseResult* result)
     	return nullptr;
     }
 
-    CellObject* cellObject = new CellObject();
-    cellObject->setCapacity(500);
+    CellObject* cell = new CellObject();
+    cell->setCapacity(500);
+	cell->object_type_ = SWG_CELL;
 
-    result->getNextRow(mCellBinding,(void*)cellObject);
+	gObjectManager->LoadSlotsForObject(cell);
+
+    result->getNextRow(mCellBinding,(void*)cell);
 
 	//cells are added to the worldmanager in the buildingFactory!!
 	
-	return cellObject;
+	return cell;
 }
 
 //=============================================================================
@@ -267,9 +272,9 @@ void CellFactory::handleObjectReady(Object* object,DispatchClient* client)
         break;
     }
 
-    cell->addObjectSecure(object);
+	cell->InitializeObject(object);
 
-    if(cell->getLoadCount() == cell->getObjects()->size())
+	if(cell->getLoadCount() == cell->getHeadCount())
     {
         if(!(_removeFromObjectLoadMap(cell->getId())))
             LOG(warning) << "Failed removing object from loadmap";

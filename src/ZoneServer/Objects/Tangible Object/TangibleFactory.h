@@ -34,7 +34,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //=============================================================================
 
-class ContainerObjectFactory;
 namespace swganh	{
 namespace database	{
 class Database;
@@ -72,7 +71,6 @@ private:
     static TangibleFactory*		mSingleton;
     static bool				mInsFlag;
 
-    ContainerObjectFactory*		mContainerFactory;
     TerminalFactory*			mTerminalFactory;
     TicketCollectorFactory*		mTicketCollectorFactory;
     ItemFactory*				mItemFactory;

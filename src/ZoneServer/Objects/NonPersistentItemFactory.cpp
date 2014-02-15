@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Zoneserver/Objects/Food.h"
 #include "ItemFactory.h"
-#include "ZoneServer/Objects/ObjectFactoryCallback.h"
+#include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
 #include "ZoneServer/WorldManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -198,7 +198,7 @@ Item* NonPersistentItemFactory::_createItem(swganh::database::DatabaseResult* re
 void NonPersistentItemFactory::_setupDatabindings()
 {
     mItemBinding = mDatabase->createDataBinding(4);
-    mItemBinding->addField(swganh::database::DFT_bstring,offsetof(Item,mModel),256,2);
+	mItemBinding->addField(swganh::database::DFT_stdstring,offsetof(Item,template_string_),256,2);
     mItemBinding->addField(swganh::database::DFT_bstring,offsetof(Item,mName),64,3);
     mItemBinding->addField(swganh::database::DFT_bstring,offsetof(Item,mNameFile),64,4);
     mItemBinding->addField(swganh::database::DFT_bstring,offsetof(Item,mDetailFile),64,5);

@@ -48,7 +48,7 @@ BString ResourceType::getContainerModel()
     BStringVector splits;
     BString tmpStr;
     tmpStr.setLength(512);
-
+	BString mModel = template_string.c_str();
     int elements = mModel.split(splits,'/');
 
     tmpStr = splits[0].getAnsi();

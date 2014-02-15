@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "BuildingObject.h"
 #include "CellFactory.h"
+#include "ZoneServer\Objects\Object\ObjectManager.h"
 #include "ZoneServer/GameSystemManagers/Structure Manager/CellObject.h"
 #include "ZoneServer/GameSystemManagers/Spawn Manager/SpawnPoint.h"
 #include "ZoneServer/WorldManager.h"
@@ -208,9 +209,10 @@ BuildingObject* BuildingFactory::_createBuilding(swganh::database::DatabaseResul
 
     result->getNextRow(mBuildingBinding,buildingObject);
 
+	//buildingObject->SetTemplate(buildingObject->mModel.getAnsi());
     buildingObject->setLoadState(LoadState_Loaded);
     buildingObject->setPlayerStructureFamily(PlayerStructure_TreBuilding);
-
+	gObjectManager->LoadSlotsForObject(buildingObject);
     return buildingObject;
 }
 
@@ -227,7 +229,7 @@ void BuildingFactory::_setupDatabindings()
     mBuildingBinding->addField(swganh::database::DFT_float,offsetof(BuildingObject,mPosition.x),4,5);
     mBuildingBinding->addField(swganh::database::DFT_float,offsetof(BuildingObject,mPosition.y),4,6);
     mBuildingBinding->addField(swganh::database::DFT_float,offsetof(BuildingObject,mPosition.z),4,7);
-    mBuildingBinding->addField(swganh::database::DFT_bstring,offsetof(BuildingObject,mModel),256,8);
+	mBuildingBinding->addField(swganh::database::DFT_stdstring,offsetof(BuildingObject,template_string_),256,8);
     mBuildingBinding->addField(swganh::database::DFT_float,offsetof(BuildingObject,mWidth),4,9);
     mBuildingBinding->addField(swganh::database::DFT_float,offsetof(BuildingObject,mHeight),4,10);
     mBuildingBinding->addField(swganh::database::DFT_bstring,offsetof(BuildingObject,mNameFile),256,11);

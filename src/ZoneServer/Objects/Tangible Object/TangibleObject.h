@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_TANGIBLE_OBJECT_H
 #define ANH_ZONESERVER_TANGIBLE_OBJECT_H
 
-#include "ZoneServer/Objects/Object.h"
+#include "ZoneServer/Objects/Object/Object.h"
 #include "ZoneServer/Objects/Tangible Object/TangibleEnums.h"
 
 //=============================================================================
@@ -43,7 +43,7 @@ class TangibleObject :	public Object
 public:
 
     TangibleObject();
-    TangibleObject(uint64 id,uint64 parentId,const BString model,TangibleGroup tanGroup = TanGroup_None,TangibleType tanType = TanType_None,const BString name = "",const BString nameFile = "",const BString detailFile = "");
+    TangibleObject(uint64 id,uint64 parentId,const std::string model,TangibleGroup tanGroup = TanGroup_None,TangibleType tanType = TanType_None,const BString name = "",const BString nameFile = "",const BString detailFile = "");
     virtual ~TangibleObject();
 
     virtual void		prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount);
@@ -147,7 +147,7 @@ public:
         return 0;
     }
     BString				getBazaarTang() {
-        return getModelString();
+		return GetTemplate().c_str();
     }
 
     float				getComplexity() {

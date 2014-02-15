@@ -83,6 +83,14 @@ SpatialIndexManager::SpatialIndexManager()
 
 bool SpatialIndexManager::_AddObject(Object *newObject)
 {
+
+	uint64 parent_id = newObject->getParentId();
+	Object* object = gWorldManager->getObjectById(parent_id);
+	if(object->getObjectType() == SWG_CELL)	{
+		DLOG(error) << "SpatialIndexManager::_AddObject - we do NOT add the content of cells to the grid!!";
+		return false;
+	}
+
     uint32 finalBucket = getGrid()->AddObject(newObject);
 
     //DLOG(info) << "SpatialIndexManager::AddObject :: Object " << newObject->getId() << " added to bucket " <<  finalBucket;
@@ -91,14 +99,6 @@ bool SpatialIndexManager::_AddObject(Object *newObject)
         DLOG(info) << "SpatialIndexManager::AddObject :: Object " << newObject->getId() << " could not be added to the bucket because the bucket was invalid " <<  finalBucket;
         return false;
     }
-
-	if(newObject->getType() == ObjType_Player)	{
-		//enforce proper handling of players!!
-		PlayerObject* player = static_cast<PlayerObject*>(newObject);
-		DLOG(info) << "SpatialIndexManager::AddObject :: Object " << newObject->getId() << " is a player not an object";
-		return _AddObject(player);
-		
-	}
    
 	//get all Players in range and register as necessary
     ObjectListType playerList;
@@ -142,6 +142,7 @@ bool SpatialIndexManager::_AddObject(PlayerObject *player)
         //the object needs to be created no matter what
         sendCreateObject((*i), player, false);
 
+		//we only register us to creatures - NOT to buildings
         if(((*i)->getType() == ObjType_Creature) || ((*i)->getType() == ObjType_NPC))	{
             gContainerManager->registerPlayerToContainer((*i), player);
             continue;
@@ -228,19 +229,15 @@ void SpatialIndexManager::RemoveObjectFromWorld(Object *removeObject)
     if(removeObject->getParentId())	{
         Object* container = gWorldManager->getObjectById(removeObject->getParentId());
         if(container)	{
-            if(CreatureObject* owner = dynamic_cast<CreatureObject*>(container))	{
-                // remove from creatures slotmap
-                owner->getEquipManager()->removeEquippedObject(removeObject);
-
-                // send out the new equiplist
-                gMessageLib->sendEquippedListUpdate_InRange(owner);
-            }
-
             //update the world on our changes
             gContainerManager->destroyObjectToRegisteredPlayers(container,removeObject->getId());
 
             //remove the object out of the container
-            container->removeObject(removeObject);
+            container->RemoveObject(container, removeObject);
+			if(CreatureObject* owner = dynamic_cast<CreatureObject*>(container))	{
+                // send out the new equiplist
+                gMessageLib->sendEquippedListUpdate_InRange(owner);
+            }
         }
 
         //no need to remove a tangible(!) from the grid if it was in a cell
@@ -273,18 +270,16 @@ void SpatialIndexManager::RemoveObjectFromWorld(PlayerObject *removePlayer)
     }
 
     CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(removePlayer->getParentId()));
-    if(cell)    {
-        //unregister from the building and all its cells
-        if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))		{
-            gContainerManager->unRegisterPlayerFromBuilding(building,removePlayer);
-        }
-
-        cell->removeObject(removePlayer);
-    }
-    else    {
-        DLOG(info) << "SpatialIndexManager::RemoveObjectFromWorld (player): couldn't find cell " << removePlayer->getParentId();
+    if(!cell)    {
+		DLOG(info) << "SpatialIndexManager::RemoveObjectFromWorld (player): couldn't find cell " << removePlayer->getParentId();
+		return;
+	}
+    //unregister from the building and all its cells
+    if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))		{
+        gContainerManager->unRegisterPlayerFromBuilding(building,removePlayer);
     }
 
+    cell->RemoveObject(cell, removePlayer);
 
 }
 
@@ -302,7 +297,7 @@ void SpatialIndexManager::RemoveObjectFromWorld(CreatureObject *removeCreature)
         gContainerManager->destroyObjectToRegisteredPlayers(container,removeCreature->getId());
 
         //remove the object out of the container
-        container->removeObject(removeCreature);
+        container->RemoveObject(container, removeCreature);
     }
 
 
@@ -429,6 +424,11 @@ void SpatialIndexManager::removeStructureItemsForPlayer(PlayerObject* player, Bu
 
     while(objIt != cellObjects.end())	{
         Object* object = (*objIt);
+		//do not destroy static cells / items that are in the tres
+		if(object->getId() <= 4294967296)	{
+			DLOG(info) << "SpatialIndexManager::_CheckObjectIterationForDestruction :: prevented static from being destroyed";
+			continue;
+		}
 
         if(PlayerObject* otherPlayer = dynamic_cast<PlayerObject*>(object))	{
             //do nothing players and creatures are always in the grid
@@ -456,6 +456,13 @@ void SpatialIndexManager::_CheckObjectIterationForDestruction(Object* toBeTested
 {
     //DLOG(info) << "SpatialIndexManager::_CheckObjectIterationForDestruction (Player) :: check : " <<toBeTested->getId() << " to be removed from " << toBeUpdated->getId();
 	//remove updateObject from toBeTested watcher list in case updateObject is a player
+
+	//do not destroy static cells / items that are in the tres
+	if(toBeTested->getId() <= 4294967296)	{
+		DLOG(info) << "SpatialIndexManager::_CheckObjectIterationForDestruction :: prevented static from being destroyed";
+		return;
+	}
+
 	if(updatedObject->getType() == ObjType_Player)	{ 
 		PlayerObject* updatedPlayer = static_cast<PlayerObject*>(updatedObject);
 		
@@ -809,15 +816,6 @@ void SpatialIndexManager::_CheckObjectIterationForCreation(Object* toBeTested, O
 
 }
 
-//======================================================================================================================
-//
-// creates a creature in the world
-// this means to find whether it is in the si or in a container (cell)
-// then add it to the container and update the listeners
-//
-
-//we need to listen to ourselves when the equiplist/inventory is updated
-//please note the pecularities as items on the equiplist are not part of the objectcontainer
 
 void SpatialIndexManager::createInWorld(CreatureObject* creature)
 {
@@ -830,7 +828,7 @@ void SpatialIndexManager::createInWorld(CreatureObject* creature)
 
     CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(creature->getParentId()));
     if(!cell)	{
-        assert(false && "SpatialIndexManager::createInWorld cannot cast cell ???? ");
+       //assert(false && "SpatialIndexManager::createInWorld cannot cast cell ???? ");
         return;
     }
 
@@ -841,7 +839,7 @@ void SpatialIndexManager::createInWorld(CreatureObject* creature)
     }
 
     //add the Creature to the cell we are in
-    cell->addObjectSecure(creature);
+    cell->AddObject(cell, creature);
 }
 
 
@@ -870,25 +868,21 @@ void SpatialIndexManager::createInWorld(PlayerObject* player)
     //we *should* already be registered as known watcher to the building
 
     //add the Creature to the cell we are in
-    cell->addObjectSecure(player);
+    if(!cell->AddObject(player, player))	{
+		//if we are thrown out (building now private or whatever)
+		player->mPosition = building->mPosition;
+		player->mPosition.x += 10;
+		player->setParentId(0);
+		this->UpdateObject(player);
+		return;
+	}
 
     //iterate through all the cells and add the player as listener
-    CellObjectList::iterator cellIt = building->getCellList()->begin();
-
-    CellObjectList* cell_list = building->getCellList();
-
-    std::for_each(cell_list->begin(), cell_list->end(), [player] (CellObject* cell) {
-        gContainerManager->registerPlayerToContainer(cell, player);
-    });
+	building->ViewObjects(player, 0, false, [&](Object* object){
+		gContainerManager->registerPlayerToContainer(object, player);
+	});
+    
 }
-
-
-//======================================================================================================================
-//
-// creates an object in the world
-// this means to find whether it is in the si or in a container
-// then add it to the container and update the listeners
-//
 
 void SpatialIndexManager::createInWorld(Object* object)
 {
@@ -908,7 +902,8 @@ void SpatialIndexManager::createInWorld(Object* object)
 	if(parent->getType() == ObjType_Player)    {
 		PlayerObject* player = static_cast<PlayerObject*>(parent);
         //add to equiplist manually yet we dont use the objectcontainer for equipped items yet
-        player->getEquipManager()->addEquippedObject(object);
+		
+		player->InitializeObject(object);
         gContainerManager->createObjectToRegisteredPlayers(parent, object);
 
         //sendCreateObject(object,player,false);
@@ -930,9 +925,7 @@ void SpatialIndexManager::createInWorld(Object* object)
 // when creating a player and the player is in a cell we need to create all the cells contents for the player
 // cellcontent is *NOT* in the grid
 
-// interisting point to find out
-// will we destroy all building content always on leaving or will we have (like containers) a list with players
-// knowing the content and destroy it when getting out of range ??
+
 
 void SpatialIndexManager::initObjectsInRange(PlayerObject* player) {
     uint64_t player_id = player->getParentId();
@@ -1130,7 +1123,7 @@ void SpatialIndexManager::sendToChatRange(Object* container, std::function<void 
 // just create other players / creatures for us - we still exist for them as we were still in logged state
 // player regsitrations are still intact at that point as we still are in the grid
 
-bool SpatialIndexManager::InitializeObject(PlayerObject *player) {
+void SpatialIndexManager::InitializeObject(PlayerObject *player) {
     //Pesudo
     // 1. Calculate CellID
     // 2. Set CellID
@@ -1142,15 +1135,38 @@ bool SpatialIndexManager::InitializeObject(PlayerObject *player) {
     ObjectListType player_list;
     getGrid()->GetViewingRangeCellContents(player->getGridBucket(), &player_list, (Bucket_Creatures|Bucket_Objects|Bucket_Players));
 
-    std::for_each(player_list.begin(), player_list.end(), [this, player] (Object* object) {
+    std::for_each(player_list.begin(), player_list.end(), [&] (Object* object) {
         if (object->getId() == player->getId()) {
             return;
         }
 
-        sendCreateObject(object, player, false);
+		sendCreateObject(object, player, false);
+
+		if(object->getObjectType() == SWG_BUILDING)	{
+			if(!object->checkRegisteredWatchers(player))	{
+				return;
+			}
+
+			BuildingObject* building = dynamic_cast<BuildingObject*>(object);
+			if( !building)	{
+				DLOG(error) << "SpatialIndexManager::InitializeObject -> couldnt cast building " << object->getId();
+				return;
+			}
+
+			building->ViewObjects(building, 0, false, [&] (Object* content_object) {
+				if(content_object && content_object->getType() == ObjType_Tangible) {
+					if(content_object->checkRegisteredWatchers(player))	{
+						gSpatialIndexManager->sendCreateObject(content_object, player, false);
+					}	
+				}
+			});
+
+		}
+
+        
     });
 
     //now building content in case we are in a building
-    initObjectsInRange(player);
-    return true;
+    //initObjectsInRange(player);
+    return;
 }

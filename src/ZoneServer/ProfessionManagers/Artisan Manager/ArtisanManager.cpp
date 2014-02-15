@@ -47,15 +47,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/GameSystemManagers/Buff Manager/Buff.h"
 #include "ZoneServer/GameSystemManagers/Container Manager/ContainerManager.h"
 #include "ZoneServer/GameSystemManagers/Resource Manager/CurrentResource.h"
-#include "ZoneServer/Objects/Datapad.h"
+#include "ZoneServer/GameSystemManagers/Mission Manager/MissionManager.h"
 
+#include "ZoneServer\Services\equipment\equipment_service.h"
+
+#include "ZoneServer/Objects/Datapad.h"
 #include "ZoneServer/Objects/Inventory.h"
 #include "ZoneServer/Objects/Item.h"
-#include "ZoneServer/GameSystemManagers/Mission Manager/MissionManager.h"
+
 #include "ZoneServer/ObjectController/ObjectController.h"
 #include "ZoneServer/ObjectController/ObjectControllerOpcodes.h"
 #include "ZoneServer/ObjectController/ObjectControllerCommandMap.h"
-#include "ZoneServer/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceContainer.h"
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceManager.h"
@@ -625,14 +628,11 @@ void	ArtisanManager::finishSampling(PlayerObject* player, CurrentResource* resou
 
     // see if we can add it to an existing container
 
-    Inventory*	inventory	= player->getInventory();
-    ObjectIDList*			invObjects	= inventory->getObjects();
-    ObjectIDList::iterator	listIt		= invObjects->begin();
-
-    while(listIt != invObjects->end())
-    {
+	auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player, "inventory");
+	inventory->ViewObjects(player, 0, true, [&] (Object* object) {
+	
         // we are looking for resource containers
-        ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById((*listIt)));
+        ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(object);
         if(resCont)
         {
             uint32 targetAmount	= resCont->getAmount();
@@ -670,12 +670,13 @@ void	ArtisanManager::finishSampling(PlayerObject* player, CurrentResource* resou
                     gObjectFactory->requestNewResourceContainer(inventory,resource->getId(),inventory->getId(),99,selectedNewAmount);
                 }
 
-                break;
+                return;
             }
         }
 
-        ++listIt;
-    }
+    
+    });
+
     // or need to create a new one
     if(!foundSameType)
     {

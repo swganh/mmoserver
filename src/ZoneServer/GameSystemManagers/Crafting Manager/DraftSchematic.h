@@ -155,6 +155,7 @@ private:
     uint32				mGroupId;
     uint32				mWeightsBatchId;
     BString				mModel;
+	std::string			template_string_;
     SchematicLoadState	mLoadState;
     DraftSlots			mDraftSlots;
     WeightsBatches		mAssemblyBatch;

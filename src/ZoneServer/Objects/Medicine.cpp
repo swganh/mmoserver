@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Medicine.h"
 #include "Zoneserver/Objects/Inventory.h"
 #include "Zoneserver/ProfessionManagers/Medic Manager/MedicManager.h"
-#include "ZoneServer/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/WorldManager.h"
 #include "MessageLib/MessageLib.h"

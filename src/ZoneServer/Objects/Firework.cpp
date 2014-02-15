@@ -30,12 +30,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/GameSystemManagers/FireworkManager.h"
 #include "Zoneserver/Objects/Inventory.h"
 #include "Zoneserver/Objects/Item.h"
-#include "ZoneServer/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/GameSystemManagers/UI Manager/UIManager.h"
 #include "MessageLib/MessageLib.h"
 #include "DatabaseManager/Database.h"
+
+#include "ZoneServer\Services\equipment\equipment_service.h"
 
 #include <anh\app\swganh_kernel.h>
 
@@ -345,13 +347,8 @@ ObjectList* FireworkShow::_getInventoryFireworks(PlayerObject* playerObject)
 {
     ObjectList* returnList = new ObjectList();
 
-    Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-    ObjectIDList*			objList				= inventory->getObjects();
-    ObjectIDList::iterator	containerObjectIt	= objList->begin();
-
-    while (containerObjectIt != objList->end())
-    {
-        Object* object = gWorldManager->getObjectById((*containerObjectIt));
+	auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(playerObject, "inventory");
+	inventory->ViewObjects(playerObject, 0, true, [&] (Object* object) {
         if (Item* item = dynamic_cast<Item*>(object))
         {
             if(item->getItemFamily()==ItemFamily_FireWork && item->getItemType()!= ItemType_Firework_Show)
@@ -359,9 +356,7 @@ ObjectList* FireworkShow::_getInventoryFireworks(PlayerObject* playerObject)
                 returnList->push_back(item);
             }
         }
-        ++containerObjectIt;
-    }
-
+    });
 
     return returnList;
 }

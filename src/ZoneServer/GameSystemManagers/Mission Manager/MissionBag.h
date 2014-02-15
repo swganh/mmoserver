@@ -45,7 +45,7 @@ class MissionBag : public TangibleObject
 public:
 
     MissionBag();
-    MissionBag(uint64 id,PlayerObject* parent,const BString model,const BString name = "",const BString file = "");
+    MissionBag(uint64 id,PlayerObject* parent,const std::string model,const BString name = "",const BString file = "");
     ~MissionBag();
 
     void		  setParent(PlayerObject* player) {

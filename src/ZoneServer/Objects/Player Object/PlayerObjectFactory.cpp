@@ -29,17 +29,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "anh/logger.h"
 
-#include "Zoneserver/Objects/Bank.h"
 #include "Zoneserver/GameSystemManagers/Buff Manager/BuffManager.h"
+#include "ZoneServer/GameSystemManagers/Mission Manager/MissionBag.h"
+#include "ZoneServer/GameSystemManagers/State Manager/StateManager.h"
+
+#include "ZoneServer\Objects\Object\ObjectManager.h"
+#include "Zoneserver/Objects/Bank.h"
 #include "Zoneserver/Objects/Datapad.h"
 #include "Zoneserver/Objects/DatapadFactory.h"
 #include "Zoneserver/Objects/Inventory.h"
 #include "Zoneserver/Objects/InventoryFactory.h"
 #include "Zoneserver/Objects/Item.h"
-#include "ZoneServer/GameSystemManagers/Mission Manager/MissionBag.h"
-#include "ZoneServer/Objects/ObjectFactoryCallback.h"
+
+#include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
-#include "ZoneServer/GameSystemManagers/State Manager/StateManager.h"
+
 #include "ZoneServer/Objects/Tangible Object/TangibleFactory.h"
 #include "ZoneServer/Tutorial.h"
 #include "ZoneServer/Objects/Weapon.h"
@@ -776,9 +780,11 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
 
 	playerObject->setCustomName(std::u16string(name.begin(), name.end()));
 
+	BString mModel = playerObject->GetTemplate().c_str();
+
     //male or female ?
     BStringVector				dataElements;
-    playerObject->mModel.split(dataElements,'_');
+    mModel.split(dataElements,'_');
     if(dataElements.size() > 1) {
         playerObject->setGender(dataElements[1].getCrc() == BString("female.iff").getCrc());
     } else { //couldn't find data, default to male. Is this acceptable? Crash bug patch: http://paste.swganh.org/viewp.php?id=20100627013612-b69ab274646815fb2a9befa4553c93f7
@@ -788,8 +794,8 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
 
     // player object
     int8 tmpModel[128];
-    sprintf(tmpModel,"object/creature/player/shared_%s",&playerObject->mModel.getAnsi()[23]);
-    playerObject->setModelString(tmpModel);
+    sprintf(tmpModel,"object/creature/player/shared_%s",mModel.getAnsi()[23]);
+	playerObject->SetTemplate(tmpModel);
 
     playerObject->buildCustomization(playerObject->mCustomization);
 
@@ -802,24 +808,28 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
     playerObject->mTypeOptions = 0x80;
     playerObject->mBiography.convert(BSTRType_Unicode16);
 
+	gObjectManager->LoadSlotsForObject(playerObject);
+
     // hair
-    if((playerHair->mModel).getLength())
+	mModel = playerHair->GetTemplate().c_str();
+    if(mModel.getLength())
     {
         int8 tmpHair[128];
-        sprintf(tmpHair,"object/tangible/hair/%s/shared_%s",playerObject->mSpecies.getAnsi(),&playerHair->mModel.getAnsi()[22 + playerObject->mSpecies.getLength()]);
+        sprintf(tmpHair,"object/tangible/hair/%s/shared_%s",playerObject->mSpecies.getAnsi(),mModel.getAnsi()[22 + playerObject->mSpecies.getLength()]);
         playerHair->setId(playerObject->mId + HAIR_OFFSET);
         playerHair->setParentId(playerObject->mId);
-        playerHair->setModelString(tmpHair);
+        playerHair->SetTemplate(tmpHair);
         playerHair->setTangibleGroup(TanGroup_Hair);
         playerHair->setTangibleType(TanType_Hair);
         playerHair->setName("hair");
         playerHair->setNameFile("hair_name");
-        playerHair->setEquipSlotMask(CreatureEquipSlot_Hair);
+
 
         playerHair->buildTanoCustomization(3);
 
-        playerObject->mEquipManager.addEquippedObject(CreatureEquipSlot_Hair,playerHair.get());
-		playerObject->mEquipManager.setDefaultHair(playerHair->getId());
+		gObjectManager->LoadSlotsForObject(playerHair.get());
+
+        playerObject->InitializeObject(playerHair.get());
 		gWorldManager->addObject(playerHair,true);
     }
     else
@@ -829,34 +839,34 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
 
     // mission bag
     playerMissionBag = new MissionBag(playerObject->mId + MISSION_OFFSET,playerObject,"object/tangible/mission_bag/shared_mission_bag.iff","item_n","mission_bag");
-    playerMissionBag->setEquipSlotMask(CreatureEquipSlot_Mission);
-    playerObject->mEquipManager.addEquippedObject(CreatureEquipSlot_Mission,playerMissionBag);
+	gObjectManager->LoadSlotsForObject(playerMissionBag);
 	gWorldManager->addObject(playerMissionBag,true);
+	playerObject->InitializeObject(playerMissionBag);
 
     // bank
     playerBank->setId(playerObject->mId + BANK_OFFSET);
     playerBank->setParentId(playerObject->mId);
-    playerBank->setModelString("object/tangible/bank/shared_character_bank.iff");
+    playerBank->SetTemplate("object/tangible/bank/shared_character_bank.iff");
     playerBank->setName("bank");
     playerBank->setNameFile("item_n");
     playerBank->setTangibleGroup(TanGroup_PlayerInternal);
     playerBank->setTangibleType(TanType_Bank);
-    playerBank->setEquipSlotMask(CreatureEquipSlot_Bank);
 
-    playerObject->mEquipManager.addEquippedObject(CreatureEquipSlot_Bank,playerBank.get());
-    gWorldManager->addObject(playerBank,true);
+    gObjectManager->LoadSlotsForObject(playerBank.get());
+	gWorldManager->addObject(playerBank,true);
+	playerObject->InitializeObject(playerBank.get());
 
     // default player weapon
 	Weapon*			playerWeapon	= new Weapon();
     playerWeapon->setId(playerObject->mId + WEAPON_OFFSET);
     playerWeapon->setParentId(playerObject->mId);
-    playerWeapon->setModelString("object/weapon/melee/unarmed/shared_unarmed_default_player.iff");
+    playerWeapon->SetTemplate("object/weapon/melee/unarmed/shared_unarmed_default_player.iff");
     playerWeapon->setGroup(WeaponGroup_Unarmed);
-    playerWeapon->setEquipSlotMask(CreatureEquipSlot_Hold_Left);
     playerWeapon->addInternalAttribute("weapon_group","1");
+	
+	gObjectManager->LoadSlotsForObject(playerWeapon);
 	gWorldManager->addObject(playerWeapon,true);
-
-	playerObject->mEquipManager.setDefaultWeapon(playerWeapon->getId());
+	playerObject->InitializeObject(playerWeapon);
 
     // just making sure
     playerObject->togglePlayerFlagOff(PlayerFlag_LinkDead);
@@ -924,7 +934,7 @@ void PlayerObjectFactory::_setupDatabindings()
     mPlayerBinding->addField(swganh::database::DFT_float,offsetof(PlayerObject,mPosition.x),4,7);
     mPlayerBinding->addField(swganh::database::DFT_float,offsetof(PlayerObject,mPosition.y),4,8);
     mPlayerBinding->addField(swganh::database::DFT_float,offsetof(PlayerObject,mPosition.z),4,9);
-    mPlayerBinding->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mModel),128,10);
+	mPlayerBinding->addField(swganh::database::DFT_stdstring,offsetof(PlayerObject,template_string_),128,10);
 	mPlayerBinding->addField(swganh::database::DFT_stdstring,offsetof(PlayerObject,first_name),64,11);
     mPlayerBinding->addField(swganh::database::DFT_stdstring,offsetof(PlayerObject,last_name),64,12);
     mPlayerBinding->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mSpecies),16,16);
@@ -964,7 +974,7 @@ void PlayerObjectFactory::_setupDatabindings()
 
     //hair binding
     mHairBinding = mDatabase->createDataBinding(3);
-    mHairBinding->addField(swganh::database::DFT_bstring,offsetof(TangibleObject,mModel),128,13);
+	mHairBinding->addField(swganh::database::DFT_stdstring,offsetof(TangibleObject,template_string_),128,13);
     mHairBinding->addField(swganh::database::DFT_uint16,offsetof(TangibleObject,mCustomization[1]),2,14);
     mHairBinding->addField(swganh::database::DFT_uint16,offsetof(TangibleObject,mCustomization[2]),2,15);
 
@@ -1006,10 +1016,12 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
     if(Inventory* inventory = dynamic_cast<Inventory*>(object))
     {
         ilc->mInventory = true;
-        inventory->setEquipSlotMask(CreatureEquipSlot_Inventory);
+        
+		gObjectManager->LoadSlotsForObject(inventory);
+        playerObject->InitializeObject(inventory);
+		gWorldManager->addObject(inventory,true);
 
-        playerObject->mEquipManager.addEquippedObject(CreatureEquipSlot_Inventory,inventory);
-        inventory->setParent(playerObject);
+		inventory->setParent(playerObject);
         playerObject->setInventory(inventory);
 
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(0,POFQuery_EquippedItems,client);
@@ -1020,9 +1032,11 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
     else if(Datapad* datapad = dynamic_cast<Datapad*>(object))
     {
         ilc->mDPad = true;
-        datapad->setEquipSlotMask(CreatureEquipSlot_Datapad);
+        
+		gObjectManager->LoadSlotsForObject(datapad);
+        playerObject->InitializeObject(datapad);
+		gWorldManager->addObject(datapad,true);
 
-        playerObject->mEquipManager.addEquippedObject(CreatureEquipSlot_Datapad,datapad);
         playerObject->setDataPad(datapad);
 
         datapad->setOwner(playerObject);
@@ -1031,7 +1045,10 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
     {
         gWorldManager->addObject(item,true);
 
-        playerObject->mEquipManager.addEquippedObject(item);
+		gObjectManager->LoadSlotsForObject(item);
+        playerObject->InitializeObject(item);
+		
+        
     }
     else
     {

@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Utils/bstring.h"
 #include "DatabaseManager/DatabaseCallback.h"
-#include "ZoneServer/Objects/ObjectFactoryCallback.h"
+#include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
 #include "ZoneServer/GameSystemManagers/Group Manager/GroupManagerCallback.h"
 
 #include "anh/app/swganh_kernel.h"

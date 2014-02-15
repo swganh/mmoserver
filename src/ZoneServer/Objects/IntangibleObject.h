@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_INTANGIBLE_OBJECT_H
 #define ANH_ZONESERVER_INTANGIBLE_OBJECT_H
 
-#include "ZoneServer/Objects/Object.h"
+#include "ZoneServer/Objects/Object/Object.h"
 
 //Forward Declerations
 class PlayerObject;
@@ -103,10 +103,10 @@ public:
     void				setItnoGroup(int itno_group) {
         mItnoGroup = itno_group;
     }
-    BString				getPhysicalModelString() {
+    std::string			getPhysicalModelString() {
         return mPhysicalModel;
     }
-    void				setPhysicalModelString(BString physical_model) {
+    void				setPhysicalModelString(std::string physical_model) {
         mPhysicalModel = physical_model;
     }
 protected:
@@ -117,7 +117,7 @@ protected:
     BString				mNameFile;
     BString				mDetailFile;			//ASCII
     BString				mDetail;				//Description - ASCII
-    BString				mPhysicalModel;			//Model string for the physical part
+    std::string			mPhysicalModel;			//Model string for the physical part
     int					mItnoGroup;
 
 private:

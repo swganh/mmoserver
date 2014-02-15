@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer/Objects/Bank.h"
 #include "ZoneServer/Objects/Inventory.h"
-#include "ZoneServer/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/Objects/Wearable.h"
 #include "ZoneServer/WorldManager.h"
@@ -443,7 +443,7 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
 
         mMessageFactory->addUint32(4);
         mMessageFactory->addUint64(object->getId());
-        mMessageFactory->addUint32((object->getModelString()).getCrc());
+        mMessageFactory->addUint32(common::memcrc(object->GetTemplate()));
 
         ++eqIt;
     }
@@ -574,7 +574,7 @@ bool MessageLib::sendEquippedListUpdate_InRange(CreatureObject* creatureObject)
 
         mMessageFactory->addUint32(4);
         mMessageFactory->addUint64(object->getId());
-        mMessageFactory->addUint32((object->getModelString()).getCrc());
+        mMessageFactory->addUint32(common::memcrc(object->GetTemplate()));
 
         ++eqIt;
     }
@@ -639,7 +639,7 @@ bool MessageLib::sendEquippedListUpdate(CreatureObject* creature, CreatureObject
 
         mMessageFactory->addUint32(4);
         mMessageFactory->addUint64(object->getId());
-        mMessageFactory->addUint32((object->getModelString()).getCrc());
+		mMessageFactory->addUint32(common::memcrc(object->GetTemplate()));
     });
 
     target_player->getClient()->SendChannelA(mMessageFactory->EndMessage(), target_player->getAccountId(), CR_Client, 4);
@@ -745,7 +745,7 @@ bool MessageLib::sendEquippedItemUpdate_InRange(CreatureObject* creatureObject, 
 
             mMessageFactory->addUint32(4);
             mMessageFactory->addUint64(object->getId());
-            mMessageFactory->addUint32((object->getModelString()).getCrc());
+            mMessageFactory->addUint32(common::memcrc(object->GetTemplate()));
             break;
         }
         ++eqIt;
@@ -1134,7 +1134,7 @@ void MessageLib::sendInviteSenderUpdateDeltasCreo6(uint64 id, PlayerObject* targ
 // update: group
 //
 
-void MessageLib::sendGroupIdUpdateDeltasCreo6(uint64 groupId, const PlayerObject* const player, const PlayerObject* const target) const
+void MessageLib::sendGroupIdUpdateDeltasCreo6(uint64 groupId,  PlayerObject*  player, const PlayerObject* const target) const
 {
     if(!(target->isConnected()))
         return;

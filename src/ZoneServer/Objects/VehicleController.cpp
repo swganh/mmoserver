@@ -147,7 +147,7 @@ void VehicleController::Call() {
 
     body_->set_owner(owner_->getId());
     body_->setParentId(0);
-    body_->setModelString(mPhysicalModel);
+    body_->SetTemplate(mPhysicalModel);
     body_->setSpeciesGroup(mNameFile.getAnsi());
     body_->setSpeciesString(mName.getAnsi());
     body_->states.setPosture(0);

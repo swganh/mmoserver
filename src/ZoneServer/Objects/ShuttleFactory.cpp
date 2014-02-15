@@ -28,7 +28,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ShuttleFactory.h"
 #include "ZoneServer/PlayerEnums.h"
 #include "Zoneserver/Objects/Inventory.h"
-#include "Zoneserver/Objects/ObjectFactoryCallback.h"
+#include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
+#include "ZoneServer\Objects\Object\ObjectManager.h"
+
 #include "Shuttle.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -132,6 +134,8 @@ Shuttle* ShuttleFactory::_createShuttle(swganh::database::DatabaseResult* result
 
     result->getNextRow(mShuttleBinding,(void*)shuttle);
 
+	gObjectManager->LoadSlotsForObject(shuttle);
+
 	shuttle->SetBattleFatigue(0);
 
 	for(int8 i = 0; i<9;i++)	{
@@ -144,13 +148,16 @@ Shuttle* ShuttleFactory::_createShuttle(swganh::database::DatabaseResult* result
     // inventory
     shuttleInventory->setId(shuttle->mId + INVENTORY_OFFSET);
     shuttleInventory->setParentId(shuttle->mId);
-    shuttleInventory->setModelString("object/tangible/inventory/shared_creature_inventory.iff");
+    shuttleInventory->SetTemplate("object/tangible/inventory/shared_creature_inventory.iff");
     shuttleInventory->setName("inventory");
     shuttleInventory->setNameFile("item_n");
     shuttleInventory->setTangibleGroup(TanGroup_Inventory);
     shuttleInventory->setTangibleType(TanType_CreatureInventory);
-    shuttle->mEquipManager.addEquippedObject(CreatureEquipSlot_Inventory,shuttleInventory);
-    shuttle->setLoadState(LoadState_Loaded);
+    
+	gObjectManager->LoadSlotsForObject(shuttleInventory);
+	shuttle->InitializeObject(shuttleInventory);
+    
+	shuttle->setLoadState(LoadState_Loaded);
 
     shuttle->mPosture = 0;
     shuttle->mScale = 1.0;
@@ -221,7 +228,7 @@ void ShuttleFactory::_setupDatabindings()
     mShuttleBinding->addField(swganh::database::DFT_float,offsetof(Shuttle,mPosition.x),4,8);
     mShuttleBinding->addField(swganh::database::DFT_float,offsetof(Shuttle,mPosition.y),4,9);
     mShuttleBinding->addField(swganh::database::DFT_float,offsetof(Shuttle,mPosition.z),4,10);
-    mShuttleBinding->addField(swganh::database::DFT_bstring,offsetof(Shuttle,mModel),256,11);
+	mShuttleBinding->addField(swganh::database::DFT_stdstring,offsetof(Shuttle,template_string_),256,11);
     mShuttleBinding->addField(swganh::database::DFT_bstring,offsetof(Shuttle,mSpecies),64,12);
     mShuttleBinding->addField(swganh::database::DFT_bstring,offsetof(Shuttle,mSpeciesGroup),64,13);
     mShuttleBinding->addField(swganh::database::DFT_uint32,offsetof(Shuttle,mAwayInterval),4,14);

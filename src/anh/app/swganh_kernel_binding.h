@@ -16,6 +16,7 @@
 #include "anh/service/service_manager.h"
 
 #include "ZoneServer/Services/terrain/terrain_service_interface.h"
+#include "ZoneServer/Services/ham/ham_service_interface.h"
 //#include "anh_core/combat/combat_service_interface.h"
 //#include "swganh_core/chat/chat_service_interface.h"
 //#include "swganh_core/gamesystems/gamesystems_service_interface.h"
@@ -104,6 +105,11 @@ void exportSWGANHKernel()
                 return_value_policy<reference_existing_object>(),
                 boost::mpl::vector<swganh::terrain::TerrainServiceInterface*, swganh::service::ServiceManager*>()),
 				"returns an internal refrence of the :class:`.TerrainService`")
+		.def("hamService", make_function(
+				std::bind(&swganh::service::ServiceManager::GetService<swganh::ham::HamServiceInterface>, std::placeholders::_1, "HamService"),
+                return_value_policy<reference_existing_object>(),
+                boost::mpl::vector<swganh::ham::HamServiceInterface*, swganh::service::ServiceManager*>()),
+				"returns an internal refrence of the :class:`.HamService`")
 				/*
 		.def("equipmentService", make_function(
 				std::bind(&swganh::service::ServiceManager::GetService<swganh::equipment::EquipmentServiceInterface>, std::placeholders::_1, "EquipmentService"),

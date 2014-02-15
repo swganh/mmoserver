@@ -39,7 +39,7 @@ namespace tre
 		};
 
 		size_t count() {return slots_.size();}
-		size_t findSlotByName(const std::string& name);
+		size_t findSlotByName( std::string& name);
 		slot_entry& entry(size_t id) { return slots_[id];}
 
 	private:

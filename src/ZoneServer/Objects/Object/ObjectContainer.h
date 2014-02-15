@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <vector>
 #include "Object_Enums.h"
-#include "ZoneServer/Objects/Object.h"
+#include "ZoneServer/Objects/Object/Object.h"
 #include "ZoneServer/WorldConfig.h"
 //#include "ZoneServer/Objects/Tangible Object/TangibleObject.h"
 
@@ -58,7 +58,7 @@ class ObjectContainer :	public Object
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
 public:
 
-	ObjectContainer(uint64 id,uint64 parentId,const BString model,ObjectType type);
+	ObjectContainer(uint64 id,uint64 parentId,const std::string model,ObjectType type);
 	ObjectContainer();
 	virtual ~ObjectContainer();
 

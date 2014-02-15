@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Zoneserver/Objects/Inventory.h"
 #include "Zoneserver/Objects/Item.h"
 #include "ZoneServer/Objects/CraftingTool.h"
-#include "ZoneServer/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/Objects/Shuttle.h"
 #include "ZoneServer/Objects/SurveyTool.h"
@@ -41,8 +41,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer/GameSystemManagers/Structure Manager/CellObject.h"
 #include "ZoneServer/GameSystemManagers/Structure Manager/BuildingObject.h"
-#include "ZoneServer/GameSystemManagers/Container Manager/Container.h"
-#include "ZoneServer/GameSystemManagers/Container Manager/ContainerObjectFactory.h"
+
+//#include "ZoneServer/GameSystemManagers/Container Manager/ContainerObjectFactory.h"
 #include "ZoneServer/GameSystemManagers/Container Manager/ContainerManager.h"
 
 #include "ZoneServer/GameSystemManagers/Resource Manager/CurrentResource.h"
@@ -184,13 +184,7 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 		if (itemObject->getType() == ObjType_Tangible)
 		{
 			TangibleObject* tangObj = dynamic_cast<TangibleObject*>(itemObject);
-			if (tangObj->getTangibleGroup() == TanGroup_Container)
-			{
-				// Request container contents.
-				gContainerFactory->requestObject(this,targetId,TanGroup_Container,0,playerObject->getClient());
-				aContainer = true;
-			}
-
+			
 			//this might be a backpack
 			//or a chest - it needs to have a capacity to be a container!
 			if (tangObj->getCapacity())

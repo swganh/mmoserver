@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "ZoneServer/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 
 #include <assert.h>
 
@@ -52,14 +52,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/GameSystemManagers/Structure Manager/FactoryFactory.h"
 
 #include "Zoneserver/objects/IntangibleObject.h"
-#include "IntangibleFactory.h"
+#include "Zoneserver/objects/IntangibleFactory.h"
 #include "ZoneServer/GameSystemManagers/Crafting Manager/DraftSchematic.h"
 #include "ZoneServer/GameSystemManagers/Crafting Manager/ManufacturingSchematic.h"
-#include "ZoneServer/Objects/ObjectFactoryCallback.h"
+#include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "Zoneserver/Objects/Inventory.h"
 #include "ZoneServer/Objects/Player Object/PlayerObjectFactory.h"
-#include "RegionFactory.h"
+#include "Zoneserver/objects/RegionFactory.h"
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceManager.h"
 #include "ZoneServer/GameSystemManagers/Structure Manager/StructureManager.h"
 #include "ZoneServer/Objects/Tangible Object/TangibleFactory.h"
@@ -844,16 +844,14 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 
             }
 
-            ObjectIDList* objectList		= item->getObjects();
-            ObjectIDList::iterator objIt	= objectList->begin();
-
-            while(objIt != objectList->end())
-            {
-                Object* object = gWorldManager->getObjectById((*objIt));
+	
+			item->ViewObjects(item, 0, true, [&] (Object* object) {
+           
                 deleteObjectFromDB(object);
 
-                ++objIt;
-            }
+           
+            });
+
             query_stream.str(std::string());
             query_stream << "DELETE FROM "<<mDatabase->galaxy()<<".items WHERE id = " << object->getId();
             mDatabase->executeAsyncSql(query_stream);
@@ -917,22 +915,15 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 
     case ObjType_Cell:
     {
-        CellObject* cell = dynamic_cast<CellObject*>(object);
-        ObjectIDList* cellObjects		= cell->getObjects();
-        ObjectIDList::iterator objIt	= cellObjects->begin();
-
-        while(objIt != cellObjects->end())
-        {
-            Object* childObject = gWorldManager->getObjectById((*objIt));
-
-            deleteObjectFromDB(childObject);
-
-            ++objIt;
+    
+		object->ViewObjects(object, 0, true, [&] (Object* child_object) {
+    
+            deleteObjectFromDB(child_object);
 
             query_stream.str(std::string());
-            query_stream << "UPDATE "<<mDatabase->galaxy()<<".characters SET parent_id = 0 WHERE parent_id = " <<  object->getId();
+            query_stream << "UPDATE "<<mDatabase->galaxy()<<".characters SET parent_id = 0 WHERE parent_id = " <<  child_object->getId();
             mDatabase->executeAsyncSql(query_stream);
-        }
+        });
         query_stream.str(std::string());
         query_stream << "DELETE FROM "<<mDatabase->galaxy()<<".cells WHERE id = " <<  object->getId();
         mDatabase->executeAsyncSql(query_stream);
@@ -946,6 +937,7 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
     case ObjType_Building:
     {
         //only delete when a playerbuilding
+		
         HouseObject* house = dynamic_cast<HouseObject*>(object);
         if(!house)
         {
@@ -953,17 +945,12 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
             return;
         }
 
-        CellObjectList*				cellList	= house->getCellList();
-        CellObjectList::iterator	cellIt		= cellList->begin();
+		object->ViewObjects(object, 0, true, [&] (Object* child_object) {
 
-        while(cellIt != cellList->end())
-        {
-            CellObject* cell = (*cellIt);
-            deleteObjectFromDB(cell);
+            deleteObjectFromDB(child_object);
             //remove items in the building from world and db
 
-            ++cellIt;
-        }
+        });
         query_stream << "DELETE FROM "<<mDatabase->galaxy()<<".houses WHERE ID = " <<  object->getId();
         mDatabase->executeAsyncSql(query_stream);
 

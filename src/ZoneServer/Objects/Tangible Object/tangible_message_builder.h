@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-#include "ZoneServer\Objects/object_message_builder.h"
+#include "ZoneServer/Objects/Object/object_message_builder.h"
 
 class TangibleObject;
 

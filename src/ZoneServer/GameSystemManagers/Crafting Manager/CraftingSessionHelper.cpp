@@ -40,7 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Zoneserver/Objects/Item.h"
 #include "ZoneServer/GameSystemManagers/Crafting Manager/ManufacturingSchematic.h"
 #include "ZoneServer/ObjectController/ObjectControllerOpcodes.h"
-#include "ZoneServer/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceContainer.h"
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceManager.h"
@@ -308,7 +308,7 @@ bool CraftingSession::prepareComponent(Item* component, uint32 needed, Manufactu
 
         assert(tO && "CraftingSession::prepareComponent :: cant get parent");
 
-        tO->removeObject(component);
+        tO->RemoveObject(nullptr, component);
 
         //leave parent_id untouched - we might need to readd it to the container!
 		//please note that we can only use components out of our inventory or the crafting stations thingy
@@ -348,7 +348,7 @@ bool CraftingSession::prepareComponent(Item* component, uint32 needed, Manufactu
 
         //just delete it
 		LOG(info) << "CraftingSession::prepareComponent -> deleting stack - item " << component->getId();
-        tO->removeObject(component);
+        tO->RemoveObject(nullptr, component);
         gWorldManager->destroyObject(component);
 
     }
@@ -803,7 +803,7 @@ void CraftingSession::bagComponents(ManufactureSlot* manSlot,uint64 containerId)
             return;
         }
 
-        inventory->addObject(filledComponent);
+        inventory->InitializeObject(filledComponent);
         gMessageLib->sendContainmentMessage(filledComponent->getId(),inventory->getId(),0xffffffff,mOwner);
         filledComponent->setParentIdIncDB(inventory->getId());
 
@@ -871,17 +871,14 @@ void CraftingSession::bagResource(ManufactureSlot* manSlot,uint64 containerId)
     while(resIt != manSlot->mFilledResources.end())
     {
         uint32 amount = (*resIt).second;
+		bool	foundSameType	= false;
 
         // see if we can add it to an existing container
-        ObjectIDList*			invObjects	= dynamic_cast<Inventory*>(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
-        ObjectIDList::iterator	listIt		= invObjects->begin();
-
-        bool	foundSameType	= false;
-
-        while(listIt != invObjects->end())
-        {
+        Inventory* inventory = dynamic_cast<Inventory*>(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+		inventory->ViewObjects(mOwner, 0, true, [&] (Object* object) {        
+        
             // we are looking for resource containers
-            ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById((*listIt)));
+            ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(object);
             if(resCont)
             {
                 uint32 targetAmount	= resCont->getAmount();
@@ -918,12 +915,12 @@ void CraftingSession::bagResource(ManufactureSlot* manSlot,uint64 containerId)
                         gObjectFactory->requestNewResourceContainer(dynamic_cast<Inventory*>(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)),(*resIt).first,mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId(),99,selectedNewAmount);
                     }
 
-                    break;
+                    return;
                 }
-            }
 
-            ++listIt;
-        }
+            
+			}
+		});
 
         // or need to create a new one
         if(!foundSameType)

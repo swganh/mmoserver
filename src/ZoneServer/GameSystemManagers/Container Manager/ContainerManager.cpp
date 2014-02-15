@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/GameSystemManagers/Structure Manager/PlayerStructure.h"
 #include "ZoneServer/GameSystemManagers/Spatial Index Manager/SpatialIndexManager.h"
 
-#include "ZoneServer/GameSystemManagers/Container Manager/Container.h"
+#include "ZoneServer\Objects\permissions\container_permissions_interface.h"
 
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
@@ -123,7 +123,8 @@ bool	ContainerManager::transferItem(uint64 targetContainerId, uint64 transferIte
 		//do the db update manually because of the position - unless we get an automated position save in
 		itemObject->setParentId(targetContainerId); 
 		
-		cell->addObjectSecure(itemObject);
+
+		cell->InitializeObject(itemObject);
 
 		gMessageLib->sendDataTransformWithParent053(itemObject);
 		itemObject->updateWorldPosition();
@@ -153,7 +154,8 @@ bool	ContainerManager::transferItem(uint64 targetContainerId, uint64 transferIte
 	//some other container ... hopper backpack chest inventory etc
 	if(newContainer)
 	{
-		newContainer->addObjectSecure(itemObject);
+		newContainer->InitializeObject(itemObject);
+	
 		itemObject->updateWorldPosition();
 		itemObject->setParentIdIncDB(newContainer->getId());
 		return true;
@@ -194,19 +196,14 @@ bool	ContainerManager::removeFromContainer(uint64 targetId, uint64 objectId, Pla
 		(creatureInventory->getId() == itemObject->getParentId()) && (creatureInventory->getId() != inventory->getId()))
 	{
 		
-		if(!creatureInventory->removeObject(itemObject))
-		{
-			LOG(warning) << "ObjectController::removeFromContainer: Internal Error could not remove  " <<  itemObject->getId() << " from creature inventory "  << creatureInventory->getId();
-			return false;
-		}
-
+		creatureInventory->RemoveObject(nullptr, itemObject);
+		
 
 		// we destroy the item in this case as its a temporary!! 
 		// we do not want to clog the db with unlooted items
 		gContainerManager->destroyObjectToRegisteredPlayers(creatureInventory, tangible->getId());
 
-		ObjectIDList* invObjList = creatureInventory->getObjects();
-		if (invObjList->size() == 0)
+		if (creatureInventory->getHeadCount() == 0)
 		{
 			// Put this creature in the pool of delayed destruction and remove the corpse from scene.
 			gWorldManager->addCreatureObjectForTimedDeletion(creatureInventory->getParentId(), LootedCorpseTimeout);
@@ -245,8 +242,8 @@ bool	ContainerManager::removeFromContainer(uint64 targetId, uint64 objectId, Pla
 
 	//some other container ... hopper backpack chest etc
 	Object* containingContainer = dynamic_cast<Object*>(gWorldManager->getObjectById(tangible->getParentId()));
-	if(containingContainer && containingContainer->removeObject(itemObject))
-	{
+	if(containingContainer)	{
+		containingContainer->RemoveObject(nullptr, itemObject);
 		return true;
 	}
 	
@@ -450,11 +447,16 @@ void ContainerManager::unRegisterPlayerFromContainer(Object* container, PlayerOb
 	}
 
     //bail out in case were not registered
-    if(!container->unRegisterWatcher(player))	
+	if(!container->unRegisterWatcher(player))	
 	{
 		DLOG(info) << "ContainerManager::unRegisterPlayerFromContainer :: cannot unregister player " << player->getId() << " from " << container->getId();
         return;
     }
+
+	if(container->getId() < 5100273716)	{
+		DLOG(info) << "ContainerManager::unRegisterPlayerFromContainer :: cannot unregister statics!!!!!!!! ( " << player->getId() << " from " << container->getId() << " )";
+        return;
+	}
 
 	//send destroys only for containeritems NOT for items in the si - thats the SI managers Job
 	//plus were not supposed to destroy buildings before we destroy the cells
@@ -462,28 +464,16 @@ void ContainerManager::unRegisterPlayerFromContainer(Object* container, PlayerOb
 		gMessageLib->sendDestroyObject(container->getId(), player );
 	}
 
+
+	container->ViewObjects(player, 0, false, [&] (Object* object) {
+		unRegisterPlayerFromContainer(object, player);
+	});
+
     //buildings are a different kind of beast alltogether as cells need to be handled in a different way
 	//as we were registered  to the building were privy to the cells contents
     if(container->getType() == ObjType_Building ) {
-        BuildingObject* building = static_cast<BuildingObject*>(container);
-
-        CellObjectList* cell_list = building->getCellList();
-
-        std::for_each(cell_list->begin(), cell_list->end(), [=] (CellObject* cell) {
-			//TODO check permission before continuing
-            unRegisterPlayerFromContainer(cell, player);
-        });
-    } else {
-        ObjectIDList* content_list = container->getObjects();
-
-        std::for_each(content_list->begin(), content_list->end(), [=] (uint64_t object_id) {
-            Object* object = gWorldManager->getObjectById(object_id);
-			//TODO check permission before continuing
-            if (object) {
-                unRegisterPlayerFromContainer(object, player);
-            }
-        });
-    }
+		DLOG(info) << "ContainerManager::unRegisterPlayerFromContainer :: unregister Building!!!!!!!! ( " << player->getId() << " from " << container->getId() << " )";
+	}            
 
 	if(container->getType() == ObjType_Player)	{
 		PlayerObject* containerPlayer = static_cast<PlayerObject*>(container);
@@ -509,20 +499,44 @@ void ContainerManager::SendDestroyEquippedObject(Object* object) {
 }
 
 
+void ContainerManager::initializePlayerToContainer(Object* container, PlayerObject* const player) const {
+
+	DLOG(info) << "SpatialIndexManager::initializePlayerToContainer :: player " << player->getId() << " succesfully initialized to container " << container->getId();
+    
+	container->ViewObjects(player, 0, false, [&] (Object* object) {
+		if(object && (object->getId() >= 5100273716)) {
+            gSpatialIndexManager->sendCreateObject(object, player, false);
+			
+			// check the permission
+			if(!object->GetPermissions()->canView(object, player))	{
+				DLOG(info) << "SpatialIndexManager::initializePlayerToContainer :: player " << player->getId() << " got no permission to initialize " << object->getId();
+				return;
+			}
+            initializePlayerToContainer(object, player);
+        }
+	
+	});
+	
+}
+
 void ContainerManager::registerPlayerToContainer(Object* container, PlayerObject* const player) const {
-    DLOG(info) << "SpatialIndexManager::registerPlayerToContainer :: Try register player " << player->getId() << "to container " << container->getId();
+    //DLOG(info) << "SpatialIndexManager::registerPlayerToContainer :: Try register player " << player->getId() << "to container " << container->getId();
 	if (!container->registerWatcher(player))	{
         DLOG(info) << "SpatialIndexManager::registerPlayerToContainer :: Container " << container->getId() << " already known to player" << player->getId();
 		return;
     }
 	DLOG(info) << "SpatialIndexManager::registerPlayerToContainer :: player " << player->getId() << " succesfully registered to container " << container->getId();
-    ObjectIDList* content_list = container->getObjects();
-	
-	//iterate through the containers children and create them for the player
-    std::for_each(content_list->begin(), content_list->end(), [=] (uint64_t object_id) {
-        Object* object = gWorldManager->getObjectById(object_id);
-        if(object && object->getType() == ObjType_Tangible) {
+    
+	container->ViewObjects(player, 0, false, [&] (Object* object) {
+        if(object && (object->getId() >= 5100273716)) {
             gSpatialIndexManager->sendCreateObject(object, player, false);
+
+			// check the permission
+			if(!object->GetPermissions()->canView(object, player))	{
+				DLOG(info) << "SpatialIndexManager::initializePlayerToContainer :: player " << player->getId() << " got no permission to register to " << object->getId();
+				return;
+			}
+
             registerPlayerToContainer(object, player);
         }
     });
@@ -541,16 +555,16 @@ void ContainerManager::registerPlayerToBuilding(BuildingObject* building, Player
         return;
     }
 
-    //cells are not subcontainers that get autoregistered on registering a building!!
-    //they already are registered, as a building cannot be created without cells without crashing the client
-    //the buildings contents however we want to create once we enter the building
+	DLOG(info) << "SpatialIndexManager::registerPlayerToBuilding :: player " << player->getId() << " succesfully registered to container " << building->getId();
+
+    //cells are subcontainers that get autoregistered on registering a building
+    //as a building cannot be created without cells without crashing the client
+    //the buildings contents however we want to create once we enter the building, as in playercities the traffic would explode otherwise
 
     registerPlayerToContainer(building,player);
 
-    CellObjectList* cell_list = building->getCellList();
-
-    std::for_each(cell_list->begin(), cell_list->end(), [=] (CellObject* cell) {
-        registerPlayerToContainer(cell, player);
+    building->ViewObjects(player, 0, false, [&] (Object* object) {    
+        registerPlayerToContainer(object, player);
     });
 }
 
@@ -572,10 +586,8 @@ void ContainerManager::unRegisterPlayerFromBuilding(BuildingObject* building,Pla
 
     unRegisterPlayerFromContainer(building, player);
 
-    CellObjectList* cell_list = building->getCellList();
-
-    std::for_each(cell_list->begin(), cell_list->end(), [=] (CellObject* cell) {
-        unRegisterPlayerFromContainer(cell, player);
+    building->ViewObjects(player, 0, false, [&] (Object* object) {    
+        unRegisterPlayerFromContainer(object, player);
     });
 }
 
@@ -616,11 +628,6 @@ void ContainerManager::sendToRegisteredWatchers(Object* container, std::function
 {
     sendToRegisteredPlayers(container, callback);
 
-    PlayerObjectSet* registered_watchers = container->getRegisteredStaticWatchers();
-
-    std::for_each(registered_watchers->begin(), registered_watchers->end(), [=] (PlayerObject* player) {
-        callback(player);
-    });
 }
 
 
@@ -694,7 +701,7 @@ void ContainerManager::updateObjectPlayerRegistrations(Object* newContainer, Obj
 
 void ContainerManager::deleteObject(Object* object, Object* parent) {
     destroyObjectToRegisteredPlayers(parent,object->getId());
-    parent->removeObject(object);
+    parent->RemoveObject(nullptr, object);
     gObjectFactory->deleteObjectFromDB(object);
     gWorldManager->destroyObject(object);
 }
@@ -702,5 +709,5 @@ void ContainerManager::deleteObject(Object* object, Object* parent) {
 
 void ContainerManager::removeObject(Object* object, Object* parent) {
     destroyObjectToRegisteredPlayers(parent,object->getId());
-    parent->removeObject(object);
+    parent->RemoveObject(nullptr, object);
 }

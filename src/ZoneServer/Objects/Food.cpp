@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Zoneserver/Objects/Food.h"
 #include "ZoneServer/Objects/ItemDeleteEvent.h"
 #include "Zoneserver/Objects/Inventory.h"
-#include "ZoneServer/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 
 #include "Zoneserver/GameSystemManagers/Buff Manager/Buff.h"

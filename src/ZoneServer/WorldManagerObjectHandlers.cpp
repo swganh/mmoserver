@@ -48,7 +48,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Zoneserver/Objects/Datapad.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/GameSystemManagers/CharacterLoginHandler.h"
-#include "ZoneServer/GameSystemManagers/Container Manager/Container.h"
 #include "ZoneServer/GameSystemManagers/Conversation Manager/ConversationManager.h"
 #include "ZoneServer/GameSystemManagers/Crafting Manager/CraftingSessionFactory.h"
 #include "ZoneServer/GameSystemManagers/Crafting Manager/SchematicManager.h"
@@ -74,7 +73,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/Objects/MountObject.h"
 #include "Zoneserver/GameSystemManagers/NPC Manager/NpcManager.h"
 #include "ZoneServer/GameSystemManagers/NPC Manager/NPCObject.h"
-#include "ZoneServer/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceManager.h"
 

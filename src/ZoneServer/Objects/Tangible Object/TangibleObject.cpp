@@ -61,7 +61,7 @@ TangibleObject::TangibleObject()
 
 //=============================================================================
 
-TangibleObject::TangibleObject(uint64 id,uint64 parentId,BString model,TangibleGroup tanGroup,TangibleType tanType,BString name,BString nameFile,BString detailFile)
+TangibleObject::TangibleObject(uint64 id,uint64 parentId,std::string model,TangibleGroup tanGroup,TangibleType tanType,BString name,BString nameFile,BString detailFile)
     : Object(id,parentId,model,ObjType_Tangible)
     ,mName(name)
     ,mNameFile(nameFile)
@@ -224,7 +224,7 @@ void TangibleObject::prepareCustomRadialMenuInCell(CreatureObject* creatureObjec
     uint8 u = 1;
 
     // any object with callbacks needs to handle those (received with menuselect messages) !
-    if(this->getObjects()->size())
+	if(this->getHeadCount())
         radial->addItem(i++,0,radId_itemOpen,radAction_Default,"");
 
     radial->addItem(i++,0,radId_examine,radAction_Default,"");

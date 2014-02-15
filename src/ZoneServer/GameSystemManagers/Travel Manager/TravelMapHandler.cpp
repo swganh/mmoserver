@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "anh/logger.h"
 
 #include "Zoneserver/Objects/Inventory.h"
-#include "Zoneserver/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "Zoneserver/Objects/Shuttle.h"
 #include "TicketCollector.h"
@@ -42,6 +42,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/GameSystemManagers/Container Manager/ContainerManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
+
+#include "ZoneServer\Services\equipment\equipment_service.h"
 
 #include "MessageLib/MessageLib.h"
 
@@ -469,12 +471,11 @@ bool TravelMapHandler::findTicket(PlayerObject* player, BString port)
 {
     uint32	zoneId = gWorldManager->getZoneId();
 
-    ObjectIDList* invObjects = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
-    ObjectIDList::iterator it = invObjects->begin();
+	auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player, "inventory");
+	bool found = false;
+	inventory->ViewObjects(player, 0, true, [&] (Object* object) {
 
-    while(it != invObjects->end())
-    {
-        TravelTicket* ticket = dynamic_cast<TravelTicket*>(gWorldManager->getObjectById((*it)));
+        TravelTicket* ticket = dynamic_cast<TravelTicket*>(object);
         if(ticket)
         {
             BString srcPoint		= (int8*)((ticket->getAttribute<std::string>("travel_departure_point")).c_str());
@@ -483,27 +484,24 @@ bool TravelMapHandler::findTicket(PlayerObject* player, BString port)
             // see if we got at least 1
             if(srcPlanetId == zoneId && strcmp(srcPoint.getAnsi(),port.getAnsi()) == 0)
             {
-                return false;
+                found = false;
             }
         }
-        ++it;
-    }
-    return true;;
+    });
+    return found;
 }
 
 //=======================================================================================================================
 
-void TravelMapHandler::createTicketSelectMenu(PlayerObject* playerObject, Shuttle* shuttle, BString port)
+void TravelMapHandler::createTicketSelectMenu(PlayerObject* player, Shuttle* shuttle, BString port)
 {
     StringVector	availableTickets;
     uint32			zoneId = gWorldManager->getZoneId();
 
-    ObjectIDList*			invObjects	= dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
-    ObjectIDList::iterator	it			= invObjects->begin();
-
-    while(it != invObjects->end())
-    {
-        TravelTicket* ticket = dynamic_cast<TravelTicket*>(gWorldManager->getObjectById((*it)));
+	auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player, "inventory");
+	inventory->ViewObjects(player, 0, true, [&] (Object* object) {
+    
+        TravelTicket* ticket = dynamic_cast<TravelTicket*>(object);
         if(ticket)
         {
             BString srcPoint		= (int8*)((ticket->getAttribute<std::string>("travel_departure_point")).c_str());
@@ -516,10 +514,9 @@ void TravelMapHandler::createTicketSelectMenu(PlayerObject* playerObject, Shuttl
                 availableTickets.push_back(dstPoint.getAnsi());
             }
         }
-        ++it;
-    }
+    });
 
-    gUIManager->createNewTicketSelectListBox(this,"handleTicketSelect","select destination","Select destination",availableTickets,playerObject,port,shuttle);
+    gUIManager->createNewTicketSelectListBox(this,"handleTicketSelect","select destination","Select destination",availableTickets, player, port, shuttle);
 }
 
 //=======================================================================================================================
@@ -529,10 +526,10 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,std::u16string 
     if(!action && element != -1 )
     {
         uint32					zoneId			= gWorldManager->getZoneId();
-        PlayerObject*			playerObject	= window->getOwner();
+        PlayerObject*			player			= window->getOwner();
         UITicketSelectListBox*	listBox			= dynamic_cast<UITicketSelectListBox*>(window);
 
-        if(playerObject->getSurveyState() || playerObject->getSamplingState() || !listBox)
+        if(player->getSurveyState() || player->getSamplingState() || !listBox)
             return;
 
         Shuttle* shuttle = listBox->getShuttle();
@@ -544,23 +541,20 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,std::u16string 
 
         if (!shuttle->availableInPort())
         {
-            gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "shuttle_not_available"), playerObject);
+            gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "shuttle_not_available"), player);
             return;
         }
 
-        if((playerObject->getParentId() != shuttle->getParentId()) || (glm::distance(playerObject->mPosition, shuttle->mPosition) > 25.0f))
+        if((player->getParentId() != shuttle->getParentId()) || (glm::distance(player->mPosition, shuttle->mPosition) > 25.0f))
         {
-            gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "boarding_too_far"), playerObject);
+            gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "boarding_too_far"), player);
 
             return;
         }
 
-        ObjectIDList*			invObjects		= dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
-        ObjectIDList::iterator	it				= invObjects->begin();
-
-        while(it != invObjects->end())
-        {
-            TravelTicket* ticket = dynamic_cast<TravelTicket*>(gWorldManager->getObjectById((*it)));
+        auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player, "inventory");
+		inventory->ViewObjects(player, 0, true, [&] (Object* object) {
+            TravelTicket* ticket = dynamic_cast<TravelTicket*>(object);
             if(ticket)
             {
                 BString srcPoint		= (int8*)((ticket->getAttribute<std::string>("travel_departure_point")).c_str());
@@ -573,7 +567,7 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,std::u16string 
 
 				if(srcPlanetId == zoneId && (strcmp(dstPointStr.c_str(),selectedDst.c_str()) == 0)&&(strcmp(srcPoint.getAnsi(),listBox->getPort().getAnsi()) == 0))
                 {
-                    TravelPoint* dstPoint = gTravelMapHandler->getTravelPoint(dstPlanetId,dstPointStr);
+                    TravelPoint* dstPoint = getTravelPoint(dstPlanetId,dstPointStr);
 
                     if(dstPoint != NULL)
                     {
@@ -589,34 +583,31 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,std::u16string 
 							TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ticket->getParentId()));
 							gContainerManager->deleteObject(ticket, tO);
 
-							gWorldManager->warpPlanet(playerObject,destination,0);
+							gWorldManager->warpPlanet(player,destination,0);
                         }
                         else
                         {
-                            gMessageLib->sendClusterZoneTransferRequestByTicket(playerObject,ticket->getId(), dstPoint->planetId);
+                            gMessageLib->sendClusterZoneTransferRequestByTicket(player,ticket->getId(), dstPoint->planetId);
                         }
                     }
-                    else
-                    {
-                    }
-                    break;
+                    return;
                 }
             }
-            ++it;
-        }
+          
+        });
     }
 }
 
 //=======================================================================================================================
 
-void TravelMapHandler::useTicket(PlayerObject* playerObject, TravelTicket* ticket,Shuttle* shuttle)
+void TravelMapHandler::useTicket(PlayerObject* player, TravelTicket* ticket,Shuttle* shuttle)
 {
     uint32	zoneId = gWorldManager->getZoneId();
 
     // in range check
-    if(playerObject->getParentId() !=  shuttle->getParentId())
+    if(player->getParentId() !=  shuttle->getParentId())
     {
-        gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "shuttle_not_available"), playerObject);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "shuttle_not_available"), player);
         return;
     }
 
@@ -631,7 +622,7 @@ void TravelMapHandler::useTicket(PlayerObject* playerObject, TravelTicket* ticke
 
     if (!shuttle->availableInPort())
     {
-        gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "shuttle_not_available"), playerObject);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "shuttle_not_available"), player);
         return;
     }
 
@@ -641,9 +632,8 @@ void TravelMapHandler::useTicket(PlayerObject* playerObject, TravelTicket* ticke
     std::string dstPointStr	= ticket->getAttribute<std::string>("travel_arrival_point");
 
     // see if we are at the right location
-    if(srcPlanetId != zoneId || strcmp(srcPoint.getAnsi(),port.getAnsi()) != 0)
-    {
-        gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "wrong_shuttle"), playerObject);
+    if(srcPlanetId != zoneId || strcmp(srcPoint.getAnsi(),port.getAnsi()) != 0)    {
+        gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "wrong_shuttle"), player);
         return;
     }
 
@@ -665,11 +655,11 @@ void TravelMapHandler::useTicket(PlayerObject* playerObject, TravelTicket* ticke
             gContainerManager->deleteObject(ticket, tO);
 
             ticket = NULL;
-            gWorldManager->warpPlanet(playerObject,destination,0);
+            gWorldManager->warpPlanet(player,destination,0);
         }
         else
         {
-            gMessageLib->sendClusterZoneTransferRequestByTicket(playerObject,ticket->getId(), dstPoint->planetId);
+            gMessageLib->sendClusterZoneTransferRequestByTicket(player,ticket->getId(), dstPoint->planetId);
         }
         return;
     }

@@ -88,7 +88,7 @@ bool Inventory::checkSlots(uint8 amount)
     // we should iterate the list and count each items volume!
     // please note too, that Im not certain of the clients involvement of this
     // at this point the inventories max capacity is stored in the db table inventory_types
-    if((mMaxSlots - getObjects()->size()) >= amount)
+	if((mMaxSlots - this->getHeadCount()) >= amount)
         return true;
 
     return false;
@@ -119,7 +119,7 @@ void Inventory::handleObjectReady(Object* object,DispatchClient* client)
 	}
 	
 	// reminder: objects are owned by the global map, inventory only keeps references
-	addObjectSecure(object);
+	InitializeObject(object);
 
 	//initialize the Object and add it to the main Object map
 	gWorldManager->addObject(object);
@@ -141,75 +141,63 @@ void Inventory::getUninsuredItems(SortedInventoryItemList* insuranceList)
     // Clear the insurance list.
     insuranceList->clear();
 
-    ObjectIDList::iterator invObjectIt = getObjects()->begin();
+	ViewObjects(this, 0, true, [&] (Object* object) {
+		
+		if (object&&object->hasInternalAttribute("insured"))
+		{
+			if (!object->getInternalAttribute<bool>("insured"))
+			{
+				// Add the item to the insurance list.
 
-    // Items inside inventory and child objects.
-    while (invObjectIt != getObjects()->end())
-    {
-        Object* object = gWorldManager->getObjectById((*invObjectIt));
-        if (object&&object->hasInternalAttribute("insured"))
-        {
-            if (!object->getInternalAttribute<bool>("insured"))
-            {
-                // Add the item to the insurance list.
-
-                // Handle the list.
-                if (object->hasAttribute("original_name"))
-                {
-                    SortedInventoryItemList::iterator it = insuranceList->begin();
-                    BString itemName((int8*)object->getAttribute<std::string>("original_name").c_str());
-                    for (uint32 index = 0; index < insuranceList->size(); index++)
-                    {
-                        if (Anh_Utils::cmpistr(itemName.getAnsi(), (*it).first.getAnsi()) < 0)
-                        {
-                            break;
-                        }
-                        it++;
-                    }
-                    insuranceList->insert(it, std::make_pair(itemName,object->getId()));
-                }
-            }
-        }
-        invObjectIt++;
-    }
-
+				// Handle the list.
+				if (object->hasAttribute("original_name"))
+					{
+						SortedInventoryItemList::iterator it = insuranceList->begin();
+						BString itemName((int8*)object->getAttribute<std::string>("original_name").c_str());
+						for (uint32 index = 0; index < insuranceList->size(); index++)
+						{
+							if (Anh_Utils::cmpistr(itemName.getAnsi(), (*it).first.getAnsi()) < 0)
+							{
+								break;
+							}
+							it++;
+						}
+						insuranceList->insert(it, std::make_pair(itemName,object->getId()));
+					}
+			}
+		}
+	
+	});
     // Items equipped by the player.
     PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));
     if(!player)
         return;
 
-    ObjectList objList = player->getEquipManager()->getEquippedObjects();
+	player->ViewObjects(this, 0, true, [&] (Object* object) {
+		if (object&&object->hasInternalAttribute("insured"))
+		{
+			if (!object->getInternalAttribute<bool>("insured"))
+			{
+				// Add the item to the insurance list.
 
-    ObjectList::iterator equippedObjectIt = objList.begin();
-
-    while (equippedObjectIt != objList.end())
-    {
-        Object* object = (*equippedObjectIt);
-        if (object&&object->hasInternalAttribute("insured"))
-        {
-            if (!object->getInternalAttribute<bool>("insured"))
-            {
-                // Add the item to the insurance list.
-
-                // Handle the list.
-                if (object->hasAttribute("original_name"))
-                {
-                    SortedInventoryItemList::iterator it = insuranceList->begin();
-                    BString itemName((int8*)object->getAttribute<std::string>("original_name").c_str());
-                    for (uint32 index = 0; index < insuranceList->size(); index++)
-                    {
-                        if (Anh_Utils::cmpistr(itemName.getAnsi(), (*it).first.getAnsi()) < 0)
-                        {
-                            break;
-                        }
-                        it++;
-                    }
-                    insuranceList->insert(it, std::make_pair(itemName,object->getId()));
-                }
-            }
-        }
-        equippedObjectIt++;
-    }
+				// Handle the list.
+				if (object->hasAttribute("original_name"))
+				{
+					SortedInventoryItemList::iterator it = insuranceList->begin();
+					BString itemName((int8*)object->getAttribute<std::string>("original_name").c_str());
+					for (uint32 index = 0; index < insuranceList->size(); index++)
+					{
+						if (Anh_Utils::cmpistr(itemName.getAnsi(), (*it).first.getAnsi()) < 0)
+						{
+							break;
+						}
+						it++;
+					}
+					insuranceList->insert(it, std::make_pair(itemName,object->getId()));
+				}
+			}
+		}
+	});
    
 }
 
@@ -226,12 +214,7 @@ void Inventory::getInsuredItems(SortedInventoryItemList* insuranceList)
     // Clear the insurance list.
     insuranceList->clear();
 
-    ObjectIDList::iterator invObjectIt = getObjects()->begin();
-
-    // Items inside inventory and child objects.
-    while (invObjectIt != getObjects()->end())
-    {
-        Object* object = gWorldManager->getObjectById((*invObjectIt));
+    ViewObjects(this, 0, true, [&] (Object* object) {
         if (object&&object->hasInternalAttribute("insured"))
         {
             if (object->getInternalAttribute<bool>("insured"))
@@ -255,20 +238,14 @@ void Inventory::getInsuredItems(SortedInventoryItemList* insuranceList)
                 }
             }
         }
-        invObjectIt++;
-    }
+    });
 
     // Items equipped by the player.
     PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));
     if(!player)
         return;
 
-    ObjectList objList = player->getEquipManager()->getEquippedObjects();
-    ObjectList::iterator equippedObjectIt = objList.begin();
-
-    while (equippedObjectIt != objList.end())
-    {
-        Object* object = (*equippedObjectIt);
+    player->ViewObjects(this, 0, true, [&] (Object* object) {
         if (object->hasInternalAttribute("insured"))
         {
             if (object->getInternalAttribute<bool>("insured"))
@@ -292,31 +269,24 @@ void Inventory::getInsuredItems(SortedInventoryItemList* insuranceList)
                 }
             }
         }
-        equippedObjectIt++;
-    }
+    });
 }
 
 //=============================================================================
 bool Inventory::itemExist(uint32 familyId, uint32 typeId)
 {
     bool found = false;
-    ObjectIDList::iterator invObjectIt = getObjects()->begin();
-
-    // Items inside inventory and child objects.
-    while (invObjectIt != getObjects()->end())
-    {
-        Object* object = getObjectById(*invObjectIt);
+    ViewObjects(this, 0, true, [&] (Object* object) {
         Item* item = dynamic_cast<Item*>(object);
         if (item)
         {
             if ((item->getItemFamily() == familyId) && (item->getItemType() == typeId))
             {
                 found = true;
-                break;
+                return;
             }
         }
-        invObjectIt++;
-    }
+    });
 
     if (!found)
     {
@@ -324,24 +294,17 @@ bool Inventory::itemExist(uint32 familyId, uint32 typeId)
         PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));
         if(!player)
             return found;
-
-        ObjectList objList = player->getEquipManager()->getEquippedObjects();
-        ObjectList::iterator equippedObjectIt = objList.begin();
-
-        while (equippedObjectIt != objList.end())
-        {
-            Object* object = (*equippedObjectIt);
+		player->ViewObjects(this, 0, true, [&] (Object* object) {
             Item* item = dynamic_cast<Item*>(object);
             if (item)
             {
                 if ((item->getItemFamily() == familyId) && (item->getItemType() == typeId))
                 {
                     found = true;
-                    break;
+                    return;
                 }
             }
-            equippedObjectIt++;
-        }
+        });
     }
     return found;
 }

@@ -34,8 +34,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
 #define ANH_VERSION_MAJOR	"0"
-#define ANH_VERSION_MINOR	"2"
-#define ANH_VERSION_PATCH	"0"
+#define ANH_VERSION_MINOR	"3"
+#define ANH_VERSION_PATCH	"1"
 #define ANH_VERSION_NAME	"dev"
 
 //=====================================================================================

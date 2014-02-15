@@ -33,9 +33,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageLib\messages\deltas_message.h"
 #include "MessageLib\messages\baselines_message.h"
 
-#include "ZoneServer\Objects\object_message_builder.h"
-#include "ZoneServer\Objects\Object.h"
-#include "ZoneServer\Objects\Object_Enums.h"
+#include "ZoneServer\Objects\Object\object_message_builder.h"
+#include "ZoneServer\Objects\Object\Object.h"
+#include "ZoneServer\Objects\Object\Object_Enums.h"
 #include "ZoneServer\PlayerEnums.h"
 
 #include "MessageLib/MessageLib.h"

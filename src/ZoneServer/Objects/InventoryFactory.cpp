@@ -30,8 +30,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "anh/logger.h"
 
 #include "Zoneserver/Objects/Inventory.h"
-#include "ZoneServer/Objects/ObjectFactoryCallback.h"
+#include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
 #include "ZoneServer/Objects/Tangible Object/TangibleFactory.h"
+#include "ZoneServer\Objects\Object\ObjectManager.h"
+#include "ZoneServer\PlayerEnums.h"
 #include "ZoneServer/WorldManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -212,9 +214,13 @@ Inventory* InventoryFactory::_createInventory(swganh::database::DatabaseResult* 
 
     // get our results
     result->getNextRow(mInventoryBinding,(void*)inventory);
+	
+	gObjectManager->LoadSlotsForObject(inventory);
+	
+	//inventory->SetTemplate(inventory->mModel.getAnsi());
     
 	//thats somewhat a hack
-	inventory->setParentId(inventory->mId - 1);
+	inventory->setParentId(inventory->mId - INVENTORY_OFFSET);
 
     inventory->setCapacity(inventory->mMaxSlots);
     gWorldManager->addObject(inventory,true);
@@ -230,7 +236,7 @@ void InventoryFactory::_setupDatabindings()
     mInventoryBinding = mDatabase->createDataBinding(6);
     mInventoryBinding->addField(swganh::database::DFT_uint64,offsetof(Inventory,mId),8,0);
     mInventoryBinding->addField(swganh::database::DFT_int32,offsetof(Inventory,mCredits),4,1);
-    mInventoryBinding->addField(swganh::database::DFT_bstring,offsetof(Inventory,mModel),256,2);
+	mInventoryBinding->addField(swganh::database::DFT_stdstring,offsetof(Inventory,template_string_),256,2);
     mInventoryBinding->addField(swganh::database::DFT_bstring,offsetof(Inventory,mName),64,3);
     mInventoryBinding->addField(swganh::database::DFT_bstring,offsetof(Inventory,mNameFile),64,4);
     mInventoryBinding->addField(swganh::database::DFT_uint8,offsetof(Inventory,mMaxSlots),1,5);
@@ -264,9 +270,10 @@ void InventoryFactory::handleObjectReady(Object* object,DispatchClient* client)
     gWorldManager->addObject(object,true);
 
     //for unequipped items only
-    inventory->addObjectSecure(object);
+	inventory->InitializeObject(object);
 
-    if(inventory->getObjectLoadCounter() == (inventory->getObjects())->size())
+	LOG(info) << "InventoryFactory::handleObjectReady -> to load : " << inventory->getObjectLoadCounter()  << " loaded : " << inventory->getHeadCount();
+    if(inventory->getObjectLoadCounter() == (inventory->getHeadCount()))
     {
         inventory->setLoadState(LoadState_Loaded);
 

@@ -140,25 +140,13 @@ uint16 BuildingObject::getCellContentCount()
 
 ObjectList BuildingObject::getAllCellChilds()
 {
-    ObjectIDList*	tmpList;
-    ObjectList	resultList;
-    ObjectIDList::iterator childIt;
+	ObjectList	resultList;
+	this->ViewObjects(nullptr, 0, false, [&](Object* object){
+		if(object->getType() != SWG_CELL)	{
+			resultList.push_back(object);
+		}
+	});
 
-    CellObjectList::iterator cellIt = mCells.begin();
-
-    while(cellIt != mCells.end())
-    {
-        tmpList = (*cellIt)->getObjects();
-        childIt = tmpList->begin();
-
-        while(childIt != tmpList->end())
-        {
-            Object* childObject = gWorldManager->getObjectById((*childIt));
-            resultList.push_back(childObject);
-            ++childIt;
-        }
-        ++cellIt;
-    }
     return(resultList);
 }
 
@@ -168,51 +156,46 @@ ObjectList BuildingObject::getAllCellChilds()
 //
 void BuildingObject::updateCellPermissions(PlayerObject* player, bool access)
 {
-    //iterate through all the cells - do they need to be deleted ?
-    //place players inside a cell in the world
-    CellObjectList*				cellList	= getCellList();
-    CellObjectList::iterator	cellIt		= cellList->begin();
+    //iterate through all the cells 
+    //place players inside the world
+	this->ViewObjects(nullptr, 1, false, [&](Object* object){
+		if(object->getObjectType() == SWG_CELL)	{
+			CellObject* cell = dynamic_cast<CellObject*>(object);
 
-    while(cellIt != cellList->end())
-    {
-        CellObject* cell = (*cellIt);
+			gMessageLib->sendUpdateCellPermissionMessage(cell,access,player);
 
-        gMessageLib->sendUpdateCellPermissionMessage(cell,access,player);
+			//are we inside the cell ?
+			if((player->getParentId() == cell->getId()) && (!access))
+			{
+				//were no longer allowed to be inside ....
+				//so get going
 
-        //are we inside the cell ?
-        if((player->getParentId() == cell->getId()) && (!access))
-        {
-            //were no longer allowed to be inside ....
-            //so get going
+				//TODO find outside position (sign position for example??) to place the player
 
-            //TODO find outside position (sign position for example??) to place the player
+				glm::vec3 playerPosition = player->mPosition;
+				glm::vec3 playerWorldPosition = player->getWorldPosition();
+				glm::vec3 position;
 
+				glm::vec3 playerNewPosition;
+				position.x = (0 - playerPosition.x) - 5;
+				position.z = (0 - playerPosition.z) - 2;
 
-            glm::vec3 playerPosition = player->mPosition;
-            glm::vec3 playerWorldPosition = player->getWorldPosition();
-            glm::vec3 position;
+				position.y = mPosition.y + 50;
 
-            glm::vec3 playerNewPosition;
-            position.x = (0 - playerPosition.x) - 5;
-            position.z = (0 - playerPosition.z) - 2;
+				position.x += playerWorldPosition.x;
+				//position.y += player->getWorldPosition.x;
+				position.z += playerWorldPosition.z;
 
-            position.y = mPosition.y + 50;
-
-            position.x += playerWorldPosition.x;
-            //position.y += player->getWorldPosition.x;
-            position.z += playerWorldPosition.z;
-
-            player->updatePosition(0,position);
-
-
-        }
-
-        ++cellIt;
-    }
+				player->updatePosition(0,position);
+        
+			}
+		}
+	});
 
 }
 
-void BuildingObject::prepareDestruction() {
+void BuildingObject::prepareDestruction() 
+{
     //iterate through all the registered watchers
     //place players inside into the world and unregister the content
     //add an option to delete those players we send to ...
@@ -237,7 +220,7 @@ void BuildingObject::prepareDestruction() {
         player->updatePosition(0, player->getWorldPosition());
         player->setParentIdIncDB(0);
 
-        cell->removeObject(player);
+        cell->RemoveObject(this, player);
 
         gMessageLib->broadcastContainmentMessage(player, 0, 0xffffffff);
     });

@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "anh/logger.h"
 
 #include "CreatureEnums.h"
-#include "ZoneServer/Objects/ObjectFactoryCallback.h"
+#include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
 #include "ZoneServer/GameSystemManagers/NPC Manager/PersistentNpcFactory.h"
 #include "ZoneServer/Objects/ShuttleFactory.h"
 #include "ZoneServer/Objects/Creature Object/CreatureObject.h"
@@ -97,6 +97,9 @@ void CreatureFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,
 {
     switch(subGroup)
     {
+	case CreoGroup_AttackableObject:
+		break;
+
     case CreoGroup_PersistentNpc:
         mPersistentNpcFactory->requestObject(ofCallback,id,subGroup,subType,client);
         break;

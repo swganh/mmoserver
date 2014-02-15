@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/GameSystemManagers/Equip Manager/EquipManager.h"
 #include "ZoneServer/GameSystemManagers/Ham Manager/Ham.h"
 #include "ZoneServer/Objects/MovingObject.h"
+#include "ZoneServer\Objects\Creature Object\equipment_item.h"
 #include "ZoneServer/GameSystemManagers/Skill Manager/SkillManager.h"
 #include <ZoneServer\Objects\Creature Object\CreatureEnums.h>
 #include <map>
@@ -78,6 +79,25 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 
         // inherited from moving object
         virtual void		updateMovementProperties();
+
+		// Equipment List
+		void AddEquipmentItem(std::shared_ptr<swganh::object::EquipmentItem>& item);
+		void AddEquipmentItem(std::shared_ptr<swganh::object::EquipmentItem>& item, boost::unique_lock<boost::mutex>& lock);
+
+		void RemoveEquipmentItem(uint64_t object_id);
+		void RemoveEquipmentItem(uint64_t object_id, boost::unique_lock<boost::mutex>& lock);
+
+		void UpdateEquipmentItem(std::shared_ptr<swganh::object::EquipmentItem>& item);
+		void UpdateEquipmentItem(std::shared_ptr<swganh::object::EquipmentItem>& item, boost::unique_lock<boost::mutex>& lock);
+
+		std::vector<std::shared_ptr<swganh::object::EquipmentItem>> GetEquipment();
+		std::vector<std::shared_ptr<swganh::object::EquipmentItem>> GetEquipment(boost::unique_lock<boost::mutex>& lock);
+
+		std::shared_ptr<swganh::object::EquipmentItem>& GetEquipmentItem(uint64_t object_id);
+		std::shared_ptr<swganh::object::EquipmentItem>& GetEquipmentItem(uint64_t object_id, boost::unique_lock<boost::mutex>& lock);
+
+		void SerializeEquipment(swganh::messages::BaseSwgMessage* message);
+		void SerializeEquipment(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock);
 
         std::string			getFirstName() const { auto lock = AcquireLock(); return getFirstName(lock); }
 		std::string			getFirstName(boost::unique_lock<boost::mutex>& lock) const { return first_name; }
@@ -169,9 +189,6 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
         bool				verifyAbility(uint32 abilityCRC);
 
         SkillModsList::iterator	findSkillMod(uint32 modId);
-
-        // equipped objects
-        EquipManager*		getEquipManager(){ return &mEquipManager; }
 
         // pvp status
 
@@ -556,6 +573,8 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 		swganh::containers::NetworkVector<int32_t> stat_max_list_;
 		swganh::containers::NetworkVector<int32_t> stat_encumberance_list_;
 
+		swganh::containers::NetworkVector<std::shared_ptr<swganh::object::EquipmentItem>> equipment_list_;
+
 		swganh::containers::NetworkVector<uint64, swganh::containers::DefaultSerializer<uint64>> defender_list_;
 		
 		//swganh::containers::NetworkSet<std::string> skills_;
@@ -568,7 +587,6 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
         SkillCommandList	mSkillCommands;
         SkillList			mSkills;
         SkillModsList		mSkillMods;
-        EquipManager		mEquipManager;
 
         BString				mCurrentAnimation;
         BString				mCustomizationStr;

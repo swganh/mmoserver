@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer/Objects/CraftingTool.h"
 #include "ZoneServer/GameSystemManagers/Crafting Manager/ManufacturingSchematic.h"
-#include "ZoneServer/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/Objects/Wearable.h"
 #include "ZoneServer/WorldManager.h"
@@ -49,7 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 // contain: general information, name, customization, type, condition
 //
 
-bool MessageLib::sendBaselinesTANO_3(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const
+bool MessageLib::sendBaselinesTANO_3( TangibleObject*  tangibleObject,const PlayerObject* const targetObject) const
 {
     if(!(targetObject->isConnected()))
         return(false);
@@ -113,7 +113,7 @@ bool MessageLib::sendBaselinesTANO_3(const TangibleObject* const tangibleObject,
 // contain: unknown
 //
 
-bool MessageLib::sendBaselinesTANO_6(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const
+bool MessageLib::sendBaselinesTANO_6( TangibleObject*  tangibleObject,const PlayerObject* const targetObject) const
 {
     if(!(targetObject->isConnected()))
         return(false);
@@ -147,7 +147,7 @@ bool MessageLib::sendBaselinesTANO_6(const TangibleObject* const tangibleObject,
 // contain: unknown
 //
 
-bool MessageLib::sendBaselinesTANO_8(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const
+bool MessageLib::sendBaselinesTANO_8( TangibleObject*  tangibleObject,const PlayerObject* const targetObject) const
 {
     if(!(targetObject->isConnected()))
         return(false);
@@ -176,7 +176,7 @@ bool MessageLib::sendBaselinesTANO_8(const TangibleObject* const tangibleObject,
 // contain: unknown
 //
 
-bool MessageLib::sendBaselinesTANO_9(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const
+bool MessageLib::sendBaselinesTANO_9( TangibleObject*  tangibleObject,const PlayerObject* const targetObject) const
 {
     if(!(targetObject->isConnected()))
         return(false);

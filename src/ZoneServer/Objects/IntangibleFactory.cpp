@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "IntangibleFactory.h"
 #include "ZoneServer/Objects/FactoryBase.h"
-#include "ZoneServer/Objects/Object.h"
+#include "ZoneServer/Objects/Object/Object.h"
 #include "Zoneserver/Objects/VehicleControllerFactory.h"
 
 #include "DatabaseManager/DatabaseCallback.h"

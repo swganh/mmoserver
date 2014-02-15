@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ZoneServer/Objects/Tangible Object/TangibleFactory.h"
-#include "ZoneServer/GameSystemManagers/Container Manager/ContainerObjectFactory.h"
 #include <ZoneServer\Objects\ItemFactory.h>
 #include "ZoneServer\Objects\DatapadFactory.h"
 
@@ -62,7 +61,6 @@ TangibleFactory*	TangibleFactory::Init(swganh::app::SwganhKernel*	kernel)
 
 TangibleFactory::TangibleFactory(swganh::app::SwganhKernel*	kernel) : FactoryBase(kernel)
 {
-    mContainerFactory			= ContainerObjectFactory::Init(kernel);
     mTerminalFactory			= TerminalFactory::Init(kernel);
     mTicketCollectorFactory		= TicketCollectorFactory::Init(kernel);
     mItemFactory				= ItemFactory::Init(kernel);
@@ -89,9 +87,6 @@ void TangibleFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,
     case TanGroup_Terminal:
         mTerminalFactory->requestObject(ofCallback,id,subGroup,subType,client);
         break;
-    case TanGroup_Container:
-        mContainerFactory->requestObject(ofCallback,id,subGroup,subType,client);
-        break;
     case TanGroup_TicketCollector:
         mTicketCollectorFactory->requestObject(ofCallback,id,subGroup,subType,client);
         break;
@@ -116,7 +111,6 @@ void TangibleFactory::releaseAllPoolsMemory()
 {
     mItemFactory->releaseQueryContainerPoolMemory();
     mTerminalFactory->releaseQueryContainerPoolMemory();
-    mContainerFactory->releaseQueryContainerPoolMemory();
     mTicketCollectorFactory->releaseQueryContainerPoolMemory();
     mResourceContainerFactory->releaseQueryContainerPoolMemory();
 }

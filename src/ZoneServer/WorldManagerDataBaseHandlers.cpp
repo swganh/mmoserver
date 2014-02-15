@@ -44,7 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/GameSystemManagers/Group Manager/GroupManager.h"
 #include "ZoneServer/GameSystemManagers/Structure Manager/HarvesterFactory.h"
 #include "ZoneServer/GameSystemManagers/Structure Manager/HouseFactory.h"
-#include "ZoneServer/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 
 #include <anh\app\swganh_kernel.h>

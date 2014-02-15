@@ -52,10 +52,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/ObjectController/ObjectController.h"
 #include "ZoneServer/GameSystemManagers/Radial Manager/RadialMenu.h"
 #include "ZoneServer/GameSystemManagers/UI Manager/UICallback.h"
-#include "ZoneServer/Objects/Object_Enums.h"
-
+#include "ZoneServer/Objects/Object/Object_Enums.h"
+#include "ZoneServer\Objects\Object\container_interface.h"
+#include "ZoneServer\Objects\Object\container_interface.h"
 #include "anh/event_dispatcher/event_dispatcher.h"
-
+#include "ZoneServer\Objects\Object\slot_interface.h"
 //=============================================================================
 
 class Object;
@@ -63,7 +64,7 @@ class PlayerObject;
 class CreatureObject;
 
 typedef std::map<uint32,std::string>	AttributeMap;
-typedef std::shared_ptr<RadialMenu>	RadialMenuPtr;
+typedef std::shared_ptr<RadialMenu>		RadialMenuPtr;
 // typedef std::vector<uint64>				ObjectIDList;
 typedef std::list<uint64>				ObjectIDList;
 typedef std::list<Object*>				ObjectList;
@@ -73,6 +74,9 @@ typedef std::set<PlayerObject*>			PlayerObjectSet;
 typedef std::set<uint64>				PlayerObjectIDSet;
 typedef std::list<uint32>				AttributeOrderList;
 typedef std::set<uint64>				Uint64Set;
+
+typedef std::map<int32_t,swganh::object::SlotInterface*>	ObjectSlots;
+typedef std::vector<std::vector<int32_t>>					ObjectArrangements;
 //=============================================================================
 
 #define DISPATCH(BIG, LITTLE) if(auto dispatcher = GetEventDispatcher()) \
@@ -84,17 +88,73 @@ typedef swganh::event_dispatcher::ValueEvent<Object*> ObjectEvent;
  - Base class for all gameobjects
  */
 
-class Object : public UICallback, public Anh_Utils::EventHandler, public ObjectFactoryCallback, public std::enable_shared_from_this<Object>
+class Object : public UICallback, public Anh_Utils::EventHandler, public ObjectFactoryCallback, public std::enable_shared_from_this<Object>, public swganh::object::ContainerInterface
 {
 	friend class PlayerObjectFactory;
 	friend class InventoryFactory;
 	friend class NonPersistentItemFactory;
 	friend class ItemFactory;
+	
 
 public:
 
 	Object();
-	Object(uint64 id,uint64 parentId,const BString model,ObjectType type);
+	Object(uint64 id,uint64 parentId,const std::string model,ObjectType type);
+
+	virtual bool AddObject(Object* requester, Object* newObject, int32_t arrangement_id=-2);
+	void 		 InitializeObject(Object* newObject);
+
+    virtual bool RemoveObject(Object* requester, Object* oldObject);
+    virtual void TransferObject(Object* requester, Object* object, ContainerInterface* newContainer, glm::vec3 new_position,  int32_t arrangement_id=-2);
+    virtual void SwapSlots(Object* requester, Object* object, int32_t new_arrangement_id);
+
+	virtual void		__InternalViewObjects(Object* requester, uint32_t max_depth, bool topDown, std::function<void(Object*)> func);
+	virtual void		__InternalGetObjects(Object* requester, uint32_t max_depth, bool topDown, std::list<Object*>& out);
+	virtual int32_t		__InternalInsert(Object* object, glm::vec3 new_position, int32_t arrangement_id=-2);
+	
+	//virtual void		__InternalGetObjects(std::shared_ptr<Object> requester, uint32_t max_depth, bool topDown, std::list<std::shared_ptr<Object>>& out);
+
+	virtual void __InternalTransfer(Object* requester, Object* object, ContainerInterface* newContainer, int32_t arrangement_id=-2);
+    //virtual bool __HasAwareObject(Object* object);
+    virtual void __InternalAddAwareObject(PlayerObject* object);
+    virtual void __InternalViewAwareObjects(std::function<void(Object*)> func);
+    virtual void __InternalRemoveAwareObject(PlayerObject* object, bool reverse_still_valid);
+
+	virtual void __InternalGetAbsolutes(glm::vec3& pos, glm::quat& rot);
+
+	/**
+     * @brief Gets the appropriate arrangement given an object
+     */
+    int32_t GetAppropriateArrangementId(Object* other);
+
+	/**
+     * @brief Sets the slots and arragements information for the Object
+     *
+     * This is used to determine which objects can be equipped into which slot for the Object
+     */
+    void SetSlotInformation(ObjectSlots slots, ObjectArrangements arrangements);
+    void SetSlotInformation(ObjectSlots slots, ObjectArrangements arrangements, boost::unique_lock<boost::mutex>& lock);
+
+	/**
+     * @brief Clears the given slot by slot_id
+     */
+    bool ClearSlot(int32_t slot_id);
+    bool ClearSlot(int32_t slot_id, boost::unique_lock<boost::mutex>& lock);
+
+	/**
+     * @brief Gets the slot object by slot_id
+     */
+    Object* GetSlotObject(int32_t slot_id);
+    Object* GetSlotObject(int32_t slot_id, boost::unique_lock<boost::mutex>& lock);
+
+
+	/*	@brief	GetInstanceId gets the Id of the instance the Object is part of
+	*/
+	uint32_t					GetInstanceId();
+    uint32_t					GetInstanceId(boost::unique_lock<boost::mutex>& lock);
+
+    void SetInstanceId(uint32_t instance_id);
+    void SetInstanceId(uint32_t instance_id, boost::unique_lock<boost::mutex>& lock);
 
 	ObjectLoadState				getLoadState(){ return mLoadState; }
 	void						setLoadState(ObjectLoadState state){ mLoadState = state; }
@@ -113,21 +173,20 @@ public:
         mParentId = parentId;
     }		
 		
-	BString						getModelString(){ return mModel; }
 	
 	/*@brief	this will get the old fashioned Object type 
-	*			phase out and use the 
+	*			phase out and use the getObjectType()
 	*/
 	ObjectType					getType() const { return mType; }
 	uint32						getTypeOptions() const { return mTypeOptions; }
+
+	void						setType(ObjectType type){ mType = type; }
 	
 	/*@brief	this will get the Objects type-CRC (YALP OERC etc)
 	*			use instead of ObjectType
 	*/
 	CRC_Type					getObjectType() const { return object_type_; }
 		
-	void						setModelString(const BString model){ mModel = model; }
-	void						setType(ObjectType type){ mType = type; }
 	void						setTypeOptions(uint32 options){ mTypeOptions = options; }
 
 
@@ -183,17 +242,7 @@ public:
 	uint32						getGridBucket() const { return zmapCellID; }
 	void						setGridBucket(uint32 id){ zmapCellID = id; }
 
-	//===========================================================================
-	// equip management
-		
-	//equip slots set the equipmanagerslots an item occupies when equipped
-	uint64						getEquipSlotMask(){ return mEquipSlots; }
-	void						setEquipSlotMask(uint64 slotMask){ mEquipSlots = slotMask; }
-		
-	//equip restrictions are the equipmanagers restrictions based on race or gender
-	uint64						getEquipRestrictions(){ return mEquipRestrictions; }
-	void						setEquipRestrictions(uint64 restrictions){ mEquipRestrictions = restrictions; }
-
+	
 	uint32						getDataTransformCounter(){ return mDataTransformCounter; }
 	uint32						incDataTransformCounter(){ return ++mDataTransformCounter; }
 	void						setDataTransformCounter(uint32 restrictions){ mDataTransformCounter= restrictions; }
@@ -219,16 +268,7 @@ public:
 	
 	//virtual void				addContainerKnownObject(Object* object);
 
-	/*
-	*static knownObject is the inventory, the hair, etc - these dont need to be altered by the SI
-	*/
-	bool						checkStatics(Object* object) const;
-	PlayerObjectSet*		    getRegisteredStaticWatchers() { return &mKnownStaticPlayers; }
-	ObjectSet*					getStatitcs() { return &mKnownStatics; }
-	bool						registerStatic(Object* object);
-		
-
-		
+			
 	virtual ~Object();
 
     /*! Retrieve the world position of an object. Important for ranged lookups that need
@@ -323,12 +363,7 @@ public:
 	//handles Object ready in case our item is in the container
 	void				handleObjectReady(Object* object,DispatchClient* client);
 
-	/*@brief gets a reference to the List containing all the Containers Child Items
-	*should be renamed to getContainerContent
-	*/
-	ObjectIDList*		getObjects() { return &mData; }
-
-	ObjectIDList		getContainerContentCopy() { return mData; }
+	
 
 	Object*				getObjectById(uint64 id);
 		
@@ -336,29 +371,15 @@ public:
 	/// adds an Object to the ObjectContainer
 	///	returns false if the container was full and the item not added
 		
-	bool				addObject(Object* data);
-	bool				addObjectSecure(Object* data);
-		
-	bool				checkForObject(Object* object);
-	bool				hasObject(uint64 id);
-		
-	bool				removeObject(uint64 id);
-	bool				removeObject(Object* Data);
-	ObjectIDList::iterator removeObject(ObjectIDList::iterator it);
 		
 		
 	//we need to check the content of our children, too!!!!
-	virtual bool		checkCapacity(){return((mCapacity-mData.size()) > 0);}
+	virtual bool		checkCapacity(){return(mCapacity-getHeadCount() > 0);}
 	virtual bool		checkCapacity(uint8 amount, PlayerObject* player = NULL);
 	void				setCapacity(uint16 cap){mCapacity = cap;}
 	uint16				getCapacity(){return mCapacity;}
 	uint16				getHeadCount();
 
-
-		
-
-//		void						clearKnownObjects(){ mKnownObjects.clear(); mKnownPlayers.clear(); }
-//		ObjectSet*					getContainerKnownObjects() { return &mKnownObjects; }
 	
 	/*	@brief	gets the Custom (non stf) name of an Object
 	*			For players the Custom Name will be build out of first_name " " and last_name
@@ -380,11 +401,96 @@ public:
 		return boost::unique_lock<boost::mutex>(object_mutex_);
 	}
 
+	/**
+     * Return the client iff template file that describes this Object.
+     *
+     * @return The object iff template file name.
+     */
+    std::string GetTemplate();
+    std::string GetTemplate(boost::unique_lock<boost::mutex>& lock);
+
+    /**
+     * Sets the client iff template file that describes this Object.
+     *
+     * @param template_string The object iff template file name.
+     */
+    void	SetTemplate(const std::string& template_string);
+    void	SetTemplate(const std::string& template_string, boost::unique_lock<boost::mutex>& lock);
+
+	int32_t GetArrangementId();
+    void	SetArrangementId(int32_t arrangement_id);
+
+    /**
+     * @return The container for the current object.
+     */
+    virtual swganh::object::ContainerInterface* GetContainer();
+    virtual swganh::object::ContainerInterface* GetContainer(boost::unique_lock<boost::mutex>& lock);
+
+    /**
+    *  @param Type of object to return
+     * @return The container for the current object.
+     */
+    template<typename T> T* GetContainer()
+    {
+        return GetContainer<T>(AcquireLock());
+    }
+    template<typename T>
+    T* GetContainer(boost::unique_lock<boost::mutex>& lock)
+    {
+#ifdef _DEBUG
+        return dynamic_cast<T>(container_);
+#else
+        return static_cast<T>(container_);
+#endif
+    }
+
+    /**
+     * Sets the container for the current object.
+     *
+     * @param container The new object container.
+     */
+    void SetContainer( swganh::object::ContainerInterface* container);
+    void SetContainer( swganh::object::ContainerInterface* container, boost::unique_lock<boost::mutex>& lock);
+
+	//object data for linked factory crates
+
+	/*@brief gets a reference to the List containing all the Containers Child Items
+	*should be renamed to getContainerContent
+	*/
+	ObjectIDList*		GetObjectData() { return &object_data_; }
+
+	ObjectIDList		GetObjectDataCopy() { return object_data_; }
+
+	Object*				getObjectDataById(uint64 id);
+
+	/// =====================================================
+	/// adds an Object to the ObjectContainer
+	///	returns false if the container was full and the item not added
+		
+	bool				addObjectToData(Object* data);
+		
+	bool				checkDataForObject(Object* object);
+	bool				hasDataObject(uint64 id);
+		
+	bool				removeDataObject(uint64 id);
+	bool				removeDataObject(Object* Data);
+
 protected:
 
-	mutable boost::mutex		object_mutex_;	
+	int32_t									arrangement_id_;
+	std::string								template_string_;
 
-	ObjectIDList				mData;
+	ObjectSlots								slot_descriptor_;
+    ObjectArrangements						slot_arrangements_;
+
+    swganh::object::ContainerInterface*		container_;
+
+	uint32_t								scene_id_;
+    uint32_t								instance_id_;
+
+	mutable boost::mutex					object_mutex_;	
+	ObjectIDList							object_data_;
+
 	uint16						mCapacity;
 
 	bool						mMovementMessageToggle;
@@ -393,7 +499,7 @@ protected:
 	AttributeMap 				mInternalAttributeMap;
 	ObjectIDSet					mKnownObjectsIDs;
 	ObjectController			mObjectController;
-	BString						mModel;
+	//BString						mModel;
 
 	std::u16string			custom_name_;
 
@@ -422,9 +528,6 @@ private:
 	//registered Players that are watching us
 	PlayerObjectSet				mKnownPlayers;
 
-	//registered Objects out of the SI
-	ObjectSet					mKnownStatics;
-	PlayerObjectSet				mKnownStaticPlayers;
 
 };
 

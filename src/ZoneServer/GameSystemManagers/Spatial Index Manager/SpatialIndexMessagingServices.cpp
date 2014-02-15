@@ -63,90 +63,62 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 bool SpatialIndexManager::sendCreateObject(Object* object,PlayerObject* player, bool sendSelftoTarget)
 {
     //DLOG(info) << "SpatialIndexManager::sendCreateObject: create :" << object->getId() << "for :" << player->getId();
-
+	
     if(!object)
     {
         DLOG(info) << "Attempting sendCreateObject on an invalid object instance";
         return false;
     }
 
+	// skip, if its static
+    if(object->getId() <= 4294967296)        {
+        //skip statics
+        return false;
+    }
+
+
+	switch(object->getObjectType())
+    {
+	case SWG_CREATURE:
+		{
+			CreatureObject* targetCreature = dynamic_cast<CreatureObject*>(object);
+			if(!targetCreature)	{
+				DLOG(info) << "SpatialIndexManager::sendCreateObject : invalid Object couldn cast creature";
+				return false;
+			}
+			
+			return gMessageLib->sendCreateCreature(targetCreature,player);
+
+		}
+		break;
+	}
+
+
     switch(object->getType())
     {
-    case ObjType_NPC:
-        // creatures
-    case ObjType_Creature:
-    {
-
-        // If it's a creature owned by me or my group I want to see it.
-        if (CreatureObject* targetCreature = dynamic_cast<CreatureObject*>(object))
-        {
-            if (targetCreature->getPrivateOwner())
-            {
-                if (targetCreature->isOwnedBy(player))
-                {
-                    return gMessageLib->sendCreateCreature(targetCreature,player);
-                }
-            }
-            else
-            {
-                // No owner.. a "normal" creature
-                return gMessageLib->sendCreateCreature(targetCreature,player);
-            }
-        }
-    }
-    break;
+    
 
     // players
     case ObjType_Player:
     {
         // send creates to each other
-        if (!gWorldConfig->isInstance())
+        if(PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(object))
         {
-            if(PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(object))
+            if(sendSelftoTarget)
             {
-                if(sendSelftoTarget)
-                {
-                    sendCreatePlayer(player,targetPlayer);
-                }
+                sendCreatePlayer(player,targetPlayer);
+            }
 
-                sendCreatePlayer(targetPlayer,player);
-            }
-        }
-        else
-        {
-            if (PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(object))
-            {
-                // Update players in instanced group only.
-                if (targetPlayer->getGroupId())
-                {
-                    if (targetPlayer->getGroupId() == player->getGroupId())
-                    {
-                        if(sendSelftoTarget)
-                        {
-                            sendCreatePlayer(player,targetPlayer);
-                        }
-                        sendCreatePlayer(targetPlayer,player);
-                    }
-                }
-            }
+            sendCreatePlayer(targetPlayer,player);
         }
     }
+        
     break;
 
     // tangibles
     case ObjType_Tangible:
     {
-        // skip, if its static
-#if defined(_MSC_VER)
-        if(object->getId() <= 0x0000000100000000)
-#else
-        if(object->getId() <= 0x0000000100000000LLU)
-#endif
-        {
-            //skip statics
-            break;
-        }
-
+       
         TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object);
         sendCreateTangible(tangibleObject, player, false);
     }
@@ -155,12 +127,7 @@ bool SpatialIndexManager::sendCreateObject(Object* object,PlayerObject* player, 
     // buildings
     case ObjType_Building:
     {
-        // skip, if its static
-#if defined(_MSC_VER)
-        if(object->getId() > 0x0000000100000000)
-#else
-        if(object->getId() > 0x0000000100000000LLU)
-#endif
+
         {
             if(BuildingObject* building = dynamic_cast<BuildingObject*>(object))
             {
@@ -173,11 +140,7 @@ bool SpatialIndexManager::sendCreateObject(Object* object,PlayerObject* player, 
     case ObjType_Structure:
     {
         // skip, if its static
-#if defined(_MSC_VER)
-        if(object->getId() > 0x0000000100000000)
-#else
-        if(object->getId() > 0x0000000100000000LLU)
-#endif
+
         {
             if(PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object))
             {
@@ -191,6 +154,7 @@ bool SpatialIndexManager::sendCreateObject(Object* object,PlayerObject* player, 
     default:
     {
         DLOG(info) << "MessageLib::createObject: Unhandled object type: " << object->getType();
+		return false;
     }
     break;
     }
@@ -273,8 +237,14 @@ bool SpatialIndexManager::sendCreatePlayer(PlayerObject* playerObject,PlayerObje
 {
 
     gMessageLib->sendCreatePlayer(playerObject, targetObject);
-    playerObject->registerStatic(playerObject);
+	playerObject->registerWatcher(playerObject);
 
+	playerObject->ViewObjects(playerObject, 0, false, [&] (Object* object) {
+		LOG(info) << "creating : " << object->getId() << " ";
+	
+	});
+
+	/*
     // tangible objects
     if(TangibleObject* hair = dynamic_cast<TangibleObject*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hair)))
     {
@@ -409,7 +379,7 @@ bool SpatialIndexManager::sendCreatePlayer(PlayerObject* playerObject,PlayerObje
             }
         }
     }
-
+	*/
     return(true);
 }
 
@@ -419,7 +389,7 @@ bool SpatialIndexManager::sendCreatePlayer(PlayerObject* playerObject,PlayerObje
 //
 void SpatialIndexManager::sendInventory(PlayerObject* playerObject)
 {
-
+	/*
     Inventory*	inventory	= playerObject->getInventory();
 
     //to stop the server from crashing.
@@ -444,8 +414,8 @@ void SpatialIndexManager::sendInventory(PlayerObject* playerObject)
     // create objects contained *always* even if already registered
     // register them as necessary
     // please note that they need to be created even if already registered (client requirement)
-    inventory->registerStatic(playerObject);
-    playerObject-> registerStatic(inventory);
+	inventory->registerWatcher(playerObject);
+    
 
     ObjectIDList* invObjects		= inventory->getObjects();
     ObjectIDList::iterator objIt	= invObjects->begin();
@@ -478,7 +448,7 @@ void SpatialIndexManager::sendInventory(PlayerObject* playerObject)
 
         ++objEIt;
     }
-
+	*/
 }
 
 //======================================================================================================================
@@ -488,6 +458,7 @@ void SpatialIndexManager::sendInventory(PlayerObject* playerObject)
 //
 bool SpatialIndexManager::sendEquippedItems(PlayerObject* srcObject,PlayerObject* targetObject)
 {
+	/*
     ObjectList				invObjects		= srcObject->getEquipManager()->getEquippedObjects();
     ObjectList::iterator	invObjectsIt	= invObjects.begin();
 
@@ -510,6 +481,8 @@ bool SpatialIndexManager::sendEquippedItems(PlayerObject* srcObject,PlayerObject
     }
 
     return(true);
+	*/
+	return false;
 }
 
 //======================================================================================================================
@@ -533,7 +506,7 @@ bool SpatialIndexManager::sendCreateFactoryCrate(FactoryCrate* crate,PlayerObjec
     gMessageLib->sendBaselinesTYCF_9(crate,targetObject);
 
     //check for our linked item and create it
-    ObjectIDList*			ol = crate->getObjects();
+    ObjectIDList*			ol = crate->GetObjectData();
     ObjectIDList::iterator	it = ol->begin();
 
     while(it != ol->end())

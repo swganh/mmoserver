@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ItemFactory.h"
 #include "anh/logger.h"
 
+#include "ZoneServer\Objects\Object\ObjectManager.h"
 #include "ZoneServer/Objects/CraftingTool.h"
 #include "ZoneServer/Objects/CraftingStation.h"
 #include "Zoneserver/Objects/Deed.h"
@@ -40,7 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ItemTerminal.h"
 #include "ZoneServer/GameSystemManagers/Crafting Manager/ManufacturingSchematic.h"
 #include "Medicine.h"
-#include "ZoneServer/Objects/ObjectFactoryCallback.h"
+#include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
 #include "ZoneServer/Objects/Tangible Object/TangibleFactory.h"
 #include "Zoneserver/ProfessionManagers/Scout Manager/Scout.h"
 #include "BugJar.h"
@@ -378,6 +379,7 @@ Item* ItemFactory::_createItem(swganh::database::DatabaseResult* result)
     item->setItemType(itemIdentifier.mTypeId);
     item->setLoadState(LoadState_Attributes);
     item->buildTanoCustomization(3); //x + 1
+	gObjectManager->LoadSlotsForObject(item);
 
     return item;
 }
@@ -398,7 +400,7 @@ void ItemFactory::_setupDatabindings()
     mItemBinding->addField(swganh::database::DFT_float,offsetof(Item,mPosition.y),4,10);
     mItemBinding->addField(swganh::database::DFT_float,offsetof(Item,mPosition.z),4,11);
     mItemBinding->addField(swganh::database::DFT_bstring,offsetof(Item,mCustomName),256,13);
-    mItemBinding->addField(swganh::database::DFT_bstring,offsetof(Item,mModel),256,14);
+	mItemBinding->addField(swganh::database::DFT_stdstring,offsetof(Item,template_string_),256,14);
     mItemBinding->addField(swganh::database::DFT_bstring,offsetof(Item,mName),64,15);
     mItemBinding->addField(swganh::database::DFT_bstring,offsetof(Item,mNameFile),64,16);
     mItemBinding->addField(swganh::database::DFT_bstring,offsetof(Item,mDetailFile),64,18);
@@ -517,7 +519,7 @@ void ItemFactory::handleObjectReady(Object* object,DispatchClient* client)
     ilc->mLoadCounter --;
 
     gWorldManager->addObject(object,true);
-    item->addObjectSecure(object);
+    item->InitializeObject(object);
 
     if(!ilc->mLoadCounter)
     {

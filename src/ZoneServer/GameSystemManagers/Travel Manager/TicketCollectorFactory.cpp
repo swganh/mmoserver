@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "TicketCollectorFactory.h"
-#include "ZoneServer/Objects/ObjectFactoryCallback.h"
+#include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
 #include "TicketCollector.h"
 
 #include "DatabaseManager/Database.h"
@@ -132,7 +132,7 @@ void TicketCollectorFactory::_setupDatabindings()
     mTicketCollectorBinding = mDatabase->createDataBinding(13);
     mTicketCollectorBinding->addField(swganh::database::DFT_uint64,offsetof(TicketCollector,mId),8,0);
     mTicketCollectorBinding->addField(swganh::database::DFT_uint64,offsetof(TicketCollector,mParentId),8,1);
-    mTicketCollectorBinding->addField(swganh::database::DFT_bstring,offsetof(TicketCollector,mModel),256,2);
+	mTicketCollectorBinding->addField(swganh::database::DFT_stdstring,offsetof(TicketCollector,template_string_),256,2);
     mTicketCollectorBinding->addField(swganh::database::DFT_float,offsetof(TicketCollector,mDirection.x),4,3);
     mTicketCollectorBinding->addField(swganh::database::DFT_float,offsetof(TicketCollector,mDirection.y),4,4);
     mTicketCollectorBinding->addField(swganh::database::DFT_float,offsetof(TicketCollector,mDirection.z),4,5);

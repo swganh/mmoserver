@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_ZONESERVER_PLAYER_OBJECT_FACTORY_H
 
 #include "ZoneServer/Objects/FactoryBase.h"
-#include "ZoneServer/Objects/ObjectFactoryCallback.h"
+#include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
 
 #define 	gPlayerObjectFactory	PlayerObjectFactory::getSingletonPtr()
 

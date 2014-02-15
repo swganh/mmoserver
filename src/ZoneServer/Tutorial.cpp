@@ -32,13 +32,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Zoneserver/GameSystemManagers/Buff Manager/Buff.h"
 #include "Zoneserver/GameSystemManagers/Structure Manager/BuildingObject.h"
 #include "CharSheetManager.h"
-#include "ZoneServer/GameSystemManagers/Container Manager/Container.h"
 #include "Zoneserver/Objects/Datapad.h"
 #include "ZoneServer/GameSystemManagers/NPC Manager/FillerNPC.h"
 #include "Zoneserver/Objects/Inventory.h"
 #include "Zoneserver/GameSystemManagers/NPC Manager/NonPersistentNpcFactory.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
-#include "ZoneServer/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/ProfessionManagers/Artisan Manager/SampleEvent.h"
 #include "Zoneserver/GameSystemManagers/Crafting Manager/SchematicManager.h"
 #include "ZoneServer/GameSystemManagers/UI Manager/UICloneSelectListBox.h"
@@ -813,29 +812,17 @@ bool Tutorial::isContainerEmpty(uint64 containerId)
     bool empty = false;
     if (containerId == mContainerEventId)
     {
-	    Container* container = dynamic_cast<Container*>(gWorldManager->getObjectById(containerId));
+	    TangibleObject* container = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(containerId));
 	    if (container)
 	    {
-		    uint32 objectCount = 0;
-		    ObjectIDList* objList = container->getObjects();
-		    ObjectIDList::iterator it = objList->begin();
-
-		    ObjectIDList::iterator cEnd = objList->end();
-
-		    while(it != cEnd)
-		    {
-			    TangibleObject* item = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
-			    if(item->getPrivateOwner() == this->getPlayer())
-                {
-				    ++objectCount;
-                }
-
-                ++it;
-            }
-
-            empty = (objectCount == 0);
-        }
+			uint32 objectCount = 0;
+			container->ViewObjects(container, 0, true, [&](Object* object){
+		   
+				++objectCount;
+            });
+		}
     }
+    
     return empty;
 }
 

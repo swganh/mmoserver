@@ -39,7 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Zoneserver/Objects/Item.h"
 #include "ZoneServer/GameSystemManagers/Crafting Manager/ManufacturingSchematic.h"
 #include "ZoneServer/ObjectController/ObjectControllerOpcodes.h"
-#include "ZoneServer/Objects/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceContainer.h"
 #include <ZoneServer/GameSystemManagers/Resource Manager/ResourceManager.h>
@@ -392,7 +392,7 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
 
         // link item data
         mManufacturingSchematic->setName(mItem->getName().getAnsi());
-        mManufacturingSchematic->setItemModel(mItem->getModelString().getAnsi());
+        mManufacturingSchematic->setItemModel(mItem->GetTemplate().c_str());
         //mManufacturingSchematic->setModelString(mItem->getModelString());
 
         // set up initial configuration

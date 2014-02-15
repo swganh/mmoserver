@@ -29,8 +29,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/PlayerEnums.h"
 #include "FillerNPC.h"
 #include "Zoneserver/Objects/Inventory.h"
+#include "ZoneServer\Objects\Object\ObjectManager.h"
 #include "ZoneServer/GameSystemManagers/NPC Manager/NPCObject.h"
-#include "ZoneServer/Objects/ObjectFactoryCallback.h"
+#include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
 #include "QuestGiver.h"
 #include "Trainer.h"
 #include "DatabaseManager/Database.h"
@@ -196,15 +197,22 @@ NPCObject* PersistentNpcFactory::_createPersistentNpc(swganh::database::Database
 		npc->InitStatWound(0);
 	}
 
+	gObjectManager->LoadSlotsForObject(npc);
+
     // inventory
     npcInventory->setId(npc->mId + INVENTORY_OFFSET);
     npcInventory->setParentId(npc->mId);
-    npcInventory->setModelString("object/tangible/inventory/shared_creature_inventory.iff");
+    npcInventory->SetTemplate("object/tangible/inventory/shared_creature_inventory.iff");
     npcInventory->setName("inventory");
     npcInventory->setNameFile("item_n");
     npcInventory->setTangibleGroup(TanGroup_Inventory);
     npcInventory->setTangibleType(TanType_CreatureInventory);
-    npc->mEquipManager.addEquippedObject(CreatureEquipSlot_Inventory,npcInventory);
+    
+	gObjectManager->LoadSlotsForObject(npcInventory);
+
+    npc->InitializeObject(npcInventory);
+	gWorldManager->addObject(npcInventory,true);
+
     npc->mTypeOptions = 0x108;
     //npc->setPvPStatus(npc->getPvPStatus() + CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive);
 
@@ -237,7 +245,7 @@ void PersistentNpcFactory::_setupDatabindings()
     mPersistentNpcBinding->addField(swganh::database::DFT_float,offsetof(NPCObject,mPosition.x),4,11);
     mPersistentNpcBinding->addField(swganh::database::DFT_float,offsetof(NPCObject,mPosition.y),4,12);
     mPersistentNpcBinding->addField(swganh::database::DFT_float,offsetof(NPCObject,mPosition.z),4,13);
-    mPersistentNpcBinding->addField(swganh::database::DFT_bstring,offsetof(NPCObject,mModel),256,14);
+	mPersistentNpcBinding->addField(swganh::database::DFT_stdstring,offsetof(NPCObject,template_string_),256,14);
     mPersistentNpcBinding->addField(swganh::database::DFT_bstring,offsetof(NPCObject,mSpecies),64,15);
     mPersistentNpcBinding->addField(swganh::database::DFT_bstring,offsetof(NPCObject,mSpeciesGroup),64,16);
     mPersistentNpcBinding->addField(swganh::database::DFT_bstring,offsetof(NPCObject,mFaction),64,17);

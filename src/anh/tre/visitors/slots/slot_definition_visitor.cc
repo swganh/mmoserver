@@ -35,7 +35,7 @@ void SlotDefinitionVisitor::visit_data(uint32_t depth, std::string name, uint32_
     }
 }
 
-size_t SlotDefinitionVisitor::findSlotByName(const std::string& name)
+size_t SlotDefinitionVisitor::findSlotByName( std::string& name)
 {
     for(size_t i = 0; i < slots_.size(); ++i)
     {

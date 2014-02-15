@@ -42,7 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "MessageLib/MessageLib.h"
 
-#include "ZoneServer/Objects/Object.h"
+#include "ZoneServer/Objects/Object/Object.h"
 #include "ZoneServer/GameSystemManagers/Spatial Index Manager/SpatialIndexManager.h"
 #include "ZoneServer/WorldManagerEnums.h"
 
@@ -101,10 +101,17 @@ public:
 
 	void					sendToGroupedRegisteredPlayers(PlayerObject* const player, std::function<void (PlayerObject*  const player)> callback, bool self);
 
-	/*@brief registers player as a watcher of container "container"
-	* and creates all the containers children for the player to view
+	/*	@brief	registers player as a watcher of container "container" and recursively creates all the containers children for the player to view
+	*	@param	Object* container the container we want to register the player to
+	*	@param	PlayerObject* const player the player we are registering the container to
 	*/
 	void					registerPlayerToContainer(Object* container, PlayerObject* const player) const;
+
+	/*	@brief	initializes player as a watcher of container "container" and recursively initializes all the containers children for the player to view as long as the proper permissions are granted. This is used when a player reenters the zone for example after a client crash when the players object hasnt been removed out of the si yet
+	*	@param	Object* container the container we want to initialize for the player
+	*	@param	PlayerObject* const player the player we are initializing the container to
+	*/
+	void					initializePlayerToContainer(Object* container, PlayerObject* const player) const;
 
 	/*@brief unregisters a player (watcher) from either a container it is in or a container it is watching
 	*/

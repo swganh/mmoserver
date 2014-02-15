@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_WAYPOINT_OBJECT_H
 #define ANH_ZONESERVER_WAYPOINT_OBJECT_H
 
-#include "ZoneServer/Objects/Object.h"
+#include "ZoneServer/Objects/Object/Object.h"
 
 
 namespace swganh	{

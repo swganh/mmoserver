@@ -116,7 +116,7 @@ Session::Session(void) :
     mLastPacketSent = mConnectStartEvent;          // General session timeout
     mLastRemotePacketAckReceived = mConnectStartEvent;          // General session timeout
 
-	//this will be changed by the sessionfactory eventually
+	//this will be changed by the sessionfactory in case we supplied configuration values
     mServerService		= false;
     mMaxPacketSize		= MAX_PACKET_SIZE;
     mMaxUnreliableSize	= MAX_PACKET_SIZE;
@@ -691,16 +691,6 @@ void Session::HandleSessionPacket(Packet* packet)
     else if (mInSequenceNext < sequence)
     {
 		out_of_order = true;
-        //last line of defense synchronization
-        if(sequence > (mInSequenceNext+50))
-        {
-			DLOG(info) << "Session::HandleSessionPacket sequence is " << sequence << " should be " << mInSequenceNext;
-			DLOG(info) << "Session::HandleSessionPacket we should never get here";
-            mInSequenceNext = sequence;
-            SortSessionPacket(packet,packetType);
-            return;
-        }
-
         
         //were missing something
 		DLOG(info) << "Handle Session Packet :: Incoming data - seq: " << sequence << "expect: " << mInSequenceNext
@@ -1338,7 +1328,7 @@ void Session::_processDataOrderPacket(Packet* packet)
 
     packet->setReadIndex(2);
     uint16 sequence = ntohs(packet->getUint16());
-
+	//
     PacketWindowList::iterator	iter			= mWindowPacketList.begin();
     PacketWindowList::iterator	iterRoll = mRolloverWindowPacketList.begin();
 
@@ -1355,7 +1345,8 @@ void Session::_processDataOrderPacket(Packet* packet)
     uint16 windowSequence = ntohs(windowPacket->getUint16());
 
 
-    LOG(warning) << "Out-Of-order packet session 0x"<< mService->getId() << mId <<" seq: " << sequence <<" windowsequ : " << windowSequence;
+    LOG(warning) << "Out-Of-order packet session 0x"<< mService->getId() << mId <<" OOOPacket had  sequence: " << sequence <<" windowsequ : " << windowSequence;
+	LOG(warning) << "";
 
     //Do some bounds checking
     if (sequence < windowSequence)
@@ -1406,30 +1397,29 @@ void Session::_processDataOrderPacket(Packet* packet)
         }
     }
 
+
+	if (mWindowSizeCurrent > (mWindowResendSize/10))
+                mWindowSizeCurrent--;
+
     uint64 localTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
     for (iter = mWindowPacketList.begin(); iter != mWindowPacketList.end(); iter++)
     {
         // Grab our window packet
         windowPacket = (*iter);
         windowPacket->setReadIndex(2);
-        uint16 seq = windowPacket->getUint16(); // windowsequence ?
+		uint16 seq = ntohs(windowPacket->getUint16());
 
-        // If it's smaller than the order packet send it, otherwise break;
-        // do we want to throttle the amount of packets being send to 10 or 50 or 100 ???
-        // if we receive a sequence on the rolloverlist (65530 for example) we will
-        // always send ALL packets on the regular list -
+        // always send ALL packets on the list
 		uint64 old =  windowPacket->getTimeOOHSent();
         //make sure we do not spam the connection needlessly with packets
-        if(localTime - windowPacket->getTimeOOHSent() > 10)        {
+        if(localTime - windowPacket->getTimeOOHSent() > 1000)        {
 			
 			LOG(warning) << "_processDataOrderPacket :: added : " << seq;
 			LOG(warning) << "_processDataOrderPacket :: time  : now : " << localTime << " old :" << old;
-            _addOutgoingReliablePacket(windowPacket);
+            //_addOutgoingReliablePacket(windowPacket);
+			_addOutgoingUnreliablePacket(windowPacket);
 
             windowPacket->setTimeOOHSent(localTime);
-
-            if (mWindowSizeCurrent > (mWindowResendSize/10))
-                mWindowSizeCurrent--;
 
         }
         else

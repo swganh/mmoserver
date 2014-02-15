@@ -292,7 +292,7 @@ public:
     * \param matched_players The players that fit the character match requirements.
     * \param target The target to receive the character match results.
     */
-    bool				sendCharacterMatchResults(const PlayerList* const matchedPlayers, const PlayerObject* const target) const;
+    bool				sendCharacterMatchResults(const PlayerList* const matchedPlayers, PlayerObject*  target) const;
 
     // objcontroller, objcontrollermessages.cpp
     void				sendCombatAction(CreatureObject* attacker,Object* defender,uint32 animation,uint8 trail1 = 0,uint8 trail2 = 0,uint8 hit = 0);
@@ -458,7 +458,7 @@ public:
     void				sendOwnerUpdateCreo3(MountObject* mount);
 
     // group
-    void				sendGroupIdUpdateDeltasCreo6(uint64 groupId, const PlayerObject* const player, const PlayerObject* const target) const;
+    void				sendGroupIdUpdateDeltasCreo6(uint64 groupId,  PlayerObject*  player, const PlayerObject* const target) const;
     void				sendInviteSenderUpdateDeltasCreo6(uint64 id, PlayerObject* targetPlayer);
 
 
@@ -517,11 +517,11 @@ public:
 	bool				sendUpdateCrateContent(FactoryCrate* crate,PlayerObject* playerObject);
 
 	// tangible object, tangiblemessages.cpp
-	bool				sendBaselinesTANO_3(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
-	bool				sendBaselinesTANO_6(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
+	bool				sendBaselinesTANO_3( TangibleObject*  tangibleObject,const PlayerObject* const targetObject) const;
+	bool				sendBaselinesTANO_6( TangibleObject*  tangibleObject,const PlayerObject* const targetObject) const;
 	// bool				sendBaselinesTANO_7(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
-	bool				sendBaselinesTANO_8(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
-	bool				sendBaselinesTANO_9(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
+	bool				sendBaselinesTANO_8(TangibleObject* tangibleObject,const PlayerObject* const targetObject) const;
+	bool				sendBaselinesTANO_9(TangibleObject* tangibleObject,const PlayerObject* const targetObject) const;
 
 	//bool				sendItemChildren(TangibleObject* srcObject,PlayerObject* targetObject);
 

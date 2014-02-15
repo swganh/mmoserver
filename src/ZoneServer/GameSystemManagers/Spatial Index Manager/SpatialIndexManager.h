@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_SPATIALINDEXMANAGER_H
 #define ANH_ZONESERVER_SPATIALINDEXMANAGER_H
 
-//#include "ZoneServer/Objects/ObjectFactoryCallback.h"
+//#include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
 
 #include <list>
 #include <map>
@@ -44,7 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "MessageLib/MessageLib.h"
 
-#include "ZoneServer/Objects/Object.h"
+#include "ZoneServer/Objects/Object/Object.h"
 #include "ZoneServer/WorldManagerEnums.h"
 #include "Zmap.h"
 
@@ -91,8 +91,11 @@ class SpatialIndexManager
 		
 		void					UpdateObject(Object *updateObject);
 
-		//just initialize our surroundings for us on reload were still created for other players
-		bool					InitializeObject(PlayerObject *player);
+		/*	@brief	InitializeObject will reinitialize a player that has reconnected before the player has been logged out by the server
+		*	@param	PlayerObject *player	is the player we want to reinitialize
+		*
+		*/
+		void					InitializeObject(PlayerObject *player);
 
 		//removes an object from the grid and sends the destroys
 		void					RemoveObjectFromWorld(Object *removeObject);		
@@ -107,6 +110,9 @@ class SpatialIndexManager
 
 		//place Objects in the spatialIndex / cells 
 		void					createInWorld(Object* object);
+		/*	@brief	createInWorld will place the player to be created in the si and - if applicable - in a buildings cell. The buildings content in this case will be registered
+		*	@param	PlayerObject* player	the player to be created
+		*/
 		void					createInWorld(PlayerObject* player);
 		void					createInWorld(CreatureObject* creature);
 		
@@ -153,6 +159,10 @@ class SpatialIndexManager
 		void					_RemoveObjectFromGrid(Object *removeObject);
 
 		//used to add an Object to the grid
+		/*	@brief	_AddObject will add an Object to the world. The Object will be created for all players in range.
+		*	@param	Object* newObject the Object to be added to the grid
+		*	@returns	returns true if the object was succesfully added.
+		*/
 		bool					_AddObject(Object* newObject);
 		bool					_AddObject(PlayerObject *newObject);
 
@@ -160,9 +170,10 @@ class SpatialIndexManager
 		void					_UpdateBackCells(Object* updateObject,uint32);
 		void					_UpdateFrontCells(Object* updateObject, uint32);
 		
-		/*@brief iterates through an objects children to send destroys the
-		*
-		*/
+		/*	@brief iterates through an objects children to send destroys 
+		*	@param Object* toBeTested is the Object we test whether we want to destroy it
+		*	@param Object* toBeUpdated is the Object that gets updated
+		*/	
 		void					_CheckObjectIterationForDestruction(Object* toBeTested, Object* toBeUpdated);
 		void					_ObjectCreationIteration(std::list<Object*>* FinalList, Object* updateObject);
 		void					_CheckObjectIterationForCreation(Object* toBeTested, Object* toBeUpdated);

@@ -86,7 +86,7 @@ void MovingObject::updatePositionOutside(uint64 parentId, const glm::vec3& newPo
         // leave building content known - we might enter again
         if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
         {
-            cell->removeObject(this);
+            cell->RemoveObject(this, this);
         }
         else
         {
@@ -155,7 +155,7 @@ void MovingObject::updatePositionInCell(uint64 parentId, const glm::vec3& newPos
 
             }
 
-            cell->removeObject(this);
+            cell->RemoveObject(nullptr, this);
 
         }
 
@@ -172,7 +172,7 @@ void MovingObject::updatePositionInCell(uint64 parentId, const glm::vec3& newPos
             return;
         }
 
-        cell->addObjectSecure(this);
+        cell->InitializeObject(this);
 
         // update the player
         this->setParentId(parentId);

@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_STATIC_OBJECT_H
 #define ANH_ZONESERVER_STATIC_OBJECT_H
 
-#include "ZoneServer/Objects/Object.h"
+#include "ZoneServer/Objects/Object/Object.h"
 
 
 //=============================================================================
@@ -40,7 +40,7 @@ class StaticObject : public Object
 public:
 
     StaticObject();
-    StaticObject(uint64 id,uint64 parentId,const BString model,ObjectType type);
+    StaticObject(uint64 id,uint64 parentId,const std::string model,ObjectType type);
     virtual ~StaticObject();
 
 protected:

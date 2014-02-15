@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <memory>
 
-#include "ZoneServer\Objects\Object_Enums.h"
+#include "ZoneServer\Objects\Object\Object_Enums.h"
 #include "ZoneServer\Objects\Player Object\player_message_builder.h"
 #include "ZoneServer\Objects\Player Object\PlayerObject.h"
 #include "ZoneServer\Objects\Datapad.h"

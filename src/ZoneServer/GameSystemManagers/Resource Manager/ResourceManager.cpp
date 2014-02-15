@@ -132,7 +132,7 @@ void ResourceManager::_setupDatabindings()
     mResourceTypebinding->addField(swganh::database::DFT_bstring,offsetof(ResourceType,mTypeName),64,2);
     mResourceTypebinding->addField(swganh::database::DFT_bstring,offsetof(ResourceType,mName),255,3);
     mResourceTypebinding->addField(swganh::database::DFT_bstring,offsetof(ResourceType,mDescriptor),255,4);
-    mResourceTypebinding->addField(swganh::database::DFT_bstring,offsetof(ResourceType,mModel),255,5);
+	mResourceTypebinding->addField(swganh::database::DFT_stdstring,offsetof(ResourceType,template_string),255,5);
     mResourceTypebinding->addField(swganh::database::DFT_uint32,offsetof(ResourceType,mCategoryBazaar),4,6);
     mResourceTypebinding->addField(swganh::database::DFT_bstring,offsetof(ResourceType,mResourceType),255,7);
 

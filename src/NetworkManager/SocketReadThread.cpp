@@ -108,8 +108,14 @@ SocketReadThread::SocketReadThread(SOCKET socket, SocketWriteThread* writeThread
     boost::thread t(std::tr1::bind(&SocketReadThread::run, this));
     mThread = boost::move(t);
 
+	#ifdef _WIN32
+	    HANDLE mtheHandle = mThread.native_handle();
+		//SetPriorityClass(mtheHandle,NORMAL_PRIORITY_CLASS);
+		SetPriorityClass(mtheHandle,HIGH_PRIORITY_CLASS);
+		//SetPriorityClass(mtheHandle,REALTIME_PRIORITY_CLASS);
+	#endif
 
-    //SetPriorityClass(th,NORMAL_PRIORITY_CLASS);
+    //SetPriorityClass(mThread,NORMAL_PRIORITY_CLASS);
 }
 
 //======================================================================================================================

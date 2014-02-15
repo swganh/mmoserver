@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DatabaseCallback.h"
 #include "Utils/EventHandler.h"
 #include "Utils/Singleton.h"
-#include "ZoneServer/Objects/ObjectFactoryCallback.h"
+#include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
 #include "ZoneServer/GameSystemManagers/UI Manager/UICallback.h"
 #include "glm/glm.hpp"
 #include "Common/Event.h"

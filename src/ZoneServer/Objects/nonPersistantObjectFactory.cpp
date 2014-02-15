@@ -33,8 +33,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/GameSystemManagers/Structure Manager/PlayerStructure.h"
 #include "Zoneserver/Objects/Item.h"
 #include "ItemFactory.h"
-#include "ZoneServer/Objects/ObjectFactory.h"
-#include "ZoneServer/Objects/ObjectFactoryCallback.h"
+#include "ZoneServer\Objects\Object\ObjectManager.h"
+#include "ZoneServer/Objects/Object/ObjectFactory.h"
+#include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceManager.h"
 #include "ZoneServer/GameSystemManagers/Structure Manager/StructureManager.h"
@@ -214,11 +215,13 @@ TangibleObject* NonPersistantObjectFactory::spawnTangible(StructureItemTemplate*
 
 	tangible->setId(gWorldManager->getRandomNpId());
 
-	tangible->setModelString(placableTemplate->structureObjectString);
+	tangible->SetTemplate(placableTemplate->structureObjectString.getAnsi());
 
 	//create it in the world
 	tangible->mDirection = player->mDirection;
 	//tangible->setTypeOptions(0xffffffff);
+
+	gObjectManager->LoadSlotsForObject(tangible);
 
 	gWorldManager->addObject(tangible);			
 
@@ -265,8 +268,8 @@ CampTerminal* NonPersistantObjectFactory::spawnTerminal(StructureItemTemplate* p
 	terminal->setId(gWorldManager->getRandomNpId());
 
 	//tangible->setOwner(player->getId());
-	
-	terminal->setModelString(placableTemplate->structureObjectString);
+
+	terminal->SetTemplate(placableTemplate->structureObjectString.getAnsi());
 
 	//create it in the world
 	//tangible->mDirection = player->mDirection;
@@ -302,7 +305,7 @@ void NonPersistantObjectFactory::_setupDatabindings()
 
     mItemBinding = mDatabase->createDataBinding(4);
 
-    mItemBinding->addField(swganh::database::DFT_bstring,offsetof(Item,mModel),256,0);
+	mItemBinding->addField(swganh::database::DFT_stdstring,offsetof(Item,template_string_),256,0);
     mItemBinding->addField(swganh::database::DFT_bstring,offsetof(Item,mName),64,1);
     mItemBinding->addField(swganh::database::DFT_bstring,offsetof(Item,mNameFile),64,2);
     mItemBinding->addField(swganh::database::DFT_bstring,offsetof(Item,mDetailFile),64,4);
@@ -345,7 +348,8 @@ PlayerStructure* NonPersistantObjectFactory::requestBuildingFenceObject(float x,
     //tangible->setOwner(player->getId());
 
     //create it in the world
-    structure->setModelString("object/installation/base/shared_construction_installation_base.iff");
+	structure->SetTemplate("object/installation/base/shared_construction_installation_base.iff");
+	gObjectManager->LoadSlotsForObject(structure);
 
 	gWorldManager->addObject(structure);
 
@@ -382,8 +386,8 @@ PlayerStructure* NonPersistantObjectFactory::requestBuildingSignObject(float x, 
 
     //tangible->setOwner(player->getId());
 
-    structure->setModelString("object/static/structure/tatooine/shared_streetsign_wall_style_01.iff");
-
+    structure->SetTemplate("object/static/structure/tatooine/shared_streetsign_wall_style_01.iff");
+	gObjectManager->LoadSlotsForObject(structure);
 	//create it in the world
 	
 	gWorldManager->addObject(structure);
@@ -425,7 +429,7 @@ TangibleObject* NonPersistantObjectFactory::cloneTangible(TangibleObject* theTem
 
 
 
-    tangible->setModelString(theTemplate->getModelString());
+    tangible->SetTemplate(theTemplate->GetTemplate());
 
     return(tangible);
 

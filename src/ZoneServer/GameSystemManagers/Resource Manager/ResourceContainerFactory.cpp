@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "anh/logger.h"
 
-#include "ZoneServer/Objects/ObjectFactoryCallback.h"
+#include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
 #include "Resource.h"
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceContainer.h"
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceManager.h"
@@ -159,7 +159,7 @@ ResourceContainer* ResourceContainerFactory::_createResourceContainer(swganh::da
     if(resource != nullptr)
     {
         resourceContainer->setResource(resource);
-        resourceContainer->setModelString((resource->getType())->getContainerModel().getAnsi());
+        resourceContainer->SetTemplate((resource->getType())->GetTemplate());
     } else {
     	LOG(warning) << "Resource not found [" << resourceContainer->mResourceId << "]";
     }

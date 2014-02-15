@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "SchematicManager.h"
 
 #include "anh/logger.h"
+#include "anh/crc.h"
 
 #include "CraftBatch.h"
 #include "DraftSchematic.h"
@@ -173,6 +174,8 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,swganh::database::Dat
 
             result->getNextRow(binding,schematic);
 
+			schematic->template_string_ = schematic->mModel.getAnsi();
+
             // gotta get shared_ into the name
             BStringVector splits;
             int elements = schematic->mModel.split(splits,'/');
@@ -193,15 +196,15 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,swganh::database::Dat
             schematic->mModel << "/shared_" << splits[elements-1].getAnsi();
 
             // glue our ids and insert into maps
-            uint64 schemId = schematic->mModel.getCrc();
-            schematic->setId((schemId << 32) | (schematic->mWeightsBatchId));
+			uint64 schem_crc = schematic->mModel.getCrc();
+            schematic->setId((schem_crc << 32) | (schematic->mWeightsBatchId));
             //added temporary log in order to dump schematic ids for DB insertion
             //gLogger->log(LogManager::DEBUG,"Schematic,%"PRIu64",%u",schematic->mId,schematic->mWeightsBatchId);
             //mSchematicList.push_back(schematic);
 
             mSchematicList.insert(std::make_pair(schematic->getWeightsBatchId(), schematic));
             mSchematicGroupList[schematic->getGroupId()-1]->mSchematics.push_back(schematic);
-            mSchematicSlotMap.insert(std::make_pair(schematic->mModel.getCrc(),schematic));
+			mSchematicSlotMap.insert(std::make_pair(schematic->mModel.getCrc(),schematic));
             mSchematicWeightMap.insert(std::make_pair((schematic->mWeightsBatchId ),schematic));
             num++;
         }

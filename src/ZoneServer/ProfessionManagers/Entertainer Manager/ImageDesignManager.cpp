@@ -370,7 +370,15 @@ BString EntertainerManager::commitIdColor(PlayerObject* customer, BString attrib
             //the equiplist is what makes us have the right hair and clothes in the ID ui
             //additionally it updates the hair properly on the login ui after change
 
-            //make sure were not wearing a helmet
+            auto equip_service	= gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+			auto hair			= dynamic_cast<TangibleObject*>(equip_service->GetEquippedObject(customer, "hair"));
+
+			if(hair )	 {
+				auto hair_shared = customer->GetEquipmentItem(hair->getId());
+				hair_shared->customization = hair->getCustomizationStr().getAnsi();
+				customer->UpdateEquipmentItem(hair_shared);
+			}
+			/*
             TangibleObject* hairSlot = dynamic_cast<TangibleObject*>(customer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hair));
             if(hairSlot&&hairSlot->getTangibleType() == TanType_Hair)
             {
@@ -380,6 +388,7 @@ BString EntertainerManager::commitIdColor(PlayerObject* customer, BString attrib
                 customer->getEquipManager()->addEquippedObject(CreatureEquipSlot_Hair,hair);
                 gMessageLib->sendEquippedListUpdate_InRange(customer);
             }
+			*/
             //sends to inRange by default
             //cant get the update to work as intended :(
             //gMessageLib->sendEquippedItemUpdate_InRange(customer,hair->getId());
@@ -422,7 +431,7 @@ BString EntertainerManager::commitIdAttribute(PlayerObject* customer, BString at
     //sprintf(add,"");
 
     // get our gender and race so we can get hold of our Information from the id_attribute table
-    sprintf(mString,"%s",&customer->getModelString().c_str()[30]);
+	sprintf(mString,"%s",&customer->GetTemplate().c_str()[30]);
 
     char *Token;
     char separation[] = ".";
@@ -559,7 +568,7 @@ void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
 		customerHair->setTangibleGroup(TanGroup_Hair);
 		customerHair->setTangibleType(TanType_Hair);
 		
-		customerHair->setModelString(tmpHair);
+		customerHair->SetTemplate(tmpHair);
 		customerHair->setCustomizationStr((uint8*)customization.getAnsi());
 	
 		gWorldManager->addObject(customerHair, true);
@@ -584,7 +593,7 @@ void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
 	}
 	else	{
 		//the hair existed, just alter it
-		customerHair->setModelString(tmpHair);
+		customerHair->SetTemplate(tmpHair);
 		customerHair->setCustomizationStr((uint8*)customization.getAnsi());
 
 		sprintf(sql,"UPDATE %s.character_appearance set hair = '%s' where character_id = '%"PRIu64"'",kernel_->GetDatabase()->galaxy(),newHairString.getAnsi(),customer->getId());
@@ -608,10 +617,11 @@ void EntertainerManager::applyMoney(PlayerObject* customer,PlayerObject* designe
     int8 sql[1024];
     amountcash = amount;
     amountbank = 0;
-    Inventory* inventory = dynamic_cast<Inventory*>(customer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+    
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(customer, "inventory"));
 
-    if(inventory && inventory->getCredits() < amount)
-    {
+    if(inventory && inventory->getCredits() < amount)    {
         // cash alone isnt sufficient
         amountcash = inventory->getCredits();
         amountbank = (amount - amountcash);

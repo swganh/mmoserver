@@ -719,7 +719,7 @@ bool	ArtisanManager::stopSampling(PlayerObject* player, CurrentResource* resourc
         stop = true;
     }
 
-    tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(tool->getId()));
+    tool		= dynamic_cast<SurveyTool*>(gWorldManager->getObjectById(tool->getId()));
     if(!tool)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "sample_gone"), player);
@@ -840,7 +840,7 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,std::u16string in
             if(ham->checkMainPool(player, HamBar_Action, mSampleActionCost*2))
             {
 
-                SurveyTool*			tool					= dynamic_cast<SurveyTool*>(inventory->getObjectById(AsyncContainer->ToolId));
+                SurveyTool*			tool					= dynamic_cast<SurveyTool*>(gWorldManager->getObjectById(AsyncContainer->ToolId));
                 CurrentResource*	resource				= (CurrentResource*)AsyncContainer->CurrentResource;
                 player->getSampleData()->mNextSampleTime	= Anh_Utils::Clock::getSingleton()->getStoredTime() + 4000;
 
@@ -881,7 +881,7 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,std::u16string in
                 player->getSampleData()->mPendingSample = true;
                 player->getSampleData()->mSampleGambleFlag = false;
 
-                SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(AsyncContainer->ToolId));
+                SurveyTool*			tool		= dynamic_cast<SurveyTool*>(gWorldManager->getObjectById(AsyncContainer->ToolId));
                 CurrentResource*	resource	= (CurrentResource*)AsyncContainer->CurrentResource;
                 player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 1000;
 
@@ -917,7 +917,7 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,std::u16string in
                     gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "gamble_fail"), player);
                 }
 
-                SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(AsyncContainer->ToolId));
+                SurveyTool*			tool		= dynamic_cast<SurveyTool*>(gWorldManager->getObjectById(AsyncContainer->ToolId));
                 CurrentResource*	resource	= (CurrentResource*)AsyncContainer->CurrentResource;
                 player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 1000;
 
@@ -961,7 +961,7 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,std::u16string in
                 player->getSampleData()->mPendingSample = true;
                 player->getSampleData()->mSampleGambleFlag = false;
 
-                SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(AsyncContainer->ToolId));
+                SurveyTool*			tool		= dynamic_cast<SurveyTool*>(gWorldManager->getObjectById(AsyncContainer->ToolId));
                 CurrentResource*	resource	= (CurrentResource*)AsyncContainer->CurrentResource;
                 player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 10000;
 

@@ -32,7 +32,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/ObjectController/ObjectControllerCommandMap.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/Objects/Weapon.h"
+
+#include "ZoneServer/WorldManager.h"
 #include "MessageLib/MessageLib.h"
+
+//#include "ZoneServer\Services\equipment\equipment_service.h"
 
 EVWeapon::EVWeapon(ObjectController* controller)
     : EnqueueValidator(controller)
@@ -45,16 +49,14 @@ bool EVWeapon::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 
 {
     CreatureObject* creature = dynamic_cast<CreatureObject*>(mController->getObject());
 
+	//auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto weapon = dynamic_cast<Weapon*>(gWorldManager->getObjectById(creature->GetWeaponId()));//equip_service->GetEquippedObject(creature, "hold_r"));
+
     // check our equipped weapon
     uint32	weaponGroup = WeaponGroup_Unarmed;
 
-    if(Item* weapon = dynamic_cast<Item*>(creature->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left)))
-    {
-        // could be an instrument
-        if(weapon->getItemFamily() == ItemFamily_Weapon)
-        {
-            weaponGroup = dynamic_cast<Weapon*>(weapon)->getGroup();
-        }
+    if(weapon && weapon->getItemFamily() == ItemFamily_Weapon)        {
+        weaponGroup = dynamic_cast<Weapon*>(weapon)->getGroup();
     }
 
     if(cmdProperties->mRequiredWeaponGroup && (weaponGroup & cmdProperties->mRequiredWeaponGroup) != weaponGroup)

@@ -37,7 +37,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/Objects/VehicleController.h"
 
-//#include "Zoneserver/objects/IntangibleObject.h"
+#include "ZoneServer\Services\equipment\equipment_service.h"
+
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceContainer.h"
 #include "Zoneserver/Objects/SurveyTool.h"
 #include "Zoneserver/Objects/waypoints/WaypointObject.h"
@@ -60,11 +61,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void ObjectController::destroyObject(uint64 objectId)
 {
-
 	
 	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
 	Datapad*		datapad			= playerObject->getDataPad();
 	Object*			object			= gWorldManager->getObjectById(objectId);
+
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
 
 	//could be a schematic!
 	ManufacturingSchematic* schem	= datapad->getManufacturingSchematicById(objectId);
@@ -124,7 +127,9 @@ void ObjectController::destroyObject(uint64 objectId)
 	else if(object->getType() == ObjType_Tangible)
 	{
 		TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object);
-		Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+		
+		auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+		auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
 
 		// items
 		if(Item* item = dynamic_cast<Item*>(tangibleObject))
@@ -201,12 +206,14 @@ void ObjectController::_handleDestroyInstrument(Item* item)
     Item*			tempInstrument		= NULL;
     Item*			permanentInstrument	= NULL;
 
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto held_item = dynamic_cast<Item*>(equip_service->GetEquippedObject(playerObject, "hold_r"));
+
     // first, stop playing, if its currently in use
     if(playerObject->getPerformingState() == PlayerPerformance_Music)
     {
         // equipped instrument
-        if(item == dynamic_cast<Item*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left))
-                || playerObject->getPlacedInstrumentId())
+        if(item == held_item  || playerObject->getPlacedInstrumentId())
         {
             gEntertainerManager->stopEntertaining(playerObject);
         }

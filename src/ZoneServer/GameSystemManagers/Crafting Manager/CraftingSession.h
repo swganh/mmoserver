@@ -237,6 +237,7 @@ private:
     //gets the average Malleability
     float					_calcAverageMalleability();
 
+	Inventory*						inventory_;
     Anh_Utils::Clock*				mClock;
     swganh::database::Database*		mDatabase;
     DraftSchematic*					mDraftSchematic;

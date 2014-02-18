@@ -51,6 +51,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "SendSystemMailMessage.h"
 #include "SocialChatTypes.h"
 
+#include "ZoneServer\Services\equipment\equipment_service.h"
+
 #include "Utils/EventHandler.h"
 #include "MessageLib/MessageLib.h"
 
@@ -859,7 +861,10 @@ void Tutorial::addQuestWeapon(uint32 familyId, uint32 typeId)
     // gLogger->log(LogManager::DEBUG,"Tutorial::addItem Invoked",MSG_NORMAL);
     if (mPlayerObject && mPlayerObject->isConnected())
     {
-        Inventory* inventory = dynamic_cast<Inventory*>(mPlayerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+
+		auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+		auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(mPlayerObject, "inventory"));
+
         if (inventory)
         {
             if ((familyId != 0) && (typeId != 0))

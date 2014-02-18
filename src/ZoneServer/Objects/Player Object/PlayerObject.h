@@ -354,9 +354,23 @@ class PlayerObject : public CreatureObject
 		*/
 		bool				updateCredits(int32 amount);
 
+		/*	@brief	testBank will test if a player has enough cash credits 
+		*	@param the amount of credits we check for in the players inventory
+		*	@returns bool	whether we have at least amount credits in the inventory
+		*/
 		bool				testCash(uint32 amount);
-        bool				testBank(uint32 amount);
-        bool				checkDeductCredits(uint32 amount);
+        
+		/*	@brief	testBank will test if a player has enough credits. in his/her bank
+		*	@param the amount of credits we check for in the players bank
+		*	@returns bool	whether we have at least amount credits in the bank
+		*/
+		bool				testBank(uint32 amount);
+		
+		/*	@brief	testCredits will test if a player has enough credits.
+		*	@param the amount of credits we check for
+		*	@returns bool	whether we have at least amount credits
+		*/
+        bool				testCredits(uint32 amount);
 
         Trade*				getTrade(){return mTrade;}
         void				setTradePartner(uint64 id){mTradePartner = id;}

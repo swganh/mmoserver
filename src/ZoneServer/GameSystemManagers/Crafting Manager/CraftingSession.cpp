@@ -27,26 +27,30 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 #include "CraftingSession.h"
-
 #include "CraftBatch.h"
 #include "CraftingSessionFactory.h"
+#include "DraftSchematic.h"
+#include "SchematicManager.h"
+#include "DraftSlot.h"
+
 #include "ZoneServer/Objects/CraftingStation.h"
 #include "ZoneServer/Objects/CraftingTool.h"
 #include "Zoneserver/Objects/Datapad.h"
-#include "DraftSchematic.h"
-#include "DraftSlot.h"
 #include "Zoneserver/Objects/Inventory.h"
 #include "Zoneserver/Objects/Item.h"
 #include "ZoneServer/GameSystemManagers/Crafting Manager/ManufacturingSchematic.h"
 #include "ZoneServer/ObjectController/ObjectControllerOpcodes.h"
 #include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
+
+#include "ZoneServer/WorldManager.h"
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceContainer.h"
 #include <ZoneServer/GameSystemManagers/Resource Manager/ResourceManager.h>
 #include <ZoneServer/GameSystemManagers/Resource Manager/Resource.h>
 #include "ZoneServer/GameSystemManagers/State Manager/StateManager.h"
-#include "SchematicManager.h"
-#include "ZoneServer/WorldManager.h"
+
+
+#include "ZoneServer\Services\equipment\equipment_service.h"
 
 #include "MessageLib/MessageLib.h"
 
@@ -102,6 +106,9 @@ CraftingSession::CraftingSession(Anh_Utils::Clock* clock,swganh::database::Datab
 	gMessageLib->sendUpdateExperimentationPoints(mOwner);
 	gMessageLib->sendDraftSchematicsList(mTool,mOwner);
 	mToolEffectivity = mTool->getAttribute<float>("craft_tool_effectiveness");
+
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	inventory_ = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(mOwner, "inventory"));
 }
 
 //=============================================================================
@@ -564,8 +571,8 @@ bool CraftingSession::selectDraftSchematic(uint32 schematicIndex)
 // set object pointers to 0 previously, if we want to keep it
 //
 void CraftingSession::_cleanUp()
-{
-    // if we are in stage 2, recreate the resources that have been filled
+{    
+	// if we are in stage 2, recreate the resources that have been filled
     if(mStage == 2 && mOwner->isConnected() && mManufacturingSchematic)
     {
         FilledResources::iterator	resIt;
@@ -574,9 +581,9 @@ void CraftingSession::_cleanUp()
         while(manSlotIt != mManufacturingSchematic->getManufactureSlots()->end())
         {
             if((*manSlotIt)->getFilledType()== DST_Resource)
-                bagResource((*manSlotIt),mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId());
+                bagResource((*manSlotIt),inventory_->getId());
             else if(((*manSlotIt)->getFilledType()== DST_SimiliarComponent)||((*manSlotIt)->getFilledType()== DST_IdentComponent))
-                bagComponents((*manSlotIt),mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId());
+                bagComponents((*manSlotIt),inventory_->getId());
 
             (*manSlotIt)->setFilledType(DST_Empty);
 
@@ -938,9 +945,10 @@ void CraftingSession::createPrototype(uint32 noPractice,uint32 counter)
 
         // we need to alter / add attributes affected by attributes of components
 
+		
 
         // update the custom name and parent
-        sprintf(sql,"UPDATE %s.items SET parent_id=%"PRIu64", customName='",mDatabase->galaxy(),mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId());
+        sprintf(sql,"UPDATE %s.items SET parent_id=%"PRIu64", customName='",mDatabase->galaxy(),inventory_->getId());
         sqlPointer = sql + strlen(sql);
         sqlPointer += mDatabase->escapeString(sqlPointer,mItem->getCustomName().getAnsi(),mItem->getCustomName().getLength());
         sprintf(restStr,"' WHERE id=%"PRIu64" ",mItem->getId());

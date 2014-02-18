@@ -34,7 +34,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/Objects/Tangible Object/TangibleEnums.h"
 #include "Zoneserver/Objects/Wearable.h"
 #include "ZoneServer/WorldManager.h"
+
+#include "ZoneServer\Services\equipment\equipment_service.h"
+
 #include "ZoneServer/GameSystemManagers/Container Manager/ContainerManager.h"
+
 #include "MessageLib/MessageLib.h"
 #include "anh/utils/Scheduler.h"
 
@@ -168,20 +172,17 @@ void Trade::cancelTradeSession()
 
 //=============================================================================
 
-void Trade::updateCash(uint32 amount)
+void Trade::updateCash(int32 amount)
 {
-    Inventory* inventory = dynamic_cast<Inventory*>(getPlayerObject()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-
-    inventory->setCredits(inventory->getCredits() + amount);
+	getPlayerObject()->updateInventoryCredits(amount);
+  
 }
 
 //=============================================================================
 
-void Trade::updateBank(uint32 amount)
+void Trade::updateBank(int32 amount)
 {
-    Bank* bank = dynamic_cast<Bank*>(getPlayerObject()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
-
-	bank->updateCredits(amount);
+    getPlayerObject()->updateBankCredits(amount);
  
 }
 
@@ -202,7 +203,8 @@ void Trade::endTradeSession()
 
 bool Trade::checkTradeListtoInventory()
 {
-    Inventory*				inventory	= dynamic_cast<Inventory*>(getPlayerObject()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+    auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(getPlayerObject(), "inventory"));
 
     if(!inventory)
     {
@@ -289,7 +291,9 @@ void  Trade::processTradeListPostTransaction()
 
     //Tradepartners Inventory
     PlayerObject*			TradePartner		= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(getPlayerObject()->getTradePartner()));
-    Inventory*				partnerInventory	= dynamic_cast<Inventory*>(TradePartner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+    
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto partnerInventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(TradePartner, "inventory"));
 
     while(it != mItemTradeList.end())
     {

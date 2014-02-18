@@ -51,6 +51,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <anh\app\swganh_kernel.h>
 
+#include "ZoneServer\Services\equipment\equipment_service.h"
+
 using ::common::OutOfBand;
 
 //=======================================================================================================================
@@ -311,9 +313,9 @@ void StructureManager::_HandleStructureRedeedCallBack(StructureManagerAsyncConta
 	if(player)
 	{
 		//load the deed into the inventory
-		Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-		if(inventory)
-		{
+		auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+		auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
+		if(inventory)		{
 			//15 is itemfamily for deeds
 			gObjectFactory->createIteminInventory(inventory,deedId,TanGroup_Item);
 		}
@@ -1083,8 +1085,9 @@ void StructureManager::handleUIEvent(std::u16string leftValue, std::u16string ri
         std::string char_cash_ansi(char_str.begin(), char_str.end());
 		std::string harv_cash_ansi(harv_str.begin(), harv_str.end());
 
-        Bank* bank = dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
-        Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+		auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+		auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
+		auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player, "bank"));
         
 		int32 bankFunds = bank->getCredits();
         int32 inventoryFunds = inventory->getCredits();
@@ -1095,14 +1098,12 @@ void StructureManager::handleUIEvent(std::u16string leftValue, std::u16string ri
         int32 harvesterMoneyDelta = atoi(harv_cash_ansi.c_str()) - structure->getCurrentMaintenance();
 
         // the amount transfered must be greater than zero
-        if(harvesterMoneyDelta == 0 || characterMoneyDelta == 0)
-        {
+        if(harvesterMoneyDelta == 0 || characterMoneyDelta == 0)        {
             return;
         }
 
         //lets get the money from the bank first
-        if((bankFunds +characterMoneyDelta)< 0)
-        {
+        if((bankFunds +characterMoneyDelta)< 0)        {
             characterMoneyDelta += bankFunds;
             bankFunds = 0;
 
@@ -1114,15 +1115,12 @@ void StructureManager::handleUIEvent(std::u16string leftValue, std::u16string ri
             bankFunds += characterMoneyDelta;
         }
 
-        if(inventoryFunds < 0)
-        {
+        if(inventoryFunds < 0)        {
             return;
         }
 
         int32 maintenance = structure->getCurrentMaintenance() + harvesterMoneyDelta;
-
-        if(maintenance < 0)
-        {
+        if(maintenance < 0)        {
             return;
         }
 
@@ -1132,8 +1130,7 @@ void StructureManager::handleUIEvent(std::u16string leftValue, std::u16string ri
         //get the structures conditiondamage and see whether it needs repair
         uint32 damage = structure->getDamage();
 
-        if(damage)
-        {
+        if(damage)        {
             uint32 cost = structure->getRepairCost();
             uint32 all = cost*damage;
             if(maintenance <= (int32)all)
@@ -1143,8 +1140,7 @@ void StructureManager::handleUIEvent(std::u16string leftValue, std::u16string ri
                 maintenance = 0;
             }
 
-            if(maintenance > (int32)all)
-            {
+            if(maintenance > (int32)all)            {
                 maintenance -= (int32)all;
                 damage = 0;
             }

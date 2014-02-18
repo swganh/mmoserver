@@ -39,7 +39,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/WorldConfig.h"
 #include "ZoneServer/Tutorial.h"
 
+#include "ZoneServer\Services\equipment\equipment_service.h"
 #include <ZoneServer\Services\terrain\terrain_service.h>
+
 #include <anh\app\swganh_kernel.h>
 #include <anh\service/service_manager.h>
 
@@ -450,15 +452,16 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
             break;
         }
 
+		auto equipment_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+		auto inventory = dynamic_cast<Inventory*>(equipment_service->GetEquippedObject(player, "inventory"));
+		auto bank = dynamic_cast<Inventory*>(equipment_service->GetEquippedObject(player, "inventory"));
+
         if (gWorldConfig->isTutorial())
         {
             // We do not charge any cost for training in the Tutorial.
             pageLink = 15;
         }
-        else if ((dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits() < av->getDI())
-                 && (dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits() < av->getDI())
-                )
-        {
+        else if (!player->testCredits(av->getDI()))        {
             // Player lack credits in both inventory and bank.
 
             pageLink = 11;	// pageLink for this situation.
@@ -600,14 +603,11 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
                 pageLink = 0;	// Terminate conversation
             }
 
-            if (!(dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->updateCredits(-skill->mMoneyRequired)))
+			if (!player->updateCredits(-skill->mMoneyRequired))
             {
-                if (!(dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->updateCredits(-skill->mMoneyRequired)))
-                {
-                    // This is a system error.
-                    gMessageLib->SendSystemMessage(::common::OutOfBand("skill_teacher", "prose_nsf"), player);
-                    pageLink = 0;
-                }
+                // This is a system error.
+                gMessageLib->SendSystemMessage(::common::OutOfBand("skill_teacher", "prose_nsf"), player);
+                pageLink = 0;
             }
         }
         else

@@ -2,7 +2,7 @@
 // See file LICENSE or go to http://swganh.com/LICENSE
 
 #include "slot_definition_visitor.h"
-
+#include "anh/logger.h"
 #include "../../iff/iff.h"
 
 using namespace std;
@@ -39,6 +39,7 @@ size_t SlotDefinitionVisitor::findSlotByName( std::string& name)
 {
     for(size_t i = 0; i < slots_.size(); ++i)
     {
+		LOG(info) << "SlotDefinitionVisitor::findSlotByName : " << name << " vs : " << slots_[i].name;
         if(slots_[i].name == name)
             return i;
     }

@@ -40,6 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
 
+#include "ZoneServer\Services\equipment\equipment_service.h"
 
 #include "anh/logger.h"
 
@@ -70,7 +71,8 @@ bool MessageLib::sendBaselinesCREO_1(PlayerObject* player)
     mMessageFactory->addUint16(4);
 
     // bank credits
-    if(Bank* bank = dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank)))    {
+	auto bank_object = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player, "bank");
+    if(Bank* bank = dynamic_cast<Bank*>(bank_object))    {
         mMessageFactory->addUint32(bank->getCredits());
     }
     else
@@ -80,7 +82,8 @@ bool MessageLib::sendBaselinesCREO_1(PlayerObject* player)
     }
 
     // inventory credits
-    if(Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)))    {
+	auto inventory_object = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player, "inventory");
+    if(Inventory* inventory = dynamic_cast<Inventory*>(inventory_object))    {
         mMessageFactory->addUint32(inventory->getCredits());
     }
     else
@@ -341,10 +344,9 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
 
     std::string			moodStr			= gWorldManager->getMood(moodId);
 
-    ObjectList				equippedObjects = creatureObject->getEquipManager()->getEquippedObjects();
     auto	defenders		= creatureObject->GetDefender();
 
-    ObjectList::iterator eqIt = equippedObjects.begin();
+    //ObjectList::iterator eqIt = equippedObjects.begin();
 
 
     mMessageFactory->StartMessage();
@@ -369,14 +371,7 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
     mMessageFactory->addString(creatureObject->getCurrentAnimation());   // music/dance string here - current animation
     mMessageFactory->addString(moodStr);
 
-    if(Object* weapon = creatureObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left))
-    {
-        mMessageFactory->addUint64(weapon->getId());
-    }
-    else
-    {
-        mMessageFactory->addUint64(0);
-    }
+    mMessageFactory->addUint64(creatureObject->GetWeaponId());
 
     //6 Group Id
     mMessageFactory->addUint64(creatureObject->getGroupId());
@@ -418,35 +413,11 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
 
     
     // creatures tangible objects	 ->equipped list
-    eqIt = equippedObjects.begin();
+	swganh::messages::BaselinesMessage equipment_baseline_message;
+	creatureObject->SerializeEquipment(&equipment_baseline_message);						// Equipment
+	mMessageFactory->addData(equipment_baseline_message.data.data(),equipment_baseline_message.data.size());
 
-    mMessageFactory->addUint32(equippedObjects.size());
-    creatureObject->getEquipManager()->setEquippedObjectsUpdateCounter(0);
-    mMessageFactory->addUint32(creatureObject->getEquipManager()->getEquippedObjectsUpdateCounter());
-
-    while(eqIt != equippedObjects.end())
-    {
-        Object* object = (*eqIt);
-
-        if(TangibleObject* tObject = dynamic_cast<TangibleObject*>(object))
-        {
-            mMessageFactory->addString(tObject->getCustomizationStr());
-        }
-        else if(CreatureObject* pet = dynamic_cast<CreatureObject*>(object)) //support for mounts
-        {
-            mMessageFactory->addString(pet->getCustomizationStr());
-        }
-        else
-        {
-            mMessageFactory->addUint16(0);
-        }
-
-        mMessageFactory->addUint32(4);
-        mMessageFactory->addUint64(object->getId());
-        mMessageFactory->addUint32(common::memcrc(object->GetTemplate()));
-
-        ++eqIt;
-    }
+	
 
     mMessageFactory->addUint16(0); // unknown
     mMessageFactory->addUint8(0);  // extra byte that was needed to correct movement
@@ -497,268 +468,6 @@ bool MessageLib::sendPostureMessage(CreatureObject* creatureObject,PlayerObject*
 
 
 
-
-
-//======================================================================================================================
-//
-// Creature Deltas Type 6
-// updates: list of equipped objects
-//
-
-bool MessageLib::sendEquippedListUpdate_InRange(CreatureObject* creatureObject)
-{
-	
-    PlayerObject* player = dynamic_cast<PlayerObject*>(creatureObject);
-    if(player)
-    {
-        if(!_checkPlayer(player))	{
-		return false;
-	}
-    }
-
-    ObjectList				equippedObjects				= creatureObject->getEquipManager()->getEquippedObjects();
-    ObjectList::iterator	eqIt						= equippedObjects.begin();
-    uint32					cSize						= 0;
-
-    // customization is necessary for haircolor on imagedesign
-    while(eqIt != equippedObjects.end())
-    {
-        if(TangibleObject* object = dynamic_cast<TangibleObject*>(*eqIt))
-        {
-            cSize += object->getCustomizationStr().getLength();
-        }
-        else if(CreatureObject* pet = dynamic_cast<CreatureObject*>(*eqIt))
-        {
-            cSize += pet->getCustomizationStr().getLength();
-        }
-
-        ++eqIt;
-    }
-
-    mMessageFactory->StartMessage();
-    mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(creatureObject->getId());
-    mMessageFactory->addUint32(opCREO);
-    mMessageFactory->addUint8(6);
-
-    mMessageFactory->addUint32(15 + (equippedObjects.size() * 18)+ cSize);
-    mMessageFactory->addUint16(1);   //one update
-    mMessageFactory->addUint16(15);				 //id 15
-
-    // creatures tangible objects
-    eqIt = equippedObjects.begin();
-
-    mMessageFactory->addUint32(equippedObjects.size());
-    mMessageFactory->addUint32(creatureObject->getEquipManager()->advanceEquippedObjectsUpdateCounter(equippedObjects.size()));//+1
-    creatureObject->getEquipManager()->advanceEquippedObjectsUpdateCounter(1);
-
-    mMessageFactory->addUint8(3);
-    mMessageFactory->addUint16(equippedObjects.size());
-
-    while(eqIt != equippedObjects.end())
-    {
-        Object* object = (*eqIt);
-
-        if(TangibleObject* tObject = dynamic_cast<TangibleObject*>(object))
-        {
-            mMessageFactory->addString(tObject->getCustomizationStr());
-        }
-        else if(CreatureObject* pet = dynamic_cast<CreatureObject*>(object))
-        {
-            mMessageFactory->addString(pet->getCustomizationStr());
-        }
-        else
-        {
-            mMessageFactory->addUint16(0);
-        }
-
-        mMessageFactory->addUint32(4);
-        mMessageFactory->addUint64(object->getId());
-        mMessageFactory->addUint32(common::memcrc(object->GetTemplate()));
-
-        ++eqIt;
-    }
-
-    _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
-
-    return(true);
-}
-
-
-bool MessageLib::sendEquippedListUpdate(CreatureObject* creature, CreatureObject* target) {
-    PlayerObject* player = dynamic_cast<PlayerObject*>(creature);
-    if (!player || !player->isConnected()) {
-        return false;
-    }
-
-    PlayerObject* target_player = dynamic_cast<PlayerObject*>(target);
-    if (!target_player || !target_player->isConnected()) {
-        return false;
-    }
-
-    ObjectList equipped = player->getEquipManager()->getEquippedObjects();
-    uint32 customization_size = 0;
-
-    std::for_each(equipped.begin(), equipped.end(), [=, &customization_size] (Object* equipped_object) {
-        if (TangibleObject* object = dynamic_cast<TangibleObject*>(equipped_object)) {
-            customization_size += object->getCustomizationStr().getLength();
-        } else if (CreatureObject* pet = dynamic_cast<CreatureObject*>(equipped_object)) {
-            customization_size += pet->getCustomizationStr().getLength();
-        }
-    });
-
-    mMessageFactory->StartMessage();
-    mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(creature->getId());
-    mMessageFactory->addUint32(opCREO);
-    mMessageFactory->addUint8(6);
-
-    mMessageFactory->addUint32(15 + (equipped.size() * 18)+ customization_size);
-    mMessageFactory->addUint16(1);   //one update
-    mMessageFactory->addUint16(15);				 //id 15
-
-    mMessageFactory->addUint32(equipped.size());
-    mMessageFactory->addUint32(creature->getEquipManager()->advanceEquippedObjectsUpdateCounter(equipped.size()));//+1
-    creature->getEquipManager()->advanceEquippedObjectsUpdateCounter(1);
-
-    mMessageFactory->addUint8(3);// 3 for ??
-    mMessageFactory->addUint16(equipped.size());
-
-    std::for_each(equipped.begin(), equipped.end(), [=] (Object* object) {
-        if(TangibleObject* tObject = dynamic_cast<TangibleObject*>(object)) {
-            mMessageFactory->addString(tObject->getCustomizationStr());
-        }
-
-        else if(CreatureObject* pet = dynamic_cast<CreatureObject*>(object)) {
-            mMessageFactory->addString(pet->getCustomizationStr());
-        }
-
-        else {
-            mMessageFactory->addUint16(0);
-        }
-
-        mMessageFactory->addUint32(4);
-        mMessageFactory->addUint64(object->getId());
-		mMessageFactory->addUint32(common::memcrc(object->GetTemplate()));
-    });
-
-    target_player->getClient()->SendChannelA(mMessageFactory->EndMessage(), target_player->getAccountId(), CR_Client, 4);
-
-    return true;
-}
-
-
-//======================================================================================================================
-//
-// Creature Deltas Type 6
-// updates: list of equipped objects
-//
-
-bool MessageLib::sendEquippedItemUpdate_InRange(CreatureObject* creatureObject, uint64 itemId)
-{
-    PlayerObject* player = dynamic_cast<PlayerObject*>(creatureObject);
-    if((!player)||(!player->isConnected()))
-    {
-        return(false);
-    }
-
-    ObjectList				equippedObjects				= creatureObject->getEquipManager()->getEquippedObjects();
-    ObjectList::iterator	eqIt						= equippedObjects.begin();
-    uint32					cSize						= 0;
-
-    // customization is necessary for haircolor on imagedesign
-    //we only want to change the object with the given ID
-    uint16	index	= 0;
-    uint16	i		= 0;
-    bool	found	= false;
-
-    while(eqIt != equippedObjects.end())
-    {
-        if(TangibleObject* object = dynamic_cast<TangibleObject*>(*eqIt))
-        {
-            if(object->getId() == itemId)
-            {
-                cSize += object->getCustomizationStr().getLength();
-                index = i;
-                found = true;
-                break;
-            }
-
-        }
-        else if(CreatureObject* pet = dynamic_cast<CreatureObject*>(*eqIt))
-        {
-            if(pet->getId() == itemId)
-            {
-                cSize += pet->getCustomizationStr().getLength();
-                index = i;
-                found = true;
-                break;
-            }
-        }
-        i++;
-        ++eqIt;
-    }
-
-    if(!found)
-    {
-        DLOG(info) << "MessageLib::sendEquippedItemUpdate_InRange : Item not found : " << itemId;
-        return false;
-    }
-
-    mMessageFactory->StartMessage();
-    mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(creatureObject->getId());
-    mMessageFactory->addUint32(opCREO);
-    mMessageFactory->addUint8(6);
-
-    mMessageFactory->addUint32(15 + (1 * 18)+ cSize);
-    mMessageFactory->addUint16(1);   //one update
-    mMessageFactory->addUint16(15);				 //id 15
-
-    // creatures tangible objects
-    eqIt = equippedObjects.begin();
-
-    mMessageFactory->addUint32(1);	//only one item gets updated
-    mMessageFactory->addUint32(creatureObject->getEquipManager()->advanceEquippedObjectsUpdateCounter(1));//+1
-    creatureObject->getEquipManager()->advanceEquippedObjectsUpdateCounter(1);
-
-    mMessageFactory->addUint8(2);  //2 for change a given entry
-    mMessageFactory->addUint16(index);//index of the entry
-
-    while(eqIt != equippedObjects.end())
-    {
-        Object* object = (*eqIt);
-        if ( object->getId() == itemId)
-        {
-            if(TangibleObject* tObject = dynamic_cast<TangibleObject*>(object))
-            {
-                mMessageFactory->addString(tObject->getCustomizationStr());
-            }
-            else if(CreatureObject* pet = dynamic_cast<CreatureObject*>(object))
-            {
-                mMessageFactory->addString(pet->getCustomizationStr());
-            }
-            else
-            {
-                mMessageFactory->addUint16(0);
-            }
-
-            mMessageFactory->addUint32(4);
-            mMessageFactory->addUint64(object->getId());
-            mMessageFactory->addUint32(common::memcrc(object->GetTemplate()));
-            break;
-        }
-        ++eqIt;
-    }
-
-    Message* message = mMessageFactory->EndMessage();
-    //gLogger->hexDump(message->getData(),message->getSize());
-    //message->ResetIndex();
-    _sendToInRange(message,creatureObject,5);
-
-
-    return(true);
-}
 
 
 //======================================================================================================================
@@ -1326,34 +1035,6 @@ void MessageLib::sendScaleUpdateCreo3(CreatureObject* creatureObject)
     _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
 }
 
-//======================================================================================================================
-//
-// Creature Deltas Type 6
-// update: weapon id
-//
-
-void MessageLib::sendWeaponIdUpdate(CreatureObject* creatureObject)
-{
-    mMessageFactory->StartMessage();
-    mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(creatureObject->getId());
-    mMessageFactory->addUint32(opCREO);
-    mMessageFactory->addUint8(6);
-    mMessageFactory->addUint32(12);
-    mMessageFactory->addUint16(1);
-    mMessageFactory->addUint16(5);
-
-    if(Object* weapon = creatureObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left))
-    {
-        mMessageFactory->addUint64(weapon->getId());
-    }
-    else
-    {
-        mMessageFactory->addUint64(0);
-    }
-
-    _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
-}
 
 //======================================================================================================================
 //

@@ -832,10 +832,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
         playerObject->InitializeObject(playerHair.get());
 		gWorldManager->addObject(playerHair,true);
     }
-    else
-    {
-		playerObject->mEquipManager.setDefaultHair(0);
-    }
+
 
     // mission bag
     playerMissionBag = new MissionBag(playerObject->mId + MISSION_OFFSET,playerObject,"object/tangible/mission_bag/shared_mission_bag.iff","item_n","mission_bag");
@@ -1064,13 +1061,7 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
     {
         if(!(_removeFromObjectLoadMap(playerObject->getId())))
             LOG(warning) << "Failed removing object from loadmap";
-
-        // if weapon slot is empty, equip the unarmed default weapon
-        if(!playerObject->mEquipManager.getEquippedObject(CreatureEquipSlot_Hold_Left))
-        {
-            // gLogger->log(LogManager::DEBUG,"equip default weapon");
-            playerObject->mEquipManager.equipDefaultWeapon();
-        }
+        
         Datapad* dpad = playerObject->getDataPad();
         if(!dpad)
         {
@@ -1078,9 +1069,6 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
             return;
 
         }
-
-        // init equip counter
-        playerObject->mEquipManager.setEquippedObjectsUpdateCounter(0);
 
         ilc->mOfCallback->handleObjectReady(playerObject,ilc->mClient);
 

@@ -36,21 +36,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Zoneserver/Objects/Inventory.h"
 #include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
-#include "ZoneServer/GameSystemManagers/Treasury Manager/TreasuryManager.h"
 #include "Zoneserver/Objects/waypoints/WaypointObject.h"
 #include "ZoneServer/Objects/Wearable.h"
 #include "ZoneServer/WorldConfig.h"
 #include "ZoneServer/WorldManager.h"
-#include "ZoneServer/GameSystemManagers/Container Manager/ContainerManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
-#include "MessageLib/MessageLib.h"
+
+#include "ZoneServer/GameSystemManagers/Container Manager/ContainerManager.h"
+#include "ZoneServer/GameSystemManagers/Treasury Manager/TreasuryManager.h"
+
+#include "ZoneServer\Services\equipment\equipment_service.h"
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/Transaction.h"
 #include "DatabaseManager/DataBinding.h"
 
-//#include "NetworkManager/DispatchClient.h"
+#include "MessageLib/MessageLib.h"
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageDispatch.h"
 #include "NetworkManager/MessageFactory.h"
@@ -388,10 +390,7 @@ void TradeManager::_processBankTipDeduct(Message* message,DispatchClient* client
     uint64			playerId		= message->getUint64();//is on this zone
     uint32			amount			= message->getUint32();
     PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
-    Bank*			bank			= dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
-
-    bank->updateCredits(amount);
-    
+	playerObject->updateBankCredits(-amount);    
 }
 
 //=======================================================================================================================
@@ -409,8 +408,7 @@ void TradeManager::_processBanktipUpdate(Message* message,DispatchClient* client
 		return;
 	}
     
-    Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
-	bank->updateCredits(amount);
+    playerObject->updateBankCredits(amount);    
     
 }
 
@@ -511,10 +509,10 @@ void TradeManager::_processDeductMoneyMessage(Message* message,DispatchClient* c
     asyncContainer->mX = atoi(x.getAnsi());
     asyncContainer->mY = atoi(y.getAnsi());
 
-    Inventory* inventory = dynamic_cast<Inventory*>(asyncContainer->player1->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+    auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(asyncContainer->player1, "inventory"));
 
-    if(inventory->getCredits() < amount)
-    {
+	if(!asyncContainer->player1->testCash(amount))    {
         //cash alone isnt sufficient
         asyncContainer->amountcash = inventory->getCredits();
         asyncContainer->amountbank = (amount - asyncContainer->amountcash);
@@ -546,12 +544,13 @@ void TradeManager::_processCreateItemMessage(Message* message,DispatchClient* cl
     uint64			PlayerID		= message->getUint64();
     uint64			ItemID			= message->getUint64();
     uint32			Group			= message->getUint32();
-    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(PlayerID));
-    Inventory*		inventory		= dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+    PlayerObject*	player			= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(PlayerID));
+
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
 
 
-    if(playerObject && playerObject->isConnected())
-    {
+    if(player && player->isConnected())    {
         gObjectFactory->requestTanoNewParent(inventory,ItemID,inventory->getId(),(TangibleGroup)Group);
     }
 }
@@ -618,15 +617,14 @@ void TradeManager::_HandleAuctionCreateMessage(Message* message,DispatchClient* 
     //it might be a resourcecontaine - so its a tangibleObject
     //however only items can be equipped
     if (item)    {
-        //unequips the item in case it is equipped
-        playerObject->getEquipManager()->unEquipItem(item);
+
+		//how to test whether the item is equipped ?
 
         //will destroy any temporary placed instruments
         checkPlacedInstrument(item,client);
     }
 
-    if(price > (uint32)gWorldConfig->getConfiguration<uint32>("Server_Bazaar_MaxPrice",20000))
-    {
+    if(price > (uint32)gWorldConfig->getConfiguration<uint32>("Server_Bazaar_MaxPrice",20000))    {
         //to expensive!!!
         gMessageLib->sendCreateAuctionItemResponseMessage(playerObject,ItemID,4);
         return;
@@ -679,7 +677,7 @@ void TradeManager::_HandleAuctionCreateMessage(Message* message,DispatchClient* 
     }
 
 
-    if(!playerObject->checkDeductCredits(fee))	{
+    if(!playerObject->testCredits(fee))	{
         //we cannot afford the listing
         gMessageLib->sendCreateAuctionItemResponseMessage(playerObject,ItemID,9);
         return;
@@ -690,7 +688,8 @@ void TradeManager::_HandleAuctionCreateMessage(Message* message,DispatchClient* 
     //prepare our transaction
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_CheckListingsBazaar,client);
 
-    Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
+    auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto bank	= dynamic_cast<Bank*>(equip_service->GetEquippedObject(playerObject, "bank"));
 
     //we give the amounts of money to be taken from bank and inventory directly to the
     //transaction in the next async call
@@ -777,7 +776,7 @@ void TradeManager::_processTradeCompleteMessage(Message* message,DispatchClient*
                 {
                     //Objects must get the proper Owner Id
                     //Delete them in the partners inventory
-                    if(playerObject->checkDeductCredits(playerObject->getTrade()->getTradeCredits()) && tradePartner->checkDeductCredits(tradePartner->getTrade()->getTradeCredits()))
+                    if(playerObject->testCredits(playerObject->getTrade()->getTradeCredits()) && tradePartner->testCredits(tradePartner->getTrade()->getTradeCredits()))
                     {
                         TradeTransaction(client,playerObject,tradePartner);
                     }
@@ -846,11 +845,11 @@ void TradeManager::TradeTransaction(DispatchClient* client,PlayerObject* player1
 
         if (!player1->testCash(asyncContainer->amount1) )
         {
-			DLOG(info) <<"Player : "<<player1->getFirstName() << "id "<<player1->getId()<< "wanted to trade "<<asyncContainer->amount1<<" credits but had only " << dynamic_cast<Inventory*>(player1->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits();
+			DLOG(info) <<"Player : "<<player1->getFirstName() << "id "<<player1->getId()<< "wanted to trade "<<asyncContainer->amount1<<" credits but had not enough cash";
         }
         if (!player2->testCash(asyncContainer->amount2) )
         {
-            DLOG(info) <<"Player : "<<player2->getFirstName() << "id "<<player2->getId()<< "wanted to trade "<<asyncContainer->amount2<<" credits but had only " << dynamic_cast<Inventory*>(player2->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits();
+            DLOG(info) <<"Player : "<<player2->getFirstName() << "id "<<player2->getId()<< "wanted to trade "<<asyncContainer->amount2<<" credits but had not enough cash";
         }
     }
 }
@@ -998,15 +997,15 @@ void TradeManager::_processAddItemMessage(Message* message,DispatchClient* clien
     //inventory items
 	//is it equipped? then we need to unequip it
     Item* theItem = dynamic_cast<Item*>(gWorldManager->getObjectById(ItemId));
-	if (theItem && (theItem->getParentId() == playerObject->getId()))
-    {
-		Inventory*		inventory		=	dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));	
+	if (theItem && (theItem->getParentId() == playerObject->getId()))    {
+
+		auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+		auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
+
 		//bail out if we cannot unequip it
 		if(!gContainerManager->transferItem(inventory->getId(),theItem->getId(),playerObject,4))
 			return;
 
-        //make sure the item is not equipped
-        playerObject->getEquipManager()->unEquipItem(theItem);
 
     }
     //make sure that the item is only once on the list

@@ -147,17 +147,17 @@ public:
     virtual void				    handleDatabaseJobComplete(void* ref,swganh::database::DatabaseResult* result);
     virtual void					handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window);
 
-    void						    bankDepositAll(PlayerObject* playerObject);
-    void						    bankWithdrawAll(PlayerObject* playerObject);
-    void						    bankTransfer(int32 inventoryMoneyDelta, int32 bankMoneyDelta, PlayerObject* playerObject);
+    void						    bankDepositAll(PlayerObject* player);
+    void						    bankWithdrawAll(PlayerObject* player);
+    void						    bankTransfer(int32 inventoryMoneyDelta, int32 bankMoneyDelta, PlayerObject* player);
     std::shared_ptr<RadialMenu>   bankBuildTerminalRadialMenu(CreatureObject* creatureObject);
     void						    bankOpenSafetyDepositContainer(PlayerObject* playerObject);
-    void						    bankQuit(PlayerObject* playerObject);
-    void						    bankJoin(PlayerObject* playerObject);
+    void						    bankQuit(PlayerObject* player);
+    void						    bankJoin(PlayerObject* player);
 
     //handles bank tip to offline player
     void							handleBankTipSurchargeConfirmed(std::shared_ptr<TreasuryManagerAsyncContainer> container );
-    void						    bankTipOffline(uint32 amount, PlayerObject* playerObject, BString targetName);
+    void						    bankTipOffline(uint32 amount, PlayerObject* player, BString targetName);
     void						    inventoryTipOnline(uint32 amount, PlayerObject* playerObject, PlayerObject* targetObject );
     void						    bankTipOnline(uint32 amount, PlayerObject* playerObject, PlayerObject* targetObject );
 

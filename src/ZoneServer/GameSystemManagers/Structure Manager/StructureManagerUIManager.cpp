@@ -30,19 +30,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/GameSystemManagers/Structure Manager/HouseObject.h"
 #include "ZoneServer/GameSystemManagers/Structure Manager/FactoryObject.h"
 #include "ZoneServer/GameSystemManagers/Crafting Manager/ManufacturingSchematic.h"
+
 #include "Zoneserver/Objects/Inventory.h"
 #include "Zoneserver/Objects/Datapad.h"
 #include "Zoneserver/Objects/Bank.h"
-#include "ZoneServer/GameSystemManagers/Resource Manager/ResourceContainer.h"
-#include "ZoneServer/GameSystemManagers/Resource Manager/ResourceType.h"
 #include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
+
+#include "ZoneServer/GameSystemManagers/Resource Manager/ResourceContainer.h"
+#include "ZoneServer/GameSystemManagers/Resource Manager/ResourceType.h"
 #include "ZoneServer/GameSystemManagers/Structure Manager/PlayerStructure.h"
 #include "ZoneServer/WorldManager.h"
 
 #include "ZoneServer/GameSystemManagers/UI Manager/UIManager.h"
 #include "Utils/colors.h"
 
+#include "ZoneServer\Services\equipment\equipment_service.h"
 //#include "NetworkManager/DispatchClient.h"
 
 
@@ -345,14 +348,15 @@ void StructureManager::createPayMaintenanceTransferBox(PlayerObject* player, Pla
 
     }
 
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
+	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player, "bank"));
 
-	Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 	if(!inventory)	{
 		LOG (error) << "StructureManager::createPayMaintenanceTransferBox : No inventory for " << player->getId();
 		return;
 	}
 
-	Bank* bank = dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
 	if(!bank)	{
 		LOG (error) << "StructureManager::createPayMaintenanceTransferBox : No bank for " << player->getId();
 		return;

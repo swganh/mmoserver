@@ -33,6 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageLib/MessageLib.h"
 
 
+#include "ZoneServer\WorldManager.h"
+#include "ZoneServer\Services\equipment\equipment_service.h"
 
 //=============================================================================
 
@@ -69,15 +71,20 @@ void BankTerminal::handleObjectMenuSelect(uint8 messageType, Object* srcObject)
 
 
     case radId_itemUse:
-    case radId_bankTransfer: // deposit - withdraw
+    case radId_bankTransfer:	{ // deposit - withdraw
+	
+		auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+		auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
+		auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(playerObject, "bank"));
 
         gUIManager->createNewTransferBox(this,"handleDepositWithdraw", "@base_player:bank_title"
                                          ,"@base_player:bank_prompt", "Cash", "Bank"
-                                         ,dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits()
-                                         ,dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits()
+										 ,inventory->getCredits()
+                                         ,bank->getCredits()
                                          ,playerObject);
+	}
 
-        break;
+    break;
 
 
     case radId_bankItems:
@@ -122,13 +129,14 @@ void BankTerminal::handleUIEvent(BString strInventoryCash, BString strBankCash, 
 	PlayerObject* playerObject = window->getOwner(); // window owner
 
 	// Check if you can use the bank
-    if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead() ||
-		playerObject->states.checkState(CreatureState_Combat))
-    {
+    if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead() ||		playerObject->states.checkState(CreatureState_Combat))    {
 		gMessageLib->SendSystemMessage(L"You can not use the bank at your current state", playerObject); // Temp Message
         return;
     }
 
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
+	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(playerObject, "bank"));
 
     // two money movement deltas stands for credits
     // variations into bank & inventory.
@@ -143,8 +151,8 @@ void BankTerminal::handleUIEvent(BString strInventoryCash, BString strBankCash, 
     strInventoryCash.convert(BSTRType_ANSI);
     strBankCash.convert(BSTRType_ANSI);
 
-    int32 inventoryMoneyDelta = atoi(strInventoryCash.getAnsi()) - dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits();
-    int32 bankMoneyDelta = atoi(strBankCash.getAnsi()) - dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits();
+    int32 inventoryMoneyDelta = atoi(strInventoryCash.getAnsi()) - inventory->getCredits();
+    int32 bankMoneyDelta = atoi(strBankCash.getAnsi()) - bank->getCredits();
 
     // the amount transfered must be greater than zero
     if(bankMoneyDelta == 0 || inventoryMoneyDelta == 0)

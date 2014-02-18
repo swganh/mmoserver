@@ -68,6 +68,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/ProfessionManagers/Medic Manager/QuickHealInjuryTreatmentEvent.h"
 #include "ZoneServer/ProfessionManagers/Medic Manager/WoundTreatmentEvent.h"
 
+#include "ZoneServer\Services\equipment\equipment_service.h"
+
 #include "ZoneServer/Objects/VehicleController.h"
 #include "ZoneServer/WorldConfig.h"
 #include "ZoneServer/WorldManager.h"
@@ -581,13 +583,14 @@ bool PlayerObject::UpdateIdColors(BString attribute,uint16 value)
 
 //=============================================================================
 
-bool PlayerObject::checkDeductCredits(uint32 amount)
+bool PlayerObject::testCredits(uint32 amount)
 {
-    Bank*		bank		= dynamic_cast<Bank*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Bank));
-    Inventory*	inventory	= dynamic_cast<Inventory*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Inventory));
+	auto equipment_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto inventory = dynamic_cast<Inventory*>(equipment_service->GetEquippedObject(this, "inventory"));
+	auto bank = dynamic_cast<Bank*>(equipment_service->GetEquippedObject(this, "bank"));
 
     if((!bank) || (!inventory))    {
-        LOG(error) << "PlayerObject::updateCredits No Bank / Inventory for : " << this->getId();
+		LOG(error) << "PlayerObject::updateCredits No Bank / Inventory for : " << this->getId();
 		return false;
     }
 	return(amount <= bank->getCredits() + inventory->getCredits());
@@ -598,8 +601,10 @@ bool PlayerObject::checkDeductCredits(uint32 amount)
 
 bool PlayerObject::testBank(uint32 amount)
 {
-    if(Bank* bank = dynamic_cast<Bank*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Bank)))
-    {
+	auto equipment_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto bank = dynamic_cast<Bank*>(equipment_service->GetEquippedObject(this, "bank"));
+
+    if(bank)    {
         return(amount <= bank->getCredits());
     }
 
@@ -610,8 +615,10 @@ bool PlayerObject::testBank(uint32 amount)
 
 bool PlayerObject::testCash(uint32 amount)
 {
-    if(Inventory* inventory = dynamic_cast<Inventory*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Inventory)))
-    {
+	auto equipment_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto inventory = dynamic_cast<Inventory*>(equipment_service->GetEquippedObject(this, "inventory"));
+
+    if(inventory)    {
         return(amount <= inventory->getCredits());
     }
 
@@ -622,8 +629,9 @@ bool PlayerObject::testCash(uint32 amount)
 
 bool PlayerObject::updateCredits(int32 amount)
 {
-	Bank* bank = dynamic_cast<Bank*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Bank));
-	Inventory* inventory = dynamic_cast<Inventory*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Inventory));
+	auto equipment_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto inventory = dynamic_cast<Inventory*>(equipment_service->GetEquippedObject(this, "inventory"));
+	auto bank = dynamic_cast<Bank*>(equipment_service->GetEquippedObject(this, "bank"));
 
     if(!bank)    {
 		LOG(error) << "PlayerObject::updateCredits No Bank for : " << this->getId();
@@ -1218,7 +1226,9 @@ void PlayerObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 void PlayerObject::updateBankCredits(int32 amount)
 {
-	Bank* bank = dynamic_cast<Bank*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Bank));
+	auto equip_service	= gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto bank			= dynamic_cast<Bank*>(equip_service->GetEquippedObject(this, "bank"));
+
     if(!bank)    {
 		LOG (error) << "PlayerObject::giveBankCredits no bank for " << this->getId();
 		return;
@@ -1231,7 +1241,9 @@ void PlayerObject::updateBankCredits(int32 amount)
 
 void PlayerObject::updateInventoryCredits(int32 amount)
 {
-	Inventory* inventory = dynamic_cast<Inventory*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Inventory));
+	auto equip_service	= gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto inventory		= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(this, "inventory"));
+
     if(! inventory)    {
 		LOG (error) << "PlayerObject::giveBankCredits no inventory for " << this->getId();
 		return;
@@ -1789,16 +1801,17 @@ void PlayerObject::clone(uint64 parentId, const glm::quat& dir, const glm::vec3&
         }
 
         // Update / remove insurance of items in inventory (or equppied).
-        if (Inventory* inventory = dynamic_cast<Inventory*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Inventory)))
-        {
+		auto equip_service	= gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+		auto inventory		= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(this, "inventory"));
+
+        if (inventory)        {
             SortedInventoryItemList insuranceList;
             inventory->getInsuredItems(&insuranceList);
 
             SortedInventoryItemList::iterator it;
             it = insuranceList.begin();
 
-            while (it != insuranceList.end())
-            {
+            while (it != insuranceList.end())	{
                 if (Object* object = gWorldManager->getObjectById((*it).second))
                 {
                     if (TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object))

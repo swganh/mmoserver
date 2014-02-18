@@ -47,6 +47,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Zoneserver/Objects/Inventory.h"
 #include "ZoneServer/Objects/Object/ObjectFactory.h"
 
+#include "ZoneServer\Services\equipment\equipment_service.h"
+
 #include "Utils/utils.h"
 
 #include "anh/Utils/rand.h"
@@ -876,6 +878,10 @@ void CharacterBuilderTerminal::_handleExperienceMenu(PlayerObject* playerObject,
 }
 void CharacterBuilderTerminal::_handleCreditMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
+	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player, "bank"));
+
     if(window->getWindowType() == SUI_Window_CharacterBuilder_ListBox_CreditMenu)
     {
         switch(element)
@@ -928,13 +934,12 @@ void CharacterBuilderTerminal::_handleCreditMenu(PlayerObject* player, uint32 ac
             return;
         }
         // bank or inv?
-        if(window->getWindowType() == SUI_Window_CharacterBuilderCreditsMenuInventory_InputBox)
-        {
-            dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->setCredits(mInputBoxAmount);
+        if(window->getWindowType() == SUI_Window_CharacterBuilderCreditsMenuInventory_InputBox)        {
+            inventory->setCredits(mInputBoxAmount);
         }
         else
         {
-            dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->setCredits(mInputBoxAmount);
+            bank->setCredits(mInputBoxAmount);
         }
     }
 }
@@ -1300,8 +1305,10 @@ void CharacterBuilderTerminal::_handleResourcesCRC(PlayerObject* playerObject, u
 
         if(resource)
         {
-            Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-            gObjectFactory->requestNewResourceContainer(inventory ,resource->getId(),inventory ->getId(),99,100000);
+            auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+			auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
+
+            gObjectFactory->requestNewResourceContainer(inventory , resource->getId(), inventory->getId(), 99, 100000);
         }
     }
 }

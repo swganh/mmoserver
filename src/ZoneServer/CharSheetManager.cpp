@@ -36,7 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Zoneserver/Objects/Inventory.h"
 #include "ZoneServer/ZoneOpcodes.h"
 
-
+#include "ZoneServer\Services\equipment\equipment_service.h"
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -218,8 +218,7 @@ void CharSheetManager::_processFactionRequest(Message* message,DispatchClient* c
 {
     PlayerObject* player = gWorldManager->getPlayerByAccId(client->getAccountId());
 
-    if(player == NULL)
-    {
+    if(player == NULL)    {
         DLOG(info) << "CharSheetManager::_processFactionRequest: could not find player " << client->getAccountId();
         return;
     }
@@ -264,16 +263,19 @@ void CharSheetManager::_processPlayerMoneyRequest(Message* message,DispatchClien
 {
     PlayerObject* player = gWorldManager->getPlayerByAccId(client->getAccountId());
 
-    if(player == NULL)
-    {
+    if(player == NULL)    {
         DLOG(info) << "CharSheetManager::_processPlayerMoneyRequest: could not find player " << client->getAccountId();
         return;
     }
 
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
+	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player, "bank"));
+
     gMessageFactory->StartMessage();
     gMessageFactory->addUint32(opPlayerMoneyResponse);
-    gMessageFactory->addUint32(dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits());
-    gMessageFactory->addUint32(dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits());
+    gMessageFactory->addUint32(bank->getCredits());
+    gMessageFactory->addUint32(inventory->getCredits());
 
     Message* newMessage = gMessageFactory->EndMessage();
 

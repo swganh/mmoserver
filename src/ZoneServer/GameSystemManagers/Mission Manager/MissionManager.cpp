@@ -51,6 +51,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <ZoneServer/ProfessionManagers/Artisan Manager/ArtisanManager.h>
 
+#include "ZoneServer\Services\equipment\equipment_service.h"
+
 #include "Common/OutOfBand.h"
 #include "ZoneServer/WorldManager.h"
 
@@ -421,7 +423,8 @@ void MissionManager::listRequest(PlayerObject* player, uint64 terminal_id,uint8 
 
     int count = 0;
     int len = strlen(terminal_name);
-    MissionBag* mission_bag = dynamic_cast<MissionBag*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Mission));
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+    MissionBag* mission_bag = dynamic_cast<MissionBag*>(equip_service->GetEquippedObject(player, "missionbag"));
 
     MissionList::iterator it = mission_bag->getMissions()->begin();
     while(it != mission_bag->getMissions()->end())
@@ -488,7 +491,9 @@ void MissionManager::missionRequest(PlayerObject* player, uint64 mission_id)
     Datapad* datapad			= player->getDataPad();
 
     //Move the mission from the player's mission bag to his datapad.
-    MissionBag* mission_bag = dynamic_cast<MissionBag*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Mission));
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+    MissionBag* mission_bag = dynamic_cast<MissionBag*>(equip_service->GetEquippedObject(player, "missionbag"));
+    
     MissionObject* mission =  mission_bag->getMissionById(mission_id);
     if(mission == NULL)
     {
@@ -582,8 +587,11 @@ void MissionManager::missionComplete(PlayerObject* player, MissionObject* missio
     //Give the player the credit reward
     gMessageLib->sendPlayMusicMessage(2501,player); //sound/music_mission_complete.snd
     gMessageLib->sendMissionComplete(player);
-    Bank* bank = dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
-    bank->updateCredits(mission->getReward());
+    
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+    Bank* bank = dynamic_cast<Bank*>(equip_service->GetEquippedObject(player, "bank"));
+    
+	bank->updateCredits(mission->getReward());
 
     return;
 }
@@ -1007,8 +1015,7 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 
         bool found = false;
         uint32 counter = 0;
-        while(!found)
-        {
+        while(!found)        {
             MissionLinkList::iterator it = 	terminal->list.begin();
             while(it != terminal->list.end())
             {

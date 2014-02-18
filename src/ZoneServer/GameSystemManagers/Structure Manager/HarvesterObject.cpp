@@ -341,7 +341,7 @@ void HarvesterObject::createResourceContainer(uint64 resID, PlayerObject* player
         if( a > rAmount)
             a = rAmount;
 
-        gObjectFactory->requestNewResourceContainer(dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)),resID,player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId(),99,a);
+        gObjectFactory->requestNewResourceContainer(inventory,resID,inventory->getId(),99,a);
         rAmount -= a;
 
     }

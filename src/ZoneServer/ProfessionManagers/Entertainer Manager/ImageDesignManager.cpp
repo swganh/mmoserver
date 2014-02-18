@@ -34,6 +34,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer\Services\ham\ham_service.h"
 #include "ZoneServer/WorldManager.h"
 
+#include "ZoneServer\Services\equipment\equipment_service.h"
+
 #include "ZoneServer/GameSystemManagers/Container Manager/ContainerManager.h"
 #include "ZoneServer/GameSystemManagers/Spatial Index Manager/SpatialIndexManager.h"
 #include "MessageLib/MessageLib.h"
@@ -327,7 +329,7 @@ BString EntertainerManager::commitIdColor(PlayerObject* customer, BString attrib
     char		*Token;
     char		separation[] = ".";
 
-    sprintf(mString,"%s",&customer->getModelString().c_str()[30]);
+	sprintf(mString,"%s",&customer->GetTemplate().c_str()[30]);
 
 
 
@@ -346,13 +348,13 @@ BString EntertainerManager::commitIdColor(PlayerObject* customer, BString attrib
     if (value == 255)
         value = 767;
 
-
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto hair	= dynamic_cast<TangibleObject*>(equip_service->GetEquippedObject(customer, "hair"));
 
     //check whether we are modifying the hair object
     if(iDContainer->hair)
     {	
-		if(TangibleObject* hair = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(customer->getEquipManager()->getDefaultHair())))
-        {
+		if(hair)        {
             hair->setCustomization(static_cast<uint8>(iDContainer->Atr1ID),value,3);
 
             //update hair customization db side separately

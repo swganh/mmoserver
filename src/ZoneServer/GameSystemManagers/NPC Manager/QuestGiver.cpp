@@ -35,6 +35,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/WorldConfig.h"
 #include "MessageLib/MessageLib.h"
 
+#include "ZoneServer\Services\equipment\equipment_service.h"
+
 //=============================================================================
 
 QuestGiver::QuestGiver() : NPCObject()
@@ -130,7 +132,7 @@ bool QuestGiver::preProcessfilterConversation(ActiveConversation* av, Conversati
                 // gLogger->log(LogManager::DEBUG,"QuestGiver::preProcessfilterConversation: Returned modified pagelink %u", 7);
 
                 // If player has "lost" his gun, we let the npc-officer give him a new.
-                Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+                auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player, "inventory");
                 if (inventory)
                 {
                     if (inventory->itemExist(player->getTutorial()->getQuestWeaponFamily(), player->getTutorial()->getQuestWeaponType()))

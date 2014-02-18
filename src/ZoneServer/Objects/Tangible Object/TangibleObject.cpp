@@ -42,7 +42,6 @@ TangibleObject::TangibleObject()
     , mDamage(0)
     , mMaxCondition(100)
     , mTimerInterval(1000)
-    , mStatic(false)
 {
     mType				= ObjType_Tangible;
     mName				= "";

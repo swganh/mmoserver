@@ -36,6 +36,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageFactory.h"
 
+#include "ZoneServer\Services\equipment\equipment_service.h"
+
 //=============================================================================
 
 Instrument::Instrument() : Item()
@@ -91,26 +93,18 @@ void Instrument::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
             else
             {
                 // We are handling the original instrument.
-                Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-                if (inventory)
-                {
-                    if (inventory->getId() == this->getParentId())
-                    {
-                        if (player->getPlacedInstrumentId() == 0)
-                        {
-                            // Create a new copy of the instrument.
-                            gEntertainerManager->useInstrument(player,this);
-                        }
-                        else
-                        {
-                            gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "wrong_state"), player);
-                        }
+                auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+				auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
+
+                if (inventory && inventory->getId() == this->getParentId())	{
+                    if (player->getPlacedInstrumentId() == 0)	{
+                        // Create a new copy of the instrument.
+                        gEntertainerManager->useInstrument(player,this);
                     }
-                    else if (dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
-                    {
+                    
+                    else if (dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))                    {
                         // Is this my instrument?
-                        if (this->getOwner() == player->getId())
-                        {
+                        if (this->getOwner() == player->getId())	{
                             if (!gWorldManager->objectsInRange(player->getId(), this->getId(), 6.0))
                             {
                                 // We where out of range. (using 6.0 m as default range,this value not verified).
@@ -237,9 +231,10 @@ void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount
         else
         {
             // We may be handling the original instrument.
-            Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-            if (inventory)
-            {
+			auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+			auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
+            
+            if (inventory)	{
                 if (inventory->getId() == this->getParentId())
                 {
                     // We have our real instrument in the inventory.

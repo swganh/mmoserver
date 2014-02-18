@@ -60,6 +60,7 @@ Object::Object()
     , mSubZoneId(0)
     , mTypeOptions(0)
     , mDataTransformCounter(0)
+	, mStatic(false)
     , zmapCellID(0xffffffff)
 {
     mDirection = glm::quat();
@@ -130,27 +131,38 @@ int32_t Object::GetAppropriateArrangementId(Object* other)
     if (slot_descriptor_.size() == 1)
         return -1;
 
+	LOG(info) << "Object::GetAppropriateArrangementId container -> " << this->getId() << " for object : " << other->getId();
+
     // Find appropriate arrangement
     int32_t arrangement_id = 4;
     int32_t filled_arrangement_id = -1;
     // In each arrangment
+	uint ar_count = 0;
     for ( ObjectArrangements::iterator arrangement = other->slot_arrangements_.begin(); arrangement != other->slot_arrangements_.end(); arrangement++)
     {
+		ar_count ++;
+		LOG(info) << "arrangement : " << ar_count;
+
         bool passes_completely = true;
         bool is_valid = true;
         // Each Slot
 		for (std::vector<int32_t>::iterator slot = arrangement->begin(); slot != arrangement->end(); slot++)
         {
+			LOG(info) << "slot : " << *slot;
             // does slot exist in descriptor
             auto descriptor_iter = slot_descriptor_.find(*slot);
+			
             if (descriptor_iter == end(slot_descriptor_))
             {
+				LOG(info) << "slot descriptor: invalid";
                 is_valid = false;
                 break;
             }
+
             // is slot filled?
             else if (descriptor_iter->second->is_filled())
             {
+				LOG(info) << "slot descriptor: " << descriptor_iter->first;
                 passes_completely = false;
             }
         }
@@ -288,6 +300,22 @@ bool Object::AddObject(Object* requester, Object* obj, int32_t arrangement_id)
 		return false;
 	}
 
+	if (this->getObjectType() == SWG_PLAYER || this->getObjectType() == SWG_CREATURE)	{
+		TangibleObject* tangible = dynamic_cast<TangibleObject*>(obj);
+		if(tangible)	{
+			std::shared_ptr<swganh::object::EquipmentItem> item = std::make_shared <swganh::object::EquipmentItem>();
+			item->containment_type	= tangible->GetArrangementId();
+			item->customization		= tangible->getCustomizationStr().getAnsi();
+			item->object_id			= tangible->getId();
+			item->template_crc		= common::memcrc(tangible->GetTemplate());
+
+			CreatureObject* creature = dynamic_cast<CreatureObject*>(this);
+			creature->AddEquipmentItem(item);
+		}
+
+		
+	}
+
     boost::upgrade_lock<boost::shared_mutex> lock(global_container_lock_);
 
     //Add Object To Datastructure
@@ -311,6 +339,11 @@ bool Object::RemoveObject(Object* requester, Object* oldObject)
 	if((requester != nullptr ) && (!container_permissions_->canRemove(this, requester, oldObject)))	{
 		LOG (info) << "Object::RemoveObject couldnt remove Object : " << oldObject->getId() << " from " << getId() << " requester : " << requester->getId();
 		return false;
+	}
+	
+	if (this->getObjectType() == SWG_PLAYER || this->getObjectType() == SWG_CREATURE)	{
+		CreatureObject* creature = dynamic_cast<CreatureObject*>(this);
+		creature->RemoveEquipmentItem(oldObject->getId());
 	}
 
     boost::upgrade_lock<boost::shared_mutex> lock(global_container_lock_);
@@ -1325,3 +1358,22 @@ Object* Object::GetSlotObject(int32_t slot_id, boost::unique_lock<boost::mutex>&
 }
 //=============================================================================
 
+
+//=============================================================================
+Object* Object::itemExist(uint32 familyId, uint32 typeId)
+{
+    bool found = false;
+	Object* the_object = nullptr;
+	this->ViewObjects( this, 0, true, [&] (Object* object) {
+
+		Item* item = dynamic_cast<Item*>(object);
+        if (item)        {
+            if ((item->getItemFamily() == familyId) && (item->getItemType() == typeId))            {
+                found = true;
+				the_object = object;
+            }
+        }
+    });
+
+    return the_object;
+}

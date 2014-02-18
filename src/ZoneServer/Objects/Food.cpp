@@ -39,11 +39,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/WorldConfig.h"
 #include "ZoneServer/WorldManager.h"
 #include "Common/OutOfBand.h"
+
 #include "ZoneServer/Tutorial.h"
 #include "DatabaseManager/Database.h"
 #include "MessageLib/MessageLib.h"
 
 #include "anh/Utils/clock.h"
+
+#include "ZoneServer\Services\equipment\equipment_service.h"
 
 using ::common::OutOfBand;
 
@@ -66,15 +69,13 @@ void Food::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCou
 {
     RadialMenu* radial	= new RadialMenu();
 
-    CreatureObject* unknownCreature;
-    Inventory* creatureInventory;
-    if (this->getParentId() &&
-            (unknownCreature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(this->getParentId() - 1))) &&
-            (creatureInventory = dynamic_cast<Inventory*>(unknownCreature->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))) &&
-            (creatureInventory->getId() == this->getParentId()))
-    {
-        // Its an object in an inventory
+	CreatureObject* unknownCreature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(this->getParentId() - INVENTORY_OFFSET));
 
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto creature_inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(unknownCreature, "inventory"));
+
+    if (creature_inventory)    {
+        // Its an object in an inventory
         NPCObject* npcObject = dynamic_cast<NPCObject*>(unknownCreature);
         if (npcObject)
         {

@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/Objects/Tangible Object/TangibleObject.h"
 #include "ZoneServer/GameSystemManagers/UI Manager/UIManager.h"
 #include "ZoneServer/WorldManager.h"
-#include "ZoneServer/WorldManager.h"
+#include "ZoneServer\Services\equipment\equipment_service.h"
 #include "Zoneserver/Objects/AttackableCreature.h"
 #include "Zoneserver/Objects/Inventory.h"
 #include "ZoneServer/GameSystemManagers/Group Manager/GroupManager.h"
@@ -393,7 +393,8 @@ void ScoutManager::successForage(PlayerObject* player)
         //gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_success");
         //gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_noroom");
 
-        Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+        auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+		auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
 
         if(!inventory)
             return;

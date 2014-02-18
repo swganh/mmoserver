@@ -24,33 +24,34 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
-
+#include "ZoneServer\Services\equipment\equipment_service.h"
 
 #include "CraftingSession.h"
 
 #include "CraftBatch.h"
 #include "CraftingSessionFactory.h"
+#include "DraftSchematic.h"
+#include "DraftSlot.h"
+#include "SchematicManager.h"
+
 #include "ZoneServer/Objects/CraftingStation.h"
 #include "ZoneServer/Objects/CraftingTool.h"
 #include "Zoneserver/Objects/Datapad.h"
-#include "DraftSchematic.h"
-#include "DraftSlot.h"
-#include "ZoneServer/GameSystemManagers/Structure Manager/FactoryCrate.h"
 #include "Zoneserver/Objects/Inventory.h"
 #include "Zoneserver/Objects/Item.h"
-#include "ZoneServer/GameSystemManagers/Crafting Manager/ManufacturingSchematic.h"
+#include "ZoneServer/Objects/nonPersistantObjectFactory.h"
 #include "ZoneServer/ObjectController/ObjectControllerOpcodes.h"
 #include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
+
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceContainer.h"
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceManager.h"
-#include <ZoneServer/GameSystemManagers/Resource Manager/Resource.h>
-
-#include "SchematicManager.h"
-#include "ZoneServer/WorldManager.h"
+#include "ZoneServer/GameSystemManagers/Resource Manager/Resource.h"
+#include "ZoneServer/GameSystemManagers/Structure Manager/FactoryCrate.h"
+#include "ZoneServer/GameSystemManagers/Crafting Manager/ManufacturingSchematic.h"
 #include "ZoneServer/GameSystemManagers/Container Manager/ContainerManager.h"
 
-#include "ZoneServer/Objects/nonPersistantObjectFactory.h"
+#include "ZoneServer/WorldManager.h"
 
 #include "MessageLib/MessageLib.h"
 
@@ -791,7 +792,6 @@ void CraftingSession::bagComponents(ManufactureSlot* manSlot,uint64 containerId)
     manSlot->setFilledType(DST_Empty);
 
     //put them into the inventory no matter what - only alternative might be a crafting stations hopper at one point ??
-    Inventory* inventory = dynamic_cast<Inventory*>(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
     FilledComponent::iterator compIt = manSlot->mUsedComponentStacks.begin();
     while(compIt != manSlot->mUsedComponentStacks.end())
@@ -803,9 +803,9 @@ void CraftingSession::bagComponents(ManufactureSlot* manSlot,uint64 containerId)
             return;
         }
 
-        inventory->InitializeObject(filledComponent);
-        gMessageLib->sendContainmentMessage(filledComponent->getId(),inventory->getId(),0xffffffff,mOwner);
-        filledComponent->setParentIdIncDB(inventory->getId());
+        inventory_->InitializeObject(filledComponent);
+        gMessageLib->sendContainmentMessage(filledComponent->getId(),inventory_->getId(),0xffffffff,mOwner);
+        filledComponent->setParentIdIncDB(inventory_->getId());
 
         compIt = manSlot->mUsedComponentStacks.erase(compIt);
         continue;
@@ -874,8 +874,7 @@ void CraftingSession::bagResource(ManufactureSlot* manSlot,uint64 containerId)
 		bool	foundSameType	= false;
 
         // see if we can add it to an existing container
-        Inventory* inventory = dynamic_cast<Inventory*>(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-		inventory->ViewObjects(mOwner, 0, true, [&] (Object* object) {        
+		inventory_->ViewObjects(mOwner, 0, true, [&] (Object* object) {        
         
             // we are looking for resource containers
             ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(object);
@@ -910,9 +909,8 @@ void CraftingSession::bagResource(ManufactureSlot* manSlot,uint64 containerId)
 
                         gMessageLib->sendResourceContainerUpdateAmount(resCont,mOwner);
                         gWorldManager->getKernel()->GetDatabase()->executeSqlAsync(NULL,NULL,"UPDATE %s.resource_containers SET amount=%u WHERE id=%"PRIu64"",mDatabase->galaxy(),maxAmount,resCont->getId());
-                        
 
-                        gObjectFactory->requestNewResourceContainer(dynamic_cast<Inventory*>(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)),(*resIt).first,mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId(),99,selectedNewAmount);
+						gObjectFactory->requestNewResourceContainer(inventory_, (*resIt).first, inventory_->getId(),99,selectedNewAmount);
                     }
 
                     return;
@@ -925,7 +923,7 @@ void CraftingSession::bagResource(ManufactureSlot* manSlot,uint64 containerId)
         // or need to create a new one
         if(!foundSameType)
         {
-            gObjectFactory->requestNewResourceContainer(dynamic_cast<Inventory*>(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)),(*resIt).first,mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId(),99,amount);
+            gObjectFactory->requestNewResourceContainer(inventory_,(*resIt).first,inventory_->getId(),99,amount);
         }
 
         ++resIt;
@@ -1426,7 +1424,7 @@ void CraftingSession::emptySlots(uint32 counter)
 
         if(manSlot)
         {
-            emptySlot(i,manSlot,mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId());
+            emptySlot(i,manSlot,inventory_->getId());
 
             gMessageLib->sendCraftAcknowledge(opCraftEmptySlot,CraftError_None,static_cast<uint8>(counter),mOwner);
 

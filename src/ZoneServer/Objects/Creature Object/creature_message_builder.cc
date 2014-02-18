@@ -36,12 +36,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/Objects/Inventory.h"
 
 #include "anh\event_dispatcher\event_dispatcher.h"
+#include "ZoneServer\Services\equipment\equipment_service.h"
 
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageDispatch.h"
 #include "NetworkManager/MessageFactory.h"
 #include "NetworkManager/MessageOpcodes.h"
+
+#include "ZoneServer/WorldManager.h"
 
 #include "MessageLib/MessageLib.h"
 
@@ -111,8 +114,36 @@ void CreatureMessageBuilder::RegisterEventHandlers()
 
     });
 
+	event_dispatcher_->Subscribe("CreatureObject::EquipmentItem", [this] (std::shared_ptr<EventInterface> incoming_event)
+    {
+        auto value_event = std::static_pointer_cast<CreatureObjectEvent>(incoming_event);
+        BuildEquipmentDelta(value_event->Get());
+    });
+
+	event_dispatcher_->Subscribe("CreatureObject::WeaponId", [this] (std::shared_ptr<EventInterface> incoming_event)
+    {
+        auto value_event = std::static_pointer_cast<CreatureObjectEvent>(incoming_event);
+        BuildWeaponIdDelta(value_event->Get());
+    });
 
 }
+
+void CreatureMessageBuilder::BuildWeaponIdDelta(CreatureObject* const creature)
+{
+	LOG(info) << "CreatureMessageBuilder::BuildWeaponIdDelta: " << creature->getId();
+    DeltasMessage message = CreateDeltasMessage(creature, VIEW_6, 5, SWG_CREATURE);
+    message.data.write<uint64_t>(creature->GetWeaponId());
+    gMessageLib->broadcastDelta(message,creature);
+}
+
+void CreatureMessageBuilder::BuildEquipmentDelta(CreatureObject* const creature)
+{
+	LOG(info) << "CreatureMessageBuilder::BuildEquipmentDelta: " << creature->getId();
+	DeltasMessage message = CreateDeltasMessage(creature, VIEW_6, 15, SWG_CREATURE);
+	if(creature->SerializeEquipment(&message))
+		gMessageLib->broadcastDelta(message,creature);
+}
+
 
 void CreatureMessageBuilder::BuildStatEncumberanceDelta(CreatureObject* const creature)
 {
@@ -189,8 +220,9 @@ void CreatureMessageBuilder::BuildInventoryCreditsDelta(CreatureObject* const  c
 	if(!player)	{
 		return;
 	}
+	auto equipment_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto inventory = dynamic_cast<Inventory*>(equipment_service->GetEquippedObject(creature, "inventory"));
 
-	Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 	if(!inventory)	{
 		return;
 	}
@@ -208,7 +240,9 @@ void CreatureMessageBuilder::BuildBankCreditsDelta(CreatureObject* const  creatu
 		return;
 	}
 
-	Bank* bank = dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
+	auto equipment_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto bank = dynamic_cast<Bank*>(equipment_service->GetEquippedObject(creature, "bank"));
+
 	if(!bank)	{
 		return;
 	}

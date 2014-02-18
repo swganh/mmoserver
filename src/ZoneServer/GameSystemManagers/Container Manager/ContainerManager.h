@@ -78,12 +78,7 @@ public:
 	*/
 	bool					checkTargetContainer(uint64 targetId, Object* object, PlayerObject* player);
 
-	/*@brief removes an item out of a container
-	*	/param targetId this is the uint64 id of the container the object is supposed to be removed from
-	*	/param objectId	this is the Id of the object we want to remove out of the container
-	*/
-    bool					removeFromContainer(uint64 targetId, uint64 objectId, PlayerObject* player);
-
+	
 	//sends the destroys for an object equipped by a creature / player that gets unequipped
 	void					SendDestroyEquippedObject(Object *removeObject);	
 
@@ -123,7 +118,7 @@ public:
 
 	void					destroyObjectToRegisteredPlayers(Object* container,uint64 object, bool destroyForSelf = false);
 	void					updateObjectPlayerRegistrations(Object* newContainer, Object* oldContainer, Object* object, uint32 containment);
-	void					updateEquipListToRegisteredPlayers(PlayerObject* player);
+	
 
 	//buildings are special containers as they always have their cells loaded even if otherwise unloaded
 	void					registerPlayerToBuilding(BuildingObject* building,PlayerObject* player);

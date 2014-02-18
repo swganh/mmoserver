@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "ZoneServer\Services\ham\ham_service.h"
+#include "ZoneServer\Services\equipment\equipment_service.h"
 
 #include "Zoneserver/GameSystemManagers/Combat Manager/CombatManager.h"
 
@@ -332,19 +333,21 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 
 //======================================================================================================================
 
-bool CombatManager::handleAttack(CreatureObject *attacker, uint64 targetId, ObjectControllerCmdProperties *cmdProperties)
+bool CombatManager::handleAttack(CreatureObject* attacker, uint64 targetId, ObjectControllerCmdProperties *cmdProperties)
 {
     CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
 
     // get the current weapon
-    Weapon* weapon = dynamic_cast<Weapon*>(attacker->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left));
-    if (!weapon)
-    {
+	//what if he/she/it is left handed ? what if he she it has multiple appendages with weapons ?
+	Weapon* weapon = dynamic_cast<Weapon*>(gWorldManager->getObjectById(attacker->GetWeaponId()));
+	
+	//auto weapon = dynamic_cast<Weapon*>(gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(attacker, "hold_r"));
+   
+    if (!weapon)    {
         return(false);
     }
 
-    if (!defender)
-    {
+    if (!defender)    {
         return(false);
     }
 

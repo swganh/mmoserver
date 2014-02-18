@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "MessageLib.h"
 
+#include "ZoneServer\Services\equipment\equipment_service.h"
+
 #include "ZoneServer/Objects/Bank.h"
 #include "ZoneServer/GameSystemManagers/Structure Manager/CellObject.h"
 #include "ZoneServer/CharSheetManager.h"
@@ -1012,7 +1014,8 @@ bool MessageLib::sendCharacterSheetResponse(PlayerObject* playerObject)
     mMessageFactory->addUint32(0);
 
     // bank
-    Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
+	auto bank_object = kernel_->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(playerObject, "bank");
+	Bank* bank = dynamic_cast<Bank*>(bank_object);
 
     if(!bank || bank->getPlanet() == -1)
     {

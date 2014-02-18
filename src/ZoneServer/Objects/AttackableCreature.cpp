@@ -589,14 +589,15 @@ void AttackableCreature::equipSecondaryWeapon(void)
 
 void AttackableCreature::unequipWeapon(void)
 {
-    Weapon* weapon = dynamic_cast<Weapon*>(this->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left));
+	Weapon* weapon = dynamic_cast<Weapon*>(gWorldManager->getObjectById(this->GetWeaponId()));
     if (weapon)
     {
         //this->mEquipManager.removeEquippedObject(CreatureEquipSlot_Hold_Left);
-
-        gMessageLib->sendContainmentMessage_InRange(weapon->getId(), this->getId(), 0xffffffff, this);
+		this->RemoveEquipmentItem(weapon->getId());
+        
+		gMessageLib->sendContainmentMessage_InRange(weapon->getId(), this->getId(), 0xffffffff, this);
         gMessageLib->sendDestroyObject(weapon->getId(), this);
-        gMessageLib->sendEquippedListUpdate_InRange(this);
+        
 
         // The weapon is now owned by the npc inventory. But we have not put it there, yet.
         // In fact, we keep these npc-weapons outside inventory, until we need to loot the them,

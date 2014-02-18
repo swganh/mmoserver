@@ -33,11 +33,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/GameSystemManagers/UI Manager/UIManager.h"
 #include "ZoneServer/WorldConfig.h"
 #include "ZoneServer/WorldManager.h"
+
 #include "MessageLib/MessageLib.h"
+
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
 
+#include "ZoneServer\Services\equipment\equipment_service.h"
 
 //======================================================================================================================
 
@@ -80,7 +83,8 @@ std::shared_ptr<RadialMenu> TreasuryManager::bankBuildTerminalRadialMenu(Creatur
 {
     std::shared_ptr<RadialMenu> radial(new RadialMenu());
 
-    Bank*		bank	= dynamic_cast<Bank*>(creatureObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
+    auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto bank = dynamic_cast<Bank*>(equip_service->GetEquippedObject(creatureObject, "bank"));
 
     radial->addItem(1,0,radId_itemUse,radAction_ObjCallback);
     radial->addItem(2,1,radId_bankTransfer,radAction_ObjCallback,"@sui:bank_credits");
@@ -115,54 +119,64 @@ std::shared_ptr<RadialMenu> TreasuryManager::bankBuildTerminalRadialMenu(Creatur
 
 //======================================================================================================================
 
-void TreasuryManager::bankDepositAll(PlayerObject* playerObject)
+void TreasuryManager::bankDepositAll(PlayerObject* player)
 {
-    if(Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)))
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
+	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player, "bank"));
+
+    if(!inventory)    {
+		LOG(error) << "TreasuryManager::bankDepositAll no Inventory";
+		return;
+	}
+	if(!bank)    {
+		LOG(error) << "TreasuryManager::bankDepositAll no bank";
+		return;
+	}
+        
+    int32 credits = inventory->getCredits();
+    if(credits > 0)
     {
-        if(Bank* bank	= dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank)))
-        {
-            int32 credits = inventory->getCredits();
-            if(credits > 0)
-            {
-                // bank credits = bank + inventory.
-                // inventory = 0
-                bank->updateCredits(credits);
-                inventory->setCredits(0);
+       // bank credits = bank + inventory.
+       // inventory = 0
+       bank->updateCredits(credits);
+       inventory->setCredits(0);
                 
-                gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_deposit_success", 0, 0, 0, credits), playerObject);
-            }
-            else
-            {
-                //There has been an error during an attempt to deposit funds to your bank account. Verify you have sufficient funds for the desired transaction.
-                gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "bank_deposit"), playerObject);
-            }
-        }
+       gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_deposit_success", 0, 0, 0, credits), player);
     }
+    else
+    {
+      //There has been an error during an attempt to deposit funds to your bank account. Verify you have sufficient funds for the desired transaction.
+      gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "bank_deposit"), player);
+    }
+    
 }
 
 //======================================================================================================================
 
-void TreasuryManager::bankWithdrawAll(PlayerObject* playerObject)
+void TreasuryManager::bankWithdrawAll(PlayerObject* player)
 {
-	Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
+	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player, "bank"));
+        
     if(! bank)	{
-		LOG (error) << "TreasuryManager::bankWithdrawAll No Bank Object for " << playerObject->getId();
+		LOG (error) << "TreasuryManager::bankWithdrawAll No Bank Object for " << player->getId();
 		return;
 	}
     
-	Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
     if(!inventory)	{
-		LOG (error) << "TreasuryManager::bankWithdrawAll No Inventory Object for " << playerObject->getId();
+		LOG (error) << "TreasuryManager::bankWithdrawAll No Inventory Object for " << player->getId();
 		return;
 	}
             
 	if(!bank->getCredits())            {
 		//There has been an error during an attempt to withdraw funds from your bank account. Verify you have sufficient funds for the desired transaction.
-        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "bank_withdraw"), playerObject);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "bank_withdraw"), player);
 		return;
 	}
 
-    gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_withdraw_success", 0, 0, 0, bank->getCredits()), playerObject);
+    gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_withdraw_success", 0, 0, 0, bank->getCredits()), player);
 
     inventory->updateCredits(bank->getCredits());
     bank->setCredits(0);
@@ -170,17 +184,19 @@ void TreasuryManager::bankWithdrawAll(PlayerObject* playerObject)
 
 //======================================================================================================================
 
-void TreasuryManager::bankTransfer(int32 inventoryMoneyDelta, int32 bankMoneyDelta, PlayerObject* playerObject)
+void TreasuryManager::bankTransfer(int32 inventoryMoneyDelta, int32 bankMoneyDelta, PlayerObject* player)
 {
-	Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
+	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player, "bank"));
+
     if(! bank)	{
-		LOG (error) << "TreasuryManager::bankWithdrawAll No Bank Object for " << playerObject->getId();
+		LOG (error) << "TreasuryManager::bankWithdrawAll No Bank Object for " << player->getId();
 		return;
 	}
     
-	Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
     if(!inventory)	{
-		LOG (error) << "TreasuryManager::bankWithdrawAll No Inventory Object for " << playerObject->getId();
+		LOG (error) << "TreasuryManager::bankWithdrawAll No Inventory Object for " << player->getId();
 		return;
 	}
     
@@ -209,7 +225,7 @@ void TreasuryManager::bankTransfer(int32 inventoryMoneyDelta, int32 bankMoneyDel
         bank->updateCredits(bankMoneyDelta);
         
         // system message
-        gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_deposit_success", 0, 0, 0, bankMoneyDelta), playerObject);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_deposit_success", 0, 0, 0, bankMoneyDelta), player);
 
     }
     else
@@ -236,7 +252,7 @@ void TreasuryManager::bankTransfer(int32 inventoryMoneyDelta, int32 bankMoneyDel
         inventory->updateCredits(inventoryMoneyDelta);
 
         // system message
-        gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_withdraw_success", 0, 0, 0, inventoryMoneyDelta), playerObject);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_withdraw_success", 0, 0, 0, inventoryMoneyDelta), player);
     }
 
 }
@@ -249,67 +265,83 @@ void TreasuryManager::bankOpenSafetyDepositContainer(PlayerObject* playerObject)
 
 //======================================================================================================================
 
-void TreasuryManager::bankQuit(PlayerObject* playerObject)
+void TreasuryManager::bankQuit(PlayerObject* player)
 {
-    if(Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank)))
-    {
-        // check if the player is really binded to this bank
-        if(static_cast<uint32>(bank->getPlanet()) != gWorldManager->getZoneId())
-        {
-            gMessageLib->SendSystemMessage(L"You are not a member of this bank.", playerObject);
-            return;
-        }
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	//auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
+	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player, "bank"));
 
-        // check if the bank item box is empty
-
-        // update the playerObject
-        bank->setPlanet(-1);
-
-        //This message has a period added to the end as it was missing from client.
-        gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "succesfully_quit_bank"), playerObject);
+    if(!bank)    {
+		LOG (error) << "TreasuryManager::bankWithdrawAll No Bank Object for " << player->getId();
+		return;
+	}
+    
+	// check if the player is really bound to this bank
+    if(static_cast<uint32>(bank->getPlanet()) != gWorldManager->getZoneId())    {
+        gMessageLib->SendSystemMessage(L"You are not a member of this bank.", player);
+        return;
     }
+
+    // check if the bank item box is empty
+
+    // update the playerObject
+    bank->setPlanet(-1);
+
+    //This message has a period added to the end as it was missing from client.
+    gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "succesfully_quit_bank"), player);
+  
 }
 
 //======================================================================================================================
 
-void TreasuryManager::bankJoin(PlayerObject* playerObject)
+void TreasuryManager::bankJoin(PlayerObject* player)
 {
-	Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	//auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
+	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player, "bank"));
     if(!bank)    {
-		LOG (error) << "TreasuryManager::bankJoin No bank for " << playerObject->getId();
+		LOG (error) << "TreasuryManager::bankJoin No bank for " << player->getId();
 		return;
 	}
 
 	// check if we're not already binded here
     if(static_cast<uint32>(bank->getPlanet()) == gWorldManager->getZoneId())
     {
-        gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "already_member_of_bank"), playerObject);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "already_member_of_bank"), player);
         return;
     }
 
     // check if we are not binded to any other bank
     if(bank->getPlanet() >= 0)
     {
-        gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "member_of_different_bank"), playerObject);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "member_of_different_bank"), player);
         return;
     }
 
     bank->setPlanet((int8)gWorldManager->getZoneId());
 
     //This message period added at the end as its missing from client.
-    gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "succesfully_joined_bank"), playerObject);
+    gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "succesfully_joined_bank"), player);
 
 }
 
 //======================================================================================================================
 
-void TreasuryManager::bankTipOffline(uint32 amount,PlayerObject* playerObject,BString targetName)
+void TreasuryManager::bankTipOffline(uint32 amount,PlayerObject* player,BString targetName)
 {
 
     //============================================
     //check whether we have sufficient funds
     //dont forget the surcharge
-    Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
+    auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	//auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
+	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player, "bank"));
+
+	if(!bank)    {
+		LOG (error) << "TreasuryManager::bankJoin No bank for " << player->getId();
+		return;
+	}
+
     int32 credits = bank->getCredits();
 
     int32 surcharge = (int32)((amount/100)*5);
@@ -319,7 +351,7 @@ void TreasuryManager::bankTipOffline(uint32 amount,PlayerObject* playerObject,BS
         BString uniName = targetName;
         uniName.convert(BSTRType_Unicode16);
 
-        gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_tip_nsf_bank", L"", L"", uniName.getUnicode16(), amount), playerObject);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_tip_nsf_bank", L"", L"", uniName.getUnicode16(), amount), player);
         return;
     }
     //now get the player
@@ -330,11 +362,11 @@ void TreasuryManager::bankTipOffline(uint32 amount,PlayerObject* playerObject,BS
     sprintf(sql,"SELECT id FROM %s.characters WHERE firstname like '%s'",mDatabase->galaxy(),name);
 
     TreasuryManagerAsyncContainer* asyncContainer;
-    asyncContainer = new TreasuryManagerAsyncContainer(TREMQuery_BankTipgetId,playerObject->getClient());
+    asyncContainer = new TreasuryManagerAsyncContainer(TREMQuery_BankTipgetId,player->getClient());
     asyncContainer->amount = amount;
     asyncContainer->surcharge = surcharge;
     asyncContainer->targetName = targetName;
-    asyncContainer->player = playerObject;
+    asyncContainer->player = player;
 
     mDatabase->executeSqlAsync(this,asyncContainer,sql);
 }
@@ -346,17 +378,27 @@ void TreasuryManager::bankTipOnline(uint32 amount, PlayerObject* playerObject, P
     //check if we have enough money
     uint32 surcharge = (uint32)((amount/100)*5);
 
-    if((amount+surcharge) > dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits())
-    {
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
+	auto playerBank = dynamic_cast<Bank*>(equip_service->GetEquippedObject(playerObject, "bank"));
+	auto targetBank = dynamic_cast<Bank*>(equip_service->GetEquippedObject(targetObject, "bank"));
+
+	if(!playerBank)    {
+		LOG (error) << "TreasuryManager::bankTipOnline No bank for " << playerObject->getId();
+		return;
+	}
+	if(!inventory)	{
+		LOG (error) << "TreasuryManager::bankTipOnline No Inventory Object for " << playerObject->getId();
+		return;
+	}
+
+    if((amount+surcharge) > inventory->getCredits())    {
         std::string s;
         s = targetObject->getFirstName();
 		std::wstring s_w(s.begin(), s.end());
         gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_tip_nsf_cash", L"", s_w, L"", amount), playerObject);
         return;
     }
-
-    Bank* playerBank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
-    Bank* targetBank = dynamic_cast<Bank*>(targetObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
 
     playerBank->updateCredits(-(amount+surcharge));
     targetBank->updateCredits(amount);
@@ -371,16 +413,19 @@ void TreasuryManager::bankTipOnline(uint32 amount, PlayerObject* playerObject, P
 
 void TreasuryManager::inventoryTipOnline(uint32 amount, PlayerObject* playerObject,PlayerObject* targetObject )
 {
-    if(!targetObject)
-    {
+    if(!targetObject)    {
         gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "tip_error"), playerObject);
         return;
-
     }
 
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto playerInventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
+	auto targetInventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(targetObject, "inventory"));
+	auto playerBank = dynamic_cast<Bank*>(equip_service->GetEquippedObject(playerObject, "bank"));
+	auto targetBank = dynamic_cast<Bank*>(equip_service->GetEquippedObject(targetObject, "bank"));
+
     //check if we have enough money
-    if(amount > dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits())
-    {
+    if(amount > playerInventory->getCredits())    {
         gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_tip_nsf_cash", 0, targetObject->getId(), 0, amount), playerObject);
         return;
     }
@@ -390,9 +435,6 @@ void TreasuryManager::inventoryTipOnline(uint32 amount, PlayerObject* playerObje
         gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_tip_range", 0, targetObject->getId(), 0, amount), playerObject);
         return;
     }
-
-    Inventory* playerInventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-    Inventory* targetInventory = dynamic_cast<Inventory*>(targetObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
     playerInventory->setCredits(playerInventory->getCredits() - amount);
     targetInventory->setCredits(targetInventory->getCredits() + amount);
@@ -528,11 +570,8 @@ void TreasuryManager::handleDatabaseJobComplete(void* ref,swganh::database::Data
 
         if (error == 0)
         {
-            Bank* bank = dynamic_cast<Bank*>(asynContainer->player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
-
-            //update our own bankaccount
-            bank->updateCredits((0-asynContainer->amount));
-
+			asynContainer->player->updateBankCredits(0-asynContainer->amount);
+            
             gMessageLib->sendBankTipDustOff(asynContainer->player,asynContainer->targetId,asynContainer->amount,asynContainer->targetName);
             //notify the chatserver for the EMails and the off zone accounts
 

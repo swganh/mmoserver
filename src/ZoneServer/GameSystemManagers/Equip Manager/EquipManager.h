@@ -71,6 +71,7 @@ public:
 
     // get an object by a slot given
     Object*				getEquippedObject(CreatureEquipSlot slot);
+	//ghost hold_l hold_r
 
     // handle equipping by items equip mask
     bool				addEquippedObject(Object* object);

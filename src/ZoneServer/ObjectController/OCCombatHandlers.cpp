@@ -389,20 +389,22 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
     // First, we have to have a connected player and a valid source to loot.
     AttackableCreature* creatureObject = dynamic_cast<AttackableCreature*>(gWorldManager->getObjectById(targetId));
 
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	// Creature Inventory.
+	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(creatureObject, "inventory"));
+
+	// Player Inventory.
+	auto playerInventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
+
     // AttackableCreature* npcObject = dynamic_cast<NPCObject*>(gWorldManager->getObjectById(targetId));
     if (creatureObject && playerObject->isConnected() && !playerObject->isDead() && !playerObject->isIncapacitated() && (creatureObject->getNpcFamily() == NpcFamily_AttackableCreatures) && creatureObject->isDead())
     {
 
         if (creatureObject->allowedToLoot(playerObject->getId(), playerObject->getGroupId()))
-        {
-            // Creature Inventory.
-            Inventory* inventory = dynamic_cast<Inventory*>(creatureObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+        {            
 
-            // Player Inventory.
-            Inventory* playerInventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
-			if (inventory && playerInventory)
-            {
+			if (inventory && playerInventory)            {
                 // Looks like we have valid input, now handle it!
 
                 int32 lootedCredits = inventory->getCredits();
@@ -410,7 +412,7 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
 
                 // Get all items from creature inventory.
                 int32 lootedItems = 0;
-				auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(creatureObject, "inventory");
+				
 				inventory->ViewObjects(creatureObject, 0, true, [&] (Object* object) {
 
                     // Move the object to player inventory.
@@ -477,10 +479,9 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
                                     gMessageLib->SendSystemMessage(::common::OutOfBand("group", "prose_split", 0, 0, 0, splittedCredits), playerObject);
 
                                     // Now we need to add the credits to player inventory.
-                                    Inventory* playerInventory = dynamic_cast<Inventory*>((*it)->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-                                    if (playerInventory)
-                                    {
-                                        playerInventory->updateCredits(splittedCredits);
+                                    auto groupmember_Inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
+                                    if (groupmember_Inventory)                                    {
+                                        groupmember_Inventory->updateCredits(splittedCredits);
                                     }
                                     totalProse -= splittedCredits;
                                     ++it;
@@ -494,10 +495,8 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
                                 // "GROUP] You split %TU credits and receive %TT credits as your share."
                                 gMessageLib->SendSystemMessage(::common::OutOfBand("group", "prose_split_coins_self", splitedLootCreditsString.getUnicode16(), lootCreditsString.getUnicode16(), L""), playerObject);
 
-                                // Now we need to add the credits to our own inventory.
-                                Inventory* playerInventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-                                if (playerInventory)
-                                {
+                                // Now we need to add the credits to our own inventory.                                
+                                if (playerInventory)                                {
                                     playerInventory->updateCredits(totalProse);
                                 }
                             }
@@ -506,10 +505,8 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
                         {
                             gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_coin_loot_no_target", 0, 0, 0, lootedCredits), playerObject);
 
-                            // Now we need to add the credits to our own inventory.
-                            Inventory* playerInventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-                            if (playerInventory)
-                            {
+                            // Now we need to add the credits to our own inventory.                 
+                            if (playerInventory)                            {
                                 playerInventory->updateCredits(lootedCredits);
                             }
                         }

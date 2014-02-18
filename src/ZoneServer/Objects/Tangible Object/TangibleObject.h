@@ -166,12 +166,7 @@ public:
         mTimer = timer;
     }
 
-    bool				getStatic()const {
-        return mStatic;
-    }
-    void				setStatic(bool isStatic) {
-        mStatic = isStatic;
-    }
+    
 protected:
 
     BString				mCustomizationStr;
@@ -192,7 +187,7 @@ protected:
     uint32				mDamage;
     uint32				mMaxCondition;
     uint32				mTimerInterval;
-    bool				mStatic;
+    
 };
 
 //=============================================================================

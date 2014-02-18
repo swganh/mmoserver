@@ -113,9 +113,6 @@ CreatureObject::CreatureObject()
     mSkillMods.reserve(50);
     mSkillCommands.reserve(50);
     mFactionList.reserve(50);
-    
-
-    mEquipManager.setParent(this);
 
     for(uint16 i = 1;i<256;i++)
         mCustomization[i]=0;
@@ -2010,7 +2007,8 @@ void CreatureObject::AddEquipmentItem(std::shared_ptr<swganh::object::EquipmentI
 void CreatureObject::AddEquipmentItem(std::shared_ptr<swganh::object::EquipmentItem>& item, boost::unique_lock<boost::mutex>& lock)
 {
     equipment_list_.add(item);
-    //DISPATCH(Creature, EquipmentItem);
+
+	GetEventDispatcher()->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::EquipmentItem", this));
 }
 
 void CreatureObject::RemoveEquipmentItem(uint64_t object_id)
@@ -2032,7 +2030,7 @@ void CreatureObject::RemoveEquipmentItem(uint64_t object_id, boost::unique_lock<
     }
     equipment_list_.remove(iter);
 
-    //DISPATCH(Creature, EquipmentItem);
+    GetEventDispatcher()->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::EquipmentItem", this));
 }
 
 void CreatureObject::UpdateEquipmentItem(std::shared_ptr<swganh::object::EquipmentItem>& item)
@@ -2048,7 +2046,8 @@ void CreatureObject::UpdateEquipmentItem(std::shared_ptr<swganh::object::Equipme
     {
         return (object_id == item->object_id);
     }));
-    //DISPATCH(Creature, EquipmentItem);
+
+    GetEventDispatcher()->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::EquipmentItem", this));
 }
 
 std::vector<std::shared_ptr<swganh::object::EquipmentItem>> CreatureObject::GetEquipment(void)
@@ -2088,17 +2087,39 @@ std::shared_ptr<swganh::object::EquipmentItem>& CreatureObject::GetEquipmentItem
     //throw EquipmentNotFound();
 }
 
-void CreatureObject::SerializeEquipment(swganh::messages::BaseSwgMessage* message)
+bool CreatureObject::SerializeEquipment(swganh::messages::BaseSwgMessage* message)
 {
     auto lock = AcquireLock();
-    SerializeEquipment(message, lock);
+    return SerializeEquipment(message, lock);
 }
 
-void CreatureObject::SerializeEquipment(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock)
+bool CreatureObject::SerializeEquipment(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock)
 {
-    equipment_list_.Serialize(message);
+    return equipment_list_.Serialize(message);
 }
 
+void CreatureObject::SetWeaponId(uint64_t weapon_id)
+{
+    auto lock = AcquireLock();
+    SetWeaponId(weapon_id, lock);
+}
+
+void CreatureObject::SetWeaponId(uint64_t weapon_id, boost::unique_lock<boost::mutex>& lock)
+{
+    weapon_id_ = weapon_id;
+    GetEventDispatcher()->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::WeaponId", this));
+}
+
+uint64_t CreatureObject::GetWeaponId()
+{
+    auto lock = AcquireLock();
+    return GetWeaponId(lock);
+}
+
+uint64_t CreatureObject::GetWeaponId(boost::unique_lock<boost::mutex>& lock)
+{
+    return weapon_id_;
+}
 
 //=============================================================================
 // maps the incoming posture

@@ -234,10 +234,6 @@ void SpatialIndexManager::RemoveObjectFromWorld(Object *removeObject)
 
             //remove the object out of the container
             container->RemoveObject(container, removeObject);
-			if(CreatureObject* owner = dynamic_cast<CreatureObject*>(container))	{
-                // send out the new equiplist
-                gMessageLib->sendEquippedListUpdate_InRange(owner);
-            }
         }
 
         //no need to remove a tangible(!) from the grid if it was in a cell
@@ -906,8 +902,6 @@ void SpatialIndexManager::createInWorld(Object* object)
 		player->InitializeObject(object);
         gContainerManager->createObjectToRegisteredPlayers(parent, object);
 
-        //sendCreateObject(object,player,false);
-        gContainerManager->updateEquipListToRegisteredPlayers(player);
         return;
     }
 

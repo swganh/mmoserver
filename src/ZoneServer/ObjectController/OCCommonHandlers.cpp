@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/Objects/Shuttle.h"
 #include "ZoneServer/Objects/SurveyTool.h"
 
+#include "ZoneServer\Services\equipment\equipment_service.h"
 
 #include "ZoneServer/GameSystemManagers/Structure Manager/CellObject.h"
 #include "ZoneServer/GameSystemManagers/Structure Manager/BuildingObject.h"
@@ -251,7 +252,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 	PlayerObject*	playerObject	=	dynamic_cast<PlayerObject*>(mObject);
 	Object*			itemObject		=	gWorldManager->getObjectById(targetId);
-	Inventory*		inventory		=	dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+	//Inventory*		inventory		=	dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
 	BString			dataStr;
 	uint64			targetContainerId;
@@ -292,7 +293,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	// resourcecontainers / factory crates
 	
 	// first check whether its an instrument with persistant copy   - thats a special case!
-	// get this into a scriptcheck somehow
+	
 	Item* item = dynamic_cast<Item*>(itemObject);
 	if (item)
 	{
@@ -350,6 +351,8 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
     BStringVector	dataElements;
     uint16			elements;
 
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
 
     float		purchaseRange = gWorldConfig->getConfiguration<float>("Player_TicketTerminalAccess_Distance",(float)10.0);
 
@@ -413,8 +416,6 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
     if(roundTrip)
         amount = 2;
 
-    Inventory*	inventory	= dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-    Bank*		bank		= dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
 
     if(!inventory->checkSlots(static_cast<uint8>(amount)))
     {
@@ -428,16 +429,11 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
     }
 
     // update bank or inventory credits
-    if(!(inventory->updateCredits(-ticketProperties.price)))
-    {
-        if(!(bank->updateCredits(-ticketProperties.price)))
-        {
-            //gMessageLib->sendSystemMessage(entertainer,L"","travel","route_not_available");
-            gUIManager->createNewMessageBox(NULL,"ticketPurchaseFailed","The Galactic Travel Commission","You do not have enough money to complete the ticket purchase.",playerObject);
-            return;
-        }
+	if(!playerObject->updateCredits(-ticketProperties.price))    {
+        gUIManager->createNewMessageBox(NULL,"ticketPurchaseFailed","The Galactic Travel Commission","You do not have enough money to complete the ticket purchase.",playerObject);
+        return;
     }
-
+    
     if(playerObject->isConnected())
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_pay_acct_success", "", "", "", "", "money/acct_n", "travelsystem", ticketProperties.price), playerObject);
@@ -474,6 +470,12 @@ void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* messag
     BStringVector	dataElements2;
     uint16			elementCount;
 
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
+
+	if(!inventory)	{
+		LOG(error) << "ObjectController::_handleGetAttributesBatch couldnt cast inventory";
+	}
 
     message->getStringUnicode16(requestStr);
     requestStr.convert(BSTRType_ANSI);
@@ -560,7 +562,7 @@ void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* messag
             if (gWorldConfig->isTutorial())
             {
                 // Let's see if the actual object is the food item "Melon" in our inventory.
-                if (dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getId() == object->getParentId())
+                if (inventory->getId() == object->getParentId())
                 {
                     //uint64 id = object->getId();
 

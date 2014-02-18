@@ -53,6 +53,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/atMacroString.h"
 #include "Utils/utils.h"
 
+#include "ZoneServer\Services\equipment\equipment_service.h"
 #include "ZoneServer\Services\ham\ham_service.h"
 
 bool EntertainerManager::mInsFlag = false;
@@ -2011,28 +2012,12 @@ void EntertainerManager::playInstrument(PlayerObject* entertainer, Item* instrum
 
     uint64	instrumentId	= 0;
 
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto item	= dynamic_cast<Item*>(equip_service->GetEquippedObject(entertainer, "hold_r"));
+
     // check if the weapon slot is in use by something else than the unarmed default weapon
-    if(Object* object = entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left))
-    {
-		if(object->getId() != entertainer->getEquipManager()->getDefaultWeapon())
-        {
-            // TODO: put another message ?
-            gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_must_unequip"), entertainer);
-            return;
-        }
-    }
-
-    //check if another instrument is equipped
-    Item* item = dynamic_cast<Item*>(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left));
-
-    if(item && item->getItemFamily() == ItemFamily_Instrument)
-    {
-        instrumentId = item->getId();
-    }
-
-    if(instrumentId)
-    {
-        //we have an instrument equipped already
+    if(item && item->getId() != entertainer->getId()+WEAPON_OFFSET)        {
+        // TODO: put another message ?
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_must_unequip"), entertainer);
         return;
     }
@@ -2404,7 +2389,8 @@ uint64 EntertainerManager::getInstrument(PlayerObject* entertainer)
     //need to get the equipped or targeted instrument
     uint64	instrumentId = 0;
 
-    Item* item = dynamic_cast<Item*>(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left));
+	auto equip_service	= gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto item			= dynamic_cast<Item*>(equip_service->GetEquippedObject(entertainer, "hold_r"));
 
     if(item && item->getItemFamily() == ItemFamily_Instrument)
     {
@@ -2459,6 +2445,9 @@ uint64 EntertainerManager::getInstrument(PlayerObject* entertainer)
 bool EntertainerManager::approachInstrument(PlayerObject* entertainer, uint64 instrumentId)
 {
     bool moveSucceeded = false;
+	
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto item	= dynamic_cast<Item*>(equip_service->GetEquippedObject(entertainer, "hold_r"));
 
     // make sure the instrument is placed properly.
     if (instrumentId != 0)
@@ -2486,8 +2475,7 @@ bool EntertainerManager::approachInstrument(PlayerObject* entertainer, uint64 in
             }
             else
             {
-                // We approach the instrument to the entertainer, if we have it equipped.
-                Item* item = dynamic_cast<Item*>(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left));
+                // We approach the instrument to the entertainer, if we have it equipped
                 if (item && item->getItemFamily() == ItemFamily_Instrument)
                 {
                     if (item->getId() == instrumentId)
@@ -2513,40 +2501,28 @@ bool EntertainerManager::approachInstrument(PlayerObject* entertainer, uint64 in
 void EntertainerManager::handlestartmusic(PlayerObject* entertainer)
 {
 
-    if(entertainer->getPerformingState() != PlayerPerformance_None)
-    {
+    if(entertainer->getPerformingState() != PlayerPerformance_None)    {
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "already_performing_self"), entertainer);
         return;
-
     }
+
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(entertainer, "inventory"));
+	auto item	= dynamic_cast<Item*>(equip_service->GetEquippedObject(entertainer, "hold_r"));
 
     //do we have an instrument?
     uint64 instrumentId = getInstrument(entertainer);
-    if(instrumentId == 0)
-    {
+    if(instrumentId == 0)    {
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_no_instrument"), entertainer);
         return;
     }
 
     // check if the weapon slot is in use by something else than the unarmed default weapon
-    if(Object* object = entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left))
-    {
-        if(object->getId() != entertainer->getEquipManager()->getDefaultWeapon())
-        {
-            // TODO: put another message ?
-            gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_must_unequip"), entertainer);
-
-            return;
-        }
-    }
-
-    // check if the instrument slot is in use
-    if(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left))
-    {
+	if(item && item->getId() != entertainer->getId() + WEAPON_OFFSET)    {
+        // TODO: put another message ?
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_must_unequip"), entertainer);
-
         return;
-    }
+    }    
 
     //check if we are skilled enough to use the instrument
     if(!checkInstrumentSkill(entertainer,instrumentId))
@@ -2698,8 +2674,7 @@ void EntertainerManager::usePlacedInstrument(PlayerObject* entertainer, Item* us
 
     // If we don't have the skills for playing the instrument,
     // we don't have to bother if it's placed or in use or whatever....
-    if (!checkInstrumentSkillbyType(entertainer,usedInstrument->getItemType()))
-    {
+    if (!checkInstrumentSkillbyType(entertainer,usedInstrument->getItemType()))    {
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_lack_skill_instrument"), entertainer);
         stopEntertaining(entertainer);
         return;
@@ -2708,15 +2683,6 @@ void EntertainerManager::usePlacedInstrument(PlayerObject* entertainer, Item* us
     if ((usedInstrument->getItemType() == ItemType_Nalargon) || (usedInstrument->getItemType() == ItemType_nalargon_max_reebo) || (usedInstrument->getItemType() == ItemType_omni_box))
     {
         // check if another instrument is equipped
-        Item* item = dynamic_cast<Item*>(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left));
-
-        if (item && item->getItemFamily() == ItemFamily_Instrument)
-        {
-            //we have an instrument equipped already
-            gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_must_unequip"), entertainer);
-            return;
-        }
-
         playPlacedInstrument(entertainer);
     }
 }
@@ -2730,8 +2696,7 @@ void EntertainerManager::usePlacedInstrument(PlayerObject* entertainer, Item* us
 void EntertainerManager::playPlacedInstrument(PlayerObject* entertainer)
 {
 
-    if (entertainer->getPerformingState() != PlayerPerformance_None)
-    {
+    if (entertainer->getPerformingState() != PlayerPerformance_None)    {
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "already_performing_self"), entertainer);
         return;
     }
@@ -2746,19 +2711,11 @@ void EntertainerManager::playPlacedInstrument(PlayerObject* entertainer)
     */
 
     // check if the weapon slot is in use by something else than the unarmed default weapon
-    if(Object* object = entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left))
-    {
-        if(object->getId() != entertainer->getEquipManager()->getDefaultWeapon())
-        {
-            // TODO: put another message ?
-            gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_must_unequip"), entertainer);
-            return;
-        }
-    }
+	auto equip_service	= gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto object			= dynamic_cast<Object*>(equip_service->GetEquippedObject(entertainer, "hold_r"));
 
-    // check if the instrument slot is in use
-    if(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left))
-    {
+    if(object && object->getId() != entertainer->getId()+WEAPON_OFFSET)        {
+        // TODO: put another message ?
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_must_unequip"), entertainer);
         return;
     }

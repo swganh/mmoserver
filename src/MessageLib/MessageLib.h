@@ -425,14 +425,7 @@ public:
     // deltas
 	bool				sendDeltasCREO_3(CreatureObject* creatureObject,PlayerObject* targetObject);
 
-    /** Sends an update of the equipped items on a creature object to a target player.
-    *
-    * \param creature The creature object to send the equipment list update about.
-    * \param target The target player to receive the list update.
-    */
-	bool				sendEquippedListUpdate(CreatureObject* creatureObject, CreatureObject* targetObject);
-	bool				sendEquippedListUpdate_InRange(CreatureObject* creatureObject);
-	bool				sendEquippedItemUpdate_InRange(CreatureObject* creatureObject, uint64 itemId);
+    
 	void				sendPostureUpdate(CreatureObject* creatureObject);
 	void				sendMoodUpdate(CreatureObject* creatureObject);
 	
@@ -449,7 +442,6 @@ public:
 	void				sendListenToId(PlayerObject* playerObject);
 	void				sendTerrainNegotiation(CreatureObject* creatureObject);
 	void				sendMoodString(CreatureObject* creatureObject,BString animation);
-	void				sendWeaponIdUpdate(CreatureObject* creatureObject);
 	void				sendIncapTimerUpdate(CreatureObject* creatureObject);
 	bool				sendSkillModUpdateCreo4(PlayerObject* playerObject);
 

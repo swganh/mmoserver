@@ -32,7 +32,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/Tutorial.h"
 #include "ZoneServer/GameSystemManagers/UI Manager/UIManager.h"
 #include "ZoneServer/WorldConfig.h"
+
 #include "ZoneServer/WorldManager.h"
+#include "ZoneServer\Services\equipment\equipment_service.h"
+
 #include "MessageLib/MessageLib.h"
 
 #include "DatabaseManager/Database.h"
@@ -122,17 +125,19 @@ void CloningTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 // void CloningTerminal::handleUIEvent(BString strInventoryCash, string strBankCash, UIWindow* window)
 void CloningTerminal::handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer)
 {
-    if(window == NULL)
-    {
+    if(window == NULL)    {
         return;
     }
 
     PlayerObject* playerObject = window->getOwner(); // window owner
 
-    if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead() || playerObject->states.checkState(CreatureState_Combat))
-    {
+    if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead() || playerObject->states.checkState(CreatureState_Combat))    {
         return;
     }
+
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
+	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(playerObject, "bank"));
 
     if (this->getParentId() && gWorldManager->getObjectById(this->getParentId())->getParentId())
     {
@@ -144,10 +149,10 @@ void CloningTerminal::handleUIEvent(uint32 action,int32 element,std::u16string i
             // TODO: If the player have the "coupon", they should get a special message.
             // For now, we skip the "coupon", because of the risk of player deleting them, how do they advance in the Tutorial then?
 
-            int32 creditsAtBank = (dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits());
+            int32 creditsAtBank = bank->getCredits();
 
             // TODO: Some cities have 20% reduction of cloning fee, depending of city status
-            if (creditsAtBank < cloningCost)
+			if ( creditsAtBank < cloningCost)
             {
                 if (creditsAtBank == cloningCost - 1)
                 {
@@ -160,7 +165,7 @@ void CloningTerminal::handleUIEvent(uint32 action,int32 element,std::u16string i
                     gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "nsf_clone", 0, 0, 0, cloningCost - creditsAtBank, 0.0f), playerObject);
                 }
             }
-            else if ((dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->updateCredits(-cloningCost)))
+            else if (bank->updateCredits(-cloningCost))
             {
                 // The credits is drawn from the player bank.
                 // System message: You successfully make a payment of %DI credits to %TO.

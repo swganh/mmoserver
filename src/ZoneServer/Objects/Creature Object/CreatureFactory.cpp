@@ -38,6 +38,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/Objects/Bank.h"
 
 #include "ZoneServer/WorldManager.h"
+#include "ZoneServer\Services\equipment\equipment_service.h"
+#include "anh\service\service_manager.h"
 
 #include "anh\event_dispatcher\event_dispatcher.h"
 #include "anh/app/swganh_kernel.h"
@@ -157,7 +159,8 @@ void CreatureFactory::RegisterEventHandlers()
 void CreatureFactory::PersistInventoryCredits(CreatureObject* creature)
 {
 	std::stringstream sql;
-	Inventory* inventory = dynamic_cast<Inventory*>(creature->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+	auto equip_service = kernel_->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(creature, "inventory"));
 
 	sql << "UPDATE " << mDatabase->galaxy() << ".inventories set credits=" << inventory->getCredits() << " WHERE id=" << inventory->getId() <<";";
 	
@@ -167,7 +170,8 @@ void CreatureFactory::PersistInventoryCredits(CreatureObject* creature)
 void CreatureFactory::PersistBankCredits(CreatureObject* creature)
 {
 	std::stringstream sql;
-	Bank* bank = dynamic_cast<Bank*>(creature->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
+	auto equip_service = kernel_->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto bank = dynamic_cast<Bank*>(equip_service->GetEquippedObject(creature, "bank"));
 
 	sql << "UPDATE " << mDatabase->galaxy() << ".banks set credits=" << bank->getCredits() << " WHERE id=" << bank->getId() <<";";
 	
@@ -177,7 +181,8 @@ void CreatureFactory::PersistBankCredits(CreatureObject* creature)
 void CreatureFactory::PersistHomeBank(CreatureObject* creature)
 {
 	std::stringstream sql;
-	Bank* bank = dynamic_cast<Bank*>(creature->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
+	auto equip_service = kernel_->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto bank = dynamic_cast<Bank*>(equip_service->GetEquippedObject(creature, "bank"));
 
 	sql << "UPDATE " << mDatabase->galaxy() << ".banks SET planet_id=" << bank->getPlanet() << " WHERE id=" << bank->getId() << ";";
 	

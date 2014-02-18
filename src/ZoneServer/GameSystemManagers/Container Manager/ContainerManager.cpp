@@ -43,6 +43,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
 
+#include "ZoneServer\Services\equipment\equipment_service.h"
+
 
 bool					ContainerManager::mInsFlag    = false;
 ContainerManager*		ContainerManager::mSingleton  = NULL;
@@ -73,182 +75,47 @@ bool	ContainerManager::transferItem(uint64 targetContainerId, uint64 transferIte
 	Object*			newContainer = gWorldManager->getObjectById(targetContainerId);
 	Object*			oldContainer = gWorldManager->getObjectById(itemObject->getParentId());
 	
-	if(!gContainerManager->checkTargetContainer(targetContainerId,itemObject, player))
-	{
+	if(!gContainerManager->checkTargetContainer(targetContainerId,itemObject, player))	{
 		DLOG(info) << "ContainerManager::transferItem:TargetContainer is not valid :(";
 		return false;
 	}
 
-	if(!gContainerManager->checkContainingContainer(itemObject->getParentId(), player->getId()))
-	{
+	if(!gContainerManager->checkContainingContainer(itemObject->getParentId(), player->getId()))	{
 		DLOG(info) << "ContainerManager::transferItem:ContainingContainer is not allowing the transfer :(";
 		return false;
-
 	}
 	
-	// Remove the object from whatever contains it.
-	if(!gContainerManager->removeFromContainer(targetContainerId, transferItemId, player))
-	{
-		DLOG(info) << "ContainerManager::transferItem: removeFromContainer failed :( this might be caused by looting a corpse though";
+	if (!oldContainer->GetPermissions()->canRemove(oldContainer, player, itemObject))	{
+		DLOG(info) << "ContainerManager::transferItem: GetPermissions ContainingContainer is not allowing the transfer :(";
+	}
+
+	if (!newContainer->GetPermissions()->canInsert(oldContainer, player, itemObject))	{
+		DLOG(info) << "ContainerManager::transferItem: GetPermissions ContainingContainer is not allowing the transfer :(";
 		return false;
 	}
-	
+
+	//we *cannot* remove static tangibles like the structureterminal!!!!
+	if(itemObject->getStatic())	{
+		return false;
+	}
+
 	//we need to destroy the old radial ... our item now gets a new one
 	itemObject->ResetRadialMenu();
 
 	itemObject->setParentId(targetContainerId); 
 
-	//Now update the registered watchers!!
-	gContainerManager->updateObjectPlayerRegistrations(newContainer, oldContainer, itemObject, linkType);
+	uint32 arrangement_id = newContainer->GetAppropriateArrangementId(itemObject);
+	LOG(info) << "ContainerManager::transferItem arrangement id : " << arrangement_id;
+	
 
-	//now go and move it to wherever it belongs
-	
-	//special case temp instrument
-	Item* item = dynamic_cast<Item*>(itemObject);
-	if (item&&item->getItemFamily() == ItemFamily_Instrument)
-	{
-		LOG(error) << "ContainerManager::transferItem transfer instrument : item : " << item->getId();
-		LOG(error) << "ContainerManager::transferItem transfer instrument : placedInstrumentId : " << player->getPlacedInstrumentId();
-		if (player->getPlacedInstrumentId() == item->getNonPersistantCopy())
-		{
-			player->getController()->destroyObject(player->getPlacedInstrumentId());
-		}
-	}
-	
-	CellObject* cell = dynamic_cast<CellObject*>(newContainer);
-	if (cell)
-	{
-		itemObject->mPosition = player->mPosition;
+	oldContainer->TransferObject(player, itemObject, newContainer, player->mPosition);
+
 		
-		//do the db update manually because of the position - unless we get an automated position save in
-		itemObject->setParentId(targetContainerId); 
-		
-
-		cell->InitializeObject(itemObject);
-
-		gMessageLib->sendDataTransformWithParent053(itemObject);
-		itemObject->updateWorldPosition();
-
-		return true;
-		
-	}	
-	
-	//if we are about to equip it
-	if(newContainer->getId() == player->getId())	
-	{
-		//equip / unequip handles the db side, too
-		if(!player->getEquipManager()->EquipItem(item))
-		{
-			LOG(warning) << "ContainerManager::_handleTransferItemMisc: Error equipping  " << item->getId();
-			//panik!!!!!!
-		}
-		
-		itemObject->setParentIdIncDB(newContainer->getId());
-		return true;
-	}
-
-	//*****************************************************************
-	//All special cases have been handled - now its just our generic ObjectContainer Type
-	
-
-	//some other container ... hopper backpack chest inventory etc
-	if(newContainer)
-	{
-		newContainer->InitializeObject(itemObject);
-	
-		itemObject->updateWorldPosition();
-		itemObject->setParentIdIncDB(newContainer->getId());
-		return true;
-	}	
 
 	return true;
 
 }
 
-bool	ContainerManager::removeFromContainer(uint64 targetId, uint64 objectId, PlayerObject* player)
-{
-
-	Object*			itemObject		=	gWorldManager->getObjectById(objectId);
-	Inventory*		inventory		=	dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-	TangibleObject* targetContainer = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(targetId));
-
-	TangibleObject* tangible = dynamic_cast<TangibleObject*>(itemObject);
-
-	Item* item = dynamic_cast<Item*>(itemObject);
-
-	// its us
-	if (tangible->getParentId() == player->getId())
-	{
-		// unequip it
-		return player->getEquipManager()->unEquipItem(itemObject);
-		
-	}
-	
-	
-	//creature inventories are a special case - their items are temporary!!! we cannot loot them directly
-	CreatureObject* unknownCreature;
-	Inventory*		creatureInventory;
-
-
-	if (itemObject->getParentId() &&
-		(unknownCreature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(itemObject->getParentId() - INVENTORY_OFFSET))) &&
-		(creatureInventory = dynamic_cast<Inventory*>(unknownCreature->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))) &&
-		(creatureInventory->getId() == itemObject->getParentId()) && (creatureInventory->getId() != inventory->getId()))
-	{
-		
-		creatureInventory->RemoveObject(nullptr, itemObject);
-		
-
-		// we destroy the item in this case as its a temporary!! 
-		// we do not want to clog the db with unlooted items
-		gContainerManager->destroyObjectToRegisteredPlayers(creatureInventory, tangible->getId());
-
-		if (creatureInventory->getHeadCount() == 0)
-		{
-			// Put this creature in the pool of delayed destruction and remove the corpse from scene.
-			gWorldManager->addCreatureObjectForTimedDeletion(creatureInventory->getParentId(), LootedCorpseTimeout);
-		}
-		
-		//if (gWorldConfig->isTutorial())
-		//{
-			// TODO: Update tutorial about the loot.
-			//playerObject->getTutorial()->transferedItemFromContainer(targetId, creatureInventory->getId());
-		//}
-
-		//bail out here and request the item over the db - as the item in the NPC has a temporary id and we dont want that in the db
-		// This ensure that we do not use/store any of the temp id's in the database.
-        gObjectFactory->requestNewDefaultItem(inventory, item->getItemFamily(), item->getItemType(), inventory->getId(), 99, glm::vec3(), "");
-		return false;
-
-	}		   
-
-	
-	// Stop playing if we pick up the (permanently placed) instrument we are playing
-	if (item && (item->getItemFamily() == ItemFamily_Instrument))
-	{
-		// It's a placeable original instrument.
-		// Are we targeting the instrument we actually play on?
-		if (player->getActiveInstrumentId() == item->getId())
-		{
-			gEntertainerManager->stopEntertaining(player);
-		}	
-	}
-
-	//we *cannot* remove static tangibles like the structureterminal!!!!
-	if(tangible->getStatic())
-	{
-		return false;
-	}
-
-	//some other container ... hopper backpack chest etc
-	Object* containingContainer = dynamic_cast<Object*>(gWorldManager->getObjectById(tangible->getParentId()));
-	if(containingContainer)	{
-		containingContainer->RemoveObject(nullptr, itemObject);
-		return true;
-	}
-	
-	return false;
-}
 
 
 bool ContainerManager::checkContainingContainer(uint64 containingContainer, uint64 playerId)
@@ -316,20 +183,22 @@ bool ContainerManager::checkTargetContainer(uint64 targetContainerId, Object* ob
 {
 	PlayerObject*		targetPlayer	=	dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetContainerId));
 	
-	TangibleObject* tangibleItem = dynamic_cast<TangibleObject*>(object);
+	TangibleObject*		tangibleItem	=	dynamic_cast<TangibleObject*>(object);
 	
+	Object*				targetContainer =	gWorldManager->getObjectById(targetContainerId);
+
 	//if its a backpack etc we want to know how many items are in it!
 	uint32 objectSize = tangibleItem->getHeadCount();
 
 	//********************
 	//If we want to equip it we need to check for equip restrictions
-	if(targetPlayer)	{
-		return targetPlayer->getEquipManager()->CheckEquipable(object);		
-	}
+	//if(targetPlayer)	{
+	//	return targetPlayer->getEquipManager()->CheckEquipable(object);		
+	//}
 	
 	//*****************************
 	//ok everything else is an Object
-	Object* targetContainer = gWorldManager->getObjectById(targetContainerId);
+	
 	
 	//sanity check - 
 	if(!targetContainer)	{
@@ -393,7 +262,8 @@ bool ContainerManager::checkTargetContainer(uint64 targetContainerId, Object* ob
 
 	//**********************************
 	//this is our inventory - we are allowed to put stuff in there - but is there still enough place ?
-	Inventory*		inventory		=	dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+	auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player, "inventory");
+	
 	if(inventory&& (inventory->getId() == ownerId))
 	{
 		//make sure its our inventory!!!!!!
@@ -604,13 +474,6 @@ void ContainerManager::createObjectToRegisteredPlayers(Object* container,Object*
 
         //the registered object likely is a container in itself
         registerPlayerToContainer(object, recipient);
-    });
-}
-
-
-void ContainerManager::updateEquipListToRegisteredPlayers(PlayerObject* const player) {
-    sendToRegisteredWatchers(player, [player] (PlayerObject* const recepient) {
-        gMessageLib->sendEquippedListUpdate(player, recepient);
     });
 }
 

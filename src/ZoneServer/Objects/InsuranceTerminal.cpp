@@ -38,6 +38,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageLib/MessageLib.h"
 #include "DatabaseManager/Database.h"
 
+#include "ZoneServer\Services\equipment\equipment_service.h"
+
 #include <anh\app\swganh_kernel.h>
 
 //=============================================================================
@@ -220,17 +222,19 @@ void InsuranceTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObje
 
 void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window)
 {
-    if(window == NULL)
-    {
+    if(window == NULL)    {
         return;
     }
 
     PlayerObject* playerObject = window->getOwner(); // window owner
 
-    if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead()|| playerObject->states.checkState(CreatureState_Combat))
-    {
+    if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead()|| playerObject->states.checkState(CreatureState_Combat))    {
         return;
     }
+
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto inventoryObject	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
+	auto bankObject			= dynamic_cast<Bank*>(equip_service->GetEquippedObject(playerObject, "bank"));
 
     switch(window->getWindowType())
     {
@@ -273,9 +277,6 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,std::u16string
         case 0: // OK
         {
             // Insure one item.
-
-            Inventory* inventoryObject = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-            Bank* bankObject = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
 
             if(!inventoryObject || !bankObject)
                 return;
@@ -421,7 +422,7 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,std::u16string
         case 0: // Yes
         {
             // Insure all insurable items.
-            int32 creditsAtBank = (dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits());
+            int32 creditsAtBank = inventoryObject->getCredits();
             BString selectedItemm;
             int32 fee = mSortedInsuranceList.size() * mInsuranceFee;
 
@@ -472,8 +473,7 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,std::u16string
                     break;
                 }
 
-                if ((dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->updateCredits(-fee)))
-                {
+                if (bankObject->updateCredits(-fee))                {
                     // The credits is drawn from the player bank.
                     // System message: You successfully make a payment of %DI credits to %TO.
                     gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_pay_acct_success", "", "", "", "", "terminal_name", "terminal_insurance", fee), playerObject);
@@ -567,9 +567,11 @@ void InsuranceTerminal::getUninsuredItems(PlayerObject* playerObject, StringVect
     mSortedInsuranceList.clear();
 
     // Build the items list and optional use error-messages if needed.
-    Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-    if (inventory)
-    {
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
+	//auto bankObject			= dynamic_cast<Bank*>(equip_service->GetEquippedObject(playerObject, "bank"));
+
+    if (inventory)    {
 
         // Fetch the items.
         inventory->getUninsuredItems(&mSortedInsuranceList);
@@ -597,9 +599,10 @@ void InsuranceTerminal::getInsuredItems(PlayerObject* playerObject, StringVector
     mSortedInsuranceList.clear();
 
     // Build the items list and optional use error-messages if needed.
-    Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-    if (inventory)
-    {
+    auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
+    
+	if (inventory)    {
 
         // Fetch the items.
         inventory->getInsuredItems(&mSortedInsuranceList);

@@ -475,7 +475,21 @@ public:
 	bool				removeDataObject(uint64 id);
 	bool				removeDataObject(Object* Data);
 
+	bool				getStatic()const {
+        return mStatic;
+    }
+    void				setStatic(bool isStatic) {
+        mStatic = isStatic;
+    }
+
+	/*	@brief	itemExist will check whether an item of a certain typ exists and return a pointer to the first found item of this kind
+	*	@param uint32 familyId
+	*	@param uint32 typeId
+	*/
+	Object*				itemExist(uint32 familyId, uint32 typeId);
+
 protected:
+	bool									mStatic;
 
 	int32_t									arrangement_id_;
 	std::string								template_string_;

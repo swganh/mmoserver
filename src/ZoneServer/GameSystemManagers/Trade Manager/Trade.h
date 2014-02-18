@@ -102,8 +102,8 @@ public:
 
     void				cancelTradeSession();
     void				endTradeSession();
-    void				updateCash(uint32_t amount);
-    void				updateBank(uint32_t amount);
+    void				updateCash(int32_t amount);
+    void				updateBank(int32_t amount);
     bool				getTradeFinishedStatus() {
         return mTradingFin;
     }

@@ -96,8 +96,8 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 		std::shared_ptr<swganh::object::EquipmentItem>& GetEquipmentItem(uint64_t object_id);
 		std::shared_ptr<swganh::object::EquipmentItem>& GetEquipmentItem(uint64_t object_id, boost::unique_lock<boost::mutex>& lock);
 
-		void SerializeEquipment(swganh::messages::BaseSwgMessage* message);
-		void SerializeEquipment(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock);
+		bool SerializeEquipment(swganh::messages::BaseSwgMessage* message);
+		bool SerializeEquipment(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock);
 
         std::string			getFirstName() const { auto lock = AcquireLock(); return getFirstName(lock); }
 		std::string			getFirstName(boost::unique_lock<boost::mutex>& lock) const { return first_name; }
@@ -560,6 +560,12 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 		uint32_t GetBattleFatigue();
 		uint32_t GetBattleFatigue(boost::unique_lock<boost::mutex>& lock);
 
+		// Weapon Id
+		void SetWeaponId(uint64_t weapon_id);
+		void SetWeaponId(uint64_t weapon_id, boost::unique_lock<boost::mutex>& lock);
+
+		uint64_t GetWeaponId();
+		uint64_t GetWeaponId(boost::unique_lock<boost::mutex>& lock);
 
 
     protected:
@@ -580,6 +586,7 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 		//swganh::containers::NetworkSet<std::string> skills_;
 
 		uint32_t			battle_fatigue_;
+		uint64_t			weapon_id_;
 
         BuffList			mBuffList;
         FactionList			mFactionList;

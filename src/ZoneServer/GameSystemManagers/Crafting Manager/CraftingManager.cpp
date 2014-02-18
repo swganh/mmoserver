@@ -48,6 +48,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/WorldManager.h"
 #include "MessageLib/MessageLib.h"
 
+#include "ZoneServer\Services\equipment\equipment_service.h"
+
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -150,13 +152,14 @@ bool CraftingManager::HandleSynchronizedUIListen(Object* object,Object* target,M
 }
 // get appropriate crafting tool from selected crafting station
 // check inventory for same tool 'type' as crafting station
-CraftingTool* CraftingManager::getCraftingStationTool(PlayerObject* playerObject, CraftingStation* station)
+CraftingTool* CraftingManager::getCraftingStationTool(PlayerObject* player, CraftingStation* station)
 {
     CraftingTool*	tool	= NULL;
     int32 stationType = station->getItemType();
-    Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-
-	inventory->__InternalViewObjects(playerObject, 0, true, [&] (Object* object)	{
+	
+	auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player, "inventory");
+    
+	inventory->__InternalViewObjects(player, 0, true, [&] (Object* object)	{
     
 	
         Item* item = dynamic_cast<Item*>(object);

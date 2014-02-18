@@ -528,9 +528,10 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById( structure->getTTS()->playerId ));
 			if(structure->canRedeed())
 			{	
-				Inventory* inventory	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-				if(!inventory->checkSlots(1))
-				{
+				auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+				auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
+
+				if(!inventory->checkSlots(1))				{
 					gMessageLib->SendSystemMessage(std::u16string(),player,"player_structure","inventory_full");
 					it = objectList->erase(it);
 					continue;

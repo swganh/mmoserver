@@ -137,61 +137,70 @@ void ObjectManager::LoadCollisionInfoForObject(std::shared_ptr<Object> obj)
 
 void ObjectManager::LoadSlotsForObject(Object* object)
 {
-    auto oiff = kernel_->GetResourceManager()->GetResourceByName<ObjectVisitor>(object->GetTemplate());
-    if(oiff == nullptr)
-        return;
 
-    oiff->load_aggregate_data(kernel_->GetResourceManager());
+	try	{
+		
+		auto oiff = kernel_->GetResourceManager()->GetResourceByName<ObjectVisitor>(object->GetTemplate());
+		if(oiff == nullptr)
+			return;
+	
 
-    if(oiff->has_attribute("arrangementDescriptorFilename") &&
-            oiff->has_attribute("slotDescriptorFilename"))
-    {
-        auto arrangmentDescriptor = kernel_->GetResourceManager()->GetResourceByName<SlotArrangementVisitor>(
-                                        oiff->attribute<std::string>("arrangementDescriptorFilename"));
+		oiff->load_aggregate_data(kernel_->GetResourceManager());
 
-        auto slotDescriptor = kernel_->GetResourceManager()->GetResourceByName<SlotDescriptorVisitor>(
-                                  oiff->attribute<std::string>("slotDescriptorFilename"));
+		if(oiff->has_attribute("arrangementDescriptorFilename") &&
+				oiff->has_attribute("slotDescriptorFilename"))
+		{
+			auto arrangmentDescriptor = kernel_->GetResourceManager()->GetResourceByName<SlotArrangementVisitor>(
+											oiff->attribute<std::string>("arrangementDescriptorFilename"));
 
-        ObjectArrangements arrangements;
+			auto slotDescriptor = kernel_->GetResourceManager()->GetResourceByName<SlotDescriptorVisitor>(
+									  oiff->attribute<std::string>("slotDescriptorFilename"));
 
-        // arrangements
-        if (arrangmentDescriptor != nullptr)
-        {
-            for_each(arrangmentDescriptor->begin(), arrangmentDescriptor->end(), [&](std::vector<std::string> arrangement)
-            {
-                std::vector<int32_t> arr;
-				std::vector<std::string>::iterator& str = arrangement.begin();
+			ObjectArrangements arrangements;
+
+			// arrangements
+			if (arrangmentDescriptor != nullptr)
+			{
+				for_each(arrangmentDescriptor->begin(), arrangmentDescriptor->end(), [&](std::vector<std::string> arrangement)
+				{
+					std::vector<int32_t> arr;
+					std::vector<std::string>::iterator& str = arrangement.begin();
 				
-				for (str; str != arrangement.end(); str++)
-                {
-                    arr.push_back(slot_definition_->findSlotByName(*str));
-                }
-                arrangements.push_back(arr);
-            });
-        }
-        ObjectSlots descriptors;
+					for (str; str != arrangement.end(); str++)
+					{
+						arr.push_back(slot_definition_->findSlotByName(*str));
+					}
+					arrangements.push_back(arr);
+				});
+			}
+			ObjectSlots descriptors;
 
-        // Globals
-        //
-        descriptors.insert(ObjectSlots::value_type(-1, new SlotContainer()));
+			// Globals
+			//
+			descriptors.insert(ObjectSlots::value_type(-1, new SlotContainer()));
 
-        // Descriptors
-        if (slotDescriptor != nullptr)
-        {
-            for ( size_t j = 0; j < slotDescriptor->available_count(); ++j)
-            {
-                auto descriptor = slotDescriptor->slot(j);
-                size_t id = slot_definition_->findSlotByName(descriptor);
-                auto entry = slot_definition_->entry(id);
-                if(entry.exclusive)
-                    descriptors.insert(ObjectSlots::value_type(id, new SlotExclusive()));
-                else
-                    descriptors.insert(ObjectSlots::value_type(id, new SlotContainer()));
-            }
-        }
+			// Descriptors
+			if (slotDescriptor != nullptr)
+			{
+				for ( size_t j = 0; j < slotDescriptor->available_count(); ++j)
+				{
+					auto descriptor = slotDescriptor->slot(j);
+					size_t id = slot_definition_->findSlotByName(descriptor);
+					auto entry = slot_definition_->entry(id);
+					if(entry.exclusive)
+						descriptors.insert(ObjectSlots::value_type(id, new SlotExclusive()));
+					else
+						descriptors.insert(ObjectSlots::value_type(id, new SlotContainer()));
+				}
+			}
 
-        object->SetSlotInformation(descriptors, arrangements);
-    }
+			object->SetSlotInformation(descriptors, arrangements);
+		}
+	}
+
+	catch(std::exception const& e)	{		
+		std::cout << "Exception: " << e.what() << "\n";
+	}
 }
 
 PermissionsObjectMap& ObjectManager::GetPermissionsMap()

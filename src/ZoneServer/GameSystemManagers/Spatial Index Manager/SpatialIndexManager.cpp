@@ -86,7 +86,7 @@ bool SpatialIndexManager::_AddObject(Object *newObject)
 
 	uint64 parent_id = newObject->getParentId();
 	Object* object = gWorldManager->getObjectById(parent_id);
-	if(object->getObjectType() == SWG_CELL)	{
+	if(object && object->getObjectType() == SWG_CELL)	{
 		DLOG(error) << "SpatialIndexManager::_AddObject - we do NOT add the content of cells to the grid!!";
 		return false;
 	}
@@ -895,23 +895,13 @@ void SpatialIndexManager::createInWorld(Object* object)
     Object* parent = gWorldManager->getObjectById(object->getParentId());
 
     //start with equipped items
-	if(parent->getType() == ObjType_Player)    {
-		PlayerObject* player = static_cast<PlayerObject*>(parent);
-        //add to equiplist manually yet we dont use the objectcontainer for equipped items yet
-		
-		player->InitializeObject(object);
-        gContainerManager->createObjectToRegisteredPlayers(parent, object);
-
-        return;
-    }
-
-    if(parent)    {
-        //items in containers
-        gContainerManager->createObjectToRegisteredPlayers(parent, object);
-        return;
-    }
-
-	assert(false && "No valid parent");
+	if(!parent)    {
+		LOG(error) << "SpatialIndexManager::createInWorld : no valid parent";
+		return;
+	}
+	
+	parent->AddObject(object);
+    gContainerManager->createObjectToRegisteredPlayers(parent, object);
 
 }
 

@@ -92,22 +92,29 @@ void PersistentNpcFactory::handleDatabaseJobComplete(void* ref,swganh::database:
     {
     case PersistentNpcQuery_MainData:
     {
-        NPCObject* npc = _createPersistentNpc(result);
+		try	{
+			NPCObject* npc = _createPersistentNpc(result);
+			if(npc->getLoadState() == LoadState_Loaded && asyncContainer->mOfCallback)
+				asyncContainer->mOfCallback->handleObjectReady(npc,asyncContainer->mClient);
 
-        if(npc->getLoadState() == LoadState_Loaded && asyncContainer->mOfCallback)
-            asyncContainer->mOfCallback->handleObjectReady(npc,asyncContainer->mClient);
+			else if(npc->getLoadState() == LoadState_Attributes)
+			{
+				QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,PersistentNpcQuery_Attributes,asyncContainer->mClient);
+				asContainer->mObject = npc;
 
-        else if(npc->getLoadState() == LoadState_Attributes)
-        {
-            QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,PersistentNpcQuery_Attributes,asyncContainer->mClient);
-            asContainer->mObject = npc;
-
-            mDatabase->executeSqlAsync(this,asContainer,"SELECT attributes.name,persistent_npc_attributes.value,attributes.internal"
-                                       " FROM %s.persistent_npc_attributes"
-                                       " INNER JOIN %s.attributes ON (persistent_npc_attributes.attribute_id = attributes.id)"
-                                       " WHERE persistent_npc_attributes.npc_id = %"PRIu64" ORDER BY persistent_npc_attributes.order",
-                                       mDatabase->galaxy(),mDatabase->galaxy(),npc->getId());
+				mDatabase->executeSqlAsync(this,asContainer,"SELECT attributes.name,persistent_npc_attributes.value,attributes.internal"
+										   " FROM %s.persistent_npc_attributes"
+										   " INNER JOIN %s.attributes ON (persistent_npc_attributes.attribute_id = attributes.id)"
+										   " WHERE persistent_npc_attributes.npc_id = %"PRIu64" ORDER BY persistent_npc_attributes.order",
+										   mDatabase->galaxy(),mDatabase->galaxy(),npc->getId());
+			}
 		}
+		
+		catch(std::exception const& e)	{		
+			std::cout << "Exception: " << e.what() << "\n";
+		}
+
+        
     }
     break;
 
@@ -177,7 +184,6 @@ NPCObject* PersistentNpcFactory::_createPersistentNpc(swganh::database::Database
     break;
     }
 
-
     Inventory*		npcInventory	= new Inventory();
     npcInventory->setParent(npc);
 
@@ -209,8 +215,9 @@ NPCObject* PersistentNpcFactory::_createPersistentNpc(swganh::database::Database
     npcInventory->setTangibleType(TanType_CreatureInventory);
     
 	gObjectManager->LoadSlotsForObject(npcInventory);
-
-    npc->InitializeObject(npcInventory);
+	
+	npc->InitializeObject(npcInventory);
+	
 	gWorldManager->addObject(npcInventory,true);
 
     npc->mTypeOptions = 0x108;

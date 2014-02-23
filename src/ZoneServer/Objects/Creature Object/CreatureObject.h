@@ -84,6 +84,9 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 		void AddEquipmentItem(std::shared_ptr<swganh::object::EquipmentItem>& item);
 		void AddEquipmentItem(std::shared_ptr<swganh::object::EquipmentItem>& item, boost::unique_lock<boost::mutex>& lock);
 
+		void InitializeEquipmentItem(std::shared_ptr<swganh::object::EquipmentItem>& item);
+		void InitializeEquipmentItem(std::shared_ptr<swganh::object::EquipmentItem>& item, boost::unique_lock<boost::mutex>& lock);
+
 		void RemoveEquipmentItem(uint64_t object_id);
 		void RemoveEquipmentItem(uint64_t object_id, boost::unique_lock<boost::mutex>& lock);
 

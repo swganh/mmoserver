@@ -104,6 +104,7 @@ event_dispatcher_(kernel->GetEventDispatcher())
 
 	creature_message_builder_	= std::make_shared<CreatureMessageBuilder>(kernel_->GetEventDispatcher());
 	player_message_builder_		= std::make_shared<PlayerMessageBuilder>(kernel_->GetEventDispatcher());
+	object_message_builder_		= std::make_shared<ObjectMessageBuilder>(kernel_->GetEventDispatcher());
 }
 
 //======================================================================================================================

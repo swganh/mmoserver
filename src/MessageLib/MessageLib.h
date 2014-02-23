@@ -54,6 +54,7 @@ namespace	event_dispatcher	{
 }
 
 class CreatureMessageBuilder;
+class ObjectMessageBuilder;
 class PlayerMessageBuilder;
 class MessageFactory;
 class Item;
@@ -751,6 +752,7 @@ private:
 	swganh::event_dispatcher::EventDispatcher*		event_dispatcher_;
 	std::shared_ptr<CreatureMessageBuilder>			creature_message_builder_;
 	std::shared_ptr<PlayerMessageBuilder>			player_message_builder_;
+	std::shared_ptr<ObjectMessageBuilder>			object_message_builder_;
 };
 
 //======================================================================================================================

@@ -119,7 +119,7 @@ void Inventory::handleObjectReady(Object* object,DispatchClient* client)
 	}
 	
 	// reminder: objects are owned by the global map, inventory only keeps references
-	InitializeObject(object);
+	AddObject(object);
 
 	//initialize the Object and add it to the main Object map
 	gWorldManager->addObject(object);

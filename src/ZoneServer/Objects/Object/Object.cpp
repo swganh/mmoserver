@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/Objects/Object/Object.h"
 
 #include <glm/gtx/transform2.hpp>
+#include <exception>
 
 #include "DatabaseManager/Database.h"
 
@@ -39,6 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/GameSystemManagers/Container Manager/ContainerManager.h"
 #include "ZoneServer\Objects\permissions\container_permissions_interface.h"
 #include "ZoneServer/Objects/CraftingTool.h"
+#include "ZoneServer\Objects\Object\ObjectManager.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
@@ -131,7 +133,7 @@ int32_t Object::GetAppropriateArrangementId(Object* other)
     if (slot_descriptor_.size() == 1)
         return -1;
 
-	LOG(info) << "Object::GetAppropriateArrangementId container -> " << this->getId() << " for object : " << other->getId();
+	//LOG(info) << "Object::GetAppropriateArrangementId container -> " << this->getId() << " for object : " << other->getId();
 
     // Find appropriate arrangement
     int32_t arrangement_id = 4;
@@ -141,20 +143,20 @@ int32_t Object::GetAppropriateArrangementId(Object* other)
     for ( ObjectArrangements::iterator arrangement = other->slot_arrangements_.begin(); arrangement != other->slot_arrangements_.end(); arrangement++)
     {
 		ar_count ++;
-		LOG(info) << "arrangement : " << ar_count;
+		//LOG(info) << "arrangement : " << ar_count;
 
         bool passes_completely = true;
         bool is_valid = true;
         // Each Slot
 		for (std::vector<int32_t>::iterator slot = arrangement->begin(); slot != arrangement->end(); slot++)
         {
-			LOG(info) << "slot : " << *slot;
+			//LOG(info) << "slot : " << *slot;
             // does slot exist in descriptor
             auto descriptor_iter = slot_descriptor_.find(*slot);
 			
             if (descriptor_iter == end(slot_descriptor_))
             {
-				LOG(info) << "slot descriptor: invalid";
+				LOG(info) << "slot descriptor: invalid : " << other->getId() << " : " << other->GetTemplate();
                 is_valid = false;
                 break;
             }
@@ -180,39 +182,46 @@ int32_t Object::GetAppropriateArrangementId(Object* other)
 
 int32_t Object::__InternalInsert(Object* object, glm::vec3 new_position, int32_t arrangement_id)
 {
-    Object* removed_object = nullptr;
-    if(arrangement_id == -2)
-        arrangement_id = GetAppropriateArrangementId(object);
+	try	{
 
-    if (arrangement_id < 4)
-    {
-        // remove object out of slot in case one is in there
-        removed_object = slot_descriptor_[arrangement_id]->insert_object(object);
-        if (removed_object)
-        {
-            // Transfer it out, put it in the place the replacing object came from
-			Object* parent = dynamic_cast<Object*>(gWorldManager->getObjectById(object->getParentId()));
-            removed_object->__InternalTransfer(nullptr, removed_object, parent);
-        }
-    }
-    else
-    {
-        auto& arrangement = object->slot_arrangements_[arrangement_id-4];
-        for (auto& i = arrangement.begin(); i != arrangement.end(); i++)
-        {
-            slot_descriptor_[*i]->insert_object(object);
-            
-        }
-    }
-    object->SetArrangementId(arrangement_id);
-    object->SetContainer(this);
+		Object* removed_object = nullptr;
+		if(arrangement_id == -2)
+			arrangement_id = GetAppropriateArrangementId(object);
 
-    //Time to update the position to the new coordinates/update AABB
-    object->mPosition = new_position;
+		if (arrangement_id < 4)
+		{
+			// remove object out of slot in case one is in there
+			swganh::object::SlotInterface* slot_descriptor = slot_descriptor_[arrangement_id];
+			
+			if((slot_descriptor != 0) && (removed_object = slot_descriptor_[arrangement_id]->insert_object(object)))
+			{
+				// Transfer it out, put it in the place the replacing object came from
+				Object* parent = dynamic_cast<Object*>(gWorldManager->getObjectById(object->getParentId()));
+				removed_object->__InternalTransfer(nullptr, removed_object, parent);
+			}
+		}
+		else
+		{
+			auto& arrangement = object->slot_arrangements_[arrangement_id-4];
+			for (auto& i = arrangement.begin(); i != arrangement.end(); i++)
+			{
+				slot_descriptor_[*i]->insert_object(object);
+			}
+		}
+		object->SetArrangementId(arrangement_id);
+		object->SetContainer(this);
 
-    //Because we may have calculated it internally, send the arrangement_id used back
-    //To the caller so it can send the appropriate update.
-    return arrangement_id;
+		//Time to update the position to the new coordinates/update AABB
+		object->mPosition = new_position;
+
+		//Because we may have calculated it internally, send the arrangement_id used back
+		//To the caller so it can send the appropriate update.
+		return arrangement_id;
+	}
+	catch(std::exception const& e)	{		
+		LOG(error) << "Object::__InternalInsert error" << object->getId();
+	}        
+
 }
 
 
@@ -288,8 +297,71 @@ void Object::__InternalViewAwareObjects(std::function<void(Object*)> func)
 void Object::InitializeObject(Object* newObject)
 {
 	uint32 arrangement = GetAppropriateArrangementId(newObject);
-    AddObject(nullptr, newObject, arrangement);
-	newObject->SetArrangementId(arrangement);
+    if(!InitializeObject(nullptr, newObject, arrangement))	{
+		//throw std::runtime_error("Bad Initialization for Object" + newObject->getId());
+	}
+
+	auto permissions_objects_ = gObjectManager->GetPermissionsMap();
+
+	if(newObject->GetPermissions() == nullptr)	 {
+		
+		newObject->SetPermissions(permissions_objects_.find(1)->second.get());//DEFAULT_PERMISSION
+	}
+	
+
+}
+
+bool Object::InitializeObject(Object* requester, Object* obj, int32_t arrangement_id)
+{
+    //// CHECK PERMISSIONS ////
+	if((requester != nullptr ) && (!container_permissions_->canInsert(this, requester, obj)))	{
+		LOG (info) << "Object::AddObject couldnt add Object : " << obj->getId() << " to " << getId();
+		return false;
+	}
+
+	swganh::object::SlotInterface* slot_descriptor = slot_descriptor_[arrangement_id];
+			
+	if(!slot_descriptor )	{
+		// Transfer it out, put it in the place the replacing object came from
+		LOG (info) << "Object::InitializeObject couldnt add Object : " << obj->getId() << " to " << getId();
+		return false;
+	}
+
+	if (this->getObjectType() == SWG_PLAYER || this->getObjectType() == SWG_CREATURE)	{
+		TangibleObject* tangible = dynamic_cast<TangibleObject*>(obj);
+		if(tangible)	{
+			std::shared_ptr<swganh::object::EquipmentItem> item = std::make_shared <swganh::object::EquipmentItem>();
+			item->containment_type	= tangible->GetArrangementId();
+			item->customization		= tangible->getCustomizationStr().getAnsi();
+			item->object_id			= tangible->getId();
+			item->template_crc		= common::memcrc(tangible->GetTemplate());
+
+			CreatureObject* creature = dynamic_cast<CreatureObject*>(this);
+			creature->InitializeEquipmentItem(item);
+		}
+	}
+
+    boost::upgrade_lock<boost::shared_mutex> lock(global_container_lock_);
+
+    //Add Object To Datastructure
+    {
+        boost::upgrade_to_unique_lock<boost::shared_mutex> unique_lock(lock);
+        arrangement_id = __InternalInsert(obj, obj->mPosition, arrangement_id);
+    }
+
+	return true;
+}
+
+
+
+bool Object::AddObject(Object* newObject)
+{
+	uint32 arrangement = GetAppropriateArrangementId(newObject);
+    if(AddObject(nullptr, newObject, arrangement))	{
+		newObject->SetArrangementId(arrangement);
+		return true;
+	}
+	return false;
 }
 
 bool Object::AddObject(Object* requester, Object* obj, int32_t arrangement_id)
@@ -1154,12 +1226,8 @@ void Object::handleObjectReady(Object* object,DispatchClient* client)
 // including those contained in containers
 uint16 Object::getHeadCount() {
 	uint16 count = 0;
-    for (auto& arrangement = slot_arrangements_.begin(); arrangement != slot_arrangements_.end(); arrangement ++)	{
-        for (auto& i = arrangement->begin(); i != arrangement->end(); i++)
-        {
-            count += slot_descriptor_[*i]->get_size();
-            
-        }
+    for (auto& descriptor = slot_descriptor_.begin(); descriptor != slot_descriptor_.end(); descriptor ++)	{  	
+		count += descriptor->second->get_size();      
 	}
 	return count;
 }

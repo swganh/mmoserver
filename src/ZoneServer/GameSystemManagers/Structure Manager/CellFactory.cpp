@@ -97,7 +97,7 @@ void CellFactory::handleDatabaseJobComplete(void* ref,swganh::database::Database
         asContainer->mObject = cell;
 
         mDatabase->executeSqlAsync(this,asContainer,"(SELECT \'terminals\',id FROM %s.terminals WHERE parent_id = %"PRIu64")"
-                                   " UNION (SELECT \'containers\',id FROM %s.containers WHERE parent_id = %"PRIu64")"
+               
                                    " UNION (SELECT \'ticket_collectors\',id FROM %s.ticket_collectors WHERE (parent_id=%"PRIu64"))"
                                    " UNION (SELECT \'persistent_npcs\',id FROM %s.persistent_npcs WHERE parentId=%"PRIu64")"
                                    " UNION (SELECT \'shuttles\',id FROM %s.shuttles WHERE parentId=%"PRIu64")"
@@ -106,7 +106,7 @@ void CellFactory::handleDatabaseJobComplete(void* ref,swganh::database::Database
                                    mDatabase->galaxy(),cellId,
                                    mDatabase->galaxy(),cellId,
                                    mDatabase->galaxy(),cellId,
-                                   mDatabase->galaxy(),cellId,
+                                   
                                    mDatabase->galaxy(),cellId,
                                    mDatabase->galaxy(),cellId,
                                    mDatabase->galaxy(),cellId);       
@@ -136,8 +136,7 @@ void CellFactory::handleDatabaseJobComplete(void* ref,swganh::database::Database
 
                 if(strcmp(queryContainer.mString.getAnsi(),"terminals") == 0)
                     gObjectFactory->requestObject(ObjType_Tangible,TanGroup_Terminal,0,this,queryContainer.mId,asyncContainer->mClient);
-                else if(strcmp(queryContainer.mString.getAnsi(),"containers") == 0)
-                    gObjectFactory->requestObject(ObjType_Tangible,TanGroup_Container,0,this,queryContainer.mId,asyncContainer->mClient);
+                
                 else if(strcmp(queryContainer.mString.getAnsi(),"ticket_collectors") == 0)
                     gObjectFactory->requestObject(ObjType_Tangible,TanGroup_TicketCollector,0,this,queryContainer.mId,asyncContainer->mClient);
                 else if(strcmp(queryContainer.mString.getAnsi(),"persistent_npcs") == 0)
@@ -273,9 +272,15 @@ void CellFactory::handleObjectReady(Object* object,DispatchClient* client)
     }
 
 	cell->InitializeObject(object);
+	cell->incLoad();
 
-	if(cell->getLoadCount() == cell->getHeadCount())
+	//LOG(info) << "cellFactory::handleObjectReady -> cell load stuff" << object->getId() << "for " << cell->getId();
+	//LOG(info) << "loadcount : " << cell->getLoadCount() << " : count : " << cell->getLoad();
+
+	if(cell->getLoadCount() == cell->getLoad())
     {
+		//LOG(info) << "cellFactory::handleObjectReady -> cell done " << cell->getId();
+
         if(!(_removeFromObjectLoadMap(cell->getId())))
             LOG(warning) << "Failed removing object from loadmap";
 

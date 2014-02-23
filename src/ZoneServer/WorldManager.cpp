@@ -266,6 +266,7 @@ void WorldManager::Shutdown()
 	/* remove all cells and factories first so we do not get a racecondition with their content 
 	* when clearing the mainObjectMap
 	*/
+	boost::lock_guard<boost::shared_mutex> lg(object_map_mutex_);
 	ObjectIDList::iterator itStruct = mStructureList.begin();
 	while(itStruct != mStructureList.end())
 	{
@@ -297,6 +298,8 @@ void WorldManager::handleObjectReady(Object* object,DispatchClient* client)
     addObject(object);
 
     // check if we are done loading
+	//LOG(info) << "WorldManager::handleObjectReady " << object_map_.size() << " : " << mTotalObjectCount;
+	//LOG(info) << object->GetTemplate();
     if ((mState == WMState_StartUp) && (object_map_.size() + mCreatureSpawnRegionMap.size() >= mTotalObjectCount))
     {
         _handleLoadComplete();
@@ -305,7 +308,8 @@ void WorldManager::handleObjectReady(Object* object,DispatchClient* client)
 void WorldManager::handleObjectReady(shared_ptr<Object> object)
 {
     addObject(object);
-
+	//LOG(info) << "WorldManager::handleObjectReady " << object_map_.size() << " : " << mTotalObjectCount;
+	//LOG(info) << object->GetTemplate();
 	// check if we are done loading
     if ((mState == WMState_StartUp) && (object_map_.size() + mCreatureSpawnRegionMap.size() >= mTotalObjectCount))
     {
@@ -1022,8 +1026,9 @@ uint64 WorldManager::addImageDesignerToProcess(CreatureObject* entertainerObject
 //
 bool WorldManager::existObject(Object* object)
 {
-    if (object)
-    {
+    boost::lock_guard<boost::shared_mutex> lg(object_map_mutex_);
+
+	if (object)    {
         return (object_map_.find(object->getId()) != object_map_.end());
     }
     else

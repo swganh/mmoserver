@@ -803,7 +803,7 @@ void CraftingSession::bagComponents(ManufactureSlot* manSlot,uint64 containerId)
             return;
         }
 
-        inventory_->InitializeObject(filledComponent);
+        inventory_->AddObject(filledComponent);
         gMessageLib->sendContainmentMessage(filledComponent->getId(),inventory_->getId(),0xffffffff,mOwner);
         filledComponent->setParentIdIncDB(inventory_->getId());
 

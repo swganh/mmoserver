@@ -272,7 +272,7 @@ void InventoryFactory::handleObjectReady(Object* object,DispatchClient* client)
     //for unequipped items only
 	inventory->InitializeObject(object);
 
-	LOG(info) << "InventoryFactory::handleObjectReady -> to load : " << inventory->getObjectLoadCounter()  << " loaded : " << inventory->getHeadCount();
+	//LOG(info) << "InventoryFactory::handleObjectReady -> to load : " << inventory->getObjectLoadCounter()  << " loaded : " << inventory->getHeadCount();
     if(inventory->getObjectLoadCounter() == (inventory->getHeadCount()))
     {
         inventory->setLoadState(LoadState_Loaded);

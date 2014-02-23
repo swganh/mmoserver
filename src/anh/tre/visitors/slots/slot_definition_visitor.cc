@@ -39,7 +39,7 @@ size_t SlotDefinitionVisitor::findSlotByName( std::string& name)
 {
     for(size_t i = 0; i < slots_.size(); ++i)
     {
-		LOG(info) << "SlotDefinitionVisitor::findSlotByName : " << name << " vs : " << slots_[i].name;
+		//LOG(info) << "SlotDefinitionVisitor::findSlotByName : " << name << " vs : " << slots_[i].name;
         if(slots_[i].name == name)
             return i;
     }

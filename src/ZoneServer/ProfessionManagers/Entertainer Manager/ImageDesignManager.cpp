@@ -537,6 +537,7 @@ void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
 
 	//hark the equiplist might contain a helmet at this spot
 	uint64 customerHairId =		customer->getId() + HAIR_OFFSET;
+	//slot : hair!!!
 	TangibleObject*				customerHair		= dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(customerHairId));
 
 	if(customerHair && (!newHairString.getLength()))	{
@@ -573,7 +574,7 @@ void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
 	
 		gWorldManager->addObject(customerHair, true);
 
-		customer->InitializeObject(customerHair);
+		customer->AddObject(customerHair);
 
 		sprintf(sql,"UPDATE %s.character_appearance set hair = '%s' where character_id = '%"PRIu64"'",kernel_->GetDatabase()->galaxy(),newHairString.getAnsi(),customer->getId());
 		kernel_->GetDatabase()->executeSqlAsync(NULL,NULL,sql);

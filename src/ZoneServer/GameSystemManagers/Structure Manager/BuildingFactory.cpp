@@ -273,9 +273,12 @@ void BuildingFactory::handleObjectReady(Object* object,DispatchClient* client)
     gWorldManager->addObject(object,true);
 
     building->addCell(dynamic_cast<CellObject*>(object));
+	//LOG(info) << "BuildingFactory::handleObjectReady -> building load cell " << object->getId() << "for " << building->getId();
+	//LOG(info) << "loadcount : " << building->getLoadCount() << " : count : " << building->getCellList()->size();
 
     if(building->getLoadCount() == (building->getCellList())->size())
     {
+		//LOG(info) << "BuildingFactory::handleObjectReady -> building loadcount done for " << building->getId();
         if(!(_removeFromObjectLoadMap(building->getId())))
             LOG(warning) << "Failed removing object from loadmap";
 

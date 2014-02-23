@@ -54,7 +54,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer/Weather.h"
 
-
+#include "tbb/concurrent_unordered_map.h"
 
 //======================================================================================================================
 
@@ -248,6 +248,8 @@ public:
 		
 	
 	Object*					getObjectById(uint64 objId);
+	
+
 	std::shared_ptr<Object>	getSharedObjectById(uint64 objId);
 
 	void					eraseObject(uint64 key);
@@ -562,7 +564,7 @@ private:
     NpcReadyHandlers			mNpcReadyHandlers;
     ObjectIDList			    mStructureList;
     
-
+	boost::shared_mutex			object_map_mutex_;
 	SharedObjectMap				object_map_;
     
 	PlayerAccMap				mPlayerAccMap;

@@ -104,12 +104,15 @@ using std::shared_ptr;
 bool WorldManager::addSharedObject(std::shared_ptr<Object> &object, bool manual)
 {
     uint64 key = object->getId();
+	boost::lock_guard<boost::shared_mutex> lg(object_map_mutex_);
 
-	if(getObjectById(key))
-    {
-        LOG(error) << "WorldManager::addObject Object(" << key<<") already exists added several times or ID messup ???";
-        return false;
+	SharedObjectMap::iterator it = object_map_.find(key);
+	if(it != object_map_.end())    {
+		LOG(error) << "WorldManager::addObject Object(" << key<<") already exists added several times or ID messup ???";
+		return false;
     }
+	
+	
 	object_map_.insert(std::make_pair(key, object));
 	//object_map_.insert(key,object);
     
@@ -235,14 +238,16 @@ void WorldManager::initializeObject(std::shared_ptr <Object> &object)
 bool WorldManager::addObject(Object* object,bool manual)
 {
     uint64 key = object->getId();
+	
+	boost::lock_guard<boost::shared_mutex> lg(object_map_mutex_);
 
     //make sure objects arnt added several times!!!!
-    if(getObjectById(key))
-    {
-        LOG(info) << "WorldManager::addObject Object(" << key<<") already exists added several times or ID messup ???";
-        return false;
+    SharedObjectMap::iterator it = object_map_.find(key);
+	if(it != object_map_.end())    {
+		LOG(error) << "WorldManager::addObject Object(" << key<<") already exists added several times or ID messup ???";
+		return false;
     }
-
+	
 	std::shared_ptr<Object> object_shared(object);
 
 	object_map_.insert(std::make_pair(key, object_shared));
@@ -252,6 +257,9 @@ bool WorldManager::addObject(Object* object,bool manual)
     if(manual)    {
         return true;
     }
+	
+	object_map_mutex_.unlock();	
+	
 	initializeObject(object_shared);
 
 		
@@ -261,16 +269,21 @@ bool WorldManager::addObject(std::shared_ptr<Object> object, bool manual)
 {
     uint64 key = object->getId();
 
-	if(getObjectById(key))
-    {
-        LOG(error) << "WorldManager::addObject Object(" << key<<") already exists added several times or ID messup ???";
-        return false;
+	boost::lock_guard<boost::shared_mutex> lg(object_map_mutex_);
+
+	SharedObjectMap::iterator it = object_map_.find(key);
+	if(it != object_map_.end())    {
+		LOG(error) << "WorldManager::addObject Object(" << key<<") already exists added several times or ID messup ???";
+		return false;
     }
+	
 	object_map_.insert(std::make_pair(key, object));
 	//object_map_.insert(key,object);
     
 	if(manual)
 		return true;
+
+	object_map_mutex_.unlock();	
 
 	initializeObject(object);
 	
@@ -284,6 +297,7 @@ void WorldManager::destroyObject(uint64 objId)
 		LOG(error) <<"WorldManager::destroyObject : Object : " << objId << "couldnt be found in the Object Map";
 		return;
 	}
+	
 	destroyObject(object);
 	
 }
@@ -501,6 +515,7 @@ void WorldManager::destroyObject(Object* object)
 	gSpatialIndexManager->RemoveObjectFromWorld(object);
 
 	// finally delete it
+	boost::lock_guard<boost::shared_mutex> lg(object_map_mutex_);
 	SharedObjectMap::iterator objMapIt = object_map_.find(object->getId());
 
 	if(objMapIt != object_map_.end())	{
@@ -538,6 +553,7 @@ void WorldManager::destroyObject(std::shared_ptr<Object> object)
 	}
 
 	// finally delete it
+	boost::lock_guard<boost::shared_mutex> lg(object_map_mutex_);
 	SharedObjectMap::iterator objMapIt = object_map_.find(object->getId());
 
 	if(objMapIt != object_map_.end())	{
@@ -554,6 +570,7 @@ void WorldManager::destroyObject(std::shared_ptr<Object> object)
 
 void WorldManager::eraseObject(uint64 key)
 {
+	boost::lock_guard<boost::shared_mutex> lg(object_map_mutex_);
 	SharedObjectMap::iterator shared_it = object_map_.find(key);
 	if(shared_it != object_map_.end())
     {
@@ -668,8 +685,8 @@ Object* WorldManager::getNearestTerminal(PlayerObject* player, TangibleType term
 
 Object*	WorldManager::getObjectById(uint64 objId)
 {
-	
-    SharedObjectMap::iterator it = object_map_.find(objId);
+	boost::lock_guard<boost::shared_mutex> lg(object_map_mutex_);
+	SharedObjectMap::iterator it = object_map_.find(objId);
 
     if(it != object_map_.end())
     {
@@ -677,10 +694,12 @@ Object*	WorldManager::getObjectById(uint64 objId)
     }
 
     return(nullptr);
+
 }
 
 std::shared_ptr<Object>	WorldManager::getSharedObjectById(uint64 objId)
 {
+	boost::lock_guard<boost::shared_mutex> lg(object_map_mutex_);
 	SharedObjectMap::iterator it = object_map_.find(objId);
 
     if(it != object_map_.end())

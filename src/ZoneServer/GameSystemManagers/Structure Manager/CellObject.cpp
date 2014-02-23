@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 CellObject::CellObject() : StaticObject()
 {
     mType = ObjType_Cell;
+	mTotalLoad = 0;
     //mModel = "object/cell/shared_cell.iff";
 	SetTemplate("object/cell/shared_cell.iff");
 	

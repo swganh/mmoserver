@@ -35,5 +35,8 @@ void SlotExclusive::view_objects_if(std::function<bool(Object*)> walkerFunction)
 
 uint16 SlotExclusive::get_size()
 {
-	return 1;
+	if (held_object_ != nullptr)
+		return 1;
+	else
+		return 0;
 }

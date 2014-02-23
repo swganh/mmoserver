@@ -300,7 +300,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
         // put us into new cell
         gMessageLib->broadcastContainmentMessage(player->getId(),parentId,4,player);
         if((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId))))	{
-            cell->InitializeObject(player);
+            cell->AddObject(player);
             // Inform tutorial about cell change.
             if (gWorldConfig->isTutorial())
             {

@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
+#include "ZoneServer\Objects\Object\ObjectManager.h"
 
 #include "ZoneServer/Objects/Tangible Object/TangibleFactory.h"
 #include "ZoneServer/Tutorial.h"
@@ -794,10 +795,12 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
 
     // player object
     int8 tmpModel[128];
-    sprintf(tmpModel,"object/creature/player/shared_%s",mModel.getAnsi()[23]);
+    sprintf(tmpModel,"object/creature/player/shared_%s",&mModel.getAnsi()[23]);
 	playerObject->SetTemplate(tmpModel);
 
     playerObject->buildCustomization(playerObject->mCustomization);
+
+	auto permissions_objects_ = gObjectManager->GetPermissionsMap();
 
     playerObject->setFactionRank(0);
     // playerObject->setPvPStatus(16);
@@ -807,6 +810,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
     playerObject->setPlayerObjId(playerObject->mId + PLAYER_OFFSET);
     playerObject->mTypeOptions = 0x80;
     playerObject->mBiography.convert(BSTRType_Unicode16);
+	playerObject->SetPermissions(permissions_objects_.find(5)->second.get());//CREATURE_PERMISSION
 
 	gObjectManager->LoadSlotsForObject(playerObject);
 
@@ -815,7 +819,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
     if(mModel.getLength())
     {
         int8 tmpHair[128];
-        sprintf(tmpHair,"object/tangible/hair/%s/shared_%s",playerObject->mSpecies.getAnsi(),mModel.getAnsi()[22 + playerObject->mSpecies.getLength()]);
+        sprintf(tmpHair,"object/tangible/hair/%s/shared_%s",playerObject->mSpecies.getAnsi(),&mModel.getAnsi()[22 + playerObject->mSpecies.getLength()]);
         playerHair->setId(playerObject->mId + HAIR_OFFSET);
         playerHair->setParentId(playerObject->mId);
         playerHair->SetTemplate(tmpHair);
@@ -823,7 +827,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
         playerHair->setTangibleType(TanType_Hair);
         playerHair->setName("hair");
         playerHair->setNameFile("hair_name");
-
+		playerHair->SetPermissions(permissions_objects_.find(6)->second.get());//CREATURE_CONTAINER_PERMISSION
 
         playerHair->buildTanoCustomization(3);
 
@@ -836,11 +840,13 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
 
     // mission bag
     playerMissionBag = new MissionBag(playerObject->mId + MISSION_OFFSET,playerObject,"object/tangible/mission_bag/shared_mission_bag.iff","item_n","mission_bag");
+	playerMissionBag->SetPermissions(permissions_objects_.find(6)->second.get());//6
 	gObjectManager->LoadSlotsForObject(playerMissionBag);
 	gWorldManager->addObject(playerMissionBag,true);
 	playerObject->InitializeObject(playerMissionBag);
 
     // bank
+	playerBank->SetPermissions(permissions_objects_.find(6)->second.get());//CREATURE_CONTAINER_PERMISSION
     playerBank->setId(playerObject->mId + BANK_OFFSET);
     playerBank->setParentId(playerObject->mId);
     playerBank->SetTemplate("object/tangible/bank/shared_character_bank.iff");
@@ -855,7 +861,8 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
 
     // default player weapon
 	Weapon*			playerWeapon	= new Weapon();
-    playerWeapon->setId(playerObject->mId + WEAPON_OFFSET);
+    playerWeapon->SetPermissions(permissions_objects_.find(6)->second.get());//CREATURE_CONTAINER_PERMISSION
+	playerWeapon->setId(playerObject->mId + WEAPON_OFFSET);
     playerWeapon->setParentId(playerObject->mId);
     playerWeapon->SetTemplate("object/weapon/melee/unarmed/shared_unarmed_default_player.iff");
     playerWeapon->setGroup(WeaponGroup_Unarmed);

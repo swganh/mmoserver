@@ -101,8 +101,20 @@ public:
 	Object();
 	Object(uint64 id,uint64 parentId,const std::string model,ObjectType type);
 
-	virtual bool AddObject(Object* requester, Object* newObject, int32_t arrangement_id=-2);
-	void 		 InitializeObject(Object* newObject);
+	/*	@brief	AddObject adds an Object to another Object. It will get and the proper arrangement Id for the Object an equiplist update will be send to known players
+	*	
+	*
+	*/
+	bool				AddObject(Object* newObject);
+	virtual bool		AddObject(Object* requester, Object* newObject, int32_t arrangement_id=-2);
+
+	/*	@brief	InitializeObject adds an Object to another Object. It will get and the proper arrangement Id for the Object an equiplist update will NOT be send. Use this on Objects NOT YET ADDED to the SI
+	*	@param Object* newObject the Object we want to initialize
+	*
+	*/
+	void 				InitializeObject(Object* newObject);
+	bool				InitializeObject(Object* requester, Object* obj, int32_t arrangement_id=-2);
+	
 
     virtual bool RemoveObject(Object* requester, Object* oldObject);
     virtual void TransferObject(Object* requester, Object* object, ContainerInterface* newContainer, glm::vec3 new_position,  int32_t arrangement_id=-2);

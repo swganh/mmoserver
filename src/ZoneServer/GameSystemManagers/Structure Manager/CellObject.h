@@ -57,12 +57,20 @@ public:
         mTotalLoadCount = count;
     }
 
+	uint32		getLoad() {
+        return mTotalLoad;
+    }
+    void		incLoad() {
+        mTotalLoad++;
+    }
+
     void		prepareDestruction();
 
 
 private:
 
     //ObjectList	mChildObjects;
+	uint32		mTotalLoad;
     uint32		mTotalLoadCount;
 
 };

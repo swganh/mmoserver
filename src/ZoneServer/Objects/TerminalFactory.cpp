@@ -369,7 +369,7 @@ void TerminalFactory::_setupDatabindings()
     mTravelMainDataBinding = mDatabase->createDataBinding(15);
     mTravelMainDataBinding->addField(swganh::database::DFT_uint64,offsetof(TravelTerminal,mId),8,0);
     mTravelMainDataBinding->addField(swganh::database::DFT_uint64,offsetof(TravelTerminal,mParentId),8,1);
-	mTravelMainDataBinding->addField(swganh::database::DFT_string,offsetof(TravelTerminal,template_string_),256,10);
+	mTravelMainDataBinding->addField(swganh::database::DFT_stdstring,offsetof(TravelTerminal,template_string_),256,10);
     mTravelMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(TravelTerminal,mName),64,11);
     mTravelMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(TravelTerminal,mNameFile),64,12);
     mTravelMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(TravelTerminal,mPositionDescriptor),128,13);

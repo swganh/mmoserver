@@ -1997,6 +1997,16 @@ uint32_t CreatureObject::GetBattleFatigue(boost::unique_lock<boost::mutex>& lock
     return battle_fatigue_;
 }
 
+void CreatureObject::InitializeEquipmentItem(std::shared_ptr<swganh::object::EquipmentItem>& item)
+{
+	auto lock = AcquireLock();
+    InitializeEquipmentItem(item, lock);
+}
+
+void CreatureObject::InitializeEquipmentItem(std::shared_ptr<swganh::object::EquipmentItem>& item, boost::unique_lock<boost::mutex>& lock)
+{
+	equipment_list_.add(item);
+}
 
 void CreatureObject::AddEquipmentItem(std::shared_ptr<swganh::object::EquipmentItem>& item)
 {
@@ -2007,7 +2017,6 @@ void CreatureObject::AddEquipmentItem(std::shared_ptr<swganh::object::EquipmentI
 void CreatureObject::AddEquipmentItem(std::shared_ptr<swganh::object::EquipmentItem>& item, boost::unique_lock<boost::mutex>& lock)
 {
     equipment_list_.add(item);
-
 	GetEventDispatcher()->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::EquipmentItem", this));
 }
 

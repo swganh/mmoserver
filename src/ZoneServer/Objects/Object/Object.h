@@ -62,6 +62,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class Object;
 class PlayerObject;
 class CreatureObject;
+class ObjectMessageBuilder;
 
 typedef std::map<uint32,std::string>	AttributeMap;
 typedef std::shared_ptr<RadialMenu>		RadialMenuPtr;
@@ -98,8 +99,10 @@ class Object : public UICallback, public Anh_Utils::EventHandler, public ObjectF
 
 public:
 
+	typedef ObjectMessageBuilder MessageBuilderType;
+
 	Object();
-	Object(uint64 id,uint64 parentId,const std::string model,ObjectType type);
+	Object(uint64 id,uint64 parentId,const std::string model,ObjectType type,const BString name = "",const BString nameFile = "");
 
 	/*	@brief	AddObject adds an Object to another Object. It will get and the proper arrangement Id for the Object an equiplist update will be send to known players
 	*	
@@ -500,7 +503,49 @@ public:
 	*/
 	Object*				itemExist(uint32 familyId, uint32 typeId);
 
+	/**
+     * @brief Sends the create by crc message to the observer of 'this' object
+     */
+    
+	virtual void SendCreateByCrc(PlayerObject* player);
+    virtual void SendCreateByCrc(PlayerObject* player, boost::unique_lock<boost::mutex>& lock);
+
+    /**
+     * @brief sends the update containment message for the given observer of this object
+     */
+    virtual void SendUpdateContainmentMessage(PlayerObject* player, bool send_on_no_parent=true);
+    void SendUpdateContainmentMessage(PlayerObject* player, boost::unique_lock<boost::mutex>& lock, bool send_on_no_parent);
+
+    /**
+     * @brief sends the destroy message for the given observer of this object
+     */
+    virtual void SendDestroy(PlayerObject* player);
+    virtual void SendDestroy(PlayerObject* player, boost::unique_lock<boost::mutex>& lock);
+
+	/**
+     * @brief Creates and fires off the Baseline event to send the Baselines for the given object
+     */
+    virtual void CreateBaselines(PlayerObject* player);
+
+	BString				getName() const {
+        return mName;
+    }
+    void				setName(const int8* name) {
+        mName = name;
+    }
+    BString				getNameFile() const {
+        return mNameFile;
+    }
+    void				setNameFile(const int8* file) {
+        mNameFile = file;
+    }
+
+
+
 protected:
+	BString				mName;
+    BString				mNameFile;
+
 	bool									mStatic;
 
 	int32_t									arrangement_id_;

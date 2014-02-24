@@ -41,7 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //=============================================================================
 
 MovingObject::MovingObject()
-    : Object()
+    : TangibleObject()
     , mInMoveCount(0)
     , mBaseAcceleration(1.50f)
     , mBaseRunSpeedLimit(5.75f)

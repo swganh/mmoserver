@@ -150,7 +150,7 @@ void VehicleController::Call() {
     body_->SetTemplate(mPhysicalModel);
     body_->setSpeciesGroup(mNameFile.getAnsi());
     body_->setSpeciesString(mName.getAnsi());
-    body_->states.setPosture(0);
+    body_->SetPosture(0);
     body_->setScale(1.0f);
 
 	std::string con = this->getAttribute<std::string>("condition");

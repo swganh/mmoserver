@@ -918,7 +918,7 @@ void	EntertainerManager::startMusicPerformance(PlayerObject* entertainer,BString
         //gMessageLib->sendEntertainerCreo6PartB(this);
 
         //posture
-        entertainer->states.setPosture(CreaturePosture_SkillAnimating);
+        entertainer->SetPosture(CreaturePosture_SkillAnimating);
         gMessageLib->sendPostureUpdate(entertainer);
         gMessageLib->sendSelfPostureUpdate(entertainer);
 
@@ -960,7 +960,7 @@ void	EntertainerManager::startDancePerformance(PlayerObject* entertainer,BString
         gMessageLib->sendPerformanceId(entertainer);
 
         //posture
-        entertainer->states.setPosture(CreaturePosture_SkillAnimating);
+        entertainer->SetPosture(CreaturePosture_SkillAnimating);
         gMessageLib->sendPostureUpdate(entertainer);
         gMessageLib->sendSelfPostureUpdate(entertainer);
 
@@ -1013,7 +1013,7 @@ void EntertainerManager::stopEntertaining(PlayerObject* entertainer)
     entertainer->setPerformancePaused(Pause_None);
 
     //posture
-    if(entertainer->states.getPosture() == CreaturePosture_SkillAnimating)
+    if(entertainer->GetPosture() == CreaturePosture_SkillAnimating)
     {
         gStateManager.setCurrentPostureState(entertainer, CreaturePosture_Upright);
     }
@@ -1940,7 +1940,7 @@ bool EntertainerManager::handlePerformanceTick(CreatureObject* mObject)
     //check if we need to stop the performance or if it already has been stopped
     //Mind the pausing dancer though
     handlePerformancePause(entertainer);
-    if((entertainer->states.getPosture() != CreaturePosture_SkillAnimating)&&(entertainer->getPerformancePaused() == Pause_None))
+    if((entertainer->GetPosture() != CreaturePosture_SkillAnimating)&&(entertainer->getPerformancePaused() == Pause_None))
     {
         //stop our performance for ourselves and all watchers
         stopEntertaining(entertainer);

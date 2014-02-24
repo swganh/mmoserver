@@ -399,7 +399,7 @@ void ItemFactory::_setupDatabindings()
     mItemBinding->addField(swganh::database::DFT_float,offsetof(Item,mPosition.x),4,9);
     mItemBinding->addField(swganh::database::DFT_float,offsetof(Item,mPosition.y),4,10);
     mItemBinding->addField(swganh::database::DFT_float,offsetof(Item,mPosition.z),4,11);
-    mItemBinding->addField(swganh::database::DFT_bstring,offsetof(Item,mCustomName),256,13);
+	mItemBinding->addField(swganh::database::DFT_stdu16string,offsetof(Item,custom_name_),256,13);
 	mItemBinding->addField(swganh::database::DFT_stdstring,offsetof(Item,template_string_),256,14);
     mItemBinding->addField(swganh::database::DFT_bstring,offsetof(Item,mName),64,15);
     mItemBinding->addField(swganh::database::DFT_bstring,offsetof(Item,mNameFile),64,16);

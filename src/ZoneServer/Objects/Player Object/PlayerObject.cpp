@@ -843,7 +843,8 @@ bool PlayerObject::checkSchematicId(uint64 id)
 
 void PlayerObject::addSchematicIds(Skill* skill)
 {
-    SchematicGroupsList::iterator groupIt = skill->mSchematics.begin();
+   
+	SchematicGroupsList::iterator groupIt = skill->mSchematics.begin();
 
     mSchematicAddList.clear();
 
@@ -871,13 +872,14 @@ void PlayerObject::prepareSchematicIds()
 {
     mSchematicIdList.clear();
 
-    SkillList::iterator skillIt = mSkills.begin();
+    auto skillIt = skills_.begin();
 
-    while(skillIt != mSkills.end())
+    while(skillIt != skills_.end())
     {
-        SchematicGroupsList::iterator groupIt = (*skillIt)->mSchematics.begin();
+		Skill* skill = gSkillManager->getSkillByName((*skillIt).c_str());
+		SchematicGroupsList::iterator groupIt = skill->mSchematics.begin();
 
-        while(groupIt != (*skillIt)->mSchematics.end())
+        while(groupIt != skill->mSchematics.end())
         {
             SchematicGroup*				sGroup		= gSchematicManager->getSchematicGroupById(*groupIt);
             SchematicsList::iterator	schematicIt = sGroup->mSchematics.begin();
@@ -2351,4 +2353,12 @@ void PlayerObject::SetMaxForcePower(int32_t force_power, boost::unique_lock<boos
 {
     max_force_power_ = force_power;
     //DISPATCH(Player, MaxForcePower);
+}
+
+void PlayerObject::CreateBaselines(PlayerObject* observer)
+{
+    if (auto dispatch = GetEventDispatcher())
+    {
+        dispatch->Dispatch(std::make_shared<swganh::event_dispatcher::ObserverEvent>("Player::Baselines", this, observer));
+    }
 }

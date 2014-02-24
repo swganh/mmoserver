@@ -35,8 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 MountObject::MountObject()
     : CreatureObject()
-    , controller_(0)
-    , owner_(0) {}
+    , controller_(0){}
 
 //=============================================================================
 

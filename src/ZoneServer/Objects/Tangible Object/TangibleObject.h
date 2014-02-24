@@ -31,7 +31,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/Objects/Object/Object.h"
 #include "ZoneServer/Objects/Tangible Object/TangibleEnums.h"
 
+#include <MessageLib\messages\containers\network_vector.h>
+
 //=============================================================================
+
+namespace messages	{
+	struct BaseSwgMessage;
+}
+
+class TangibleMessageBuilder;
 
 class TangibleObject :	public Object
 {
@@ -42,6 +50,8 @@ class TangibleObject :	public Object
 
 public:
 
+	typedef TangibleMessageBuilder MessageBuilderType;
+
     TangibleObject();
     TangibleObject(uint64 id,uint64 parentId,const std::string model,TangibleGroup tanGroup = TanGroup_None,TangibleType tanType = TanType_None,const BString name = "",const BString nameFile = "",const BString detailFile = "");
     virtual ~TangibleObject();
@@ -49,18 +59,7 @@ public:
     virtual void		prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount);
 
     virtual void		upDateFactoryVolume(const std::string& amount) {}
-    BString				getName() const {
-        return mName;
-    }
-    void				setName(const int8* name) {
-        mName = name;
-    }
-    BString				getNameFile() const {
-        return mNameFile;
-    }
-    void				setNameFile(const int8* file) {
-        mNameFile = file;
-    }
+    
     BString				getDetailFile() {
         return mDetailFile;
     }
@@ -107,15 +106,7 @@ public:
     }
     void				setUnknownStr2(const int8* unknownStr) {
         mUnknownStr2 = unknownStr;
-    }
-
-    BString				getCustomName() const {
-        return mCustomName;
-    }
-    void				setCustomName(const int8* name) {
-        mCustomName = name;
-    }
-    void				setCustomNameIncDB(const int8* name);
+	}
 
     TangibleGroup		getTangibleGroup() const {
         return mTanGroup;
@@ -166,13 +157,63 @@ public:
         mTimer = timer;
     }
 
+	void				setCustomNameIncDB(const std::string name);
+
+	BString				getName() const {
+        return mName;
+    }
+    void				setName(const int8* name) {
+        mName = name;
+    }
+    BString				getNameFile() const {
+        return mNameFile;
+    }
+    void				setNameFile(const int8* file) {
+        mNameFile = file;
+    }
+	
+	/*	@brief gets the nearest defender of a lair
+	*	no matter whether its attacking you or no
+	*
+	*/
+	uint64				getNearestAttackingDefender(void);
+
+	/*	@AddDefender adds a defender (a creature/player(npc) we are attacking
+	*	to our defenderlist
+	*
+	*/
+	void AddDefender(uint64_t defenderId);
+	void AddDefender(uint64_t defenderId, boost::unique_lock<boost::mutex>& lock);
+
+	uint32 GetDefenderCounter();
+
+	void RemoveDefender(uint64 object_id);
+	void RemoveDefender(uint64 object_id, boost::unique_lock<boost::mutex>& lock);
+
+	//void UpdateDefenderItem(uint64_t object_id);
+	//nonsense as defenders are id only void UpdateDefenderItem(uint64_t object_id, boost::unique_lock<boost::mutex>& lock);
+
+	void	ClearDefender();
+		
+	std::vector<uint64> GetDefender();
+	std::vector<uint64> GetDefender(boost::unique_lock<boost::mutex>& lock);
+
+	CreatureObject*	GetDefenderItem(uint64 object_id);
+	CreatureObject*	GetDefenderItem(uint64 object_id, boost::unique_lock<boost::mutex>& lock);
+
+	bool SerializeDefender(swganh::messages::BaseSwgMessage* message);
+	bool SerializeDefender(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock);
+
+	bool	checkDefenderList(uint64 defenderId);
+
+
     
 protected:
+	swganh::containers::NetworkVector<uint64, swganh::containers::DefaultSerializer<uint64>> defender_list_;
 
     BString				mCustomizationStr;
-    BString				mCustomName;
-    BString				mName;
-    BString				mNameFile;
+    
+    
     BString				mColorStr;
     BString				mDetailFile;
     BString				mUnknownStr1;

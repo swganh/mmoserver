@@ -165,7 +165,8 @@ void NonPersistantObjectFactory::createTangible(ObjectFactoryCallback* ofCallbac
     newItem->setItemFamily(familyId);
     newItem->setItemType(typeId);
     newItem->setParentId(parentId);
-    newItem->setCustomName(customName.getAnsi());
+    std::string name = customName.getAnsi();
+	newItem->setCustomName(std::u16string(name.begin(), name.end()));
     newItem->setMaxCondition(100);
     newItem->setTangibleGroup(TanGroup_Item);
     newItem->setId(gWorldManager->getRandomNpId());
@@ -182,7 +183,7 @@ void NonPersistantObjectFactory::createTangible(ObjectFactoryCallback* ofCallbac
 //we create a camp at the given coordinates together with all the necessary additions as found in structure_item_template
 //
 
-TangibleObject* NonPersistantObjectFactory::spawnTangible(StructureItemTemplate* placableTemplate, uint64 parentId, const glm::vec3& position, const BString& customName, PlayerObject* player)
+TangibleObject* NonPersistantObjectFactory::spawnTangible(StructureItemTemplate* placableTemplate, uint64 parentId, const glm::vec3& position, const std::string customName, PlayerObject* player)
 {
     	
 	//we dont set the types here as we are factually placing statics / and or items / terminals
@@ -205,7 +206,7 @@ TangibleObject* NonPersistantObjectFactory::spawnTangible(StructureItemTemplate*
 	tangible->setNameFile(placableTemplate->file.getAnsi());
 
 	tangible->setParentId(parentId);
-	tangible->setCustomName(customName.getAnsi());
+	tangible->setCustomName(std::u16string(customName.begin(), customName.end()));
 	tangible->setMaxCondition(100);
 
 	tangible->setTangibleGroup(placableTemplate->tanType);
@@ -234,7 +235,7 @@ TangibleObject* NonPersistantObjectFactory::spawnTangible(StructureItemTemplate*
 
 }
 
-CampTerminal* NonPersistantObjectFactory::spawnTerminal(StructureItemTemplate* placableTemplate, uint64 parentId, const glm::vec3& position, const BString& customName, PlayerObject* player, StructureDeedLink*	deedData)
+CampTerminal* NonPersistantObjectFactory::spawnTerminal(StructureItemTemplate* placableTemplate, uint64 parentId, const glm::vec3& position, const std::string customName, PlayerObject* player, StructureDeedLink*	deedData)
 {	
 	//we dont set the types here as we are factually placing statics / and or items / terminals
 	//but we need to revisit this when dealing with high level camps
@@ -257,7 +258,7 @@ CampTerminal* NonPersistantObjectFactory::spawnTerminal(StructureItemTemplate* p
 
 	
 	terminal->setParentId(parentId);
-	terminal->setCustomName(customName.getAnsi());
+	terminal->setCustomName(std::u16string(customName.begin(), customName.end()));
 	terminal->setMaxCondition(100);
 
 	terminal->setTangibleGroup(placableTemplate->tanType);
@@ -362,7 +363,7 @@ PlayerStructure* NonPersistantObjectFactory::requestBuildingFenceObject(float x,
 
 }
 
-PlayerStructure* NonPersistantObjectFactory::requestBuildingSignObject(float x, float y, float z, PlayerObject* player, BString name, BString namefile, BString custom)
+PlayerStructure* NonPersistantObjectFactory::requestBuildingSignObject(float x, float y, float z, PlayerObject* player, BString name, BString namefile, std::string custom)
 {
 
     PlayerStructure* structure = new(PlayerStructure);
@@ -374,10 +375,10 @@ PlayerStructure* NonPersistantObjectFactory::requestBuildingSignObject(float x, 
 
     structure->setName(name.getAnsi());
     structure->setNameFile(namefile.getAnsi());
-    structure->setCustomName(custom.getAnsi());
+    structure->setCustomName(std::u16string(custom.begin(), custom.end()));
 
     structure->setParentId(0);
-    structure->setCustomName("");
+    structure->setCustomName(std::u16string());
     structure->setMaxCondition(1000);
 
     structure->setPlayerStructureFamily(PlayerStructure_Sign);
@@ -419,7 +420,7 @@ TangibleObject* NonPersistantObjectFactory::cloneTangible(TangibleObject* theTem
     tangible->setNameFile(theTemplate->getNameFile().getAnsi());
 
     tangible->setParentId(theTemplate->getParentId());
-    tangible->setCustomName(theTemplate->getCustomName().getAnsi());
+    tangible->setCustomName(theTemplate->getCustomName());
     tangible->setMaxCondition(theTemplate->getMaxCondition());
 
     tangible->setTangibleGroup(theTemplate->getTangibleGroup());

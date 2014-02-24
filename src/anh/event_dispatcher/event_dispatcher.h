@@ -45,6 +45,8 @@ namespace asio {
     class io_service;
 }}  // namespace boost::asio
 
+class Object;
+class PlayerObject;
 
 namespace swganh {
 namespace event_dispatcher {
@@ -100,6 +102,18 @@ namespace event_dispatcher {
     private:
         T data_;
     };
+
+	struct ObserverEvent : BaseEvent
+	{
+		ObserverEvent(EventType type, Object* object_, PlayerObject* observer_)
+			: BaseEvent(type)
+			, object(object_)
+			, observer(observer_)
+		{}
+		Object* object;
+		PlayerObject* observer;
+	};
+
 
 	template<typename T>
     class ChainEvent : public BaseEvent

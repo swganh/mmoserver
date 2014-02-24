@@ -243,7 +243,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,swganh::database::
 
         while (result_set->next()) {
           
-            playerObject->mSkills.push_back(gSkillManager->getSkillById(result_set->getUInt(1)));
+			playerObject->InitializeSkill(gSkillManager->getSkillById(result_set->getUInt(1))->mName.getAnsi());
         }
 
         playerObject->prepareSkillMods();
@@ -638,7 +638,7 @@ void PlayerObjectFactory::storeCharacterAttributes_(PlayerObject* player_object)
                  << "focus_wounds=" << ham->mFocus.getWounds() << ", "
                  << "willpower_wounds=" << ham->mWillpower.getWounds() << ", "
                  << "battlefatigue=" << ham->getBattleFatigue() << ", "*/
-                 << "posture=" << player_object->states.getPosture() << ", "
+                 << "posture=" << player_object->GetPosture() << ", "
                  << "moodId=" << static_cast<uint16_t>(player_object->getMoodId()) << ", "
                  << "title='" << mDatabase->escapeString(player_object->getTitle().getAnsi()) << "', "
                  << "character_flags=" << player_object->getPlayerFlags() << ", "
@@ -814,6 +814,8 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
 
 	gObjectManager->LoadSlotsForObject(playerObject);
 
+	//now add to world - then add children
+
     // hair
 	mModel = playerHair->GetTemplate().c_str();
     if(mModel.getLength())
@@ -875,11 +877,11 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
     // just making sure
     playerObject->togglePlayerFlagOff(PlayerFlag_LinkDead);
 
-    if(playerObject->states.getPosture() == CreaturePosture_SkillAnimating
-            || playerObject->states.getPosture() == CreaturePosture_Incapacitated
-            || playerObject->states.getPosture() == CreaturePosture_Dead)
+    if(playerObject->GetPosture() == CreaturePosture_SkillAnimating
+            || playerObject->GetPosture() == CreaturePosture_Incapacitated
+            || playerObject->GetPosture() == CreaturePosture_Dead)
     {
-        playerObject->states.setPosture(CreaturePosture_Upright);
+        playerObject->SetPosture(CreaturePosture_Upright);
     }
 
     //Concerning states we must realize that some of the states persist when we use a shuttle to transfer to different planets
@@ -943,7 +945,7 @@ void PlayerObjectFactory::_setupDatabindings()
     mPlayerBinding->addField(swganh::database::DFT_stdstring,offsetof(PlayerObject,last_name),64,12);
     mPlayerBinding->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mSpecies),16,16);
     mPlayerBinding->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mFaction),16,134);
-    mPlayerBinding->addField(swganh::database::DFT_uint8,offsetof(PlayerObject,states.posture),1,135);
+    mPlayerBinding->addField(swganh::database::DFT_uint8,offsetof(PlayerObject,states.posture_),1,135);
     mPlayerBinding->addField(swganh::database::DFT_uint8,offsetof(PlayerObject,mMoodId),1,136);
     mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mJediState),4,137);
     mPlayerBinding->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mTitle),255,138);

@@ -77,11 +77,11 @@ public:
     void					createTangible(ObjectFactoryCallback* ofCallback, uint32 familyId, uint32 typeId, uint64 parentId, const glm::vec3& position, BString customName, DispatchClient* client);
 
     PlayerStructure*		requestBuildingFenceObject(float x, float y, float z, PlayerObject* player);
-    PlayerStructure*		requestBuildingSignObject(float x, float y, float z, PlayerObject* player, BString name, BString namefile, BString custom);
+    PlayerStructure*		requestBuildingSignObject(float x, float y, float z, PlayerObject* player, BString name, BString namefile, std::string custom);
 
     //spawns temporary objects for camps
-    TangibleObject*			spawnTangible(StructureItemTemplate* placableTemplate, uint64 parentId, const glm::vec3& position, const BString& customName, PlayerObject* player);
-    CampTerminal*			spawnTerminal(StructureItemTemplate* placableTemplate, uint64 parentId, const glm::vec3& position, const BString& customName, PlayerObject* player, StructureDeedLink*	deedData);
+    TangibleObject*			spawnTangible(StructureItemTemplate* placableTemplate, uint64 parentId, const glm::vec3& position, const std::string customName, PlayerObject* player);
+    CampTerminal*			spawnTerminal(StructureItemTemplate* placableTemplate, uint64 parentId, const glm::vec3& position, const std::string customName, PlayerObject* player, StructureDeedLink*	deedData);
 
     void					_createItem(swganh::database::DatabaseResult* result,Item* item);
 

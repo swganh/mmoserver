@@ -50,21 +50,7 @@ public:
     /// Handles a menu selection from MountObject's custom radial menu.
     virtual void handleObjectMenuSelect(uint8_t message_type, Object* source_object);
 
-    /// Returns the object id of the owner of the mount.
-    /**
-     * @return uint64_t The object id of the owner of the mount.
-     */
-    uint64_t owner() const {
-        return owner_;
-    }
-
-    /// Sets the object id of the owner of the mount.
-    /**
-     * @param owner_id The object id of the new owner of the mount.
-     */
-    void set_owner(uint64 owner_id) {
-        owner_ = owner_id;
-    }
+    
 
     /// Returns the object id of the datapad controller for the mount.
     /**
@@ -84,7 +70,7 @@ public:
 
 private:
     uint64_t controller_;
-    uint64_t owner_; // If creature is a mount, pet, or vehicle it has an owner.
+    
 };
 
 //=============================================================================

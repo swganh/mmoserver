@@ -37,12 +37,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <map>
 #include <list>
 #include <MessageLib\messages\containers\network_vector.h>
+#include <MessageLib\messages\containers\network_set.h>
+#include <MessageLib\messages\containers\network_map.h>
 //#include <MessageLib\messages\containers\default_serializer.h>
 
 //=============================================================================
 
 class Buff;
 class IncapRecoveryEvent;
+class CreatureMessageBuilder;
 
 
 //=============================================================================
@@ -58,6 +61,9 @@ typedef swganh::event_dispatcher::ValueEvent<CreatureObject*> CreatureObjectEven
 
 //=============================================================================
 
+
+struct SkillModStruct;
+
 namespace messages	{
 	struct BaseSwgMessage;
 }
@@ -70,6 +76,7 @@ static const uint64 LootedCorpseTimeout = 30*1000;
 class CreatureObject : public MovingObject// , public std::enable_shared_from_this<CreatureObject>
 {
     public:
+		typedef CreatureMessageBuilder MessageBuilderType;
 
         friend class PersistentNpcFactory;
         friend class NonPersistentNpcFactory;
@@ -122,19 +129,7 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
         void				setLastName(std::string name);
 		void				setLastName(boost::unique_lock<boost::mutex>& lock, std::string name);
 
-        //uint32				getPosture() const { return mPosture; }
-        // calls setLocomotion as well
-        //void				setPosture(uint32 posture){ setLocomotionByPosture(posture); mPosture = posture; }
-
-        //uint64				getLocomotion() const { return mLocomotion; }
-        //void				setLocomotion(uint32 loco){ mLocomotion = loco ;}
-        // Locomotion set only through setPosture
-        //void				setLocomotionByPosture(uint32 posture);
-        // Postures are NOT bitwise constants.
-        // Can NOT use bitwise operation on non bitwise constants.
-        // bool				checkPostures(uint8 postures) const { return((mPosture & postures) == postures); }
-        //bool				checkPosture(uint32 postures) const { return (mPosture == postures); }
-
+        
         // Can NOT use bitwise operation on non bitwise constants.
         // bool				checkPosturesEither(uint8 postures){ return((mPosture & postures) != 0); }
 
@@ -169,13 +164,13 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
         void				setMoodId(uint8 id){ mMoodId = id; }
 
         // skills
-        void				addSkill(Skill* skill){ mSkills.push_back(skill); }
-        bool				removeSkill(Skill* skill);
+        //void				addSkill(Skill* skill){ mSkills.push_back(skill); }
+        //bool				removeSkill(Skill* skill);
 
         //whether we have a certain skill as found in skillenums.h SMSkillType or the skills table
         bool				checkSkill(uint32 skillId);
         uint32				getSkillPointsLeft();
-        SkillList*			getSkills(){ return &mSkills; }
+        //SkillList*			getSkills(){ return &mSkills; }
         SkillModsList*		getSkillMods(){ return &mSkillMods; }
         SkillCommandList*	getSkillCommands(){ return &mSkillCommands; }
 
@@ -202,10 +197,18 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
         void				togglePvPState(CreaturePvPStatus state){ mPvPStatus = (CreaturePvPStatus)(mPvPStatus ^ state); }
         bool				checkPvPState(CreaturePvPStatus state){ return((CreaturePvPStatus)(mPvPStatus & state) == state); }
         
+		// posture states
+        uint32_t        GetPosture();
+		uint32_t        GetPosture(boost::unique_lock<boost::mutex>& lock);
+
+		void			SetPosture(uint32_t posture);
+		void			SetPosture(uint32_t posture, boost::unique_lock<boost::mutex>& lock);
+                        
+
         // ONLY SWITCH STATES THROUGH THE STATE MANAGER!
         struct STATES
         {
-            uint32_t          posture;
+            uint32_t          posture_;
             uint32_t          locomotion;
             uint64_t          action;
             bool              blockPosture;
@@ -214,10 +217,8 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 
             void            blockLayers() { blockPosture = true; blockAction = true; blockLocomotion = true; }
             void            unblock() { blockPosture = false; blockAction = false; blockLocomotion = false; }
-            // posture states
-            uint32_t        getPosture() { return posture; } 
-            void            setPosture(uint32_t pos) { posture = pos; }
-            bool			checkPosture(uint32_t pos) const { return (posture == pos); }
+			
+			bool			checkPosture(uint32_t pos) const { return (posture_ == pos); }
             // locomotion states
             uint32_t        getLocomotion() { return locomotion; }
             void            setLocomotion(uint32_t loco) { locomotion = loco; }
@@ -233,12 +234,30 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
             void            clearAllStates() { action = CreatureState_ClearState;}
         } states;
 
+		/// Returns the object id of the owner of the mount.
+		/**
+		 * @return uint64_t The object id of the owner of the mount.
+		 */
+		uint64_t owner() const {
+			return owner_;
+		}
+
+		/// Sets the object id of the owner of the mount.
+		/**
+		 * @param owner_id The object id of the new owner of the mount.
+		 */
+		void set_owner(uint64 owner_id) {
+			owner_ = owner_id;
+		}
+
         // factions
         BString				getFaction(){ return mFaction; }
         void				setFaction(const int8* faction){ mFaction = faction; }
-        uint8				getFactionRank(){ return mFactionRank; }
+        
+		uint8				getFactionRank(){ return mFactionRank; }
         void				setFactionRank(uint8 rank){ mFactionRank = rank; }
-        FactionList*		getFactionList(){ return &mFactionList; }
+        
+		FactionList*		getFactionList(){ return &mFactionList; }
         int32				getFactionPointsByFactionId(uint32 id);
         bool				updateFactionPoints(uint32 factionId,int32 value);
 
@@ -292,8 +311,8 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
         // incapacitation
         void				incap();
         void				die();
-        bool				isIncapacitated(){ return(states.posture == CreaturePosture_Incapacitated); }
-        bool				isDead(){ return(states.posture == CreaturePosture_Dead); }
+        bool				isIncapacitated(){ return(states.posture_ == CreaturePosture_Incapacitated); }
+        bool				isDead(){ return(states.posture_ == CreaturePosture_Dead); }
 
         // nr of current incaps until death, base values are retrieved through world config
         uint8				getIncapCount(){ return mIncapCount; }
@@ -318,40 +337,7 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 
         void				makePeaceWithDefender(uint64 targetId);
         uint64				getNearestDefender(void);
-        
-		/*	@brief gets the nearest defender of a lair
-		*	no matter whether its attacking you or no
-		*
-		*/
-		uint64				getNearestAttackingDefender(void);
-
-		/*	@AddDefender adds a defender (a creature/player(npc) we are attacking
-		*	to our defenderlist
-		*
-		*/
-		void AddDefender(uint64_t defenderId);
-		void AddDefender(uint64_t defenderId, boost::unique_lock<boost::mutex>& lock);
-
-		uint32 GetDefenderCounter();
-
-		void RemoveDefender(uint64 object_id);
-		void RemoveDefender(uint64 object_id, boost::unique_lock<boost::mutex>& lock);
-
-		//void UpdateDefenderItem(uint64_t object_id);
-		//nonsense as defenders are id only void UpdateDefenderItem(uint64_t object_id, boost::unique_lock<boost::mutex>& lock);
-
-		void	ClearDefender();
-		
-		std::vector<uint64> GetDefender();
-		std::vector<uint64> GetDefender(boost::unique_lock<boost::mutex>& lock);
-
-		CreatureObject*	GetDefenderItem(uint64 object_id);
-		CreatureObject*	GetDefenderItem(uint64 object_id, boost::unique_lock<boost::mutex>& lock);
-
-		bool SerializeDefender(swganh::messages::BaseSwgMessage* message);
-		bool SerializeDefender(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock);
-
-		bool	checkDefenderList(uint64 defenderId);
+   
 
 		
         virtual void		inPeace(void) { }
@@ -570,6 +556,55 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 		uint64_t GetWeaponId();
 		uint64_t GetWeaponId(boost::unique_lock<boost::mutex>& lock);
 
+		// Skills
+		void InitializeSkill(std::string skill);
+		void InitializeSkill(std::string skill, boost::unique_lock<boost::mutex>& lock);
+
+		void AddSkill(std::string skill);
+		void AddSkill(std::string skill, boost::unique_lock<boost::mutex>& lock);
+
+		void RemoveSkill(std::string skill);
+		void RemoveSkill(std::string skill, boost::unique_lock<boost::mutex>& lock);
+
+		std::set<std::string> GetSkills();
+		std::set<std::string> GetSkills(boost::unique_lock<boost::mutex>& lock);
+
+		bool HasSkill(std::string skill);
+		bool HasSkill(std::string skill, boost::unique_lock<boost::mutex>& lock);
+
+		bool SerializeSkills(swganh::messages::BaseSwgMessage* message);
+		bool SerializeSkills(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock);
+
+		std::queue<std::pair<uint8_t, std::string>> GetSkillsSyncQueue();
+		std::queue<std::pair<uint8_t, std::string>> GetSkillsSyncQueue(boost::unique_lock<boost::mutex>& lock);
+
+
+		// Skill Mods
+		bool HasSkillMod(std::string identifier);
+		bool HasSkillMod(std::string identifier, boost::unique_lock<boost::mutex>& lock);
+
+		void AddSkillMod(SkillModStruct mod);
+		void AddSkillMod(SkillModStruct mod, boost::unique_lock<boost::mutex>& lock);
+
+		void RemoveSkillMod(std::string identifier);
+		void RemoveSkillMod(std::string identifier, boost::unique_lock<boost::mutex>& lock);
+
+		void SetSkillMod(SkillModStruct mod);
+		void SetSkillMod(SkillModStruct mod, boost::unique_lock<boost::mutex>& lock);
+
+		std::map<std::string, SkillModStruct> GetSkillMods();
+		std::map<std::string, SkillModStruct> GetSkillMods(boost::unique_lock<boost::mutex>& lock);
+
+		SkillModStruct GetSkillMod(std::string identifier);
+		SkillModStruct GetSkillMod(std::string identifier, boost::unique_lock<boost::mutex>& lock);
+
+		/*
+		*@brief serializes the skillmods for baselines or deltas
+		*deltas report as false as to not send empty updates
+		*/
+		bool SerializeSkillMods(swganh::messages::BaseSwgMessage* message);
+		bool SerializeSkillMods(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock, bool baseline = false);
+
 
     protected:
 
@@ -582,20 +617,23 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 		swganh::containers::NetworkVector<int32_t> stat_max_list_;
 		swganh::containers::NetworkVector<int32_t> stat_encumberance_list_;
 
+		swganh::containers::NetworkSet<std::string> skills_;
+		swganh::containers::NetworkMap<std::string, SkillModStruct, SkillModStruct> skill_mod_list_;
+		
+		// skills_sync_queue_ synchronizes skillchanges for the creatureobjectfactory to persist to the db
+		std::queue<std::pair<uint8_t, std::string>>	skills_sync_queue_;
 		swganh::containers::NetworkVector<std::shared_ptr<swganh::object::EquipmentItem>> equipment_list_;
-
-		swganh::containers::NetworkVector<uint64, swganh::containers::DefaultSerializer<uint64>> defender_list_;
 		
 		//swganh::containers::NetworkSet<std::string> skills_;
 
 		uint32_t			battle_fatigue_;
 		uint64_t			weapon_id_;
-
+		uint64_t			owner_;
         BuffList			mBuffList;
         FactionList			mFactionList;
         SkillCommandMap		mSkillCommandMap;
         SkillCommandList	mSkillCommands;
-        SkillList			mSkills;
+        //SkillList			mSkills;
         SkillModsList		mSkillMods;
 
         BString				mCurrentAnimation;

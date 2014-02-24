@@ -25,12 +25,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "ZoneServer/Objects/Tangible Object/TangibleObject.h"
+#include "ZoneServer\Objects\Creature Object\CreatureObject.h"
 #include "ZoneServer/WorldManager.h"
 #include "DatabaseManager/Database.h"
+#include "ZoneServer\Objects\Tangible Object\tangible_message_builder.h"
 
 #include <anh\app\swganh_kernel.h>
 
-
+using namespace swganh::messages;
 
 //=============================================================================
 
@@ -50,8 +52,9 @@ TangibleObject::TangibleObject()
     mColorStr			= "";
     mUnknownStr1		= "";
     mUnknownStr2		= "";
-    mCustomName			= L"";
     mCustomizationStr	= "";
+
+	custom_name_			= std::u16string();
 
     //uint64 l = 0;
     for(uint16 i=0; i<256; i++)
@@ -62,16 +65,15 @@ TangibleObject::TangibleObject()
 
 TangibleObject::TangibleObject(uint64 id,uint64 parentId,std::string model,TangibleGroup tanGroup,TangibleType tanType,BString name,BString nameFile,BString detailFile)
     : Object(id,parentId,model,ObjType_Tangible)
-    ,mName(name)
-    ,mNameFile(nameFile)
     ,mDetailFile(detailFile)
     ,mTanGroup(tanGroup)
     ,mTanType(tanType)
+	
 {
     mColorStr			= "";
     mUnknownStr1		= "";
     mUnknownStr2		= "";
-    mCustomName			= L"";
+    
     mCustomizationStr	= "";
 }
 
@@ -191,13 +193,13 @@ void TangibleObject::buildTanoCustomization(uint8 len)
 //=============================================================================
 // assign the item a new custom name
 //
-void TangibleObject::setCustomNameIncDB(const int8* name)
+void TangibleObject::setCustomNameIncDB(const std::string name)
 {
-    mCustomName = name;
+	custom_name_ = std::u16string(name.begin(), name.end());
     int8 sql[1024],restStr[128],*sqlPointer;
     sprintf(sql,"UPDATE %s.items SET customName='",gWorldManager->getKernel()->GetDatabase()->galaxy());
     sqlPointer = sql + strlen(sql);
-    sqlPointer += gWorldManager->getKernel()->GetDatabase()->escapeString(sqlPointer,mCustomName.getAnsi(),mCustomName.getLength());
+    sqlPointer += gWorldManager->getKernel()->GetDatabase()->escapeString(sqlPointer,name.c_str(),name.length());
     sprintf(restStr,"' WHERE id=%"PRIu64" ",this->getId());
 
     strcat(sql,restStr);
@@ -247,4 +249,136 @@ void TangibleObject::prepareCustomRadialMenuInCell(CreatureObject* creatureObjec
     mRadialMenu = radialPtr;
 
 
+}
+
+uint64 TangibleObject::getNearestAttackingDefender(void)
+{
+    uint64 defenederId = 0;
+    float minLenght = FLT_MAX;
+
+	auto defenderList = GetDefender();
+    auto it = defenderList.begin();
+
+    while(it != defenderList.end())
+    {
+        if((*it) != 0)
+        {
+            CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById((*it)));
+            if (defender && !defender->isDead() && !defender->isIncapacitated())
+            {
+                if ((defender->getCreoGroup() == CreoGroup_Player) || (defender->getCreoGroup() == CreoGroup_Creature))
+                {
+                    float len = glm::distance(this->mPosition, defender->mPosition);
+                    if (len < minLenght)
+                    {
+                        minLenght = len;
+                        defenederId = (*it);
+                    }
+                }
+            }
+        }
+        ++it;
+    }
+
+    return defenederId;
+}
+
+void TangibleObject::AddDefender(uint64 defenderId)
+{
+    auto lock = AcquireLock();
+    AddDefender(defenderId, lock);
+}
+
+void TangibleObject::AddDefender(uint64 defenderId, boost::unique_lock<boost::mutex>& lock)
+{
+    defender_list_.add(defenderId);
+   
+	lock.unlock();
+	
+	auto dispatcher = GetEventDispatcher();
+	dispatcher->Dispatch(std::make_shared<TangibleObjectEvent>("TangibleObject::DefenderList", this));
+
+}
+
+uint32 TangibleObject::GetDefenderCounter()
+{
+    return defender_list_.get_counter();
+}
+
+
+void TangibleObject::RemoveDefender(uint64 defenderId)
+{
+    auto lock = AcquireLock();
+    RemoveDefender(defenderId, lock);
+}
+
+void TangibleObject::RemoveDefender(uint64 defenderId, boost::unique_lock<boost::mutex>& lock)
+{
+    auto iter = std::find_if(defender_list_.begin(), defender_list_.end(), [=](uint64_t id)->bool
+    {
+        return (defenderId == id);
+    });
+
+    if(iter == defender_list_.end())
+    {
+        return;
+    }
+    defender_list_.remove(iter);
+
+	lock.unlock();
+
+	auto dispatcher = GetEventDispatcher();
+	dispatcher->Dispatch(std::make_shared<TangibleObjectEvent>("TangibleObject::DefenderList", this));
+}
+
+std::vector<uint64> TangibleObject::GetDefender(void)
+{
+    auto lock = AcquireLock();
+    return GetDefender(lock);
+}
+
+std::vector<uint64> TangibleObject::GetDefender(boost::unique_lock<boost::mutex>& lock)
+{
+    return defender_list_.raw();
+}
+
+bool TangibleObject::SerializeDefender(swganh::messages::BaseSwgMessage* message)
+{
+    auto lock = AcquireLock();
+    return	SerializeDefender(message, lock);
+}
+
+bool TangibleObject::SerializeDefender(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock)
+{
+	return	defender_list_.Serialize(message);
+}
+
+void	TangibleObject::ClearDefender()
+{
+	auto defenderList = GetDefender();
+	auto it = defenderList.begin();
+
+    while(it != defenderList.end())
+    {
+        RemoveDefender(*it);
+        ++it;
+    }
+}
+
+bool TangibleObject::checkDefenderList(uint64 defenderId)
+{
+	auto defenderList = GetDefender();
+    auto it = defenderList.begin();
+
+    while(it != defenderList.end())
+    {
+        if((*it) == defenderId)
+        {
+            return(true);
+        }
+
+        ++it;
+    }
+
+    return(false);
 }

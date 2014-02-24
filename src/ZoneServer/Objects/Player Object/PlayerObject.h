@@ -55,6 +55,7 @@ class LogOutEvent;
 class SampleEvent;
 class SurveyEvent;
 class WaypointObject;
+class PlayerMessageBuilder;
 
 enum ItemType;
 //=============================================================================
@@ -84,7 +85,10 @@ class PlayerObject : public CreatureObject
     friend class PlayerObjectFactory;
     friend class ObjectController;
 
+
     public:
+
+		typedef PlayerMessageBuilder MessageBuilderType;
 
         PlayerObject();
         ~PlayerObject();
@@ -537,6 +541,8 @@ class PlayerObject : public CreatureObject
 		void SetMaxForcePower(int32_t force_power);
 		void SetMaxForcePower(int32_t force_power, boost::unique_lock<boost::mutex>& lock);
 
+
+		void CreateBaselines(PlayerObject* observer);
 
     private:
 

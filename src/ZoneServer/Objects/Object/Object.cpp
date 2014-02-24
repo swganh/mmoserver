@@ -36,6 +36,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageFactory.h"
 
 #include "MessageLib/MessageLib.h"
+#include "MessageLib\messages\update_containment_message.h"
+#include "MessageLib\messages\scene_create_object_by_crc.h"
+#include "MessageLib\messages\scene_destroy_object.h"
 
 #include "ZoneServer/GameSystemManagers/Container Manager/ContainerManager.h"
 #include "ZoneServer\Objects\permissions\container_permissions_interface.h"
@@ -45,8 +48,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
 
+#include "anh\event_dispatcher\event_dispatcher.h"
 #include <anh\app\swganh_kernel.h>
 #include "anh/app/swganh_app.h"
+#include "anh\crc.h"
 #include <ZoneServer\Services\scene_events.h>
 
 //=============================================================================
@@ -64,18 +69,22 @@ Object::Object()
     , mDataTransformCounter(0)
 	, mStatic(false)
     , zmapCellID(0xffffffff)
+	
 {
     mDirection = glm::quat();
     mPosition  = glm::vec3();
 
     mObjectController.setObject(this);
 	
-	object_type_ = SWG_INVALID;
+	object_type_		= SWG_INVALID;
+	custom_name_		= std::u16string();
+	mName = "";
+    mNameFile = "";
 }
 
 //=============================================================================
 
-Object::Object(uint64 id,uint64 parentId,std::string model,ObjectType type)
+Object::Object(uint64 id,uint64 parentId,std::string model,ObjectType type,const BString name, const BString nameFile)
     : mMovementMessageToggle(true)
     , template_string_(model)
     , mLoadState(LoadState_Loading)
@@ -90,6 +99,7 @@ Object::Object(uint64 id,uint64 parentId,std::string model,ObjectType type)
     , zmapCellID(0xffffffff)
 {
     mObjectController.setObject(this);
+	custom_name_		= std::u16string();
 
 }
 
@@ -227,6 +237,13 @@ int32_t Object::__InternalInsert(Object* object, glm::vec3 new_position, int32_t
 
 void Object::__InternalViewObjects(Object* requester, uint32_t max_depth, bool topDown, std::function<void(Object*)> func)
 {
+
+	auto permissions_objects_ = gObjectManager->GetPermissionsMap();
+
+	if(GetPermissions() == nullptr)	 {
+		
+		SetPermissions(permissions_objects_.find(1)->second.get());//DEFAULT_PERMISSION
+	}
     //// CHECK PERMISSIONS ////
     if(requester == nullptr || container_permissions_->canView(this, requester))
     {
@@ -1444,4 +1461,81 @@ Object* Object::itemExist(uint32 familyId, uint32 typeId)
     });
 
     return the_object;
+}
+
+
+void Object::CreateBaselines( PlayerObject* player)
+{
+	GetEventDispatcher()->Dispatch(std::make_shared<swganh::event_dispatcher::ObserverEvent>("Object::Baselines", this, player));
+}
+
+void Object::SendCreateByCrc(PlayerObject* player)
+{
+    auto lock = AcquireLock();
+    SendCreateByCrc(player, lock);
+}
+
+void Object::SendCreateByCrc(PlayerObject* player, boost::unique_lock<boost::mutex>& lock)
+{
+    //DLOG(info) << "SEND [" << GetObjectId() << "] (" << GetTemplate() <<") TO " << observer->GetId();
+
+    swganh::messages::SceneCreateObjectByCrc scene_object;
+    scene_object.object_id = getId();
+    scene_object.object_crc = swganh::memcrc(GetTemplate(lock));
+    scene_object.position = mPosition;
+    scene_object.orientation = mDirection;
+    scene_object.byte_flag = 0;
+	
+	
+    //observer->Notify(&scene_object);
+
+    SendUpdateContainmentMessage(player, lock, true);
+}
+
+void Object::SendUpdateContainmentMessage(PlayerObject* player, bool send_on_no_parent)
+{
+    auto lock = AcquireLock();
+    SendUpdateContainmentMessage(player, lock, send_on_no_parent);
+}
+
+void Object::SendUpdateContainmentMessage(PlayerObject* player, boost::unique_lock<boost::mutex>& lock, bool send_on_no_parent)
+{
+    if(player == nullptr)
+        return;
+
+    uint64_t container_id = 0;
+    if (auto container = GetContainer(lock))
+    {
+        lock.unlock();
+        container_id = container->getId();
+        lock.lock();
+    }
+
+    if(send_on_no_parent || container_id != 0)
+    {
+        //DLOG(info) << "CONTAINMENT " << GetObjectId() << " INTO " << container_id << " ARRANGEMENT " << arrangement_id_;
+		swganh::messages::UpdateContainmentMessage containment_message;
+        containment_message.container_id = container_id;
+        containment_message.object_id = getId();
+        containment_message.containment_type = GetArrangementId();
+		containment_message.SetObserverId(player->getId());
+		gMessageLib->sendMessage(containment_message, player);
+		//observer->Notify(&containment_message);
+    }
+}
+
+void Object::SendDestroy(PlayerObject* player)
+{
+    auto lock = AcquireLock();
+    SendDestroy(player, lock);
+}
+
+void Object::SendDestroy(PlayerObject* player, boost::unique_lock<boost::mutex>& lock)
+{
+    //DLOG(info) << "DESTROY " << GetObjectId() << " FOR " << observer->GetId();
+
+    swganh::messages::SceneDestroyObject scene_object;
+    scene_object.object_id = getId();
+
+    //observer->Notify(&scene_object);
 }

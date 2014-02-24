@@ -32,16 +32,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class TangibleObject;
 
+typedef swganh::event_dispatcher::ValueEvent<TangibleObject*> TangibleObjectEvent;
+
 class TangibleMessageBuilder : public BaseMessageBuilder
 {
 public:
     TangibleMessageBuilder(swganh::event_dispatcher::EventDispatcher* dispatcher) :
             BaseMessageBuilder(dispatcher)
     {
-      //  RegisterEventHandlers();
+        RegisterEventHandlers();
     }
 
+	virtual void RegisterEventHandlers();
+
     virtual ~TangibleMessageBuilder() {}
+
+	static void BuildStatDefenderDelta(TangibleObject* const  creature);
 
     // deltas
 	/*
@@ -53,14 +59,16 @@ public:
     static void BuildMaxConditionDelta(const std::shared_ptr<TangibleObject>& tangible);
     static void BuildStaticDelta(const std::shared_ptr<TangibleObject>& tangible);
     static void BuildDefendersDelta(const std::shared_ptr<TangibleObject>& tangible);
-
-    // baselines
-    static boost::optional<swganh::messages::BaselinesMessage> BuildBaseline3(const std::shared_ptr<TangibleObject>& tangible, boost::unique_lock<boost::mutex>& lock);
-    static boost::optional<swganh::messages::BaselinesMessage> BuildBaseline6(const std::shared_ptr<TangibleObject>& tangible, boost::unique_lock<boost::mutex>& lock);
-    static boost::optional<swganh::messages::BaselinesMessage> BuildBaseline7(const std::shared_ptr<TangibleObject>& tangible, boost::unique_lock<boost::mutex>& lock);
 	*/
+    // baselines
+    static boost::optional<swganh::messages::BaselinesMessage> BuildBaseline3(TangibleObject* const tangible, boost::unique_lock<boost::mutex>& lock);
+    static boost::optional<swganh::messages::BaselinesMessage> BuildBaseline6(TangibleObject* const tangible, boost::unique_lock<boost::mutex>& lock);
+    static boost::optional<swganh::messages::BaselinesMessage> BuildBaseline7(TangibleObject* const tangible, boost::unique_lock<boost::mutex>& lock);
+	
+	
+
 private:
-	typedef swganh::event_dispatcher::ValueEvent<std::shared_ptr<TangibleObject>> TangibleEvent;
+	
 
 	swganh::event_dispatcher::EventDispatcher* event_dispatcher_;
     //void RegisterEventHandlers();

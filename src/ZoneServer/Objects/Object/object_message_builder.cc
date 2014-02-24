@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "MessageLib\messages\deltas_message.h"
 #include "MessageLib\messages\baselines_message.h"
+#include "MessageLib\messages\scene_end_baselines.h"
 
 #include "ZoneServer\Objects\Object\object_message_builder.h"
 #include "ZoneServer\Objects\Object\Object.h"
@@ -51,7 +52,19 @@ void ObjectMessageBuilder::RegisterEventHandlers()
         BuildCustomNameDelta(value_event->Get());
     });
 
+	event_dispatcher_->Subscribe("Object::Baselines", [this] (const std::shared_ptr<EventInterface>& incoming_event)
+    {
+        auto observer_event = std::static_pointer_cast<ObserverEvent>(incoming_event);
+        SendBaselines(observer_event->object, observer_event->observer);
+    });
 	
+}
+
+void ObjectMessageBuilder::SendEndBaselines(const Object* object, const Object* observer)
+{
+    swganh::messages::SceneEndBaselines scene_end_baselines;
+    scene_end_baselines.object_id = object->getId();
+    //gMessageLib->
 }
 
 void ObjectMessageBuilder::BuildCustomNameDelta(const Object* object)
@@ -67,6 +80,19 @@ void ObjectMessageBuilder::BuildCustomNameDelta(const Object* object)
 
     gMessageLib->broadcastDelta(message, object);
 }
+
+swganh::messages::BaselinesMessage BaseMessageBuilder::CreateBaselinesMessage(const Object* object, boost::unique_lock<boost::mutex>& lock, uint8_t view_type, uint16_t opcount)
+{
+    swganh::messages::BaselinesMessage message;
+    message.object_id = object->getId();
+	message.object_type = object->getObjectType();
+    message.view_type = view_type;
+    message.object_opcount = opcount;
+
+    return message;
+}
+
+
 
 //swganh::messages::DeltasMessage ObjectMessageBuilder::CreateDeltasMessage(const std::shared_ptr<Object>& object,  uint8_t view_type, uint16_t update_type, uint16_t update_count)
 swganh::messages::DeltasMessage BaseMessageBuilder::CreateDeltasMessage(const Object* object,  uint8_t view_type, uint16_t update_type, uint32_t object_type, uint16_t update_count)
@@ -84,4 +110,24 @@ swganh::messages::DeltasMessage BaseMessageBuilder::CreateDeltasMessage(const Ob
     message.update_count = update_count;
     message.update_type = update_type;
     return message;
+}
+
+boost::optional<swganh::messages::BaselinesMessage> ObjectMessageBuilder::BuildBaseline3(Object* object, boost::unique_lock<boost::mutex>& lock)
+{
+    auto message = CreateBaselinesMessage(object, lock, VIEW_3);
+	float c = 1.0;
+    message.data.write(c);//object-> >GetComplexity(lock));
+	message.data.write(object->getNameFile().getAnsi());// >GetStfNameFile(lock));
+    message.data.write<uint32_t>(0); // spacer
+	message.data.write(object->getName().getAnsi());// >GetStfNameString(lock));
+	message.data.write(object->getCustomName());//  >GetCustomName(lock));
+    message.data.write(1);// the volume in the inventory object->GetVolume(lock));
+    return swganh::messages::BaselinesMessage(std::move(message));
+}
+
+boost::optional<swganh::messages::BaselinesMessage> ObjectMessageBuilder::BuildBaseline6(Object* object, boost::unique_lock<boost::mutex>& lock)
+{
+    auto message = CreateBaselinesMessage(object, lock, VIEW_6);
+    message.data.write(0);//object->GetSceneId(lock));
+    return swganh::messages::BaselinesMessage(std::move(message));
 }

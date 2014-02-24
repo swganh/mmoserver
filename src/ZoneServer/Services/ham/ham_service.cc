@@ -457,7 +457,7 @@ uint32_t  HamService::regenerationModifier(CreatureObject* creature, uint16_t ma
 	uint32_t mDivider = 50;
 
 	//todo either script it or get some sort of configuration manager
-	switch(creature->states.getPosture())	{
+	switch(creature->GetPosture())	{
 		case CreaturePosture_Crouched : modifier = 1.25f;	break;
 		case CreaturePosture_LyingDown :
 		case CreaturePosture_Sitting : modifier = 1.75f;	break;

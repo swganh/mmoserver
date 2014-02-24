@@ -374,7 +374,7 @@ void TerminalFactory::_setupDatabindings()
     mTravelMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(TravelTerminal,mNameFile),64,12);
     mTravelMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(TravelTerminal,mPositionDescriptor),128,13);
     mTravelMainDataBinding->addField(swganh::database::DFT_uint32,offsetof(TravelTerminal,mPortType),4,14);
-    mTravelMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(TravelTerminal,mCustomName),256,15);
+    mTravelMainDataBinding->addField(swganh::database::DFT_stdu16string,offsetof(TravelTerminal,custom_name_),256,15);
     mTravelMainDataBinding->addField(swganh::database::DFT_float,offsetof(TravelTerminal,mDirection.x),4,2);
     mTravelMainDataBinding->addField(swganh::database::DFT_float,offsetof(TravelTerminal,mDirection.y),4,3);
     mTravelMainDataBinding->addField(swganh::database::DFT_float,offsetof(TravelTerminal,mDirection.z),4,4);
@@ -391,7 +391,7 @@ void TerminalFactory::_setupDatabindings()
 	mTerminalBinding->addField(swganh::database::DFT_stdstring,offsetof(Terminal,template_string_),256,10);
     mTerminalBinding->addField(swganh::database::DFT_bstring,offsetof(Terminal,mName),64,11);
     mTerminalBinding->addField(swganh::database::DFT_bstring,offsetof(Terminal,mNameFile),64,12);
-    mTerminalBinding->addField(swganh::database::DFT_bstring,offsetof(Terminal,mCustomName),256,15);
+    mTerminalBinding->addField(swganh::database::DFT_stdu16string,offsetof(Terminal,custom_name_),256,15);
     mTerminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mDirection.x),4,2);
     mTerminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mDirection.y),4,3);
     mTerminalBinding->addField(swganh::database::DFT_float,offsetof(Terminal,mDirection.z),4,4);
@@ -408,7 +408,7 @@ void TerminalFactory::_setupDatabindings()
 	mElevatorMainDataBinding->addField(swganh::database::DFT_stdstring,offsetof(ElevatorTerminal,template_string_),256,10);
     mElevatorMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(ElevatorTerminal,mName),64,11);
     mElevatorMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(ElevatorTerminal,mNameFile),64,12);
-    mElevatorMainDataBinding->addField(swganh::database::DFT_bstring,offsetof(ElevatorTerminal,mCustomName),256,15);
+	mElevatorMainDataBinding->addField(swganh::database::DFT_stdu16string,offsetof(ElevatorTerminal,custom_name_),256,15);
     mElevatorMainDataBinding->addField(swganh::database::DFT_float,offsetof(ElevatorTerminal,mDirection.x),4,2);
     mElevatorMainDataBinding->addField(swganh::database::DFT_float,offsetof(ElevatorTerminal,mDirection.y),4,3);
     mElevatorMainDataBinding->addField(swganh::database::DFT_float,offsetof(ElevatorTerminal,mDirection.z),4,4);

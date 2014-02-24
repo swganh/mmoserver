@@ -60,7 +60,7 @@ ScoutManager::~ScoutManager(void)
 //================================================================================
 //CAMPS!
 //================================================================================
-bool ScoutManager::createCamp(uint32 typeId,uint64 parentId, const glm::vec3& position, const BString& customName, PlayerObject* player)
+bool ScoutManager::createCamp(uint32 typeId,uint64 parentId, const glm::vec3& position, std::string customName, PlayerObject* player)
 {
     //get blueprint out of the db
     if (gStructureManager->checkNoBuildRegion(player))
@@ -103,7 +103,7 @@ bool ScoutManager::createCamp(uint32 typeId,uint64 parentId, const glm::vec3& po
 	camp->mDirection.w = 1;
 
 	camp->setParentId(parentId);
-	camp->setCustomName(customName.getAnsi());
+	camp->setCustomName(std::u16string(	customName.begin(), customName.end()));
 	camp->setMaxCondition(100);
 
 	camp->setPlayerStructureFamily(PlayerStructure_Camp);

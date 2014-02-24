@@ -816,22 +816,23 @@ void CharacterBuilderTerminal::_handleMainCsrMenu(PlayerObject* playerObject, ui
 
 void CharacterBuilderTerminal::_handleProfessionMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
-    if(element < 0)
-    {
+    if(element < 0)    {
         return;
     }
 
-    if(element == 0)
-    {
-        //We want to drop all our skills! OH NOES!
-        SkillList::iterator it = playerObject->getSkills()->begin();
-        SkillList::iterator end = playerObject->getSkills()->end();
+    if(element == 0)    {
+ 
+		//We want to drop all our skills! OH NOES!
+		
+		auto list = playerObject->GetSkills();
+		auto it = list.begin();
 
         std::vector<uint32> skills;
 
-        while(it != end)
+        while(it != list.end())
         {
-            skills.push_back((*it)->mId);
+			Skill* skill = gSkillManager->getSkillByName((*it).c_str());
+            skills.push_back(skill->mId);
             ++it;
         }
 

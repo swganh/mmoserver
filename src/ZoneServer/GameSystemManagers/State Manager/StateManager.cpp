@@ -129,22 +129,22 @@ void StateManager::loadLocomotionStateMap()
 
 void StateManager::setCurrentPostureState(CreatureObject* object, CreaturePosture newPosture)
 {
-    auto posture_update_event = std::make_shared<PostureUpdateEvent>(object->getId(), (CreaturePosture)object->states.getPosture(), newPosture);
+    auto posture_update_event = std::make_shared<PostureUpdateEvent>(object->getId(), (CreaturePosture)object->GetPosture(), newPosture);
 
     PostureStateMap::iterator iter = mPostureStateMap.find(newPosture);
     if (iter != mPostureStateMap.end())
     {
-        if (mPostureStateMap[object->states.getPosture()]->CanTransition(object, newPosture))
+        if (mPostureStateMap[object->GetPosture()]->CanTransition(object, newPosture))
         {
             // EXIT OLD STATE
-            mPostureStateMap[object->states.getPosture()]->Exit(object);
+            mPostureStateMap[object->GetPosture()]->Exit(object);
 
             // ENTER NEW STATE
             mPostureStateMap[newPosture]->Enter(object);
         }
         else
         {
-            DLOG(warning) << "unable to transition from " << object->states.getPosture() << " to" << newPosture;
+            DLOG(warning) << "unable to transition from " << object->GetPosture() << " to" << newPosture;
 			std::string message("You cannot transition from this Posture state");
 			gMessageLib->SendSystemMessage(std::u16string(message.begin(), message.end()));
         }

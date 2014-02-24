@@ -217,14 +217,11 @@ void MessageLib::sendConstructionComplete(PlayerObject* playerObject, PlayerStru
     planet.toLowerFirst();
 
     BString wText = "";
-    BString name = structure->getCustomName();
-    name.convert(BSTRType_ANSI);
-    wText << name.getAnsi();
+    std::string name = std::string(structure->getCustomName().begin(), structure->getCustomName().end());
+    
+    wText << name.c_str();
 
-
-    if(!structure->getCustomName().getLength())
-    {
-        //wText = "@player_structure:structure_name_prompt ";
+    if(!structure->getCustomName().length())    {
         wText <<"@"<<structure->getNameFile().getAnsi()<<":"<<structure->getName().getAnsi();
     }
 

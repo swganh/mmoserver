@@ -234,7 +234,7 @@ void HouseFactory::_createHouse(swganh::database::DatabaseResult* result, HouseO
 //	house->SetTemplate(house->mModel.getAnsi());
     house->setLoadState(LoadState_Loaded);
     house->setType(ObjType_Building);
-    house->mCustomName.convert(BSTRType_Unicode16);
+
     house->setPlayerStructureFamily(PlayerStructure_House);
 
 }
@@ -278,7 +278,7 @@ void HouseFactory::_setupDatabindings()
 	mHouseBinding->addField(swganh::database::DFT_stdstring,offsetof(HouseObject,template_string_),256,10);
     mHouseBinding->addField(swganh::database::DFT_bstring,offsetof(HouseObject,mName),256,11);
     mHouseBinding->addField(swganh::database::DFT_bstring,offsetof(HouseObject,mNameFile),256,12);
-    mHouseBinding->addField(swganh::database::DFT_bstring,offsetof(HouseObject,mCustomName),256,13);
+	mHouseBinding->addField(swganh::database::DFT_stdu16string,offsetof(HouseObject,custom_name_),256,13);
 
     mHouseBinding->addField(swganh::database::DFT_uint8,offsetof(HouseObject,mLotsUsed),1,14);
     mHouseBinding->addField(swganh::database::DFT_uint8,offsetof(HouseObject,mPublic),1,15);

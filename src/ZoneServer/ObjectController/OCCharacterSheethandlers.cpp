@@ -63,13 +63,13 @@ void ObjectController::_handleSetCurrentSkillTitle(uint64 targetId,Message* mess
     message->getStringUnicode16(newTitle);
     newTitle.convert(BSTRType_ANSI);
 
-    SkillList* sList = playerObject->getSkills();
-    SkillList::iterator sEnd = sList->end();
-    for(SkillList::iterator it=sList->begin(); it != sEnd; ++it)
-    {
-        if((*it)->mIsTitle)
+    auto skill_list = playerObject->GetSkills();
+    auto it = skill_list.begin();
+    for(it =skill_list.begin(); it != skill_list.end(); ++it)	{
+		Skill* skill = gSkillManager->getSkillByName((*it).c_str());
+		if(skill->mIsTitle)
         {
-            if(strcmp((*it)->mName.getAnsi(),newTitle.getAnsi()) == 0)
+            if(strcmp(skill->mName.getAnsi(),newTitle.getAnsi()) == 0)
             {
                 playerObject->setTitle(newTitle.getAnsi());
                 gMessageLib->sendTitleUpdate(playerObject);

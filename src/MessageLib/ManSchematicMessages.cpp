@@ -85,10 +85,8 @@ bool MessageLib::sendBaselinesMSCO_3(ManufacturingSchematic* manSchem,PlayerObje
         return(false);
 
     BString					convPlayerName	= playerObject->getFirstName().c_str();
-	BString					convCustomName	= manSchem->getCustomName();
 
     convPlayerName.convert(BSTRType_Unicode16);
-    convCustomName.convert(BSTRType_Unicode16);
 
     mMessageFactory->StartMessage();
 
@@ -104,7 +102,7 @@ bool MessageLib::sendBaselinesMSCO_3(ManufacturingSchematic* manSchem,PlayerObje
     mMessageFactory->addString(manSchem->getName());
 
     //2
-    mMessageFactory->addString(convCustomName);
+    mMessageFactory->addString(manSchem->getCustomName());
 
     //3 = volume
     mMessageFactory->addUint32(1);

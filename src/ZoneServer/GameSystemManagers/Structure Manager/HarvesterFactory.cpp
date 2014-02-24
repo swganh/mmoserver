@@ -191,7 +191,7 @@ void HarvesterFactory::_createHarvester(swganh::database::DatabaseResult* result
 //	harvester->SetTemplate(harvester->mModel.getAnsi());
     harvester->setLoadState(LoadState_Loaded);
     harvester->setType(ObjType_Structure);
-    harvester->mCustomName.convert(BSTRType_Unicode16);
+    
 }
 
 //=============================================================================
@@ -230,7 +230,7 @@ void HarvesterFactory::_setupDatabindings()
 	mHarvesterBinding->addField(swganh::database::DFT_stdstring,offsetof(HarvesterObject,template_string_),256,10);
     mHarvesterBinding->addField(swganh::database::DFT_bstring,offsetof(HarvesterObject,mName),256,11);
     mHarvesterBinding->addField(swganh::database::DFT_bstring,offsetof(HarvesterObject,mNameFile),256,12);
-    mHarvesterBinding->addField(swganh::database::DFT_bstring,offsetof(HarvesterObject,mCustomName),256,13);
+	mHarvesterBinding->addField(swganh::database::DFT_stdu16string,offsetof(HarvesterObject,custom_name_),256,13);
     mHarvesterBinding->addField(swganh::database::DFT_uint8,offsetof(HarvesterObject,mLotsUsed),1,14);
     mHarvesterBinding->addField(swganh::database::DFT_uint32,offsetof(HarvesterObject,mResourceCategory),4,15);
 

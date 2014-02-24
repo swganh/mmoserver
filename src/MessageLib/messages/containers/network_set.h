@@ -47,12 +47,22 @@ void remove(iterator itr, bool update=true)
             const T& data = *itr;
             deltas_.push([=] (swganh::messages::DeltasMessage& message)
             {
-				message.data.write<uint8_t>(delta_flag::_remove);
-                Serializer::SerializeDelta(message.data, data);
+				message.data.write<uint8_t>(0);
+                serialize_it(message.data, (T)data);
             });
         }
         data_.erase(itr);
     }
+}
+
+void serialize_it(swganh::ByteBuffer& data, const T& t)
+{
+	Serializer::SerializeDelta(data, (T)t);
+}
+
+void serialize_base(swganh::ByteBuffer& data, const T& t)
+{
+	Serializer::SerializeBaseline(data, (T)t);
 }
 
 void add(const T& data, bool update=true)
@@ -64,8 +74,8 @@ void add(const T& data, bool update=true)
         {
             deltas_.push([=] (swganh::messages::DeltasMessage& message)
             {
-                message.data.write<uint8_t>(delta_flag::_add);
-                Serializer::SerializeDelta(message.data, *pair.first);
+                message.data.write<uint8_t>(1);
+                serialize_it(message.data, *pair.first);
             });
         }
     }
@@ -78,7 +88,7 @@ void clear(bool update=true)
     {
         deltas_.push([=] (swganh::messages::DeltasMessage& message)
         {
-            message.data.write<uint8_t>(delta_flag::_clear);
+            message.data.write<uint8_t>(2);
         });
     }
 }
@@ -108,16 +118,22 @@ iterator end()
     return data_.end();
 }
 
-void Serialize(swganh::messages::BaseSwgMessage* message)
+bool Serialize(swganh::messages::BaseSwgMessage* message)
 {
     if(message->Opcode() == swganh::messages::BaselinesMessage::opcode)
     {
         Serialize(*((swganh::messages::BaselinesMessage*)message));
+		return true;
     }
     else if(message->Opcode() == swganh::messages::DeltasMessage::opcode)
     {
-        Serialize(*((swganh::messages::DeltasMessage*)message));
+		if(deltas_.size())	{
+			Serialize(*((swganh::messages::DeltasMessage*)message));
+			return true;
+		}
+		return false;
     }
+	return false;
 }
 
 void Serialize(swganh::messages::BaselinesMessage& message)
@@ -125,9 +141,10 @@ void Serialize(swganh::messages::BaselinesMessage& message)
     message.data.write<uint32_t>(data_.size());
     message.data.write<uint32_t>(0);
 	update_counter_ += data_.size();
-    for(auto& item : data_)
+    auto& item = data_.begin();
+	for(item = data_.begin(); item != data_.end(); item ++)
     {
-        Serializer::SerializeBaseline(message.data, item);
+        serialize_base(message.data, *item);
     }
 }
 

@@ -47,11 +47,11 @@ PostureState::~PostureState(void)
 
 void PostureState::Enter(CreatureObject* obj)
 {
-    obj->states.setPosture(mStateID);
+    obj->SetPosture(mStateID);
 }
 void PostureState::Exit(CreatureObject* obj)
 {
-    obj->states.setPosture(0);
+    obj->SetPosture(0);
 }
 bool PostureState::CanTransition(CreatureObject* obj, uint64 newPosture)
 { 
@@ -130,7 +130,7 @@ void PostureUpright::Enter(CreatureObject* obj)
     actionMap[CreatureState_SittingOnChair]->Exit(obj);
     actionMap[CreatureState_Tumbling]->Exit(obj);
 
-    obj->states.setPosture(mStateID);
+    obj->SetPosture(mStateID);
 }
 
 //	Posture Crouched
@@ -164,7 +164,7 @@ void PostureCrouched::Enter(CreatureObject* obj)
     actionMap[CreatureState_SittingOnChair]->Exit(obj);
     actionMap[CreatureState_Tumbling]->Exit(obj);
     
-    obj->states.setPosture(mStateID);
+    obj->SetPosture(mStateID);
 }
 //	Posture Prone
 PostureProne::PostureProne(StateManager* const sm) : PostureState(sm)
@@ -197,7 +197,7 @@ void PostureProne::Enter(CreatureObject* obj)
     actionMap[CreatureState_SittingOnChair]->Exit(obj);
     actionMap[CreatureState_Tumbling]->Exit(obj);
     
-    obj->states.setPosture(mStateID);
+    obj->SetPosture(mStateID);
 }
 //	Posture Sneaking
 PostureSneaking::PostureSneaking(StateManager* const sm) : PostureState(sm)
@@ -268,7 +268,7 @@ void PostureLyingDown::Enter(CreatureObject* obj)
     actionMap[CreatureState_SittingOnChair]->Exit(obj);
     actionMap[CreatureState_Tumbling]->Exit(obj);
     
-    obj->states.setPosture(mStateID);
+    obj->SetPosture(mStateID);
 }
 //	Posture Sitting
 PostureSitting::PostureSitting(StateManager* const sm) : PostureState(sm)
@@ -301,7 +301,7 @@ void PostureSitting::Enter(CreatureObject* obj)
     actionMap[CreatureState_Tumbling]->Exit(obj);
     actionMap[CreatureState_Swimming]->Exit(obj);
     
-    obj->states.setPosture(mStateID);
+    obj->SetPosture(mStateID);
 }
 //	Posture Skill Animating
 PostureSkillAnimating::PostureSkillAnimating(StateManager* const sm) : PostureState(sm)
@@ -332,7 +332,7 @@ void PostureSkillAnimating::Enter(CreatureObject* obj)
     actionMap[CreatureState_RidingMount]->Exit(obj);
     actionMap[CreatureState_Cover]->Exit(obj);
     
-    obj->states.setPosture(mStateID);
+    obj->SetPosture(mStateID);
 }
 //	Posture Driving Vehicle
 PostureDrivingVehicle::PostureDrivingVehicle(StateManager* const sm) : PostureState(sm)
@@ -364,7 +364,7 @@ void PostureDrivingVehicle::Enter(CreatureObject* obj)
     actionMap[CreatureState_SittingOnChair]->Exit(obj);
     actionMap[CreatureState_Tumbling]->Exit(obj);
     
-    obj->states.setPosture(mStateID);
+    obj->SetPosture(mStateID);
 }
 //	Posture Riding Creature
 PostureRidingCreature::PostureRidingCreature(StateManager* const sm) : PostureState(sm)
@@ -396,7 +396,7 @@ void PostureRidingCreature::Enter(CreatureObject* obj)
     actionMap[CreatureState_SittingOnChair]->Exit(obj);
     actionMap[CreatureState_Tumbling]->Exit(obj);
     
-    obj->states.setPosture(mStateID);
+    obj->SetPosture(mStateID);
 }
 //	Posture Knocked Down
 PostureKnockedDown::PostureKnockedDown(StateManager* const sm) : PostureState(sm)
@@ -429,7 +429,7 @@ void PostureKnockedDown::Enter(CreatureObject* obj)
     actionMap[CreatureState_SittingOnChair]->Exit(obj);
     actionMap[CreatureState_Tumbling]->Exit(obj);
     
-    obj->states.setPosture(mStateID);
+    obj->SetPosture(mStateID);
 }
 //	Posture Incapacitated
 PostureIncapacitated::PostureIncapacitated(StateManager* const sm) : PostureState(sm)
@@ -444,7 +444,7 @@ PostureIncapacitated::PostureIncapacitated(StateManager* const sm) : PostureStat
 void PostureIncapacitated::Enter(CreatureObject* obj)
 {  
     obj->states.blockLayers();
-    obj->states.setPosture(mStateID);
+    obj->SetPosture(mStateID);
     // clear all states
     obj->states.toggleActionOn(CreatureState_ClearState);
 }
@@ -459,7 +459,7 @@ PostureDead::PostureDead(StateManager* const sm) : PostureState(sm)
 void PostureDead::Enter(CreatureObject* obj)
 {
     obj->states.blockLayers();
-    obj->states.setPosture(mStateID);
+    obj->SetPosture(mStateID);
     // clear all states
     obj->states.toggleActionOn(CreatureState_ClearState);
 }

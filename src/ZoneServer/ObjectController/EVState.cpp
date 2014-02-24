@@ -51,7 +51,7 @@ bool EVState::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 o
 			reply2 = this->mController->getLowestCommonBit(creature->states.getAction(), cmdProperties->mStates);
 			return false;
 		}
-		if (cmdProperties->mLocomotionMask !=0 && ((cmdProperties->mLocomotionMask & creature->states.getPosture()) != 0))
+		if (cmdProperties->mLocomotionMask !=0 && ((cmdProperties->mLocomotionMask & creature->GetPosture()) != 0))
 		{
 			reply1 = kCannotDoWhileLocomotion;
 			reply2 = mController->getPostureValidator(creature->states.getLocomotion());

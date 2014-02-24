@@ -55,8 +55,8 @@ bool MessageLib::sendBaselinesTANO_3( TangibleObject*  tangibleObject,const Play
         return(false);
 
     Message* message;
-    BString customName = tangibleObject->getCustomName().getAnsi();
-    customName.convert(BSTRType_Unicode16);
+    //BString customName = tangibleObject->getCustomName().getAnsi();
+    //customName.convert(BSTRType_Unicode16);
 
     mMessageFactory->StartMessage();
 
@@ -64,19 +64,19 @@ bool MessageLib::sendBaselinesTANO_3( TangibleObject*  tangibleObject,const Play
     mMessageFactory->addUint64(tangibleObject->getId());
     mMessageFactory->addUint32(opTANO);
     mMessageFactory->addUint8(3);
-
-    mMessageFactory->addUint32(49 + (customName.getLength() << 1) + tangibleObject->getName().getLength() + tangibleObject->getCustomizationStr().getLength() + tangibleObject->getNameFile().getLength());
+	
+    mMessageFactory->addUint32(49 + (tangibleObject->getCustomName().length() << 1) + tangibleObject->getName().getLength() + tangibleObject->getCustomizationStr().getLength() + tangibleObject->getNameFile().getLength());
     mMessageFactory->addUint16(11);
     mMessageFactory->addFloat(0);//tangibleObject->getComplexity());
     mMessageFactory->addString(tangibleObject->getNameFile());
     mMessageFactory->addUint32(0);	// unknown
     mMessageFactory->addString(tangibleObject->getName());
-    mMessageFactory->addString(customName);
+    mMessageFactory->addString(tangibleObject->getCustomName());
     uint32 uses = 0;
 
     mMessageFactory->addUint32(1);//volume gives the volume taken up in the inventory!!!!!!!!
     mMessageFactory->addString(tangibleObject->getCustomizationStr());
-    mMessageFactory->addUint64(0);	// unknown list might be defender list
+    mMessageFactory->addUint64(0);	// componentcustomization
     mMessageFactory->addUint32(tangibleObject->getTypeOptions());
 
     if(tangibleObject->hasAttribute("counter_uses_remaining"))

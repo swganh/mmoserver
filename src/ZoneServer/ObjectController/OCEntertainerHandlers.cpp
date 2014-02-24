@@ -752,7 +752,7 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
     if(!imageDesigner)
         return;
 
-    if(designObject->states.getPosture() == CreaturePosture_Dead)
+    if(designObject->GetPosture() == CreaturePosture_Dead)
     {
         gMessageLib->SendSystemMessage(OutOfBand("image_designer","target_dead", 0, designObject->getId(), 0), imageDesigner);
         return;

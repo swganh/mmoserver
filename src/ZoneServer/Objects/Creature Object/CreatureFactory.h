@@ -69,6 +69,8 @@ public:
     virtual void			handleDatabaseJobComplete(void* ref,swganh::database::DatabaseResult* result) {}
     void					requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
 
+	void					PersistSkills( CreatureObject* creature, boost::unique_lock<boost::mutex>& lock);
+
     void					releaseAllPoolsMemory();
 
 private:

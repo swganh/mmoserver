@@ -104,15 +104,14 @@ void StructureManager::createNewFactorySchematicBox(PlayerObject* player, Factor
 
         }
 
-        BString name = item->getCustomName();
+        std::string name = std::string(item->getCustomName().begin(), item->getCustomName().end());
 
 
         //string name = factory->getSchematicCustomName();
-        name.convert(BSTRType_ANSI);
       
-        lText << name.getAnsi();
+        lText << name.c_str();
 
-        if(!name.getLength())
+        if(!name.length())
         {
             lText <<"@"<<item->getNameFile().getAnsi()<<":"<<item->getName().getAnsi();
         }
@@ -146,12 +145,12 @@ void StructureManager::createNewStructureStatusBox(PlayerObject* player, PlayerS
 	container->setStructureId(structure->getId());
 
     BString wText = "Structure Name: ";
-    BString name = structure->getCustomName();
-    name.convert(BSTRType_ANSI);
-    wText << name.getAnsi();
+	std::string name(structure->getCustomName().begin(), structure->getCustomName().end());
+    
+    wText << name.c_str();
 
 
-    if(!structure->getCustomName().getLength())
+    if(!structure->getCustomName().length())
     {
         wText = "@player_structure:structure_name_prompt ";
         wText <<"@"<<structure->getNameFile().getAnsi()<<":"<<structure->getName().getAnsi();
@@ -272,10 +271,10 @@ void StructureManager::createRenameStructureBox(PlayerObject* player, PlayerStru
 
     int8 sName[128];
 
-    BString name = structure->getCustomName();
-    name.convert(BSTRType_ANSI);
-    sprintf(sName,"%s",name.getAnsi());
-    if(!name.getLength())
+    std::string name(structure->getCustomName().begin(), structure->getCustomName().end());
+    
+    sprintf(sName,"%s",name.c_str());
+    if(!name.length())
     {
         sprintf(sName,"@%s:%s",structure->getNameFile().getAnsi(),structure->getName().getAnsi());
 
@@ -307,10 +306,10 @@ void StructureManager::createPowerTransferBox(PlayerObject* player, PlayerStruct
     sprintf(caption,"SELECT AMOUNT");
     int8 sName[128];
 
-    BString name = structure->getCustomName();
-    name.convert(BSTRType_ANSI);
-    sprintf(sName,"%s",name.getAnsi());
-    if(!name.getLength())
+    std::string name(structure->getCustomName().begin(), structure->getCustomName().end());
+    
+    sprintf(sName,"%s",name.c_str());
+    if(!name.length())
     {
         sprintf(sName,"@%s:%s",structure->getNameFile().getAnsi(),structure->getName().getAnsi());
 
@@ -339,10 +338,10 @@ void StructureManager::createPayMaintenanceTransferBox(PlayerObject* player, Pla
     sprintf(caption,"SELECT AMOUNT");
     int8 sName[128];
 
-    BString name = structure->getCustomName();
-    name.convert(BSTRType_ANSI);
-    sprintf(sName,"%s",name.getAnsi());
-    if(!name.getLength())
+	std::string name(structure->getCustomName().begin(), structure->getCustomName().end());
+
+    sprintf(sName,"%s",name.c_str());
+    if(!name.length())
     {
         sprintf(sName,"@%s:%s",structure->getNameFile().getAnsi(),structure->getName().getAnsi());
 
@@ -473,10 +472,10 @@ void StructureManager::createNewStructureDestroyBox(PlayerObject* player, Player
 
     int8 sName[128];
 
-    BString name = structure->getCustomName();
-    name.convert(BSTRType_ANSI);
-    sprintf(sName,"%s",name.getAnsi());
-    if(!name.getLength())
+    std::string name(structure->getCustomName().begin(), structure->getCustomName().end());
+    
+    sprintf(sName,"%s",name.c_str());
+    if(!name.length())
     {
         sprintf(sName,"@%s:%s",structure->getNameFile().getAnsi(),structure->getName().getAnsi());
 

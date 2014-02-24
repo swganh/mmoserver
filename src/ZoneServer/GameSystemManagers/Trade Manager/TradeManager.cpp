@@ -633,17 +633,17 @@ void TradeManager::_HandleAuctionCreateMessage(Message* message,DispatchClient* 
     //just initialize some things in case we get something which is not a tano
     uint32 category = requestedObject->getCategoryBazaar();
 
-    BString name, customName, tang;
+    BString name, tang;
+	
 
     uint32 itemType = 0;
 
     //get the proper name
     name		= requestedObject->getBazaarName();
-    customName	= requestedObject->getCustomName();
-    if(customName.getLength()>0)
+    requestedObject->getCustomName();
+    if(requestedObject->getCustomName().length()>0)
     {
-        customName.convert(BSTRType_ANSI);
-        name = customName ;
+		name = std::string(requestedObject->getCustomName().begin(), requestedObject->getCustomName().end()).c_str();
     }
 
     int8 theName[128];

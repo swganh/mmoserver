@@ -53,14 +53,14 @@ bool MessageLib::sendBaselinesTYCF_3(FactoryCrate* crate,PlayerObject* targetObj
     if(!(targetObject->isConnected()))
         return(false);
 
-    BString customName;
+    std::u16string customName;
     BString NameFile;
     BString Name;
 
     TangibleObject* tO = crate->getLinkedObject();
     if(!tO)
     {
-        customName = crate->getCustomName();
+		customName = crate->getCustomName();
         NameFile = crate->getNameFile();
         Name = crate->getName();
     }
@@ -71,9 +71,6 @@ bool MessageLib::sendBaselinesTYCF_3(FactoryCrate* crate,PlayerObject* targetObj
         Name = tO->getName();
     }
 
-
-    customName.convert(BSTRType_Unicode16);
-
     mMessageFactory->StartMessage();
 
 
@@ -82,7 +79,7 @@ bool MessageLib::sendBaselinesTYCF_3(FactoryCrate* crate,PlayerObject* targetObj
     mMessageFactory->addString(NameFile.getAnsi());
     mMessageFactory->addUint32(0);	// unknown
     mMessageFactory->addString(Name.getAnsi());
-    mMessageFactory->addString(customName.getUnicode16());
+    mMessageFactory->addString(customName);
     uint32 uses = 0;
 
     mMessageFactory->addUint32(1);//volume gives the volume taken up in the inventory!!!!!!!!

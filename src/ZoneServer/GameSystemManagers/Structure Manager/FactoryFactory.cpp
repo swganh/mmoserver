@@ -355,7 +355,7 @@ void FactoryFactory::_createFactory(swganh::database::DatabaseResult* result, Fa
 	//factory->SetTemplate(factory->mModel.getAnsi());
     factory->setLoadState(LoadState_Loaded);
     factory->setType(ObjType_Structure);
-    factory->mCustomName.convert(BSTRType_Unicode16);
+    
     factory->setCapacity(2); // we want to load 2 hoppers!
 	gObjectManager->LoadSlotsForObject(factory);
 }
@@ -410,7 +410,7 @@ void FactoryFactory::_setupDatabindings()
 	mFactoryBinding->addField(swganh::database::DFT_stdstring,offsetof(FactoryObject,template_string_),256,10);
     mFactoryBinding->addField(swganh::database::DFT_bstring,offsetof(FactoryObject,mName),256,11);
     mFactoryBinding->addField(swganh::database::DFT_bstring,offsetof(FactoryObject,mNameFile),256,12);
-    mFactoryBinding->addField(swganh::database::DFT_bstring,offsetof(FactoryObject,mCustomName),256,13);
+	mFactoryBinding->addField(swganh::database::DFT_stdu16string,offsetof(FactoryObject,custom_name_),256,13);
 
     mFactoryBinding->addField(swganh::database::DFT_uint8,offsetof(FactoryObject,mLotsUsed),1,14);
     mFactoryBinding->addField(swganh::database::DFT_uint8,offsetof(FactoryObject,mActive),1,15);

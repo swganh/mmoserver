@@ -503,12 +503,10 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
         }
 
         // Continue with basic stuff, like adding the skill
-        creatureObject->addSkill(skill);
+		creatureObject->AddSkill(skill->mName.getAnsi());
 
         //finding all the new schems for the skill!
-        //player->addSchematicIds(skill);
-
-        mDatabase->executeSqlAsync(NULL,NULL,"INSERT INTO %s.character_skills VALUES (%"PRIu64",%u)",mDatabase->galaxy(),player->getId(),skillId);
+        //player->addSchematicIds(skill)
         
 
         creatureObject->prepareSkillMods();
@@ -522,7 +520,7 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
         }
 
         // The order we do this is important for the client side messages.
-        gMessageLib->sendSkillDeltasCreo1(skill,SMSkillAdd,player);
+        //gMessageLib->sendSkillDeltasCreo1(skill,SMSkillAdd,player);
 
         gMessageLib->sendSkillModUpdateCreo4(player);
         //gMessageLib->sendBaselinesCREO_4(player);
@@ -560,7 +558,7 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
     }
     else
     {
-        creatureObject->addSkill(skill);	// Don't know if non-player have skillpoints to check before we learn skills?
+		creatureObject->AddSkill(skill->mName.getAnsi());	// Don't know if non-player have skillpoints to check before we learn skills?
         creatureObject->prepareSkillMods();
         creatureObject->prepareSkillCommands();
     }
@@ -681,29 +679,30 @@ void SkillManager::teach(PlayerObject* pupilObject,PlayerObject* teacherObject,B
     // and assemble a list with the skills the pupil does not have but were she/he has the prerequesits
 
     StringVector availableSkills;
-    SkillList*	teacherSkills = teacherObject->getSkills();
-    SkillList::iterator teacherIt = teacherSkills->begin();
+	std::set<std::string> skill_list = teacherObject->GetSkills();
+    //SkillList*	teacherSkills 
+    auto teacherIt = skill_list.begin();
     StringVector::iterator bStringIt = availableSkills.begin();
 
     //SkillTeachContainer* teachContainer = new SkillTeachContainer();
 
     uint32 nr = 0;
-    while(teacherIt != teacherSkills->end())
+    while(teacherIt != skill_list.end())
     {
         //does the pupil have this skill?
-        if (!pupilObject->checkSkill((*teacherIt)->mId))
+		if (!pupilObject->checkSkill(this->getSkillByName(teacherIt->c_str())->mId))
         {
             //since the pupil doesnt have it ... are the requirements met?
-            if(checkLearnSkill((*teacherIt)->mId,pupilObject))
+            if(checkLearnSkill(this->getSkillByName(teacherIt->c_str())->mId,pupilObject))
             {
                 //is it teachable???
-                if (checkTeachSkill((*teacherIt)->mId,pupilObject))
+                if (checkTeachSkill(this->getSkillByName(teacherIt->c_str())->mId,pupilObject))
                 {
                     BString str;
 
                     //now get the corresponding profession
                     //languages or the profession provided are just returned as is
-                    str = getSkillProfession((*teacherIt)->mId,show);
+                    str = getSkillProfession(this->getSkillByName(teacherIt->c_str())->mId,show);
 
                     //now check whether we have double entries
                     bStringIt = availableSkills.begin();
@@ -846,8 +845,8 @@ void SkillManager::dropSkill(uint32 skillId,CreatureObject* creatureObject, bool
         return;
     }
 
-    if(!(creatureObject->removeSkill(skill)))
-    	LOG(error) << "Failed removing skill [" << skillId << "] from object [" << creatureObject->getId() << "]";
+	creatureObject->RemoveSkill(skill->mName.getAnsi());
+    	
 
     creatureObject->prepareSkillMods();
     creatureObject->prepareSkillCommands();
@@ -858,12 +857,12 @@ void SkillManager::dropSkill(uint32 skillId,CreatureObject* creatureObject, bool
 
         player->prepareSchematicIds();
 
-        mDatabase->executeSqlAsync(NULL,NULL,"DELETE FROM %s.character_skills WHERE character_id=%"PRIu64" AND skill_id=%u",mDatabase->galaxy(),player->getId(),skillId);
+        
         
 
-        gMessageLib->sendSkillDeltasCreo1(skill,SMSkillRemove,player);
+        //gMessageLib->sendSkillDeltasCreo1(skill,SMSkillRemove,player);
 
-        gMessageLib->sendBaselinesCREO_4(player);
+        //gMessageLib->sendBaselinesCREO_4(player);
         gMessageLib->sendSkillCmdDeltasPLAY_9(player);
         gMessageLib->sendSchematicDeltasPLAY_9(player);
 
@@ -920,14 +919,16 @@ int32 SkillManager::getXpCap(PlayerObject* playerObject, uint8 xpType)
     int32 cap = getDefaultXPCapById(xpType);
 
     // Get current cap value for this xp type.
-    SkillList::iterator skillIt = playerObject->getSkills()->begin();
-    while (skillIt != playerObject->getSkills()->end())
+	std::set<std::string> skill_list = playerObject->GetSkills();
+    auto skillIt = skill_list.begin();
+
+    while (skillIt != skill_list.end())
     {
-        if ((*skillIt)->mXpType == xpType)
+		if (getSkillByName(skillIt->c_str())->mXpType == xpType)
         {
-            if ((*skillIt)->mXpCap > cap)
+            if (getSkillByName(skillIt->c_str())->mXpCap > cap)
             {
-                cap = (*skillIt)->mXpCap;
+                cap = getSkillByName(skillIt->c_str())->mXpCap;
             }
         }
         ++skillIt;

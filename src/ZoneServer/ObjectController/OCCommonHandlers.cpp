@@ -107,7 +107,7 @@ void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,Ob
     ObjectSet		inRangeObjects;
     float			boardingRange	= 25.0;
 
-    if(playerObject->states.getPosture() == CreaturePosture_SkillAnimating)
+    if(playerObject->GetPosture() == CreaturePosture_SkillAnimating)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
         return;
@@ -356,7 +356,7 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 
     float		purchaseRange = gWorldConfig->getConfiguration<float>("Player_TicketTerminalAccess_Distance",(float)10.0);
 
-    if(playerObject->states.getPosture() == CreaturePosture_SkillAnimating)
+    if(playerObject->GetPosture() == CreaturePosture_SkillAnimating)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
         return;

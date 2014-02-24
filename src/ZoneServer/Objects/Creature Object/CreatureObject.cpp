@@ -32,6 +32,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Zoneserver/GameSystemManagers/NPC Manager/AttackableStaticNpc.h"
 #include "Zoneserver/GameSystemManagers/Buff Manager/Buff.h"
 #include "Zoneserver/GameSystemManagers/Structure Manager/BuildingObject.h"
+#include "ZoneServer\GameSystemManagers\Skill Manager\skill_mod.h"
+
 #include "ZoneServer/ProfessionManagers/Entertainer Manager/EntertainerManager.h"
 
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
@@ -119,7 +121,7 @@ CreatureObject::CreatureObject()
     
     // initialize state struct
     states.action          = 0;
-    states.posture         = 0;
+	this->SetPosture(0);
     states.locomotion      = 0;
     
     states.blockAction     = false;
@@ -145,14 +147,16 @@ void CreatureObject::prepareSkillMods()
 {
     mSkillMods.clear();
 
-    SkillList::iterator skillIt = mSkills.begin();
+    auto skillIt		= skills_.begin();
 
-    while(skillIt != mSkills.end())
+    while(skillIt != skills_.end())
     {
-        SkillModsList::iterator smIt = (*skillIt)->mSkillMods.begin();
+		Skill* skill = gSkillManager->getSkillByName((*skillIt).c_str());
+
+        SkillModsList::iterator smIt = skill->mSkillMods.begin();
         SkillModsList::iterator localSmIt;
 
-        while(smIt != (*skillIt)->mSkillMods.end())
+        while(smIt != skill->mSkillMods.end())
         {
             localSmIt = findSkillMod((*smIt).first);
 
@@ -174,21 +178,22 @@ void CreatureObject::prepareSkillCommands()
     mSkillCommands.clear();
     mSkillCommandMap.clear();
 
-    SkillList::iterator skillIt = mSkills.begin();
+    auto skillIt		= skills_.begin();
 
-    while(skillIt != mSkills.end())
+    while(skillIt != skills_.end())
     {
+		Skill* skill = gSkillManager->getSkillByName((*skillIt).c_str());
         // we dont want race specific skills here
-        if((*skillIt)->mSpeciesRequired.size())
+        if(skill->mSpeciesRequired.size())
         {
             ++skillIt;
             continue;
         }
 
-        SkillCommandList::iterator scIt = (*skillIt)->mCommands.begin();
+        SkillCommandList::iterator scIt = skill->mCommands.begin();
         SkillCommandList::iterator localScIt;
 
-        while(scIt != (*skillIt)->mCommands.end())
+        while(scIt != skill->mCommands.end())
         {
             localScIt = std::find(mSkillCommands.begin(),mSkillCommands.end(),(*scIt));
 
@@ -341,11 +346,13 @@ bool CreatureObject::updateFactionPoints(uint32 factionId,int32 value)
 
 bool CreatureObject::checkSkill(uint32 skillId)
 {
-    SkillList::iterator skillIt = mSkills.begin();
+    auto skillIt		= skills_.begin();
 
-    while(skillIt != mSkills.end())
+    while(skillIt != skills_.end())
     {
-        if((*skillIt)->mId == skillId)
+		Skill* skill = gSkillManager->getSkillByName((*skillIt).c_str());
+
+        if(skill->mId == skillId)
             return(true);
         ++skillIt;
     }
@@ -355,33 +362,18 @@ bool CreatureObject::checkSkill(uint32 skillId)
 
 //=============================================================================
 
-bool CreatureObject::removeSkill(Skill* skill)
-{
-    SkillList::iterator skillIt = mSkills.begin();
-
-    while(skillIt != mSkills.end())
-    {
-        if((*skillIt) == skill)
-        {
-            mSkills.erase(skillIt);
-            return(true);
-        }
-        ++skillIt;
-    }
-
-    return(false);
-}
 
 //=============================================================================
 
 uint32 CreatureObject::getSkillPointsLeft()
 {
-    SkillList::iterator skillIt		= mSkills.begin();
+    auto skillIt		= skills_.begin();
     uint32 skillPointsLeft			= 250;
 
-    while(skillIt != mSkills.end())
+    while(skillIt != skills_.end())
     {
-        skillPointsLeft -= (*skillIt)->mSkillPointsRequired;
+		Skill* skill = gSkillManager->getSkillByName((*skillIt).c_str());
+        skillPointsLeft -= skill->mSkillPointsRequired;
         ++skillIt;
     }
 
@@ -407,7 +399,7 @@ bool CreatureObject::handleImagedesignerTimeOut(uint64 time,void* ref)
 
 void CreatureObject::updateMovementProperties()
 {
-    switch(states.posture)
+	switch(this->GetPosture())
     {
         case CreaturePosture_KnockedDown:
         case CreaturePosture_Incapacitated:
@@ -987,23 +979,17 @@ void CreatureObject::die()
 
 //=============================================================================
 
-bool CreatureObject::checkDefenderList(uint64 defenderId)
+std::queue<std::pair<uint8_t, std::string>> CreatureObject::GetSkillsSyncQueue()
 {
-	auto defenderList = GetDefender();
-    auto it = defenderList.begin();
-
-    while(it != defenderList.end())
-    {
-        if((*it) == defenderId)
-        {
-            return(true);
-        }
-
-        ++it;
-    }
-
-    return(false);
+    auto lock = AcquireLock();
+    return GetSkillsSyncQueue(lock);
 }
+
+std::queue<std::pair<uint8_t, std::string>> CreatureObject::GetSkillsSyncQueue(boost::unique_lock<boost::mutex>& lock)
+{
+    return skills_sync_queue_;
+}
+
 
 //=============================================================================
 
@@ -1034,43 +1020,6 @@ uint64 CreatureObject::getNearestDefender(void)
     return defenederId;
 }
 
-//=============================================================================
-//
-//	Get nearest defender, but sorting out the kind of objects that can't attack you, like lairs and swoops.
-//
-//
-
-uint64 CreatureObject::getNearestAttackingDefender(void)
-{
-    uint64 defenederId = 0;
-    float minLenght = FLT_MAX;
-
-	auto defenderList = GetDefender();
-    auto it = defenderList.begin();
-
-    while(it != defenderList.end())
-    {
-        if((*it) != 0)
-        {
-            CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById((*it)));
-            if (defender && !defender->isDead() && !defender->isIncapacitated())
-            {
-                if ((defender->getCreoGroup() == CreoGroup_Player) || (defender->getCreoGroup() == CreoGroup_Creature))
-                {
-                    float len = glm::distance(this->mPosition, defender->mPosition);
-                    if (len < minLenght)
-                    {
-                        minLenght = len;
-                        defenederId = (*it);
-                    }
-                }
-            }
-        }
-        ++it;
-    }
-
-    return defenederId;
-}
 
 
 //=============================================================================
@@ -1324,87 +1273,6 @@ void CreatureObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
     }
 }
 
-void CreatureObject::AddDefender(uint64 defenderId)
-{
-    auto lock = AcquireLock();
-    AddDefender(defenderId, lock);
-}
-
-void CreatureObject::AddDefender(uint64 defenderId, boost::unique_lock<boost::mutex>& lock)
-{
-    defender_list_.add(defenderId);
-   
-	lock.unlock();
-	
-	auto dispatcher = GetEventDispatcher();
-	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::DefenderList", this));
-
-}
-
-uint32 CreatureObject::GetDefenderCounter()
-{
-    return defender_list_.get_counter();
-}
-
-
-void CreatureObject::RemoveDefender(uint64 defenderId)
-{
-    auto lock = AcquireLock();
-    RemoveDefender(defenderId, lock);
-}
-
-void CreatureObject::RemoveDefender(uint64 defenderId, boost::unique_lock<boost::mutex>& lock)
-{
-    auto iter = std::find_if(defender_list_.begin(), defender_list_.end(), [=](uint64_t id)->bool
-    {
-        return (defenderId == id);
-    });
-
-    if(iter == defender_list_.end())
-    {
-        return;
-    }
-    defender_list_.remove(iter);
-
-	lock.unlock();
-
-	auto dispatcher = GetEventDispatcher();
-	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::DefenderList", this));
-}
-
-std::vector<uint64> CreatureObject::GetDefender(void)
-{
-    auto lock = AcquireLock();
-    return GetDefender(lock);
-}
-
-std::vector<uint64> CreatureObject::GetDefender(boost::unique_lock<boost::mutex>& lock)
-{
-    return defender_list_.raw();
-}
-
-bool CreatureObject::SerializeDefender(swganh::messages::BaseSwgMessage* message)
-{
-    auto lock = AcquireLock();
-    return	SerializeDefender(message, lock);
-}
-
-bool CreatureObject::SerializeDefender(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock)
-{
-	return	defender_list_.Serialize(message);
-}
-
-void	CreatureObject::ClearDefender()
-{
-	auto defenderList = GetDefender();
-	auto it = defenderList.begin();
-
-    while(it != defenderList.end())
-    {
-        RemoveDefender(*it);
-        ++it;
-    }
-}
 
 bool CreatureObject::SerializeCurrentStats(swganh::messages::BaseSwgMessage* message)
 {
@@ -2128,6 +1996,227 @@ uint64_t CreatureObject::GetWeaponId()
 uint64_t CreatureObject::GetWeaponId(boost::unique_lock<boost::mutex>& lock)
 {
     return weapon_id_;
+}
+
+void CreatureObject::AddSkill(std::string skill)
+{
+    auto lock = AcquireLock();
+    AddSkill(skill, lock);
+}
+
+void CreatureObject::AddSkill(std::string skill, boost::unique_lock<boost::mutex>& lock)
+{
+    skills_.add(skill);
+	skills_sync_queue_.push(std::pair<uint8_t, std::string>(1, skill));
+	
+	GetEventDispatcher()->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::Skill", this));
+}
+
+void CreatureObject::InitializeSkill(std::string skill)
+{
+    auto lock = AcquireLock();
+    InitializeSkill(skill, lock);
+}
+
+void CreatureObject::InitializeSkill(std::string skill, boost::unique_lock<boost::mutex>& lock)
+{
+    skills_.add(skill, false);
+}
+
+void CreatureObject::RemoveSkill(std::string skill)
+{
+    auto lock = AcquireLock();
+    RemoveSkill(skill, lock);
+}
+
+void CreatureObject::RemoveSkill(std::string skill, boost::unique_lock<boost::mutex>& lock)
+{
+    skills_.remove(skill);
+	skills_sync_queue_.push(std::pair<uint8_t, std::string>(0, skill));
+    GetEventDispatcher()->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::Skill", this));
+}
+
+std::set<std::string> CreatureObject::GetSkills()
+{
+    auto lock = AcquireLock();
+    return GetSkills(lock);
+}
+
+std::set<std::string> CreatureObject::GetSkills(boost::unique_lock<boost::mutex>& lock)
+{
+    return skills_.raw();
+}
+
+bool CreatureObject::HasSkill(std::string skill)
+{
+    auto lock = AcquireLock();
+    return HasSkill(skill, lock);
+}
+
+bool CreatureObject::HasSkill(std::string skill, boost::unique_lock<boost::mutex>& lock)
+{
+    return skills_.contains(skill);
+}
+
+bool CreatureObject::SerializeSkills(swganh::messages::BaseSwgMessage* message)
+{
+    auto lock = AcquireLock();
+    return SerializeSkills(message, lock);
+}
+
+bool CreatureObject::SerializeSkills(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock)
+{
+    return skills_.Serialize(message);
+}
+
+bool CreatureObject::SerializeSkillMods(swganh::messages::BaseSwgMessage* message)
+{
+    auto lock = AcquireLock();
+    return SerializeSkillMods(message, lock);
+}
+
+bool CreatureObject::SerializeSkillMods(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock, bool baseline)
+{
+	//dont build deltas when we're empty lol
+	if((skill_mod_list_.update_size() > 0) || baseline)	{
+		skill_mod_list_.Serialize(message);
+		return true;
+	}
+	return false;
+}
+
+void CreatureObject::SetPosture(uint32 posture)
+{
+    auto lock = AcquireLock();
+    SetPosture(posture, lock);
+}
+
+void CreatureObject::SetPosture(uint32 posture, boost::unique_lock<boost::mutex>& lock)
+{
+    states.posture_ = posture;
+	GetEventDispatcher()->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::Posture", this));
+}
+
+uint32_t	CreatureObject::GetPosture()
+{
+    auto lock = AcquireLock();
+    return GetPosture(lock);
+}
+
+uint32_t CreatureObject::GetPosture(boost::unique_lock<boost::mutex>& lock)
+{
+    return states.posture_;
+    //GetEventDispatcher()->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::Posture", this));
+}
+
+bool CreatureObject::HasSkillMod(std::string identifier)
+{
+    auto lock = AcquireLock();
+    return HasSkillMod(identifier, lock);
+}
+
+bool CreatureObject::HasSkillMod(std::string identifier, boost::unique_lock<boost::mutex>& lock)
+{
+
+	auto it = skill_mod_list_.begin();
+	while (it != skill_mod_list_.end())	{
+		if(it->second.identifier == identifier)	{
+			return true;
+		}
+		it++;
+	}
+
+    
+	return false;
+  
+}
+
+void CreatureObject::AddSkillMod(SkillModStruct mod)
+{
+    auto lock = AcquireLock();
+    AddSkillMod(mod, lock);
+}
+
+void CreatureObject::AddSkillMod(SkillModStruct mod, boost::unique_lock<boost::mutex>& lock)
+{
+    skill_mod_list_.add(mod.identifier, mod);
+	GetEventDispatcher()->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::SkillMod", this));
+	
+	
+}
+
+void CreatureObject::RemoveSkillMod(std::string identifier)
+{
+    auto lock = AcquireLock();
+    RemoveSkillMod(identifier, lock);
+}
+
+void CreatureObject::RemoveSkillMod(std::string identifier, boost::unique_lock<boost::mutex>& lock)
+{
+	auto it = skill_mod_list_.begin();
+	while (it != skill_mod_list_.end())	{
+		if(it->second.identifier == identifier)	{
+			skill_mod_list_.remove(it);
+			GetEventDispatcher()->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::SkillMod", this));
+			return;
+		}
+		it++;
+	}    
+}
+
+void CreatureObject::SetSkillMod(SkillModStruct mod)
+{
+    auto lock = AcquireLock();
+    SetSkillMod(mod, lock);
+}
+
+void CreatureObject::SetSkillMod(SkillModStruct mod, boost::unique_lock<boost::mutex>& lock)
+{
+    skill_mod_list_.update(mod.identifier);
+	GetEventDispatcher()->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::SkillMod", this));
+	
+}
+
+std::map<std::string, SkillModStruct> CreatureObject::GetSkillMods()
+{
+    auto lock = AcquireLock();
+    return GetSkillMods(lock);
+}
+
+std::map<std::string, SkillModStruct> CreatureObject::GetSkillMods(boost::unique_lock<boost::mutex>& lock)
+{
+    return skill_mod_list_.raw();
+}
+
+SkillModStruct CreatureObject::GetSkillMod(std::string identifier)
+{
+    auto lock = AcquireLock();
+    return GetSkillMod(identifier, lock);
+}
+
+SkillModStruct CreatureObject::GetSkillMod(std::string identifier, boost::unique_lock<boost::mutex>& lock)
+{
+	auto it = skill_mod_list_.begin();
+	while (it != skill_mod_list_.end())	{
+		if(it->second.identifier == identifier)	{
+			return it->second;
+		}
+		it++;
+	}
+
+	SkillModStruct a;
+	return a;
+	/*
+    auto iter = std::find_if(begin(skill_mod_list_), end(skill_mod_list_), [=](std::pair<std::string, SkillModStruct> pair)->bool
+    {
+        return (pair.second.identifier == identifier);
+    });
+
+    if(iter != end(skill_mod_list_))
+    {
+        return iter->second;
+    }
+	*/
 }
 
 //=============================================================================

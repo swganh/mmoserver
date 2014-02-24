@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/GameSystemManagers/NPC Manager/PersistentNpcFactory.h"
 #include "ZoneServer/Objects/ShuttleFactory.h"
 #include "ZoneServer/Objects/Creature Object/CreatureObject.h"
+#include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/Objects/Inventory.h"
 #include "ZoneServer/Objects/Bank.h"
 
@@ -187,4 +188,47 @@ void CreatureFactory::PersistHomeBank(CreatureObject* creature)
 	sql << "UPDATE " << mDatabase->galaxy() << ".banks SET planet_id=" << bank->getPlanet() << " WHERE id=" << bank->getId() << ";";
 	
 	gWorldManager->getKernel()->GetDatabase()->executeSqlAsync(NULL, NULL, sql.str());
+}
+
+void CreatureFactory::PersistSkills( CreatureObject* creature, boost::unique_lock<boost::mutex>& lock)
+{
+	uint32_t counter = 0;
+	PlayerObject* player = dynamic_cast<PlayerObject*>(creature);
+
+	if(!player)	{
+		LOG(error) << "";
+	}
+
+    auto skills		= creature->GetSkillsSyncQueue(lock);
+
+        while(skills.size())
+        {
+			std::stringstream sql;
+            auto queue_item = skills.front();
+
+            switch(queue_item.first)
+            {
+            case 0: // Remove
+            {
+				//mDatabase->executeSqlAsync(NULL,NULL,"DELETE FROM %s.character_skills WHERE character_id=%"PRIu64" AND skill_id=%u",mDatabase->galaxy(),player->getId(),skillId);
+                sql << "DELETE FROM " << mDatabase->galaxy() << ".character_skills WHERE character_id= " << player->getId() << " AND skill_id = " << queue_item.second;
+				
+				gWorldManager->getKernel()->GetDatabase()->executeSqlAsync(NULL, NULL, sql.str());
+                break;
+            }
+
+            case 1: // Add
+            {
+				sql << "INSERT INTO " << mDatabase->galaxy() << ".character_skills VALUES (" << player->getId() << "," << queue_item.second << ");";
+				
+				gWorldManager->getKernel()->GetDatabase()->executeSqlAsync(NULL, NULL, sql.str());
+                break;
+            }
+            }
+
+            skills.pop();
+        }
+
+	
+	
 }

@@ -926,7 +926,8 @@ void CraftingSession::experimentationStage(uint32 counter)
 
 void CraftingSession::customize(const int8* itemName)
 {
-    mItem->setCustomName(itemName);
+	std::string name(itemName);
+    mItem->setCustomName(std::u16string(name.begin(), name.end()));
 
     gMessageLib->sendCraftAcknowledge(opCraftCustomization,CraftError_None,0,mOwner);
 }
@@ -950,7 +951,8 @@ void CraftingSession::createPrototype(uint32 noPractice,uint32 counter)
         // update the custom name and parent
         sprintf(sql,"UPDATE %s.items SET parent_id=%"PRIu64", customName='",mDatabase->galaxy(),inventory_->getId());
         sqlPointer = sql + strlen(sql);
-        sqlPointer += mDatabase->escapeString(sqlPointer,mItem->getCustomName().getAnsi(),mItem->getCustomName().getLength());
+		std::string name = std::string(mItem->getCustomName().begin(), mItem->getCustomName().end());
+        sqlPointer += mDatabase->escapeString(sqlPointer,name.c_str(),mItem->getCustomName().length());
         sprintf(restStr,"' WHERE id=%"PRIu64" ",mItem->getId());
         strcat(sql,restStr);
 
@@ -1252,7 +1254,7 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
         return;
     }
 
-    mManufacturingSchematic->setCustomName(mItem->getCustomName().getAnsi());
+    mManufacturingSchematic->setCustomName(mItem->getCustomName());
 
     //now delete the old object client side and create it new
     gMessageLib->sendDestroyObject(mManufacturingSchematic->getId(),mOwner);
@@ -1275,7 +1277,8 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
     mManufacturingSchematic->setParentIdIncDB(datapad->getId());
 
     //set the custom name of the object
-    mManufacturingSchematic->setCustomNameIncDB(mItem->getCustomName().getAnsi());
+	std::string name(mItem->getCustomName().begin(), mItem->getCustomName().end());
+    mManufacturingSchematic->setCustomNameIncDB(name.c_str());
 
     //set the schematic as parent id for our item - we need it as dummy!!!
     mItem->setParentIdIncDB(mManufacturingSchematic->getId());

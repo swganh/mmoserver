@@ -473,7 +473,7 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 			PlayerObject* player = dynamic_cast<PlayerObject*>(attacker);
 			if (player)
 			{
-                npc->updateDamage(player->getId(), player->getGroupId(), weapon->getGroup(), -multipliedDamage, player->states.getPosture(), glm::distance(defender->mPosition, player->mPosition));
+                npc->updateDamage(player->getId(), player->getGroupId(), weapon->getGroup(), -multipliedDamage, player->GetPosture(), glm::distance(defender->mPosition, player->mPosition));
 			}
 		}
 

@@ -507,10 +507,10 @@ bool MessageLib::sendCreatePlayer(PlayerObject* player, PlayerObject* target) {
     //close the yalp
     sendEndBaselines(player->getPlayerObjId(), target);
 
-    sendPostureMessage(player, target);
+    //sendPostureMessage(player, target);
 
     if (player->getParentId()) {
-        sendContainmentMessage(player->getId(), player->getParentId(), 4, target);
+		sendContainmentMessage(player->getId(), player->getParentId(), player->GetArrangementId(), target);
     }
 
     //===================================================================================
@@ -537,6 +537,7 @@ bool MessageLib::sendCreatePlayer(PlayerObject* player, PlayerObject* target) {
 //
 // create creature
 //
+
 bool MessageLib::sendCreateCreature(CreatureObject* creature, PlayerObject* target) {
     if (!_checkPlayer(target)) {
         return false;
@@ -556,10 +557,11 @@ bool MessageLib::sendCreateCreature(CreatureObject* creature, PlayerObject* targ
 
     sendUpdatePvpStatus(creature, target);
 
-    sendPostureMessage(creature, target);
+    //sendPostureMessage(creature, target);
 
     return true;
 }
+
 //======================================================================================================================
 
 bool MessageLib::sendCreateStaticObject(TangibleObject* tangible, PlayerObject* target) {
@@ -896,6 +898,28 @@ MessageFactory* MessageLib::getFactory_()
 	return factory;
 }
 
+void MessageLib::sendMessage(swganh::messages::BaseSwgMessage& message, PlayerObject* player)
+{
+	if(!_checkPlayer(player)) {
+		return;
+	}
+
+	MessageFactory* factory = getFactory_();
+
+	swganh::ByteBuffer buffer;
+	message.Serialize(buffer);
+	
+	// at this time this is single threaded only
+	factory->StartMessage();
+	factory->addData(buffer.data(),buffer.size());
+	//Message* new_message = 	factory->EndMessage();
+
+	
+	player->getClient()->SendChannelA(factory->EndMessage(), player->getAccountId(), CR_Client, 1);
+    
+	factory_queue_.push(factory);
+}
+
 void MessageLib::sendDelta(swganh::messages::DeltasMessage& message, PlayerObject* player)
 {
 	if(!_checkPlayer(player)) {
@@ -913,6 +937,27 @@ void MessageLib::sendDelta(swganh::messages::DeltasMessage& message, PlayerObjec
 	//Message* new_message = 	factory->EndMessage();
 
 	
+	player->getClient()->SendChannelA(factory->EndMessage(), player->getAccountId(), CR_Client, 1);
+    
+	factory_queue_.push(factory);
+}
+
+void MessageLib::sendBaseline(swganh::messages::BaselinesMessage& message, PlayerObject* player)
+{
+	if(!_checkPlayer(player)) {
+		return;
+	}
+
+	MessageFactory* factory = getFactory_();
+
+	swganh::ByteBuffer buffer;
+	//message.SetObserverId(player->getId());
+	message.Serialize(buffer);
+	
+	factory->StartMessage();
+	factory->addData(buffer.data(),buffer.size());
+	
+
 	player->getClient()->SendChannelA(factory->EndMessage(), player->getAccountId(), CR_Client, 1);
     
 	factory_queue_.push(factory);

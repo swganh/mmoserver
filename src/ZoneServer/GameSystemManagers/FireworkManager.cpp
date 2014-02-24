@@ -79,7 +79,7 @@ TangibleObject* FireworkManager::createFirework(uint32 typeId, PlayerObject* pla
     //firework->setTangibleType();
 
     //Make the Player Sit
-    player->states.setPosture(CreaturePosture_Crouched);
+    player->SetPosture(CreaturePosture_Crouched);
 
     // Place the firework 1m in front of the player at the same heading.
     firework->mDirection = player->mDirection;
@@ -155,7 +155,7 @@ void FireworkManager::Process()
 	{
 		if(*it && (currentTime - (*it)->timeFired) > 2000 && (*it)->playerToldToStand == false) //2 sec
 		{
-			if((*it)->player->states.getPosture() == CreaturePosture_Crouched)
+			if((*it)->player->GetPosture() == CreaturePosture_Crouched)
 			{
 				gStateManager.setCurrentPostureState((*it)->player, CreaturePosture_Upright);
 				(*it)->playerToldToStand = true;

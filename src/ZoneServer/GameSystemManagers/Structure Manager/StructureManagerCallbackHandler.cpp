@@ -1250,7 +1250,7 @@ void StructureManager::handleUIEvent(uint32 action,int32 element,std::u16string 
 
     case SUI_Window_Structure_Rename:
     {
-		std::string inputStr_ansi(inputStr.begin(), inputStr.end());
+		std::string name_ansi(inputStr.begin(), inputStr.end());
 
         if(!inputStr.length())
         {
@@ -1267,9 +1267,7 @@ void StructureManager::handleUIEvent(uint32 action,int32 element,std::u16string 
         }
 
         //inputStr.convert(BSTRType_Unicode16);
-        structure->setCustomName(inputStr_ansi.c_str());
-		
-		std::string name_ansi = inputStr_ansi;
+        structure->setCustomName(inputStr);
 
         gMessageLib->sendNewHarvesterName(structure.get());
 

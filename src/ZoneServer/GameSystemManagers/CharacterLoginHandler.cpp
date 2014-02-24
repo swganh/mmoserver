@@ -461,7 +461,7 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByPosition(Messag
     if((playerObject = gWorldManager->getPlayerByAccId(message->getAccountId())) != NULL)
     {
         // reset to standing
-        //playerObject->states.setPosture(CreaturePosture_Upright);
+        //playerObject->SetPosture(CreaturePosture_Upright);
 
         // Save our player.
         gWorldManager->savePlayerSync(playerObject->getAccountId(),false);

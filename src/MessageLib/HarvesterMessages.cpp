@@ -70,11 +70,7 @@ bool MessageLib::sendBaselinesHINO_3(HarvesterObject* harvester,PlayerObject* pl
     mMessageFactory->addUint32(0);
     mMessageFactory->addString(harvester->getName());
 
-    BString name;
-    name = harvester->getCustomName();
-    name.convert(BSTRType_Unicode16);
-
-    mMessageFactory->addString(name.getUnicode16());
+    mMessageFactory->addString(harvester->getCustomName());
 
     mMessageFactory->addUint32(1);//volume (in inventory)
     mMessageFactory->addUint16(0);//customization
@@ -346,11 +342,7 @@ bool MessageLib::sendBaselinesINSO_3(FactoryObject* factory,PlayerObject* player
     mMessageFactory->addUint32(0);
     mMessageFactory->addString(factory->getName());
 
-    BString name;
-    name = factory->getCustomName();
-    name.convert(BSTRType_Unicode16);
-
-    mMessageFactory->addString(name.getUnicode16());
+    mMessageFactory->addString(factory->getCustomName());
 
     mMessageFactory->addUint32(1);//volume (in inventory)
     mMessageFactory->addUint16(0);//customization
@@ -467,11 +459,7 @@ bool MessageLib::sendBaselinesINSO_3(PlayerStructure* structure,PlayerObject* pl
     mMessageFactory->addUint32(0);
     mMessageFactory->addString(structure->getName());
 
-    BString name;
-    name = structure->getCustomName();
-    name.convert(BSTRType_Unicode16);
-
-    mMessageFactory->addString(name.getUnicode16());
+    mMessageFactory->addString(structure->getCustomName());
 
     mMessageFactory->addUint32(1);//volume (in inventory)
     mMessageFactory->addUint16(0);//customization
@@ -577,15 +565,12 @@ void MessageLib::sendNewHarvesterName(PlayerStructure* harvester)
     mMessageFactory->addUint32(opHINO);
     mMessageFactory->addUint8(3);
 
-    mMessageFactory->addUint32(8 + (harvester->getCustomName().getLength()*2));
+    mMessageFactory->addUint32(8 + (harvester->getCustomName().length()*2));
     mMessageFactory->addUint16(1);
     mMessageFactory->addUint16(2);
     //Unicode
-    BString name;
-    name = harvester->getCustomName();
-    name.convert(BSTRType_Unicode16);
-
-    mMessageFactory->addString(name.getUnicode16());
+    
+    mMessageFactory->addString(harvester->getCustomName());
 
     _sendToInRange(mMessageFactory->EndMessage(),harvester,5);
 }

@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/SocialChatTypes.h"
 
 #include "MessageLib\messages\deltas_message.h"
+#include "MessageLib\/messages\baselines_message.h"
 #include "Utils/ConcurrentQueue.h"
 
 #define	 gMessageLib	MessageLib::getSingletonPtr()
@@ -129,6 +130,10 @@ public:
 	*/
 	void				sendDelta(swganh::messages::DeltasMessage& message, PlayerObject* player);
 
+	void				sendMessage(swganh::messages::BaseSwgMessage& message, PlayerObject* player);
+
+	void				sendBaseline(swganh::messages::BaselinesMessage& message, PlayerObject* player);
+
 
 
     // multiple messages, messagelib.cpp
@@ -210,6 +215,12 @@ public:
     void				sendInventory(PlayerObject* playerObject);
     bool				sendEquippedItems(PlayerObject* srcObject,PlayerObject* targetObject);
 
+	bool				sendBaselinesCREO_1(PlayerObject* player);
+
+	bool				sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject* targetObject);
+	bool				sendBaselinesCREO_4(PlayerObject* player);
+	bool				sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject* targetObject);
+
     // common messages, commonmessages.cpp
     bool				sendCreateObjectByCRC(Object* object,const PlayerObject* const targetObject,bool player) const;
     bool				sendContainmentMessage(uint64 objectId,uint64 parentId,uint32 linkType,const PlayerObject* const targetObject) const;
@@ -218,7 +229,7 @@ public:
     bool				broadcastContainmentMessage(uint64 objectId,uint64 parentId,uint32 linkType,PlayerObject* targetObject);
     bool				broadcastContainmentMessage(Object* targetObject,uint64 parentId,uint32 linkType);	// Used by Creatures.
     bool				sendOpenedContainer(uint64 objectId, PlayerObject* targetObject);
-    bool				sendPostureMessage(CreatureObject* creatureObject,PlayerObject* targetObject);
+    //bool				sendPostureMessage(CreatureObject* creatureObject,PlayerObject* targetObject);
     bool				sendEndBaselines(uint64 objectId,const PlayerObject* const targetObject) const;
     bool				sendDestroyObject(uint64 objectId, PlayerObject* const targetObject) const;
     bool				sendDestroyObject(uint64 objectId, CreatureObject* const owner) const;
@@ -415,17 +426,7 @@ public:
     // position updates for tutorial
     void				sendDataTransform(Object* object, PlayerObject* player);
     void				sendDataTransformWithParent(Object* object, PlayerObject* player);
-
-
-    // creature object, creaturemessages.cpp
-    bool				sendBaselinesCREO_1(PlayerObject* player);
-    bool				sendBaselinesCREO_3(CreatureObject* srcObject,PlayerObject* targetObject);
-    bool				sendBaselinesCREO_4(PlayerObject* player);
-    bool				sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject* targetObject);
-
-    // deltas
-	bool				sendDeltasCREO_3(CreatureObject* creatureObject,PlayerObject* targetObject);
-
+    
     
 	void				sendPostureUpdate(CreatureObject* creatureObject);
 	void				sendMoodUpdate(CreatureObject* creatureObject);

@@ -65,65 +65,66 @@ bool MessageLib::sendBaselinesCREO_1(PlayerObject* player)
         return(false);
 
     Message*	message;
-    SkillList*	playerSkills	= player->getSkills();
+    //SkillList*	playerSkills	= player->getSkills();
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint16(4);
 
     // bank credits
-	auto bank_object = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player, "bank");
-    if(Bank* bank = dynamic_cast<Bank*>(bank_object))    {
+auto bank_object = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player, "bank");
+    if(Bank* bank = dynamic_cast<Bank*>(bank_object)) {
         mMessageFactory->addUint32(bank->getCredits());
     }
     else
     {
-		LOG (error) << "MessageLib::sendBaselinesCREO_1 :: No Bank Object for " << player->getId();
+LOG (error) << "MessageLib::sendBaselinesCREO_1 :: No Bank Object for " << player->getId();
         mMessageFactory->addUint32(0);
     }
 
     // inventory credits
-	auto inventory_object = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player, "inventory");
-    if(Inventory* inventory = dynamic_cast<Inventory*>(inventory_object))    {
+auto inventory_object = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player, "inventory");
+    if(Inventory* inventory = dynamic_cast<Inventory*>(inventory_object)) {
         mMessageFactory->addUint32(inventory->getCredits());
     }
     else
     {
-		LOG (error) << "MessageLib::sendBaselinesCREO_1 :: No Inventory Object for " << player->getId();
+LOG (error) << "MessageLib::sendBaselinesCREO_1 :: No Inventory Object for " << player->getId();
         mMessageFactory->addUint32(0);
     }
 
     // ham maxs
-	swganh::messages::BaselinesMessage baseline_message;
-	player->SerializeMaxStats(&baseline_message);
+swganh::messages::BaselinesMessage baseline_message;
+player->SerializeMaxStats(&baseline_message);
 
-	mMessageFactory->addData(baseline_message.data.data(),baseline_message.data.size());
-	
+mMessageFactory->addData(baseline_message.data.data(),baseline_message.data.size());
+
     // skills
-    mMessageFactory->addUint64(playerSkills->size());
+	auto skilllist		= player->GetSkills(); 
+	auto skillIt		= skilllist.begin();
 
-    auto it = playerSkills->begin();
+	mMessageFactory->addUint64(skilllist.size());
 
-    while(it != playerSkills->end())
+    while(skillIt != skilllist.end())
     {
-        mMessageFactory->addString((*it)->mName);
+		mMessageFactory->addString((*skillIt));
 
-        ++it;
+        skillIt++;
     }
 
     message = mMessageFactory->EndMessage();
 
     
-	mMessageFactory->StartMessage();
+mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opBaselinesMessage);
     mMessageFactory->addUint64(player->getId());
     mMessageFactory->addUint32(opCREO);
     mMessageFactory->addUint8(1);
 
-	mMessageFactory->addUint32(message->getSize());
-	mMessageFactory->addData(message->getData(), message->getSize());
-	message->setPendingDelete(true);
-	
-	(player->getClient())->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(), CR_Client, 3);
+mMessageFactory->addUint32(message->getSize());
+mMessageFactory->addData(message->getData(), message->getSize());
+message->setPendingDelete(true);
+
+(player->getClient())->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(), CR_Client, 3);
 
     return(true);
 }
@@ -139,13 +140,13 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
     if(!(targetObject->isConnected()))
         return(false);
 
-    Message*		message;
-    	
+    Message*	message;
+    
     // make sure we got a name
-	std::stringstream stream;
-	stream << creatureObject->getFirstName() << " " << creatureObject->getLastName();
-	std::string s(stream.str());
-	std::u16string custom_name_u16(s.begin(), s.end());
+std::stringstream stream;
+stream << creatureObject->getFirstName() << " " << creatureObject->getLastName();
+std::string s(stream.str());
+std::u16string custom_name_u16(s.begin(), s.end());
 
 
     mMessageFactory->StartMessage();
@@ -155,7 +156,7 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
     mMessageFactory->addUint32(16256); // float complexity
     //1
     mMessageFactory->addString(creatureObject->getSpeciesGroup());
-    mMessageFactory->addUint32(0);     // unknown
+    mMessageFactory->addUint32(0); // unknown
     mMessageFactory->addString(creatureObject->getSpeciesString());
     //2
     mMessageFactory->addString(custom_name_u16);
@@ -164,9 +165,9 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
     //4
     mMessageFactory->addString(creatureObject->getCustomizationStr());
    
-	//5 customization list
-    mMessageFactory->addUint32(0); // 
-    mMessageFactory->addUint32(0); // 
+//5 customization list
+    mMessageFactory->addUint32(0); //
+    mMessageFactory->addUint32(0); //
 
     //6
     mMessageFactory->addUint32(creatureObject->getTypeOptions());
@@ -175,8 +176,8 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
 
     //8 condition damage (vehicle) //this is the amount of damage... used to set appearence of swoop
 
-	//auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
-	mMessageFactory->addUint32(creatureObject->GetStatMax(HamBar_Health) - creatureObject->GetStatCurrent(HamBar_Health));
+//auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+mMessageFactory->addUint32(creatureObject->GetStatMax(HamBar_Health) - creatureObject->GetStatCurrent(HamBar_Health));
 
     //9 max condition (vehicle)
     mMessageFactory->addUint32(creatureObject->GetStatMax(HamBar_Health));
@@ -184,11 +185,11 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
     //10 locomotion ??
     mMessageFactory->addUint8(1);
     //11 posture
-    mMessageFactory->addUint8(creatureObject->states.getPosture());
+    mMessageFactory->addUint8(creatureObject->GetPosture());
     //12
     mMessageFactory->addUint8(creatureObject->getFactionRank());
     //13 owner id
-    if(creatureObject->getCreoGroup()  == CreoGroup_Vehicle)
+    if(creatureObject->getCreoGroup() == CreoGroup_Vehicle)
     {
         MountObject* mount = dynamic_cast<MountObject*>(creatureObject);
         if(mount)
@@ -204,29 +205,29 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
     {
         mMessageFactory->addUint64(0);
         mMessageFactory->addFloat(creatureObject->getScale());
-		mMessageFactory->addUint32(creatureObject->GetBattleFatigue());
+mMessageFactory->addUint32(creatureObject->GetBattleFatigue());
         mMessageFactory->addUint64(creatureObject->states.getAction());
     }
 
     // ham wounds
 
-	swganh::messages::BaselinesMessage baseline_message;
-	creatureObject->SerializeStatWounds(&baseline_message);
+swganh::messages::BaselinesMessage baseline_message;
+creatureObject->SerializeStatWounds(&baseline_message);
 
-	mMessageFactory->addData(baseline_message.data.data(),baseline_message.data.size());
+mMessageFactory->addData(baseline_message.data.data(),baseline_message.data.size());
 
     message = mMessageFactory->EndMessage();
 
-	mMessageFactory->StartMessage();
+mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opBaselinesMessage);
     mMessageFactory->addUint64(creatureObject->getId());
     mMessageFactory->addUint32(opCREO);
     mMessageFactory->addUint8(3);
-	mMessageFactory->addUint32(message->getSize());
-	mMessageFactory->addData(message->getData(), message->getSize());
-	message->setPendingDelete(true);
+mMessageFactory->addUint32(message->getSize());
+mMessageFactory->addData(message->getData(), message->getSize());
+message->setPendingDelete(true);
 
-	(targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
+(targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
 
     return(true);
 }
@@ -253,9 +254,9 @@ bool MessageLib::sendBaselinesCREO_4(PlayerObject* player)
     mMessageFactory->addFloat(1.0f); // acceleration mod
 
     // ham encumbrance
-	swganh::messages::BaselinesMessage baseline_message;
-	player->SerializeStatEncumberances(&baseline_message);
-	mMessageFactory->addData(baseline_message.data.data(),baseline_message.data.size());
+swganh::messages::BaselinesMessage baseline_message;
+player->SerializeStatEncumberances(&baseline_message);
+mMessageFactory->addData(baseline_message.data.data(),baseline_message.data.size());
 
     // skillmods
     mMessageFactory->addUint32(playerSkillMods->size());
@@ -335,16 +336,16 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
 
     // If no mood is set, use neutral for avatar / npc, then they will look less angry as default.
     // This will NOT affect the chat-mood
-    // BString			moodStr			= gWorldManager->getMood(creatureObject->getMoodId());
+    // BString moodStr = gWorldManager->getMood(creatureObject->getMoodId());
     uint8 moodId = creatureObject->getMoodId();
     if (moodId == 0)
     {
         moodId = 74;
     }
 
-    std::string			moodStr			= gWorldManager->getMood(moodId);
+    std::string	moodStr	= gWorldManager->getMood(moodId);
 
-    auto	defenders		= creatureObject->GetDefender();
+    auto	defenders	= creatureObject->GetDefender();
 
     //ObjectList::iterator eqIt = equippedObjects.begin();
 
@@ -368,16 +369,16 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
     }
 
     mMessageFactory->addUint16(creatureObject->getCL());
-    mMessageFactory->addString(creatureObject->getCurrentAnimation());   // music/dance string here - current animation
+    mMessageFactory->addString(creatureObject->getCurrentAnimation()); // music/dance string here - current animation
     mMessageFactory->addString(moodStr);
 
     mMessageFactory->addUint64(creatureObject->GetWeaponId());
 
     //6 Group Id
     mMessageFactory->addUint64(creatureObject->getGroupId());
-    mMessageFactory->addUint64(0);   // Invite sender Id
-    mMessageFactory->addUint64(0);   // Invite Counter
-    mMessageFactory->addUint32(0);   // guild Id
+    mMessageFactory->addUint64(0); // Invite sender Id
+    mMessageFactory->addUint64(0); // Invite Counter
+    mMessageFactory->addUint32(0); // guild Id
 
     //9
     mMessageFactory->addUint64(creatureObject->getTargetId());
@@ -392,35 +393,35 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
     }
     else
     {
-        mMessageFactory->addUint32(creatureObject->UpdatePerformanceCounter());   // unknown
+        mMessageFactory->addUint32(creatureObject->UpdatePerformanceCounter()); // unknown
     }
 
     //c thats not performance id to be used with dancing
     //use with music only
-    mMessageFactory->addUint32(creatureObject->getPerformanceId());   // performance id
+    mMessageFactory->addUint32(creatureObject->getPerformanceId()); // performance id
 
     // current ham
-	swganh::messages::BaselinesMessage baseline_message;
-	creatureObject->SerializeCurrentStats(&baseline_message);
+swganh::messages::BaselinesMessage baseline_message;
+creatureObject->SerializeCurrentStats(&baseline_message);
 
-	mMessageFactory->addData(baseline_message.data.data(),baseline_message.data.size());
+mMessageFactory->addData(baseline_message.data.data(),baseline_message.data.size());
 
-	// max ham
-	swganh::messages::BaselinesMessage haxham_message;
-	creatureObject->SerializeMaxStats(&haxham_message);
+// max ham
+swganh::messages::BaselinesMessage haxham_message;
+creatureObject->SerializeMaxStats(&haxham_message);
 
-	mMessageFactory->addData(haxham_message.data.data(),haxham_message.data.size());
+mMessageFactory->addData(haxham_message.data.data(),haxham_message.data.size());
 
     
-    // creatures tangible objects	 ->equipped list
-	swganh::messages::BaselinesMessage equipment_baseline_message;
-	creatureObject->SerializeEquipment(&equipment_baseline_message);						// Equipment
-	mMessageFactory->addData(equipment_baseline_message.data.data(),equipment_baseline_message.data.size());
+    // creatures tangible objects ->equipped list
+swganh::messages::BaselinesMessage equipment_baseline_message;
+creatureObject->SerializeEquipment(&equipment_baseline_message);	// Equipment
+mMessageFactory->addData(equipment_baseline_message.data.data(),equipment_baseline_message.data.size());
 
-	
+
 
     mMessageFactory->addUint16(0); // unknown
-    mMessageFactory->addUint8(0);  // extra byte that was needed to correct movement
+    mMessageFactory->addUint8(0); // extra byte that was needed to correct movement
 
     Message* data = mMessageFactory->EndMessage();
 
@@ -440,34 +441,6 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
 
     return(true);
 }
-
-//======================================================================================================================
-//
-// Posture Message
-// updates a creatures posture
-//
-
-bool MessageLib::sendPostureMessage(CreatureObject* creatureObject,PlayerObject* targetObject)
-{
-    if(!(targetObject->isConnected()))
-        return(false);
-
-    Message*		message;
-
-    mMessageFactory->StartMessage();
-    mMessageFactory->addUint32(opUpdatePostureMessage);
-    mMessageFactory->addUint8(creatureObject->states.getPosture());
-    mMessageFactory->addUint64(creatureObject->getId());
-
-    message = mMessageFactory->EndMessage();
-
-    (targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 3);
-
-    return(true);
-}
-
-
-
 
 
 //======================================================================================================================
@@ -544,7 +517,7 @@ void MessageLib::sendPostureUpdate(CreatureObject* creatureObject)
     mMessageFactory->addUint32(5);
     mMessageFactory->addUint16(1);
     mMessageFactory->addUint16(11);
-    mMessageFactory->addUint8(creatureObject->states.getPosture());
+    mMessageFactory->addUint8(creatureObject->GetPosture());
 
     _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
 }
@@ -571,7 +544,7 @@ void MessageLib::sendPostureAndStateUpdate(CreatureObject* creatureObject)
         factory->addUint32(15);
         factory->addUint16(2);
         factory->addUint16(11);
-        factory->addUint8(creatureObject->states.getPosture());
+        factory->addUint8(creatureObject->GetPosture());
         factory->addUint16(16);
         factory->addUint64(creatureObject->states.getAction());
 

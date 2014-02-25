@@ -385,8 +385,16 @@ void WorldManager::destroyObject(Object* object)
                     << " " << static_cast<uint32>(mPlayerAccMap.size());
 
 			//mWorldScriptsListener.handleScriptEvent("onPlayerLeft",params.str().c_str());
-			
+
 			delete player->getClient();
+
+			//at this point our equipment should already have been destroyed for bystanders
+			//but our equipment might need to end any timers etc (craft tools)
+			player->ViewObjects(player, 0, false, [&] (Object* object) {
+				LOG(info) << "destroying : " << object->getId() << " " << object->GetTemplate();
+				eraseObject(object->getId());
+	
+			});
 			
 			player->setClient(NULL);
 			player->setConnectionState(PlayerConnState_Destroying);

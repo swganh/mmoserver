@@ -169,9 +169,8 @@ void InventoryFactory::handleDatabaseJobComplete(void* ref,swganh::database::Dat
         {
             result->getNextRow(binding,&queryContainer);
 
-            if(strcmp(queryContainer.mString.getAnsi(),"containers") == 0)
-                mTangibleFactory->requestObject(this,queryContainer.mId,TanGroup_Container,0,asyncContainer->mClient);
-            else if(strcmp(queryContainer.mString.getAnsi(),"items") == 0)
+            
+            if(strcmp(queryContainer.mString.getAnsi(),"items") == 0)
                 mTangibleFactory->requestObject(this,queryContainer.mId,TanGroup_Item,0,asyncContainer->mClient);
             else if(strcmp(queryContainer.mString.getAnsi(),"resource_containers") == 0)
                 mTangibleFactory->requestObject(this,queryContainer.mId,TanGroup_ResourceContainer,0,asyncContainer->mClient);
@@ -216,8 +215,6 @@ Inventory* InventoryFactory::_createInventory(swganh::database::DatabaseResult* 
     result->getNextRow(mInventoryBinding,(void*)inventory);
 	
 	gObjectManager->LoadSlotsForObject(inventory);
-	
-	//inventory->SetTemplate(inventory->mModel.getAnsi());
     
 	//thats somewhat a hack
 	inventory->setParentId(inventory->mId - INVENTORY_OFFSET);

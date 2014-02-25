@@ -375,7 +375,7 @@ BString EntertainerManager::commitIdColor(PlayerObject* customer, BString attrib
 
 			if(hair )	 {
 				auto hair_shared = customer->GetEquipmentItem(hair->getId());
-				hair_shared->customization = hair->getCustomizationStr().getAnsi();
+				hair_shared.customization = hair->getCustomizationStr().getAnsi();
 				customer->UpdateEquipmentItem(hair_shared);
 			}
 			/*
@@ -579,11 +579,11 @@ void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
 		sprintf(sql,"UPDATE %s.character_appearance set hair = '%s' where character_id = '%"PRIu64"'",kernel_->GetDatabase()->galaxy(),newHairString.getAnsi(),customer->getId());
 		kernel_->GetDatabase()->executeSqlAsync(NULL,NULL,sql);
 
-		std::shared_ptr<swganh::object::EquipmentItem> item = std::make_shared <swganh::object::EquipmentItem>();
-		item->containment_type = customerHair->GetArrangementId();
-		item->customization = customization.getAnsi();
-		item->object_id = customerHair->getId();
-		item->template_crc = common::memcrc(customerHair->GetTemplate());
+		swganh::object::EquipmentItem item;
+		item.containment_type = customerHair->GetArrangementId();
+		item.customization = customization.getAnsi();
+		item.object_id = customerHair->getId();
+		item.template_crc = common::memcrc(customerHair->GetTemplate());
 
 		//I *think* that we can get away with sending the equiplist *before* the item create
 		//not that it would matter
@@ -600,9 +600,9 @@ void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
 		sprintf(sql,"UPDATE %s.character_appearance set hair = '%s' where character_id = '%"PRIu64"'",kernel_->GetDatabase()->galaxy(),newHairString.getAnsi(),customer->getId());
 		kernel_->GetDatabase()->executeSqlAsync(NULL,NULL,sql);
 
-		std::shared_ptr<swganh::object::EquipmentItem>& item = customer->GetEquipmentItem(customerHair->getId());
-		item->customization = customization.getAnsi();
-		item->template_crc = common::memcrc(customerHair->GetTemplate());
+		swganh::object::EquipmentItem item = customer->GetEquipmentItem(customerHair->getId());
+		item.customization = customization.getAnsi();
+		item.template_crc = common::memcrc(customerHair->GetTemplate());
 		customer->UpdateEquipmentItem(item);
 	}
 	

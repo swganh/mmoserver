@@ -88,23 +88,23 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
         virtual void		updateMovementProperties();
 
 		// Equipment List
-		void AddEquipmentItem(std::shared_ptr<swganh::object::EquipmentItem>& item);
-		void AddEquipmentItem(std::shared_ptr<swganh::object::EquipmentItem>& item, boost::unique_lock<boost::mutex>& lock);
+		void AddEquipmentItem(swganh::object::EquipmentItem item);
+		void AddEquipmentItem(swganh::object::EquipmentItem item, boost::unique_lock<boost::mutex>& lock);
 
-		void InitializeEquipmentItem(std::shared_ptr<swganh::object::EquipmentItem>& item);
-		void InitializeEquipmentItem(std::shared_ptr<swganh::object::EquipmentItem>& item, boost::unique_lock<boost::mutex>& lock);
+		void InitializeEquipmentItem(swganh::object::EquipmentItem item);
+		void InitializeEquipmentItem(swganh::object::EquipmentItem item, boost::unique_lock<boost::mutex>& lock);
 
 		void RemoveEquipmentItem(uint64_t object_id);
 		void RemoveEquipmentItem(uint64_t object_id, boost::unique_lock<boost::mutex>& lock);
 
-		void UpdateEquipmentItem(std::shared_ptr<swganh::object::EquipmentItem>& item);
-		void UpdateEquipmentItem(std::shared_ptr<swganh::object::EquipmentItem>& item, boost::unique_lock<boost::mutex>& lock);
+		void UpdateEquipmentItem(swganh::object::EquipmentItem item);
+		void UpdateEquipmentItem(swganh::object::EquipmentItem item, boost::unique_lock<boost::mutex>& lock);
 
-		std::vector<std::shared_ptr<swganh::object::EquipmentItem>> GetEquipment();
-		std::vector<std::shared_ptr<swganh::object::EquipmentItem>> GetEquipment(boost::unique_lock<boost::mutex>& lock);
+		std::vector<swganh::object::EquipmentItem> GetEquipment();
+		std::vector<swganh::object::EquipmentItem> GetEquipment(boost::unique_lock<boost::mutex>& lock);
 
-		std::shared_ptr<swganh::object::EquipmentItem>& GetEquipmentItem(uint64_t object_id);
-		std::shared_ptr<swganh::object::EquipmentItem>& GetEquipmentItem(uint64_t object_id, boost::unique_lock<boost::mutex>& lock);
+		swganh::object::EquipmentItem GetEquipmentItem(uint64_t object_id);
+		swganh::object::EquipmentItem GetEquipmentItem(uint64_t object_id, boost::unique_lock<boost::mutex>& lock);
 
 		bool SerializeEquipment(swganh::messages::BaseSwgMessage* message);
 		bool SerializeEquipment(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock);
@@ -622,7 +622,7 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 		
 		// skills_sync_queue_ synchronizes skillchanges for the creatureobjectfactory to persist to the db
 		std::queue<std::pair<uint8_t, std::string>>	skills_sync_queue_;
-		swganh::containers::NetworkVector<std::shared_ptr<swganh::object::EquipmentItem>> equipment_list_;
+		swganh::containers::NetworkVector<swganh::object::EquipmentItem, swganh::object::EquipmentItem> equipment_list_;
 		
 		//swganh::containers::NetworkSet<std::string> skills_;
 
@@ -669,7 +669,7 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
         uint32				mRaceGenderMask;
         uint32				mSkillUpdateCounter;
         uint16				mCL;
-        uint16				mCustomization[0xFF];
+        //uint16				mCustomization[0xFF];
         uint8				mFactionRank;
         uint8				mIncapCount;
         uint8				mMoodId;

@@ -73,6 +73,8 @@ Object::Object()
 {
     mDirection = glm::quat();
     mPosition  = glm::vec3();
+	
+	container_permissions_ = nullptr;
 
     mObjectController.setObject(this);
 	
@@ -238,11 +240,11 @@ int32_t Object::__InternalInsert(Object* object, glm::vec3 new_position, int32_t
 void Object::__InternalViewObjects(Object* requester, uint32_t max_depth, bool topDown, std::function<void(Object*)> func)
 {
 
-	auto permissions_objects_ = gObjectManager->GetPermissionsMap();
-
-	if(GetPermissions() == nullptr)	 {
+	if(!GetPermissions() )	 {
+		LOG(error) << "Object::__InternalViewObjects no permissions : " << this->getId();
+		auto permissions_objects_ = gObjectManager->GetPermissionsMap();
 		
-		SetPermissions(permissions_objects_.find(1)->second.get());//DEFAULT_PERMISSION
+		SetPermissions(permissions_objects_.find(swganh::object::DEFAULT_PERMISSION)->second.get());//DEFAULT_PERMISSION
 	}
     //// CHECK PERMISSIONS ////
     if(requester == nullptr || container_permissions_->canView(this, requester))
@@ -255,6 +257,11 @@ void Object::__InternalViewObjects(Object* requester, uint32_t max_depth, bool t
 		
         for(auto& slot = slot_descriptor_.begin();slot != slot_descriptor_.end(); slot++)
         {
+			if(!slot->second)	{
+				LOG(info) << " No Slot";
+			}
+			
+			//LOG(info) <<"iterating through slot : " << slot->first ;
             slot->second->view_objects([&] (Object* object)
             {
                 uint32_t object_instance = object->GetInstanceId();
@@ -313,19 +320,17 @@ void Object::__InternalViewAwareObjects(std::function<void(Object*)> func)
 
 void Object::InitializeObject(Object* newObject)
 {
+	auto permissions_objects_ = gObjectManager->GetPermissionsMap();
+
+	if(!GetPermissions())	 {
+		
+		newObject->SetPermissions(permissions_objects_.find(swganh::object::DEFAULT_PERMISSION)->second.get());//DEFAULT_PERMISSION
+	}
+
 	uint32 arrangement = GetAppropriateArrangementId(newObject);
     if(!InitializeObject(nullptr, newObject, arrangement))	{
 		//throw std::runtime_error("Bad Initialization for Object" + newObject->getId());
 	}
-
-	auto permissions_objects_ = gObjectManager->GetPermissionsMap();
-
-	if(newObject->GetPermissions() == nullptr)	 {
-		
-		newObject->SetPermissions(permissions_objects_.find(1)->second.get());//DEFAULT_PERMISSION
-	}
-	
-
 }
 
 bool Object::InitializeObject(Object* requester, Object* obj, int32_t arrangement_id)
@@ -344,20 +349,6 @@ bool Object::InitializeObject(Object* requester, Object* obj, int32_t arrangemen
 		return false;
 	}
 
-	if (this->getObjectType() == SWG_PLAYER || this->getObjectType() == SWG_CREATURE)	{
-		TangibleObject* tangible = dynamic_cast<TangibleObject*>(obj);
-		if(tangible)	{
-			std::shared_ptr<swganh::object::EquipmentItem> item = std::make_shared <swganh::object::EquipmentItem>();
-			item->containment_type	= tangible->GetArrangementId();
-			item->customization		= tangible->getCustomizationStr().getAnsi();
-			item->object_id			= tangible->getId();
-			item->template_crc		= common::memcrc(tangible->GetTemplate());
-
-			CreatureObject* creature = dynamic_cast<CreatureObject*>(this);
-			creature->InitializeEquipmentItem(item);
-		}
-	}
-
     boost::upgrade_lock<boost::shared_mutex> lock(global_container_lock_);
 
     //Add Object To Datastructure
@@ -365,6 +356,22 @@ bool Object::InitializeObject(Object* requester, Object* obj, int32_t arrangemen
         boost::upgrade_to_unique_lock<boost::shared_mutex> unique_lock(lock);
         arrangement_id = __InternalInsert(obj, obj->mPosition, arrangement_id);
     }
+	
+	obj->SetArrangementId(arrangement_id);
+
+	if (this->getObjectType() == SWG_PLAYER || this->getObjectType() == SWG_CREATURE)	{
+		TangibleObject* tangible = dynamic_cast<TangibleObject*>(obj);
+		if(tangible)	{
+			swganh::object::EquipmentItem item;
+			item.containment_type	= tangible->GetArrangementId();
+			item.customization		= tangible->getCustomizationStr().getAnsi();
+			item.object_id			= tangible->getId();
+			item.template_crc		= common::memcrc(tangible->GetTemplate());
+
+			CreatureObject* creature = dynamic_cast<CreatureObject*>(this);
+			creature->InitializeEquipmentItem(item);
+		}
+	}
 
 	return true;
 }
@@ -392,11 +399,11 @@ bool Object::AddObject(Object* requester, Object* obj, int32_t arrangement_id)
 	if (this->getObjectType() == SWG_PLAYER || this->getObjectType() == SWG_CREATURE)	{
 		TangibleObject* tangible = dynamic_cast<TangibleObject*>(obj);
 		if(tangible)	{
-			std::shared_ptr<swganh::object::EquipmentItem> item = std::make_shared <swganh::object::EquipmentItem>();
-			item->containment_type	= tangible->GetArrangementId();
-			item->customization		= tangible->getCustomizationStr().getAnsi();
-			item->object_id			= tangible->getId();
-			item->template_crc		= common::memcrc(tangible->GetTemplate());
+			swganh::object::EquipmentItem item;
+			item.containment_type	= tangible->GetArrangementId();
+			item.customization		= tangible->getCustomizationStr().getAnsi();
+			item.object_id			= tangible->getId();
+			item.template_crc		= common::memcrc(tangible->GetTemplate());
 
 			CreatureObject* creature = dynamic_cast<CreatureObject*>(this);
 			creature->AddEquipmentItem(item);

@@ -87,7 +87,7 @@ bool SpatialIndexManager::sendCreateObject(Object* object,PlayerObject* player, 
 				return false;
 			}
 			
-			return gMessageLib->sendCreateCreature(targetCreature,player);
+			//return gMessageLib->sendCreateCreature(targetCreature,player);
 
 		}
 		break;
@@ -120,7 +120,7 @@ bool SpatialIndexManager::sendCreateObject(Object* object,PlayerObject* player, 
     {
        
         TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object);
-        sendCreateTangible(tangibleObject, player, false);
+        //sendCreateTangible(tangibleObject, player, false);
     }
     break;
 
@@ -131,7 +131,7 @@ bool SpatialIndexManager::sendCreateObject(Object* object,PlayerObject* player, 
         {
             if(BuildingObject* building = dynamic_cast<BuildingObject*>(object))
             {
-                gMessageLib->sendCreateBuilding(building,player);
+//                gMessageLib->sendCreateBuilding(building,player);
             }
         }
     }
@@ -144,7 +144,7 @@ bool SpatialIndexManager::sendCreateObject(Object* object,PlayerObject* player, 
         {
             if(PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object))
             {
-                gMessageLib->sendCreateStructure(structure,player);
+                //gMessageLib->sendCreateStructure(structure,player);
             }
         }
     }
@@ -237,10 +237,12 @@ bool SpatialIndexManager::sendCreatePlayer(PlayerObject* playerObject,PlayerObje
 {
 
     gMessageLib->sendCreatePlayer(playerObject, targetObject);
-	playerObject->registerWatcher(playerObject);
+	playerObject->registerWatcher(targetObject);
 
-	playerObject->ViewObjects(playerObject, 0, false, [&] (Object* object) {
-		LOG(info) << "creating : " << object->getId() << " ";
+	playerObject->ViewObjects(playerObject, 0, true, [&] (Object* object) {
+		LOG(info) << "creating : " << object->getId() << " " << object->GetTemplate();
+		//TangibleObject* tangible = dynamic_cast<TangibleObject*>(object);
+		//sendCreateTangible(tangible,targetObject);
 	
 	});
 

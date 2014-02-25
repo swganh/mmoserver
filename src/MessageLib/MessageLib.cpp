@@ -494,7 +494,7 @@ bool MessageLib::sendCreatePlayer(PlayerObject* player, PlayerObject* target) {
     sendBaselinesCREO_6(player, target);
 
     sendCreateObjectByCRC(player, target, true);
-    sendContainmentMessage(player->getPlayerObjId(), player->getId(), 4, target);
+	sendContainmentMessage(player->getPlayerObjId(), player->getId(), player->GetArrangementId(), target);
 
     sendBaselinesPLAY_3(player, target);
     sendBaselinesPLAY_6(player, target);
@@ -507,18 +507,13 @@ bool MessageLib::sendCreatePlayer(PlayerObject* player, PlayerObject* target) {
     //close the yalp
     sendEndBaselines(player->getPlayerObjId(), target);
 
-    //sendPostureMessage(player, target);
+//    sendPostureMessage(player, target);
 
     if (player->getParentId()) {
 		sendContainmentMessage(player->getId(), player->getParentId(), player->GetArrangementId(), target);
     }
 
-    //===================================================================================
-    // create inventory, datapad, hair, MissionBag and equipped items get created for the player only !!
-    // equipped items for other watchers are handled via the equiplists
-
-    //equipped items are already in the creo6 so only send them for ourselves
-
+    
     sendEndBaselines(player->getId(), target);
 
     sendUpdatePvpStatus(player, target);

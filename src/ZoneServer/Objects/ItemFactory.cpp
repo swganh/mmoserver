@@ -379,6 +379,10 @@ Item* ItemFactory::_createItem(swganh::database::DatabaseResult* result)
     item->setItemType(itemIdentifier.mTypeId);
     item->setLoadState(LoadState_Attributes);
     item->buildTanoCustomization(3); //x + 1
+
+	auto permissions_objects_ = gObjectManager->GetPermissionsMap();
+	item->SetPermissions(permissions_objects_.find(swganh::object::DEFAULT_PERMISSION)->second.get());//CREATURE_PERMISSION
+
 	gObjectManager->LoadSlotsForObject(item);
 
     return item;

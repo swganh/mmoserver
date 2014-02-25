@@ -271,10 +271,12 @@ void InventoryFactory::handleObjectReady(Object* object,DispatchClient* client)
 
     //for unequipped items only
 	inventory->InitializeObject(object);
+	LOG(info) << "InventoryFactory::handleObjectReady : " << object->GetTemplate();
 
 	//LOG(info) << "InventoryFactory::handleObjectReady -> to load : " << inventory->getObjectLoadCounter()  << " loaded : " << inventory->getHeadCount();
     if(inventory->getObjectLoadCounter() == (inventory->getHeadCount()))
     {
+		LOG(info) << "InventoryFactory::handleObjectReady DONE ";
         inventory->setLoadState(LoadState_Loaded);
 
         if(!(_removeFromObjectLoadMap(inventory->getId())))

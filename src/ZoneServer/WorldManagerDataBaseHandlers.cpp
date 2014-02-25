@@ -397,8 +397,8 @@ void WorldManager::_loadAllObjects(uint64 parentId)
     stringstream query_stream;
     query_stream << "(SELECT \'terminals\',terminals.id FROM "<<getKernel()->GetDatabase()->galaxy()<<".terminals INNER JOIN "<<getKernel()->GetDatabase()->galaxy()<<".terminal_types ON (terminals.terminal_type = terminal_types.id)"
                  << " WHERE (terminal_types.name NOT LIKE 'unknown') AND (terminals.parent_id = " << parentId << ") AND (terminals.planet_id = "<< mZoneId << " ))"
-                 << " UNION (SELECT \'containers\',containers.id FROM "<<getKernel()->GetDatabase()->galaxy()<<".containers INNER JOIN "<<getKernel()->GetDatabase()->galaxy()<<".container_types ON (containers.container_type = container_types.id)"
-                 << " WHERE (container_types.name NOT LIKE 'unknown') AND (containers.parent_id = " << parentId << ") AND (containers.planet_id = "<< mZoneId << "))"
+                 //<< " UNION (SELECT \'containers\',containers.id FROM "<<getKernel()->GetDatabase()->galaxy()<<".containers INNER JOIN "<<getKernel()->GetDatabase()->galaxy()<<".container_types ON (containers.container_type = container_types.id)"
+                 //<< " WHERE (container_types.name NOT LIKE 'unknown') AND (containers.parent_id = " << parentId << ") AND (containers.planet_id = "<< mZoneId << "))"
                  << " UNION (SELECT \'ticket_collectors\',ticket_collectors.id FROM "<<getKernel()->GetDatabase()->galaxy()<<".ticket_collectors WHERE (parent_id=" << parentId << ") AND (planet_id="<< mZoneId << "))"
                  << " UNION (SELECT \'persistent_npcs\',persistent_npcs.id FROM "<<getKernel()->GetDatabase()->galaxy()<<".persistent_npcs WHERE (parentId=" << parentId << ") AND (planet_id = "<< mZoneId << "))"
                  << " UNION (SELECT \'shuttles\',shuttles.id FROM "<<getKernel()->GetDatabase()->galaxy()<<".shuttles WHERE (parentId=" << parentId << ") AND (planet_id = "<< mZoneId << "))"

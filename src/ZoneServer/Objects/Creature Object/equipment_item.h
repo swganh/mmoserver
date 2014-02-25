@@ -23,6 +23,11 @@ public:
     }
 };
 
+struct Equipment
+{
+	
+};
+
 struct EquipmentItem
 {
     EquipmentItem()
@@ -30,16 +35,33 @@ struct EquipmentItem
     }
 
     EquipmentItem(uint64_t object_id_, uint32_t template_crc_ = 0, std::string customization_ = std::string(""), uint32_t containment_type_ = 4)
-        : customization(customization_)
-        , containment_type(containment_type_)
-        , object_id(object_id_)
-        , template_crc(template_crc_)
     {
+		customization = customization_;
+		containment_type = containment_type_;
+		object_id = object_id_;
+		template_crc = template_crc_;
     }
 
     ~EquipmentItem()
     {
     }
+
+	static void SerializeBaseline(swganh::ByteBuffer& data, const EquipmentItem& t)
+	{
+		data.write<std::string>(t.customization);
+		data.write<uint32_t>(t.containment_type);
+		data.write<uint64_t>(t.object_id);
+        data.write<uint32_t>(t.template_crc);
+	}
+
+	static void SerializeDelta(swganh::ByteBuffer& data, const EquipmentItem& t)
+	{
+		data.write<std::string>(t.customization);
+		data.write<uint32_t>(t.containment_type);
+		data.write<uint64_t>(t.object_id);
+        data.write<uint32_t>(t.template_crc);
+	}
+	/*
 
     void Serialize(swganh::messages::BaselinesMessage& message)
     {
@@ -56,10 +78,10 @@ struct EquipmentItem
         message.data.write<uint64_t>(object_id);
         message.data.write<uint32_t>(template_crc);
     }
-
+	*/
     bool operator==(const EquipmentItem& other)
     {
-        return (object_id != other.object_id);
+		return (object_id != other.object_id);
     }
 
     std::string customization;

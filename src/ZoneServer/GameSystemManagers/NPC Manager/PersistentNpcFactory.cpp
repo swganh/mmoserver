@@ -184,8 +184,12 @@ NPCObject* PersistentNpcFactory::_createPersistentNpc(swganh::database::Database
     break;
     }
 
+	auto permissions_objects_ = gObjectManager->GetPermissionsMap();
+	npc->SetPermissions(permissions_objects_.find(swganh::object::CREATURE_PERMISSION)->second.get());//CREATURE_PERMISSION
+
     Inventory*		npcInventory	= new Inventory();
     npcInventory->setParent(npc);
+	npcInventory->SetPermissions(permissions_objects_.find(swganh::object::CREATURE_CONTAINER_PERMISSION)->second.get());//CREATURE_PERMISSION
 
     result->getNextRow(mPersistentNpcBinding,(void*)npc);
 

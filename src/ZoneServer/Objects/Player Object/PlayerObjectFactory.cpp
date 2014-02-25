@@ -508,8 +508,9 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,swganh::database::
         binding->addField(swganh::database::DFT_uint64,0,8);
 
         uint64 count = result->getRowCount();
+		LOG(info) << "POFQuery_EquippedItems before : " << mIlc->mLoadCounter;
         mIlc->mLoadCounter += static_cast<uint32>(count);
-
+		LOG(info) << "POFQuery_EquippedItems after : " << mIlc->mLoadCounter;
         for(uint64 i = 0; i < count; i++)
         {
             result->getNextRow(binding,&id);
@@ -801,6 +802,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
     playerObject->buildCustomization(playerObject->mCustomization);
 
 	auto permissions_objects_ = gObjectManager->GetPermissionsMap();
+	playerObject->SetPermissions(permissions_objects_.find(swganh::object::CREATURE_PERMISSION)->second.get());//CREATURE_PERMISSION
 
     playerObject->setFactionRank(0);
     // playerObject->setPvPStatus(16);
@@ -810,7 +812,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
     playerObject->setPlayerObjId(playerObject->mId + PLAYER_OFFSET);
     playerObject->mTypeOptions = 0x80;
     playerObject->mBiography.convert(BSTRType_Unicode16);
-	playerObject->SetPermissions(permissions_objects_.find(5)->second.get());//CREATURE_PERMISSION
+	
 
 	gObjectManager->LoadSlotsForObject(playerObject);
 
@@ -848,7 +850,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
 	playerObject->InitializeObject(playerMissionBag);
 
     // bank
-	playerBank->SetPermissions(permissions_objects_.find(6)->second.get());//CREATURE_CONTAINER_PERMISSION
+	playerBank->SetPermissions(permissions_objects_.find(swganh::object::CREATURE_CONTAINER_PERMISSION)->second.get());//CREATURE_CONTAINER_PERMISSION
     playerBank->setId(playerObject->mId + BANK_OFFSET);
     playerBank->setParentId(playerObject->mId);
     playerBank->SetTemplate("object/tangible/bank/shared_character_bank.iff");
@@ -863,7 +865,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
 
     // default player weapon
 	Weapon*			playerWeapon	= new Weapon();
-    playerWeapon->SetPermissions(permissions_objects_.find(6)->second.get());//CREATURE_CONTAINER_PERMISSION
+    playerWeapon->SetPermissions(permissions_objects_.find(swganh::object::CREATURE_CONTAINER_PERMISSION)->second.get());//CREATURE_CONTAINER_PERMISSION
 	playerWeapon->setId(playerObject->mId + WEAPON_OFFSET);
     playerWeapon->setParentId(playerObject->mId);
     playerWeapon->SetTemplate("object/weapon/melee/unarmed/shared_unarmed_default_player.iff");
@@ -1010,7 +1012,8 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
         assert(false && "[PlayerObjectFactory::handleObjectReady] no InLoadingContainer");
         return;
     }
-    ilc->mLoadCounter--;
+    
+	ilc->mLoadCounter--;
 
     PlayerObject*		playerObject = dynamic_cast<PlayerObject*>(ilc->mObject);
     if(!playerObject)
@@ -1019,15 +1022,17 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
         return;
     }
 
+	gObjectManager->LoadSlotsForObject(object);
+
     if(Inventory* inventory = dynamic_cast<Inventory*>(object))
     {
         ilc->mInventory = true;
         
-		gObjectManager->LoadSlotsForObject(inventory);
         playerObject->InitializeObject(inventory);
 		gWorldManager->addObject(inventory,true);
 
 		inventory->setParent(playerObject);
+		
         playerObject->setInventory(inventory);
 
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(0,POFQuery_EquippedItems,client);
@@ -1039,7 +1044,6 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
     {
         ilc->mDPad = true;
         
-		gObjectManager->LoadSlotsForObject(datapad);
         playerObject->InitializeObject(datapad);
 		gWorldManager->addObject(datapad,true);
 
@@ -1051,15 +1055,13 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
     {
         gWorldManager->addObject(item,true);
 
-		gObjectManager->LoadSlotsForObject(item);
         playerObject->InitializeObject(item);
 		
         
     }
-    else
-    {
-        LOG(warning) << "Unable to determine the object type";
-    }
+
+	LOG(info) <<"PlayerObjectFactory::handleObjectReady : loadcounter : " << ilc->mLoadCounter;
+	LOG(info) <<"object : " << object->GetTemplate();
 
     if((!ilc->mLoadCounter) && ((!ilc->mInventory) || (!ilc->mDPad)))
     {
@@ -1068,6 +1070,8 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 
     if((!ilc->mLoadCounter) && (ilc->mInventory) && (ilc->mDPad))
     {
+		LOG(info) <<"PlayerObjectFactory::handleObjectReady : done";
+
         if(!(_removeFromObjectLoadMap(playerObject->getId())))
             LOG(warning) << "Failed removing object from loadmap";
         

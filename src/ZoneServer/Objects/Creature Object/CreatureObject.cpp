@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer/Objects/Creature Object/CreatureObject.h"
 #include "Zoneserver/Objects/AttackableCreature.h"
+
 #include "ZoneServer\Objects\Creature Object\equipment_item.h"
 
 #include "Zoneserver/GameSystemManagers/NPC Manager/AttackableStaticNpc.h"
@@ -1865,24 +1866,24 @@ uint32_t CreatureObject::GetBattleFatigue(boost::unique_lock<boost::mutex>& lock
     return battle_fatigue_;
 }
 
-void CreatureObject::InitializeEquipmentItem(std::shared_ptr<swganh::object::EquipmentItem>& item)
+void CreatureObject::InitializeEquipmentItem(swganh::object::EquipmentItem item)
 {
 	auto lock = AcquireLock();
     InitializeEquipmentItem(item, lock);
 }
 
-void CreatureObject::InitializeEquipmentItem(std::shared_ptr<swganh::object::EquipmentItem>& item, boost::unique_lock<boost::mutex>& lock)
+void CreatureObject::InitializeEquipmentItem(swganh::object::EquipmentItem item, boost::unique_lock<boost::mutex>& lock)
 {
 	equipment_list_.add(item);
 }
 
-void CreatureObject::AddEquipmentItem(std::shared_ptr<swganh::object::EquipmentItem>& item)
+void CreatureObject::AddEquipmentItem(swganh::object::EquipmentItem item)
 {
     auto lock = AcquireLock();
     AddEquipmentItem(item, lock);
 }
 
-void CreatureObject::AddEquipmentItem(std::shared_ptr<swganh::object::EquipmentItem>& item, boost::unique_lock<boost::mutex>& lock)
+void CreatureObject::AddEquipmentItem(swganh::object::EquipmentItem item, boost::unique_lock<boost::mutex>& lock)
 {
     equipment_list_.add(item);
 	GetEventDispatcher()->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::EquipmentItem", this));
@@ -1896,9 +1897,9 @@ void CreatureObject::RemoveEquipmentItem(uint64_t object_id)
 
 void CreatureObject::RemoveEquipmentItem(uint64_t object_id, boost::unique_lock<boost::mutex>& lock)
 {
-    auto iter = std::find_if(equipment_list_.begin(), equipment_list_.end(), [=](std::shared_ptr<swganh::object::EquipmentItem>& item)->bool
+    auto iter = std::find_if(equipment_list_.begin(), equipment_list_.end(), [=](swganh::object::EquipmentItem item)->bool
     {
-        return (object_id == item->object_id);
+        return (object_id == item.object_id);
     });
 
     if(iter != equipment_list_.end())
@@ -1910,45 +1911,45 @@ void CreatureObject::RemoveEquipmentItem(uint64_t object_id, boost::unique_lock<
     GetEventDispatcher()->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::EquipmentItem", this));
 }
 
-void CreatureObject::UpdateEquipmentItem(std::shared_ptr<swganh::object::EquipmentItem>& item)
+void CreatureObject::UpdateEquipmentItem(swganh::object::EquipmentItem item)
 {
     auto lock = AcquireLock();
     UpdateEquipmentItem(item, lock);
 }
 
-void CreatureObject::UpdateEquipmentItem(std::shared_ptr<swganh::object::EquipmentItem>& item, boost::unique_lock<boost::mutex>& lock)
+void CreatureObject::UpdateEquipmentItem(swganh::object::EquipmentItem item, boost::unique_lock<boost::mutex>& lock)
 {
-    uint64_t object_id = item->object_id;
-    equipment_list_.update(std::find_if(equipment_list_.begin(), equipment_list_.end(), [=](std::shared_ptr<swganh::object::EquipmentItem>& item)->bool
+    uint64_t object_id = item.object_id;
+    equipment_list_.update(std::find_if(equipment_list_.begin(), equipment_list_.end(), [&](swganh::object::EquipmentItem item)->bool
     {
-        return (object_id == item->object_id);
+        return (object_id == item.object_id);
     }));
 
     GetEventDispatcher()->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::EquipmentItem", this));
 }
 
-std::vector<std::shared_ptr<swganh::object::EquipmentItem>> CreatureObject::GetEquipment(void)
+std::vector<swganh::object::EquipmentItem> CreatureObject::GetEquipment(void)
 {
     auto lock = AcquireLock();
     return GetEquipment(lock);
 }
 
-std::vector<std::shared_ptr<swganh::object::EquipmentItem>> CreatureObject::GetEquipment(boost::unique_lock<boost::mutex>& lock)
+std::vector<swganh::object::EquipmentItem> CreatureObject::GetEquipment(boost::unique_lock<boost::mutex>& lock)
 {
     return equipment_list_.raw();
 }
 
-std::shared_ptr<swganh::object::EquipmentItem>& CreatureObject::GetEquipmentItem(uint64_t object_id)
+swganh::object::EquipmentItem CreatureObject::GetEquipmentItem(uint64_t object_id)
 {
     auto lock = AcquireLock();
     return GetEquipmentItem(object_id, lock);
 }
 
-std::shared_ptr<swganh::object::EquipmentItem>& CreatureObject::GetEquipmentItem(uint64_t object_id, boost::unique_lock<boost::mutex>& lock)
+swganh::object::EquipmentItem CreatureObject::GetEquipmentItem(uint64_t object_id, boost::unique_lock<boost::mutex>& lock)
 {
-    auto iter = std::find_if(equipment_list_.begin(), equipment_list_.end(), [=](std::shared_ptr<swganh::object::EquipmentItem>& object)
+    auto iter = std::find_if(equipment_list_.begin(), equipment_list_.end(), [&](swganh::object::EquipmentItem object)
     {
-        return object->object_id == object_id;
+		return object.object_id == object_id;
     });
 
     if(iter != equipment_list_.end())
@@ -1958,7 +1959,7 @@ std::shared_ptr<swganh::object::EquipmentItem>& CreatureObject::GetEquipmentItem
 
 	LOG(error) << "CreatureObject::GetEquipmentItem : " << object_id << " not found";
 	
-	std::shared_ptr<swganh::object::EquipmentItem> a;
+	swganh::object::EquipmentItem a;
 
 	return a;
     //throw EquipmentNotFound();

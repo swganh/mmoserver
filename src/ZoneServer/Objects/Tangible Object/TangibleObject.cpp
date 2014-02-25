@@ -53,12 +53,12 @@ TangibleObject::TangibleObject()
     mUnknownStr1		= "";
     mUnknownStr2		= "";
     mCustomizationStr	= "";
-
-	custom_name_			= std::u16string();
+	
 
     //uint64 l = 0;
     for(uint16 i=0; i<256; i++)
         mCustomization[i] = 0;
+		
 }
 
 //=============================================================================
@@ -75,6 +75,9 @@ TangibleObject::TangibleObject(uint64 id,uint64 parentId,std::string model,Tangi
     mUnknownStr2		= "";
     
     mCustomizationStr	= "";
+	
+	for(uint16 i = 1;i<256;i++)
+        mCustomization[i]=0;
 }
 
 //=============================================================================
@@ -123,6 +126,9 @@ bool TangibleObject::updateTimer(uint64 callTime)
 void TangibleObject::buildTanoCustomization(uint8 len)
 {
     uint8 theCustomization[512];
+	for(uint32 i = 0; i < 512; i++)	{
+		theCustomization[i] = 0;
+	}
 
     uint16 byteCount = 4; // 2 byte header + 2 byte footer
     uint8 elementCount = 0;
@@ -187,6 +193,10 @@ void TangibleObject::buildTanoCustomization(uint8 len)
     theCustomization[j+2] = '\0';
 
     setCustomizationStr(theCustomization);
+
+	//if(getId() == 4831838212)	{
+	//	LOG(info) << "TangibleObject::buildTanoCustomization :: " << getCustomizationStr().getLength() << " : " << getCustomizationStr().getAnsi();
+	//}
   
 }
 

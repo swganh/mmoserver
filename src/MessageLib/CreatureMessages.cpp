@@ -41,6 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/ZoneOpcodes.h"
 
 #include "ZoneServer\Services\equipment\equipment_service.h"
+#include "ZoneServer\Objects\Creature Object\equipment_item.h"
 
 #include "anh/logger.h"
 
@@ -102,7 +103,8 @@ mMessageFactory->addData(baseline_message.data.data(),baseline_message.data.size
 	auto skilllist		= player->GetSkills(); 
 	auto skillIt		= skilllist.begin();
 
-	mMessageFactory->addUint64(skilllist.size());
+	mMessageFactory->addUint32(skilllist.size());
+	mMessageFactory->addUint32(0);
 
     while(skillIt != skilllist.end())
     {
@@ -420,8 +422,8 @@ mMessageFactory->addData(equipment_baseline_message.data.data(),equipment_baseli
 
 
 
-    mMessageFactory->addUint16(0); // unknown
-    mMessageFactory->addUint8(0); // extra byte that was needed to correct movement
+    mMessageFactory->addUint16(0); // unknown set object template string
+    mMessageFactory->addUint8(0); // extra byte that was needed to correct movement stationary byte
 
     Message* data = mMessageFactory->EndMessage();
 

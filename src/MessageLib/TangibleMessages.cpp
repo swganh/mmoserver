@@ -54,6 +54,10 @@ bool MessageLib::sendBaselinesTANO_3( TangibleObject*  tangibleObject,const Play
     if(!(targetObject->isConnected()))
         return(false);
 
+	if(tangibleObject->getId() == 4831838212)	{
+		LOG(info) << "customization :: " << tangibleObject->getCustomizationStr().getLength() << " : " << tangibleObject->getCustomizationStr().getAnsi();
+	}
+
     Message* message;
     //BString customName = tangibleObject->getCustomName().getAnsi();
     //customName.convert(BSTRType_Unicode16);

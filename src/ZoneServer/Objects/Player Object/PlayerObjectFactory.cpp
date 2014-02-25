@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "Zoneserver/Objects/Player Object/PlayerObjectFactory.h"
-
+#include "ZoneServer\Objects\Creature Object\CreatureObject.h"
 #include "anh/logger.h"
 
 #include "Zoneserver/GameSystemManagers/Buff Manager/BuffManager.h"
@@ -692,6 +692,7 @@ void PlayerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64
 {
     QueryContainerBase* asyncContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,POFQuery_MainPlayerData,client);
 
+
     int8 sql[8152];
     sprintf(sql,"SELECT characters.id,characters.parent_Id,characters.account_id,characters.oX,characters.oY,characters.oZ,characters.oW,"//7
             "characters.x,characters.y,characters.z,character_appearance.base_model_string,"//11
@@ -763,58 +764,72 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
         return nullptr;
     }
 
-	PlayerObject* playerObject = new PlayerObject();
+	PlayerObject*		player= new PlayerObject();
+	CreatureObject*		creature = new CreatureObject();
+
 	std::shared_ptr<TangibleObject> playerHair = std::make_shared<TangibleObject>();
 	
     MissionBag*		playerMissionBag;
-	std::shared_ptr<Bank> playerBank = std::make_shared<Bank>(playerObject);
+	
    
-	playerObject->object_type_ = SWG_PLAYER;
+	player->object_type_ = SWG_PLAYER;
 
     // get our results
-    result->getNextRow(mPlayerBinding,(void*)playerObject);
+    result->getNextRow(ghost_binding,(void*)player);
+    result->resetRowIndex();
+	result->getNextRow(creature_binding,(void*)creature);
     result->resetRowIndex();
     result->getNextRow(mHairBinding,(void*)playerHair.get());
-    result->resetRowIndex();
+    
+	std::shared_ptr<Bank> playerBank = std::make_shared<Bank>(player);
+
+	result->resetRowIndex();
     result->getNextRow(mBankBinding,(void*)playerBank.get());
 
-	std::string name = playerObject->getFirstName() + " " + playerObject->getLastName();
+	std::string name = creature->getFirstName() + " " + creature->getLastName();
 
-	playerObject->setCustomName(std::u16string(name.begin(), name.end()));
+	creature->setCustomName(std::u16string(name.begin(), name.end()));
 
-	BString mModel = playerObject->GetTemplate().c_str();
+	BString mModel = creature->GetTemplate().c_str();
 
     //male or female ?
     BStringVector				dataElements;
     mModel.split(dataElements,'_');
     if(dataElements.size() > 1) {
-        playerObject->setGender(dataElements[1].getCrc() == BString("female.iff").getCrc());
+        player->setGender(dataElements[1].getCrc() == BString("female.iff").getCrc());
     } else { //couldn't find data, default to male. Is this acceptable? Crash bug patch: http://paste.swganh.org/viewp.php?id=20100627013612-b69ab274646815fb2a9befa4553c93f7
-        LOG(warning) << "Player [" << playerObject->getId() << "] Could not determine requested gender, defaulting to male";
-        playerObject->setGender(false);
+        LOG(warning) << "Player [" << creature->getId() << "] Could not determine requested gender, defaulting to male";
+        player->setGender(false);
     }
 
     // player object
     int8 tmpModel[128];
     sprintf(tmpModel,"object/creature/player/shared_%s",&mModel.getAnsi()[23]);
-	playerObject->SetTemplate(tmpModel);
+	creature->SetTemplate(tmpModel);
 
-    playerObject->buildCustomization(playerObject->mCustomization);
+    creature->buildCustomization(creature->mCustomization);
 
 	auto permissions_objects_ = gObjectManager->GetPermissionsMap();
-	playerObject->SetPermissions(permissions_objects_.find(swganh::object::CREATURE_PERMISSION)->second.get());//CREATURE_PERMISSION
+	creature->SetPermissions(permissions_objects_.find(swganh::object::CREATURE_PERMISSION)->second.get());//CREATURE_PERMISSION
+	player->SetPermissions(permissions_objects_.find(swganh::object::CREATURE_CONTAINER_PERMISSION)->second.get());//CREATURE_PERMISSION
 
-    playerObject->setFactionRank(0);
+    creature->setFactionRank(0);
     // playerObject->setPvPStatus(16);
-    playerObject->setPvPStatus(CreaturePvPStatus_Player);
-    playerObject->setSpeciesGroup("species");
-    playerObject->setCL(0);
-    playerObject->setPlayerObjId(playerObject->mId + PLAYER_OFFSET);
-    playerObject->mTypeOptions = 0x80;
-    playerObject->mBiography.convert(BSTRType_Unicode16);
+    creature->setPvPStatus(CreaturePvPStatus_Player);
+    creature->setSpeciesGroup("species");
+    creature->setCL(0);
+	creature->mTypeOptions = 0x80;
+    
+	player->setId(creature->mId + PLAYER_OFFSET);
+	player->mBiography.convert(BSTRType_Unicode16);
+	player->setNameFile("string_id_table");
+	player->SetTemplate("shared_player.iff");
+	player->setParentId(creature->getId());
 	
+	creature->InitializeObject(player);
 
-	gObjectManager->LoadSlotsForObject(playerObject);
+	gObjectManager->LoadSlotsForObject(creature);
+	gObjectManager->LoadSlotsForObject(player);
 
 	//now add to world - then add children
 
@@ -823,9 +838,9 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
     if(mModel.getLength())
     {
         int8 tmpHair[128];
-        sprintf(tmpHair,"object/tangible/hair/%s/shared_%s",playerObject->mSpecies.getAnsi(),&mModel.getAnsi()[22 + playerObject->mSpecies.getLength()]);
-        playerHair->setId(playerObject->mId + HAIR_OFFSET);
-        playerHair->setParentId(playerObject->mId);
+        sprintf(tmpHair,"object/tangible/hair/%s/shared_%s",creature->mSpecies.getAnsi(),&mModel.getAnsi()[22 + creature->mSpecies.getLength()]);
+        playerHair->setId(creature->getId() + HAIR_OFFSET);
+        playerHair->setParentId(creature->getId());
         playerHair->SetTemplate(tmpHair);
         playerHair->setTangibleGroup(TanGroup_Hair);
         playerHair->setTangibleType(TanType_Hair);
@@ -837,22 +852,23 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
 
 		gObjectManager->LoadSlotsForObject(playerHair.get());
 
-        playerObject->InitializeObject(playerHair.get());
+        creature->InitializeObject(playerHair.get());
 		gWorldManager->addObject(playerHair,true);
     }
 
 
     // mission bag
-    playerMissionBag = new MissionBag(playerObject->mId + MISSION_OFFSET,playerObject,"object/tangible/mission_bag/shared_mission_bag.iff","item_n","mission_bag");
-	playerMissionBag->SetPermissions(permissions_objects_.find(6)->second.get());//6
+    playerMissionBag = new MissionBag(creature->getId() + MISSION_OFFSET,player,"object/tangible/mission_bag/shared_mission_bag.iff","item_n","mission_bag");
+	playerMissionBag->SetPermissions(permissions_objects_.find(swganh::object::CREATURE_CONTAINER_PERMISSION)->second.get());//6
 	gObjectManager->LoadSlotsForObject(playerMissionBag);
 	gWorldManager->addObject(playerMissionBag,true);
-	playerObject->InitializeObject(playerMissionBag);
+	creature->InitializeObject(playerMissionBag);
 
     // bank
+	
 	playerBank->SetPermissions(permissions_objects_.find(swganh::object::CREATURE_CONTAINER_PERMISSION)->second.get());//CREATURE_CONTAINER_PERMISSION
-    playerBank->setId(playerObject->mId + BANK_OFFSET);
-    playerBank->setParentId(playerObject->mId);
+	playerBank->setId(creature->getId() + BANK_OFFSET);
+    playerBank->setParentId(creature->mId);
     playerBank->SetTemplate("object/tangible/bank/shared_character_bank.iff");
     playerBank->setName("bank");
     playerBank->setNameFile("item_n");
@@ -861,36 +877,36 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
 
     gObjectManager->LoadSlotsForObject(playerBank.get());
 	gWorldManager->addObject(playerBank,true);
-	playerObject->InitializeObject(playerBank.get());
+	creature->InitializeObject(playerBank.get());
 
     // default player weapon
 	Weapon*			playerWeapon	= new Weapon();
     playerWeapon->SetPermissions(permissions_objects_.find(swganh::object::CREATURE_CONTAINER_PERMISSION)->second.get());//CREATURE_CONTAINER_PERMISSION
-	playerWeapon->setId(playerObject->mId + WEAPON_OFFSET);
-    playerWeapon->setParentId(playerObject->mId);
+	playerWeapon->setId(creature->getId() + WEAPON_OFFSET);
+    playerWeapon->setParentId(creature->getId());
     playerWeapon->SetTemplate("object/weapon/melee/unarmed/shared_unarmed_default_player.iff");
     playerWeapon->setGroup(WeaponGroup_Unarmed);
     playerWeapon->addInternalAttribute("weapon_group","1");
 	
 	gObjectManager->LoadSlotsForObject(playerWeapon);
 	gWorldManager->addObject(playerWeapon,true);
-	playerObject->InitializeObject(playerWeapon);
+	creature->InitializeObject(playerWeapon);
 
     // just making sure
-    playerObject->togglePlayerFlagOff(PlayerFlag_LinkDead);
+    player->togglePlayerFlagOff(PlayerFlag_LinkDead);
 
-    if(playerObject->GetPosture() == CreaturePosture_SkillAnimating
-            || playerObject->GetPosture() == CreaturePosture_Incapacitated
-            || playerObject->GetPosture() == CreaturePosture_Dead)
+    if(creature->GetPosture() == CreaturePosture_SkillAnimating
+            || creature->GetPosture() == CreaturePosture_Incapacitated
+            || creature->GetPosture() == CreaturePosture_Dead)
     {
-        playerObject->SetPosture(CreaturePosture_Upright);
+        creature->SetPosture(CreaturePosture_Upright);
     }
 
     //Concerning states we must realize that some of the states persist when we use a shuttle to transfer to different planets
 	//on a fresh login however these states should be (??? or not ???) reset
 
     // Todo : which states remain valid after a zone to zone transition ??? in order to transfer zone e need to be out of combat - so ... none ?
-    playerObject->states.toggleActionOff((CreatureState)(
+    creature->states.toggleActionOff((CreatureState)(
             CreatureState_Cover |
             CreatureState_Combat |
             CreatureState_Aiming |
@@ -906,79 +922,91 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
             CreatureState_Peace ));
 	
     
-    playerObject->mStomach->checkForRegen();
+    player->mStomach->checkForRegen();
 
     // setup controller validators
-    playerObject->mObjectController.initEnqueueValidators();
-    playerObject->mObjectController.initProcessValidators();
+    creature->mObjectController.initEnqueueValidators();
+    creature->mObjectController.initProcessValidators();
 
     // update movement properties
-    playerObject->updateMovementProperties();
+    creature->updateMovementProperties();
 
     // update race / gender mask
-    playerObject->updateRaceGenderMask(playerObject->getGender());
+    creature->updateRaceGenderMask(player->getGender());
 
-    gBuffManager->LoadBuffs(playerObject, gWorldManager->GetCurrentGlobalTick());
+    gBuffManager->LoadBuffs(player, gWorldManager->GetCurrentGlobalTick());
 
     // Start tutorial, if any.
-    playerObject->startTutorial();
+    player->startTutorial();
 
-    return playerObject;
+    return player;
 }
 
 //=============================================================================
 
 void PlayerObjectFactory::_setupDatabindings()
 {
+
+	ghost_binding = mDatabase->createDataBinding(15);
+	ghost_binding ->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mAccountId),4,2);
+	ghost_binding ->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mJediState),4,137);
+	ghost_binding ->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mTitle),255,138);
+	ghost_binding ->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mPlayerFlags),4,144);
+    ghost_binding ->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mBiography),4096,145);
+	ghost_binding->addField(swganh::database::DFT_uint8,offsetof(PlayerObject,mLanguage),1,132);
+    ghost_binding->addField(swganh::database::DFT_uint8,offsetof(PlayerObject,mCsrTag),1,149);
+    
+    ghost_binding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mBornyear),4,151);
+    ghost_binding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mPlayerMatch[0]),4,152);
+    ghost_binding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mPlayerMatch[1]),4,153);
+    ghost_binding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mPlayerMatch[2]),4,154);
+    ghost_binding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mPlayerMatch[3]),4,155);
+    ghost_binding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,current_force_power_),4,156);
+    ghost_binding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,max_force_power_),4,157);
+    ghost_binding->addField(swganh::database::DFT_uint8,offsetof(PlayerObject,mNewPlayerExemptions),1,158);//39
+	
+
     //player binding
-    mPlayerBinding = mDatabase->createDataBinding(185);
-    mPlayerBinding->addField(swganh::database::DFT_uint64,offsetof(PlayerObject,mId),8,0);
-    mPlayerBinding->addField(swganh::database::DFT_uint64,offsetof(PlayerObject,mParentId),8,1);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mAccountId),4,2);
-    mPlayerBinding->addField(swganh::database::DFT_float,offsetof(PlayerObject,mDirection.x),4,3);
-    mPlayerBinding->addField(swganh::database::DFT_float,offsetof(PlayerObject,mDirection.y),4,4);
-    mPlayerBinding->addField(swganh::database::DFT_float,offsetof(PlayerObject,mDirection.z),4,5);
-    mPlayerBinding->addField(swganh::database::DFT_float,offsetof(PlayerObject,mDirection.w),4,6);
-    mPlayerBinding->addField(swganh::database::DFT_float,offsetof(PlayerObject,mPosition.x),4,7);
-    mPlayerBinding->addField(swganh::database::DFT_float,offsetof(PlayerObject,mPosition.y),4,8);
-    mPlayerBinding->addField(swganh::database::DFT_float,offsetof(PlayerObject,mPosition.z),4,9);
-	mPlayerBinding->addField(swganh::database::DFT_stdstring,offsetof(PlayerObject,template_string_),128,10);
-	mPlayerBinding->addField(swganh::database::DFT_stdstring,offsetof(PlayerObject,first_name),64,11);
-    mPlayerBinding->addField(swganh::database::DFT_stdstring,offsetof(PlayerObject,last_name),64,12);
-    mPlayerBinding->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mSpecies),16,16);
-    mPlayerBinding->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mFaction),16,134);
-    mPlayerBinding->addField(swganh::database::DFT_uint8,offsetof(PlayerObject,states.posture_),1,135);
-    mPlayerBinding->addField(swganh::database::DFT_uint8,offsetof(PlayerObject,mMoodId),1,136);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mJediState),4,137);
-    mPlayerBinding->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mTitle),255,138);
-    mPlayerBinding->addField(swganh::database::DFT_float,offsetof(PlayerObject,mScale),4,139);
+    creature_binding = mDatabase->createDataBinding(185);
+    creature_binding->addField(swganh::database::DFT_uint64,offsetof(CreatureObject,mId),8,0);
+    creature_binding->addField(swganh::database::DFT_uint64,offsetof(CreatureObject,mParentId),8,1);
+    //mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mAccountId),4,2);
+    creature_binding->addField(swganh::database::DFT_float,offsetof(CreatureObject,mDirection.x),4,3);
+    creature_binding->addField(swganh::database::DFT_float,offsetof(CreatureObject,mDirection.y),4,4);
+    creature_binding->addField(swganh::database::DFT_float,offsetof(CreatureObject,mDirection.z),4,5);
+    creature_binding->addField(swganh::database::DFT_float,offsetof(CreatureObject,mDirection.w),4,6);
+    creature_binding->addField(swganh::database::DFT_float,offsetof(CreatureObject,mPosition.x),4,7);
+    creature_binding->addField(swganh::database::DFT_float,offsetof(CreatureObject,mPosition.y),4,8);
+    creature_binding->addField(swganh::database::DFT_float,offsetof(CreatureObject,mPosition.z),4,9);
+	creature_binding->addField(swganh::database::DFT_stdstring,offsetof(CreatureObject,template_string_),128,10);
+	creature_binding->addField(swganh::database::DFT_uint64,offsetof(CreatureObject,mGroupId),8,150);
+	creature_binding->addField(swganh::database::DFT_stdstring,offsetof(CreatureObject,first_name),64,11);
+    creature_binding->addField(swganh::database::DFT_stdstring,offsetof(CreatureObject,last_name),64,12);
+    creature_binding->addField(swganh::database::DFT_bstring,offsetof(CreatureObject,mSpecies),16,16);
+    creature_binding->addField(swganh::database::DFT_bstring,offsetof(CreatureObject,mFaction),16,134);
+    creature_binding->addField(swganh::database::DFT_uint8,offsetof(CreatureObject,states.posture_),1,135);
+    creature_binding->addField(swganh::database::DFT_uint8,offsetof(CreatureObject,mMoodId),1,136);
+    //mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mJediState),4,137);
+    //mPlayerBinding->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mTitle),255,138);
+    creature_binding->addField(swganh::database::DFT_float,offsetof(CreatureObject,mScale),4,139);
 
-    mPlayerBinding->addField(swganh::database::DFT_float,offsetof(PlayerObject,mBaseRunSpeedLimit),4,140);
-    mPlayerBinding->addField(swganh::database::DFT_float,offsetof(PlayerObject,mBaseAcceleration),4,141);
-    mPlayerBinding->addField(swganh::database::DFT_float,offsetof(PlayerObject,mBaseTurnRate),4,142);
-    mPlayerBinding->addField(swganh::database::DFT_float,offsetof(PlayerObject,mBaseTerrainNegotiation),4,143);//24
+    creature_binding->addField(swganh::database::DFT_float,offsetof(CreatureObject,mBaseRunSpeedLimit),4,140);
+    creature_binding->addField(swganh::database::DFT_float,offsetof(CreatureObject,mBaseAcceleration),4,141);
+    creature_binding->addField(swganh::database::DFT_float,offsetof(CreatureObject,mBaseTurnRate),4,142);
+    creature_binding->addField(swganh::database::DFT_float,offsetof(CreatureObject,mBaseTerrainNegotiation),4,143);//24
 
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mPlayerFlags),4,144);
-    mPlayerBinding->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mBiography),4096,145);
-    mPlayerBinding->addField(swganh::database::DFT_uint64,offsetof(PlayerObject,states.action),8,146);
-    mPlayerBinding->addField(swganh::database::DFT_uint8,offsetof(PlayerObject,mRaceId),1,147);
-    mPlayerBinding->addField(swganh::database::DFT_uint8,offsetof(PlayerObject,mLanguage),1,132);
-    mPlayerBinding->addField(swganh::database::DFT_uint8,offsetof(PlayerObject,mCsrTag),1,149);
-    mPlayerBinding->addField(swganh::database::DFT_uint64,offsetof(PlayerObject,mGroupId),8,150);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mBornyear),4,151);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mPlayerMatch[0]),4,152);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mPlayerMatch[1]),4,153);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mPlayerMatch[2]),4,154);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mPlayerMatch[3]),4,155);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,current_force_power_),4,156);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,max_force_power_),4,157);
-    mPlayerBinding->addField(swganh::database::DFT_uint8,offsetof(PlayerObject,mNewPlayerExemptions),1,158);//39
+    //mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mPlayerFlags),4,144);
+    //mPlayerBinding->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mBiography),4096,145);
+    creature_binding->addField(swganh::database::DFT_uint64,offsetof(CreatureObject,states.action),8,146);
+    creature_binding->addField(swganh::database::DFT_uint8,offsetof(CreatureObject,mRaceId),1,147);
+    
+	
 
     for(uint16 i = 0; i < 0x71; i++)
-        mPlayerBinding->addField(swganh::database::DFT_uint16,offsetof(PlayerObject,mCustomization)+(i*2),2,i + 17);//+113 = 183
+        creature_binding->addField(swganh::database::DFT_uint16,offsetof(CreatureObject,mCustomization)+(i*2),2,i + 17);//+113 = 183
 
-    mPlayerBinding->addField(swganh::database::DFT_uint16,offsetof(PlayerObject,mCustomization[171]),2,130);
-    mPlayerBinding->addField(swganh::database::DFT_uint16,offsetof(PlayerObject,mCustomization[172]),2,131);				   //185
+    creature_binding->addField(swganh::database::DFT_uint16,offsetof(CreatureObject,mCustomization[171]),2,130);
+    creature_binding->addField(swganh::database::DFT_uint16,offsetof(CreatureObject,mCustomization[172]),2,131);				   //185
 
     //hair binding
     mHairBinding = mDatabase->createDataBinding(3);
@@ -996,7 +1024,8 @@ void PlayerObjectFactory::_setupDatabindings()
 
 void PlayerObjectFactory::_destroyDatabindings()
 {
-    mDatabase->destroyDataBinding(mPlayerBinding);
+    mDatabase->destroyDataBinding(ghost_binding);
+	mDatabase->destroyDataBinding(creature_binding);
     mDatabase->destroyDataBinding(mHairBinding);
     mDatabase->destroyDataBinding(mBankBinding);
 }
@@ -1015,12 +1044,14 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
     
 	ilc->mLoadCounter--;
 
-    PlayerObject*		playerObject = dynamic_cast<PlayerObject*>(ilc->mObject);
-    if(!playerObject)
+    PlayerObject*		player = dynamic_cast<PlayerObject*>(ilc->mObject);
+    if(!player)
     {
         assert(false && "[PlayerObjectFactory::handleObjectReady] no playerObject");
         return;
     }
+
+	CreatureObject*		creature = dynamic_cast<CreatureObject*>(player->GetCreature());
 
 	gObjectManager->LoadSlotsForObject(object);
 
@@ -1028,34 +1059,34 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
     {
         ilc->mInventory = true;
         
-        playerObject->InitializeObject(inventory);
+		creature->InitializeObject(inventory);
 		gWorldManager->addObject(inventory,true);
 
-		inventory->setParent(playerObject);
+		inventory->setParent(creature);
 		
-        playerObject->setInventory(inventory);
+        player->setInventory(inventory);
 
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(0,POFQuery_EquippedItems,client);
-        asContainer->mObject = playerObject;
+        asContainer->mObject = player;
 
-        mDatabase->executeSqlAsync(this,asContainer,"SELECT id  FROM %s.items WHERE parent_id=%"PRIu64"",mDatabase->galaxy(),playerObject->getId());
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT id  FROM %s.items WHERE parent_id=%"PRIu64"",mDatabase->galaxy(),creature->getId());
     }
     else if(Datapad* datapad = dynamic_cast<Datapad*>(object))
     {
         ilc->mDPad = true;
         
-        playerObject->InitializeObject(datapad);
+        creature->InitializeObject(datapad);
 		gWorldManager->addObject(datapad,true);
 
-        playerObject->setDataPad(datapad);
+        player->setDataPad(datapad);
 
-        datapad->setOwner(playerObject);
+        datapad->setOwner(creature);
     }
     else if(TangibleObject* item =  dynamic_cast<TangibleObject*>(object))
     {
         gWorldManager->addObject(item,true);
 
-        playerObject->InitializeObject(item);
+        creature->InitializeObject(item);
 		
         
     }

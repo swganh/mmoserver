@@ -222,7 +222,7 @@ public:
 	bool				sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject* targetObject);
 
     // common messages, commonmessages.cpp
-    bool				sendCreateObjectByCRC(Object* object,const PlayerObject* const targetObject,bool player) const;
+    bool				sendCreateObjectByCRC(Object* object,const PlayerObject* const targetObject) const;
     bool				sendContainmentMessage(uint64 objectId,uint64 parentId,uint32 linkType,const PlayerObject* const targetObject) const;
     bool				sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,uint32 linkType,PlayerObject* targetObject);
     bool				sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,uint32 linkType,CreatureObject* targetObject);

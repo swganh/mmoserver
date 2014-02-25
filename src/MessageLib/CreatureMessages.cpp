@@ -95,12 +95,12 @@ LOG (error) << "MessageLib::sendBaselinesCREO_1 :: No Inventory Object for " << 
 
     // ham maxs
 swganh::messages::BaselinesMessage baseline_message;
-player->SerializeMaxStats(&baseline_message);
+player->GetCreature()->SerializeMaxStats(&baseline_message);
 
 mMessageFactory->addData(baseline_message.data.data(),baseline_message.data.size());
 
     // skills
-	auto skilllist		= player->GetSkills(); 
+	auto skilllist		= player->GetCreature()->GetSkills(); 
 	auto skillIt		= skilllist.begin();
 
 	mMessageFactory->addUint32(skilllist.size());

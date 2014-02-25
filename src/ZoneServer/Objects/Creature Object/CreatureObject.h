@@ -80,6 +80,8 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 
         friend class PersistentNpcFactory;
         friend class NonPersistentNpcFactory;
+		friend class PlayerObjectFactory;
+		friend class CreatureObjectFactory;
 
         CreatureObject();
         ~CreatureObject();
@@ -261,9 +263,7 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
         int32				getFactionPointsByFactionId(uint32 id);
         bool				updateFactionPoints(uint32 factionId,int32 value);
 
-        // language
-        uint32				getLanguage() const { return mLanguage; }
-        void				setLanguage(uint32 language){ mLanguage = language; }
+        
 
         //entertaining
         void*				getPerformance(){return mPerformance;}
@@ -605,8 +605,13 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 		bool SerializeSkillMods(swganh::messages::BaseSwgMessage* message);
 		bool SerializeSkillMods(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock, bool baseline = false);
 
+		PlayerObject*	GetGhost();
+		PlayerObject*	GetGhost(boost::unique_lock<boost::mutex>& lock);
+
 
     protected:
+
+		PlayerObject*		ghost_;
 
 		//HAM
 		TargetStats		mTargetStats; //used for Imagedesign statmigration
@@ -662,7 +667,7 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
         float				mLastEntertainerXP;
         float				mScale;
         uint32				mBuffAsyncCount;
-        uint32				mLanguage;
+        
         uint32				mLastMoveTick;
         uint32				mPerformanceCounter;
         uint32				mPerformanceId;

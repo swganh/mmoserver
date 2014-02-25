@@ -2362,3 +2362,14 @@ void PlayerObject::CreateBaselines(PlayerObject* observer)
         dispatch->Dispatch(std::make_shared<swganh::event_dispatcher::ObserverEvent>("Player::Baselines", this, observer));
     }
 }
+
+CreatureObject*	PlayerObject::GetCreature()
+{
+	auto lock = AcquireLock();
+	return GetCreature(lock);
+}
+
+CreatureObject*	PlayerObject::GetCreature(boost::unique_lock<boost::mutex>& lock)
+{
+	return body_;
+}

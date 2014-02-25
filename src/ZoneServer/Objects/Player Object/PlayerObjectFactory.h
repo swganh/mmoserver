@@ -119,7 +119,9 @@ private:
     InventoryFactory*				mInventoryFactory;
     DatapadFactory*					mDatapadFactory;
 
-    swganh::database::DataBinding*					mPlayerBinding;
+	swganh::database::DataBinding*					ghost_binding;
+	swganh::database::DataBinding*					creature_binding;
+//    swganh::database::DataBinding*					mPlayerBinding;
     swganh::database::DataBinding*					mHairBinding;
     swganh::database::DataBinding*					mBankBinding;
     //InLoadingContainer*				mIlc;

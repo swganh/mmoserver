@@ -75,8 +75,8 @@ public:
 	virtual void	handleObjectReady(std::shared_ptr<Object> object);
 
     // player reference
-    void			setOwner(PlayerObject* player) {
-        mOwner = player;
+    void			setOwner(CreatureObject* creature) {
+        mOwner = creature;
     }
 
 	/**
@@ -200,7 +200,7 @@ private:
     ManufacturingSchematicList	mManufacturingSchematics;
     MissionList					mMissions;
     DataList					mData;
-    PlayerObject*				mOwner;
+    CreatureObject*				mOwner;
     uint32						mObjectLoadCounter;
 };
 

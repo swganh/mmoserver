@@ -2086,6 +2086,17 @@ bool CreatureObject::SerializeSkillMods(swganh::messages::BaseSwgMessage* messag
 	return false;
 }
 
+PlayerObject*	CreatureObject::GetGhost()
+{
+	auto lock = AcquireLock();
+	return GetGhost(lock);
+}
+
+PlayerObject*	CreatureObject::GetGhost(boost::unique_lock<boost::mutex>& lock)
+{
+	return ghost_;
+}
+
 void CreatureObject::SetPosture(uint32 posture)
 {
     auto lock = AcquireLock();

@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_PLAYER_OBJECT_H
 #define ANH_ZONESERVER_PLAYER_OBJECT_H
 
-#include <ZoneServer/Objects/Creature Object/CreatureObject.h>
+#include <ZoneServer/Objects/IntangibleObject.h>
 #include "ZoneServer/ProfessionManagers/Entertainer Manager/EntertainerManager.h"
 #include "Zoneserver/Objects/Inventory.h"
 #include "ZoneServer/Objects/Stomach.h"
@@ -80,7 +80,7 @@ typedef swganh::event_dispatcher::ChainEvent<std::shared_ptr<PlayerObject>> Play
 
 
 
-class PlayerObject : public CreatureObject
+class PlayerObject : public IntangibleObject
 {
     friend class PlayerObjectFactory;
     friend class ObjectController;
@@ -139,17 +139,7 @@ class PlayerObject : public CreatureObject
         BString				getTitle() const { return mTitle; }
         void				setTitle(const BString title){ mTitle = title; }
 
-        /*! Returns the current player's PlayerObjectId Not to confuse with the ObjectId
-         *
-         * \returns uint64 holding the PlayerObjectId
-         */
-        uint64				getPlayerObjId(){ return mPlayerObjId; }
-
-        /*! sets the current player's PlayerObjectId Not to confuse with the ObjectId
-         *
-         * \sets PlayerObjectID
-         */
-        void				setPlayerObjId(uint64 id){ mPlayerObjId = id; }
+        
 
         void				setTravelPoint(TravelTerminal* tp){ mTravelPoint = tp; }
         TravelTerminal*		getTravelPoint(){ return mTravelPoint; }
@@ -541,10 +531,20 @@ class PlayerObject : public CreatureObject
 		void SetMaxForcePower(int32_t force_power);
 		void SetMaxForcePower(int32_t force_power, boost::unique_lock<boost::mutex>& lock);
 
+		// language
+        uint32				getLanguage() const { return mLanguage; }
+        void				setLanguage(uint32 language){ mLanguage = language; }
 
 		void CreateBaselines(PlayerObject* observer);
 
+		CreatureObject*	PlayerObject::GetCreature();
+		CreatureObject*	PlayerObject::GetCreature(boost::unique_lock<boost::mutex>& lock);
+
+
     private:
+
+
+		uint32				mLanguage;
 
 		int32_t				current_force_power_;
 		int32_t				max_force_power_;
@@ -554,8 +554,11 @@ class PlayerObject : public CreatureObject
 
         bool				mHasCamp;
 
+		CreatureObject*		body_;
+
         Datapad*			mDataPad;
 		Inventory*			mInventory;
+
         bool				mAcceptsBandFlourishes;
         AudienceList		mAudienceList;
         BadgesList			mBadgeList;
@@ -611,7 +614,7 @@ class PlayerObject : public CreatureObject
         uint64				mLastGroupMissionUpdateTime;
         uint64				mNearestCraftingStation;
         uint64				mPlacedInstrument;
-        uint64				mPlayerObjId;
+        //uint64				mPlayerObjId;
         uint64				mPreDesignatedCloningFacilityId;
         uint64				mSelectedInstrument;
         uint64				mTradePartner;

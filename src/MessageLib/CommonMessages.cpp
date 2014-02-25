@@ -82,7 +82,7 @@ using ::common::OutOfBand;
 //
 // create function, used for all objects
 //
-bool MessageLib::sendCreateObjectByCRC(Object* object,const PlayerObject* const targetObject,bool player) const
+bool MessageLib::sendCreateObjectByCRC(Object* object,const PlayerObject* const targetObject) const
 {
     if(!object || !targetObject || !targetObject->isConnected())
     {
@@ -92,10 +92,8 @@ bool MessageLib::sendCreateObjectByCRC(Object* object,const PlayerObject* const 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opSceneCreateObjectByCrc);
 
-    if(!player)
-        mMessageFactory->addUint64(object->getId());
-    else
-        mMessageFactory->addUint64(dynamic_cast<PlayerObject*>(object)->getPlayerObjId());
+    mMessageFactory->addUint64(object->getId());
+    
 
     // direction
     mMessageFactory->addFloat(object->mDirection.x);
@@ -108,10 +106,10 @@ bool MessageLib::sendCreateObjectByCRC(Object* object,const PlayerObject* const 
     mMessageFactory->addFloat(object->mPosition.y);
     mMessageFactory->addFloat(object->mPosition.z);
 
-    if(!player)
-        mMessageFactory->addUint32(common::memcrc(object->GetTemplate()));
-    else
-        mMessageFactory->addUint32(0x619bae21); // shared_player.iff
+    
+    mMessageFactory->addUint32(common::memcrc(object->GetTemplate()));
+
+    //mMessageFactory->addUint32(0x619bae21); // shared_player.iff
 
     mMessageFactory->addUint8(0);
 

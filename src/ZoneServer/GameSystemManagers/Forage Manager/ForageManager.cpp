@@ -142,7 +142,7 @@ void ForageManager::startForage(PlayerObject* player, forageClasses forageClass)
     }
 
     //Check for combat
-    if(player->states.checkState(CreatureState_Combat))    {
+    if(player->GetCreature()->states.checkState(CreatureState_Combat))    {
         gForageManager->failForage(player, IN_COMBAT);
         return;
     }
@@ -150,18 +150,18 @@ void ForageManager::startForage(PlayerObject* player, forageClasses forageClass)
     //Check for action being too low
 	//auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
 	//ham->checkMainPools();
-	if(player->GetStatCurrent(HamBar_Action) < 101)    {
+	if(player->GetCreature()->GetStatCurrent(HamBar_Action) < 101)    {
         gForageManager->failForage(player, ACTION_LOW);
         return;
     }
 
     //Check for skill being too low
-    if(forageClass == ForageClass_Scout && !player->checkSkill(SMSkill_ScoutCamp1)) //Scout -> Survival 1
+    if(forageClass == ForageClass_Scout && !player->GetCreature()->checkSkill(SMSkill_ScoutCamp1)) //Scout -> Survival 1
     {
         gForageManager->failForage(player, NO_SKILL);
         return;
     }
-    else if(forageClass == ForageClass_Medic && !player->checkSkill(SMSkill_NoviceMedic))
+    else if(forageClass == ForageClass_Medic && !player->GetCreature()->checkSkill(SMSkill_NoviceMedic))
     {
         gForageManager->failForage(player, NO_SKILL);
         return;
@@ -177,11 +177,11 @@ void ForageManager::startForage(PlayerObject* player, forageClasses forageClass)
     player->setForaging(true);
 
     //Starts the Foraging Animation
-    gMessageLib->sendCreatureAnimation(player, std::string("forage"));
+    gMessageLib->sendCreatureAnimation(player->GetCreature(), std::string("forage"));
 
     //Use up some action!
 	auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
-	ham->ApplyHamCost(player, HamBar_Action, -100);
+	ham->ApplyHamCost(player->GetCreature(), HamBar_Action, -100);
 
     //Creates a ForageAttempt object for tracking the forage operation
     ForageAttempt* attempt = new ForageAttempt(player, gWorldManager->GetCurrentGlobalTick(), forageClass);
@@ -298,7 +298,7 @@ bool ForagePocket::updateAttempts(uint64 currentTime)
             PlayerObject* player = (PlayerObject*)gWorldManager->getObjectById((*it)->playerID);
             if(player != NULL)
             {
-                if(player->states.checkState(CreatureState_Combat))
+                if(player->GetCreature()->states.checkState(CreatureState_Combat))
                 {
                     ForageManager::failForage(player, ENTERED_COMBAT);
                     (*it)->completed = true;
@@ -336,7 +336,7 @@ bool ForagePocket::updateAttempts(uint64 currentTime)
             PlayerObject* player = (PlayerObject*)gWorldManager->getObjectById((*it)->playerID);
             if(!(*it)->completed && player)
             {
-                if(player->states.checkState(CreatureState_Combat))
+                if(player->GetCreature()->states.checkState(CreatureState_Combat))
                 {
                     ForageManager::failForage(player, ENTERED_COMBAT);
                     (*it)->completed = true;

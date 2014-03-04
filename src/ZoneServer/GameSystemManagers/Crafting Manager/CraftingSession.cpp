@@ -96,10 +96,10 @@ CraftingSession::CraftingSession(Anh_Utils::Clock* clock,swganh::database::Datab
 	else
 		mOwner->setNearestCraftingStation(0);
 
-	gStateManager.setCurrentActionState(mOwner,CreatureState_Crafting);
+	gStateManager.setCurrentActionState(mOwner->GetCreature(),CreatureState_Crafting);
 
 	// send the updates
-	gMessageLib->sendStateUpdate(mOwner);
+	gMessageLib->sendStateUpdate(mOwner->GetCreature());
 	gMessageLib->sendUpdateCraftingStage(mOwner);
 	gMessageLib->sendUpdateExperimentationFlag(mOwner);
 	gMessageLib->sendUpdateNearestCraftingStation(mOwner);
@@ -121,7 +121,7 @@ CraftingSession::~CraftingSession()
 
 	// reset player variables
 	mOwner->setCraftingSession(NULL);
-    gStateManager.removeActionState(mOwner, CreatureState_Crafting);
+    gStateManager.removeActionState(mOwner->GetCreature(), CreatureState_Crafting);
 	mOwner->setCraftingStage(0);
 	mOwner->setExperimentationFlag(1);
 	mOwner->setExperimentationPoints(10);
@@ -132,7 +132,7 @@ CraftingSession::~CraftingSession()
     gMessageLib->SendSystemMessage(::common::OutOfBand("ui_craft", "session_ended"), mOwner);
 
     // send player updates
-    gMessageLib->sendStateUpdate(mOwner);
+    gMessageLib->sendStateUpdate(mOwner->GetCreature());
     gMessageLib->sendUpdateCraftingStage(mOwner);
     gMessageLib->sendUpdateExperimentationFlag(mOwner);
     gMessageLib->sendUpdateNearestCraftingStation(mOwner);
@@ -167,7 +167,7 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,swganh::database::Data
             {
                 result->getNextRow(binding,&modId);
                 mExpSkillModId = modId;
-                int32 resultInt = mOwner->getSkillModValue(mExpSkillModId);
+                int32 resultInt = mOwner->GetCreature()->getSkillModValue(mExpSkillModId);
                 if ((resultInt > 0)&& (resultInt > (int32) mOwnerExpSkillMod))
                 {
                     mOwnerExpSkillMod = resultInt;
@@ -218,7 +218,7 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,swganh::database::Data
             {
                 result->getNextRow(binding,&resultId);
                 mAssSkillModId = resultId;
-                int32 resultInt = mOwner->getSkillModValue(mAssSkillModId);
+                int32 resultInt = mOwner->GetCreature()->getSkillModValue(mAssSkillModId);
                 if ((resultInt > 0)&& (resultInt > (int32) mOwnerAssSkillMod))
                 {
                     mOwnerAssSkillMod = resultInt;
@@ -558,10 +558,10 @@ bool CraftingSession::selectDraftSchematic(uint32 schematicIndex)
 
     if(mSubCategory == 2)
     {
-        setCustomization(mOwner->getSkillModValue(SMod_armor_customization));
+        setCustomization(mOwner->GetCreature()->getSkillModValue(SMod_armor_customization));
     }
     else
-        setCustomization(mOwner->getSkillModValue(SMod_clothing_customization));
+        setCustomization(mOwner->GetCreature()->getSkillModValue(SMod_clothing_customization));
 
     return(true);
 }
@@ -790,7 +790,7 @@ void CraftingSession::assemble(uint32 counter)
     mItem->addAttributeIncDB("serial_number",serial.getAnsi());
 
     //add creator
-    mItem->addAttributeIncDB("crafter",mOwner->getFirstName());
+    mItem->addAttributeIncDB("crafter",mOwner->GetCreature()->getFirstName());
 
     int8 assRoll = _assembleRoll();
 
@@ -962,7 +962,7 @@ void CraftingSession::createPrototype(uint32 noPractice,uint32 counter)
 
         // add the crafter name attribute
         // adds automatically when necessary
-        mItem->setAttributeIncDB("crafter",mOwner->getFirstName());
+        mItem->setAttributeIncDB("crafter",mOwner->GetCreature()->getFirstName());
 
         // now the serial
         BString serial = getSerial();

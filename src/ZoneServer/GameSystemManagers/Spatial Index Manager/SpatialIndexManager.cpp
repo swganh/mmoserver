@@ -39,6 +39,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/Objects/MountObject.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 
+#include "ZoneServer\Services\equipment\equipment_service.h"
+
 #include "ZoneServer/Objects/RegionObject.h"
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
@@ -122,16 +124,16 @@ bool SpatialIndexManager::_AddObject(PlayerObject *player)
 
 	uint32 finalBucket = getGrid()->AddObject(player->GetCreature());
 
-    DLOG(info) << "SpatialIndexManager::AddObject :: Player " << player->getId() << " added to bucket " <<  finalBucket;
+    //DLOG(info) << "SpatialIndexManager::AddObject :: Player " << player->GetCreature()->getId() << " added to bucket " <<  finalBucket;
 
     //now create it for everyone around and around for it
 
     ObjectListType playerList;
     getGrid()->GetViewingRangeCellContents(finalBucket, &playerList,(Bucket_Creatures|Bucket_Objects|Bucket_Players));
-
+	return true;
     for(ObjectListType::iterator i = playerList.begin(); i != playerList.end(); i++)    {
         //we just added ourselves to the grid - dont send a create to ourselves
-        if(((*i)->getId() == player->getId()))		{
+        if(((*i)->getId() == player->GetCreature()->getId()))		{
 			//we want to be updated about ourselves
             player->registerWatcher(player);
 			//cave that sends creates
@@ -150,7 +152,11 @@ bool SpatialIndexManager::_AddObject(PlayerObject *player)
 
         if((*i)->getType() == ObjType_Player) 		{
 			//create us for the other player
-            PlayerObject* otherPlayer = static_cast<PlayerObject*>(*i);
+
+			auto equip_service	= gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+			auto ghost			= dynamic_cast<PlayerObject*>(equip_service->GetEquippedObject((*i), "ghost"));
+
+            PlayerObject* otherPlayer = static_cast<PlayerObject*>(ghost);
             sendCreateObject(player, otherPlayer, false);
 
             gContainerManager->registerPlayerToContainer(otherPlayer, player);
@@ -849,9 +855,9 @@ void SpatialIndexManager::createInWorld(PlayerObject* player)
         return;
     }
 
-    CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
+	CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->GetCreature()->getParentId()));
     if(!cell)	{
-		LOG(error) << "db integrity error! character : " << player->getId() << "in wrong container : " << player->getParentId();
+		LOG(error) << "db integrity error! character : " << player->GetCreature()->getId() << "in wrong container : " << player->GetCreature()->getParentId();
         return;
     }
 

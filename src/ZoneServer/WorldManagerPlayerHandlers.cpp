@@ -220,7 +220,7 @@ void WorldManager::storeCharacterAttributes_(PlayerObject* player_object, bool r
         if(group) {
             group->removePlayer(player_object->getId());
         }
-            destroyObject(player_object);
+            destroyObject(player_object->GetCreature());
     }
 
 }
@@ -427,7 +427,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 
 	// initialize ham regeneration
 	auto ham = getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
-	ham->addToRegeneration(playerObject->getId());
+	ham->addToRegeneration(playerObject->GetCreature()->getId());
 
 	playerObject->getStomach()->checkForRegen();
 }

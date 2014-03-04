@@ -498,34 +498,35 @@ bool MessageLib::sendCreatePlayer(PlayerObject* player, PlayerObject* target) {
     sendBaselinesCREO_6(player->GetCreature(), target);
 
     sendCreateObjectByCRC(player, target);
-	sendContainmentMessage(player->getId(), player->getId(), player->GetArrangementId(), target);
+	
+	sendContainmentMessage(player->getId(), player->GetCreature()->getId(), player->GetArrangementId(), target);
 
-    sendBaselinesPLAY_3(player, target);
-    sendBaselinesPLAY_6(player, target);
+    //sendBaselinesPLAY_3(player, target);
+    //sendBaselinesPLAY_6(player, target);
 
     if (player == target) {
-        sendBaselinesPLAY_8(player, target);
-        sendBaselinesPLAY_9(player, target);
+        //sendBaselinesPLAY_8(player, target);
+        //sendBaselinesPLAY_9(player, target);
     }
 
     //close the yalp
-    sendEndBaselines(player->getId(), target);
+    //sendEndBaselines(player->getId(), target);
 
-//    sendPostureMessage(player, target);
+    //sendPostureMessage(player, target);
 
-    if (player->getParentId()) {
-		sendContainmentMessage(player->getId(), player->getParentId(), player->GetArrangementId(), target);
+    if (creature->getParentId()) {
+		//sendContainmentMessage(player->GetCreature()->getId(), player->GetCreature()->getParentId(), player->GetCreature()->GetArrangementId(), target);
     }
 
     
-    sendEndBaselines(player->getId(), target);
+    //sendEndBaselines(creature->getId(), target);
 
-    sendUpdatePvpStatus(player->GetCreature(), target);
+    //sendUpdatePvpStatus(player->GetCreature(), target);
 
     if (player == target) {
         //request the GRUP baselines from chatserver if grouped
         if (player->getId() != 0) {
-            gMessageLib->sendIsmGroupBaselineRequest(player);
+           // gMessageLib->sendIsmGroupBaselineRequest(player);
         }
     }
 

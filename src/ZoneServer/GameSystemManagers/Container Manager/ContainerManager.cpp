@@ -371,7 +371,7 @@ void ContainerManager::SendDestroyEquippedObject(Object* object) {
 
 void ContainerManager::initializePlayerToContainer(Object* container, PlayerObject* const player) const {
 
-	DLOG(info) << "SpatialIndexManager::initializePlayerToContainer :: player " << player->getId() << " succesfully initialized to container " << container->getId();
+	//DLOG(info) << "SpatialIndexManager::initializePlayerToContainer :: player " << player->getId() << " succesfully initialized to container " << container->getId();
     
 	container->ViewObjects(player, 0, false, [&] (Object* object) {
 		if(object && (object->getId() >= 5100273716)) {
@@ -395,7 +395,7 @@ void ContainerManager::registerPlayerToContainer(Object* container, PlayerObject
         DLOG(info) << "SpatialIndexManager::registerPlayerToContainer :: Container " << container->getId() << " already known to player" << player->getId();
 		return;
     }
-	DLOG(info) << "SpatialIndexManager::registerPlayerToContainer :: player " << player->getId() << " succesfully registered to container " << container->getId();
+	//DLOG(info) << "SpatialIndexManager::registerPlayerToContainer :: player " << player->getId() << " succesfully registered to container " << container->getId();
     
 	container->ViewObjects(player, 0, false, [&] (Object* object) {
         if(object && (object->getId() >= 5100273716)) {
@@ -425,7 +425,7 @@ void ContainerManager::registerPlayerToBuilding(BuildingObject* building, Player
         return;
     }
 
-	DLOG(info) << "SpatialIndexManager::registerPlayerToBuilding :: player " << player->getId() << " succesfully registered to container " << building->getId();
+	//DLOG(info) << "SpatialIndexManager::registerPlayerToBuilding :: player " << player->getId() << " succesfully registered to container " << building->getId();
 
     //cells are subcontainers that get autoregistered on registering a building
     //as a building cannot be created without cells without crashing the client

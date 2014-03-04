@@ -61,6 +61,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "anh\event_dispatcher\event_dispatcher.h"
 #include "ZoneServer\Services\ham\ham_service.h"
+#include "ZoneServer\Services\equipment\equipment_service.h"
 #include "anh/app/swganh_kernel.h"
 #include "anh\service\service_manager.h"
 
@@ -1097,10 +1098,14 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
     }
     else if(TangibleObject* item =  dynamic_cast<TangibleObject*>(object))
     {
+		item->setParentId(creature->getId());
         gWorldManager->addObject(item,true);
 
         creature->InitializeObject(item);
 		
+		auto equipment_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+
+		//auto inventory = dynamic_cast<Inventory*>(equipment_service->GetEquippedObject(this, "inventory"));
         
     }
 

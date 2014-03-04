@@ -72,32 +72,32 @@ bool MessageLib::sendBaselinesCREO_1(PlayerObject* player)
     mMessageFactory->addUint16(4);
 
     // bank credits
-auto bank_object = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player, "bank");
+	auto bank_object = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player->GetCreature(), "bank");
     if(Bank* bank = dynamic_cast<Bank*>(bank_object)) {
         mMessageFactory->addUint32(bank->getCredits());
     }
     else
     {
-LOG (error) << "MessageLib::sendBaselinesCREO_1 :: No Bank Object for " << player->getId();
+		LOG (error) << "MessageLib::sendBaselinesCREO_1 :: No Bank Object for " << player->GetCreature()->getId();
         mMessageFactory->addUint32(0);
     }
 
     // inventory credits
-auto inventory_object = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player, "inventory");
+	auto inventory_object = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player->GetCreature(), "inventory");
     if(Inventory* inventory = dynamic_cast<Inventory*>(inventory_object)) {
         mMessageFactory->addUint32(inventory->getCredits());
     }
     else
     {
-LOG (error) << "MessageLib::sendBaselinesCREO_1 :: No Inventory Object for " << player->getId();
+		LOG (error) << "MessageLib::sendBaselinesCREO_1 :: No Inventory Object for " << player->getId();
         mMessageFactory->addUint32(0);
     }
 
     // ham maxs
-swganh::messages::BaselinesMessage baseline_message;
-player->GetCreature()->SerializeMaxStats(&baseline_message);
+	swganh::messages::BaselinesMessage baseline_message;
+	player->GetCreature()->SerializeMaxStats(&baseline_message);
 
-mMessageFactory->addData(baseline_message.data.data(),baseline_message.data.size());
+	mMessageFactory->addData(baseline_message.data.data(),baseline_message.data.size());
 
     // skills
 	auto skilllist		= player->GetCreature()->GetSkills(); 
@@ -118,7 +118,7 @@ mMessageFactory->addData(baseline_message.data.data(),baseline_message.data.size
     
 mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opBaselinesMessage);
-    mMessageFactory->addUint64(player->getId());
+    mMessageFactory->addUint64(player->GetCreature()->getId());
     mMessageFactory->addUint32(opCREO);
     mMessageFactory->addUint8(1);
 
@@ -207,20 +207,20 @@ mMessageFactory->addUint32(creatureObject->GetStatMax(HamBar_Health) - creatureO
     {
         mMessageFactory->addUint64(0);
         mMessageFactory->addFloat(creatureObject->getScale());
-mMessageFactory->addUint32(creatureObject->GetBattleFatigue());
+		mMessageFactory->addUint32(creatureObject->GetBattleFatigue());
         mMessageFactory->addUint64(creatureObject->states.getAction());
     }
 
     // ham wounds
 
-swganh::messages::BaselinesMessage baseline_message;
-creatureObject->SerializeStatWounds(&baseline_message);
+	swganh::messages::BaselinesMessage baseline_message;
+	creatureObject->SerializeStatWounds(&baseline_message);
 
-mMessageFactory->addData(baseline_message.data.data(),baseline_message.data.size());
+	mMessageFactory->addData(baseline_message.data.data(),baseline_message.data.size());
 
     message = mMessageFactory->EndMessage();
 
-mMessageFactory->StartMessage();
+	mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opBaselinesMessage);
     mMessageFactory->addUint64(creatureObject->getId());
     mMessageFactory->addUint32(opCREO);
@@ -312,7 +312,7 @@ bool MessageLib::sendBaselinesCREO_4(PlayerObject* player)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opBaselinesMessage);
-    mMessageFactory->addUint64(player->getId());
+    mMessageFactory->addUint64(creature->getId());
     mMessageFactory->addUint32(opCREO);
     mMessageFactory->addUint8(4);
 

@@ -155,7 +155,7 @@ void WorldManager::initializeObject(std::shared_ptr <Object> &object)
 			
 			// add ham to regeneration scheduler
 			auto ham = getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
-			ham->addToRegeneration(player->getId());
+			ham->addToRegeneration(player->GetCreature()->getId());
 
 			player->getStomach()->checkForRegen();
 

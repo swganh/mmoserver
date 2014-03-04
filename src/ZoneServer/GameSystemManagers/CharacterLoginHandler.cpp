@@ -211,7 +211,7 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
         gMessageLib->sendUpdatePlayerFlags(playerObject);
 
 		auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
-		ham->addToRegeneration(playerObject->getId());
+		ham->addToRegeneration(playerObject->GetCreature()->getId());
 
         playerObject->getStomach()->checkForRegen();
 

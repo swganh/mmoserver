@@ -53,6 +53,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "anh/app/swganh_app.h"
 #include "anh\crc.h"
 #include <ZoneServer\Services\scene_events.h>
+#include "ZoneServer\Services\equipment\equipment_service.h"
 
 //=============================================================================
 
@@ -320,7 +321,7 @@ void Object::InitializeObject(Object* newObject)
 {
 	auto permissions_objects_ = gObjectManager->GetPermissionsMap();
 
-	if(!GetPermissions())	 {
+	if(!newObject->GetPermissions())	 {
 		
 		newObject->SetPermissions(permissions_objects_.find(swganh::object::DEFAULT_PERMISSION)->second.get());//DEFAULT_PERMISSION
 	}
@@ -346,6 +347,20 @@ bool Object::InitializeObject(Object* requester, Object* obj, int32_t arrangemen
 		LOG (info) << "Object::InitializeObject couldnt add Object : " << obj->getId() << " to " << getId();
 		return false;
 	}
+
+	auto equipment_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+
+	LOG (info) << "Object::InitializeObject added Object : " << obj->getId() << " to " << getId();
+	if(arrangement_id != 0xffffffff)
+		LOG (info) << "slot_descriptor " << slot_descriptor << " : " << equipment_service->GetSlotNameById(arrangement_id);
+	else
+		LOG (info) << "slot_descriptor " << slot_descriptor ;
+
+	LOG (info) << "arrangement " << arrangement_id;
+	//slot_descriptor->
+
+	
+	
 
     boost::upgrade_lock<boost::shared_mutex> lock(global_container_lock_);
 
@@ -1159,7 +1174,7 @@ bool Object::registerWatcher(PlayerObject* const player)
 {
     if(!checkRegisteredWatchers(player))    {
         mKnownPlayers.insert(player);
-		DLOG(info) << "Object::registerWatcher :: Player" << player->getId() << " was successfully registered for " << getId();
+		//DLOG(info) << "Object::registerWatcher :: Player" << player->getId() << " was successfully registered for " << getId();
 		return(true);
     }
 	DLOG(info) << "Object::registerWatcher :: Player" << player->getId() << " was already watching " << getId();

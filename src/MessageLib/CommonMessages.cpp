@@ -84,8 +84,7 @@ using ::common::OutOfBand;
 //
 bool MessageLib::sendCreateObjectByCRC(Object* object,const PlayerObject* const targetObject) const
 {
-    if(!object || !targetObject || !targetObject->isConnected())
-    {
+    if(!object || !targetObject || !targetObject->isConnected())    {
         return(false);
     }
 
@@ -479,7 +478,7 @@ bool MessageLib::sendStartScene(uint64 zoneId,PlayerObject* player)
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opCmdStartScene);
     mMessageFactory->addUint8(0);
-    mMessageFactory->addUint64(player->getId());
+	mMessageFactory->addUint64(player->GetCreature()->getId());
 
     BString mapName = gWorldManager->getTrnFileThis();
     mMessageFactory->addString(mapName);
@@ -488,7 +487,7 @@ bool MessageLib::sendStartScene(uint64 zoneId,PlayerObject* player)
     mMessageFactory->addFloat(player->mPosition.y);
     mMessageFactory->addFloat(player->mPosition.z);
 
-    mMessageFactory->addString(player->GetTemplate());
+    mMessageFactory->addString(player->GetCreature()->GetTemplate());
     mMessageFactory->addUint64(zoneId);
 
     (player->getClient())->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(), CR_Client, 9);

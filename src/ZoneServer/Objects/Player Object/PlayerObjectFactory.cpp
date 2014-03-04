@@ -138,7 +138,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,swganh::database::
             "character_attributes.constitution_wounds,character_attributes.action_wounds,character_attributes.quickness_wounds," //155
             "character_attributes.stamina_wounds,character_attributes.mind_wounds,character_attributes.focus_wounds,character_attributes.willpower_wounds,"//159
             "character_attributes.health_encum,character_attributes.action_encum,character_attributes.mind_encum,character_attributes.battlefatigue"
-			" FROM " << mDatabase->galaxy() << ".character_attributes WHERE character_attributes.character_id = " << playerObject->getId() << ";";			
+			" FROM " << mDatabase->galaxy() << ".character_attributes WHERE character_attributes.character_id = " << playerObject->GetCreature()->getId() << ";";			
 
 		mDatabase->executeSqlAsync(this, asContainer, sql.str());
         
@@ -230,7 +230,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,swganh::database::
 		std::stringstream sql;
 		sql << "SELECT skill_id FROM "
 			<< mDatabase->galaxy() << ".character_skills WHERE character_id = "
-			<< playerObject->getId() << ";";
+			<< creature->getId() << ";";
 
 		mDatabase->executeSqlAsync(this, asContainer, sql.str());
 	}
@@ -260,7 +260,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,swganh::database::
 		std::stringstream sql;
 		sql << "SELECT badge_id FROM "
 			<< mDatabase->galaxy() << ".character_badges WHERE character_id = "
-			<< playerObject->getId() << ";";
+			<< playerObject->GetCreature()->getId() << ";";
         
 		mDatabase->executeSqlAsync(this,asContainer,sql.str());
 
@@ -290,7 +290,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,swganh::database::
 		
 		std::stringstream sql;
 
-		sql << "SELECT faction_id,value FROM " << mDatabase->galaxy() << ".character_faction WHERE character_id=" << playerObject->getId() << " ORDER BY faction_id";
+		sql << "SELECT faction_id,value FROM " << mDatabase->galaxy() << ".character_faction WHERE character_id=" << playerObject->GetCreature()->getId() << " ORDER BY faction_id";
         mDatabase->executeSqlAsync(this,asContainer,sql.str());
 
     }
@@ -322,7 +322,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,swganh::database::
         std::stringstream sql;
 
 		sql << "SELECT characters.firstname FROM " << mDatabase->galaxy() << ".chat_friendlist INNER JOIN " << mDatabase->galaxy() << ".characters ON (chat_friendlist.friend_id = characters.id) "
-			<< "WHERE (chat_friendlist.character_id = " << playerObject->getId() << ")";
+			<< "WHERE (chat_friendlist.character_id = " << playerObject->GetCreature()->getId() << ")";
                                    
 		
 		mDatabase->executeSqlAsync(this,asContainer, sql.str());
@@ -358,7 +358,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,swganh::database::
 		std::stringstream sql;
 
 		sql << "SELECT characters.firstname FROM " << mDatabase->galaxy() << ".chat_ignorelist INNER JOIN " << mDatabase->galaxy() << ".characters ON (chat_ignorelist.ignore_id = characters.id) "
-			<< "WHERE (chat_ignorelist.character_id = " << playerObject->getId() << ")";
+			<< "WHERE (chat_ignorelist.character_id = " << playerObject->GetCreature()->getId() << ")";
 
         mDatabase->executeSqlAsync(this,asContainer, sql.str());
 
@@ -387,25 +387,25 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,swganh::database::
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_XP,asyncContainer->mClient);
         asContainer->mObject = playerObject;
 
-        mDatabase->executeSqlAsync(this,asContainer,"SELECT xp_id,value FROM %s.character_xp WHERE character_id=%"PRIu64"",mDatabase->galaxy(),playerObject->getId());
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT xp_id,value FROM %s.character_xp WHERE character_id=%"PRIu64"",mDatabase->galaxy(),playerObject->GetCreature()->getId());
 
 
         QueryContainerBase* outcastContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_DenyService,asyncContainer->mClient);
         outcastContainer->mObject = playerObject;
 
-        mDatabase->executeSqlAsync(this,outcastContainer,"SELECT outcast_id FROM %s.entertainer_deny_service WHERE entertainer_id=%"PRIu64"",mDatabase->galaxy(),playerObject->getId());
+        mDatabase->executeSqlAsync(this,outcastContainer,"SELECT outcast_id FROM %s.entertainer_deny_service WHERE entertainer_id=%"PRIu64"",mDatabase->galaxy(),playerObject->GetCreature()->getId());
 
 
         QueryContainerBase* cloneDestIdContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_PreDefCloningFacility,asyncContainer->mClient);
         cloneDestIdContainer->mObject = playerObject;
 
-        mDatabase->executeSqlAsync(this,cloneDestIdContainer,"SELECT spawn_facility_id, x, y, z, planet_id FROM %s.character_clone WHERE character_id=%"PRIu64"",mDatabase->galaxy(),playerObject->getId());
+        mDatabase->executeSqlAsync(this,cloneDestIdContainer,"SELECT spawn_facility_id, x, y, z, planet_id FROM %s.character_clone WHERE character_id=%"PRIu64"",mDatabase->galaxy(),playerObject->GetCreature()->getId());
 
 
         QueryContainerBase* LotsContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_Lots,asyncContainer->mClient);
         LotsContainer->mObject = playerObject;
 
-        mDatabase->executeSqlAsync(this,LotsContainer,"SELECT %s.sf_getLotCount(%"PRIu64")",mDatabase->galaxy(),playerObject->getId());
+        mDatabase->executeSqlAsync(this,LotsContainer,"SELECT %s.sf_getLotCount(%"PRIu64")",mDatabase->galaxy(),playerObject->GetCreature()->getId());
 
     }
     break;
@@ -433,7 +433,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,swganh::database::
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_HoloEmotes,asyncContainer->mClient);
         asContainer->mObject = playerObject;
 
-        mDatabase->executeSqlAsync(this,asContainer,"SELECT  emote_id, charges FROM %s.character_holoemotes WHERE character_id = %"PRIu64"",mDatabase->galaxy(),playerObject->getId());
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT  emote_id, charges FROM %s.character_holoemotes WHERE character_id = %"PRIu64"",mDatabase->galaxy(),playerObject->GetCreature()->getId());
 
     }
     break;
@@ -490,10 +490,10 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,swganh::database::
         ilc->mInventory = false;
         ilc->mDPad = false;
 
-        mObjectLoadMap.insert(std::make_pair(playerObject->getId(),ilc));
+		mObjectLoadMap.insert(std::make_pair(playerObject->GetCreature()->getId(),ilc));
 
         // request inventory
-        mInventoryFactory->requestObject(this,playerObject->mId + INVENTORY_OFFSET,TanGroup_Inventory,TanType_CharInventory,asyncContainer->mClient);
+		mInventoryFactory->requestObject(this,playerObject->GetCreature()->getId() + INVENTORY_OFFSET,TanGroup_Inventory,TanType_CharInventory,asyncContainer->mClient);
 
     }
     break;
@@ -502,7 +502,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,swganh::database::
     {
         PlayerObject* playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
 
-        InLoadingContainer*	mIlc = _getObject(playerObject->getId());
+		InLoadingContainer*	mIlc = _getObject(playerObject->GetCreature()->getId());
 
         uint64 id;
         swganh::database::DataBinding* binding = mDatabase->createDataBinding(1);
@@ -522,7 +522,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,swganh::database::
 
         // get the datapad here to avoid a race condition
         // request datapad
-        mDatapadFactory->requestObject(this,playerObject->mId + DATAPAD_OFFSET,TanGroup_Datapad,TanType_CharacterDatapad,asyncContainer->mClient);
+		mDatapadFactory->requestObject(this,playerObject->GetCreature()->getId() + DATAPAD_OFFSET,TanGroup_Datapad,TanType_CharacterDatapad,asyncContainer->mClient);
     }
     break;
 
@@ -767,14 +767,23 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
 
 	PlayerObject*		player= new PlayerObject();
 	CreatureObject*		creature = new CreatureObject();
+	
+	creature->setType(ObjType_Player); 
 	creature->setCreoGroup(CreoGroup_Player);
+	creature->object_type_ = SWG_CREATURE;
 
+	player->setType(ObjType_Player); 
+	player->object_type_ = SWG_PLAYER;
+
+	player->body_ = creature;
+	
+	
 	std::shared_ptr<TangibleObject> playerHair = std::make_shared<TangibleObject>();
 	
     MissionBag*		playerMissionBag;
 	
    
-	player->object_type_ = SWG_PLAYER;
+	
 
 
     // get our results
@@ -826,13 +835,14 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
 	player->setId(creature->mId + PLAYER_OFFSET);
 	player->mBiography.convert(BSTRType_Unicode16);
 	player->setNameFile("string_id_table");
-	player->SetTemplate("shared_player.iff");
+	player->SetTemplate("object/player/shared_player.iff");//619BAE21,object/player/shared_player.iff,data_other_00_o.txt
+
 	player->setParentId(creature->getId());
-	
-	creature->InitializeObject(player);
 
 	gObjectManager->LoadSlotsForObject(creature);
 	gObjectManager->LoadSlotsForObject(player);
+
+	creature->InitializeObject(player);
 
 	//now add to world - then add children
 
@@ -849,7 +859,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
         playerHair->setTangibleType(TanType_Hair);
         playerHair->setName("hair");
         playerHair->setNameFile("hair_name");
-		playerHair->SetPermissions(permissions_objects_.find(6)->second.get());//CREATURE_CONTAINER_PERMISSION
+		playerHair->SetPermissions(permissions_objects_.find(swganh::object::CREATURE_CONTAINER_PERMISSION)->second.get());//CREATURE_CONTAINER_PERMISSION
 
         playerHair->buildTanoCustomization(3);
 
@@ -951,11 +961,11 @@ void PlayerObjectFactory::_setupDatabindings()
 {
 
 	ghost_binding = mDatabase->createDataBinding(15);
-	ghost_binding ->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mAccountId),4,2);
-	ghost_binding ->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mJediState),4,137);
-	ghost_binding ->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mTitle),255,138);
-	ghost_binding ->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mPlayerFlags),4,144);
-    ghost_binding ->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mBiography),4096,145);
+	ghost_binding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mAccountId),4,2);
+	ghost_binding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mJediState),4,137);
+	ghost_binding->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mTitle),255,138);
+	ghost_binding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mPlayerFlags),4,144);
+    ghost_binding->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mBiography),4096,145);
 	ghost_binding->addField(swganh::database::DFT_uint8,offsetof(PlayerObject,mLanguage),1,132);
     ghost_binding->addField(swganh::database::DFT_uint8,offsetof(PlayerObject,mCsrTag),1,149);
     

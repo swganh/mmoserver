@@ -120,7 +120,7 @@ bool SpatialIndexManager::_AddObject(Object *newObject)
 bool SpatialIndexManager::_AddObject(PlayerObject *player)
 {
 
-    uint32 finalBucket = getGrid()->AddObject(player);
+	uint32 finalBucket = getGrid()->AddObject(player->GetCreature());
 
     DLOG(info) << "SpatialIndexManager::AddObject :: Player " << player->getId() << " added to bucket " <<  finalBucket;
 

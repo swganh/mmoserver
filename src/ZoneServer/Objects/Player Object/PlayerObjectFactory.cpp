@@ -153,72 +153,73 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,swganh::database::
     HamBar_Mind			=	6,    HamBar_Focus		=	7,    HamBar_Willpower	=	8	*/
 
 		PlayerObject* playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
+		CreatureObject* creature = playerObject->GetCreature();
 
 		std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         while (result_set->next()) {
 		
 			//recalculate stat max later just initialize it so we have proper place prepared
-			playerObject->InitStatMax(result_set->getUInt(1)); //HamBar_Health
-			playerObject->InitStatMax(result_set->getUInt(2)); //strength
-			playerObject->InitStatMax(result_set->getUInt(3));	//constitution
+			creature ->InitStatMax(result_set->getUInt(1)); //HamBar_Health
+			creature ->InitStatMax(result_set->getUInt(2)); //strength
+			creature ->InitStatMax(result_set->getUInt(3));	//constitution
 
-			playerObject->InitStatMax(result_set->getUInt(4)); //HamBar_Health
-			playerObject->InitStatMax(result_set->getUInt(5)); //strength
-			playerObject->InitStatMax(result_set->getUInt(6));	//constitution
+			creature ->InitStatMax(result_set->getUInt(4)); //HamBar_Health
+			creature ->InitStatMax(result_set->getUInt(5)); //strength
+			creature ->InitStatMax(result_set->getUInt(6));	//constitution
 
-			playerObject->InitStatMax(result_set->getUInt(7)); //HamBar_Health
-			playerObject->InitStatMax(result_set->getUInt(8)); //strength
-			playerObject->InitStatMax(result_set->getUInt(9));	//constitution
+			creature->InitStatMax(result_set->getUInt(7)); //HamBar_Health
+			creature->InitStatMax(result_set->getUInt(8)); //strength
+			creature->InitStatMax(result_set->getUInt(9));	//constitution
 
-			playerObject->InitStatBase(result_set->getUInt(1)); //HamBar_Health
-			playerObject->InitStatBase(result_set->getUInt(2)); //strength
-			playerObject->InitStatBase(result_set->getUInt(3));	//constitution
+			creature->InitStatBase(result_set->getUInt(1)); //HamBar_Health
+			creature->InitStatBase(result_set->getUInt(2)); //strength
+			creature->InitStatBase(result_set->getUInt(3));	//constitution
 
-			playerObject->InitStatBase(result_set->getUInt(4));//HamBar_Action
-			playerObject->InitStatBase(result_set->getUInt(5));//HamBar_Quickness
-			playerObject->InitStatBase(result_set->getUInt(6));//HamBar_Stamina
+			creature->InitStatBase(result_set->getUInt(4));//HamBar_Action
+			creature->InitStatBase(result_set->getUInt(5));//HamBar_Quickness
+			creature->InitStatBase(result_set->getUInt(6));//HamBar_Stamina
 
-			playerObject->InitStatBase(result_set->getUInt(7));//HamBar_Mind
-			playerObject->InitStatBase(result_set->getUInt(8));//HamBar_Focus
-			playerObject->InitStatBase(result_set->getUInt(9));//HamBar_Willpower
+			creature->InitStatBase(result_set->getUInt(7));//HamBar_Mind
+			creature->InitStatBase(result_set->getUInt(8));//HamBar_Focus
+			creature->InitStatBase(result_set->getUInt(9));//HamBar_Willpower
 
-			playerObject->InitStatCurrent(result_set->getUInt(10)); //HamBar_Health
-			playerObject->InitStatCurrent(result_set->getUInt(11)); //strength
-			playerObject->InitStatCurrent(result_set->getUInt(12)); //constitution
+			creature->InitStatCurrent(result_set->getUInt(10)); //HamBar_Health
+			creature->InitStatCurrent(result_set->getUInt(11)); //strength
+			creature->InitStatCurrent(result_set->getUInt(12)); //constitution
 
-			playerObject->InitStatCurrent(result_set->getUInt(13)); //HamBar_Action
-			playerObject->InitStatCurrent(result_set->getUInt(14)); //
-			playerObject->InitStatCurrent(result_set->getUInt(15)); //
+			creature->InitStatCurrent(result_set->getUInt(13)); //HamBar_Action
+			creature->InitStatCurrent(result_set->getUInt(14)); //
+			creature->InitStatCurrent(result_set->getUInt(15)); //
 
-			playerObject->InitStatCurrent(result_set->getUInt(16)); //HamBar_Mind
-			playerObject->InitStatCurrent(result_set->getUInt(17)); //
-			playerObject->InitStatCurrent(result_set->getUInt(18)); //
+			creature->InitStatCurrent(result_set->getUInt(16)); //HamBar_Mind
+			creature->InitStatCurrent(result_set->getUInt(17)); //
+			creature->InitStatCurrent(result_set->getUInt(18)); //
 
-			playerObject->InitStatWound(result_set->getUInt(19)); //HamBar_Health
-			playerObject->InitStatWound(result_set->getUInt(20)); //
-			playerObject->InitStatWound(result_set->getUInt(21)); //
+			creature->InitStatWound(result_set->getUInt(19)); //HamBar_Health
+			creature->InitStatWound(result_set->getUInt(20)); //
+			creature->InitStatWound(result_set->getUInt(21)); //
 
-			playerObject->InitStatWound(result_set->getUInt(22)); //HamBar_Action
-			playerObject->InitStatWound(result_set->getUInt(23)); //
-			playerObject->InitStatWound(result_set->getUInt(24)); //
+			creature->InitStatWound(result_set->getUInt(22)); //HamBar_Action
+			creature->InitStatWound(result_set->getUInt(23)); //
+			creature->InitStatWound(result_set->getUInt(24)); //
 
-			playerObject->InitStatWound(result_set->getUInt(25)); //HamBar_Mind
-			playerObject->InitStatWound(result_set->getUInt(26)); //
-			playerObject->InitStatWound(result_set->getUInt(27));
+			creature->InitStatWound(result_set->getUInt(25)); //HamBar_Mind
+			creature->InitStatWound(result_set->getUInt(26)); //
+			creature->InitStatWound(result_set->getUInt(27));
 
-			playerObject->InitStatEncumberance(result_set->getUInt(28));
-			playerObject->InitStatEncumberance(0);
-			playerObject->InitStatEncumberance(0);
-			playerObject->InitStatEncumberance(result_set->getUInt(29));
-			playerObject->InitStatEncumberance(0);
-			playerObject->InitStatEncumberance(0);
-			playerObject->InitStatEncumberance(result_set->getUInt(30));
-			playerObject->InitStatEncumberance(0);
-			playerObject->InitStatEncumberance(0);
+			creature->InitStatEncumberance(result_set->getUInt(28));
+			creature->InitStatEncumberance(0);
+			creature->InitStatEncumberance(0);
+			creature->InitStatEncumberance(result_set->getUInt(29));
+			creature->InitStatEncumberance(0);
+			creature->InitStatEncumberance(0);
+			creature->InitStatEncumberance(result_set->getUInt(30));
+			creature->InitStatEncumberance(0);
+			creature->InitStatEncumberance(0);
 
 
-			playerObject->InitBattleFatigue(result_set->getUInt(31));
+			creature->InitBattleFatigue(result_set->getUInt(31));
         }
 		
 		//now call the ham service to initialize max stats
@@ -243,15 +244,15 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,swganh::database::
 
         while (result_set->next()) {
           
-			playerObject->InitializeSkill(gSkillManager->getSkillById(result_set->getUInt(1))->mName.getAnsi());
+			playerObject->GetCreature()->InitializeSkill(gSkillManager->getSkillById(result_set->getUInt(1))->mName.getAnsi());
         }
 
-        playerObject->prepareSkillMods();
+        playerObject->GetCreature()->prepareSkillMods();
         playerObject->prepareSkillCommands();
         playerObject->prepareSchematicIds();
 
         playerObject->mSkillCmdUpdateCounter = playerObject->getSkillCommands()->size();
-        playerObject->mSkillModUpdateCounter = playerObject->getSkillMods()->size();
+        playerObject->GetCreature()->mSkillModUpdateCounter = playerObject->GetCreature()->getSkillMods()->size();
 
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_Badges,asyncContainer->mClient);
         asContainer->mObject = playerObject;
@@ -309,7 +310,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,swganh::database::
         for(uint64 i = 0; i < count; i++)
         {
             result->getNextRow(binding,&factionCont);
-            playerObject->mFactionList.push_back(std::make_pair(factionCont.mId,factionCont.mValue));
+            playerObject->GetCreature()->mFactionList.push_back(std::make_pair(factionCont.mId,factionCont.mValue));
         }
 
         mDatabase->destroyDataBinding(binding);
@@ -639,11 +640,11 @@ void PlayerObjectFactory::storeCharacterAttributes_(PlayerObject* player_object)
                  << "focus_wounds=" << ham->mFocus.getWounds() << ", "
                  << "willpower_wounds=" << ham->mWillpower.getWounds() << ", "
                  << "battlefatigue=" << ham->getBattleFatigue() << ", "*/
-                 << "posture=" << player_object->GetPosture() << ", "
-                 << "moodId=" << static_cast<uint16_t>(player_object->getMoodId()) << ", "
+                 << "posture=" << player_object->GetCreature()->GetPosture() << ", "
+                 << "moodId=" << static_cast<uint16_t>(player_object->GetCreature()->getMoodId()) << ", "
                  << "title='" << mDatabase->escapeString(player_object->getTitle().getAnsi()) << "', "
                  << "character_flags=" << player_object->getPlayerFlags() << ", "
-                 << "states=" << player_object->states.getAction() << ", "
+                 << "states=" << player_object->GetCreature()->states.getAction() << ", "
                  << "language=" << player_object->getLanguage() << ", "
                  << "new_player_exemptions=" <<  static_cast<uint16_t>(player_object->getNewPlayerExemptions()) << " "
                  << "WHERE character_id=" << player_object->getId();
@@ -766,6 +767,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
 
 	PlayerObject*		player= new PlayerObject();
 	CreatureObject*		creature = new CreatureObject();
+	creature->setCreoGroup(CreoGroup_Player);
 
 	std::shared_ptr<TangibleObject> playerHair = std::make_shared<TangibleObject>();
 	
@@ -773,6 +775,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
 	
    
 	player->object_type_ = SWG_PLAYER;
+
 
     // get our results
     result->getNextRow(ghost_binding,(void*)player);
@@ -1103,10 +1106,10 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
     {
 		LOG(info) <<"PlayerObjectFactory::handleObjectReady : done";
 
-        if(!(_removeFromObjectLoadMap(playerObject->getId())))
+        if(!(_removeFromObjectLoadMap(creature->getId())))
             LOG(warning) << "Failed removing object from loadmap";
         
-        Datapad* dpad = playerObject->getDataPad();
+        Datapad* dpad = player->getDataPad();
         if(!dpad)
         {
             assert(dpad && "PlayerObjectFactory::No Datapad!!!!!");
@@ -1114,7 +1117,7 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 
         }
 
-        ilc->mOfCallback->handleObjectReady(playerObject,ilc->mClient);
+        ilc->mOfCallback->handleObjectReady(creature,ilc->mClient);
 
         mILCPool.free(ilc);
     }

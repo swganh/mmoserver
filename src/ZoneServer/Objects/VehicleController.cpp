@@ -127,7 +127,7 @@ void VehicleController::Call() {
         return;
     }
 
-    if(!owner_->isConnected() || owner_->isDead() || owner_->isIncapacitated()) {
+    if(!owner_->isConnected() || owner_->GetCreature()->isDead() || owner_->GetCreature()->isIncapacitated()) {
         return;
     }
 
@@ -213,7 +213,7 @@ void VehicleController::Store()
         return;
     }
 
-    if(!owner_ || owner_->isDead() || owner_->isIncapacitated())
+    if(!owner_ || owner_->GetCreature()->isDead() || owner_->GetCreature()->isIncapacitated())
     {
         DLOG(info) << "Vehicle::store() couldnt find owner";
         return;
@@ -267,11 +267,11 @@ void VehicleController::DismountPlayer() {
 	gMessageLib->sendUpdateTransformMessage(body_);
 
     // TODO: make this more automatic...
-    gStateManager.removeActionState(owner_, CreatureState_RidingMount);   
+    gStateManager.removeActionState(owner_->GetCreature(), CreatureState_RidingMount);   
     gStateManager.removeActionState(body_, CreatureState_MountedCreature);   
 
     owner_->setMounted(false);
-    gMessageLib->sendPostureAndStateUpdate(owner_);  
+    gMessageLib->sendPostureAndStateUpdate(owner_->GetCreature());  
     gMessageLib->sendUpdateMovementProperties(owner_);
 }
 
@@ -292,7 +292,7 @@ void VehicleController::MountPlayer()
     body_->states.toggleActionOn(CreatureState_MountedCreature);
     gMessageLib->sendStateUpdate(body_);
 
-    gStateManager.setCurrentActionState(owner_,CreatureState_RidingMount);
+    gStateManager.setCurrentActionState(owner_->GetCreature(),CreatureState_RidingMount);
     //gStateManager.setCurrentPostureState(owner_,CreaturePosture_DrivingVehicle);
     //gStateManager.setCurrentLocomotionState(owner_,CreatureLocomotion_DrivingVehicle);
 

@@ -129,7 +129,7 @@ void BankTerminal::handleUIEvent(BString strInventoryCash, BString strBankCash, 
 	PlayerObject* playerObject = window->getOwner(); // window owner
 
 	// Check if you can use the bank
-    if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead() ||		playerObject->states.checkState(CreatureState_Combat))    {
+    if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->GetCreature()->isIncapacitated() || playerObject->GetCreature()->isDead() ||		playerObject->GetCreature()->states.checkState(CreatureState_Combat))    {
 		gMessageLib->SendSystemMessage(L"You can not use the bank at your current state", playerObject); // Temp Message
         return;
     }

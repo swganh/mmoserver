@@ -70,7 +70,7 @@ bool ScoutManager::createCamp(uint32 typeId,uint64 parentId, const glm::vec3& po
     if(!deedData)
         return false;
 
-    if(!player->checkSkill(deedData->skill_Requirement))
+    if(!player->GetCreature()->checkSkill(deedData->skill_Requirement))
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("camp", "sys_nsf_skill"), player);
         return false;
@@ -206,7 +206,7 @@ bool ScoutManager::createCamp(uint32 typeId,uint64 parentId, const glm::vec3& po
 	gWorldManager->addObject(camp_region);
 
 	int8 name[64];
-	sprintf(name,"%s %s",player->getFirstName(),player->getLastName());
+	sprintf(name,"%s %s",player->GetCreature()->getFirstName(),player->GetCreature()->getLastName());
 	camp_region->setCampOwnerName(name);
 
 	player->setHasCamp(true);
@@ -225,7 +225,7 @@ void ScoutManager::successForage(PlayerObject* player)
 
     //First lets calc our chance to 'win'
     //This is the magic formula!
-    double chance = std::sqrt((double)player->getSkillModValue(9))/20 + 0.15;
+    double chance = std::sqrt((double)player->GetCreature()->getSkillModValue(9))/20 + 0.15;
 
     if(!gStructureManager->checkCityRadius(player))
         chance = chance*50;
@@ -357,7 +357,7 @@ void ScoutManager::successForage(PlayerObject* player)
             itemFamily = ItemFamily_BugJar;
             uint MaxItemCount = 0;
             //Determine #
-            uint32 skillModValue = player->getSkillModValue(9);
+            uint32 skillModValue = player->GetCreature()->getSkillModValue(9);
 
             if(skillModValue <= 25)
                 MaxItemCount = 2;

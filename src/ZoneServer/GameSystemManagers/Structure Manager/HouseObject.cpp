@@ -77,7 +77,7 @@ void HouseObject::checkCellPermission(PlayerObject* player)
         command.PlayerId = player->getId();
         command.StructureId = this->getId();
 
-        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName(),"BAN",command);
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->GetCreature()->getId(),player->GetCreature()->getFirstName(),"BAN",command);
 
     }
     else
@@ -88,7 +88,7 @@ void HouseObject::checkCellPermission(PlayerObject* player)
         command.PlayerId = player->getId();
         command.StructureId = this->getId();
 
-        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName(),"ENTRY",command);
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->GetCreature()->getId(),player->GetCreature()->getFirstName(),"ENTRY",command);
 
     }
 }

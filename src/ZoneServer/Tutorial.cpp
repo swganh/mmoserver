@@ -630,7 +630,7 @@ bool Tutorial::getReady()
     bool status = false;
     if (mPlayerObject && mPlayerObject->isConnected())
     {
-        status = mPlayerObject->getReady();
+		status = mPlayerObject->GetCreature()->getReady();
     }
     return status;
 }
@@ -992,7 +992,7 @@ bool Tutorial::isPlayerTrained(void)
 
     if (mPlayerObject && mPlayerObject->isConnected())
     {
-        isTrained = (mPlayerObject->getSkillPointsLeft() < 250);
+        isTrained = (mPlayerObject->GetCreature()->getSkillPointsLeft() < 250);
     }
     return isTrained;
 }

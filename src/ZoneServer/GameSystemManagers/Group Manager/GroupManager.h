@@ -52,10 +52,13 @@ class Message;
 class MessageDispatch;
 class MissionObject;
 class PlayerObject;
+class CreatureObject;
+class Object;
 class GroupManagerCallbackContainer;
 
 typedef std::vector<std::pair<MissionObject*,uint32> >	MissionGroupRangeList;
 typedef std::vector<GroupObject*>						GroupList;
+typedef std::list<Object*>								ObjectList;
 //======================================================================================================================
 
 class GroupManager : public swganh::database::DatabaseCallback
@@ -97,6 +100,8 @@ public:
     GroupList*			getGroupList() {
         return &mGroupList;
     }
+
+	ObjectList			getInRangeGroupMembers(CreatureObject* creature, bool self = false);
 
 private:
 

@@ -292,13 +292,6 @@ class PlayerObject : public IntangibleObject
         uint64				getPlacedInstrumentId(){return mPlacedInstrument;}
         void				setPlacedInstrumentId(uint64 id){mPlacedInstrument = id;}
 
-        uint64				getEntertainerWatchToId(){return mEntertainerWatchToId;}
-        void				setEntertainerWatchToId(uint64 entertainer){mEntertainerWatchToId = entertainer;}
-        uint64				getEntertainerTaskId(){return mEntertainerTaskId;}
-        void				setEntertainerTaskId(uint64 entertainerTaskId){mEntertainerTaskId = entertainerTaskId;}
-        uint64				getEntertainerPauseId(){return mEntertainerPauseId;}
-        void				setEntertainerPauseId(uint64 entertainerPauseId){mEntertainerPauseId = entertainerPauseId;}
-
         void				setActiveInstrumentId(uint64 instrumentId) {mSelectedInstrument = instrumentId;}
         uint64				getActiveInstrumentId(void) {return mSelectedInstrument;}
 
@@ -316,7 +309,8 @@ class PlayerObject : public IntangibleObject
         void				playFoodSound(bool food, bool drink);
         // ID
         void				setImageDesignerTaskId(uint64 taskId){mImageDesignerId = taskId;}
-        bool				UpdateIdAttributes(BString attribute,float value);
+        
+		bool				UpdateIdAttributes(BString attribute,float value);
         bool				UpdateIdColors(BString attribute,uint16 value);
         AttributesList*		getIdAttributesList(){return &mIDAttributesList;}
         ColorList*			getIdColorList(){return &mIDColorList;}
@@ -409,11 +403,11 @@ class PlayerObject : public IntangibleObject
         SchematicsIdList*	getSchematicsAddList(){ return &mSchematicAddList; }
 
         // groups
-        PlayerList			getInRangeGroupMembers(bool self = false);
+        
         uint64				getLastGroupMissionUpdateTime(){return mLastGroupMissionUpdateTime;}
         void				setLastGroupMissionUpdateTime(uint64 time){mLastGroupMissionUpdateTime = time;}
 
-        // duels
+        // duels - do NOT mistake the duel list for the defender list
         PlayerList*			getDuelList(){ return &mDuelList; }
         bool				checkDuelList(PlayerObject* player);
         void				clearDuelList();
@@ -535,16 +529,31 @@ class PlayerObject : public IntangibleObject
         uint32				getLanguage() const { return mLanguage; }
         void				setLanguage(uint32 language){ mLanguage = language; }
 
+		void				prepareSkillCommands();
+        bool				verifyAbility(uint32 abilityCRC);
+
 		void CreateBaselines(PlayerObject* observer);
 
 		CreatureObject*	PlayerObject::GetCreature();
 		CreatureObject*	PlayerObject::GetCreature(boost::unique_lock<boost::mutex>& lock);
 
+		SkillCommandList*	getSkillCommands(){ return &mSkillCommands; }
+
+		uint32				mSkillCmdUpdateCounter;
 
     private:
+		
+		//whether the player has finished loading
+		bool				mReady;
 
+		uint64				mImageDesignerId;
+
+		SkillCommandMap		mSkillCommandMap;
+        SkillCommandList	mSkillCommands;
 
 		uint32				mLanguage;
+
+		PlayerList			mDuelList;
 
 		int32_t				current_force_power_;
 		int32_t				max_force_power_;
@@ -563,7 +572,7 @@ class PlayerObject : public IntangibleObject
         AudienceList		mAudienceList;
         BadgesList			mBadgeList;
         DenyServiceList		mDenyAudienceList;
-        PlayerList			mDuelList;
+        
         SchematicsIdList	mFilteredSchematicIdList;
         AttributesList		mIDAttributesList;
         ColorList			mIDColorList;
@@ -607,11 +616,8 @@ class PlayerObject : public IntangibleObject
         uint64				mIDPartner;
 
         uint64				mCombatTargetId; // The actual target player are hitting, not always the same as the "look-at" target.
-        uint64				mEntertainerPauseId;
-        uint64				mEntertainerTaskId;
-        uint64				mImageDesignerId;
-        uint64				mEntertainerWatchToId;
-        uint64				mLastGroupMissionUpdateTime;
+        
+		uint64				mLastGroupMissionUpdateTime;
         uint64				mNearestCraftingStation;
         uint64				mPlacedInstrument;
         //uint64				mPlayerObjId;

@@ -46,6 +46,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageFactory.h"
 #include "NetworkManager/MessageOpcodes.h"
 
+#include "ZoneServer\Services\equipment\equipment_service.h"
+
 #include "ZoneServer/GameSystemManagers/Spatial Index Manager/SpatialIndexManager.h"
 #include "ZoneServer/GameSystemManagers/Conversation Manager/ActiveConversation.h"
 #include "ZoneServer/CharSheetManager.h"
@@ -141,7 +143,12 @@ void MessageLib::SendSpatialChat_(CreatureObject* const speaking_object, const s
 
     mMessageFactory->addUint16(mood_id);
     mMessageFactory->addUint8(whisper_target_animate);
-    mMessageFactory->addUint8(static_cast<uint8>(speaking_object->getLanguage()));
+
+
+	auto equipment_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto speaking_ghost = dynamic_cast<PlayerObject*>(equipment_service->GetEquippedObject(speaking_object, "ghost"));
+	
+	mMessageFactory->addUint8(static_cast<uint8>(speaking_ghost->getLanguage()));
 
     // Add the ProsePackage to the message if no custom string was set.
     if (!custom_message.length()) {
@@ -285,34 +292,6 @@ void MessageLib::sendCreatureAnimation(CreatureObject* srcObject,const std::stri
 
     _sendToInstancedPlayers(mMessageFactory->EndMessage(),5, player);
 }
-//======================================================================================================================
-//
-// posture update
-//
-
-void MessageLib::sendSelfPostureUpdate(PlayerObject* playerObject)
-{
-	if(!_checkPlayer(playerObject)) {
-		return;
-	}
-
-	MessageFactory* factory = getFactory_();
-
-    factory->StartMessage();
-    factory->addUint32(opObjControllerMessage);
-    factory->addUint32(0x0000001B);
-    factory->addUint32(opPosture);
-    factory->addUint64(playerObject->getId());
-    factory->addUint32(0);
-    factory->addUint8(playerObject->GetPosture());
-    factory->addUint8(1);
-
-    _sendToInRange(factory->EndMessage(),playerObject,5);
-
-	factory_queue_.push(factory);
-
-}
-
 //======================================================================================================================
 //
 // radial response
@@ -1001,15 +980,15 @@ bool MessageLib::sendCharacterMatchResults(const PlayerList* const matched_playe
         mMessageFactory->addUint32(0);
         mMessageFactory->addUint32(0);
 
-        std::string player_name(player->getFirstName());
+		std::string player_name(player->GetCreature()->getFirstName());
 
-        if(player->getLastName().length()) {
+        if(player->GetCreature()->getLastName().length()) {
             player_name.append(" ");
-            player_name.append(player->getLastName());
+            player_name.append(player->GetCreature()->getLastName());
         }
 
         mMessageFactory->addString(std::wstring(player_name.begin(), player_name.end()));
-        mMessageFactory->addUint32(player->getRaceId());
+        mMessageFactory->addUint32(player->GetCreature()->getRaceId());
 
         // only cities for now
         glm::vec3 position = player->getWorldPosition();
@@ -1774,10 +1753,10 @@ void MessageLib::sendIDChangeMessage(PlayerObject* targetObject,PlayerObject* sr
     mMessageFactory->addUint8(designerCommit);        //flag ID accepted
     mMessageFactory->addUint32(customerAccept);        //flag customer accepted
     mMessageFactory->addUint8(flag3);       //flag stat migration
-    mMessageFactory->addUint32(srcObject->getSkillModValue(SMod_markings));
-    mMessageFactory->addUint32(srcObject->getSkillModValue(SMod_hair));
-    mMessageFactory->addUint32(srcObject->getSkillModValue(SMod_body));
-    mMessageFactory->addUint32(srcObject->getSkillModValue(SMod_face));
+    mMessageFactory->addUint32(srcObject->GetCreature()->getSkillModValue(SMod_markings));
+    mMessageFactory->addUint32(srcObject->GetCreature()->getSkillModValue(SMod_hair));
+    mMessageFactory->addUint32(srcObject->GetCreature()->getSkillModValue(SMod_body));
+    mMessageFactory->addUint32(srcObject->GetCreature()->getSkillModValue(SMod_face));
 
     //body options
     AttributesList* aList = targetObject->getIdAttributesList();
@@ -1828,8 +1807,8 @@ void MessageLib::sendIDEndMessage(PlayerObject* targetObject,PlayerObject* srcOb
     mMessageFactory->addUint32(0);                    // unknown
 
     mMessageFactory->addUint64(otherObject->getId()); //the recipient
-    mMessageFactory->addUint64(srcObject->getId());   //the manipulator
-    mMessageFactory->addUint64(otherObject->getParentId()-1);
+    mMessageFactory->addUint64(srcObject->GetCreature()->getId());   //the manipulator
+    mMessageFactory->addUint64(otherObject->getParentId()-1);//????????????????
 
     if(hair.getLength() > 0)
         mMessageFactory->addUint8(0); //flag
@@ -1847,10 +1826,10 @@ void MessageLib::sendIDEndMessage(PlayerObject* targetObject,PlayerObject* srcOb
     mMessageFactory->addUint8(flag2);
     mMessageFactory->addUint32(unknown2);
     mMessageFactory->addUint8(flag3);
-    mMessageFactory->addUint32(srcObject->checkSkill(SMod_markings));
-    mMessageFactory->addUint32(srcObject->checkSkill(SMod_hair));
-    mMessageFactory->addUint32(srcObject->checkSkill(SMod_body));
-    mMessageFactory->addUint32(srcObject->checkSkill(SMod_face));
+    mMessageFactory->addUint32(srcObject->GetCreature()->checkSkill(SMod_markings));
+    mMessageFactory->addUint32(srcObject->GetCreature()->checkSkill(SMod_hair));
+    mMessageFactory->addUint32(srcObject->GetCreature()->checkSkill(SMod_body));
+    mMessageFactory->addUint32(srcObject->GetCreature()->checkSkill(SMod_face));
 
     //body options
     AttributesList* aList = srcObject->getIdAttributesList();
@@ -1961,7 +1940,7 @@ void MessageLib::sendSetWaypointActiveStatus(WaypointObject* waypointObject, boo
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x00000023);
     mMessageFactory->addUint32(opCommandQueueEnqueue);
-    mMessageFactory->addUint64(targetObject->getPlayerObjId());
+    mMessageFactory->addUint64(targetObject->getId());
     mMessageFactory->addUint32(0);
     mMessageFactory->addUint32(0);
     mMessageFactory->addUint32(opOCsetwaypointactivestatus);

@@ -41,10 +41,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Zoneserver/Objects/CraftingStation.h"
 #include "Zoneserver/Objects/Datapad.h"
 
-#include "ZoneServer/GameSystemManagers/Group Manager/GroupManager.h"
-#include "ZoneServer/GameSystemManagers/Group Manager/GroupObject.h"
-
-#include "ZoneServer/GameSystemManagers/Container Manager/ContainerManager.h"
+//#include "ZoneServer/GameSystemManagers/Group Manager/GroupManager.h"
+//#include "ZoneServer/GameSystemManagers/Group Manager/GroupObject.h"
 
 #include "Zoneserver/GameSystemManagers/Event Manager/ActionStateEvent.h"
 #include "Zoneserver/GameSystemManagers/Event Manager/LocomotionStateEvent.h"
@@ -68,8 +66,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/ProfessionManagers/Medic Manager/QuickHealInjuryTreatmentEvent.h"
 #include "ZoneServer/ProfessionManagers/Medic Manager/WoundTreatmentEvent.h"
 
-#include "ZoneServer\Services\equipment\equipment_service.h"
-
 #include "ZoneServer/Objects/VehicleController.h"
 #include "ZoneServer/WorldConfig.h"
 #include "ZoneServer/WorldManager.h"
@@ -84,6 +80,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "anh/Utils/clock.h"
 #include "Utils/EventHandler.h"
 
+#include "ZoneServer\Services\equipment\equipment_service.h"
 #include "ZoneServer\Services\ham\ham_service.h"
 #include "anh\service\service_manager.h"
 
@@ -99,7 +96,8 @@ using ::common::EventListenerType;
 //=============================================================================
 
 PlayerObject::PlayerObject()
-    : CreatureObject()
+    : IntangibleObject()
+	, mLanguage(1)
     , mHasCamp(false)
     , mDataPad(nullptr)
     , mBazaarPoint(nullptr)
@@ -110,13 +108,9 @@ PlayerObject::PlayerObject()
     , mTravelPoint(nullptr)
     , mTutorial(nullptr)
     , mCombatTargetId(0)
-    , mEntertainerPauseId(0)
-    , mEntertainerTaskId(0)
-    , mEntertainerWatchToId(0)
     , mLastGroupMissionUpdateTime(0)
     , mNearestCraftingStation(0)
     , mPlacedInstrument(0)
-    , mPlayerObjId(0)
     , mPreDesignatedCloningFacilityId(0)
     , mSelectedInstrument(0)
     , mTradePartner(0)
@@ -148,7 +142,6 @@ PlayerObject::PlayerObject()
     mIsForaging			= false;
     mType				= ObjType_Player;
 	object_type_		= SWG_PLAYER;
-    mCreoGroup			= CreoGroup_Player;
     mStomach			= new Stomach(this);
     mMarriage			= L"";					// Unmarried
     mTrade				= new Trade(this);
@@ -219,17 +212,17 @@ PlayerObject::~PlayerObject()
     }
 
     // make sure we are deleted out of entertainer Ticks when entertained
-    if(mEntertainerWatchToId)
+    if(GetCreature()->getEntertainerWatchToId())
     {
-        if(PlayerObject* entertainer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mEntertainerWatchToId)))
+        if(PlayerObject* entertainer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(GetCreature()->getEntertainerWatchToId())))
         {
 			gEntertainerManager->removeAudience(entertainer,this->getId());
         }
     }
 
-    if(mEntertainerListenToId)
+    if(GetCreature()->getEntertainerListenToId())
     {
-        if(PlayerObject* entertainer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mEntertainerListenToId)))
+        if(PlayerObject* entertainer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(GetCreature()->getEntertainerListenToId())))
         {
 			gEntertainerManager->removeAudience(entertainer,this->getId());
         }
@@ -238,20 +231,13 @@ PlayerObject::~PlayerObject()
     // make sure we don't leave a crafting session open
     gCraftingSessionFactory->destroySession(mCraftingSession);
     this->setCraftingSession(NULL);
-    gStateManager.removeActionState(this, CreatureState_Crafting);
+    gStateManager.removeActionState(GetCreature(), CreatureState_Crafting);
     this->setCraftingStage(0);
     this->setExperimentationFlag(0);
 
-    // remove the player out of his group - if any
-    if(GroupObject* group = gGroupManager->getGroupObject(mGroupId))
-    {
-        group->removePlayer(mId);
-
-    }
-
 	LOG(error) << "PlayerObject::~PlayerObject() : duel lists";
 
-    // update duel lists
+   // update duel lists
     PlayerList::iterator duelIt = mDuelList.begin();
 
     while(duelIt != mDuelList.end())
@@ -262,44 +248,15 @@ PlayerObject::~PlayerObject()
 
             duelPlayer->removeFromDuelList(this);
 
-            gMessageLib->sendUpdatePvpStatus(this,duelPlayer);
-            gMessageLib->sendUpdatePvpStatus(duelPlayer,this);
+            gMessageLib->sendUpdatePvpStatus(GetCreature(),duelPlayer);
+            gMessageLib->sendUpdatePvpStatus(duelPlayer->GetCreature(),this);
         }
 
         ++duelIt;
     }
     mDuelList.clear();
 
-
-
-    // update defender lists
-	auto defenderList = GetDefender();
-    auto defenderIt = defenderList.begin();
-
-    while (defenderIt != defenderList.end())
-    {
-        if (CreatureObject* defenderCreature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById((*defenderIt))))
-        {
-            defenderCreature->RemoveDefender(mId);
-
-            if(PlayerObject* defenderPlayer = dynamic_cast<PlayerObject*>(defenderCreature))
-            {
-                gMessageLib->sendUpdatePvpStatus(this,defenderPlayer);
-            }
-
-            // if no more defenders, clear combat state
-            if(!defenderCreature->GetDefender().size())
-            {
-                // TODO: replace
-                gStateManager.removeActionState(this, CreatureState_Combat);
-
-                gMessageLib->sendStateUpdate(defenderCreature);
-            }
-        }
-
-        ++defenderIt;
-    }
-
+    
     clearAllUIWindows();    
 
     delete(mStomach);
@@ -337,9 +294,9 @@ void PlayerObject::resetProperties()
     mClientTickCount					= 0;
 
     mSkillCmdUpdateCounter				= mSkillCommands.size();
-    mSkillModUpdateCounter				= mSkillMods.size();
+	//mSkillModUpdateCounter				= mSkillMods.size();
     mXpUpdateCounter					= mXpList.size();
-    gStateManager.setCurrentPostureState(this, CreaturePosture_Upright);
+    gStateManager.setCurrentPostureState(this->GetCreature(), CreaturePosture_Upright);
 
     // the client resets the bufftimers on local travel ... :(
     gBuffManager->InitBuffs(this);
@@ -351,7 +308,7 @@ void PlayerObject::resetProperties()
     this->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);
     this->togglePlayerCustomFlagOff(PlayerCustomFlag_BurstRun);
 
-    mDefenderUpdateCounter				= 0;
+    //mDefenderUpdateCounter				= 0;
     mReady								= false;
 
     Datapad* datapad			= getDataPad();
@@ -360,7 +317,7 @@ void PlayerObject::resetProperties()
 		datapad->mWaypointUpdateCounter = datapad->GetWaypoints().size();
     }
 
-    updateMovementProperties();
+    GetCreature()->updateMovementProperties();
 
     // We might have been invited to a duel
     clearDuelList();
@@ -423,10 +380,10 @@ void PlayerObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8
 
 
     // entertainer - dance
-    if(mPendingPerform == PlayerPerformance_Dance)
+    if(GetCreature()->getPerformingState() == PlayerPerformance_Dance)
     {
         // stop watching
-        if(playerObject->getEntertainerWatchToId()== mId)
+        if(playerObject->GetCreature()->getEntertainerWatchToId()== mId)
         {
             radial->addItem(radId++,0,radId_serverPerformanceWatchStop,radAction_ObjCallback,"Stop Watching");
 
@@ -438,10 +395,10 @@ void PlayerObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8
         }
     }
     // entertainer - music
-    else if(mPendingPerform == PlayerPerformance_Music)
+    else if(GetCreature()->getPerformingState() == PlayerPerformance_Music)
     {
         // stop listening
-        if(playerObject->getEntertainerListenToId()== mId)
+        if(playerObject->GetCreature()->getEntertainerListenToId()== mId)
         {
             radial->addItem(radId++,0,radId_serverPerformanceListenStop,radAction_ObjCallback,"Stop Listening");
         }
@@ -454,8 +411,7 @@ void PlayerObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8
     }
 
     // teach
-    if(playerObject->getGroupId() && (mGroupId == playerObject->getGroupId()))
-    {
+    if(playerObject->GetCreature()->getGroupId() && (GetCreature()->getGroupId() == playerObject->GetCreature()->getGroupId()))    {
         radial->addItem(radId++,0,radId_serverTeach,radAction_ObjCallback,"Teach");
 
     }
@@ -872,9 +828,11 @@ void PlayerObject::prepareSchematicIds()
 {
     mSchematicIdList.clear();
 
-    auto skillIt = skills_.begin();
+	auto skills = this->GetCreature()->GetSkills();
 
-    while(skillIt != skills_.end())
+    auto skillIt = skills.begin();
+
+    while(skillIt != skills.end())
     {
 		Skill* skill = gSkillManager->getSkillByName((*skillIt).c_str());
 		SchematicGroupsList::iterator groupIt = skill->mSchematics.begin();
@@ -1125,36 +1083,7 @@ bool PlayerObject::checkIgnoreList(uint32 nameCrc) const
 
     return(false);
 }
-PlayerList PlayerObject::getInRangeGroupMembers(bool self)
-{
-    PlayerList						members;
-    PlayerList*						pMembers = &members;
 
-    if(self)
-    {
-        members.push_back((PlayerObject*)this);
-    }
-
-    if(mGroupId == 0)
-    {
-        return members;
-    }
-
-    gContainerManager->sendToRegisteredPlayers(this,[this, pMembers] (PlayerObject* const recipient)
-    {
-
-        if(recipient->getGroupId() == mGroupId)
-        {
-            pMembers->push_back(recipient);
-        }
-
-    }
-                                              );
-
-
-
-    return members;
-}
 
 //=============================================================================
 //=============================================================================
@@ -1374,7 +1303,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,std::u16string inpu
 
         // its a skill - offer to teach it
         sprintf(text,"@skl_n:%s",skill->mName.getAnsi());
-        sprintf(caption,"%s offers to teach you : %s",first_name.c_str(),text);
+		sprintf(caption,"%s offers to teach you : %s",GetCreature()->getFirstName().c_str(),text);
 
         gUIManager->createNewSkillTeachMessageBox(this,"askteach",caption,text,pupilObject,SUI_MB_OKCANCEL,skillSelectBox->getPupil(),skill);
     }
@@ -1395,7 +1324,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,std::u16string inpu
         teachBox->getPupil()->getTrade()->setTeacher(NULL);
 
         //send mission accomplished to teacher
-        BString convName = teachBox->getPupil()->getFirstName().c_str();
+		BString convName = teachBox->getPupil()->GetCreature()->getFirstName().c_str();
         convName.convert(BSTRType_Unicode16);
 
         ::common::ProsePackage prose("teaching", "teacher_skill_learned");
@@ -1406,7 +1335,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,std::u16string inpu
         gMessageLib->SendSystemMessage(::common::OutOfBand(prose), this);
 
         //add skill to our pupils repertoir and send mission accomplished to our pupil
-        gSkillManager->learnSkill(teachBox->getSkill()->mId,teachBox->getPupil(),true);
+		gSkillManager->learnSkill(teachBox->getSkill()->mId,teachBox->getPupil()->GetCreature(),true);
     }
     break;
 
@@ -1432,9 +1361,9 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,std::u16string inpu
             BString mDance = splitDance[1];
 
             // if we are already dancing, only change the dance, otherwise start entertaining
-            if(mPendingPerform == PlayerPerformance_None)
+			if(GetCreature()->getPerformingState() == PlayerPerformance_None)
             {
-                mPendingPerform = PlayerPerformance_Dance;
+				GetCreature()->setPerformingState(PlayerPerformance_Dance);
                 gEntertainerManager->startDancePerformance(this,mDance);
             }
             else
@@ -1487,10 +1416,10 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,std::u16string inpu
             BString mDance = splitDance[1];
 
             // if we are already making music, only change the piece, otherwise start entertaining
-            if(mPendingPerform == PlayerPerformance_None)
-            {
-                mPendingPerform = PlayerPerformance_Music;
+            if(GetCreature()->getPerformingState() == PlayerPerformance_None)            {
+				GetCreature()->setPerformingState(PlayerPerformance_Music);
                 gEntertainerManager->startMusicPerformance(this,mDance);
+
             }
             else
             {
@@ -1575,8 +1504,8 @@ void PlayerObject::clearDuelList()
         {
             duelPlayer->removeFromDuelList(this);
 
-            gMessageLib->sendUpdatePvpStatus(this,duelPlayer);
-            gMessageLib->sendUpdatePvpStatus(duelPlayer,this);
+			gMessageLib->sendUpdatePvpStatus(this->GetCreature(),duelPlayer);
+            gMessageLib->sendUpdatePvpStatus(duelPlayer->GetCreature(),this);
         }
 
         ++duelIt;
@@ -1770,14 +1699,14 @@ void PlayerObject::clone(uint64 parentId, const glm::quat& dir, const glm::vec3&
 
 
     //reset buffs
-    BuffList::iterator it = this->GetBuffList()->begin();
-    while(it != this->GetBuffList()->end())
+    BuffList::iterator it = this->GetCreature()->GetBuffList()->begin();
+    while(it != this->GetCreature()->GetBuffList()->end())
     {
-        RemoveBuff((*it));
+        GetCreature()->RemoveBuff((*it));
         it++;
     }
-    this->GetBuffList()->clear();
-    this->CleanUpBuffs();
+    this->GetCreature()->GetBuffList()->clear();
+    this->GetCreature()->CleanUpBuffs();
     
 	//Im not 100% positive if this is necessary
 	//this->getHam()->resetModifiers();
@@ -1837,7 +1766,7 @@ void PlayerObject::clone(uint64 parentId, const glm::quat& dir, const glm::vec3&
 
     // Update defenders, if any,  NOW when I'm gone...
     
-	auto defenderList = GetDefender();
+	auto defenderList = GetCreature()->GetDefender();
     auto defenderIt = defenderList.begin();
     while (defenderIt != defenderList.end())
     {
@@ -1847,7 +1776,7 @@ void PlayerObject::clone(uint64 parentId, const glm::quat& dir, const glm::vec3&
 
             if (PlayerObject* defenderPlayer = dynamic_cast<PlayerObject*>(defenderCreature))
             {
-                gMessageLib->sendUpdatePvpStatus(this,defenderPlayer);
+                gMessageLib->sendUpdatePvpStatus(this->GetCreature(),defenderPlayer);
             }
 
             // if no more defenders, clear combat state
@@ -1857,7 +1786,7 @@ void PlayerObject::clone(uint64 parentId, const glm::quat& dir, const glm::vec3&
             }
         }
         // If we remove self from all defenders, then we should remove all defenders from self. Remember, we are dead.
-        RemoveDefender(*defenderIt);//were using a copy
+        GetCreature()->RemoveDefender(*defenderIt);//were using a copy
 		defenderIt++;
     }
     
@@ -1937,12 +1866,12 @@ void PlayerObject::cloneAtNearestCloningFacility(void)
             if (mNewPlayerExemptions == 0)
             {
                 // Add wounds...
-				ham->UpdateWound(this, HamBar_Health, 100);
-				ham->UpdateWound(this, HamBar_Action, 100);
-				ham->UpdateWound(this, HamBar_Mind, 100);
+				ham->UpdateWound(this->GetCreature(), HamBar_Health, 100);
+				ham->UpdateWound(this->GetCreature(), HamBar_Action, 100);
+				ham->UpdateWound(this->GetCreature(), HamBar_Mind, 100);
                
                 // .. and some BF
-				ham->UpdateBattleFatigue(this, 100);
+				ham->UpdateBattleFatigue(this->GetCreature(), 100);
             }
 
             // Clone
@@ -1981,7 +1910,7 @@ EMLocationType PlayerObject::getPlayerLocation()
 }
 Object* PlayerObject::getHealingTarget(PlayerObject* Player) const
 {
-    PlayerObject* PlayerTarget = dynamic_cast<PlayerObject*>(Player->getTarget());
+    PlayerObject* PlayerTarget = dynamic_cast<PlayerObject*>(Player->GetCreature()->getTarget());
 
     if (PlayerTarget && PlayerTarget->getId() != Player->getId())
     {
@@ -1989,7 +1918,7 @@ Object* PlayerObject::getHealingTarget(PlayerObject* Player) const
         if (Player->checkDuelList(PlayerTarget))
             return Player;
         //check pvp status
-        if(Player->getPvPStatus() != PlayerTarget->getPvPStatus())
+        if(Player->GetCreature()->getPvPStatus() != PlayerTarget->GetCreature()->getPvPStatus())
         {
             //send pvp_no_help
             DLOG(info) << "PVP Flag not right";
@@ -2124,8 +2053,8 @@ bool PlayerObject::handlePostureUpdate(IEventPtr triggered_event)
             }
 
             gMessageLib->sendUpdateMovementProperties(player);
-            gMessageLib->sendPostureAndStateUpdate(player);
-            gMessageLib->sendSelfPostureUpdate(player);
+            gMessageLib->sendPostureAndStateUpdate(player->GetCreature());
+            
         }
         return true;
     }
@@ -2154,7 +2083,7 @@ void PlayerObject::setUpright()
     }
 
     //if player is seated on an a chair, hack-fix clientside bug by manually sending client message
-    bool IsSeatedOnChair = this->states.checkState(CreatureState_SittingOnChair);
+    bool IsSeatedOnChair = this->GetCreature()->states.checkState(CreatureState_SittingOnChair);
     if(IsSeatedOnChair)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("shared", "player_stand"), this);
@@ -2163,8 +2092,6 @@ void PlayerObject::setUpright()
 
 void PlayerObject::setProne()
 {
-    if(this->isConnected())
-        gMessageLib->sendHeartBeat(this->getClient());
 
     // see if we need to get out of sampling mode
     if(this->getSamplingState())
@@ -2179,7 +2106,7 @@ void PlayerObject::setProne()
         gMessageLib->SendSystemMessage(::common::OutOfBand("logout", "aborted"), this);
     }
     //if player is seated on an a chair, hack-fix clientside bug by manually sending client message
-    bool IsSeatedOnChair = this->states.checkState(CreatureState_SittingOnChair);
+    bool IsSeatedOnChair = this->GetCreature()->states.checkState(CreatureState_SittingOnChair);
     if(IsSeatedOnChair)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("shared", "player_prone"), this);
@@ -2189,8 +2116,21 @@ void PlayerObject::setProne()
 void PlayerObject::setCrouched()
 {
 
+	   // see if we need to get out of sampling mode
+    if(this->getSamplingState())
+    {
+        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_cancel"), this);
+        this->setSamplingState(false);
+    }
+
+    if(this->checkPlayerCustomFlag(PlayerCustomFlag_LogOut))
+    {
+        this->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("logout", "aborted"), this);
+    }
+
     //Get whether player is seated on a chair before we toggle it
-    bool IsSeatedOnChair = this->states.checkState(CreatureState_SittingOnChair);
+    bool IsSeatedOnChair = this->GetCreature()->states.checkState(CreatureState_SittingOnChair);
 
     //if player is seated on an a chair, hack-fix clientside bug by manually sending client message
     if(IsSeatedOnChair)
@@ -2202,7 +2142,7 @@ void PlayerObject::setCrouched()
 void PlayerObject::playFoodSound(bool food, bool drink)
 {
     bool gender = getGender();
-    switch (getRaceId())
+    switch (GetCreature()->getRaceId())
     {
         // wookiee
     case 4:
@@ -2372,4 +2312,55 @@ CreatureObject*	PlayerObject::GetCreature()
 CreatureObject*	PlayerObject::GetCreature(boost::unique_lock<boost::mutex>& lock)
 {
 	return body_;
+}
+
+
+void PlayerObject::prepareSkillCommands()
+{
+	auto player_skills = this->GetCreature()->GetSkills();
+
+    mSkillCommands.clear();
+    mSkillCommandMap.clear();
+
+	auto skillIt		= player_skills.begin();
+
+    while(skillIt != player_skills.end())
+    {
+		Skill* skill = gSkillManager->getSkillByName((*skillIt).c_str());
+        // we dont want race specific skills here
+        if(skill->mSpeciesRequired.size())
+        {
+            ++skillIt;
+            continue;
+        }
+
+        SkillCommandList::iterator scIt = skill->mCommands.begin();
+        SkillCommandList::iterator localScIt;
+
+        while(scIt != skill->mCommands.end())
+        {
+            localScIt = std::find(mSkillCommands.begin(),mSkillCommands.end(),(*scIt));
+
+            if(localScIt == mSkillCommands.end())
+            {
+                mSkillCommands.push_back((*scIt));
+                mSkillCommandMap.insert(std::make_pair((gSkillManager->getSkillCmdById(*scIt)).getCrc(),(void*)0));
+            }
+
+            ++scIt;
+        }
+        ++skillIt;
+    }
+}
+
+//=============================================================================
+
+bool PlayerObject::verifyAbility(uint32 abilityCRC)
+{
+    SkillCommandMap::iterator it = mSkillCommandMap.find(abilityCRC);
+
+    if(it != mSkillCommandMap.end())
+        return(true);
+
+    return(false);
 }

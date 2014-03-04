@@ -103,7 +103,7 @@ void ObjectController::_handleAddFriend(uint64 targetId,Message* message,ObjectC
     }
 
     // check our own name
-    BString firstName = player->getFirstName().c_str();
+    BString firstName = player->GetCreature()->getFirstName().c_str();
     firstName.toLower();
 
     if(strcmp(firstName.getAnsi(),friendName.getAnsi()) == 0)
@@ -231,7 +231,7 @@ void ObjectController::_handleAddIgnore(uint64 targetId,Message* message,ObjectC
     //}
 
     // check our own name
-    BString firstName = player->getFirstName().c_str();
+    BString firstName = player->GetCreature()->getFirstName().c_str();
     firstName.toLower();
 
     if(strcmp(firstName.getAnsi(),ignoreName.getAnsi()) == 0)
@@ -378,7 +378,7 @@ void ObjectController::_handleFindFriendDBReply(uint64 retCode,BString friendNam
     }
 
     //are we on our targets friendlist???
-	uint32 player_crc = common::memcrc(player->getFirstName());
+	uint32 player_crc = common::memcrc(player->GetCreature()->getFirstName());
     if(!searchObject->checkFriendList(player_crc))
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "friend_location_failed", L"", friendName.getUnicode16(), L""), player);
@@ -389,7 +389,7 @@ void ObjectController::_handleFindFriendDBReply(uint64 retCode,BString friendNam
 
     if(datapad && datapad->getCapacity())
     {
-		std::string name(searchObject->getFirstName());
+		std::string name(searchObject->GetCreature()->getFirstName());
 		std::u16string name_u16(name.begin(), name.end());
         //the datapad automatically checks for waypoint caspacity and gives the relevant error messages
         datapad->requestNewWaypoint(name_u16, searchObject->mPosition, static_cast<uint16>(gWorldManager->getZoneId()), Waypoint_blue);

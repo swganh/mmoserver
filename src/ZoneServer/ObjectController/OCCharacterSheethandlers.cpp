@@ -63,7 +63,7 @@ void ObjectController::_handleSetCurrentSkillTitle(uint64 targetId,Message* mess
     message->getStringUnicode16(newTitle);
     newTitle.convert(BSTRType_ANSI);
 
-    auto skill_list = playerObject->GetSkills();
+    auto skill_list = playerObject->GetCreature()->GetSkills();
     auto it = skill_list.begin();
     for(it =skill_list.begin(); it != skill_list.end(); ++it)	{
 		Skill* skill = gSkillManager->getSkillByName((*it).c_str());
@@ -318,8 +318,8 @@ void ObjectController::_handleRequestCharacterMatch(uint64 targetId,Message* mes
 		{
 			
 			if(((playerFlags & inRangePlayer->getPlayerFlags()) == playerFlags)
-			&&(raceId == -1 || raceId == inRangePlayer->getRaceId())
-			&&(factionCrc == 0 || factionCrc == 1 || factionCrc == inRangePlayer->getFaction().getCrc()))
+			&&(raceId == -1 || raceId == inRangePlayer->GetCreature()->getRaceId())
+			&&(factionCrc == 0 || factionCrc == 1 || factionCrc == inRangePlayer->GetCreature()->getFaction().getCrc()))
 			{
 				if(skill == NULL)
 				{

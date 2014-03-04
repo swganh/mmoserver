@@ -99,7 +99,7 @@ void Trainer::filterConversationOptions(ConversationPage* page,std::vector<Conve
 
             // see if we have it already and check xp
             // Note: We do not handle lack of SP as an error now... that's done later in this chain of training events.
-            else if(player->checkSkill(skill->mId))
+            else if(player->GetCreature()->checkSkill(skill->mId))
             {
                 // We already have this skill.
                 requirementsMet = false;
@@ -132,7 +132,7 @@ void Trainer::filterConversationOptions(ConversationPage* page,std::vector<Conve
                     while(reqSkillIt != skill->mSkillsRequired.end())
                     {
                         // we don't have the requirements
-                        if(!player->checkSkill(*reqSkillIt))
+                        if(!player->GetCreature()->checkSkill(*reqSkillIt))
                         {
                             requirementsMet = false;
                             // avaliableSkills--;
@@ -184,7 +184,7 @@ void Trainer::filterConversationOptions(ConversationPage* page,std::vector<Conve
             }
 
             // see if we have it already
-            else if (player->checkSkill(skill->mId))
+            else if (player->GetCreature()->checkSkill(skill->mId))
             {
                 requirementsMet = false;
             }
@@ -204,7 +204,7 @@ void Trainer::filterConversationOptions(ConversationPage* page,std::vector<Conve
                     while(reqSkillIt != skill->mSkillsRequired.end())
                     {
                         // we don't have the requirements
-                        if(!player->checkSkill(*reqSkillIt))
+                        if(!player->GetCreature()->checkSkill(*reqSkillIt))
                         {
                             requirementsMet = false;
                             break;
@@ -279,7 +279,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 
             // see if we have it already and check xp
             // Note: We do not handle lack of SP as an error now... that's done later in this chain of events.
-            else if (player->checkSkill(skill->mId))
+            else if (player->GetCreature()->checkSkill(skill->mId))
             {
                 // We already have this skill.
                 knownSkills++;
@@ -305,7 +305,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 
                 while (reqSkillIt != skill->mSkillsRequired.end())
                 {
-                    if (!player->checkSkill(*reqSkillIt))
+                    if (!player->GetCreature()->checkSkill(*reqSkillIt))
                     {
                         // we don't have the requirements
                         // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: We don't have the requirements");
@@ -407,7 +407,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
         	break;
         }
         */
-        else if(player->checkSkill(skill->mId))
+        else if(player->GetCreature()->checkSkill(skill->mId))
         {
             // This is a system failure.
             DLOG(info) << "Trainer::conversationEvent: ERROR: Player already have the skill";
@@ -425,7 +425,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
             while(reqSkillIt != skill->mSkillsRequired.end())
             {
                 // we don't have the requirements
-                if (!player->checkSkill(*reqSkillIt))
+                if (!player->GetCreature()->checkSkill(*reqSkillIt))
                 {
                     // This is a system failure.
                     failed = true;
@@ -444,7 +444,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 
         // Here we start the non-fatal error processing.
         // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Start the non-fatal error processing");
-        if (player->getSkillPointsLeft() < skill->mSkillPointsRequired)
+        if (player->GetCreature()->getSkillPointsLeft() < skill->mSkillPointsRequired)
         {
             // Player lack skillpoints for training this skill.
             // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Player need %u skillpoints, but only have %u",skill->mSkillPointsRequired, player->getSkillPointsLeft());
@@ -492,7 +492,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
             Skill* skill = gSkillManager->getSkillByName((*optionIt)->mStfVariable);
 
             // its no skill option
-            if (skill && ! player->checkSkill(skill->mId))
+            if (skill && ! player->GetCreature()->checkSkill(skill->mId))
             {
                 // If we end up here, we have at least some skill to train.
                 gotAllSkills = false;
@@ -511,7 +511,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
                     while(reqSkillIt != skill->mSkillsRequired.end())
                     {
                         // we don't have the requirements
-                        if(!player->checkSkill(*reqSkillIt))
+                        if(!player->GetCreature()->checkSkill(*reqSkillIt))
                         {
                             break;
                         }
@@ -561,7 +561,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
         {
             // This is a system error.
         }
-        else if(player->checkSkill(skill->mId))
+        else if(player->GetCreature()->checkSkill(skill->mId))
         {
             // This is a system failure.
         }
@@ -578,7 +578,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
             while(reqSkillIt != skill->mSkillsRequired.end())
             {
                 // We don't have the requirements
-                if (!player->checkSkill(*reqSkillIt))
+                if (!player->GetCreature()->checkSkill(*reqSkillIt))
                 {
                     // This is a system failure.
                     failed = true;
@@ -636,7 +636,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
             // This is a system error.
         }
         // no skill requirements, Novice Skills have no requirements.
-        else if(player->checkSkill(skill->mId))
+        else if(player->GetCreature()->checkSkill(skill->mId))
         {
             // This is a system failure.
         }
@@ -653,7 +653,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
             while(reqSkillIt != skill->mSkillsRequired.end())
             {
                 // We don't have the requirements
-                if (!player->checkSkill(*reqSkillIt))
+                if (!player->GetCreature()->checkSkill(*reqSkillIt))
                 {
                     // This is a system failure.
                     failed = true;
@@ -820,7 +820,7 @@ void Trainer::postProcessfilter(ActiveConversation* av, PlayerObject* player, ui
 
 
         // Train the skill
-        gSkillManager->learnSkill(skill->mId,player,true);
+        gSkillManager->learnSkill(skill->mId,player->GetCreature(),true);
 
         gMessageLib->sendPlayMusicMessage(1956,player);
 
@@ -892,7 +892,7 @@ bool Trainer::preProcessfilterConversation(ActiveConversation* av,Conversation* 
 
             // see if we have it already and check xp
             // Note: We do not handle lack of SP as an error now... that's done later in this chain of events.
-            else if (player->checkSkill(skill->mId))
+            else if (player->GetCreature()->checkSkill(skill->mId))
             {
                 // We already have this skill.
                 // gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: We already have this skill");
@@ -919,7 +919,7 @@ bool Trainer::preProcessfilterConversation(ActiveConversation* av,Conversation* 
 
                 while (reqSkillIt != skill->mSkillsRequired.end())
                 {
-                    if (!player->checkSkill(*reqSkillIt))
+                    if (!player->GetCreature()->checkSkill(*reqSkillIt))
                     {
                         // we don't have the requirements
                         // gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: We don't have the requirements");
@@ -1131,11 +1131,11 @@ void Trainer::stopConversation(PlayerObject* player)
         }
         else if (gWorldConfig->isInstance())
         {
-            if (player->getGroupId())
+            if (player->GetCreature()->getGroupId())
             {
                 if (PlayerObject* lastPlayer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(getLastConversationTarget())))
                 {
-                    if (lastPlayer->getGroupId() != player->getGroupId())
+                    if (lastPlayer->GetCreature()->getGroupId() != player->GetCreature()->getGroupId())
                     {
                         // Last target was not in my group (so it's another instance).
                         gWorldManager->addNpcConversation(15000, this);	// Trainer will restore it's facing 15 seconds after finished conversation.
@@ -1249,34 +1249,6 @@ void Trainer::spawn(void)
     // send out position updates to known players
     this->setInMoveCount(this->getInMoveCount() + 1);
 
-    if (gWorldConfig->isTutorial())
-    {
-        // We need to get the player object that is the owner of this npc.
-        if (this->getPrivateOwner() != 0)
-        {
-            PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getPrivateOwner()));
-            if (playerObject)
-            {
-                if (this->getParentId())
-                {
-                    // We are inside a cell.
-                    gMessageLib->sendDataTransformWithParent(this, playerObject);
-                    gMessageLib->sendUpdateTransformMessageWithParent(this, playerObject);
-                }
-                else
-                {
-                    gMessageLib->sendDataTransform(this, playerObject);
-                    gMessageLib->sendUpdateTransformMessage(this, playerObject);
-                }
-            }
-            else
-            {
-                assert(false && "Trainer::spawn WorldManager unable to find PlayerObject");
-            }
-        }
-    }
-    else
-    {
         if (this->getParentId())
         {
             // We are inside a cell.
@@ -1288,5 +1260,5 @@ void Trainer::spawn(void)
             gMessageLib->sendDataTransform053(this);
             gMessageLib->sendUpdateTransformMessage(this);
         }
-    }
+    
 }

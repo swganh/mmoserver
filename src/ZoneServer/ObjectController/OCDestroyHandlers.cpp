@@ -210,7 +210,7 @@ void ObjectController::_handleDestroyInstrument(Item* item)
 	auto held_item = dynamic_cast<Item*>(equip_service->GetEquippedObject(playerObject, "hold_r"));
 
     // first, stop playing, if its currently in use
-    if(playerObject->getPerformingState() == PlayerPerformance_Music)
+    if(playerObject->GetCreature()->getPerformingState() == PlayerPerformance_Music)
     {
         // equipped instrument
         if(item == held_item  || playerObject->getPlacedInstrumentId())

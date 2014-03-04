@@ -494,19 +494,19 @@ void ContainerManager::sendToRegisteredWatchers(Object* container, std::function
 }
 
 
-void ContainerManager::sendToGroupedRegisteredPlayers(PlayerObject* const container, std::function<void ( PlayerObject* const player)> callback, bool self) {
+void ContainerManager::sendToGroupedRegisteredPlayers(PlayerObject* container, std::function<void ( PlayerObject* const player)> callback, bool self) {
     if(self && container)	{
         callback(container);
     }
 
-    if(container->getGroupId() == 0) {
+    if(container->GetCreature()->getGroupId() == 0) {
         return;
     }
 
     PlayerObjectSet* in_range_players = container->getRegisteredWatchers();
 
     std::for_each(in_range_players->begin(), in_range_players->end(), [=] (PlayerObject* player) {
-        if(player && (player->getGroupId() == container->getGroupId()))	{
+        if(player && (player->GetCreature()->getGroupId() == container->GetCreature()->getGroupId()))	{
             callback(player);
         }
     });

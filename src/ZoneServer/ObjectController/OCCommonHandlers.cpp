@@ -107,7 +107,7 @@ void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,Ob
     ObjectSet		inRangeObjects;
     float			boardingRange	= 25.0;
 
-    if(playerObject->GetPosture() == CreaturePosture_SkillAnimating)
+    if(playerObject->GetCreature()->GetPosture() == CreaturePosture_SkillAnimating)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
         return;
@@ -356,7 +356,7 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 
     float		purchaseRange = gWorldConfig->getConfiguration<float>("Player_TicketTerminalAccess_Distance",(float)10.0);
 
-    if(playerObject->GetPosture() == CreaturePosture_SkillAnimating)
+    if(playerObject->GetCreature()->GetPosture() == CreaturePosture_SkillAnimating)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
         return;
@@ -613,7 +613,7 @@ void ObjectController::_endBurstRun(uint64 targetId,Message* message,ObjectContr
 {
     // set locomotion
     PlayerObject* playerObject = (PlayerObject*)mObject;
-    playerObject->states.setLocomotion(CreatureLocomotion_Standing);
+    playerObject->GetCreature()->states.setLocomotion(CreatureLocomotion_Standing);
 }
 
 //======================================================================================================================
@@ -643,7 +643,7 @@ void ObjectController::_handleSurrenderSkill(uint64 targetId,Message* message,Ob
         return;
     }
 
-    gSkillManager->dropSkill(skill->mId,player);
+    gSkillManager->dropSkill(skill->mId,player->GetCreature());
 }
 
 //======================================================================================================================
@@ -739,7 +739,7 @@ void ObjectController::handleObjectMenuRequest(Message* message)
         {
             PlayerStructure* pS = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(playerCell->getParentId()));
             if(pS)
-                requestedObject->prepareCustomRadialMenuInCell(playerObject,static_cast<uint8>(itemCount));
+                requestedObject->prepareCustomRadialMenuInCell(playerObject->GetCreature(),static_cast<uint8>(itemCount));
         }
     }
     /*
@@ -754,7 +754,7 @@ void ObjectController::handleObjectMenuRequest(Message* message)
     //delete the radials after every use or provide every object with set rules when to delete it ?
 
     if(!requestedObject->getRadialMenu())
-        requestedObject->prepareCustomRadialMenu(playerObject,static_cast<uint8>(itemCount));
+        requestedObject->prepareCustomRadialMenu(playerObject->GetCreature(),static_cast<uint8>(itemCount));
 
     if (requestedObject->getRadialMenu())
     {
@@ -908,11 +908,11 @@ bool HandleBurstRun(Object* object, Object* target, Message* message, ObjectCont
 
 
     // Update the player's speed modifier.
-    player->setCurrentSpeedModifier(player->getCurrentSpeedModifier()*2);
+    player->GetCreature()->setCurrentSpeedModifier(player->GetCreature()->getCurrentSpeedModifier()*2);
     gMessageLib->sendUpdateMovementProperties(player);
 
     // Update the player's locomotion to a running state.
-    player->states.setLocomotion(CreatureLocomotion_Running);
+    player->GetCreature()->states.setLocomotion(CreatureLocomotion_Running);
     // Toggle the flags for the burst run effect and the cool-down timer on the corresponding command.
     player->togglePlayerCustomFlagOn(PlayerCustomFlag_BurstRunCD);
     player->togglePlayerCustomFlagOn(PlayerCustomFlag_BurstRun);
@@ -932,11 +932,11 @@ bool HandleBurstRun(Object* object, Object* target, Message* message, ObjectCont
         // Make sure the target for the event is still valid and that their burst run flag is still set.
         if(player && player->checkPlayerCustomFlag(PlayerCustomFlag_BurstRun)) {
             // Return the player to normal movement.
-            player->setCurrentSpeedModifier(player->getBaseSpeedModifier());
+            player->GetCreature()->setCurrentSpeedModifier(player->GetCreature()->getBaseSpeedModifier());
             gMessageLib->sendUpdateMovementProperties(player);
 
             // Update the player's locomotion to a walking state.
-            player->states.setLocomotion(CreatureLocomotion_Walking);
+            player->GetCreature()->states.setLocomotion(CreatureLocomotion_Walking);
             
             // Remove the burst run flag.
             player->togglePlayerCustomFlagOff(PlayerCustomFlag_BurstRun);

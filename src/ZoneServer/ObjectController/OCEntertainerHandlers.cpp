@@ -128,11 +128,11 @@ void ObjectController::_handlestopdance(uint64 targetId,Message* message,ObjectC
 {
     PlayerObject*	entertainer	= dynamic_cast<PlayerObject*>(mObject);
 
-    if (entertainer->getPerformingState() == PlayerPerformance_Dance)
+    if (entertainer->GetCreature()->getPerformingState() == PlayerPerformance_Dance)
     {
 
         //remove the Entertainer Tick
-        gWorldManager->removeEntertainerToProcess(entertainer->getEntertainerTaskId());
+        gWorldManager->removeEntertainerToProcess(entertainer->GetCreature()->getEntertainerTaskId());
 
         //go through the list of spectators and stop the performance
         gEntertainerManager->stopEntertaining(entertainer);
@@ -150,10 +150,10 @@ void ObjectController::_handlestopmusic(uint64 targetId,Message* message,ObjectC
 {
     PlayerObject*	entertainer	= dynamic_cast<PlayerObject*>(mObject);
 
-    if (entertainer->getPerformingState() == PlayerPerformance_Music)
+    if (entertainer->GetCreature()->getPerformingState() == PlayerPerformance_Music)
     {
         //remove the Entertainer Tick
-        gWorldManager->removeEntertainerToProcess(entertainer->getEntertainerTaskId());
+        gWorldManager->removeEntertainerToProcess(entertainer->GetCreature()->getEntertainerTaskId());
 
         //go through the list of spectators and stop the performance
         gEntertainerManager->stopEntertaining(entertainer);
@@ -169,13 +169,13 @@ void ObjectController::_handlePauseDance(uint64 targetId,Message* message,Object
 {
     PlayerObject*	entertainer	= dynamic_cast<PlayerObject*>(mObject);
 
-    if(entertainer->getPerformingState() != PlayerPerformance_Dance)
+    if(entertainer->GetCreature()->getPerformingState() != PlayerPerformance_Dance)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "dance_fail"), entertainer);
         return;
     }
 
-    entertainer->setPerformancePaused(Pause_Start);
+    entertainer->GetCreature()->setPerformancePaused(Pause_Start);
 }
 
 void ObjectController::_handlePauseMusic(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
@@ -183,7 +183,7 @@ void ObjectController::_handlePauseMusic(uint64 targetId,Message* message,Object
 
     PlayerObject*	entertainer	= dynamic_cast<PlayerObject*>(mObject);
 
-    if(entertainer->getPerformingState() != PlayerPerformance_Music)
+    if(entertainer->GetCreature()->getPerformingState() != PlayerPerformance_Music)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_fail"), entertainer);
         return;
@@ -199,14 +199,14 @@ void ObjectController::_handleflourish(uint64 targetId,Message* message,ObjectCo
     PlayerObject*	entertainer	= dynamic_cast<PlayerObject*>(mObject);
 
     //are we performing???
-    if(entertainer->getPerformingState() == PlayerPerformance_None)
+    if(entertainer->GetCreature()->getPerformingState() == PlayerPerformance_None)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "flourish_not_performing"), entertainer);
         return;
     }
     uint8 flourishMax = 8;
 
-    if(entertainer->getPerformingState() == PlayerPerformance_Dance)
+    if(entertainer->GetCreature()->getPerformingState() == PlayerPerformance_Dance)
         flourishMax = 9;
 
     //find out what flourish we are supposed to play
@@ -234,7 +234,7 @@ void ObjectController::_handleChangeDance(uint64 targetId,Message* message,Objec
 {
     PlayerObject*	entertainer	= dynamic_cast<PlayerObject*>(mObject);
 
-    if(entertainer->getPerformingState() != PlayerPerformance_Dance)
+    if(entertainer->GetCreature()->getPerformingState() != PlayerPerformance_Dance)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "dance_must_be_performing_self"), entertainer);
         return;
@@ -335,7 +335,7 @@ void ObjectController::_handleDenyService(uint64 targetId,Message* message,Objec
     else if(outcast)
     {
         //poor sod is near and will now be added to our list (or removed)
-        gEntertainerManager->toggleOutcastId(entertainer,outcast->getId(),outcast->getFirstName().c_str());
+        gEntertainerManager->toggleOutcastId(entertainer,outcast->getId(),outcast->GetCreature()->getFirstName().c_str());
         return;
     }
 
@@ -353,7 +353,7 @@ void ObjectController::_handleChangeMusic(uint64 targetId,Message* message,Objec
 
     PlayerObject*	entertainer	= dynamic_cast<PlayerObject*>(mObject);
 
-    if(entertainer->getPerformingState() != PlayerPerformance_Music)
+    if(entertainer->GetCreature()->getPerformingState() != PlayerPerformance_Music)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_must_be_performing_self"), entertainer);
     }
@@ -430,7 +430,7 @@ void ObjectController::_handlestartdance(uint64 targetId,Message* message,Object
 {
     //show list box with all available dances
     PlayerObject*	performer	= dynamic_cast<PlayerObject*>(mObject);
-    if(performer->getPerformingState() != PlayerPerformance_None)
+    if(performer->GetCreature()->getPerformingState() != PlayerPerformance_None)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "already_performing_self"), performer);
         return;
@@ -443,7 +443,7 @@ void ObjectController::_handlestartdance(uint64 targetId,Message* message,Object
         gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_cancel"), performer);
     }
 
-    if(performer->states.checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming | CreatureState_Crafting))
+    if(performer->GetCreature()->states.checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming | CreatureState_Crafting))
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), performer);
         return;
@@ -469,7 +469,7 @@ void ObjectController::_handlestartdance(uint64 targetId,Message* message,Object
             //look for our selected dance
             if(BString(danceStr).getCrc() == mDanceString.getCrc() ) {
                 //yay we are able to perform this dance :)
-                performer->setPerformingState(PlayerPerformance_Dance);
+                performer->GetCreature()->setPerformingState(PlayerPerformance_Dance);
                 gEntertainerManager->startDancePerformance(performer,dataStr);
                 found = true;
                 return;
@@ -520,14 +520,14 @@ void ObjectController::_handlestartdance(uint64 targetId,Message* message,Object
 void ObjectController::_handlestartmusic(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
     PlayerObject*	performer	= dynamic_cast<PlayerObject*>(mObject);
-    if(performer->getPerformingState() != PlayerPerformance_None)
+    if(performer->GetCreature()->getPerformingState() != PlayerPerformance_None)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "already_performing_self"), performer);
         return;
 
     }
 
-    if(performer->states.checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
+    if(performer->GetCreature()->states.checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), performer);
         return;
@@ -555,7 +555,7 @@ void ObjectController::_handlestartmusic(uint64 targetId,Message* message,Object
             if(BString(musicStr).getCrc() == mEntertainerString.getCrc() )
             {
                 //yay we are able to perform this dance :)
-                performer->setPerformingState(PlayerPerformance_Music);
+                performer->GetCreature()->setPerformingState(PlayerPerformance_Music);
                 gEntertainerManager->startMusicPerformance(performer,dataStr);
                 found = true;
                 return;
@@ -605,7 +605,7 @@ void ObjectController::_handleStopBand(uint64 targetId,Message* message,ObjectCo
 {
     PlayerObject*	performer	= dynamic_cast<PlayerObject*>(mObject);
 
-    if(performer->getGroupId() == 0)
+    if(performer->GetCreature()->getGroupId() == 0)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "not_grouped"), performer);
         return;
@@ -614,7 +614,7 @@ void ObjectController::_handleStopBand(uint64 targetId,Message* message,ObjectCo
     // first check if the player can issue this command
     // novice entertainer
     // should setup an enum for skills
-    if (!performer->checkSkill(11))
+    if (!performer->GetCreature()->checkSkill(11))
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "prose_nsf_skill_cmd", L"", L"", L"stopband"), performer);
         return;
@@ -631,20 +631,20 @@ void ObjectController::_handleStartBand(uint64 targetId,Message* message,ObjectC
 {
     PlayerObject*	performer	= dynamic_cast<PlayerObject*>(mObject);
 
-    if(performer->states.checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
+    if(performer->GetCreature()->states.checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), performer);
         return;
     }
 
-    if(performer->getPerformingState() != PlayerPerformance_None)
+    if(performer->GetCreature()->getPerformingState() != PlayerPerformance_None)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "already_performing_self"), performer);
         return;
 
     }
 
-    if(performer->getGroupId() == 0)
+    if(performer->GetCreature()->getGroupId() == 0)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "not_grouped"), performer);
         return;
@@ -666,7 +666,7 @@ void ObjectController::_handleBandFlourish(uint64 targetId,Message* message,Obje
     PlayerObject*	entertainer	= dynamic_cast<PlayerObject*>(mObject);
     //gMessageLib->sendSystemMessage(performer,L"","performance","music_stop_band_self");
 
-    if(entertainer->getGroupId() == 0)
+    if(entertainer->GetCreature()->getGroupId() == 0)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "not_grouped"), entertainer);
         return;
@@ -675,12 +675,12 @@ void ObjectController::_handleBandFlourish(uint64 targetId,Message* message,Obje
 
     uint8 flourishMax = 8;
     //are we performing???
-    if(entertainer->getPerformingState() == PlayerPerformance_None)
+    if(entertainer->GetCreature()->getPerformingState() == PlayerPerformance_None)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "flourish_not_performing"), entertainer);
         return;
     }
-    if(entertainer->getPerformingState() == PlayerPerformance_Dance)
+    if(entertainer->GetCreature()->getPerformingState() == PlayerPerformance_Dance)
         flourishMax = 9;
 
 
@@ -694,7 +694,7 @@ void ObjectController::_handleBandFlourish(uint64 targetId,Message* message,Obje
 
     if(wcsncmp(temp, L"on", sizeof(temp)) == 0)
     {
-        if(entertainer->checkSkill(10))
+        if(entertainer->GetCreature()->checkSkill(10))
         {
             if(entertainer->getAcceptBandFlourishes() == false)
             {
@@ -708,7 +708,7 @@ void ObjectController::_handleBandFlourish(uint64 targetId,Message* message,Obje
     }
     else if(wcsncmp(temp, L"off", sizeof(temp)) == 0)
     {
-        if(entertainer->checkSkill(10))
+        if(entertainer->GetCreature()->checkSkill(10))
         {
             if(entertainer->getAcceptBandFlourishes() == true)
             {
@@ -752,25 +752,25 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
     if(!imageDesigner)
         return;
 
-    if(designObject->GetPosture() == CreaturePosture_Dead)
+    if(designObject->GetCreature()->GetPosture() == CreaturePosture_Dead)
     {
         gMessageLib->SendSystemMessage(OutOfBand("image_designer","target_dead", 0, designObject->getId(), 0), imageDesigner);
         return;
     }
 
-    if(designObject->isIncapacitated())
+    if(designObject->GetCreature()->isIncapacitated())
     {
         gMessageLib->SendSystemMessage(OutOfBand("image_designer","target_dead", 0, designObject->getId(), 0), imageDesigner);
         return;
     }
 
-    if(!imageDesigner->checkSkill(SMSkill_NoviceEntertainer))
+    if(!imageDesigner->GetCreature()->checkSkill(SMSkill_NoviceEntertainer))
     {
         gMessageLib->SendSystemMessage(OutOfBand("image_designer","not_an_image_designer"), imageDesigner);
         return;
     }
     //Sch we need to add more states and checks - Rouse
-    if(imageDesigner->states.checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming | CreatureState_Crafting))
+    if(imageDesigner->GetCreature()->states.checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming | CreatureState_Crafting))
     {
         gMessageLib->SendSystemMessage(L"You cannot perform that action on this target", imageDesigner);
         return;
@@ -800,7 +800,7 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
         return;
     }
 
-    if((designObject != imageDesigner) && (designObject->getGroupId() != imageDesigner->getGroupId() ))
+    if((designObject != imageDesigner) && (designObject->GetCreature()->getGroupId() != imageDesigner->GetCreature()->getGroupId() ))
     {
         gMessageLib->SendSystemMessage(OutOfBand("image_designer","not_in_same_group"), imageDesigner);
         return;
@@ -910,7 +910,7 @@ void ObjectController::handleImageDesignChangeMessage(Message* message,uint64 ta
     if((imageDesigner == messageGenerator) && designerCommit)
     {
         uint32 idTimer	= gWorldConfig->getConfiguration<uint32>("Player_Timer_IDSessionTimeOut",(uint32)60000);
-        messageGenerator->setImageDesignerTaskId(gWorldManager->addImageDesignerToProcess(messageGenerator,idTimer));
+        messageGenerator->setImageDesignerTaskId(gWorldManager->addImageDesignerToProcess(messageGenerator->GetCreature(),idTimer));
     }
 
     //if(imageDesigner->getImageDesignSession() == IDSessionPREY)
@@ -1254,7 +1254,7 @@ void ObjectController::_handleDistract(uint64 targetId,Message* message,ObjectCo
     if(!we)
         return;
 
-    if(we->getPerformingState() == PlayerPerformance_None)
+    if(we->GetCreature()->getPerformingState() == PlayerPerformance_None)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_not_performing"), we);
         return;
@@ -1268,7 +1268,7 @@ void ObjectController::_handleDistract(uint64 targetId,Message* message,ObjectCo
     sscanf(dataStr.getAnsi(),"%u",&effect);
 
     //check for skillmod - tied to Mind afaik
-    skill = we->getSkillModValue(SMod_healing_dance_mind);
+    skill = we->GetCreature()->getSkillModValue(SMod_healing_dance_mind);
     highest = 0;
 
     if(skill>= 10)
@@ -1320,7 +1320,7 @@ void ObjectController::_handleFireJet(uint64 targetId,Message* message,ObjectCon
     if(!we)
         return;
 
-    if(we->getPerformingState() == PlayerPerformance_None)
+    if(we->GetCreature()->getPerformingState() == PlayerPerformance_None)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_not_performing"), we);
         return;
@@ -1334,7 +1334,7 @@ void ObjectController::_handleFireJet(uint64 targetId,Message* message,ObjectCon
     sscanf(dataStr.getAnsi(),"%u",&effect);
 
     //check for skillmod - tied to Mind afaik
-    skill = we->getSkillModValue(SMod_healing_dance_mind);
+    skill = we->GetCreature()->getSkillModValue(SMod_healing_dance_mind);
     highest = 0;
 
     if(skill>= 10)
@@ -1384,7 +1384,7 @@ void ObjectController::_handleDazzle(uint64 targetId,Message* message,ObjectCont
     if(!we)
         return;
 
-    if(we->getPerformingState() == PlayerPerformance_None)
+    if(we->GetCreature()->getPerformingState() == PlayerPerformance_None)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_not_performing"), we);
         return;
@@ -1398,7 +1398,7 @@ void ObjectController::_handleDazzle(uint64 targetId,Message* message,ObjectCont
     sscanf(dataStr.getAnsi(),"%u",&effect);
 
     //check for skillmod - tied to Mind afaik
-    skill = we->getSkillModValue(SMod_healing_dance_mind);
+    skill = we->GetCreature()->getSkillModValue(SMod_healing_dance_mind);
     highest = 0;
 
     if(skill>= 10)
@@ -1448,7 +1448,7 @@ void ObjectController::_handleColorLights(uint64 targetId,Message* message,Objec
     if(!we)
         return;
 
-    if(we->getPerformingState() == PlayerPerformance_None)
+    if(we->GetCreature()->getPerformingState() == PlayerPerformance_None)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_not_performing"), we);
         return;
@@ -1462,7 +1462,7 @@ void ObjectController::_handleColorLights(uint64 targetId,Message* message,Objec
     sscanf(dataStr.getAnsi(),"%u",&effect);
 
     //check for skillmod - tied to Mind afaik
-    skill = we->getSkillModValue(SMod_healing_dance_mind);
+    skill = we->GetCreature()->getSkillModValue(SMod_healing_dance_mind);
     highest = 0;
 
     if(skill>= 10)
@@ -1512,7 +1512,7 @@ void ObjectController::_handleSmokeBomb(uint64 targetId,Message* message,ObjectC
     if(!we)
         return;
 
-    if(we->getPerformingState() == PlayerPerformance_None)
+    if(we->GetCreature()->getPerformingState() == PlayerPerformance_None)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_not_performing"), we);
         return;
@@ -1526,7 +1526,7 @@ void ObjectController::_handleSmokeBomb(uint64 targetId,Message* message,ObjectC
     sscanf(dataStr.getAnsi(),"%u",&effect);
 
     //check for skillmod - tied to Mind afaik
-    skill = we->getSkillModValue(SMod_healing_dance_mind);
+    skill = we->GetCreature()->getSkillModValue(SMod_healing_dance_mind);
     highest = 0;
 
     if(skill>= 10)
@@ -1575,7 +1575,7 @@ void ObjectController::_handleSpotLight(uint64 targetId,Message* message,ObjectC
     if(!we)
         return;
 
-    if(we->getPerformingState() == PlayerPerformance_None)
+    if(we->GetCreature()->getPerformingState() == PlayerPerformance_None)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_not_performing"), we);
         return;
@@ -1589,7 +1589,7 @@ void ObjectController::_handleSpotLight(uint64 targetId,Message* message,ObjectC
     sscanf(dataStr.getAnsi(),"%u",&effect);
 
     //check for skillmod - tied to Mind afaik
-    skill = we->getSkillModValue(SMod_healing_dance_mind);
+    skill = we->GetCreature()->getSkillModValue(SMod_healing_dance_mind);
     highest = 0;
 
     if(skill>= 10)
@@ -1641,17 +1641,17 @@ void ObjectController::_handleVentriloquism(uint64 targetId,Message* message,Obj
 
     if (targetId == 0)
     {
-        targetId = we->getTargetId();
+        targetId = we->GetCreature()->getTargetId();
     }
 
     //the target
     CreatureObject* targetObject = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
     if(!targetObject)
     {
-        targetObject = we;
+        targetObject = we->GetCreature();
     }
 
-    if(we->getPerformingState() == PlayerPerformance_None)
+    if(we->GetCreature()->getPerformingState() == PlayerPerformance_None)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_not_performing"), we);
         return;
@@ -1665,7 +1665,7 @@ void ObjectController::_handleVentriloquism(uint64 targetId,Message* message,Obj
     sscanf(dataStr.getAnsi(),"%u",&effect);
 
     //check for skillmod - tied to Mind afaik
-    skill = we->getSkillModValue(SMod_healing_dance_mind);
+    skill = we->GetCreature()->getSkillModValue(SMod_healing_dance_mind);
     highest = 0;
 
     if(skill>= 10)

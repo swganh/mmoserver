@@ -411,14 +411,14 @@ bool ObjectController::_processCommandQueue()
                 case ObjControllerCmdGroup_Attack:
                 {
                     // If player activated combat or me returning fire, the peace is ended, and auto-attack allowed.
-                    gStateManager.setCurrentActionState(player, CreatureState_Combat);
+                    gStateManager.setCurrentActionState(player->GetCreature(), CreatureState_Combat);
                     // TODO: add auto attack to enter combat state.
                     player->enableAutoAttack();
 
                     // CreatureObject* creature = NULL;
                     if (targetId != 0)
                     {
-                        cmdExecutedOk = gCombatManager->handleAttack(player, targetId, cmdProperties);
+                        cmdExecutedOk = gCombatManager->handleAttack(player->GetCreature(), targetId, cmdProperties);
                         if (!cmdExecutedOk)
                         {
                             // We have lost our target.
@@ -433,9 +433,9 @@ bool ObjectController::_processCommandQueue()
                             {
                                 // We have a new target
                                 // new target still valid?
-                                if (!player->checkDefenderList(targetId))
+                                if (!player->GetCreature()->checkDefenderList(targetId))
 								{
-									player->AddDefender(targetId);
+									player->GetCreature()->AddDefender(targetId);
 									player->setCombatTargetId(targetId);
 								}
                                 else

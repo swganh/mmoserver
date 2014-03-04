@@ -321,41 +321,41 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 				return(false);
 			}
 
-			if(defenderPlayer->isIncapacitated())
+			if(defenderPlayer->GetCreature()->isIncapacitated())
 			{
 				// gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_incap");
 				return(false);
 			}
-			else if(defenderPlayer->isDead())
+			else if(defenderPlayer->GetCreature()->isDead())
 			{
 				// gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_dead");
 				return(false);
 			}
 
 			// put us in combat state
-			if(!playerAttacker->states.checkState(CreatureState_Combat))
+			if(!playerAttacker->GetCreature()->states.checkState(CreatureState_Combat))
 			{
-                gStateManager.setCurrentActionState(playerAttacker,CreatureState_Combat);
-                gStateManager.setCurrentActionState(playerAttacker,CreatureState_CombatAttitudeNormal);
+                gStateManager.setCurrentActionState(playerAttacker->GetCreature(),CreatureState_Combat);
+                gStateManager.setCurrentActionState(playerAttacker->GetCreature(),CreatureState_CombatAttitudeNormal);
 			}
 
 			// put our target in combat state
-			if(!defenderPlayer->states.checkState(CreatureState_Combat))
+			if(!defenderPlayer->GetCreature()->states.checkState(CreatureState_Combat))
 			{
-				gStateManager.setCurrentActionState(defenderPlayer,CreatureState_Combat);
-                gStateManager.setCurrentActionState(defenderPlayer,CreatureState_CombatAttitudeNormal);
+				gStateManager.setCurrentActionState(defenderPlayer->GetCreature(),CreatureState_Combat);
+                gStateManager.setCurrentActionState(defenderPlayer->GetCreature(),CreatureState_CombatAttitudeNormal);
 			}
 
 			// update our defender list
-			if (!playerAttacker->checkDefenderList(defenderPlayer->getId())) // or if (!playerAttacker->checkDefenderList(defenderId)
+			if (!playerAttacker->GetCreature()->checkDefenderList(defenderPlayer->getId())) // or if (!playerAttacker->checkDefenderList(defenderId)
 			{
-				playerAttacker->AddDefender(defenderPlayer->getId());
+				playerAttacker->GetCreature()->AddDefender(defenderPlayer->getId());
 			}
 
 			// update our targets defender list
-			if (!defenderPlayer->checkDefenderList(playerAttacker->getId()))
+			if (!defenderPlayer->GetCreature()->checkDefenderList(playerAttacker->getId()))
 			{
-				playerAttacker->AddDefender(defenderPlayer->getId());
+				playerAttacker->GetCreature()->AddDefender(defenderPlayer->getId());
 			}
 		}
 		else
@@ -379,10 +379,10 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 			}
 
 			// put us in combat state
-			if (!playerAttacker->states.checkState(CreatureState_Combat))
+			if (!playerAttacker->GetCreature()->states.checkState(CreatureState_Combat))
 			{
-				gStateManager.setCurrentActionState(playerAttacker,CreatureState_Combat);
-                gStateManager.setCurrentActionState(playerAttacker,CreatureState_CombatAttitudeNormal);
+				gStateManager.setCurrentActionState(playerAttacker->GetCreature(),CreatureState_Combat);
+                gStateManager.setCurrentActionState(playerAttacker->GetCreature(),CreatureState_CombatAttitudeNormal);
 			}
 
 			// put our target in combat state
@@ -393,15 +393,15 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 			}
 
 			// update our defender list
-			if (!playerAttacker->checkDefenderList(defender->getId()))
+			if (!playerAttacker->GetCreature()->checkDefenderList(defender->getId()))
 			{
-				playerAttacker->AddDefender(defenderPlayer->getId());
+				playerAttacker->GetCreature()->AddDefender(defenderPlayer->getId());
 			}
 
 			// update our targets defender list
 			if (!defender->checkDefenderList(playerAttacker->getId()))
 			{
-				playerAttacker->AddDefender(defenderPlayer->getId());
+				playerAttacker->GetCreature()->AddDefender(defenderPlayer->getId());
 			}
 		}
 		return(true);
@@ -416,12 +416,12 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 			{
 				// The target (defender) is a player. Kill him!
 
-				if (defenderPlayer->isIncapacitated())
+				if (defenderPlayer->GetCreature()->isIncapacitated())
 				{
 					// gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_incap");
 					return(false);
 				}
-				else if(defenderPlayer->isDead())
+				else if(defenderPlayer->GetCreature()->isDead())
 				{
 					return(false);
 				}
@@ -442,12 +442,12 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 				}
 
 				// put our target in combat stance
-				if (!defenderPlayer->states.checkState(CreatureState_Combat))
+				if (!defenderPlayer->GetCreature()->states.checkState(CreatureState_Combat))
 				{
-					gMessageLib->sendUpdatePvpStatus(defenderPlayer,defenderPlayer, defenderPlayer->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive); //  | CreaturePvPStatus_Enemy);
+					gMessageLib->sendUpdatePvpStatus(defenderPlayer->GetCreature(),defenderPlayer, defenderPlayer->GetCreature()->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive); //  | CreaturePvPStatus_Enemy);
 
-					gStateManager.setCurrentActionState(defenderPlayer,CreatureState_Combat);
-                    gStateManager.setCurrentActionState(defenderPlayer,CreatureState_CombatAttitudeNormal);
+					gStateManager.setCurrentActionState(defenderPlayer->GetCreature(),CreatureState_Combat);
+                    gStateManager.setCurrentActionState(defenderPlayer->GetCreature(),CreatureState_CombatAttitudeNormal);
 
 				}
 
@@ -460,7 +460,7 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 					// gMessageLib->sendUpdatePvpStatus(attackerNpc,defenderPlayer, attackerNpc->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
 
 					// update our defender list
-					playerAttacker->AddDefender(defenderPlayer->getId());
+					playerAttacker->GetCreature()->AddDefender(defenderPlayer->getId());
 
 					// Update player and all his group mates currently in range.
 					/*
@@ -480,9 +480,9 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 				}
 
 				// update our targets defender list
-				if (!defenderPlayer->checkDefenderList(attackerNpc->getId()))
+				if (!defenderPlayer->GetCreature()->checkDefenderList(attackerNpc->getId()))
 				{
-					playerAttacker->AddDefender(defenderPlayer->getId());
+					playerAttacker->GetCreature()->AddDefender(defenderPlayer->getId());
 				}
 
 				// Player can/may start auto-attack if idle.
@@ -496,12 +496,12 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 				// The target (defender) is a npc. Kill him!
 				// Here I think some validation would be great, don't wanna kill you piket-brother?
 
-				if (defenderPlayer->isIncapacitated())
+				if (defenderPlayer->GetCreature()->isIncapacitated())
 				{
 					// gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_incap");
 					return(false);
 				}
-				else if(defenderPlayer->isDead())
+				else if(defenderPlayer->GetCreature()->isDead())
 				{
 					return(false);
 				}
@@ -514,22 +514,22 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 				}
 
 				// put our target in combat state
-				if (!defenderPlayer->states.checkState(CreatureState_Combat))
+				if (!defenderPlayer->GetCreature()->states.checkState(CreatureState_Combat))
 				{
-					gStateManager.setCurrentActionState(defenderPlayer,CreatureState_Combat);
-                    gStateManager.setCurrentActionState(defenderPlayer,CreatureState_CombatAttitudeNormal);
+					gStateManager.setCurrentActionState(defenderPlayer->GetCreature(),CreatureState_Combat);
+                    gStateManager.setCurrentActionState(defenderPlayer->GetCreature(),CreatureState_CombatAttitudeNormal);
 				}
 
 				// update our defender list
 				if (!attackerNpc->checkDefenderList(defenderPlayer->getId()))
 				{
-					playerAttacker->AddDefender(defenderPlayer->getId());
+					playerAttacker->GetCreature()->AddDefender(defenderPlayer->getId());
 				}
 
 				// update our targets defender list
-				if (!defenderPlayer->checkDefenderList(attackerNpc->getId()))
+				if (!defenderPlayer->GetCreature()->checkDefenderList(attackerNpc->getId()))
 				{
-					playerAttacker->AddDefender(defenderPlayer->getId());
+					playerAttacker->GetCreature()->AddDefender(defenderPlayer->getId());
 				}
 			}
 			return(true);

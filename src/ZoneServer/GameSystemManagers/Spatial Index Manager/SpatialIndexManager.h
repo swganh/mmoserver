@@ -136,6 +136,11 @@ class SpatialIndexManager
 		void					getObjectsInRange(const Object* const object,ObjectSet* resultSet,uint32 objTypes,float range, bool cellContent);
 		void					getPlayersInRange(const Object* const object,PlayerObjectSet* resultSet, bool cellContent);
 
+		void					viewCreaturesInRange(const Object* const object, std::function<void (Object* const creature)> callback);
+		void					viewPlayersInRange(const Object* const object, std::function<void (Object* const player)> callback);
+		void					viewObjectsInRange(const Object* const object, std::function<void (Object* const object)> callback);
+		void					viewAllInRange(const Object* const object, std::function<void (Object* const object)> callback);
+
 
 		//Messaging Services
 		bool					sendCreateObject(Object* object,PlayerObject* player,bool sendSelftoTarget);

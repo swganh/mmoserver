@@ -49,19 +49,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 void MessageLib::sendBanktipMail(PlayerObject* playerObject, PlayerObject* targetObject, uint32 amount)
 {
 
+	CreatureObject* creature = playerObject->GetCreature();
+	CreatureObject* target_creature = targetObject->GetCreature();
+
     atMacroString* aMS = new atMacroString();
 
     aMS->addMBstf("base_player","prose_wire_mail_target");
     aMS->addDI(amount);
-    aMS->addTO(playerObject->getFirstName());
+    aMS->addTO(creature->getFirstName());
     aMS->addTextModule();
 
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opIsmSendSystemMailMessage);
-    mMessageFactory->addUint64(playerObject->getId());
-    mMessageFactory->addUint64(playerObject->getId());
-    mMessageFactory->addString(targetObject->getFirstName());
+    mMessageFactory->addUint64(creature->getId());
+    mMessageFactory->addUint64(creature->getId());
+    mMessageFactory->addString(target_creature->getFirstName());
     mMessageFactory->addString(BString("@base_player:wire_mail_subject"));
     mMessageFactory->addUint32(0);
     mMessageFactory->addString(aMS->assemble());
@@ -77,15 +80,15 @@ void MessageLib::sendBanktipMail(PlayerObject* playerObject, PlayerObject* targe
 
     aMS->addMBstf("base_player","prose_wire_mail_self");
     aMS->addDI(amount);
-    aMS->addTO(targetObject->getFirstName());
+    aMS->addTO(target_creature->getFirstName());
     aMS->addTextModule();
 
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opIsmSendSystemMailMessage);
-    mMessageFactory->addUint64(targetObject->getId());
-    mMessageFactory->addUint64(targetObject->getId());
-    mMessageFactory->addString(playerObject->getFirstName());
+    mMessageFactory->addUint64(target_creature->getId());
+    mMessageFactory->addUint64(target_creature->getId());
+    mMessageFactory->addString(creature->getFirstName());
     mMessageFactory->addString(BString("@base_player:wire_mail_subject"));
     mMessageFactory->addUint32(0);
     mMessageFactory->addString(aMS->assemble());
@@ -125,8 +128,8 @@ void MessageLib::sendBoughtInstantMail(PlayerObject* newOwner, BString ItemName,
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opIsmSendSystemMailMessage);
-    mMessageFactory->addUint64(newOwner->getId());
-    mMessageFactory->addUint64(newOwner->getId());
+	mMessageFactory->addUint64(newOwner->GetCreature()->getId());
+    mMessageFactory->addUint64(newOwner->GetCreature()->getId());
     mMessageFactory->addString(BString("auctioner"));
     mMessageFactory->addString(BString("@auction:subject_auction_buyer"));
     mMessageFactory->addUint32(0);
@@ -150,9 +153,11 @@ void MessageLib::sendSoldInstantMail(uint64 oldOwner, PlayerObject* newOwner, BS
 
     atMacroString* aMS = new atMacroString();
 
+	
+
     aMS->addMBstf("auction","seller_success");
     aMS->addTO(ItemName);
-    aMS->addTT(newOwner->getFirstName().c_str());
+	aMS->addTT(newOwner->GetCreature()->getFirstName().c_str());
     aMS->addDI(Credits);
     aMS->addTextModule();
 

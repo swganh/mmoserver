@@ -48,7 +48,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/GameSystemManagers/Mission Manager/MissionObject.h"
 #include "ZoneServer/Objects/Object/ObjectFactory.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
+
 #include "ZoneServer/GameSystemManagers/Spatial Index Manager/SpatialIndexManager.h"
+
 #include "ZoneServer/GameSystemManagers/UI Manager/UIManager.h"
 #include "ZoneServer/Objects/waypoints/WaypointObject.h"
 #include "ZoneServer/WorldConfig.h"
@@ -232,7 +234,7 @@ void GroupManager::_processIsmGroupCREO6deltaGroupId(Message* message, DispatchC
     //did he just leave the group - is the id zero ?
     if(id == 0)
     {
-        GroupObject* group = getGroupObject(player->getGroupId());
+		GroupObject* group = getGroupObject(player->GetCreature()->getGroupId());
         if(group != NULL)
         {
             //got it - just remove him from the group
@@ -242,13 +244,13 @@ void GroupManager::_processIsmGroupCREO6deltaGroupId(Message* message, DispatchC
             Uint64List* groupList = group->getPlayerList();
             if(groupList->size() == 0)
             {
-                deleteGroupObject(player->getGroupId());
+                deleteGroupObject(player->GetCreature()->getGroupId());
                 delete(group);
             }
         }
     }
 
-    player->setGroupId(id);
+    player->GetCreature()->setGroupId(id);
 
     if(id != 0)
     {
@@ -283,12 +285,12 @@ void GroupManager::_processIsmGroupCREO6deltaGroupId(Message* message, DispatchC
         PlayerObject* target = static_cast<PlayerObject*>(object);
 
         if(target->isConnected()) {
-            gMessageLib->sendGroupIdUpdateDeltasCreo6(player->getGroupId(), player, target);
+            gMessageLib->sendGroupIdUpdateDeltasCreo6(player->GetCreature()->getGroupId(), player, target);
         }
     });
 
     // to self
-    gMessageLib->sendGroupIdUpdateDeltasCreo6(player->getGroupId(), player, player);
+    gMessageLib->sendGroupIdUpdateDeltasCreo6(player->GetCreature()->getGroupId(), player, player);
 }
 
 //=======================================================================================================================
@@ -314,6 +316,32 @@ void GroupManager::_processIsmGroupLootModeResponse(Message* message, DispatchCl
 
 //=======================================================================================================================
 
+ObjectList GroupManager::getInRangeGroupMembers(CreatureObject* creature, bool self)
+{
+    ObjectList						members;
+    ObjectList*						pMembers = &members;
+
+    if(self)    {
+        members.push_back((PlayerObject*)this);
+    }
+
+	if(creature->getGroupId() == 0)    {
+        return members;
+    }
+
+	gSpatialIndexManager->viewCreaturesInRange(creature, [&] (Object* const object)    {
+		CreatureObject* other_creature = dynamic_cast<CreatureObject*>(object);
+        if(other_creature && (creature->getGroupId() == other_creature->getGroupId()))        {
+            pMembers->push_back(other_creature);
+        }
+
+    });
+
+    return members;
+}
+
+
+
 void GroupManager::_processIsmGroupLootMasterResponse(Message* message, DispatchClient* client)
 {
     PlayerObject* playerObject = gWorldManager->getPlayerByAccId(message->getUint32());  // the player whos group_id has changed
@@ -323,18 +351,24 @@ void GroupManager::_processIsmGroupLootMasterResponse(Message* message, Dispatch
     }
 
     //send the SUI
-    PlayerList inRangeMembers	= playerObject->getInRangeGroupMembers(true);
-    PlayerList::iterator it		= inRangeMembers.begin();
+	ObjectList inRangeMembers	= getInRangeGroupMembers(playerObject->GetCreature(), true);
+    auto it		= inRangeMembers.begin();
+
+	PlayerList inRangePlayers;
 
     StringVector namesArray;
 
-    while(it != inRangeMembers.end())
-    {
-        namesArray.push_back((*it)->getFirstName().c_str());
+	//we only want to see players here
+    while(it != inRangeMembers.end())    {
+		PlayerObject* player = dynamic_cast<PlayerObject*>(*it);
+		if(player)	{
+			inRangePlayers.push_back(player);
+			namesArray.push_back(player->GetCreature()->getFirstName().c_str());
+		}
         ++it;
     }
 
-    gUIManager->createNewPlayerSelectListBox(playerObject,"handleSetLootMaster","@group:master_looter_sui_title","@group:set_loot_type_text",namesArray,inRangeMembers,playerObject);
+    gUIManager->createNewPlayerSelectListBox(playerObject,"handleSetLootMaster","@group:master_looter_sui_title","@group:set_loot_type_text",namesArray,inRangePlayers,playerObject);
 }
 
 //=======================================================================================================================

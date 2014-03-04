@@ -57,19 +57,19 @@ public:
     }
 
     Uint64List*			getPlayerList()	{
-        return &mPlayerList;
+        return &member_list;
     }
     void				addPlayer(uint64 id) {
-        mPlayerList.push_back(id);
+        member_list.push_back(id);
     }
     void				removePlayer(uint64 id)
     {
-        Uint64List::iterator it = mPlayerList.begin();
-        while(it != mPlayerList.end())
+        Uint64List::iterator it = member_list.begin();
+        while(it != member_list.end())
         {
             if((*it) == id)
-                it = mPlayerList.erase(it);
-            if(it != mPlayerList.end())
+                it = member_list.erase(it);
+            if(it != member_list.end())
                 it++;
 
         }
@@ -77,7 +77,7 @@ public:
 
 private:
 
-    Uint64List		mPlayerList;
+    Uint64List		member_list;
     uint64			mId;
 };
 

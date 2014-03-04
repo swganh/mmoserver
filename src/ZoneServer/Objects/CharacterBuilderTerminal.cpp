@@ -824,7 +824,7 @@ void CharacterBuilderTerminal::_handleProfessionMenu(PlayerObject* playerObject,
  
 		//We want to drop all our skills! OH NOES!
 		
-		auto list = playerObject->GetSkills();
+		auto list = playerObject->GetCreature()->GetSkills();
 		auto it = list.begin();
 
         std::vector<uint32> skills;
@@ -841,7 +841,7 @@ void CharacterBuilderTerminal::_handleProfessionMenu(PlayerObject* playerObject,
 
         while( jt != jend )
         {
-            gSkillManager->dropSkill((*jt), playerObject, false);
+			gSkillManager->dropSkill((*jt), playerObject->GetCreature(), false);
             jt++;
         }
 
@@ -861,7 +861,7 @@ void CharacterBuilderTerminal::_handleProfessionMenu(PlayerObject* playerObject,
             gUIManager->createNewListBox(this,"handleGetProf","Select Profession to Master","Select from the list below.",mProfessionMenu,playerObject,SUI_Window_CharacterBuilderProfessionMastery_ListBox);
         }
     } else {
-        gSkillManager->learnSkillLine((*newSkill)->mId, playerObject, false);
+        gSkillManager->learnSkillLine((*newSkill)->mId, playerObject->GetCreature(), false);
     }
 }
 void CharacterBuilderTerminal::_handleExperienceMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -946,124 +946,126 @@ void CharacterBuilderTerminal::_handleCreditMenu(PlayerObject* player, uint32 ac
 }
 void CharacterBuilderTerminal::_handleBuffMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
+	CreatureObject* creature = playerObject->GetCreature();
+
     switch(element)
     {
     case 0:
     {
         BuffAttribute* tempAttribute1 = new BuffAttribute(attr_health, +2400,0,-2400);
-        Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 60000, medical_enhance_health, gWorldManager->GetCurrentGlobalTick());
+        Buff* tempBuff1 = Buff::SimpleBuff(creature, creature, 60000, medical_enhance_health, gWorldManager->GetCurrentGlobalTick());
         tempBuff1->AddAttribute(tempAttribute1);
-        playerObject->AddBuff(tempBuff1);
+        creature->AddBuff(tempBuff1);
 
         BuffAttribute* tempAttribute2 = new BuffAttribute(attr_strength, +2400,0,-2400);
-        Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 60000, medical_enhance_strength, gWorldManager->GetCurrentGlobalTick());
+        Buff* tempBuff2 = Buff::SimpleBuff(creature, creature, 60000, medical_enhance_strength, gWorldManager->GetCurrentGlobalTick());
         tempBuff2->AddAttribute(tempAttribute2);
-        playerObject->AddBuff(tempBuff2);
+        creature->AddBuff(tempBuff2);
 
         BuffAttribute* tempAttribute3 = new BuffAttribute(attr_constitution, +2400,0,-2400);
-        Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 60000, medical_enhance_constitution, gWorldManager->GetCurrentGlobalTick());
+        Buff* tempBuff3 = Buff::SimpleBuff(creature, creature, 60000, medical_enhance_constitution, gWorldManager->GetCurrentGlobalTick());
         tempBuff3->AddAttribute(tempAttribute3);
-        playerObject->AddBuff(tempBuff3);
+        creature->AddBuff(tempBuff3);
 
     }
     break;
     case 1:
     {
         BuffAttribute* tempAttribute1 = new BuffAttribute(attr_action, +2400,0,-2400);
-        Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 60000, medical_enhance_action, gWorldManager->GetCurrentGlobalTick());
+        Buff* tempBuff1 = Buff::SimpleBuff(creature, creature, 60000, medical_enhance_action, gWorldManager->GetCurrentGlobalTick());
         tempBuff1->AddAttribute(tempAttribute1);
-        playerObject->AddBuff(tempBuff1);
+        creature->AddBuff(tempBuff1);
 
         BuffAttribute* tempAttribute2 = new BuffAttribute(attr_quickness, +2400,0,-2400);
-        Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 60000, medical_enhance_quickness, gWorldManager->GetCurrentGlobalTick());
+        Buff* tempBuff2 = Buff::SimpleBuff(creature, creature, 60000, medical_enhance_quickness, gWorldManager->GetCurrentGlobalTick());
         tempBuff2->AddAttribute(tempAttribute2);
-        playerObject->AddBuff(tempBuff2);
+        creature->AddBuff(tempBuff2);
 
         BuffAttribute* tempAttribute3 = new BuffAttribute(attr_stamina, +2400,0,-2400);
-        Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 60000, medical_enhance_stamina, gWorldManager->GetCurrentGlobalTick());
+        Buff* tempBuff3 = Buff::SimpleBuff(creature, creature, 60000, medical_enhance_stamina, gWorldManager->GetCurrentGlobalTick());
         tempBuff3->AddAttribute(tempAttribute3);
-        playerObject->AddBuff(tempBuff3);
+        creature->AddBuff(tempBuff3);
 
     }
     break;
     case 2:
     {
         BuffAttribute* tempAttribute1 = new BuffAttribute(attr_mind, +600,0,-600);
-        Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 60000, performance_enhance_dance_mind, gWorldManager->GetCurrentGlobalTick());
+        Buff* tempBuff1 = Buff::SimpleBuff(creature, creature, 60000, performance_enhance_dance_mind, gWorldManager->GetCurrentGlobalTick());
         tempBuff1->AddAttribute(tempAttribute1);
-        playerObject->AddBuff(tempBuff1);
+        creature->AddBuff(tempBuff1);
 
         BuffAttribute* tempAttribute2 = new BuffAttribute(attr_focus, +600,0,-600);
-        Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 60000, performance_enhance_music_focus, gWorldManager->GetCurrentGlobalTick());
+        Buff* tempBuff2 = Buff::SimpleBuff(creature, creature, 60000, performance_enhance_music_focus, gWorldManager->GetCurrentGlobalTick());
         tempBuff2->AddAttribute(tempAttribute2);
-        playerObject->AddBuff(tempBuff2);
+        creature->AddBuff(tempBuff2);
 
         BuffAttribute* tempAttribute3 = new BuffAttribute(attr_willpower, +600,0,-600);
-        Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 60000, performance_enhance_music_willpower, gWorldManager->GetCurrentGlobalTick());
+        Buff* tempBuff3 = Buff::SimpleBuff(creature, creature, 60000, performance_enhance_music_willpower, gWorldManager->GetCurrentGlobalTick());
         tempBuff3->AddAttribute(tempAttribute3);
-        playerObject->AddBuff(tempBuff3);
+        creature->AddBuff(tempBuff3);
 
     }
     break;
     case 3:
     {
         BuffAttribute* tempAttribute1 = new BuffAttribute(attr_health, +2400,0,-2400);
-        Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 10800000, medical_enhance_health, gWorldManager->GetCurrentGlobalTick());
+        Buff* tempBuff1 = Buff::SimpleBuff(creature, creature, 10800000, medical_enhance_health, gWorldManager->GetCurrentGlobalTick());
         tempBuff1->AddAttribute(tempAttribute1);
-        playerObject->AddBuff(tempBuff1);
+        creature->AddBuff(tempBuff1);
 
         BuffAttribute* tempAttribute2 = new BuffAttribute(attr_strength, +2400,0,-2400);
-        Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 10800000, medical_enhance_strength, gWorldManager->GetCurrentGlobalTick());
+        Buff* tempBuff2 = Buff::SimpleBuff(creature, creature, 10800000, medical_enhance_strength, gWorldManager->GetCurrentGlobalTick());
         tempBuff2->AddAttribute(tempAttribute2);
-        playerObject->AddBuff(tempBuff2);
+        creature->AddBuff(tempBuff2);
 
         BuffAttribute* tempAttribute3 = new BuffAttribute(attr_constitution, +2400,0,-2400);
-        Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 10800000, medical_enhance_constitution, gWorldManager->GetCurrentGlobalTick());
+        Buff* tempBuff3 = Buff::SimpleBuff(creature, creature, 10800000, medical_enhance_constitution, gWorldManager->GetCurrentGlobalTick());
         tempBuff3->AddAttribute(tempAttribute3);
-        playerObject->AddBuff(tempBuff3);
+        creature->AddBuff(tempBuff3);
 
     }
     break;
     case 4:
     {
         BuffAttribute* tempAttribute1 = new BuffAttribute(attr_action, +2400,0,-2400);
-        Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 10800000, medical_enhance_action, gWorldManager->GetCurrentGlobalTick());
+        Buff* tempBuff1 = Buff::SimpleBuff(creature, creature, 10800000, medical_enhance_action, gWorldManager->GetCurrentGlobalTick());
         tempBuff1->AddAttribute(tempAttribute1);
-        playerObject->AddBuff(tempBuff1);
+        creature->AddBuff(tempBuff1);
 
         BuffAttribute* tempAttribute2 = new BuffAttribute(attr_quickness, +2400,0,-2400);
-        Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 10800000, medical_enhance_quickness, gWorldManager->GetCurrentGlobalTick());
+        Buff* tempBuff2 = Buff::SimpleBuff(creature, creature, 10800000, medical_enhance_quickness, gWorldManager->GetCurrentGlobalTick());
         tempBuff2->AddAttribute(tempAttribute2);
-        playerObject->AddBuff(tempBuff2);
+        creature->AddBuff(tempBuff2);
 
         BuffAttribute* tempAttribute3 = new BuffAttribute(attr_stamina, +2400,0,-2400);
-        Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 10800000, medical_enhance_stamina, gWorldManager->GetCurrentGlobalTick());
+        Buff* tempBuff3 = Buff::SimpleBuff(creature, creature, 10800000, medical_enhance_stamina, gWorldManager->GetCurrentGlobalTick());
         tempBuff3->AddAttribute(tempAttribute3);
-        playerObject->AddBuff(tempBuff3);
+        creature->AddBuff(tempBuff3);
 
     }
     break;
     case 5:
     {
         BuffAttribute* tempAttribute1 = new BuffAttribute(attr_mind, +600,0,-600);
-        Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 10800000, performance_enhance_dance_mind, gWorldManager->GetCurrentGlobalTick());
+        Buff* tempBuff1 = Buff::SimpleBuff(creature, creature, 10800000, performance_enhance_dance_mind, gWorldManager->GetCurrentGlobalTick());
         tempBuff1->AddAttribute(tempAttribute1);
-        playerObject->AddBuff(tempBuff1);
+        creature->AddBuff(tempBuff1);
 
         BuffAttribute* tempAttribute2 = new BuffAttribute(attr_focus, +600,0,-600);
-        Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 10800000, performance_enhance_music_focus, gWorldManager->GetCurrentGlobalTick());
+        Buff* tempBuff2 = Buff::SimpleBuff(creature, creature, 10800000, performance_enhance_music_focus, gWorldManager->GetCurrentGlobalTick());
         tempBuff2->AddAttribute(tempAttribute2);
-        playerObject->AddBuff(tempBuff2);
+        creature->AddBuff(tempBuff2);
 
         BuffAttribute* tempAttribute3 = new BuffAttribute(attr_willpower, +600,0,-600);
-        Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 10800000, performance_enhance_music_willpower, gWorldManager->GetCurrentGlobalTick());
+        Buff* tempBuff3 = Buff::SimpleBuff(creature, creature, 10800000, performance_enhance_music_willpower, gWorldManager->GetCurrentGlobalTick());
         tempBuff3->AddAttribute(tempAttribute3);
-        playerObject->AddBuff(tempBuff3);
+        creature->AddBuff(tempBuff3);
 
     }
     break;
     case 6:
-        playerObject->ClearAllBuffs();
+        creature->ClearAllBuffs();
         break;
     default:
         break;
@@ -1357,82 +1359,83 @@ void CharacterBuilderTerminal::_handleResourcesTypes(PlayerObject* playerObject,
 }
 void CharacterBuilderTerminal::_handleWoundMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
+	CreatureObject* creature = playerObject->GetCreature();
 
 	auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
 
     switch(element)
     {
     case 0: //Health Wound
-		ham->ApplyWound(playerObject,HamBar_Health,100);
+		ham->ApplyWound(creature,HamBar_Health,100);
         break;
     case 1: //Strength Wound
-		ham->ApplyWound(playerObject,HamBar_Strength,100);
+		ham->ApplyWound(creature,HamBar_Strength,100);
         break;
     case 2: //Constitution Wound
-		ham->ApplyWound(playerObject,HamBar_Constitution,100);
+		ham->ApplyWound(creature,HamBar_Constitution,100);
         break;
     case 3: //Action Wound
-        ham->ApplyWound(playerObject,HamBar_Action,100);
+        ham->ApplyWound(creature,HamBar_Action,100);
         break;
     case 4: //Stamina Wound
-        ham->ApplyWound(playerObject,HamBar_Stamina,100);
+        ham->ApplyWound(creature,HamBar_Stamina,100);
         break;
     case 5: //Quickness Wound
-		ham->ApplyWound(playerObject,HamBar_Quickness,100);
+		ham->ApplyWound(creature,HamBar_Quickness,100);
         break;
     case 6: //Mind Wound
-        ham->ApplyWound(playerObject,HamBar_Mind,100);
+        ham->ApplyWound(creature,HamBar_Mind,100);
         break;
     case 7: //Focus Wound
-        ham->ApplyWound(playerObject,HamBar_Focus,100);
+        ham->ApplyWound(creature,HamBar_Focus,100);
         break;
     case 8: //Willpower Wound
-		ham->ApplyWound(playerObject,HamBar_Willpower,100);
+		ham->ApplyWound(creature,HamBar_Willpower,100);
         break;
     case 9: //BattleFatigue
-		playerObject->AddBattleFatigue(100);
+		creature->AddBattleFatigue(100);
         break;
     case 10: //Health Wound
-		ham->RemoveWound(playerObject,HamBar_Health,100);
+		ham->RemoveWound(creature,HamBar_Health,100);
         break;
     case 11: //Strength Wound
-        ham->RemoveWound(playerObject,HamBar_Strength,100);
+        ham->RemoveWound(creature,HamBar_Strength,100);
         break;
     case 12: //Constitution Wound
-        ham->RemoveWound(playerObject,HamBar_Constitution,100);
+        ham->RemoveWound(creature,HamBar_Constitution,100);
         break;
     case 13: //Action Wound
-        ham->RemoveWound(playerObject,HamBar_Action,100);
+        ham->RemoveWound(creature,HamBar_Action,100);
         break;
     case 14: //Stamina Wound
-        ham->RemoveWound(playerObject,HamBar_Stamina,100);
+        ham->RemoveWound(creature,HamBar_Stamina,100);
         break;
     case 15: //Quickness Wound
-        ham->RemoveWound(playerObject,HamBar_Quickness,100);
+        ham->RemoveWound(creature,HamBar_Quickness,100);
         break;
     case 16: //Mind Wound
-        ham->RemoveWound(playerObject,HamBar_Mind,100);
+        ham->RemoveWound(creature,HamBar_Mind,100);
         break;
     case 17: //Focus Wound
-        ham->RemoveWound(playerObject,HamBar_Focus,100);
+        ham->RemoveWound(creature,HamBar_Focus,100);
         break;
     case 18: //Willpower Wound
-        ham->RemoveWound(playerObject,HamBar_Willpower,100);
+        ham->RemoveWound(creature,HamBar_Willpower,100);
         break;
     case 19: //BattleFatigue
-		playerObject->DeductBattleFatigue(100);
+		creature->DeductBattleFatigue(100);
         break;
     case 20: //remove all wounds and battlefatigue
-        ham->RemoveWound(playerObject,HamBar_Health,10000);
-		ham->RemoveWound(playerObject,HamBar_Strength,10000);
-		ham->RemoveWound(playerObject,HamBar_Constitution,10000);
-		ham->RemoveWound(playerObject,HamBar_Action,10000);
-		ham->RemoveWound(playerObject,HamBar_Stamina,10000);
-		ham->RemoveWound(playerObject,HamBar_Quickness,10000);
-		ham->RemoveWound(playerObject,HamBar_Mind,10000);
-		ham->RemoveWound(playerObject,HamBar_Focus,10000);
-		ham->RemoveWound(playerObject,HamBar_Willpower,10000);
-		playerObject->DeductBattleFatigue(1000);
+        ham->RemoveWound(creature,HamBar_Health,10000);
+		ham->RemoveWound(creature,HamBar_Strength,10000);
+		ham->RemoveWound(creature,HamBar_Constitution,10000);
+		ham->RemoveWound(creature,HamBar_Action,10000);
+		ham->RemoveWound(creature,HamBar_Stamina,10000);
+		ham->RemoveWound(creature,HamBar_Quickness,10000);
+		ham->RemoveWound(creature,HamBar_Mind,10000);
+		ham->RemoveWound(creature,HamBar_Focus,10000);
+		ham->RemoveWound(creature,HamBar_Willpower,10000);
+		creature->DeductBattleFatigue(1000);
 		
         
     default:
@@ -1476,97 +1479,99 @@ void CharacterBuilderTerminal::_handleTeleportMenu(PlayerObject* playerObject, u
 
 void CharacterBuilderTerminal::_handleStateMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
+	CreatureObject* creature = playerObject->GetCreature();
+
     switch(element)
     {
     case 0:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_Cover);
+        gStateManager.setCurrentActionState(creature, CreatureState_Cover);
         break;
     case 1:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_Combat);
+        gStateManager.setCurrentActionState(creature, CreatureState_Combat);
         break;
     case 2:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_Peace);
+        gStateManager.setCurrentActionState(creature, CreatureState_Peace);
         break;
     case 3:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_Aiming);
+        gStateManager.setCurrentActionState(creature, CreatureState_Aiming);
         break;
     case 4:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_Alert);
+        gStateManager.setCurrentActionState(creature, CreatureState_Alert);
         break;
     case 5:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_Berserk);
+        gStateManager.setCurrentActionState(creature, CreatureState_Berserk);
         break;
     case 6:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_FeignDeath);
+        gStateManager.setCurrentActionState(creature, CreatureState_FeignDeath);
         break;
     case 7:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_CombatAttitudeEvasive);
+        gStateManager.setCurrentActionState(creature, CreatureState_CombatAttitudeEvasive);
         break;
     case 8:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_CombatAttitudeNormal);
+        gStateManager.setCurrentActionState(creature, CreatureState_CombatAttitudeNormal);
         break;
     case 9:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_CombatAttitudeAggressive);
+        gStateManager.setCurrentActionState(creature, CreatureState_CombatAttitudeAggressive);
         break;
     case 10:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_Tumbling);
+        gStateManager.setCurrentActionState(creature, CreatureState_Tumbling);
         break;
     case 11:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_Rallied);
+        gStateManager.setCurrentActionState(creature, CreatureState_Rallied);
         break;
     case 12:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_Stunned);
+        gStateManager.setCurrentActionState(creature, CreatureState_Stunned);
         break;
     case 13:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_Swimming);
+        gStateManager.setCurrentActionState(creature, CreatureState_Swimming);
         break;
     case 14:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_SittingOnChair);
+        gStateManager.setCurrentActionState(creature, CreatureState_SittingOnChair);
         break;
     case 15:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_Crafting);
+        gStateManager.setCurrentActionState(creature, CreatureState_Crafting);
         break;
     case 16:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_GlowingJedi);
+        gStateManager.setCurrentActionState(creature, CreatureState_GlowingJedi);
         break;
     case 17:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_MaskScent);
+        gStateManager.setCurrentActionState(creature, CreatureState_MaskScent);
         break;
     case 18:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_Poisoned);
+        gStateManager.setCurrentActionState(creature, CreatureState_Poisoned);
         break;
     case 19:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_Bleeding);
+        gStateManager.setCurrentActionState(creature, CreatureState_Bleeding);
         break;
     case 20:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_Diseased);
+        gStateManager.setCurrentActionState(creature, CreatureState_Diseased);
         break;
     case 21:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_OnFire);
+        gStateManager.setCurrentActionState(creature, CreatureState_OnFire);
         break;
     case 22:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_RidingMount);
+        gStateManager.setCurrentActionState(creature, CreatureState_RidingMount);
         break;
     case 23:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_MountedCreature);
+        gStateManager.setCurrentActionState(creature, CreatureState_MountedCreature);
         break;
     case 24:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_Blinded);
+        gStateManager.setCurrentActionState(creature, CreatureState_Blinded);
         break;
     case 25:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_Dizzy);
+        gStateManager.setCurrentActionState(creature, CreatureState_Dizzy);
         break;
     case 26:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_Intimidated);
+        gStateManager.setCurrentActionState(creature, CreatureState_Intimidated);
         break;
     case 27:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_Immobilized);
+        gStateManager.setCurrentActionState(creature, CreatureState_Immobilized);
         break;
     case 28:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_Frozen);
+        gStateManager.setCurrentActionState(creature, CreatureState_Frozen);
         break;
     case 29:
-        gStateManager.setCurrentActionState(playerObject, CreatureState_ClearState);
+        gStateManager.setCurrentActionState(creature, CreatureState_ClearState);
     }
 }
 
@@ -2597,7 +2602,7 @@ void CharacterBuilderTerminal::handleObjectMenuSelect(uint8 messageType,Object* 
         // bring up the terminal window
         if(playerObject && playerObject->isConnected())
         {
-            if(playerObject->getSurveyState() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead() || playerObject->states.checkState(CreatureState_Combat))
+			if(playerObject->getSurveyState() || playerObject->getSamplingState() || playerObject->GetCreature()->isIncapacitated() || playerObject->GetCreature()->isDead() || playerObject->GetCreature()->states.checkState(CreatureState_Combat))
             {
                 return;
             }
@@ -2617,7 +2622,7 @@ void	CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,std::u1
 {
     PlayerObject* playerObject = window->getOwner();
 
-    if(!playerObject || action || playerObject->getSurveyState() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead())
+    if(!playerObject || action || playerObject->getSurveyState() || playerObject->getSamplingState() || playerObject->GetCreature()->isIncapacitated() || playerObject->GetCreature()->isDead())
     {
         return;
     }

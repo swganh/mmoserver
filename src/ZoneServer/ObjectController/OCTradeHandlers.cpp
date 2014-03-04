@@ -75,7 +75,7 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
     case 2:
     {
         // snd invitation returns error as 2 and the id of the invited as 0 :(
-        invitedPlayer = dynamic_cast<PlayerObject*>(invitingPlayer->getTarget());
+        invitedPlayer = dynamic_cast<PlayerObject*>(invitingPlayer->GetCreature()->getTarget());
         error = 0;
     }
     break;
@@ -102,7 +102,7 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
         return;
     }
 
-    if(invitedPlayer->states.checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
+    if(invitedPlayer->GetCreature()->states.checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), invitingPlayer);
         return;
@@ -110,7 +110,7 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
 
     // Can NOT use bitwise operation on non bitwise constants. CreaturePostures are used exclusive.
     // if(invitedPlayer->states.checkPosturesEither(CreaturePosture_Dead | CreaturePosture_Incapacitated))
-    if (invitedPlayer->states.checkPosture(CreaturePosture_Dead) || invitedPlayer->states.checkPosture(CreaturePosture_Incapacitated))
+    if (invitedPlayer->GetCreature()->states.checkPosture(CreaturePosture_Dead) || invitedPlayer->GetCreature()->states.checkPosture(CreaturePosture_Incapacitated))
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), invitingPlayer);
         return;
@@ -118,7 +118,7 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
 
     // Can NOT use bitwise operation on non bitwise constants.
     // if(invitingPlayer->states.checkPosturesEither(CreaturePosture_Dead | CreaturePosture_Incapacitated))
-    if (invitingPlayer->states.checkPosture(CreaturePosture_Dead) || invitingPlayer->states.checkPosture(CreaturePosture_Incapacitated))
+    if (invitingPlayer->GetCreature()->states.checkPosture(CreaturePosture_Dead) || invitingPlayer->GetCreature()->states.checkPosture(CreaturePosture_Incapacitated))
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), invitingPlayer);
         return;
@@ -133,7 +133,7 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
             {
                 // We are not invited, check Ignore.
                 // If receiver have sender ignored, auto decline trade request.
-                BString ignoreName = invitingPlayer->getFirstName().c_str();
+                BString ignoreName = invitingPlayer->GetCreature()->getFirstName().c_str();
                 ignoreName.toLower();
 
                 // check receivers ignorelist
@@ -217,7 +217,7 @@ void ObjectController::_handleTip(uint64 targetId,Message* message,ObjectControl
         if(target && (target != player))
         {
             havetarget = true;
-            name = target->getFirstName().c_str();
+            name = target->GetCreature()->getFirstName().c_str();
         }
 
         if(elementCount == 3)

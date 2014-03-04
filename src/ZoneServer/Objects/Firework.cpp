@@ -82,14 +82,14 @@ void Firework::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
             if(this->getItemType() >= ItemType_Firework_Type_5 || this->getItemType() <= ItemType_Firework_Type_2)
             {
                 //Player must be standing or Kneeling to launch
-                if(!playerObject->states.checkPosture(CreaturePosture_Upright) && !playerObject->states.checkPosture(CreaturePosture_Crouched))
+                if(!playerObject->GetCreature()->states.checkPosture(CreaturePosture_Upright) && !playerObject->GetCreature()->states.checkPosture(CreaturePosture_Crouched))
                 {
                     gMessageLib->SendSystemMessage(L"You must be standing or kneeling to start a firework.", playerObject);
                     return;
                 }
 
 				//player can not be swimming -> not working yet. The server do not update the state when walking in water
-				if (playerObject->states.checkState(CreatureState_Swimming))
+				if (playerObject->GetCreature()->states.checkState(CreatureState_Swimming))
 				{
 					gMessageLib->SendSystemMessage(L"You can not do that while swimming!", playerObject);
 					return;

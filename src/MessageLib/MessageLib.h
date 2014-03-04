@@ -349,8 +349,6 @@ public:
     */
     void sendFlyText(Object* source, PlayerObject* player, const std::string& stf_file, const std::string& stf_var, unsigned char red, unsigned char green, unsigned char blue, unsigned char display);
 
-
-    void				sendSelfPostureUpdate(PlayerObject* playerObject);
     //void				sendSetWaypointActiveStatus(WaypointObject* waypointObject, bool active, PlayerObject* targetObject);
 
     // spatial
@@ -543,11 +541,11 @@ public:
 	bool				sendMissionComplete(PlayerObject* targetObject);
 
 	// manufacturing schematic object, manschematicmessages.cpp
-	bool				sendBaselinesMSCO_3(ManufacturingSchematic* manSchem,PlayerObject* playerObject,bool sendAttributes = true);
-	bool				sendBaselinesMSCO_6(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
-	bool				sendBaselinesMSCO_8(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
-	bool				sendBaselinesMSCO_9(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
-	bool				sendBaselinesMSCO_7(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
+	bool				sendBaselinesMSCO_3(ManufacturingSchematic* manSchem,PlayerObject* ghost,bool sendAttributes = true);
+	bool				sendBaselinesMSCO_6(ManufacturingSchematic* manSchem,PlayerObject* ghost);
+	bool				sendBaselinesMSCO_8(ManufacturingSchematic* manSchem,PlayerObject* ghost);
+	bool				sendBaselinesMSCO_9(ManufacturingSchematic* manSchem,PlayerObject* ghost);
+	bool				sendBaselinesMSCO_7(ManufacturingSchematic* manSchem,PlayerObject* ghost);
 
 	// deltas
 	bool				sendDeltasMSCO_3(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
@@ -695,7 +693,7 @@ private:
 	void				_sendToInRangeUnreliableChat(Message* message, const CreatureObject* object, unsigned char priority, uint32_t crc);
 	void				_sendToInRangeUnreliableChatGroup(Message* message, const CreatureObject* object, unsigned char priority, uint32_t crc);
 	
-	void				_sendToInstancedPlayersUnreliable(Message* message, unsigned char priority, const PlayerObject* const player) const;
+	void				_sendToInstancedPlayersUnreliable(Message* message, unsigned char priority, PlayerObject* player) const;
 	void				_sendToInstancedPlayers(Message* message, unsigned char priority, PlayerObject* const player) const;
 	void				_sendToAll(Message* message, unsigned char priority, bool unreliable = false) const;
    

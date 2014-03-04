@@ -27,8 +27,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "EVAbility.h"
 #include "ZoneServer/Objects/Creature Object/CreatureObject.h"
+#include "ZoneServer\Objects\Player Object\PlayerObject.h"
 #include "Zoneserver/ObjectController/ObjectController.h"
 #include "ZoneServer/ObjectController/ObjectControllerCommandMap.h"
+#include "ZoneServer\Services\equipment\equipment_service.h"
+#include "ZoneServer\WorldManager.h"
 
 EVAbility::EVAbility(ObjectController* controller)
     : EnqueueValidator(controller)
@@ -44,14 +47,26 @@ bool EVAbility::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32
     // check if we need to have an ability
     if(creature && cmdProperties && cmdProperties->mAbilityCrc != 0)
     {
-        // check if the player has it
-        if(!(creature->verifyAbility(cmdProperties->mAbilityCrc)))
-        {
-            reply1 = 2;
-            reply2 = 0;
-			DLOG(info) << "EVAbility::validate no ability - opcode : " << opcode << "ability" << cmdProperties->mAbilityCrc;
-            return(false);
-        }
+		if(creature->getCreoGroup() == CreoGroup_Player){
+			auto equipment_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+			auto ghost = dynamic_cast<PlayerObject*>(equipment_service->GetEquippedObject(creature, "ghost"));
+		
+			// check if the player has it
+			if(!(ghost->verifyAbility(cmdProperties->mAbilityCrc)))
+			{
+				reply1 = 2;
+				reply2 = 0;
+				DLOG(info) << "EVAbility::validate no ability - opcode : " << opcode << "ability" << cmdProperties->mAbilityCrc;
+				return(false);
+			}
+		}
+		else 
+		{
+			reply1 = 2;
+			reply2 = 0;
+			DLOG(info) << "EVAbility::validate no Player !!!!!! : " << creature->getId();
+			return false;
+		}
     }
 
     return(true);

@@ -50,7 +50,7 @@ void ElevatorTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObjec
 {
     PlayerObject* playerObject = dynamic_cast<PlayerObject*>(srcObject);
 
-    if(!playerObject || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead())
+    if(!playerObject || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->GetCreature()->isIncapacitated() || playerObject->GetCreature()->isDead())
     {
         return;
     }
@@ -64,7 +64,7 @@ void ElevatorTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObjec
         playerObject->mDirection = mDstDirUp;
         playerObject->mPosition  = mDstPosUp;
         playerObject->setParentId(mDstCellUp);
-        playerObject->updatePosition(mDstCellUp,mDstPosUp);
+        playerObject->GetCreature()->updatePosition(mDstCellUp,mDstPosUp);
 
 
         //gMessageLib->sendDataTransformWithParent053(playerObject);
@@ -81,7 +81,7 @@ void ElevatorTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObjec
         playerObject->mPosition  = mDstPosDown;
         playerObject->setParentId(mDstCellDown);
 
-        playerObject->updatePosition(mDstCellDown,mDstPosDown);
+        playerObject->GetCreature()->updatePosition(mDstCellDown,mDstPosDown);
 
         //gMessageLib->sendDataTransformWithParent053(playerObject);
     }

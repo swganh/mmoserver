@@ -1045,10 +1045,10 @@ bool MessageLib::sendCharacterSheetResponse(PlayerObject* playerObject)
     mMessageFactory->addUint32(playerObject->getLots());
 
     // neutral
-    if(playerObject->getFaction().getCrc() == 0x1fdc3051)
+	if(playerObject->GetCreature()->getFaction().getCrc() == 0x1fdc3051)
         mMessageFactory->addUint32(0);
     else
-        mMessageFactory->addUint32(playerObject->getFaction().getCrc());
+        mMessageFactory->addUint32(playerObject->GetCreature()->getFaction().getCrc());
 
     // Faction State see wiki for details
     mMessageFactory->addUint32(0);

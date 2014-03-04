@@ -38,6 +38,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/WorldConfig.h"
 #include "ZoneServer/WorldManager.h"
 
+#include "ZoneServer\Services\equipment\equipment_service.h"
+
 #include "MessageLib/MessageLib.h"
 
 #include <MessageLib\messages\containers\network_map.h>
@@ -294,12 +296,18 @@ void Datapad::handleObjectReady(std::shared_ptr<Object> object)
 
 void Datapad::handleObjectReady(Object* object,DispatchClient* client)
 {
-    
+	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	auto ghost	= dynamic_cast<PlayerObject*>(equip_service->GetEquippedObject(object, "ghost"));
+
+    if(!ghost)	{
+		LOG(error) << "void Datapad::handleObjectReady No ghost for " << object->getId();
+		return;
+	}
 
     if(ManufacturingSchematic* ms = dynamic_cast<ManufacturingSchematic*>(object))
     {
         if(addManufacturingSchematic(ms))
-            gMessageLib->sendCreateManufacturingSchematic(ms, mOwner, false);
+            gMessageLib->sendCreateManufacturingSchematic(ms, ghost, false);
         else
         {
 			gWorldManager->eraseObject(ms->getId());

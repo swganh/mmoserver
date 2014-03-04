@@ -225,12 +225,12 @@ void CharSheetManager::_processFactionRequest(Message* message,DispatchClient* c
 
     gMessageFactory->StartMessage();
     gMessageFactory->addUint32(opFactionResponseMessage);
-    gMessageFactory->addString(player->getFaction());
-    gMessageFactory->addUint32(player->getFactionPointsByFactionId(2));
-    gMessageFactory->addUint32(player->getFactionPointsByFactionId(3));
+    gMessageFactory->addString(player->GetCreature()->getFaction());
+    gMessageFactory->addUint32(player->GetCreature()->getFactionPointsByFactionId(2));
+    gMessageFactory->addUint32(player->GetCreature()->getFactionPointsByFactionId(3));
     gMessageFactory->addUint32(0);
 
-    FactionList* factions = player->getFactionList();
+    FactionList* factions = player->GetCreature()->getFactionList();
 
     gMessageFactory->addUint32(factions->size());
 

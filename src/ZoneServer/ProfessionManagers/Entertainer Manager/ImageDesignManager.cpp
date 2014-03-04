@@ -143,7 +143,7 @@ BString EntertainerManager::commitIdheight(PlayerObject* customer, float value)
     float totalScale = 0.0F;
     float maxScale = 2.5F;
 
-    switch(customer->getRaceId())
+    switch(customer->GetCreature()->getRaceId())
     {
     case 0:
     {
@@ -295,7 +295,7 @@ BString EntertainerManager::commitIdheight(PlayerObject* customer, float value)
         totalScale = maxScale;
 
 
-    customer->setScale(totalScale);
+    customer->GetCreature()->setScale(totalScale);
 
     //update the db
     int8 sql[50];
@@ -374,9 +374,9 @@ BString EntertainerManager::commitIdColor(PlayerObject* customer, BString attrib
 			auto hair			= dynamic_cast<TangibleObject*>(equip_service->GetEquippedObject(customer, "hair"));
 
 			if(hair )	 {
-				auto hair_shared = customer->GetEquipmentItem(hair->getId());
+				auto hair_shared = customer->GetCreature()->GetEquipmentItem(hair->getId());
 				hair_shared.customization = hair->getCustomizationStr().getAnsi();
-				customer->UpdateEquipmentItem(hair_shared);
+				customer->GetCreature()->UpdateEquipmentItem(hair_shared);
 			}
 			/*
             TangibleObject* hairSlot = dynamic_cast<TangibleObject*>(customer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hair));
@@ -402,7 +402,7 @@ BString EntertainerManager::commitIdColor(PlayerObject* customer, BString attrib
     }
     else
     {
-        customer->setCustomization(static_cast<uint8>(iDContainer->Atr1ID),value);
+        customer->GetCreature()->setCustomization(static_cast<uint8>(iDContainer->Atr1ID),value);
     }
 
     int8 sql[50];
@@ -487,19 +487,19 @@ BString EntertainerManager::commitIdAttribute(PlayerObject* customer, BString at
 
         }
 
-        customer->setCustomization (171,v1);
+        customer->GetCreature()->setCustomization (171,v1);
 
-        customer->setCustomization (172,v2);
+        customer->GetCreature()->setCustomization (172,v2);
 
         //overwrites 2 value version so set to zero (so it gets ignored)
-        customer->setCustomization (0x2b,0);
+        customer->GetCreature()->setCustomization (0x2b,0);
 
         int8 sql[250];
         sprintf(sql,"ABFF = '%u', AB2FF = '%u'",v1,v2);
         return(BString(sql));
     }
 
-    customer->setCustomization ((uint8)iDContainer->Atr1ID,uVal);
+    customer->GetCreature()->setCustomization ((uint8)iDContainer->Atr1ID,uVal);
 
     //sometimes we have 2 attributes corresponding to one feature - like weight
     //it has the attributes skinny and fat which need to be set to corresponding values
@@ -516,7 +516,7 @@ BString EntertainerManager::commitIdAttribute(PlayerObject* customer, BString at
         }
 
         sprintf(add,",%s = '%u'",iDContainer->Atr2Name,sk);
-        customer->setCustomization(static_cast<uint8>(iDContainer->Atr2ID),sk);
+        customer->GetCreature()->setCustomization(static_cast<uint8>(iDContainer->Atr2ID),sk);
     }
 
     int8 sql[150];
@@ -543,7 +543,7 @@ void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
 	if(customerHair && (!newHairString.getLength()))	{
 		//start by removing the old hair
 		customer->RemoveObject(customer, customerHair);
-		customer->RemoveEquipmentItem(customerHairId);
+		customer->GetCreature()->RemoveEquipmentItem(customerHairId);
 		gContainerManager->destroyObjectToRegisteredPlayers(customer,customerHair->getId(), true);
 
 		// update the db
@@ -558,7 +558,7 @@ void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
 	BString	customization	= "";
 
 	int8 tmpHair[128];
-	sprintf(tmpHair,"object/tangible/hair/%s/shared_%s",customer->getSpeciesString().getAnsi(),&newHairString.getAnsi()[22 + customer->getSpeciesString().getLength()]);
+	sprintf(tmpHair,"object/tangible/hair/%s/shared_%s",customer->GetCreature()->getSpeciesString().getAnsi(),&newHairString.getAnsi()[22 + customer->GetCreature()->getSpeciesString().getLength()]);
 
 	if(!customerHair )	{
 		customerHair		= new TangibleObject();
@@ -587,7 +587,7 @@ void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
 
 		//I *think* that we can get away with sending the equiplist *before* the item create
 		//not that it would matter
-		customer->AddEquipmentItem(item);
+		customer->GetCreature()->AddEquipmentItem(item);
 
 		//gContainerManager->updateEquipListToRegisteredPlayers(customer);
 		gContainerManager->createObjectToRegisteredPlayers(customer,customerHair);
@@ -600,10 +600,10 @@ void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
 		sprintf(sql,"UPDATE %s.character_appearance set hair = '%s' where character_id = '%"PRIu64"'",kernel_->GetDatabase()->galaxy(),newHairString.getAnsi(),customer->getId());
 		kernel_->GetDatabase()->executeSqlAsync(NULL,NULL,sql);
 
-		swganh::object::EquipmentItem item = customer->GetEquipmentItem(customerHair->getId());
+		swganh::object::EquipmentItem item = customer->GetCreature()->GetEquipmentItem(customerHair->getId());
 		item.customization = customization.getAnsi();
 		item.template_crc = common::memcrc(customerHair->GetTemplate());
-		customer->UpdateEquipmentItem(item);
+		customer->GetCreature()->UpdateEquipmentItem(item);
 	}
 	
 }
@@ -704,7 +704,7 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
 
 	auto ham = kernel_->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
 			
-    if(!ham->ApplyModifiedHamCosts(designer, 0, 0, 66))
+    if(!ham->ApplyModifiedHamCosts(designer->GetCreature(), 0, 0, 66))
     {
         DLOG(error) << "EntertainerManager::commitIdChanges ham wtf";
     }
@@ -792,10 +792,10 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
 
     //build plus send customization
     //please note that hair object customizatio is send updated and maintained b ycommitIdColor
-    customer->buildCustomization(customer->getCustomization());
+    customer->GetCreature()->buildCustomization(customer->GetCreature()->getCustomization());
 
-    gMessageLib->sendCustomizationUpdateCreo3(customer);
-    gMessageLib->sendScaleUpdateCreo3(customer);
+    gMessageLib->sendCustomizationUpdateCreo3(customer->GetCreature());
+    gMessageLib->sendScaleUpdateCreo3(customer->GetCreature());
 
     //Holoemotes
     if(holoEmote.getLength())

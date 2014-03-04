@@ -1047,9 +1047,9 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure","no_valid_structurestatus"),player);
 				return;
 			}
-			if(player->getTargetId() != structure->getId())
+			if(player->GetCreature()->getTargetId() != structure->getId())
 			{
-				PlayerStructureTerminal* terminal = dynamic_cast<PlayerStructureTerminal*>(gWorldManager->getObjectById(player->getTargetId()));
+				PlayerStructureTerminal* terminal = dynamic_cast<PlayerStructureTerminal*>(gWorldManager->getObjectById(player->GetCreature()->getTargetId()));
 				if(!terminal||(terminal->getStructure() != command.StructureId))	{
 					gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure","changed_structurestatus"),player);
 					return;
@@ -1560,7 +1560,7 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
         if(player)
         {
             // TODO: Enum for skills
-            if(!player->checkSkill(623)) //novice Politician
+            if(!player->GetCreature()->checkSkill(623)) //novice Politician
             {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "place_cityhall"), player);
                 break;

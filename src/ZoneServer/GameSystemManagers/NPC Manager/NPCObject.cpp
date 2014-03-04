@@ -625,7 +625,7 @@ void NPCObject::updateAttackersWeaponAndCombatXp(uint64 playerId, uint64 groupId
 				bool valid = true;
 				if (groupId)
 				{
-					valid = (playerObject->getGroupId() == (groupId));
+					valid = (playerObject->GetCreature()->getGroupId() == (groupId));
 				}
 				if (valid)
 				{
@@ -649,7 +649,7 @@ void NPCObject::sendAttackersWeaponXp(PlayerObject* playerObject, uint32 weaponM
     if (playerObject && weaponMask && xp)
     {
         // Then, we have to have a connected player..still alive.
-        if (playerObject->isConnected() && !playerObject->isDead())
+        if (playerObject->isConnected() && !playerObject->GetCreature()->isDead())
         {
             // Now send the XP update messages to player.
             for (uint32 i = WeaponGroup_Unarmed; i < WeaponGroup_Flamethrower; i = i << 1)

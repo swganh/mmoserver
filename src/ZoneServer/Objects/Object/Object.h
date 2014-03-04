@@ -361,10 +361,7 @@ public:
     glm::vec3   mPosition;
 	//Anh_Math::Quaternion	mDirection;
 	//Anh_Math::Vector3		mPosition;
-
-	inline uint64			getPrivateOwner() { return mPrivateOwner; }
-	inline void				setPrivateOwner(uint64 owner) { mPrivateOwner = owner; }
-	bool					isOwnedBy(PlayerObject* player);
+	
 	const glm::vec3&		getLastUpdatePosition(){ return mLastUpdatePosition; }
 	void					setLastUpdatePosition(const glm::vec3& pos ){mLastUpdatePosition = pos; }
 
@@ -584,8 +581,6 @@ protected:
 	uint64					mId;
 	uint64					mParentId;
 		
-	// If object is used as a private object in an Instance, this references the instances (objects) owner
-	uint64					mPrivateOwner; 
 	uint64					mEquipRestrictions;
 	uint64					mEquipSlots;
 	uint32					mInMoveCount;

@@ -94,10 +94,10 @@ void BuffManager::handleDatabaseJobComplete(void *ref, swganh::database::Databas
         //get the player and check whether this was the last buff callback
         PlayerObject* playerObject			= asyncContainer->player;
 
-        playerObject->DecBuffAsyncCount();
+        playerObject->GetCreature()->DecBuffAsyncCount();
 
         //if this is the last callback continue with saving the players data
-        if(!playerObject->GetBuffAsyncCount())
+        if(!playerObject->GetCreature()->GetBuffAsyncCount())
         {
 
             //the asynccontainer was prepared by the worldmanager
@@ -113,11 +113,11 @@ void BuffManager::handleDatabaseJobComplete(void *ref, swganh::database::Databas
 
             //Free up Memory
             SAFE_DELETE(asyncContainer);
-            BuffList::iterator it = playerObject->GetBuffList()->begin();
-            while(it != playerObject->GetBuffList()->end())
+            BuffList::iterator it = playerObject->GetCreature()->GetBuffList()->begin();
+            while(it != playerObject->GetCreature()->GetBuffList()->end())
             {
                 SAFE_DELETE(*it);
-                it = playerObject->GetBuffList()->erase(it);
+                it = playerObject->GetCreature()->GetBuffList()->erase(it);
             }
         }
 
@@ -187,9 +187,9 @@ void BuffManager::LoadBuffsFromResult(buffAsyncContainer* asyncContainer, swganh
             //Check there is time left
             if(buffTemp->GetRemainingTime(asyncContainer->currentTime) >0)
             {
-                buffTemp->setTarget(player);
-                player->AddBuff(buffTemp);
-                player->IncBuffAsyncCount();
+                buffTemp->setTarget(player->GetCreature());
+                player->GetCreature()->AddBuff(buffTemp);
+                player->GetCreature()->IncBuffAsyncCount();
             } else {
                 SAFE_DELETE(buffTemp);
             }
@@ -199,9 +199,9 @@ void BuffManager::LoadBuffsFromResult(buffAsyncContainer* asyncContainer, swganh
     mDatabase->destroyDataBinding(buffBinding);
 
 
-    BuffList::iterator it = player->GetBuffList()->begin();
+    BuffList::iterator it = player->GetCreature()->GetBuffList()->begin();
 
-    while(it != player->GetBuffList()->end())
+    while(it != player->GetCreature()->GetBuffList()->end())
     {
         asyncContainer->buff = *it;
         LoadBuffAttributes(asyncContainer);
@@ -245,7 +245,7 @@ void BuffManager::LoadBuffAttributesFromResult(buffAsyncContainer* asyncContaine
 
     //Start the buff later on - we want to avoid racing conditions with the knownplayer map
     //asyncContainer->buff->ReInit();
-    asyncContainer->player->DecBuffAsyncCount();
+    asyncContainer->player->GetCreature()->DecBuffAsyncCount();
     asyncContainer->mQueryType=BMQuery_Delete;
     int8 sql2[550];
     sprintf(sql2, "delete from %s.character_buff_attributes where character_id = %"PRIu64" and buff_id = %"PRIu64";",mDatabase->galaxy(), asyncContainer->player->getId(), asyncContainer->buff->GetDBID());
@@ -270,13 +270,13 @@ bool BuffManager::SaveBuffsAsync(WMAsyncContainer* asyncContainer,swganh::databa
 
     if(playerObject && playerObject->isConnected()) {
         //Remove Deleted Buffs
-        playerObject->CleanUpBuffs();
+        playerObject->GetCreature()->CleanUpBuffs();
 
-        playerObject->SetBuffAsyncCount(0);
+        playerObject->GetCreature()->SetBuffAsyncCount(0);
 
         //count the calls necessary
-        BuffList::iterator it = playerObject->GetBuffList()->begin();
-        while(it != playerObject->GetBuffList()->end())
+        BuffList::iterator it = playerObject->GetCreature()->GetBuffList()->begin();
+        while(it != playerObject->GetCreature()->GetBuffList()->end())
         {
             //Check if it is an active Buff
             if(!(*it)->GetIsMarkedForDeletion())
@@ -286,9 +286,9 @@ bool BuffManager::SaveBuffsAsync(WMAsyncContainer* asyncContainer,swganh::databa
                 gWorldManager->removeBuffToProcess((*it)->GetID());
 
                 //store the amount of async calls so we know when the last call finished
-                playerObject->IncBuffAsyncCount(); //this is the buff
+                playerObject->GetCreature()->IncBuffAsyncCount(); //this is the buff
 
-                playerObject->IncBuffAsyncCount(); //all attributes of a buff are stored in a single query
+                playerObject->GetCreature()->IncBuffAsyncCount(); //all attributes of a buff are stored in a single query
 
                 //Save to DB, and remove from the Process Queue
                 if(AddBuffToDB(asyncContainer, callback, *it, currenttime))
@@ -304,10 +304,10 @@ bool BuffManager::SaveBuffsAsync(WMAsyncContainer* asyncContainer,swganh::databa
 void BuffManager::SaveBuffs(PlayerObject* playerObject, uint64 currenttime)
 {
     //RemovedDeleted Buffs
-    playerObject->CleanUpBuffs();
+    playerObject->GetCreature()->CleanUpBuffs();
 
-    BuffList::iterator it = playerObject->GetBuffList()->begin();
-    while(it != playerObject->GetBuffList()->end())
+    BuffList::iterator it = playerObject->GetCreature()->GetBuffList()->begin();
+    while(it != playerObject->GetCreature()->GetBuffList()->end())
     {
         Buff* temp = *it;
         //Check if it is an active Buff
@@ -320,7 +320,7 @@ void BuffManager::SaveBuffs(PlayerObject* playerObject, uint64 currenttime)
 
         //Free up Memory
         temp->EraseAttributes();
-        it = playerObject->GetBuffList()->erase(it);
+        it = playerObject->GetCreature()->GetBuffList()->erase(it);
     }
 
 }
@@ -332,7 +332,7 @@ void BuffManager::SaveBuffs(PlayerObject* playerObject, uint64 currenttime)
 void BuffManager::LoadBuffs(PlayerObject* playerObject, uint64 currenttime)
 {
     //check we don't have ghosted buffs
-    if(playerObject->GetNoOfBuffs() > 0)
+    if(playerObject->GetCreature()->GetNoOfBuffs() > 0)
     {
         LOG(warning) << "BuffManager::LoadBuffs - PlayerObject has ghosted Buffs. Inform a developer";
         return;
@@ -587,8 +587,8 @@ void BuffManager::AddBuffToDB(Buff* buff, uint64 currenttime)
 
 void BuffManager::InitBuffs(PlayerObject* Player)
 {
-    BuffList::iterator it = Player->GetBuffList()->begin();
-    while(it != Player->GetBuffList()->end())
+    BuffList::iterator it = Player->GetCreature()->GetBuffList()->begin();
+    while(it != Player->GetCreature()->GetBuffList()->end())
     {
         Buff* temp = *it;
         temp->ReInit();

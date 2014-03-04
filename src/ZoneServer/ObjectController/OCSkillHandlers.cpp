@@ -65,7 +65,7 @@ void ObjectController::_handleTeach(uint64 targetId,Message* message,ObjectContr
     // check which of these skills the target might learn
 
     PlayerObject*	teacherObject	= dynamic_cast<PlayerObject*>(mObject);
-    PlayerObject*	pupilObject	= dynamic_cast<PlayerObject*> (teacherObject->getTarget());
+    PlayerObject*	pupilObject	= dynamic_cast<PlayerObject*> (teacherObject->GetCreature()->getTarget());
 
     // check if we have a target
     if(!pupilObject	)
@@ -81,7 +81,7 @@ void ObjectController::_handleTeach(uint64 targetId,Message* message,ObjectContr
         return;
     }
 
-    if((teacherObject->getGroupId() == 0)||(teacherObject->getGroupId() != pupilObject	->getGroupId()))
+    if((teacherObject->GetCreature()->getGroupId() == 0)||(teacherObject->GetCreature()->getGroupId() != pupilObject->GetCreature()->getGroupId()))
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("teaching", "not_in_same_group", 0, pupilObject->getId(), 0), teacherObject);
         return;

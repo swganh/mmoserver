@@ -497,7 +497,7 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
         PlayerObject* player = dynamic_cast<PlayerObject*>(creatureObject);
 
         // I'm not sure IF we should bother checking the skill points here?
-        if (player->getSkillPointsLeft() < skill->mSkillPointsRequired)
+        if (player->GetCreature()->getSkillPointsLeft() < skill->mSkillPointsRequired)
         {
             return false;
         }
@@ -510,7 +510,7 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
         
 
         creatureObject->prepareSkillMods();
-        creatureObject->prepareSkillCommands();
+        player->prepareSkillCommands();
         player->prepareSchematicIds();
 
         // Check if we already have the badge
@@ -560,7 +560,7 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
     {
 		creatureObject->AddSkill(skill->mName.getAnsi());	// Don't know if non-player have skillpoints to check before we learn skills?
         creatureObject->prepareSkillMods();
-        creatureObject->prepareSkillCommands();
+        //creatureObject->prepareSkillCommands();
     }
     return true;
 }
@@ -576,7 +576,7 @@ bool SkillManager::checkLearnSkill(uint32 skillId,PlayerObject* pupilObject)
     while(reqSkillIt != getSkillById(skillId)->mSkillsRequired.end())
     {
         // we don't have the requirements
-        if(!pupilObject->checkSkill(*reqSkillIt))
+        if(!pupilObject->GetCreature()->checkSkill(*reqSkillIt))
         {
             return false;
         }
@@ -653,24 +653,24 @@ bool SkillManager::learnSkillLine(uint32 skillId, CreatureObject* creatureObject
 
 void SkillManager::teach(PlayerObject* pupilObject,PlayerObject* teacherObject,BString show)
 {
-	if(pupilObject->isIncapacitated())	{
+	if(pupilObject->GetCreature()->isIncapacitated())	{
 		std::string str("you cannot do that right now");
 		gMessageLib->SendSystemMessage(std::u16string(str.begin(), str.end()), teacherObject);
 		return;
 	}
 
-	if(teacherObject->isIncapacitated())	{
+	if(teacherObject->GetCreature()->isIncapacitated())	{
 		//std::string str("you cannot do that right now");
 		//gMessageLib->SendSystemMessage(std::u16string(str.begin(), str.end()), teacherObject);
 		return;
 	}
 
-    if(pupilObject->isDead() )    {
+    if(pupilObject->GetCreature()->isDead() )    {
 		gMessageLib->SendSystemMessage(::common::OutOfBand("teaching", "student_dead"), teacherObject);
         return;
     }
 
-	if(teacherObject->isDead())    {
+	if(teacherObject->GetCreature()->isDead())    {
         return;
     }
 
@@ -679,7 +679,7 @@ void SkillManager::teach(PlayerObject* pupilObject,PlayerObject* teacherObject,B
     // and assemble a list with the skills the pupil does not have but were she/he has the prerequesits
 
     StringVector availableSkills;
-	std::set<std::string> skill_list = teacherObject->GetSkills();
+	std::set<std::string> skill_list = teacherObject->GetCreature()->GetSkills();
     //SkillList*	teacherSkills 
     auto teacherIt = skill_list.begin();
     StringVector::iterator bStringIt = availableSkills.begin();
@@ -690,7 +690,7 @@ void SkillManager::teach(PlayerObject* pupilObject,PlayerObject* teacherObject,B
     while(teacherIt != skill_list.end())
     {
         //does the pupil have this skill?
-		if (!pupilObject->checkSkill(this->getSkillByName(teacherIt->c_str())->mId))
+		if (!pupilObject->GetCreature()->checkSkill(this->getSkillByName(teacherIt->c_str())->mId))
         {
             //since the pupil doesnt have it ... are the requirements met?
             if(checkLearnSkill(this->getSkillByName(teacherIt->c_str())->mId,pupilObject))
@@ -761,7 +761,7 @@ bool SkillManager::checkTeachSkill(uint32 skillId,PlayerObject* pupilObject)
         }
 
         //still have to make sure not to teach shyriiwook and  lekku
-        if (!checkRaceLearnSkill(skillId,pupilObject))
+        if (!checkRaceLearnSkill(skillId,pupilObject->GetCreature()))
         {
             return false;
         }
@@ -849,7 +849,7 @@ void SkillManager::dropSkill(uint32 skillId,CreatureObject* creatureObject, bool
     	
 
     creatureObject->prepareSkillMods();
-    creatureObject->prepareSkillCommands();
+    
 
     if(creatureObject->getType() == ObjType_Player)
     {
@@ -857,8 +857,8 @@ void SkillManager::dropSkill(uint32 skillId,CreatureObject* creatureObject, bool
 
         player->prepareSchematicIds();
 
-        
-        
+        player->prepareSkillCommands();
+		    
 
         //gMessageLib->sendSkillDeltasCreo1(skill,SMSkillRemove,player);
 
@@ -919,7 +919,7 @@ int32 SkillManager::getXpCap(PlayerObject* playerObject, uint8 xpType)
     int32 cap = getDefaultXPCapById(xpType);
 
     // Get current cap value for this xp type.
-	std::set<std::string> skill_list = playerObject->GetSkills();
+	std::set<std::string> skill_list = playerObject->GetCreature()->GetSkills();
     auto skillIt = skill_list.begin();
 
     while (skillIt != skill_list.end())

@@ -85,7 +85,7 @@ bool Shuttle::availableInPort(void)
 
 void Shuttle::useShuttle(PlayerObject* playerObject)
 {
-	if(playerObject->GetPosture() == CreaturePosture_SkillAnimating)
+	if(playerObject->GetCreature()->GetPosture() == CreaturePosture_SkillAnimating)
 	{
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
         return;

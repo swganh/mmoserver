@@ -81,7 +81,7 @@ using namespace swganh::containers;
 
 CreatureObject::CreatureObject()
 : MovingObject()
-,	mTargetId(0)
+, mTargetId(0)
 , mDefenderUpdateCounter(0)
 , mSkillModUpdateCounter(0)
 , mCurrentAnimation("")
@@ -94,11 +94,13 @@ CreatureObject::CreatureObject()
 , mPendingPerform(PlayerPerformance_None)
 , mCurrentIncapTime(0)
 , mEntertainerListenToId(0)
+, mEntertainerPauseId(0)
+, mEntertainerTaskId(0)
+, mEntertainerWatchToId(0)
 , mFirstIncapTime(0)
 , mGroupId(0)
 , mLastEntertainerXP(0)
 , mScale(1.0)
-, mLanguage(1)
 , mLastMoveTick(0)
 , mPerformanceCounter(0)
 , mPerformanceId(0)
@@ -114,7 +116,7 @@ CreatureObject::CreatureObject()
 	object_type_ = SWG_CREATURE;
 
     mSkillMods.reserve(50);
-    mSkillCommands.reserve(50);
+//    mSkillCommands.reserve(50);
     mFactionList.reserve(50);
 
     for(uint16 i = 1;i<256;i++)
@@ -140,6 +142,35 @@ CreatureObject::CreatureObject()
 CreatureObject::~CreatureObject()
 {
     mBuffList.clear();
+
+	// update defender lists
+	auto defenderList = GetDefender();
+    auto defenderIt = defenderList.begin();
+
+    while (defenderIt != defenderList.end())
+    {
+        if (CreatureObject* defenderCreature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById((*defenderIt))))
+        {
+            defenderCreature->RemoveDefender(mId);
+
+            if(PlayerObject* defenderPlayer = dynamic_cast<PlayerObject*>(defenderCreature))
+            {
+                gMessageLib->sendUpdatePvpStatus(this,defenderPlayer);
+            }
+
+            // if no more defenders, clear combat state
+            if(!defenderCreature->GetDefender().size())
+            {
+                // TODO: replace
+                gStateManager.removeActionState(this, CreatureState_Combat);
+
+                gMessageLib->sendStateUpdate(defenderCreature);
+            }
+        }
+
+        ++defenderIt;
+    }
+
 }
 
 //=============================================================================
@@ -174,53 +205,7 @@ void CreatureObject::prepareSkillMods()
 
 //=============================================================================
 
-void CreatureObject::prepareSkillCommands()
-{
-    mSkillCommands.clear();
-    mSkillCommandMap.clear();
 
-    auto skillIt		= skills_.begin();
-
-    while(skillIt != skills_.end())
-    {
-		Skill* skill = gSkillManager->getSkillByName((*skillIt).c_str());
-        // we dont want race specific skills here
-        if(skill->mSpeciesRequired.size())
-        {
-            ++skillIt;
-            continue;
-        }
-
-        SkillCommandList::iterator scIt = skill->mCommands.begin();
-        SkillCommandList::iterator localScIt;
-
-        while(scIt != skill->mCommands.end())
-        {
-            localScIt = std::find(mSkillCommands.begin(),mSkillCommands.end(),(*scIt));
-
-            if(localScIt == mSkillCommands.end())
-            {
-                mSkillCommands.push_back((*scIt));
-                mSkillCommandMap.insert(std::make_pair((gSkillManager->getSkillCmdById(*scIt)).getCrc(),(void*)0));
-            }
-
-            ++scIt;
-        }
-        ++skillIt;
-    }
-}
-
-//=============================================================================
-
-bool CreatureObject::verifyAbility(uint32 abilityCRC)
-{
-    SkillCommandMap::iterator it = mSkillCommandMap.find(abilityCRC);
-
-    if(it != mSkillCommandMap.end())
-        return(true);
-
-    return(false);
-}
 
 //=============================================================================
 
@@ -494,8 +479,7 @@ void CreatureObject::AddBuff(Buff* buff,  bool stackable, bool overwrite)
 {
     if(!buff) return;
 
-    if(buff->GetRemainingTime(gWorldManager->GetCurrentGlobalTick()) <= 0)
-    {
+    if(buff->GetRemainingTime(gWorldManager->GetCurrentGlobalTick()) <= 0)    {
         SAFE_DELETE(buff);
         return;
     }

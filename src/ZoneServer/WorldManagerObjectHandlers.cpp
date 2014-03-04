@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ZoneServer/GameSystemManagers/Container Manager/ContainerManager.h"
+#include "ZoneServer\Services\equipment\equipment_service.h"
+
 #include "ZoneServer/WorldManager.h"
 
 #include <cassert>
@@ -318,14 +320,25 @@ void WorldManager::destroyObject(Object* object)
 		//players are always in the grid
 		case ObjType_Player:
 		{
-			PlayerObject* player = dynamic_cast<PlayerObject*>(object);
+			CreatureObject* creature = dynamic_cast<CreatureObject*>(object);
+			
+			auto equipment_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+			auto player = dynamic_cast<PlayerObject*>(equipment_service->GetEquippedObject(creature, "ghost"));
+
+			// remove the player out of his group - if any
+			if(GroupObject* group = gGroupManager->getGroupObject(creature->getGroupId()))
+			{
+				group->removePlayer(creature->getId());
+
+			}
 
 			// remove us from the player map
-			gWorldManager->removePlayerfromAccountMap(player->getId());
+
+			gWorldManager->removePlayerfromAccountMap(creature->getId());
 			
 			// move to the nearest cloning center, if we are incapped or dead
-			if(player->states.checkPosture(CreaturePosture_Incapacitated)
-			|| player->states.checkPosture(CreaturePosture_Dead))
+			if(creature->states.checkPosture(CreaturePosture_Incapacitated)
+			|| creature->states.checkPosture(CreaturePosture_Dead))
 			{
 				// bring up the clone selection window
 				ObjectSet						inRangeBuildings;
@@ -381,24 +394,26 @@ void WorldManager::destroyObject(Object* object)
 
 			// onPlayerLeft event, notify scripts
 			std::stringstream params;
-			params << getPlanetNameThis() << " " << player->getFirstName()
+			params << getPlanetNameThis() << " " << creature->getFirstName()
                     << " " << static_cast<uint32>(mPlayerAccMap.size());
 
 			//mWorldScriptsListener.handleScriptEvent("onPlayerLeft",params.str().c_str());
 
 			delete player->getClient();
-
-			//at this point our equipment should already have been destroyed for bystanders
-			//but our equipment might need to end any timers etc (craft tools)
-			player->ViewObjects(player, 0, false, [&] (Object* object) {
-				LOG(info) << "destroying : " << object->getId() << " " << object->GetTemplate();
-				eraseObject(object->getId());
-	
-			});
 			
 			player->setClient(NULL);
 			player->setConnectionState(PlayerConnState_Destroying);
 			LOG(error) << "Player : " << player->getId() << " delete client" ;
+
+			//at this point our equipment should already have been destroyed for bystanders
+			//but our equipment might need to end any timers etc (craft tools)
+			creature->ViewObjects(creature, 0, false, [&] (Object* object) {
+				LOG(info) << "destroying : " << object->getId() << " " << object->GetTemplate();
+				eraseObject(object->getId());
+	
+			});
+
+			
 
 		}
 		break;

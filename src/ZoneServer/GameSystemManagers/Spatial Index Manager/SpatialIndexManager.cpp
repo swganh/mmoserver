@@ -957,8 +957,8 @@ void SpatialIndexManager::getObjectsInRange(const Object* const object, ObjectSe
         CustomRange = VIEWRANGE;
     }
 
-    if(CustomRange < 2)	{
-        CustomRange = 2;
+    if(CustomRange < 1)	{
+        CustomRange = 1;
     }
 
     glm::vec3 position = object->getWorldPosition();
@@ -996,6 +996,51 @@ void SpatialIndexManager::getObjectsInRange(const Object* const object, ObjectSe
             });
         }
     });
+}
+
+void SpatialIndexManager::viewCreaturesInRange(const Object* const object, std::function<void (Object* const creature)> callback)
+{
+	ObjectList result_list;
+	
+	getGrid()->GetViewingRangeCellContents(object->getGridBucket(), &result_list, (Bucket_Creatures&Bucket_Players));
+
+    std::for_each(result_list.begin(), result_list.end(), [&] (Object* creature) {
+		callback(creature);
+	});
+}
+
+void SpatialIndexManager::viewObjectsInRange(const Object* const object, std::function<void (Object* const object)> callback)
+{
+	ObjectList result_list;
+	
+	getGrid()->GetViewingRangeCellContents(object->getGridBucket(), &result_list, Bucket_Objects);// (Bucket_Creatures&Bucket_Players));
+
+    std::for_each(result_list.begin(), result_list.end(), [&] (Object* creature) {
+		callback(creature);
+	});
+}
+
+
+void SpatialIndexManager::viewPlayersInRange(const Object* const object, std::function<void (Object* const player)> callback)
+{
+	ObjectList result_list;
+	
+	getGrid()->GetViewingRangeCellContents(object->getGridBucket(), &result_list, (Bucket_Players));
+
+    std::for_each(result_list.begin(), result_list.end(), [&] (Object* player) {
+		callback(player);
+	});
+}
+
+void SpatialIndexManager::viewAllInRange(const Object* const object, std::function<void (Object* const object)> callback)
+{
+	ObjectList result_list;
+	
+	getGrid()->GetViewingRangeCellContents(object->getGridBucket(), &result_list, (Bucket_Players&Bucket_Creatures&Bucket_Players));
+
+    std::for_each(result_list.begin(), result_list.end(), [&] (Object* all) {
+		callback(all);
+	});
 }
 
 void SpatialIndexManager::getPlayersInRange(const Object* const object, PlayerObjectSet* result_set, bool cell_content) {

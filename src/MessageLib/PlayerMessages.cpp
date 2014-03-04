@@ -70,7 +70,7 @@ bool MessageLib::sendBaselinesPLAY_3(PlayerObject* playerObject,PlayerObject* ta
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opBaselinesMessage);
-    mMessageFactory->addUint64(playerObject->getPlayerObjId());
+    mMessageFactory->addUint64(playerObject->getId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(3);
 
@@ -125,7 +125,7 @@ bool MessageLib::sendBaselinesPLAY_6(PlayerObject* playerObject,PlayerObject* ta
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opBaselinesMessage);
-    mMessageFactory->addUint64(playerObject->getPlayerObjId());
+    mMessageFactory->addUint64(playerObject->getId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(6);
 
@@ -217,7 +217,7 @@ bool MessageLib::sendBaselinesPLAY_8(PlayerObject* playerObject,PlayerObject* ta
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opBaselinesMessage);
-    mMessageFactory->addUint64(playerObject->getPlayerObjId());
+    mMessageFactory->addUint64(playerObject->getId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(8);
 	mMessageFactory->addUint32(data->getSize());
@@ -247,7 +247,7 @@ bool MessageLib::sendBaselinesPLAY_9(PlayerObject* playerObject,PlayerObject* ta
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opBaselinesMessage);
-    mMessageFactory->addUint64(playerObject->getPlayerObjId());
+    mMessageFactory->addUint64(playerObject->getId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(9);
 
@@ -366,7 +366,7 @@ void MessageLib::sendFoodUpdate(PlayerObject* playerObject)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getPlayerObjId());
+    mMessageFactory->addUint64(playerObject->getId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(9);//view
 
@@ -391,7 +391,7 @@ void MessageLib::sendDrinkUpdate(PlayerObject* playerObject)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getPlayerObjId());
+    mMessageFactory->addUint64(playerObject->getId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(9);
 
@@ -413,7 +413,7 @@ void MessageLib::sendTitleUpdate(PlayerObject* playerObject)
 {
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getPlayerObjId());
+    mMessageFactory->addUint64(playerObject->getId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(3);
 
@@ -435,7 +435,7 @@ void MessageLib::sendUpdatePlayerFlags(PlayerObject* playerObject)
 {
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getPlayerObjId());
+    mMessageFactory->addUint64(playerObject->getId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(3);
 
@@ -478,7 +478,7 @@ bool MessageLib::sendSkillCmdDeltasPLAY_9(PlayerObject* playerObject)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getPlayerObjId());
+    mMessageFactory->addUint64(playerObject->getId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(9);
 
@@ -560,7 +560,7 @@ bool MessageLib::sendSchematicDeltasPLAY_9(PlayerObject* playerObject)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getPlayerObjId());
+    mMessageFactory->addUint64(playerObject->getId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(9);
 
@@ -593,7 +593,7 @@ bool MessageLib::sendXpUpdate(uint32 xpType,PlayerObject* playerObject)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getPlayerObjId());
+    mMessageFactory->addUint64(playerObject->getId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(8);
 
@@ -636,7 +636,7 @@ bool MessageLib::sendUpdateXpTypes(SkillXpTypesList newXpTypes,uint8 remove,Play
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getPlayerObjId());
+    mMessageFactory->addUint64(playerObject->getId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(8);
 
@@ -689,7 +689,7 @@ bool MessageLib::sendFriendListPlay9(PlayerObject* playerObject)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getPlayerObjId());
+    mMessageFactory->addUint64(playerObject->getId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(9);
 
@@ -743,7 +743,7 @@ bool MessageLib::sendIgnoreListPlay9(PlayerObject* playerObject)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getPlayerObjId());
+    mMessageFactory->addUint64(playerObject->getId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(9);
 
@@ -785,7 +785,7 @@ bool MessageLib::sendMatchPlay3(PlayerObject* playerObject)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getPlayerObjId());
+    mMessageFactory->addUint64(playerObject->getId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(3);
 
@@ -817,7 +817,7 @@ bool MessageLib::sendUpdateCraftingStage(PlayerObject* playerObject)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getPlayerObjId());
+    mMessageFactory->addUint64(playerObject->getId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(9);
 
@@ -844,7 +844,7 @@ bool MessageLib::sendUpdateExperimentationFlag(PlayerObject* playerObject)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getPlayerObjId());
+    mMessageFactory->addUint64(playerObject->getId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(9);
 
@@ -871,7 +871,7 @@ bool MessageLib::sendUpdateExperimentationPoints(PlayerObject* playerObject)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getPlayerObjId());
+    mMessageFactory->addUint64(playerObject->getId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(9);
 
@@ -898,7 +898,7 @@ bool MessageLib::sendUpdateNearestCraftingStation(PlayerObject* playerObject)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getPlayerObjId());
+    mMessageFactory->addUint64(playerObject->getId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(9);
 
@@ -922,7 +922,7 @@ void MessageLib::sendLanguagePlay9(PlayerObject* playerObject)
 {
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getPlayerObjId());
+    mMessageFactory->addUint64(playerObject->getId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(9);
 

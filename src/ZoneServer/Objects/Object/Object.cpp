@@ -62,7 +62,6 @@ Object::Object()
     , mLoadState(LoadState_Loading)
     , mId(0)
     , mParentId(0)
-    , mPrivateOwner(0)
     , mEquipSlots(0)
     , mSubZoneId(0)
     , mTypeOptions(0)
@@ -93,7 +92,6 @@ Object::Object(uint64 id,uint64 parentId,std::string model,ObjectType type,const
     , mType(type)
     , mId(id)
     , mParentId(parentId)
-    , mPrivateOwner(0)
     , mEquipSlots(0)
     , mSubZoneId(0)
     , mTypeOptions(0)
@@ -1157,19 +1155,6 @@ void Object::removeInternalAttribute(BString key)
         DLOG(info) << "Object::removeInternalAttribute: could not find " << key.getAnsi();
 }
 
-
-
-
-//=============================================================================
-
-bool Object::isOwnedBy(PlayerObject* player)
-{
-    return ((mPrivateOwner == player->getId()) || (mPrivateOwner == player->getGroupId()));
-}
-
-
-
-
 bool Object::registerWatcher(PlayerObject* const player)
 {
     if(!checkRegisteredWatchers(player))    {
@@ -1191,8 +1176,8 @@ void Object::UnregisterAllWatchers()
 
 bool Object::unRegisterWatcher(PlayerObject* player) 
 {
-	if (player->getTargetId() == this->getId()) {
-		player->setTarget(0);
+	if (player->GetCreature()->getTargetId() == this->getId()) {
+		player->GetCreature()->setTarget(0);
 	}
 
 	//DLOG(info) << "Object::unRegisterWatcher unrgister :: Player" << player->getId() << " from " << getId();

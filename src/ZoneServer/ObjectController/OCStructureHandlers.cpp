@@ -123,7 +123,7 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
     }
 
     //TODO is target a structure?? used when using the commandline option
-    uint64 id = player->getTargetId();
+    uint64 id = player->GetCreature()->getTargetId();
     Object* object = gWorldManager->getObjectById(id);
     PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object);
 
@@ -175,13 +175,13 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
     if(action == "add")
     {
         command.Command = Structure_Command_AddPermission;
-        gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
     }
 
     if(action == "remove")
     {
         command.Command = Structure_Command_RemovePermission;
-        gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
     }
 
 }
@@ -218,7 +218,7 @@ void	ObjectController::_handleTransferStructure(uint64 targetId,Message* message
     }
 
     //do we have a valid structure ??? check our target first
-    uint64 id = player->getTargetId();
+    uint64 id = player->GetCreature()->getTargetId();
     Object* object = gWorldManager->getObjectById(id);
     PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object);
 
@@ -242,10 +242,10 @@ void	ObjectController::_handleTransferStructure(uint64 targetId,Message* message
     command.PlayerId = player->getId();
     command.StructureId = structure->getId();
     command.RecipientId = recipient->getId();
-    command.PlayerStr = recipient->getFirstName();
+    command.PlayerStr = recipient->GetCreature()->getFirstName();
     command.Command = Structure_Command_TransferStructure;
 
-    gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName(),"ADMIN",command);
+    gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
 
 }
 
@@ -272,7 +272,7 @@ void	ObjectController::_handleNameStructure(uint64 targetId,Message* message,Obj
     }
 
     //do we have a valid structure ??? check our target first
-    uint64 id = player->getTargetId();
+    uint64 id = player->GetCreature()->getTargetId();
     Object* object = gWorldManager->getObjectById(id);
     PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object);
 
@@ -311,7 +311,7 @@ void	ObjectController::_handleNameStructure(uint64 targetId,Message* message,Obj
     command.PlayerId = player->getId();
     command.StructureId = structure->getId();
 
-    gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName(),"ADMIN",command);
+    gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
 
 }
 
@@ -354,7 +354,7 @@ void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* 
     command.PlayerId = player->getId();
     command.StructureId = structure->getId();
 
-    gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName(),"ADMIN",command);
+    gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
 
     return;
     gMessageLib->sendHarvesterResourceData(structure,player);
@@ -610,7 +610,7 @@ void	ObjectController::_handleDiscardHopper(uint64 targetId,Message* message,Obj
     command.PlayerId = player->getId();
     command.StructureId = structure->getId();
 
-    gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName(),"ADMIN",command);
+    gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
 
 
 }
@@ -684,7 +684,7 @@ void	ObjectController::handleResourceEmptyHopper(Message* message)
 
     }
 
-    gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName(),"HOPPER",command);
+    gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->GetCreature()->getFirstName(),"HOPPER",command);
 
 }
 

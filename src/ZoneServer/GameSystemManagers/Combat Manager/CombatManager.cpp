@@ -222,12 +222,12 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 				return(false);
 			}
 
-			if(defenderPlayer->isIncapacitated())
+			if(defenderPlayer->GetCreature()->isIncapacitated())
 			{
 				// gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_incap");
 				return(false);
 			}
-			else if(defenderPlayer->isDead())
+			else if(defenderPlayer->GetCreature()->isDead())
 			{
 				// gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_dead");
 				return(false);
@@ -237,7 +237,7 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 			gStateManager.setCurrentActionState(attacker, CreatureState_Combat);
             gStateManager.setCurrentActionState(attacker, CreatureState_CombatAttitudeNormal);
 			// put our target in combat state
-			if(!defenderPlayer->states.checkState(CreatureState_Combat))
+			if(!defenderPlayer->GetCreature()->states.checkState(CreatureState_Combat))
 			{
 
 				gStateManager.setCurrentActionState(defender, CreatureState_Combat);
@@ -245,15 +245,15 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 			}
 
 			// update our defender list
-			if (!playerAttacker->checkDefenderList(defenderPlayer->getId()))
+			if (!playerAttacker->GetCreature()->checkDefenderList(defenderPlayer->getId()))
 			{
-				playerAttacker->AddDefender(defenderPlayer->getId());
+				playerAttacker->GetCreature()->AddDefender(defenderPlayer->getId());
 			}
 
 			// update our targets defender list
-			if (!defenderPlayer->checkDefenderList(playerAttacker->getId()))
+			if (!defenderPlayer->GetCreature()->checkDefenderList(playerAttacker->getId()))
 			{
-				playerAttacker->AddDefender(defenderPlayer->getId());
+				playerAttacker->GetCreature()->AddDefender(defenderPlayer->getId());
 			}
 
 			if (!defenderPlayer->autoAttackEnabled())
@@ -287,7 +287,7 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 			// if (!playerAttacker->states.checkState((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal)))
 			{
 				// playerAttacker->togglePvPStateOn((CreaturePvPStatus)(CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy));
-				gMessageLib->sendUpdatePvpStatus(playerAttacker,playerAttacker, playerAttacker->getPvPStatus() | CreaturePvPStatus_Attackable);
+				gMessageLib->sendUpdatePvpStatus(playerAttacker->GetCreature(),playerAttacker, playerAttacker->GetCreature()->getPvPStatus() | CreaturePvPStatus_Attackable);
 
 				// TEST STATE MANAGER!
 				gStateManager.setCurrentActionState(attacker, CreatureState_Combat);
@@ -311,15 +311,15 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 			gMessageLib->sendUpdatePvpStatus(defender, playerAttacker, defender->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Enemy);
 
 			// update our defender list
-			if (!playerAttacker->checkDefenderList(defender->getId()))
+			if (!playerAttacker->GetCreature()->checkDefenderList(defender->getId()))
 			{
-				playerAttacker->AddDefender(defenderPlayer->getId());
+				playerAttacker->GetCreature()->AddDefender(defenderPlayer->getId());
 			}
 
 			// update our targets defender list
 			if (!defender->checkDefenderList(playerAttacker->getId()))
 			{
-				playerAttacker->AddDefender(defenderPlayer->getId());
+				playerAttacker->GetCreature()->AddDefender(defenderPlayer->getId());
 			}
 		}
 	}
@@ -473,7 +473,7 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 			PlayerObject* player = dynamic_cast<PlayerObject*>(attacker);
 			if (player)
 			{
-                npc->updateDamage(player->getId(), player->getGroupId(), weapon->getGroup(), -multipliedDamage, player->GetPosture(), glm::distance(defender->mPosition, player->mPosition));
+                npc->updateDamage(player->getId(), player->GetCreature()->getGroupId(), weapon->getGroup(), -multipliedDamage, player->GetCreature()->GetPosture(), glm::distance(defender->mPosition, player->mPosition));
 			}
 		}
 

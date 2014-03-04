@@ -62,7 +62,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/ZoneOpcodes.h"
 
 #include "anh/app/swganh_kernel.h"
+
 #include "anh\service\service_manager.h"
+#include "ZoneServer\Services\equipment\equipment_service.h"
 
 using namespace std;
 //======================================================================================================================
@@ -108,7 +110,7 @@ void CharacterLoginHandler::_processCmdSceneReady(Message* message, DispatchClie
     PlayerObject* player = gWorldManager->getPlayerByAccId(message->getAccountId());
     if (player)
     {
-        player->setReady(true);
+		player->GetCreature()->setReady(true);
 
         if(player->getParentId())
         {
@@ -350,26 +352,30 @@ void CharacterLoginHandler::handleObjectReady(Object* object,DispatchClient* cli
     {
     case ObjType_Player:
     {
-        PlayerObject* player = dynamic_cast<PlayerObject*>(object);
-        player->setConnectionState(PlayerConnState_Connected);
-        player->setClient(client);
+        CreatureObject* player_creature = dynamic_cast<CreatureObject*>(object);
+		
+		auto equip_service	= gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+		auto ghost		= dynamic_cast<PlayerObject*>(equip_service->GetEquippedObject(player_creature, "ghost"));
+        
+		ghost->setConnectionState(PlayerConnState_Connected);
+        ghost->setClient(client);
 
         gMessageLib->sendChatServerStatus(0x01,0x36,client);
         gMessageLib->sendParameters(900,client);
-        gMessageLib->sendStartScene(mZoneId,player);
+        gMessageLib->sendStartScene(mZoneId,ghost);
         gMessageLib->sendServerTime(gWorldManager->getServerTime(),client);
 
         //initialize us in the world
-        gWorldManager->addObject(player);
+        gWorldManager->addObject(ghost);
 
         //create us for others
-        gSpatialIndexManager->createInWorld(player);
+        gSpatialIndexManager->createInWorld(ghost);
 
         //create ourselves for us
-        gSpatialIndexManager->sendCreatePlayer(player,player);
+        gSpatialIndexManager->sendCreatePlayer(ghost,ghost);
 
 		//remove us from the loaders list
-		ObjectIDSet::iterator it = playerZoneList.find(player->getId());
+		ObjectIDSet::iterator it = playerZoneList.find(player_creature->getId());
 		if(it != playerZoneList.end())	{
 			it = playerZoneList.erase(it);
 		}
@@ -432,7 +438,7 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket(Message*
         destination.z = dstPoint->spawnZ + (gRandom->getRand()%5 - 2);
 
         // Reset to standing
-        gStateManager.setCurrentPostureState(playerObject, CreaturePosture_Upright);
+        gStateManager.setCurrentPostureState(playerObject->GetCreature(), CreaturePosture_Upright);
 
 
         // Delete the ticket then save the position then the player

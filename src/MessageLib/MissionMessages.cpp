@@ -497,7 +497,7 @@ bool MessageLib::sendMissionAbort(MissionObject* missionObject,PlayerObject* tar
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
     mMessageFactory->addUint32(opMissionAbort);
-    mMessageFactory->addUint64(missionObject->getOwner()->getPlayerObjId());
+	mMessageFactory->addUint64(missionObject->getOwner()->getId());
     mMessageFactory->addUint32(0);
     mMessageFactory->addUint64(missionObject->getId());
 
@@ -520,7 +520,7 @@ bool MessageLib::sendMissionComplete(PlayerObject* targetObject)
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x00000083);
     mMessageFactory->addUint32(opMissionComplete);
-    mMessageFactory->addUint64(targetObject->getPlayerObjId());
+    mMessageFactory->addUint64(targetObject->getId());
     mMessageFactory->addUint64(0);
     mMessageFactory->addUint16(0);
     mMessageFactory->addUint8(0);

@@ -95,7 +95,7 @@ bool Trade::verifyInvitation(PlayerObject* player)
     PlayerObjectList::iterator it = mPlayerObjectList.begin();
     while(it != mPlayerObjectList.end())
     {
-        if ((*it)->getPlayerObjId() == player->getPlayerObjId()) {
+        if ((*it)->getId() == player->getId()) {
             return(true);
         }
         ++it;
@@ -131,7 +131,7 @@ void Trade::deleteTradeInvitation(PlayerObject* player)
             mPlayerObjectList.erase(it);
             it = mPlayerObjectList.begin();
         }
-        else if ((*it)->getPlayerObjId()== player->getPlayerObjId()) {
+        else if ((*it)->getId()== player->getId()) {
             mPlayerObjectList.erase(it);
             break;
         }

@@ -424,7 +424,7 @@ void WorldManager::addNpcConversation(uint64 interval, NPCObject* npc)
     target->mGroupId = 0;
     if (PlayerObject* player = dynamic_cast<PlayerObject*>(getObjectById(npc->getLastConversationTarget())))
     {
-        target->mGroupId = player->getGroupId();
+        target->mGroupId = player->GetCreature()->getGroupId();
     }
 
     if (gWorldConfig->isInstance())

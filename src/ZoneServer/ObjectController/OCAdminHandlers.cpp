@@ -187,7 +187,7 @@ void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,Objec
         // gMessageLib->sendSystemMessage(player, dataStr, true);
 
         //dataStr.convert(BSTRType_ANSI);
-        DLOG(info) << "Admin "<< player->getFirstName() <<":" << dataStr.getAnsi();
+        DLOG(info) << "Admin "<< player->GetCreature()->getFirstName() <<":" << dataStr.getAnsi();
     }
     else
     {
@@ -1050,7 +1050,7 @@ void ObjectController::sendAdminFeedback(BString reply) const
         }
         else
         {
-            DLOG(info) << "Admin :" << player->getFirstName();
+            DLOG(info) << "Admin :" << player->GetCreature()->getFirstName();
         }
     }
     else

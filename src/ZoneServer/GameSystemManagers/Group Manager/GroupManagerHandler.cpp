@@ -41,6 +41,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "MessageLib/MessageLib.h"
 
+#include "ZoneServer\Services\equipment\equipment_service.h"
+
+#include "ZoneServer\GameSystemManagers\Group Manager\GroupManager.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/GameSystemManagers/Spatial Index Manager/SpatialIndexManager.h"
 #include "ZoneServer/GameSystemManagers/UI Manager/UIManager.h"
@@ -130,7 +133,7 @@ void GroupManagerHandler::_processIsmGroupCREO6deltaGroupId(Message* message, Di
         return;
     }
 
-    player->setGroupId(message->getUint64());
+	player->GetCreature()->setGroupId(message->getUint64());
 
     // to in-range folks
     PlayerObjectSet in_range_players;
@@ -138,12 +141,12 @@ void GroupManagerHandler::_processIsmGroupCREO6deltaGroupId(Message* message, Di
 
     std::for_each(in_range_players.begin(), in_range_players.end(), [player] (PlayerObject* target) {
         if (target->isConnected()) {
-            gMessageLib->sendGroupIdUpdateDeltasCreo6(player->getGroupId(), player, target);
+            gMessageLib->sendGroupIdUpdateDeltasCreo6(player->GetCreature()->getGroupId(), player, target);
         }
     });
 
     // to self
-    gMessageLib->sendGroupIdUpdateDeltasCreo6(player->getGroupId(), player, player);
+    gMessageLib->sendGroupIdUpdateDeltasCreo6(player->GetCreature()->getGroupId(), player, player);
 
 }
 
@@ -178,18 +181,27 @@ void GroupManagerHandler::_processIsmGroupLootMasterResponse(Message* message, D
     }
 
     //send the SUI
-    PlayerList inRangeMembers	= playerObject->getInRangeGroupMembers(true);
-    PlayerList::iterator it		= inRangeMembers.begin();
+	auto inRangeMembers	= gGroupManager->getInRangeGroupMembers(playerObject->GetCreature(), true);
+    auto it		= inRangeMembers.begin();
 
     StringVector namesArray;
 
-    while(it != inRangeMembers.end())
-    {
-        namesArray.push_back((*it)->getFirstName().c_str());
+	PlayerList player_list;
+
+    while(it != inRangeMembers.end())    {
+		
+		CreatureObject* creature = dynamic_cast<CreatureObject*>(*it);
+
+		auto equip_service	= gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+		auto ghost			= dynamic_cast<PlayerObject*>(equip_service->GetEquippedObject(creature, "ghost"));
+
+		player_list.push_back(ghost);
+
+        namesArray.push_back(creature->getFirstName().c_str());
         ++it;
     }
 
-    gUIManager->createNewPlayerSelectListBox(playerObject,"handleSetLootMaster","@group:master_looter_sui_title","@group:set_loot_type_text",namesArray,inRangeMembers,playerObject);
+    gUIManager->createNewPlayerSelectListBox(playerObject, "handleSetLootMaster", "@group:master_looter_sui_title","@group:set_loot_type_text", namesArray, player_list, playerObject);
 }
 
 //=======================================================================================================================

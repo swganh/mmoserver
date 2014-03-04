@@ -562,11 +562,11 @@ void MissionManager::missionRequest(PlayerObject* player, uint64 mission_id)
 
 
     //check if we need to inform our group
-    if((mission->getMissionType() == destroy)&&(player->getGroupId() != 0))
+    if((mission->getMissionType() == destroy)&&(player->GetCreature()->getGroupId() != 0))
     {
         // we are in a group and just accepted a destroy mission
         // check the missions and update the nearest waypoint
-        GroupObject* group = gGroupManager->getGroupObject(player->getGroupId());
+        GroupObject* group = gGroupManager->getGroupObject(player->GetCreature()->getGroupId());
         gGroupManager->sendGroupMissionUpdate(group);
 
     }
@@ -648,7 +648,7 @@ void MissionManager::missionAbort(PlayerObject* player, uint64 mission_id)
             if(mission->getInProgress())
             {
                 Buff* timer = mission->getEntertainingTimer();
-                player->RemoveBuff(timer);
+                player->GetCreature()->RemoveBuff(timer);
                 mission->setInProgress(false);
                 SAFE_DELETE(timer);
                 mission->setEntertainingTimer(NULL);
@@ -691,8 +691,8 @@ void MissionManager::missionFailed(PlayerObject* player, MissionObject* mission)
             //so set progress to false
             //argh
             mission->setInProgress(false);
-            player->RemoveBuff(timer);
-            player->CleanUpBuffs();
+            player->GetCreature()->RemoveBuff(timer);
+            player->GetCreature()->CleanUpBuffs();
             mission->setEntertainingTimer(NULL);
         }
     }
@@ -817,9 +817,9 @@ void MissionManager::checkMusicianMission(PlayerObject* player)
                 if(glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
                 {
                     BuffAttribute* performance_timer = new BuffAttribute(time_remaining, 0,0,0);
-                    Buff* timer = Buff::SimpleBuff(player, player, 60000, 0, gWorldManager->GetCurrentGlobalTick());
+                    Buff* timer = Buff::SimpleBuff(player->GetCreature(), player->GetCreature(), 60000, 0, gWorldManager->GetCurrentGlobalTick());
                     timer->AddAttribute(performance_timer);
-                    player->AddBuff(timer);
+                    player->GetCreature()->AddBuff(timer);
                     mission->setEntertainingTimer(timer);
                     mission->setInProgress(true);
                 }
@@ -850,9 +850,9 @@ void MissionManager::checkDancerMission(PlayerObject* player)
                 if(glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
                 {
                     BuffAttribute* performance_timer = new BuffAttribute(time_remaining, 0,0,0);
-                    Buff* timer = Buff::SimpleBuff(player, player, 600000, 0, gWorldManager->GetCurrentGlobalTick());
+                    Buff* timer = Buff::SimpleBuff(player->GetCreature(), player->GetCreature(), 600000, 0, gWorldManager->GetCurrentGlobalTick());
                     timer->AddAttribute(performance_timer);
-                    player->AddBuff(timer);
+                    player->GetCreature()->AddBuff(timer);
                     mission->setInProgress(true);
                 }
             }

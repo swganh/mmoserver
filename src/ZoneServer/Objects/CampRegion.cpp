@@ -88,7 +88,7 @@ void CampRegion::update() {
         return;
     }
 
-    if(owner->states.checkState(CreatureState_Combat)) {
+    if(owner->GetCreature()->states.checkState(CreatureState_Combat)) {
         //abandon
         mAbandoned = true;
         mExpiresTime = gWorldManager->GetCurrentGlobalTick(); //There is no grace period for combat.
@@ -248,7 +248,7 @@ void	CampRegion::applyWoundHealing(Object* object)
 	auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
 
 	for(uint8 i = HamBar_Health; i < HamBar_Willpower;i++)	{
-			ham->RemoveWound(player, i, 1);
+			ham->RemoveWound(player->GetCreature(), i, 1);
 	}
 }
 
@@ -263,31 +263,31 @@ void	CampRegion::applyHAMHealing(Object* object)
     auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
 
     //Heal the Ham
-	int32 HealthRegenRate = ham->regenerationModifier(player, HamBar_Health);
-    int32 ActionRegenRate = ham->regenerationModifier(player, HamBar_Action);
-    int32 MindRegenRate = ham->regenerationModifier(player, HamBar_Mind);
+	int32 HealthRegenRate = ham->regenerationModifier(player->GetCreature(), HamBar_Health);
+    int32 ActionRegenRate = ham->regenerationModifier(player->GetCreature(), HamBar_Action);
+    int32 MindRegenRate = ham->regenerationModifier(player->GetCreature(), HamBar_Mind);
 
     //Because we tick every 2 seconds, we need to double this.
     HealthRegenRate += (int32)(HealthRegenRate * mHealingModifier) * 2;
     ActionRegenRate += (int32)(ActionRegenRate * mHealingModifier) * 2;
     MindRegenRate	+= (int32)(MindRegenRate * mHealingModifier) * 2;
 	
-	if(ham->getModifiedHitPoints(player, HamBar_Health) - player->GetStatCurrent(HamBar_Health) > 0)
+	if(ham->getModifiedHitPoints(player->GetCreature(), HamBar_Health) - player->GetCreature()->GetStatCurrent(HamBar_Health) > 0)
     {
         //Regen Health
-		mHealingDone += ham->UpdateCurrentHitpoints(player, HamBar_Health, HealthRegenRate);
+		mHealingDone += ham->UpdateCurrentHitpoints(player->GetCreature(), HamBar_Health, HealthRegenRate);
     }
 
-    if(ham->getModifiedHitPoints(player, HamBar_Action) - player->GetStatCurrent(HamBar_Action) > 0)
+    if(ham->getModifiedHitPoints(player->GetCreature(), HamBar_Action) - player->GetCreature()->GetStatCurrent(HamBar_Action) > 0)
     {
         //Regen Action
-        mHealingDone += ham->UpdateCurrentHitpoints(player, HamBar_Action, HealthRegenRate);
+        mHealingDone += ham->UpdateCurrentHitpoints(player->GetCreature(), HamBar_Action, HealthRegenRate);
     }
 
-    if(ham->getModifiedHitPoints(player, HamBar_Mind) - player->GetStatCurrent(HamBar_Mind) > 0)
+    if(ham->getModifiedHitPoints(player->GetCreature(), HamBar_Mind) - player->GetCreature()->GetStatCurrent(HamBar_Mind) > 0)
     {
         //Regen Mind
-        mHealingDone += ham->UpdateCurrentHitpoints(player, HamBar_Mind, HealthRegenRate);
+        mHealingDone += ham->UpdateCurrentHitpoints(player->GetCreature(), HamBar_Mind, HealthRegenRate);
     }
 
 }

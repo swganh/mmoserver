@@ -259,11 +259,11 @@ void QuestGiver::stopConversation(PlayerObject* player)
         }
         else if (gWorldConfig->isInstance())
         {
-            if (player->getGroupId())
+            if (player->GetCreature()->getGroupId())
             {
                 if (PlayerObject* lastPlayer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(getLastConversationTarget())))
                 {
-                    if (lastPlayer->getGroupId() != player->getGroupId())
+                    if (lastPlayer->GetCreature()->getGroupId() != player->GetCreature()->getGroupId())
                     {
                         // Last target was not in my group (so it's another instance).
                         gWorldManager->addNpcConversation(15000, this);	// NPC will restore it's facing 15 seconds after finished conversation.

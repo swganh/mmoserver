@@ -41,10 +41,11 @@ FireworkManager*	FireworkManager::mSingleton = NULL;
 class FireworkEvent
 {
 public:
-    TangibleObject* firework;
-    uint64 timeFired; //Time the firework was fired.
-    bool playerToldToStand;
-    PlayerObject* player; //Person who fired the Firework
+    TangibleObject*			firework;
+    uint64					timeFired; //Time the firework was fired.
+    bool					playerToldToStand;
+    //PlayerObject*			player; //Person who fired the Firework
+	uint64					firework_operator;
 };
 
 FireworkManager::~FireworkManager(void)
@@ -66,7 +67,7 @@ TangibleObject* FireworkManager::createFirework(uint32 typeId, PlayerObject* pla
 {
     if(!player) return NULL;
 
-	if(player->states.checkState(CreatureState_Swimming))
+	if(player->GetCreature()->states.checkState(CreatureState_Swimming))
 	{
 		//use the system message from suveying as we don't have an appropriate one especiially for this
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_swimming"), player);
@@ -79,7 +80,7 @@ TangibleObject* FireworkManager::createFirework(uint32 typeId, PlayerObject* pla
     //firework->setTangibleType();
 
     //Make the Player Sit
-    player->SetPosture(CreaturePosture_Crouched);
+    player->GetCreature()->SetPosture(CreaturePosture_Crouched);
 
     // Place the firework 1m in front of the player at the same heading.
     firework->mDirection = player->mDirection;
@@ -133,7 +134,8 @@ TangibleObject* FireworkManager::createFirework(uint32 typeId, PlayerObject* pla
 
 	//Setup the Manager Class
 	fevent->firework = firework;
-	fevent->player = player;
+	//fevent->player = player;
+	fevent->firework_operator = player->getId();
 	fevent->playerToldToStand = false;
 	fevent->timeFired = gWorldManager->GetCurrentGlobalTick();
 
@@ -155,9 +157,10 @@ void FireworkManager::Process()
 	{
 		if(*it && (currentTime - (*it)->timeFired) > 2000 && (*it)->playerToldToStand == false) //2 sec
 		{
-			if((*it)->player->GetPosture() == CreaturePosture_Crouched)
+			PlayerObject* player = dynamic_cast<PlayerObject*> (gWorldManager->getObjectById((*it)->firework_operator));
+			if(player && player->GetCreature()->GetPosture() == CreaturePosture_Crouched)
 			{
-				gStateManager.setCurrentPostureState((*it)->player, CreaturePosture_Upright);
+				gStateManager.setCurrentPostureState(player->GetCreature(), CreaturePosture_Upright);
 				(*it)->playerToldToStand = true;
 			}
 			++it;

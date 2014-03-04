@@ -395,7 +395,7 @@ void ItemFactory::_setupDatabindings()
     mItemBinding = mDatabase->createDataBinding(23);
     mItemBinding->addField(swganh::database::DFT_uint64,offsetof(Item,mId),8,0);
     mItemBinding->addField(swganh::database::DFT_uint64,offsetof(Item,mParentId),8,1);
-    mItemBinding->addField(swganh::database::DFT_uint64,offsetof(Item,mPrivateOwner),8,4);
+//    mItemBinding->addField(swganh::database::DFT_uint64,offsetof(Item,mPrivateOwner),8,4);
     mItemBinding->addField(swganh::database::DFT_float,offsetof(Item,mDirection.x),4,5);
     mItemBinding->addField(swganh::database::DFT_float,offsetof(Item,mDirection.y),4,6);
     mItemBinding->addField(swganh::database::DFT_float,offsetof(Item,mDirection.z),4,7);

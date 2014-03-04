@@ -152,7 +152,7 @@ void ObjectController::_handleDecline(uint64 targetId,Message* message,ObjectCon
     gMessageFactory->addUint8(0);
     newMessage = gMessageFactory->EndMessage();
     player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2);
-    player->setGroupId(0);
+    player->GetCreature()->setGroupId(0);
 }
 
 //======================================================================================================================
@@ -164,7 +164,7 @@ void ObjectController::_handleDisband(uint64 targetId,Message* message,ObjectCon
 {
     PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
-    if(player->getGroupId() == 0)
+    if(player->GetCreature()->getGroupId() == 0)
     {
         return;
     }
@@ -186,7 +186,7 @@ void ObjectController::_handleLeaveGroup(uint64 targetId,Message* message,Object
 {
     PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
-    if(player->getGroupId() == 0)
+    if(player->GetCreature()->getGroupId() == 0)
     {
         return;
     }
@@ -204,7 +204,7 @@ void ObjectController::_handleMakeLeader(uint64 targetId,Message* message,Object
 {
     PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
-    if(player->getGroupId() == 0)
+    if(player->GetCreature()->getGroupId() == 0)
     {
         return;
     }
@@ -215,7 +215,7 @@ void ObjectController::_handleMakeLeader(uint64 targetId,Message* message,Object
 
 
     // if  target is valid
-    if(targetPlayer == NULL || targetPlayer->getGroupId() != player->getGroupId())
+    if(targetPlayer == NULL || targetPlayer->GetCreature()->getGroupId() != player->GetCreature()->getGroupId())
     {
         gMessageLib->SendSystemMessage(L"Invalid Target.", player);
         return;
@@ -240,7 +240,7 @@ void ObjectController::_handleDismissGroupMember(uint64 targetId,Message* messag
     PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
     // make sure its a fully grouped player
-    if(player->getGroupId() == 0)
+    if(player->GetCreature()->getGroupId() == 0)
     {
         return;
     }
@@ -251,7 +251,7 @@ void ObjectController::_handleDismissGroupMember(uint64 targetId,Message* messag
 
 
     // if  target is valid
-    if(targetPlayer == NULL || targetPlayer->getGroupId() != player->getGroupId())
+    if(targetPlayer == NULL || targetPlayer->GetCreature()->getGroupId() != player->GetCreature()->getGroupId())
     {
         gMessageLib->SendSystemMessage(L"Invalid Target.", player);
         return;
@@ -306,7 +306,7 @@ void ObjectController::_handleGroupChat(uint64 targetId,Message* message,ObjectC
     {
     }
 
-    if(!player->getGroupId())
+    if(!player->GetCreature()->getGroupId())
     {
 
     }
@@ -339,7 +339,7 @@ void ObjectController::_handleGroupLootMode(uint64 targetId,Message* message,Obj
     PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
     // make sure its a fully grouped player
-    if(player->getGroupId() == 0)
+    if(player->GetCreature()->getGroupId() == 0)
     {
         return;
     }
@@ -366,7 +366,7 @@ void ObjectController::_handleMakeMasterLooter(uint64 targetId,Message* message,
     PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
     // make sure its a fully grouped player
-    if(player->getGroupId() == 0)
+    if(player->GetCreature()->getGroupId() == 0)
     {
         return;
     }

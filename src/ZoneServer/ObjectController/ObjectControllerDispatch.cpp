@@ -73,8 +73,7 @@ void ObjectControllerDispatch::_dispatchMessage(Message* message, DispatchClient
 
     if(CreatureObject* object = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(objId)))
     {
-        if(!object->getReady())
-        {
+        if(!object->getReady())        {
             return;
         }
 

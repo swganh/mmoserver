@@ -72,7 +72,7 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
             if(elementCount == 4)
             {
                 // outside
-                playerObject->updatePosition(chairCell,chair_position);
+                playerObject->GetCreature()->updatePosition(chairCell,chair_position);
 			
 			//this->mDirection = Anh_Math::Quaternion();
 
@@ -88,7 +88,7 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
 			//gMessageLib->sendUpdateMovementProperties(playerObject);
 			//gMessageLib->sendPostureAndStateUpdate(playerObject);
 
-			gMessageLib->sendSitOnObject(playerObject);
+			gMessageLib->sendSitOnObject(playerObject->GetCreature());
             }
         }
         // sitting on ground
@@ -97,7 +97,7 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
             //gMessageLib->sendPostureUpdate(playerObject);
             //gMessageLib->sendSelfPostureUpdate(playerObject);
         }
-        gStateManager.setCurrentPostureState(playerObject, CreaturePosture_Sitting);
+        gStateManager.setCurrentPostureState(playerObject->GetCreature(), CreaturePosture_Sitting);
     }
 }
 
@@ -111,7 +111,7 @@ void ObjectController::_handleStand(uint64 targetId,Message* message,ObjectContr
     PlayerObject*	playerObject = dynamic_cast<PlayerObject*>(mObject);
 
     if(playerObject)
-        gStateManager.setCurrentPostureState(playerObject, CreaturePosture_Upright);
+        gStateManager.setCurrentPostureState(playerObject->GetCreature(), CreaturePosture_Upright);
 }
 
 //=============================================================================
@@ -124,7 +124,7 @@ void ObjectController::_handleProne(uint64 targetId,Message* message,ObjectContr
     PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
 
     if(playerObject)
-        gStateManager.setCurrentPostureState(playerObject, CreaturePosture_Prone);
+        gStateManager.setCurrentPostureState(playerObject->GetCreature(), CreaturePosture_Prone);
 }
 
 //=============================================================================
@@ -138,7 +138,7 @@ void ObjectController::_handleKneel(uint64 targetId,Message* message,ObjectContr
 
     if(playerObject)
 		
-		gStateManager.setCurrentPostureState(playerObject, CreaturePosture_Crouched);
+		gStateManager.setCurrentPostureState(playerObject->GetCreature(), CreaturePosture_Crouched);
 }
 
 //=============================================================================

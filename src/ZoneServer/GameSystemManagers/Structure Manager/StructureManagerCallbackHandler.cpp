@@ -472,7 +472,7 @@ void StructureManager::_HandleStructureTransferLotsRecipient(StructureManagerAsy
         }
         if(recipient)
         {
-            gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "ownership_transferred_in", "", "", "", "", "", donor->getFirstName()), recipient);
+            gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "ownership_transferred_in", "", "", "", "", "", donor->GetCreature()->getFirstName()), recipient);
         }
 
 
@@ -1173,7 +1173,7 @@ void StructureManager::handleUIEvent(uint32 action,int32 element,std::u16string 
     PlayerObject* player = window->getOwner();
 
     // action is zero for ok !!!
-    if(!player || (action) || player->isIncapacitated() || player->isDead())    {
+    if(!player || (action) || player->GetCreature()->isIncapacitated() || player->GetCreature()->isDead())    {
         return;
     }
 
@@ -1212,7 +1212,7 @@ void StructureManager::handleUIEvent(uint32 action,int32 element,std::u16string 
 				command.StructureId = structure->getId();
 				command.SchematicId = ManSchemId;
 
-				gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName(),"HOPPER",command);
+				gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->GetCreature()->getFirstName(),"HOPPER",command);
 			}
 			else if(strcmp(b.getAnsi(),"true") == 0) //remove schematic pressed
 			{
@@ -1223,7 +1223,7 @@ void StructureManager::handleUIEvent(uint32 action,int32 element,std::u16string 
 				command.StructureId = structure->getId();
 				command.SchematicId = ManSchemId;
 
-				gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName(),"HOPPER",command);
+				gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->GetCreature()->getFirstName(),"HOPPER",command);
 			}
 		}
 		break;
@@ -1236,7 +1236,7 @@ void StructureManager::handleUIEvent(uint32 action,int32 element,std::u16string 
         command.PlayerId = player->getId();
         command.StructureId = structure->getId();
 
-        gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
 
     }
     break;

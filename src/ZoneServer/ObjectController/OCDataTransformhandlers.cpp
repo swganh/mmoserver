@@ -81,15 +81,15 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
     inMoveCount = message->getUint32();
 
     // only process if its in sequence
-    if(player->getInMoveCount() > inMoveCount)	{
+    if(player->GetCreature()->getInMoveCount() > inMoveCount)	{
         return;
     }
 
     // update tick and move counters...
-    player->setLastMoveTick(tickCount);
+    player->GetCreature()->setLastMoveTick(tickCount);
     player->setClientTickCount(tickCount);
 
-    player->setInMoveCount(inMoveCount);
+    player->GetCreature()->setInMoveCount(inMoveCount);
 
     // get new direction, position and speed
     dir.x = message->getFloat();
@@ -105,7 +105,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
     // stop entertaining ???
     // important is, that if we move we change our posture to NOT skill animating anymore!
     // so only stop entertaining when we are performing and NOT skillanimationg
-    if(player->getPerformingState() != PlayerPerformance_None && player->GetPosture() != CreaturePosture_SkillAnimating)	{
+    if(player->GetCreature()->getPerformingState() != PlayerPerformance_None && player->GetCreature()->GetPosture() != CreaturePosture_SkillAnimating)	{
         gEntertainerManager->stopEntertaining(player);
     }
 
@@ -144,7 +144,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
     }
 
     player->mDirection = dir;
-    player->setCurrentSpeed(speed);
+    player->GetCreature()->setCurrentSpeed(speed);
     player->mPosition = pos;
 
     gSpatialIndexManager->UpdateObject(player);
@@ -177,7 +177,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
     if (gWorldConfig->isInstance())
     {
         // send out position updates to known players in group or self only
-        gMessageLib->sendUpdateTransformMessage(player, player);
+        gMessageLib->sendUpdateTransformMessage(player->GetCreature(), player);
         return;
     }	
 
@@ -200,9 +200,9 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
     {
         // send out position updates to known players
         // please note that these updates mess up our dance performance
-        if(player->getPerformingState() == PlayerPerformance_None)
+        if(player->GetCreature()->getPerformingState() == PlayerPerformance_None)
         {
-            gMessageLib->sendUpdateTransformMessage(player);
+            gMessageLib->sendUpdateTransformMessage(player->GetCreature());
         }
 
     }
@@ -231,7 +231,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
     inMoveCount = message->getUint32();
 
     // only process if its in sequence
-    if (player->getInMoveCount() > inMoveCount)	{
+    if (player->GetCreature()->getInMoveCount() > inMoveCount)	{
         return;
     }
 
@@ -239,7 +239,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 
     // update tick and move counters
     player->setClientTickCount(tickCount);
-    player->setInMoveCount(inMoveCount);
+    player->GetCreature()->setInMoveCount(inMoveCount);
 
     // get new direction, position, parent and speed
     parentId = message->getUint64();
@@ -253,7 +253,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
     speed  = message->getFloat();
 
     // stop entertaining, if we were
-    if(player->getPerformingState() != PlayerPerformance_None && player->GetPosture() != CreaturePosture_SkillAnimating)	{
+    if(player->GetCreature()->getPerformingState() != PlayerPerformance_None && player->GetCreature()->GetPosture() != CreaturePosture_SkillAnimating)	{
         gEntertainerManager->stopEntertaining(player);
     }
 
@@ -318,7 +318,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
     player->setParentId(parentId);
     player->mDirection = dir;
     player->mPosition  = pos;
-    player->setCurrentSpeed(speed);
+    player->GetCreature()->setCurrentSpeed(speed);
 
     gSpatialIndexManager->UpdateObject(player);
 
@@ -350,12 +350,12 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
     if (!gWorldConfig->isInstance())
     {
         // send out updates
-        gMessageLib->sendUpdateTransformMessageWithParent(player);
+        gMessageLib->sendUpdateTransformMessageWithParent(player->GetCreature());
     }
     else
     {
         // send out position updates to known players in group or self only
-        gMessageLib->sendUpdateTransformMessageWithParent(player, player);
+        gMessageLib->sendUpdateTransformMessageWithParent(player->GetCreature(), player);
     }
 }
 

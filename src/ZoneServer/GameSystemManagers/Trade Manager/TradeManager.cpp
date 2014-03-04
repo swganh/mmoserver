@@ -661,14 +661,14 @@ void TradeManager::_HandleAuctionCreateMessage(Message* message,DispatchClient* 
         fee = 100;
     }
 
-    if(playerObject->checkSkill(SMSkill_Merchant_Sales_1))    {
+    if(playerObject->GetCreature()->checkSkill(SMSkill_Merchant_Sales_1))    {
         //efficiency 1
         fee = 16;
         if(premium)	{
             fee = 80;
         }
     }
-    else if(playerObject->checkSkill(SMSkill_Merchant_Sales_3))    {
+    else if(playerObject->GetCreature()->checkSkill(SMSkill_Merchant_Sales_3))    {
         //efficiency 3
         fee = 12;
         if(premium)	{
@@ -845,11 +845,11 @@ void TradeManager::TradeTransaction(DispatchClient* client,PlayerObject* player1
 
         if (!player1->testCash(asyncContainer->amount1) )
         {
-			DLOG(info) <<"Player : "<<player1->getFirstName() << "id "<<player1->getId()<< "wanted to trade "<<asyncContainer->amount1<<" credits but had not enough cash";
+			DLOG(info) <<"Player : "<<player1->GetCreature()->getFirstName() << "id "<<player1->getId()<< "wanted to trade "<<asyncContainer->amount1<<" credits but had not enough cash";
         }
         if (!player2->testCash(asyncContainer->amount2) )
         {
-            DLOG(info) <<"Player : "<<player2->getFirstName() << "id "<<player2->getId()<< "wanted to trade "<<asyncContainer->amount2<<" credits but had not enough cash";
+            DLOG(info) <<"Player : "<<player2->GetCreature()->getFirstName() << "id "<<player2->getId()<< "wanted to trade "<<asyncContainer->amount2<<" credits but had not enough cash";
         }
     }
 }

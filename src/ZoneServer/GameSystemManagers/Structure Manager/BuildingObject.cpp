@@ -186,7 +186,7 @@ void BuildingObject::updateCellPermissions(PlayerObject* player, bool access)
 				//position.y += player->getWorldPosition.x;
 				position.z += playerWorldPosition.z;
 
-				player->updatePosition(0,position);
+				player->GetCreature()->updatePosition(0,position);
         
 			}
 		}
@@ -217,7 +217,7 @@ void BuildingObject::prepareDestruction()
         }
 
         //No need to update the SI here as we only leave the cell
-        player->updatePosition(0, player->getWorldPosition());
+        player->GetCreature()->updatePosition(0, player->GetCreature()->getWorldPosition());
         player->setParentIdIncDB(0);
 
         cell->RemoveObject(this, player);

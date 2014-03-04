@@ -145,10 +145,10 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
     Message*	message;
     
     // make sure we got a name
-std::stringstream stream;
-stream << creatureObject->getFirstName() << " " << creatureObject->getLastName();
-std::string s(stream.str());
-std::u16string custom_name_u16(s.begin(), s.end());
+	std::stringstream stream;
+	stream << creatureObject->getFirstName() << " " << creatureObject->getLastName();
+	std::string s(stream.str());
+	std::u16string custom_name_u16(s.begin(), s.end());
 
 
     mMessageFactory->StartMessage();
@@ -245,7 +245,8 @@ bool MessageLib::sendBaselinesCREO_4(PlayerObject* player)
     if(!(player->isConnected()))
         return(false);
 
-    SkillModsList*	playerSkillMods = player->getSkillMods();
+	CreatureObject* creature = player->GetCreature();
+    SkillModsList*	playerSkillMods = creature->getSkillMods();
 
     //thats the message databody
     mMessageFactory->StartMessage();
@@ -256,14 +257,14 @@ bool MessageLib::sendBaselinesCREO_4(PlayerObject* player)
     mMessageFactory->addFloat(1.0f); // acceleration mod
 
     // ham encumbrance
-swganh::messages::BaselinesMessage baseline_message;
-player->SerializeStatEncumberances(&baseline_message);
-mMessageFactory->addData(baseline_message.data.data(),baseline_message.data.size());
+	swganh::messages::BaselinesMessage baseline_message;
+	creature->SerializeStatEncumberances(&baseline_message);
+	mMessageFactory->addData(baseline_message.data.data(),baseline_message.data.size());
 
     // skillmods
     mMessageFactory->addUint32(playerSkillMods->size());
-    player->mSkillModUpdateCounter += playerSkillMods->size();
-    mMessageFactory->addUint32(player->mSkillModUpdateCounter);
+    creature->mSkillModUpdateCounter += playerSkillMods->size();
+    mMessageFactory->addUint32(creature->mSkillModUpdateCounter);
 
     SkillModsList::iterator it = playerSkillMods->begin();
 
@@ -284,22 +285,22 @@ mMessageFactory->addData(baseline_message.data.data(),baseline_message.data.size
     mMessageFactory->addFloat(1.0f);
 
     //6 Listen to Id
-    mMessageFactory->addUint64(player->getEntertainerListenToId());
+    mMessageFactory->addUint64(creature->getEntertainerListenToId());
 
     //7
-    mMessageFactory->addFloat(player->getCurrentRunSpeedLimit()); //RUN speed
+    mMessageFactory->addFloat(creature->getCurrentRunSpeedLimit()); //RUN speed
 
     //8
     mMessageFactory->addFloat(1.02f);	// slopemod angle
 
     //9
-    mMessageFactory->addFloat(player->getCurrentTerrainNegotiation());
+    mMessageFactory->addFloat(creature->getCurrentTerrainNegotiation());
 
     //10 (a)
-    mMessageFactory->addFloat(player->getCurrentTurnRate());
+    mMessageFactory->addFloat(creature->getCurrentTurnRate());
 
     //11(b)
-    mMessageFactory->addFloat(player->getCurrentAcceleration()); // This is the walk speed, nothing else.
+    mMessageFactory->addFloat(creature->getCurrentAcceleration()); // This is the walk speed, nothing else.
 
     mMessageFactory->addFloat(0.0125f);	// unknown
     mMessageFactory->addUint64(0);	// unknown
@@ -621,9 +622,11 @@ bool MessageLib::sendUpdateMovementProperties(PlayerObject* playerObject)
 		return false;
 	}
 
+	CreatureObject* creature = playerObject->GetCreature();
+
 	MessageFactory* factory = getFactory_();
 
-    MovingObject* object = dynamic_cast<MovingObject*>(playerObject);
+    MovingObject* object = dynamic_cast<MovingObject*>(creature);
 
     if (playerObject->checkIfMounted()) {
         object = dynamic_cast<MovingObject*>(playerObject->getMount());
@@ -631,7 +634,7 @@ bool MessageLib::sendUpdateMovementProperties(PlayerObject* playerObject)
 
     factory->StartMessage();
     factory->addUint32(opDeltasMessage);
-    factory->addUint64(playerObject->getId());
+    factory->addUint64(creature->getId());
     factory->addUint32(opCREO);
     factory->addUint8(4);
     factory->addUint32(26);
@@ -668,9 +671,11 @@ bool MessageLib::sendSkillDeltasCreo1(Skill* skill,uint8 action,PlayerObject* ta
     if(!(targetObject->isConnected()))
         return(false);
 
+	CreatureObject* creature = targetObject->GetCreature();
+
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(targetObject->getId());
+    mMessageFactory->addUint64(creature->getId());
     mMessageFactory->addUint32(opCREO);
     mMessageFactory->addUint8(1);
 
@@ -679,7 +684,7 @@ bool MessageLib::sendSkillDeltasCreo1(Skill* skill,uint8 action,PlayerObject* ta
     mMessageFactory->addUint16(3);
 
     mMessageFactory->addUint32(1); // listsize
-    mMessageFactory->addUint32(targetObject->getAndIncrementSkillUpdateCounter());
+    mMessageFactory->addUint32(creature->getAndIncrementSkillUpdateCounter());
     mMessageFactory->addUint8(action);
     mMessageFactory->addString(skill->mName);
 
@@ -720,7 +725,7 @@ bool MessageLib::sendSkillModDeltasCREO_4(SkillModsList smList,uint8 remove,Crea
 
     mMessageFactory->addUint32(smList.size());
 
-    mMessageFactory->addUint32(playerObject->getAndIncrementSkillModUpdateCounter(smList.size()));
+    mMessageFactory->addUint32(creatureObject->getAndIncrementSkillModUpdateCounter(smList.size()));
     //mMessageFactory->addUint8(remove);
 
     it = smList.begin();
@@ -797,9 +802,11 @@ void MessageLib::sendInviteSenderUpdateDeltasCreo6(uint64 id, PlayerObject* targ
     if(!(targetPlayer->isConnected()))
         return;
 
+	CreatureObject* creature = targetPlayer->GetCreature();
+
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(targetPlayer->getId());
+    mMessageFactory->addUint64(creature->getId());
     mMessageFactory->addUint32(opCREO);
     mMessageFactory->addUint8(6);
 
@@ -823,9 +830,11 @@ void MessageLib::sendGroupIdUpdateDeltasCreo6(uint64 groupId,  PlayerObject*  pl
     if(!(target->isConnected()))
         return;
 
+	CreatureObject* creature = player->GetCreature();
+
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(player->getId());
+    mMessageFactory->addUint64(creature->getId());
     mMessageFactory->addUint32(opCREO);
     mMessageFactory->addUint8(6);
     mMessageFactory->addUint32(12); // Size, short short long
@@ -844,6 +853,8 @@ void MessageLib::sendGroupIdUpdateDeltasCreo6(uint64 groupId,  PlayerObject*  pl
 
 void MessageLib::sendTerrainNegotiation(CreatureObject* creatureObject)
 {
+
+
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
     mMessageFactory->addUint64(creatureObject->getId());
@@ -869,15 +880,17 @@ void MessageLib::sendListenToId(PlayerObject* playerObject)
 	if(!(playerObject->isConnected()))
         return;
 
+	CreatureObject* creature = playerObject->GetCreature();
+
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(creature->getId());
     mMessageFactory->addUint32(opCREO);
     mMessageFactory->addUint8(4);
     mMessageFactory->addUint32(12);
     mMessageFactory->addUint16(1);
     mMessageFactory->addUint16(6);
-    mMessageFactory->addUint64(playerObject->getEntertainerListenToId());
+    mMessageFactory->addUint64(creature->getEntertainerListenToId());
 
     (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
     //_sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
@@ -1047,9 +1060,11 @@ bool MessageLib::sendSkillModUpdateCreo4(PlayerObject* playerObject)
     if(!(playerObject->isConnected()))
         return(false);
 
+	CreatureObject* creature = playerObject->GetCreature();
+
     // compute skillmod list size
     //uint32			skillModByteCount	= 0;
-    SkillModsList*	playerSkillMods		= playerObject->getSkillMods();
+    SkillModsList*	playerSkillMods		= creature->getSkillMods();
 
     SkillModsList::iterator it	= playerSkillMods->begin();
 
@@ -1065,7 +1080,7 @@ bool MessageLib::sendSkillModUpdateCreo4(PlayerObject* playerObject)
     // skillmods
 
     mMessageFactory->addUint32(playerSkillMods->size());
-    mMessageFactory->addUint32(playerObject->getAndIncrementSkillModUpdateCounter(playerSkillMods->size()));
+    mMessageFactory->addUint32(creature->getAndIncrementSkillModUpdateCounter(playerSkillMods->size()));
     //playerObject->getAndIncrementSkillModUpdateCounter(1)
 
     //mMessageFactory->addUint16(playerSkillMods->size());
@@ -1086,7 +1101,7 @@ bool MessageLib::sendSkillModUpdateCreo4(PlayerObject* playerObject)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(creature->getId());
     mMessageFactory->addUint32(opCREO);
     mMessageFactory->addUint8(4);
 
@@ -1111,17 +1126,19 @@ void MessageLib::sendStationaryFlagUpdate(PlayerObject* playerObject)
 	if(!(playerObject->isConnected()))
         return;
 
+	CreatureObject* creature = playerObject->GetCreature();
+
     mMessageFactory->StartMessage();
 
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(creature->getId());
     mMessageFactory->addUint32(opCREO);
     mMessageFactory->addUint8(6);
     mMessageFactory->addUint32(5);
     mMessageFactory->addUint16(1);
     mMessageFactory->addUint16(17);
 
-    if(playerObject->isStationary())
+    if(creature->isStationary())
         mMessageFactory->addUint8(1);
     else
         mMessageFactory->addUint8(0);

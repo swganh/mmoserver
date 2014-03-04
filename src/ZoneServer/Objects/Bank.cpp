@@ -76,8 +76,8 @@ void Bank::setCredits(boost::unique_lock<boost::mutex>& lock, uint32 credits) {
 
 	lock.unlock();
 	
-	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::BankCredits", owner_));
-	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::PersistBankCredits", owner_));
+	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::BankCredits", owner_->GetCreature()));
+	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::PersistBankCredits", owner_->GetCreature()));
 	
 }
 
@@ -113,5 +113,5 @@ void Bank::setPlanet(boost::unique_lock<boost::mutex>& lock, int8_t planet) {
 
 	lock.unlock();
 	
-	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::PersistHomeBank", owner_));
+	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::PersistHomeBank", owner_->GetCreature()));
 }

@@ -174,7 +174,8 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
         uint32				getSkillPointsLeft();
         //SkillList*			getSkills(){ return &mSkills; }
         SkillModsList*		getSkillMods(){ return &mSkillMods; }
-        SkillCommandList*	getSkillCommands(){ return &mSkillCommands; }
+        
+		
 
         //the values of a skillmod with the skillmod as in skillenums.h SMSkillMod
         int32				getSkillModValue(uint32 modId);
@@ -185,8 +186,7 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
         uint32				getAndIncrementSkillUpdateCounter(){ mSkillUpdateCounter++; return mSkillUpdateCounter; }
         uint32				getAndIncrementSkillModUpdateCounter(uint32 amount){ mSkillModUpdateCounter+=amount; return mSkillModUpdateCounter; }
         void				prepareSkillMods();
-        void				prepareSkillCommands();
-        bool				verifyAbility(uint32 abilityCRC);
+        
 
         SkillModsList::iterator	findSkillMod(uint32 modId);
 
@@ -268,7 +268,8 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
         //entertaining
         void*				getPerformance(){return mPerformance;}
         void				setPerformance(void* performance){mPerformance = performance;}
-        uint64				getEntertainerListenToId(){return mEntertainerListenToId;}
+        
+		uint64				getEntertainerListenToId(){return mEntertainerListenToId;}
         void				setEntertainerListenToId(uint64 listenToId){mEntertainerListenToId= listenToId;}
 
         PerformingPause		getPerformancePaused(){return mPerformancePaused;}
@@ -286,6 +287,15 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
         uint32				getPerformanceId(){ return mPerformanceId; }
         void				setPerformanceId(uint32 Id){ mPerformanceId = Id; }
 
+		uint64				getEntertainerWatchToId(){return mEntertainerWatchToId;}
+        void				setEntertainerWatchToId(uint64 entertainer){mEntertainerWatchToId = entertainer;}
+        
+		uint64				getEntertainerTaskId(){return mEntertainerTaskId;}
+        void				setEntertainerTaskId(uint64 entertainerTaskId){mEntertainerTaskId = entertainerTaskId;}
+        
+		uint64				getEntertainerPauseId(){return mEntertainerPauseId;}
+        void				setEntertainerPauseId(uint64 entertainerPauseId){mEntertainerPauseId = entertainerPauseId;}
+
         BString				getCurrentAnimation(){ return mCurrentAnimation; }
         void				setCurrentAnimation(BString state){ mCurrentAnimation = state; }
 
@@ -296,9 +306,6 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 
         uint32				getLastMoveTick(){ return mLastMoveTick; }
         void				setLastMoveTick(uint32 tick){ mLastMoveTick = tick; }
-
-        bool				getReady(){ return mReady; }
-        void				setReady(bool b){ mReady = b; }
 
         uint32				getRaceGenderMask(){ return mRaceGenderMask; }
         void				setRaceGenderMask(uint32 mask){ mRaceGenderMask = mask; }
@@ -337,8 +344,6 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 
         void				makePeaceWithDefender(uint64 targetId);
         uint64				getNearestDefender(void);
-   
-
 		
         virtual void		inPeace(void) { }
         virtual void		killEvent(void) { }
@@ -348,7 +353,7 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
         // flow control vars
         uint64				mTargetId;
         uint32				mDefenderUpdateCounter;
-        uint32				mSkillCmdUpdateCounter;
+        
         uint32				mSkillModUpdateCounter;
 
 		
@@ -608,6 +613,11 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 		PlayerObject*	GetGhost();
 		PlayerObject*	GetGhost(boost::unique_lock<boost::mutex>& lock);
 
+		/*	@brief getReady() returns whether the playerObject has finished loading and been spawned to the zone
+		/
+		*/
+		bool				getReady(){ return mReady; }
+        void				setReady(bool b){ mReady = b; }		
 
     protected:
 
@@ -631,14 +641,22 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 		
 		//swganh::containers::NetworkSet<std::string> skills_;
 
+		//whether the player has finished loading
+		bool				mReady;
+
+		uint64				mEntertainerPauseId;
+        uint64				mEntertainerTaskId;
+        uint64				mEntertainerWatchToId;
+		uint64				mEntertainerListenToId;
+
 		uint32_t			battle_fatigue_;
 		uint64_t			weapon_id_;
 		uint64_t			owner_;
         BuffList			mBuffList;
         FactionList			mFactionList;
-        SkillCommandMap		mSkillCommandMap;
-        SkillCommandList	mSkillCommands;
-        //SkillList			mSkills;
+        
+        
+		//SkillList			mSkills;
         SkillModsList		mSkillMods;
 
         BString				mCurrentAnimation;
@@ -659,7 +677,6 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
         PerformingState		mPendingPerform;
 
         uint64				mCurrentIncapTime;
-        uint64				mEntertainerListenToId;
         uint64				mFirstIncapTime;
         uint64				mGroupId;
     
@@ -681,7 +698,7 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
         uint32				mPosture;
         uint64				mLocomotion;
         uint8				mRaceId;
-        bool				mReady;
+        
         bool				mStationary;			 //sets the stationary flag in the tano3 so better move it there
         // entertaining
 

@@ -152,44 +152,46 @@ void WorldManager::storeCharacterAttributes_(PlayerObject* player_object, bool r
 
 	auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
 
+	CreatureObject* player_creature = player_object->GetCreature();
+
     query_stream << "UPDATE "<<getKernel()->GetDatabase()->galaxy()<<".character_attributes SET "
-				 << "health_current=" << player_object->GetStatCurrent(HamBar_Health) << ", "
-				 << "strength_current=" << player_object->GetStatCurrent(HamBar_Strength) << ", "
-				 << "constitution_current=" << player_object->GetStatCurrent(HamBar_Constitution) << ", "
-                 << "action_current=" << player_object->GetStatCurrent(HamBar_Action) << ", "
-				 << "quickness_current=" << player_object->GetStatCurrent(HamBar_Quickness) << ", "
-				 << "stamina_current=" << player_object->GetStatCurrent(HamBar_Stamina) << ", "
-                 << "mind_current=" << player_object->GetStatCurrent(HamBar_Mind) << ", "
-				 << "focus_current=" << player_object->GetStatCurrent(HamBar_Focus) << ", "
-				 << "willpower_current=" << player_object->GetStatCurrent(HamBar_Willpower) << ", "
+				 << "health_current=" << player_creature->GetStatCurrent(HamBar_Health) << ", "
+				 << "strength_current=" << player_creature->GetStatCurrent(HamBar_Strength) << ", "
+				 << "constitution_current=" << player_creature->GetStatCurrent(HamBar_Constitution) << ", "
+                 << "action_current=" << player_creature->GetStatCurrent(HamBar_Action) << ", "
+				 << "quickness_current=" << player_creature->GetStatCurrent(HamBar_Quickness) << ", "
+				 << "stamina_current=" << player_creature->GetStatCurrent(HamBar_Stamina) << ", "
+                 << "mind_current=" << player_creature->GetStatCurrent(HamBar_Mind) << ", "
+				 << "focus_current=" << player_creature->GetStatCurrent(HamBar_Focus) << ", "
+				 << "willpower_current=" << player_creature->GetStatCurrent(HamBar_Willpower) << ", "
 				 
-				 << "health_wounds=" << player_object->GetStatWound(HamBar_Health) << ", "
-                 << "strength_wounds=" << player_object->GetStatWound(HamBar_Strength) << ", "
-                 << "constitution_wounds=" << player_object->GetStatWound(HamBar_Constitution) << ", "
-                 << "action_wounds=" << player_object->GetStatWound(HamBar_Action) << ", "
-                 << "quickness_wounds=" << player_object->GetStatWound(HamBar_Quickness) << ", "
-                 << "stamina_wounds=" << player_object->GetStatWound(HamBar_Stamina) << ", "
-                 << "mind_wounds=" << player_object->GetStatWound(HamBar_Mind) << ", "
-                 << "focus_wounds=" << player_object->GetStatWound(HamBar_Focus) << ", "
-                 << "willpower_wounds=" << player_object->GetStatWound(HamBar_Willpower) << ", "
+				 << "health_wounds=" << player_creature->GetStatWound(HamBar_Health) << ", "
+                 << "strength_wounds=" << player_creature->GetStatWound(HamBar_Strength) << ", "
+                 << "constitution_wounds=" << player_creature->GetStatWound(HamBar_Constitution) << ", "
+                 << "action_wounds=" << player_creature->GetStatWound(HamBar_Action) << ", "
+                 << "quickness_wounds=" << player_creature->GetStatWound(HamBar_Quickness) << ", "
+                 << "stamina_wounds=" << player_creature->GetStatWound(HamBar_Stamina) << ", "
+                 << "mind_wounds=" << player_creature->GetStatWound(HamBar_Mind) << ", "
+                 << "focus_wounds=" << player_creature->GetStatWound(HamBar_Focus) << ", "
+                 << "willpower_wounds=" << player_creature->GetStatWound(HamBar_Willpower) << ", "
 
 				 //need to rename the db fields at some time
-				 << "health_max=" << player_object->GetStatBase(HamBar_Health) << ", "
-                 << "strength_max=" << player_object->GetStatBase(HamBar_Strength) << ", "
-                 << "constitution_max=" << player_object->GetStatBase(HamBar_Constitution) << ", "
-                 << "action_max=" << player_object->GetStatBase(HamBar_Action) << ", "
-                 << "quickness_max=" << player_object->GetStatBase(HamBar_Quickness) << ", "
-                 << "stamina_max=" << player_object->GetStatBase(HamBar_Stamina) << ", "
-                 << "mind_max=" << player_object->GetStatBase(HamBar_Mind) << ", "
-                 << "focus_max=" << player_object->GetStatBase(HamBar_Focus) << ", "
-                 << "willpower_max=" << player_object->GetStatBase(HamBar_Willpower) << ", "
+				 << "health_max=" << player_creature->GetStatBase(HamBar_Health) << ", "
+                 << "strength_max=" << player_creature->GetStatBase(HamBar_Strength) << ", "
+                 << "constitution_max=" << player_creature->GetStatBase(HamBar_Constitution) << ", "
+                 << "action_max=" << player_creature->GetStatBase(HamBar_Action) << ", "
+                 << "quickness_max=" << player_creature->GetStatBase(HamBar_Quickness) << ", "
+                 << "stamina_max=" << player_creature->GetStatBase(HamBar_Stamina) << ", "
+                 << "mind_max=" << player_creature->GetStatBase(HamBar_Mind) << ", "
+                 << "focus_max=" << player_creature->GetStatBase(HamBar_Focus) << ", "
+                 << "willpower_max=" << player_creature->GetStatBase(HamBar_Willpower) << ", "
 
-				 << "battlefatigue=" << player_object->GetBattleFatigue() << ", "
-                 << "posture=" << player_object->GetPosture() << ", "
-                 << "moodId=" << static_cast<uint16_t>(player_object->getMoodId()) << ", "
+				 << "battlefatigue=" << player_creature->GetBattleFatigue() << ", "
+                 << "posture=" << player_creature->GetPosture() << ", "
+                 << "moodId=" << static_cast<uint16_t>(player_creature->getMoodId()) << ", "
                  << "title='" << getKernel()->GetDatabase()->escapeString(player_object->getTitle().getAnsi()) << "', "
                  << "character_flags=" << player_object->getPlayerFlags() << ", "
-                 << "states=" << player_object->states.getAction() << ", "
+                 << "states=" << player_creature->states.getAction() << ", "
                  << "language=" << player_object->getLanguage() << ", "
                  << "new_player_exemptions=" <<  static_cast<uint16_t>(player_object->getNewPlayerExemptions()) << " "
                  << "WHERE character_id=" << player_object->getId();
@@ -214,7 +216,7 @@ void WorldManager::storeCharacterAttributes_(PlayerObject* player_object, bool r
 			return;
         }
 
-        GroupObject* group = gGroupManager->getGroupObject(player_object->getGroupId());
+        GroupObject* group = gGroupManager->getGroupObject(player_creature->getGroupId());
         if(group) {
             group->removePlayer(player_object->getId());
         }
@@ -330,11 +332,11 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 	*/
     removeObjControllerToProcess(playerObject->getController()->getTaskId());
     
-	removeEntertainerToProcess(playerObject->getEntertainerTaskId());
+	removeEntertainerToProcess(playerObject->GetCreature()->getEntertainerTaskId());
 
     gCraftingSessionFactory->destroySession(playerObject->getCraftingSession());
     playerObject->setCraftingSession(NULL);
-    gStateManager.removeActionState(playerObject, CreatureState_Crafting);
+    gStateManager.removeActionState(playerObject->GetCreature(), CreatureState_Crafting);
 
     //despawn camps ??? - every reference is over id though
 
@@ -366,7 +368,7 @@ void WorldManager::addReconnectedPlayer(PlayerObject* playerObject)
     playerObject->setDisconnectTime(timeOut);
 
     // resetting move, save and tickcounters
-    playerObject->setInMoveCount(0);
+    playerObject->GetCreature()->setInMoveCount(0);
     playerObject->setClientTickCount(0);
     playerObject->setSaveTimer(0);
 

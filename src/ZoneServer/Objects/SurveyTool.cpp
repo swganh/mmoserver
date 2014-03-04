@@ -86,7 +86,7 @@ void SurveyTool::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
     PlayerObject* playerObject = dynamic_cast<PlayerObject*>(srcObject);
 
-    if( !(playerObject->isConnected()) || playerObject->isDead())
+    if( !(playerObject->isConnected()) || playerObject->GetCreature()->isDead())
         return;
 
     // bring up the surve ui
@@ -96,7 +96,7 @@ void SurveyTool::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
     {
         //We only need to check this when using the tool's functions!
 
-        if(playerObject->getPerformingState() != PlayerPerformance_None || playerObject->isDead())
+        if(playerObject->GetCreature()->getPerformingState() != PlayerPerformance_None || playerObject->GetCreature()->isDead())
         {
             gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_cant"), playerObject);
             return;
@@ -231,7 +231,7 @@ void SurveyTool::handleUIEvent(uint32 action,int32 element,std::u16string inputS
 
 void SurveyTool::_createRangeMenu(PlayerObject* playerObject, bool sample)
 {
-    int32 surveyMod = playerObject->getSkillModValue(SMod_surveying);
+    int32 surveyMod = playerObject->GetCreature()->getSkillModValue(SMod_surveying);
 
     StringVector availableRanges;
 

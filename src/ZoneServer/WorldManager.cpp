@@ -408,7 +408,7 @@ bool WorldManager::_handleDisconnectUpdate(uint64 callTime,void* ref)
             playerObject->setConnectionState(PlayerConnState_Destroying);
 
 			//remove the player out of his group - if any
-			GroupObject* group = gGroupManager->getGroupObject(playerObject->getGroupId());
+			GroupObject* group = gGroupManager->getGroupObject(playerObject->GetCreature()->getGroupId());
 			if(group)
 			{
 				group->removePlayer(playerObject->getId());

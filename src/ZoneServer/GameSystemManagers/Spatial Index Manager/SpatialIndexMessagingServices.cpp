@@ -496,7 +496,7 @@ bool SpatialIndexManager::sendCreateFactoryCrate(FactoryCrate* crate,PlayerObjec
 {
 
 
-    gMessageLib->sendCreateObjectByCRC(crate,targetObject,false);
+    gMessageLib->sendCreateObjectByCRC(crate,targetObject);
 
     uint64 parentId = crate->getParentId();
 

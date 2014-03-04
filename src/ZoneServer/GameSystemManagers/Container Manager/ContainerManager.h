@@ -94,7 +94,7 @@ public:
 	//to all registered watchers including ourselves
 	void					sendToRegisteredWatchers(Object* container, std::function<void (PlayerObject* const player)> callback);
 
-	void					sendToGroupedRegisteredPlayers(PlayerObject* const player, std::function<void (PlayerObject*  const player)> callback, bool self);
+	void					sendToGroupedRegisteredPlayers(PlayerObject*  player, std::function<void (PlayerObject*  const player)> callback, bool self);
 
 	/*	@brief	registers player as a watcher of container "container" and recursively creates all the containers children for the player to view
 	*	@param	Object* container the container we want to register the player to

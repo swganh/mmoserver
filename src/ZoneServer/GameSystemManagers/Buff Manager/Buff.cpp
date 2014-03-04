@@ -118,8 +118,8 @@ Buff* Buff::TickingBuff(CreatureObject* Target, CreatureObject* Instigator, uint
 
 Buff* Buff::FromDB(BuffDBItem* Item, uint64 CurrentGlobalTick)
 {
-    CreatureObject* target = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(Item->mTargetId));
-    CreatureObject* instigator = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(Item->mInstigatorId));
+    CreatureObject* target = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(Item->mTargetId));
+    CreatureObject* instigator = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(Item->mInstigatorId));
     Buff* temp = new Buff(target, instigator, static_cast<uint>(Item->mMaxTicks), Item->mTickLength, Item->mIconCRC, Item->mStartGlobalTick);
 
     if(temp->mNoTicks > 0)
@@ -398,7 +398,7 @@ void Buff::InitializeIcons()
 
 void Buff::FinalChanges()
 {
-    CreatureObject*	creature = dynamic_cast<PlayerObject*>(mTarget);
+    CreatureObject*	creature = dynamic_cast<CreatureObject*>(mTarget);
     if(!creature)
     {
         mMarkedForDeletion =true;

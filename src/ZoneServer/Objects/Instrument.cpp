@@ -74,7 +74,7 @@ void Instrument::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
                 if ((player->getId() == this->getOwner()) && this->getPlaced())
                 {
-                    if ((player->getPerformingState() == PlayerPerformance_Music))
+                    if ((player->GetCreature()->getPerformingState() == PlayerPerformance_Music))
                     {
                         gEntertainerManager->stopEntertaining(player);
                     }
@@ -113,7 +113,7 @@ void Instrument::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
                                 return;
                             }
 
-                            if ((player->getPerformingState() == PlayerPerformance_Music))
+                            if ((player->GetCreature()->getPerformingState() == PlayerPerformance_Music))
                             {
                                 gEntertainerManager->stopEntertaining(player);
                             }
@@ -210,7 +210,7 @@ void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount
             // We are handling the copy
             if ((playerObject->getId() == this->getOwner()) && this->getPlaced())
             {
-                if ((playerObject->getPerformingState() == PlayerPerformance_Music))
+                if ((playerObject->GetCreature()->getPerformingState() == PlayerPerformance_Music))
                 {
                     mRadialMenu->addItem(static_cast<uint8>(radId++),0,radId_itemUse,radAction_ObjCallback, "@radial_performance:stop_playing");
                 }
@@ -272,7 +272,7 @@ void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount
                         // Yes, are we handling the original instrument.
                         // if (cell->getId() == this->getParentId())
                         {
-                            if ((playerObject->getPerformingState() == PlayerPerformance_Music))
+                            if ((playerObject->GetCreature()->getPerformingState() == PlayerPerformance_Music))
                             {
                                 mRadialMenu->addItem(static_cast<uint8>(radId++),0,radId_itemUse,radAction_ObjCallback, "@radial_performance:stop_playing");
                             }

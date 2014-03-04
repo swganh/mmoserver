@@ -82,7 +82,7 @@ void ObjectController::_handleSpatialChatInternal(uint64 targetId,Message* messa
         return; // We suffered an unrecoverable error, bail out now.
     }
    
-    gMessageLib->SendSpatialChat(player, 
+    gMessageLib->SendSpatialChat(player->GetCreature(), 
         m[6].str().substr(0, 256), // This is the text message
         (gWorldConfig->isInstance()) ? player : nullptr, // If it's an instance we send the player object
         std::stoull(m[1].str()), // Convert this item to a uint64_t character id
@@ -130,7 +130,7 @@ void ObjectController::_handleSocialInternal(uint64 targetId,Message* message,Ob
         }
     }
 
-    gMessageLib->SendSpatialEmote(playerObject, emoteId, emoteTarget, sendType);
+    gMessageLib->SendSpatialEmote(playerObject->GetCreature(), emoteId, emoteTarget, sendType);
 }
 
 //=============================================================================
@@ -149,9 +149,9 @@ void ObjectController::_handleSetMoodInternal(uint64 targetId,Message* message,O
     moodStr.convert(BSTRType_ANSI);
     uint32 mood = boost::lexical_cast<uint32>(moodStr.getAnsi());
 
-    playerObject->setMoodId(static_cast<uint8>(mood));
+    playerObject->GetCreature()->setMoodId(static_cast<uint8>(mood));
 
-    gMessageLib->sendMoodUpdate(playerObject);
+    gMessageLib->sendMoodUpdate(playerObject->GetCreature());
 
     ObjControllerAsyncContainer* asyncContainer = new(mDBAsyncContainerPool.malloc()) ObjControllerAsyncContainer(OCQuery_Nope);
     sprintf(sql,"UPDATE %s.character_attributes SET moodId = %u where character_id = %"PRIu64"",mDatabase->galaxy(),mood,playerObject->getId());

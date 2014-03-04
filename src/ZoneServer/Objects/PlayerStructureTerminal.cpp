@@ -115,7 +115,7 @@ void PlayerStructureTerminal::handleObjectMenuSelect(uint8 messageType,Object* s
         command.PlayerId = player->getId();
         command.StructureId = this->getStructure();
 
-        gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(this->getStructure(),player->GetCreature()->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
     }
     break;
 
@@ -126,7 +126,7 @@ void PlayerStructureTerminal::handleObjectMenuSelect(uint8 messageType,Object* s
         command.PlayerId = player->getId();
         command.StructureId = this->getStructure();
 
-        gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(this->getStructure(),player->GetCreature()->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
     }
     break;
 
@@ -137,7 +137,7 @@ void PlayerStructureTerminal::handleObjectMenuSelect(uint8 messageType,Object* s
         command.PlayerId = player->getId();
         command.StructureId = this->getStructure();
 
-        gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(this->getStructure(),player->GetCreature()->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
     }
     break;
 
@@ -148,7 +148,7 @@ void PlayerStructureTerminal::handleObjectMenuSelect(uint8 messageType,Object* s
         command.PlayerId = player->getId();
         command.StructureId = this->getStructure();
 
-        gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(this->getStructure(),player->GetCreature()->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
     }
     break;
 
@@ -166,7 +166,7 @@ void PlayerStructureTerminal::handleObjectMenuSelect(uint8 messageType,Object* s
         command.PlayerId = player->getId();
         command.StructureId = this->getStructure();
 
-        gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(this->getStructure(),player->GetCreature()->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
 
     }
     break;
@@ -178,7 +178,7 @@ void PlayerStructureTerminal::handleObjectMenuSelect(uint8 messageType,Object* s
         command.PlayerId = player->getId();
         command.StructureId = this->getStructure();
 
-        gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(this->getStructure(),player->GetCreature()->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
 
 
     }
@@ -191,7 +191,7 @@ void PlayerStructureTerminal::handleObjectMenuSelect(uint8 messageType,Object* s
         command.PlayerId = player->getId();
         command.StructureId = this->getStructure();
 
-        gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(this->getStructure(),player->GetCreature()->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
 
     }
     break;
@@ -217,7 +217,7 @@ void PlayerStructureTerminal::handleUIEvent(uint32 action,int32 element,std::u16
 
     PlayerObject* playerObject = window->getOwner(); // window owner
 
-    if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead())
+    if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->GetCreature()->isIncapacitated() || playerObject->GetCreature()->isDead())
     {
         return;
     }

@@ -151,7 +151,7 @@ void HarvesterObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject
         command.PlayerId = player->getId();
         command.StructureId = this->getId();
 
-        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->GetCreature()->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
 
     }
     break;
@@ -163,7 +163,7 @@ void HarvesterObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject
         command.PlayerId = player->getId();
         command.StructureId = this->getId();
 
-        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->GetCreature()->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
 
     }
     break;
@@ -175,7 +175,7 @@ void HarvesterObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject
         command.PlayerId = player->getId();
         command.StructureId = this->getId();
 
-        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->GetCreature()->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
 
     }
     break;
@@ -187,7 +187,7 @@ void HarvesterObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject
         command.PlayerId = player->getId();
         command.StructureId = this->getId();
 
-        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->GetCreature()->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
 
     }
     break;
@@ -198,7 +198,7 @@ void HarvesterObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject
         command.PlayerId = player->getId();
         command.StructureId = this->getId();
 
-        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->GetCreature()->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
 
     }
     break;
@@ -210,7 +210,7 @@ void HarvesterObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject
         command.PlayerId = player->getId();
         command.StructureId = this->getId();
 
-        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->GetCreature()->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
 
     }
     break;
@@ -223,7 +223,7 @@ void HarvesterObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject
         command.PlayerId = player->getId();
         command.StructureId = this->getId();
 
-        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->GetCreature()->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
 
 
     }
@@ -236,7 +236,7 @@ void HarvesterObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject
         command.PlayerId = player->getId();
         command.StructureId = this->getId();
 
-        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName(),"HOPPER",command);
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->GetCreature()->getId(),player->GetCreature()->getFirstName(),"HOPPER",command);
 
     }
     break;

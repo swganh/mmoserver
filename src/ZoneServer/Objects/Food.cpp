@@ -142,7 +142,7 @@ void Food::handleFoodUse(Object* srcObject)
         return;
     }
 
-    if(playerObject->isDead() || playerObject->isIncapacitated())
+    if(playerObject->GetCreature()->isDead() || playerObject->GetCreature()->isIncapacitated())
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
         return;
@@ -234,7 +234,7 @@ void Food::_handleInstant(PlayerObject* playerObject)
 }
 void Food::_handleBuff(PlayerObject* playerObject)
 {
-    mBuff = Buff::SimpleBuff(playerObject, playerObject, mDuration*1000, mIcon, gWorldManager->GetCurrentGlobalTick());
+    mBuff = Buff::SimpleBuff(playerObject->GetCreature(), playerObject->GetCreature(), mDuration*1000, mIcon, gWorldManager->GetCurrentGlobalTick());
 
     AttributeMap::iterator it = mAttributeMap.begin();
 
@@ -255,7 +255,7 @@ void Food::_handleBuff(PlayerObject* playerObject)
         ++it;
     }
 
-    playerObject->AddBuff(mBuff,true);
+    playerObject->GetCreature()->AddBuff(mBuff,true);
 }
 //void Food::_handleMask_Scent_Buff(PlayerObject* playerObject)
 //{

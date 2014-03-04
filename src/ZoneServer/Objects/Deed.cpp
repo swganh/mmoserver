@@ -94,7 +94,7 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
                 {
                     if(PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getOwner())))
                     {
-                        if(!player->checkSkill(623)) // Must be a novice Politician
+                        if(!player->GetCreature()->checkSkill(623)) // Must be a novice Politician
                         {
                             gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "place_cityhall"), player);
                             return;

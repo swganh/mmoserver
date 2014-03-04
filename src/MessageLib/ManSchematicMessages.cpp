@@ -59,9 +59,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //======================================================================================================================
 
-bool MessageLib::sendBaselinesMSCO_3(ManufacturingSchematic* manSchem,PlayerObject* playerObject,bool sendAttributes)
+bool MessageLib::sendBaselinesMSCO_3(ManufacturingSchematic* manSchem,PlayerObject* ghost,bool sendAttributes)
 {
-    if(!(playerObject->isConnected()))
+    if(!(ghost->isConnected()))
         return(false);
 
     Message*			message;
@@ -84,7 +84,9 @@ bool MessageLib::sendBaselinesMSCO_3(ManufacturingSchematic* manSchem,PlayerObje
     if(!draftSchematic)
         return(false);
 
-    BString					convPlayerName	= playerObject->getFirstName().c_str();
+	CreatureObject* player = ghost->GetCreature();
+
+    BString					convPlayerName	= player->getFirstName().c_str();
 
     convPlayerName.convert(BSTRType_Unicode16);
 
@@ -175,16 +177,16 @@ bool MessageLib::sendBaselinesMSCO_3(ManufacturingSchematic* manSchem,PlayerObje
     part->setPendingDelete(true);
 
 
-    (playerObject->getClient())->SendChannelA(message,playerObject->getAccountId(),CR_Client,5);
+    (ghost->getClient())->SendChannelA(message,ghost->getAccountId(),CR_Client,5);
 
     return(true);
 }
 
 //======================================================================================================================
 
-bool MessageLib::sendBaselinesMSCO_6(ManufacturingSchematic* manSchem,PlayerObject* playerObject)
+bool MessageLib::sendBaselinesMSCO_6(ManufacturingSchematic* manSchem,PlayerObject* ghost)
 {
-    if(!(playerObject->isConnected()))
+    if(!(ghost->isConnected()))
         return(false);
 
     Message*		message;
@@ -213,17 +215,17 @@ bool MessageLib::sendBaselinesMSCO_6(ManufacturingSchematic* manSchem,PlayerObje
 
     message = mMessageFactory->EndMessage();
 
-    (playerObject->getClient())->SendChannelA(message,playerObject->getAccountId(),CR_Client,5);
+    (ghost->getClient())->SendChannelA(message,ghost->getAccountId(),CR_Client,5);
 
     return(true);
 }
 
 //======================================================================================================================
 
-bool MessageLib::sendBaselinesMSCO_7(ManufacturingSchematic* manSchem,PlayerObject* playerObject)
+bool MessageLib::sendBaselinesMSCO_7(ManufacturingSchematic* manSchem,PlayerObject* ghost)
 {
 
-    if(!(playerObject->isConnected()))
+    if(!(ghost->isConnected()))
         return(false);
 
     Message*							message;
@@ -525,16 +527,16 @@ bool MessageLib::sendBaselinesMSCO_7(ManufacturingSchematic* manSchem,PlayerObje
     finalMessage = mMessageFactory->EndMessage();
     message->setPendingDelete(true);
 
-    (playerObject->getClient())->SendChannelA(finalMessage,playerObject->getAccountId(),CR_Client,5);
+    (ghost->getClient())->SendChannelA(finalMessage,ghost->getAccountId(),CR_Client,5);
 
     return(true);
 }
 
 //======================================================================================================================
 
-bool MessageLib::sendDeltasMSCO_7(ManufacturingSchematic* manSchem,PlayerObject* playerObject)
+bool MessageLib::sendDeltasMSCO_7(ManufacturingSchematic* manSchem,PlayerObject* ghost)
 {
-    if(!(playerObject->isConnected()))
+    if(!(ghost->isConnected()))
         return(false);
 
     Message*							message;
@@ -837,16 +839,16 @@ bool MessageLib::sendDeltasMSCO_7(ManufacturingSchematic* manSchem,PlayerObject*
 
     message = mMessageFactory->EndMessage();
 
-    (playerObject->getClient())->SendChannelA(message,playerObject->getAccountId(),CR_Client,5);
+    (ghost->getClient())->SendChannelA(message,ghost->getAccountId(),CR_Client,5);
 
     return(true);
 }
 
 //======================================================================================================================
 
-bool MessageLib::sendBaselinesMSCO_8(ManufacturingSchematic* manSchem,PlayerObject* playerObject)
+bool MessageLib::sendBaselinesMSCO_8(ManufacturingSchematic* manSchem,PlayerObject* ghost)
 {
-    if(!(playerObject->isConnected()))
+    if(!(ghost->isConnected()))
         return(false);
 
     Message* message;
@@ -862,16 +864,16 @@ bool MessageLib::sendBaselinesMSCO_8(ManufacturingSchematic* manSchem,PlayerObje
 
     message = mMessageFactory->EndMessage();
 
-    (playerObject->getClient())->SendChannelA(message,playerObject->getAccountId(),CR_Client,5);
+    (ghost->getClient())->SendChannelA(message,ghost->getAccountId(),CR_Client,5);
 
     return(true);
 }
 
 //======================================================================================================================
 
-bool MessageLib::sendBaselinesMSCO_9(ManufacturingSchematic* manSchem,PlayerObject* playerObject)
+bool MessageLib::sendBaselinesMSCO_9(ManufacturingSchematic* manSchem,PlayerObject* ghost)
 {
-    if(!(playerObject->isConnected()))
+    if(!(ghost->isConnected()))
         return(false);
 
     Message* message;
@@ -887,16 +889,16 @@ bool MessageLib::sendBaselinesMSCO_9(ManufacturingSchematic* manSchem,PlayerObje
 
     message = mMessageFactory->EndMessage();
 
-    (playerObject->getClient())->SendChannelA(message,playerObject->getAccountId(),CR_Client,5);
+    (ghost->getClient())->SendChannelA(message,ghost->getAccountId(),CR_Client,5);
 
     return(true);
 }
 
 //======================================================================================================================
 
-bool MessageLib::sendUpdateFilledManufactureSlots(ManufacturingSchematic* manSchem,PlayerObject* playerObject)
+bool MessageLib::sendUpdateFilledManufactureSlots(ManufacturingSchematic* manSchem,PlayerObject* ghost)
 {
-    if(!(playerObject->isConnected()))
+    if(!(ghost->isConnected()))
         return(false);
 
     Message* newMessage;
@@ -914,16 +916,16 @@ bool MessageLib::sendUpdateFilledManufactureSlots(ManufacturingSchematic* manSch
 
     newMessage = mMessageFactory->EndMessage();
 
-    (playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
+    (ghost->getClient())->SendChannelA(newMessage, ghost->getAccountId(), CR_Client, 5);
 
     return(true);
 }
 
 //======================================================================================================================
 
-bool MessageLib::sendManufactureSlotUpdateSmall(ManufacturingSchematic* manSchem,uint8 slotId,PlayerObject* playerObject)
+bool MessageLib::sendManufactureSlotUpdateSmall(ManufacturingSchematic* manSchem,uint8 slotId,PlayerObject* ghost)
 {
-    if(!(playerObject->isConnected()))
+    if(!(ghost->isConnected()))
         return(false);
 
     ManufactureSlot*			manSlot	= manSchem->getManufactureSlots()->at(slotId);
@@ -992,15 +994,15 @@ bool MessageLib::sendManufactureSlotUpdateSmall(ManufacturingSchematic* manSchem
 
     newMessage = mMessageFactory->EndMessage();
 
-    (playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
+    (ghost->getClient())->SendChannelA(newMessage, ghost->getAccountId(), CR_Client, 5);
 
     return(true);
 }
 
 
-bool MessageLib::sendManufactureSlotUpdate(ManufacturingSchematic* manSchem,uint8 slotId,PlayerObject* playerObject)
+bool MessageLib::sendManufactureSlotUpdate(ManufacturingSchematic* manSchem,uint8 slotId,PlayerObject* ghost)
 {
-    if(!(playerObject->isConnected()))
+    if(!(ghost->isConnected()))
         return(false);
 
     ManufactureSlot*			manSlot	= manSchem->getManufactureSlots()->at(slotId);
@@ -1109,16 +1111,16 @@ bool MessageLib::sendManufactureSlotUpdate(ManufacturingSchematic* manSchem,uint
 
     newMessage = mMessageFactory->EndMessage();
 
-    (playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
+    (ghost->getClient())->SendChannelA(newMessage, ghost->getAccountId(), CR_Client, 5);
 
     return(true);
 }
 
 //======================================================================================================================
 
-bool MessageLib::sendDeltasMSCO_3(ManufacturingSchematic* manSchem,PlayerObject* playerObject)
+bool MessageLib::sendDeltasMSCO_3(ManufacturingSchematic* manSchem,PlayerObject* ghost)
 {
-    if(!(playerObject->isConnected()))
+    if(!(ghost->isConnected()))
         return(false);
 
     Message*				newMessage;
@@ -1173,20 +1175,20 @@ bool MessageLib::sendDeltasMSCO_3(ManufacturingSchematic* manSchem,PlayerObject*
 
     newMessage = mMessageFactory->EndMessage();
 
-    (playerObject->getClient())->SendChannelA(newMessage,playerObject->getAccountId(),CR_Client,5);
+    (ghost->getClient())->SendChannelA(newMessage,ghost->getAccountId(),CR_Client,5);
 
     return(true);
 }
 
 //======================================================================================================================
 
-bool MessageLib::sendAttributeDeltasMSCO_7(ManufacturingSchematic* manSchem,PlayerObject* playerObject)
+bool MessageLib::sendAttributeDeltasMSCO_7(ManufacturingSchematic* manSchem,PlayerObject* ghost)
 {
     // this updates the attributes properties when they have changed on experimentation
     // updated are the attributes value, the bluebarsize or the attribute(indicator of the % of the max value reached)
     // as well as the maxvalue in theory reachable
 
-    if(!(playerObject->isConnected()))
+    if(!(ghost->isConnected()))
         return(false);
 
     Message*							newMessage;
@@ -1364,7 +1366,7 @@ bool MessageLib::sendAttributeDeltasMSCO_7(ManufacturingSchematic* manSchem,Play
 
     newMessage->setPendingDelete(true);
 
-    (playerObject->getClient())->SendChannelA(finalMessage ,playerObject->getAccountId(),CR_Client,5);
+    (ghost->getClient())->SendChannelA(finalMessage ,ghost->getAccountId(),CR_Client,5);
 
     return(true);
 }
@@ -1376,12 +1378,12 @@ bool MessageLib::sendAttributeDeltasMSCO_7(ManufacturingSchematic* manSchem,Play
 
 //======================================================================================================================
 
-bool MessageLib::sendMSCO_3_ComplexityUpdate(ManufacturingSchematic* manSchem,PlayerObject* playerObject)
+bool MessageLib::sendMSCO_3_ComplexityUpdate(ManufacturingSchematic* manSchem,PlayerObject* ghost)
 {
 
     Message*							newMessage;
 
-    if(!(playerObject->isConnected()))
+    if(!(ghost->isConnected()))
         return(false);
 
     mMessageFactory->StartMessage();
@@ -1399,7 +1401,7 @@ bool MessageLib::sendMSCO_3_ComplexityUpdate(ManufacturingSchematic* manSchem,Pl
 
     newMessage = mMessageFactory->EndMessage();
 
-    (playerObject->getClient())->SendChannelA(newMessage,playerObject->getAccountId(),CR_Client,5);
+    (ghost->getClient())->SendChannelA(newMessage,ghost->getAccountId(),CR_Client,5);
 
     return(true);
 }

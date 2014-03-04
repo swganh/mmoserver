@@ -68,7 +68,7 @@ void TicketCollector::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 		PlayerObject* playerObject = dynamic_cast<PlayerObject*>(srcObject);
 		
 		// don't use while incapped or dead or in combat
-		if(playerObject->isIncapacitated() || playerObject->isDead() || playerObject->states.checkState(CreatureState_Combat))
+		if(playerObject->GetCreature()->isIncapacitated() || playerObject->GetCreature()->isDead() || playerObject->GetCreature()->states.checkState(CreatureState_Combat))
 		{
 			return;
 		}
@@ -143,7 +143,7 @@ void TicketCollector::handleUIEvent(uint32 action,int32 element,std::u16string i
         uint32			zoneId			= gWorldManager->getZoneId();
         PlayerObject*	playerObject	= window->getOwner();
 
-        if(playerObject->getSurveyState() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead())
+        if(playerObject->getSurveyState() || playerObject->getSamplingState() || playerObject->GetCreature()->isIncapacitated() || playerObject->GetCreature()->isDead())
         {
             return;
         }
@@ -209,7 +209,7 @@ void TicketCollector::handleUIEvent(uint32 action,int32 element,std::u16string i
 
 void TicketCollector::travelRequest(TravelTicket* ticket,PlayerObject* playerObject)
 {
-    if(playerObject->getSurveyState() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead())
+    if(playerObject->getSurveyState() || playerObject->getSamplingState() || playerObject->GetCreature()->isIncapacitated() || playerObject->GetCreature()->isDead())
     {
         return;
     }

@@ -105,7 +105,7 @@ bool ArtisanManager::handleRequestSurvey(Object* playerObject,Object* target,Mes
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_in_structure"), player);
         return false;
     }
-    if(player->getPerformingState() != PlayerPerformance_None)
+    if(player->GetCreature()->getPerformingState() != PlayerPerformance_None)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), player);
         return false;
@@ -121,7 +121,7 @@ bool ArtisanManager::handleRequestSurvey(Object* playerObject,Object* target,Mes
         return false;
     }
 	// checks if we are in combat, dead or incapacitated
-	if (player->states.checkState(CreatureState_Combat) || player->states.checkPosture(CreaturePosture_Dead) || player->states.checkLocomotion(CreatureLocomotion_Incapacitated))
+	if (player->GetCreature()->states.checkState(CreatureState_Combat) || player->GetCreature()->states.checkPosture(CreaturePosture_Dead) || player->GetCreature()->states.checkLocomotion(CreatureLocomotion_Incapacitated))
 	{
 		gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), player);
 		return false;
@@ -154,7 +154,7 @@ bool ArtisanManager::handleRequestSurvey(Object* playerObject,Object* target,Mes
         uint32 survey_cost = mSurveyMindCost;
         
         //are we able to sample in the first place ??
-        if(!ham->ApplyModifiedHamCosts(player, 0, 0, survey_cost))        {
+        if(!ham->ApplyModifiedHamCosts(player->GetCreature(), 0, 0, survey_cost))        {
             
             gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "sample_mind"), player);
             
@@ -163,7 +163,7 @@ bool ArtisanManager::handleRequestSurvey(Object* playerObject,Object* target,Mes
 
             player->getSampleData()->mPendingSurvey = false;
 
-            player->updateMovementProperties();
+            player->GetCreature()->updateMovementProperties();
             return false;
         }
 
@@ -201,7 +201,7 @@ bool ArtisanManager::handleRequestCoreSample(Object* player,Object* target, Mess
         //mSampleActionCost = cmdProperties->mActionCost;
         mSampleActionCost = 150;
 
-    if(playerObject->getPerformingState() != PlayerPerformance_None || playerObject->checkIfMounted() || playerObject->isDead() || playerObject->states.checkState(CreatureState_Combat))
+    if(playerObject->GetCreature()->getPerformingState() != PlayerPerformance_None || playerObject->checkIfMounted() || playerObject->GetCreature()->isDead() || playerObject->GetCreature()->states.checkState(CreatureState_Combat))
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
         return false;
@@ -275,7 +275,7 @@ bool ArtisanManager::handleRequestCoreSample(Object* player,Object* target, Mess
     gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "start_sampling", L"", L"", resourceName.getUnicode16()), playerObject);
 
     // change posture
-    gStateManager.setCurrentPostureState(playerObject, CreaturePosture_Crouched);
+    gStateManager.setCurrentPostureState(playerObject->GetCreature(), CreaturePosture_Crouched);
     // play animation
     gWorldManager->getClientEffect(tool->getInternalAttribute<uint32>("sample_effect"));
     // schedule execution
@@ -326,7 +326,7 @@ void ArtisanManager::sampleEvent(PlayerObject* player, CurrentResource* resource
 
     std::string				effect			= gWorldManager->getClientEffect(tool->getInternalAttribute<uint32>("sample_effect"));
     float					ratio			= (resource->getDistribution((int)player->mPosition.x + 8192,(int)player->mPosition.z + 8192));
-    int32					surveyMod		= player->getSkillModValue(SMod_surveying);
+    int32					surveyMod		= player->GetCreature()->getSkillModValue(SMod_surveying);
     uint32					sampleAmount	= 0;
     BString					resName			= resource->getName().getAnsi();
     uint32					resType			= resource->getType()->getCategoryId();
@@ -478,7 +478,7 @@ void ArtisanManager::sampleEvent(PlayerObject* player, CurrentResource* resource
     }
 
 	auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
-    ham->ApplyModifiedHamCosts(player, 0, actionCost, 0);
+    ham->ApplyModifiedHamCosts(player->GetCreature(), 0, actionCost, 0);
 }
 
 bool	ArtisanManager::setupSampleEvent(PlayerObject* player, CurrentResource* resource, SurveyTool* tool)
@@ -582,7 +582,7 @@ bool	ArtisanManager::getRadioactiveSample(PlayerObject* player, CurrentResource*
 		auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
     
 
-		uint32 playerBF = player->GetBattleFatigue();
+		uint32 playerBF = player->GetCreature()->GetBattleFatigue();
 
         uint32 woundDmg = 50*(1 + (playerBF/100)) + (50*(1 + (resPE/1000)));
         uint32 bfDmg    = static_cast<uint32>(0.075*resPE);
@@ -591,11 +591,11 @@ bool	ArtisanManager::getRadioactiveSample(PlayerObject* player, CurrentResource*
         if(resPE >= 500)
         {
             //wound and BF dmg
-			ham->UpdateBattleFatigue(player, 0-bfDmg);
+			ham->UpdateBattleFatigue(player->GetCreature(), 0-bfDmg);
 			//ham->ApplyModifiedHamCosts(player, 0, actionCost, 0);
-			ham->UpdateWound(player, HamBar_Health, woundDmg);
-			ham->UpdateWound(player, HamBar_Action, woundDmg);
-			ham->UpdateWound(player, HamBar_Mind, woundDmg);
+			ham->UpdateWound(player->GetCreature(), HamBar_Health, woundDmg);
+			ham->UpdateWound(player->GetCreature(), HamBar_Action, woundDmg);
+			ham->UpdateWound(player->GetCreature(), HamBar_Mind, woundDmg);
             
 		}
 
@@ -605,14 +605,14 @@ bool	ArtisanManager::getRadioactiveSample(PlayerObject* player, CurrentResource*
         // we don't have more ham than we should.
 
         BuffAttribute* healthdebuffAttribute = new BuffAttribute(attr_health, -(int)hamReduc,0,hamReduc);
-        Buff* healthdebuff = Buff::SimpleBuff(player, player, 300000,0, gWorldManager->GetCurrentGlobalTick());
+        Buff* healthdebuff = Buff::SimpleBuff(player->GetCreature(), player->GetCreature(), 300000,0, gWorldManager->GetCurrentGlobalTick());
         healthdebuff->AddAttribute(healthdebuffAttribute);
-        player->AddBuff(healthdebuff,true);
+        player->GetCreature()->AddBuff(healthdebuff,true);
 
         healthdebuffAttribute = new BuffAttribute(attr_action, -(int)hamReduc,0,hamReduc);
-        healthdebuff = Buff::SimpleBuff(player, player, 300000, 0, gWorldManager->GetCurrentGlobalTick());
+        healthdebuff = Buff::SimpleBuff(player->GetCreature(), player->GetCreature(), 300000, 0, gWorldManager->GetCurrentGlobalTick());
         healthdebuff->AddAttribute(healthdebuffAttribute);
-        player->AddBuff(healthdebuff,true);
+        player->GetCreature()->AddBuff(healthdebuff,true);
     }
     else
         return false;
@@ -703,13 +703,13 @@ bool	ArtisanManager::stopSampling(PlayerObject* player, CurrentResource* resourc
         stop = true;
     }
     // you can't take sample while under attack!
-    if(player->states.checkState(CreatureState_Combat))
+    if(player->GetCreature()->states.checkState(CreatureState_Combat))
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_cancel_attack"), player);
         return false;
     }
     // you can't take samples while standing
-    if (player->states.checkPosture(CreaturePosture_Upright))
+    if (player->GetCreature()->states.checkPosture(CreaturePosture_Upright))
     {
         stop = true;
     }
@@ -728,7 +728,7 @@ bool	ArtisanManager::stopSampling(PlayerObject* player, CurrentResource* resourc
 
     uint32 actionCost = mSampleActionCost;
 
-    if(!ham->checkMainPools(player, 0,actionCost,0))
+    if(!ham->checkMainPools(player->GetCreature(), 0,actionCost,0))
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "sample_mind"), player);
         stop = true;
@@ -737,7 +737,7 @@ bool	ArtisanManager::stopSampling(PlayerObject* player, CurrentResource* resourc
     if (stop)
     {
         player->setSamplingState(false);
-        gStateManager.setCurrentPostureState(player, CreaturePosture_Upright);
+        gStateManager.setCurrentPostureState(player->GetCreature(), CreaturePosture_Upright);
     }
     return stop;
 }
@@ -829,7 +829,7 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,std::u16string in
         {
             player->getSampleData()->mPassRadioactive = false;
             player->getSampleData()->mPendingSample = false;
-            gStateManager.setCurrentPostureState(player, CreaturePosture_Upright);
+            gStateManager.setCurrentPostureState(player->GetCreature(), CreaturePosture_Upright);
             return;
         }
         else
@@ -837,7 +837,7 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,std::u16string in
             player->getSampleData()->mPassRadioactive = true;
             player->getSampleData()->mPendingSample = true;
 
-            if(ham->checkMainPool(player, HamBar_Action, mSampleActionCost*2))
+            if(ham->checkMainPool(player->GetCreature(), HamBar_Action, mSampleActionCost*2))
             {
 
                 SurveyTool*			tool					= dynamic_cast<SurveyTool*>(gWorldManager->getObjectById(AsyncContainer->ToolId));
@@ -866,11 +866,11 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,std::u16string in
         {
             player->getSampleData()->mPendingSample = false;
             player->getSampleData()->mSampleGambleFlag = false;
-            gStateManager.setCurrentPostureState(player, CreaturePosture_Upright);
-            player->updateMovementProperties();
+            gStateManager.setCurrentPostureState(player->GetCreature(), CreaturePosture_Upright);
+            player->GetCreature()->updateMovementProperties();
             gMessageLib->sendUpdateMovementProperties(player);
-            gMessageLib->sendPostureAndStateUpdate(player);
-            gMessageLib->sendSelfPostureUpdate(player);
+            gMessageLib->sendPostureAndStateUpdate(player->GetCreature());
+            
             return;
 
         }
@@ -892,9 +892,9 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,std::u16string in
             else
             {
                 //action costs
-                if(!ham->checkMainPool(player, HamBar_Action ,mSampleActionCost*2))
+                if(!ham->checkMainPool(player->GetCreature(), HamBar_Action ,mSampleActionCost*2))
                 {
-                    gStateManager.setCurrentPostureState(player, CreaturePosture_Upright);
+                    gStateManager.setCurrentPostureState(player->GetCreature(), CreaturePosture_Upright);
                     player->getSampleData()->mSampleEventFlag = false;
                     player->getSampleData()->mSampleGambleFlag = false;
                     gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "gamble_no_action"), player);
@@ -952,7 +952,7 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,std::u16string in
                 datapad->requestNewWaypoint(name_u16, player->getSampleData()->Position ,static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
                 gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "node_waypoint"), player);
 
-                gStateManager.setCurrentPostureState(player, CreaturePosture_Upright);
+                gStateManager.setCurrentPostureState(player->GetCreature(), CreaturePosture_Upright);
                 return;
             }
             //we ignored the node - so continue sampling
@@ -979,7 +979,7 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,std::u16string in
             player->getSampleData()->resource	= NULL;
             player->getSampleData()->zone		= 0;
 
-            gStateManager.setCurrentPostureState(player, CreaturePosture_Upright);
+            gStateManager.setCurrentPostureState(player->GetCreature(), CreaturePosture_Upright);
             return;
         }
     }

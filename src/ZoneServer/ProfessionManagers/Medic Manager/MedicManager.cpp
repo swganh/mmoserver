@@ -114,43 +114,43 @@ bool MedicManager::Diagnose(PlayerObject* Medic, PlayerObject* Patient)
 	auto ham = kernel_->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
 
 	int8 Health[32];
-	sprintf(Health,"Health -- %i",Patient->GetStatWound(HamBar_Health));
+	sprintf(Health,"Health -- %i",Patient->GetCreature()->GetStatWound(HamBar_Health));
     attributesMenu.push_back(Health);
 
     int8 Strength[32];
-    sprintf(Strength,"Strength -- %i",Patient->GetStatWound(HamBar_Strength));
+    sprintf(Strength,"Strength -- %i",Patient->GetCreature()->GetStatWound(HamBar_Strength));
     attributesMenu.push_back(Strength);
 
     int8 Constitution[32];
-    sprintf(Constitution,"Constitution -- %i",Patient->GetStatWound(HamBar_Constitution));
+    sprintf(Constitution,"Constitution -- %i",Patient->GetCreature()->GetStatWound(HamBar_Constitution));
     attributesMenu.push_back(Constitution);
 
     int8 Action[32];
-    sprintf(Action,"Action -- %i",Patient->GetStatWound(HamBar_Action));
+    sprintf(Action,"Action -- %i",Patient->GetCreature()->GetStatWound(HamBar_Action));
     attributesMenu.push_back(Action);
 
     int8 Quickness[32];
-    sprintf(Quickness,"Quickness -- %i",Patient->GetStatWound(HamBar_Quickness));
+    sprintf(Quickness,"Quickness -- %i",Patient->GetCreature()->GetStatWound(HamBar_Quickness));
     attributesMenu.push_back(Quickness);
 
     int8 Stamina[32];
-    sprintf(Stamina,"Stamina -- %i",Patient->GetStatWound(HamBar_Stamina));
+    sprintf(Stamina,"Stamina -- %i",Patient->GetCreature()->GetStatWound(HamBar_Stamina));
     attributesMenu.push_back(Stamina);
 
     int8 Mind[32];
-    sprintf(Mind,"Mind -- %i",Patient->GetStatWound(HamBar_Mind));
+    sprintf(Mind,"Mind -- %i",Patient->GetCreature()->GetStatWound(HamBar_Mind));
     attributesMenu.push_back(Mind);
 
     int8 Focus[32];
-    sprintf(Focus,"Focus -- %i",Patient->GetStatWound(HamBar_Focus));
+    sprintf(Focus,"Focus -- %i",Patient->GetCreature()->GetStatWound(HamBar_Focus));
     attributesMenu.push_back(Focus);
 
     int8 Willpower[32];
-    sprintf(Willpower,"Willpower -- %i",Patient->GetStatWound(HamBar_Willpower));
+    sprintf(Willpower,"Willpower -- %i",Patient->GetCreature()->GetStatWound(HamBar_Willpower));
     attributesMenu.push_back(Willpower);
 
     int8 BattleFatigue[32];
-	sprintf(BattleFatigue,"Battle Fatigue -- %i",Patient->GetBattleFatigue());
+	sprintf(BattleFatigue,"Battle Fatigue -- %i",Patient->GetCreature()->GetBattleFatigue());
     attributesMenu.push_back(BattleFatigue);
 
 
@@ -367,11 +367,11 @@ bool MedicManager::CheckMedicine(PlayerObject* Medic, PlayerObject* Target, Obje
     uint64 req = medicine->getSkillRequired("healing_ability");
     if (wound)
     {
-        medicSkill = Medic->getSkillModValue(SMod_healing_wound_treatment);
+        medicSkill = Medic->GetCreature()->getSkillModValue(SMod_healing_wound_treatment);
     }
     else
     {
-        medicSkill = Medic->getSkillModValue(SMod_healing_ability);
+        medicSkill = Medic->GetCreature()->getSkillModValue(SMod_healing_ability);
     };
 
     if(medicSkill < req)
@@ -402,7 +402,7 @@ bool MedicManager::HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 
     bool quickHeal = (healType.find("quickHeal") != std::string::npos);
 
     //Get Medic Skill Mods
-    uint32 healingskill = Medic->getSkillModValue(SMod_healing_injury_treatment);
+    uint32 healingskill = Medic->GetCreature()->getSkillModValue(SMod_healing_injury_treatment);
 
     //If Currently in Delay Period
     if(!quickHeal && Medic->checkPlayerCustomFlag(PlayerCustomFlag_InjuryTreatment))
@@ -451,10 +451,10 @@ bool MedicManager::HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 
     //Does Target Need Healing take into account wounds
 	auto ham = kernel_->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
 
-	int TargetHealth = Target->GetStatCurrent(HamBar_Health);
-    int TargetAction = Target->GetStatCurrent(HamBar_Action);
-	int TargetMaxHealth = ham->getModifiedHitPoints(Target, HamBar_Health); 
-    int TargetMaxAction = ham->getModifiedHitPoints(Target, HamBar_Action); 
+	int TargetHealth = Target->GetCreature()->GetStatCurrent(HamBar_Health);
+    int TargetAction = Target->GetCreature()->GetStatCurrent(HamBar_Action);
+	int TargetMaxHealth = ham->getModifiedHitPoints(Target->GetCreature(), HamBar_Health); 
+    int TargetMaxAction = ham->getModifiedHitPoints(Target->GetCreature(), HamBar_Action); 
 
     if(!(TargetHealth < TargetMaxHealth))
     {
@@ -514,15 +514,15 @@ bool MedicManager::HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 
     else if (quickHeal)
         cost = 1000;
 	
-	if (!ham->checkMainPool(Medic, HamBar_Mind, cost)) {
+	if (!ham->checkMainPool(Medic->GetCreature(), HamBar_Mind, cost)) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("healing", "not_enough_mind"), Medic);
         return false;
     }
 
-	ham->UpdateCurrentHitpoints(Medic, HamBar_Mind, -cost);
+	ham->UpdateCurrentHitpoints(Medic->GetCreature(), HamBar_Mind, -cost);
     
-	ham->UpdateCurrentHitpoints(Target, HamBar_Health, StrengthHealth);
-	ham->UpdateCurrentHitpoints(Target, HamBar_Action, StrengthAction);
+	ham->UpdateCurrentHitpoints(Target->GetCreature(), HamBar_Health, StrengthHealth);
+	ham->UpdateCurrentHitpoints(Target->GetCreature(), HamBar_Action, StrengthAction);
     
 
     //Add XP as Total Heal / 4 if not targetting self
@@ -548,7 +548,7 @@ bool MedicManager::HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 
         }
 
         //Anim
-        gMessageLib->sendCreatureAnimation(Medic, BString("heal_self"));
+        gMessageLib->sendCreatureAnimation(Medic->GetCreature(), BString("heal_self"));
 
         //CE
         gMessageLib->sendPlayClientEffectLocMessage("clienteffect/healing_healdamage.cef",Medic->mPosition,Medic);
@@ -580,7 +580,7 @@ bool MedicManager::HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 
             }
         }
         //Anim
-        gMessageLib->sendCreatureAnimation(Medic, BString("heal_other"));
+        gMessageLib->sendCreatureAnimation(Medic->GetCreature(), BString("heal_other"));
 
         //CE
         gMessageLib->sendPlayClientEffectLocMessage("clienteffect/healing_healdamage.cef",Target->mPosition,Target);
@@ -604,7 +604,7 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, PlayerObject* Target, u
     isSelf = (Medic->getId() == Target->getId());
 
     //Get Medic Skill Mods
-    uint32 healingskill = Medic->getSkillModValue(SMod_healing_range);
+    uint32 healingskill = Medic->GetCreature()->getSkillModValue(SMod_healing_range);
 
     //If Currently in Delay Period
 
@@ -626,12 +626,12 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, PlayerObject* Target, u
     }
 
     //Does Target Need Healing
-	int TargetHealth = Target->GetStatCurrent(HamBar_Health);
-	int TargetAction = Target->GetStatCurrent(HamBar_Action);
+	int TargetHealth = Target->GetCreature()->GetStatCurrent(HamBar_Health);
+	int TargetAction = Target->GetCreature()->GetStatCurrent(HamBar_Action);
 
 	//TODO minus modifiers (wounds bf)
-	int TargetMaxHealth = Target->GetStatMax(HamBar_Health);
-    int TargetMaxAction = Target->GetStatMax(HamBar_Action);
+	int TargetMaxHealth = Target->GetCreature()->GetStatMax(HamBar_Health);
+    int TargetMaxAction = Target->GetCreature()->GetStatMax(HamBar_Action);
 
     if(!(TargetHealth < TargetMaxHealth))
     {
@@ -662,21 +662,21 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, PlayerObject* Target, u
 
 	auto ham = kernel_->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
 
-	ham->UpdateCurrentHitpoints(Target, HamBar_Health, StrengthHealth);
-	ham->UpdateCurrentHitpoints(Target, HamBar_Action, StrengthAction);
+	ham->UpdateCurrentHitpoints(Target->GetCreature(), HamBar_Health, StrengthHealth);
+	ham->UpdateCurrentHitpoints(Target->GetCreature(), HamBar_Action, StrengthAction);
     
     
     //Cost.
     int cost = 50;
 	
-	int MedicMind = Medic->GetStatCurrent(HamBar_Mind);
+	int MedicMind = Medic->GetCreature()->GetStatCurrent(HamBar_Mind);
 
     if (MedicMind < cost) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("healing", "not_enough_mind"), Medic);
         return false;
     }
 
-	ham->UpdateCurrentHitpoints(Medic, HamBar_Mind, -cost);
+	ham->UpdateCurrentHitpoints(Medic->GetCreature(), HamBar_Mind, -cost);
     //Medic->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, -cost);
 
 
@@ -707,7 +707,7 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, PlayerObject* Target, u
                 gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "healing_response_11", 0, 0, 0, StrengthAction), Medic);
             }
         }
-        gMessageLib->sendCombatAction(Medic, Target, BString::CRC("throw_grenade_near_healing"), 1, 1, 1);
+        gMessageLib->sendCombatAction(Medic->GetCreature(), Target, BString::CRC("throw_grenade_near_healing"), 1, 1, 1);
 
     } else { //if targetting something else
         if(StrengthHealth > 0)
@@ -730,7 +730,7 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, PlayerObject* Target, u
                 gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "healing_response_17", 0, 0, Medic->getId(), StrengthAction), Target);
             }
         }
-        gMessageLib->sendCombatAction(Medic, Target, BString::CRC("throw_grenade_medium_healing"), 0, 0, 1);
+        gMessageLib->sendCombatAction(Medic->GetCreature(), Target, BString::CRC("throw_grenade_medium_healing"), 0, 0, 1);
     }
 
 	gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "healing_response_62"), Medic);
@@ -796,17 +796,17 @@ bool MedicManager::HealWound(PlayerObject* Medic, PlayerObject* Target, uint64 W
 
 	auto ham = kernel_->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
 
-	if (!ham->checkMainPool(Medic, HamBar_Mind, cost) ) {
+	if (!ham->checkMainPool(Medic->GetCreature(), HamBar_Mind, cost) ) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("healing", "not_enough_mind"), Medic);
         return false;
     }
 
-	ham->UpdateCurrentHitpoints(Medic, HamBar_Mind, -cost);
+	ham->UpdateCurrentHitpoints(Medic->GetCreature(), HamBar_Mind, -cost);
 
     if (!isSelf)
     {
         //Anim
-        gMessageLib->sendCreatureAnimation(Medic, BString("heal_other"));
+        gMessageLib->sendCreatureAnimation(Medic->GetCreature(), BString("heal_other"));
 
         //CE
         gMessageLib->sendPlayClientEffectLocMessage("clienteffect/healing_healwound.cef",Target->mPosition,Target);
@@ -816,7 +816,7 @@ bool MedicManager::HealWound(PlayerObject* Medic, PlayerObject* Target, uint64 W
     else
     {
         //Anim
-        gMessageLib->sendCreatureAnimation(Medic, BString("heal_self"));
+        gMessageLib->sendCreatureAnimation(Medic->GetCreature(), BString("heal_self"));
 
         //CE
         gMessageLib->sendPlayClientEffectLocMessage("clienteffect/healing_healwound.cef",Target->mPosition,Target);
@@ -834,7 +834,7 @@ bool MedicManager::HealWound(PlayerObject* Medic, PlayerObject* Target, uint64 W
 
 void MedicManager::startInjuryTreatmentEvent(PlayerObject* Medic)
 {
-    uint healingspeed = Medic->getSkillModValue(SMod_healing_injury_speed);
+    uint healingspeed = Medic->GetCreature()->getSkillModValue(SMod_healing_injury_speed);
     int delay = (int)((( 100 - (float)healingspeed ) / 100 ) * 10000);
     uint64 cooldown = std::max(4000, delay);
     uint64 now = gWorldManager->GetCurrentGlobalTick();
@@ -844,7 +844,7 @@ void MedicManager::startInjuryTreatmentEvent(PlayerObject* Medic)
 }
 void MedicManager::startQuickHealInjuryTreatmentEvent(PlayerObject* Medic)
 {
-    uint healingspeed = Medic->getSkillModValue(SMod_healing_injury_speed);
+    uint healingspeed = Medic->GetCreature()->getSkillModValue(SMod_healing_injury_speed);
     int delay = (int)((( 100 - (float)healingspeed ) / 100 ) * 10000);
     uint64 cooldown = std::max(4000, delay);
     uint64 now = gWorldManager->GetCurrentGlobalTick();
@@ -854,7 +854,7 @@ void MedicManager::startQuickHealInjuryTreatmentEvent(PlayerObject* Medic)
 }
 void MedicManager::startWoundTreatmentEvent(PlayerObject* Medic)
 {
-    uint healingspeed = Medic->getSkillModValue(SMod_healing_wound_speed);
+    uint healingspeed = Medic->GetCreature()->getSkillModValue(SMod_healing_wound_speed);
     int delay = (int)((( 100 - (float)healingspeed ) / 100 ) * 10000);
     uint64 cooldown = std::max(1000, delay);
     uint64 now = gWorldManager->GetCurrentGlobalTick();
@@ -870,7 +870,7 @@ void MedicManager::successForage(PlayerObject* player)
 
     //First lets calc our chance to 'win'
     //This is the magic formula!
-    double chance = std::sqrt((double)player->getSkillModValue(20))/20 + 0.15;
+    double chance = std::sqrt((double)player->GetCreature()->getSkillModValue(20))/20 + 0.15;
 
     if(!gStructureManager->checkCityRadius(player))
         chance = chance*50;
@@ -893,7 +893,7 @@ void MedicManager::successForage(PlayerObject* player)
 //HELPERS
 int32 MedicManager::CalculateBF(PlayerObject* Medic, PlayerObject* Target, int32 maxhealamount)
 {
-	int32 BF = Target->GetBattleFatigue();
+	int32 BF = Target->GetCreature()->GetBattleFatigue();
     if(BF > 250)
     {
         maxhealamount -= (maxhealamount * (BF-250) / 1000);
@@ -956,17 +956,17 @@ int32 MedicManager::CalculateHealWound(PlayerObject* Medic, PlayerObject* Target
     bool isSelf = false;
     isSelf = (Medic->getId() == Target->getId());
     int TargetWounds = 0;
-    uint32 healingskill = Medic->getSkillModValue(SMod_healing_wound_treatment);
+    uint32 healingskill = Medic->GetCreature()->getSkillModValue(SMod_healing_wound_treatment);
     int32 maxwoundheal = 0;
     
 
     if (healType == action)
     {
-		TargetWounds = Target->GetStatWound(HamBar_Action);
+		TargetWounds = Target->GetCreature()->GetStatWound(HamBar_Action);
         maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
         maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
         maxwoundheal = std::min(maxwoundheal, TargetWounds);
-		maxwoundheal = ham->UpdateWound(Target, HamBar_Action, -maxwoundheal);
+		maxwoundheal = ham->UpdateWound(Target->GetCreature(), HamBar_Action, -maxwoundheal);
         if (maxwoundheal != 0)
         {
             //success message
@@ -980,11 +980,11 @@ int32 MedicManager::CalculateHealWound(PlayerObject* Medic, PlayerObject* Target
     }
     else if	(healType == constitution)
     {
-        TargetWounds = Target->GetStatWound(HamBar_Constitution);
+        TargetWounds = Target->GetCreature()->GetStatWound(HamBar_Constitution);
         maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
         maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
         maxwoundheal = std::min(maxwoundheal, TargetWounds);
-        maxwoundheal = ham->UpdateWound(Target, HamBar_Constitution, -maxwoundheal);
+        maxwoundheal = ham->UpdateWound(Target->GetCreature(), HamBar_Constitution, -maxwoundheal);
         if (maxwoundheal > 0)
         {
             //success message
@@ -998,11 +998,11 @@ int32 MedicManager::CalculateHealWound(PlayerObject* Medic, PlayerObject* Target
     }
     else if (healType == health)
     {
-        TargetWounds = Target->GetStatWound(HamBar_Health);
+        TargetWounds = Target->GetCreature()->GetStatWound(HamBar_Health);
         maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
         maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
         maxwoundheal = std::min(maxwoundheal, TargetWounds);
-        maxwoundheal = ham->UpdateWound(Target, HamBar_Health, -maxwoundheal);
+        maxwoundheal = ham->UpdateWound(Target->GetCreature(), HamBar_Health, -maxwoundheal);
         if (maxwoundheal > 0)
         {
             //success message
@@ -1016,11 +1016,11 @@ int32 MedicManager::CalculateHealWound(PlayerObject* Medic, PlayerObject* Target
     }
     else if (healType == quickness)
     {
-        TargetWounds = Target->GetStatWound(HamBar_Quickness);
+        TargetWounds = Target->GetCreature()->GetStatWound(HamBar_Quickness);
         maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
         maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
         maxwoundheal = std::min(maxwoundheal, TargetWounds);
-        maxwoundheal = ham->UpdateWound(Target, HamBar_Quickness, -maxwoundheal);
+        maxwoundheal = ham->UpdateWound(Target->GetCreature(), HamBar_Quickness, -maxwoundheal);
         if (maxwoundheal > 0)
         {
             //success message
@@ -1034,11 +1034,11 @@ int32 MedicManager::CalculateHealWound(PlayerObject* Medic, PlayerObject* Target
     }
     else if (healType == stamina)
     {
-        TargetWounds = Target->GetStatWound(HamBar_Stamina);
+        TargetWounds = Target->GetCreature()->GetStatWound(HamBar_Stamina);
         maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
         maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
         maxwoundheal = std::min(maxwoundheal, TargetWounds);
-        maxwoundheal = ham->UpdateWound(Target, HamBar_Stamina, -maxwoundheal);
+        maxwoundheal = ham->UpdateWound(Target->GetCreature(), HamBar_Stamina, -maxwoundheal);
         if (maxwoundheal > 0)
         {
             //success message
@@ -1052,11 +1052,11 @@ int32 MedicManager::CalculateHealWound(PlayerObject* Medic, PlayerObject* Target
     }
     else if (healType == strength)
     {
-        TargetWounds = Target->GetStatWound(HamBar_Strength);
+        TargetWounds = Target->GetCreature()->GetStatWound(HamBar_Strength);
         maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
         maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
         maxwoundheal = std::min(maxwoundheal, TargetWounds);
-        maxwoundheal = ham->UpdateWound(Target, HamBar_Strength, -maxwoundheal);
+        maxwoundheal = ham->UpdateWound(Target->GetCreature(), HamBar_Strength, -maxwoundheal);
         if (maxwoundheal > 0)
         {
             //success message

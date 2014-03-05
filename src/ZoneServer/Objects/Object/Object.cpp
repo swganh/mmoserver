@@ -326,7 +326,7 @@ void Object::InitializeObject(Object* newObject)
 		newObject->SetPermissions(permissions_objects_.find(swganh::object::DEFAULT_PERMISSION)->second.get());//DEFAULT_PERMISSION
 	}
 
-	uint32 arrangement = GetAppropriateArrangementId(newObject);
+	int32 arrangement = GetAppropriateArrangementId(newObject);
     if(!InitializeObject(nullptr, newObject, arrangement))	{
 		//throw std::runtime_error("Bad Initialization for Object" + newObject->getId());
 	}
@@ -344,7 +344,7 @@ bool Object::InitializeObject(Object* requester, Object* obj, int32_t arrangemen
 			
 	if(!slot_descriptor )	{
 		// Transfer it out, put it in the place the replacing object came from
-		LOG (info) << "Object::InitializeObject couldnt add Object : " << obj->getId() << " to " << getId();
+		LOG (info) << "Object::InitializeObject No Slot Descriptor couldnt add Object : " << obj->getId() << " to " << getId();
 		return false;
 	}
 

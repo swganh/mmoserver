@@ -236,7 +236,7 @@ void SpatialIndexManager::sendCreateTangible(TangibleObject* tangibleObject, Obj
 bool SpatialIndexManager::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targetObject)
 {
 
-    //gMessageLib->sendCreatePlayer(playerObject, targetObject);
+    gMessageLib->sendCreatePlayer(playerObject, targetObject);
 	playerObject->registerWatcher(targetObject);
 
 	playerObject->GetCreature()->ViewObjects(playerObject, 0, false, [&] (Object* object) {

@@ -85,7 +85,9 @@ void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,Objec
 
 void ObjectController::_handleAdminWarpSelf(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*		player		= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject);
+	PlayerObject* player = creature->GetGhost();
+
     BString				dataStr;
     BString				planet;
     int32				planetId	= 0;
@@ -181,7 +183,9 @@ void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,Objec
     BString dataStr;
     message->getStringUnicode16(dataStr);
 
-    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject);
+	PlayerObject* player = creature->GetGhost();
+
     if ((player) && (player->isConnected()))
     {
         // gMessageLib->sendSystemMessage(player, dataStr, true);
@@ -894,7 +898,9 @@ void ObjectController::broadcastGalaxyMessage(BString theBroadcast, int32 planet
 {
     if (theBroadcast.getLength())
     {
-        PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+        CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject);
+		PlayerObject* player = creature->GetGhost();
+
         if (player)
         {
             theBroadcast.convert(BSTRType_Unicode16);
@@ -925,7 +931,9 @@ void ObjectController::broadcastGalaxyMessage(BString theBroadcast, int32 planet
 void ObjectController::scheduleShutdown(int32 scheduledTime, BString shutdownReason) const
 {
 
-    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject);
+	PlayerObject* player = creature->GetGhost();
+
     if (player)
     {
         shutdownReason.convert(BSTRType_Unicode16);
@@ -950,7 +958,9 @@ void ObjectController::scheduleShutdown(int32 scheduledTime, BString shutdownRea
 
 void ObjectController::cancelScheduledShutdown(BString cancelShutdownReason) const
 {
-    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    
+	CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
+
     if (player)
     {
         cancelShutdownReason.convert(BSTRType_Unicode16);
@@ -1040,7 +1050,7 @@ int32 ObjectController::indexOfNextField(const BString message) const
 
 void ObjectController::sendAdminFeedback(BString reply) const
 {
-    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
     if ((player) && (player->isConnected()))
     {
         if (reply.getLength())

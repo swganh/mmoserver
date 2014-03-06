@@ -46,7 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void ObjectController::handleMissionListRequest(Message* message)
 {
-    PlayerObject*   player  = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
     gMessageLib->SendSystemMessage(L"Missions are currently disabled, do not report this as a bug",player);
     return;
 
@@ -63,7 +63,7 @@ void ObjectController::handleMissionListRequest(Message* message)
 //NOTE: Client never sends this... - meanmon13
 void ObjectController::handleMissionDetailsRequest(Message* message)
 {
-    PlayerObject*   player  = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
     gMessageLib->SendSystemMessage(L"Missions are currently disabled, do not report this as a bug",player);
     return;
 
@@ -76,7 +76,7 @@ void ObjectController::handleMissionDetailsRequest(Message* message)
 
 void ObjectController::handleMissionCreateRequest(Message* message)
 {
-    PlayerObject*   player  = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
     gMessageLib->SendSystemMessage(L"Missions are currently disabled, do not report this as a bug",player);
     return;
 
@@ -88,7 +88,7 @@ void ObjectController::handleMissionCreateRequest(Message* message)
 
 void ObjectController::handleGenericMissionRequest(Message* message)
 {
-    PlayerObject*   player  = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
     gMessageLib->SendSystemMessage(L"Missions are currently disabled, do not report this as a bug",player);
     return;
     uint64 mission_id = message->getUint64();
@@ -101,7 +101,7 @@ void ObjectController::handleGenericMissionRequest(Message* message)
 
 void ObjectController::handleMissionAbort(Message* message)
 {
-    PlayerObject*   player  = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
     gMessageLib->SendSystemMessage(L"Missions are currently disabled, do not report this as a bug",player);
     return;
     uint64 mission_id = message->getUint64();

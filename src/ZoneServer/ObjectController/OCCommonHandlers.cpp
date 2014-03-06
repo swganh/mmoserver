@@ -102,7 +102,8 @@ using ::swg_protocol::object_controller::PreCommandExecuteEvent;
 
 void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject);
+	PlayerObject* playerObject = creature->GetGhost();
 
     ObjectSet		inRangeObjects;
     float			boardingRange	= 25.0;
@@ -164,7 +165,9 @@ void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,Ob
 void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 
-	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
+	CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject);
+	PlayerObject* playerObject = creature->GetGhost();
+
 	Object*			itemObject		= gWorldManager->getObjectById(targetId);
 
 	if (itemObject)
@@ -219,7 +222,8 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 
 void ObjectController::_handleCloseContainer(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject);
+	PlayerObject* playerObject = creature->GetGhost();
 
     if (gWorldConfig->isTutorial())
     {
@@ -250,7 +254,9 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	//we need to make sure that ONLY equipped items are contained by the player
 	//all other items are contained by the inventory!!!!!!!!
 
-	PlayerObject*	playerObject	=	dynamic_cast<PlayerObject*>(mObject);
+	CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject);
+	PlayerObject* playerObject = creature->GetGhost();
+
 	Object*			itemObject		=	gWorldManager->getObjectById(targetId);
 	//Inventory*		inventory		=	dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
@@ -346,7 +352,9 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*	playerObject = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject);
+	PlayerObject* playerObject = creature->GetGhost();
+
     BString			dataStr;
     BStringVector	dataElements;
     uint16			elements;
@@ -464,7 +472,9 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 
 void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
+	CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject);
+	PlayerObject* playerObject = creature->GetGhost();
+
     BString			requestStr;
     BStringVector	dataElements;
     BStringVector	dataElements2;
@@ -623,7 +633,9 @@ void ObjectController::_endBurstRun(uint64 targetId,Message* message,ObjectContr
 
 void ObjectController::_handleSurrenderSkill(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*	player		= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject);
+	PlayerObject* player = creature->GetGhost();
+
     BString			skillStr;
 
     message->getStringUnicode16(skillStr);
@@ -670,7 +682,8 @@ void ObjectController::handleObjectMenuRequest(Message* message)
     //this is why sometimes when lag is involved it takes some time for all options to display
 
 
-    PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject);
+	PlayerObject* playerObject = creature->GetGhost();
 
     message->getUint32(); // unknown
     uint64 requestedObjectId = message->getUint64();
@@ -801,7 +814,7 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 void ObjectController::handleObjectReady(Object* object,DispatchClient* client)
 {
 	PlayerObject* player = gWorldManager->getPlayerByAccId(client->getAccountId());
-	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
+	
 
 	gSpatialIndexManager->createInWorld(object);
 }
@@ -810,7 +823,9 @@ void ObjectController::handleObjectReady(Object* object,DispatchClient* client)
 
 void ObjectController::_handleNewbieSelectStartingLocation(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject);
+	PlayerObject* player = creature->GetGhost();
+
     // gLogger->hexDump(message->getData(),message->getSize());
 
     // Find the planet and position.
@@ -837,8 +852,9 @@ void ObjectController::_handleNewbieSelectStartingLocation(uint64 targetId,Messa
 //
 void ObjectController::_handleClientLogout(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
-    // gLogger->hexDump(message->getData(),message->getSize());
+    
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject);
+	PlayerObject* player = creature->GetGhost();
 
     //make sure we cannot use the /logout multiple times
     //as this will invalidate our disconnect lists

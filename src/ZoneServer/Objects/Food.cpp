@@ -68,7 +68,7 @@ Food::~Food()
 void Food::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
     RadialMenu* radial	= new RadialMenu();
-
+	//very very very ugly hack
 	CreatureObject* unknownCreature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(this->getParentId() - INVENTORY_OFFSET));
 
 	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");

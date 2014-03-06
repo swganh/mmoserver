@@ -94,7 +94,7 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
 
 {
 
-    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     if(!player)
     {
@@ -196,7 +196,7 @@ void	ObjectController::_handleTransferStructure(uint64 targetId,Message* message
     // OR we have the recipient targeted and stand NEXT to the structure were about to transfer
 
     //do we have a valid donor ?
-    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     if(!player)
     {
@@ -264,7 +264,7 @@ void	ObjectController::_handleNameStructure(uint64 targetId,Message* message,Obj
     // OR we have the recipient targeted and stand NEXT to the structure were about to transfer
 
     //do we have a valid donor ?
-    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     if(!player)
     {
@@ -322,7 +322,7 @@ void	ObjectController::_handleNameStructure(uint64 targetId,Message* message,Obj
 void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 
-    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
     if(!player)    {
         return;
     }
@@ -383,7 +383,7 @@ void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* 
 //
 void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     if(!player)
     {
@@ -487,7 +487,7 @@ void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* m
 void	ObjectController::_handleHarvesterActivate(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 
-    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     if(!player)
     {
@@ -533,7 +533,7 @@ void	ObjectController::_handleHarvesterActivate(uint64 targetId,Message* message
 void	ObjectController::_handleHarvesterDeActivate(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 
-    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     if(!player)
     {
@@ -579,7 +579,7 @@ void	ObjectController::_handleHarvesterDeActivate(uint64 targetId,Message* messa
 void	ObjectController::_handleDiscardHopper(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 
-    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     if(!player)
     {
@@ -627,7 +627,7 @@ void	ObjectController::handleResourceEmptyHopper(Message* message)
     message->getUint64(playerId);
     message->getUint64(harvesterId);
 
-    PlayerObject*   player  = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     if(!player)
     {
@@ -699,7 +699,7 @@ void	ObjectController::HandleItemMoveForward_(
     Message* message,
     ObjectControllerCmdProperties* cmdProperties) {
 
-    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     if (!player)	{
         assert(false && "ObjectController::HandleItemMoveForward_ Player not found");
@@ -772,7 +772,7 @@ void	ObjectController::HandleItemMoveBack_(
     Message* message,
     ObjectControllerCmdProperties* cmdProperties) {
 
-    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     if (!player)	{
         assert(false && "ObjectController::HandleItemMoveBack_ Player not found");
@@ -846,7 +846,7 @@ void	ObjectController::HandleItemMoveUp_(
     Message* message,
     ObjectControllerCmdProperties* cmdProperties) {
 
-    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     if (!player)	{
         assert(false && "ObjectController::HandleItemMoveUp_ Player not found");
@@ -919,7 +919,7 @@ void ObjectController::HandleItemMoveDown_(
     Message* message,
     ObjectControllerCmdProperties* cmdProperties) {
 
-    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     if (!player)	{
         assert(false && "ObjectController::HandleItemMoveDown_ Player not found");
@@ -992,7 +992,7 @@ void	ObjectController::HandleItemRotateRight_(
     Message* message,
     ObjectControllerCmdProperties* cmdProperties) {
 
-    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     if (!player)	{
         assert(false && "ObjectController::HandleItemRotateRight_ Player not found");
@@ -1065,7 +1065,7 @@ void ObjectController::HandleItemRotateLeft_(
     Message* message,
     ObjectControllerCmdProperties* cmdProperties) {
 
-    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     if (!player)	{
         assert(false && "ObjectController::HandleItemRotateLeft_ Player not found");
@@ -1138,7 +1138,7 @@ void ObjectController::HandleRotateFurniture_(
     Message* message,
     ObjectControllerCmdProperties* cmdProperties) {
 
-    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     if (!player)	{
         assert(false && "ObjectController::HandleRotateFurniture_ Player not found");

@@ -58,7 +58,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); 
+	PlayerObject* player = creature->GetGhost();
     Datapad* datapad			= player->getDataPad();
 
     //if(!datapad->getCapacity())
@@ -125,7 +126,8 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
 
 void ObjectController::_handleSetWaypointActiveStatus(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*	player		= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); 
+	PlayerObject* player = creature->GetGhost();
     Datapad* datapad			= player->getDataPad();
 
     std::shared_ptr<WaypointObject>	waypoint = datapad->getWaypointById(targetId);
@@ -150,7 +152,7 @@ void ObjectController::_handleSetWaypointActiveStatus(uint64 targetId,Message* m
 
 void ObjectController::_handleWaypoint(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*	player			= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
     Datapad* datapad			= player->getDataPad();
     BString			waypoint_data;
     glm::vec3       waypoint_position;
@@ -209,7 +211,8 @@ void ObjectController::_handleWaypoint(uint64 targetId, Message* message, Object
 
 void ObjectController::_handleSetWaypointName(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*	player		= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); 
+	PlayerObject* player = creature->GetGhost();
     std::u16string	name;
 	
     Datapad* datapad			= player->getDataPad();

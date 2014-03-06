@@ -964,7 +964,8 @@ uint64 WorldManager::addObjControllerToProcess(ObjectController* objController)
     //we get added automatically when the client sends a command to process
     if(objController->getObject()->getType() == ObjType_Player)
     {
-        PlayerObject* player = dynamic_cast<PlayerObject*>(objController->getObject());
+		CreatureObject* creature = dynamic_cast<CreatureObject*>(objController->getObject());
+		PlayerObject* player = creature->GetGhost();
 
         if ((player->getConnectionState() == PlayerConnState_LinkDead) || (player->getConnectionState() == PlayerConnState_Destroying))
             return 0;

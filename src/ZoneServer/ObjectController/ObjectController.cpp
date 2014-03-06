@@ -274,7 +274,8 @@ bool ObjectController::_processCommandQueue()
 
     // uint64 currentTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
 
-    PlayerObject* player  = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject);
+	PlayerObject* player = creature->GetGhost();
     if (!player)
     {
         assert(false && "ObjectController::_processCommandQueue mObject is not a PlayerObject");
@@ -679,7 +680,9 @@ void ObjectController::enqueueCommandMessage(Message* message)
     // Internally generated commands, like auto-attack and admin commands does not have a sequence number, and should not be acked with the client.
     else
     {
-        PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+        CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject);
+		PlayerObject* player = creature->GetGhost();
+
         if (sequence && player)
         {
             gMessageLib->sendCommandQueueRemove(sequence,0.0f,reply1,reply2,player);
@@ -750,7 +753,9 @@ void ObjectController::enqueueAutoAttack(uint64 targetId)
         // not qualified for this command
         else
         {
-            PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+            CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject);
+			PlayerObject* player = creature->GetGhost();
+
             if (player)
             {
                 player->disableAutoAttack();
@@ -848,7 +853,9 @@ bool ObjectController::_validateEnqueueCommand(uint32 &reply1,uint32 &reply2,uin
 
     while(it != mEnqueueValidators.end())
     {
-        PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+        CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject);
+		PlayerObject* player = creature->GetGhost();
+
         if(this->getCommandQueue()->size() >= COMMAND_QUEUE_MAX_SIZE)
         {
             gMessageLib->SendSystemMessage(::common::OutOfBand("client", "too_many_commands_queued_generic"),player);
@@ -887,7 +894,9 @@ bool ObjectController::_validateProcessCommand(uint32 &reply1,uint32 &reply2,uin
     {
         if(!((*it)->validate(reply1,reply2,targetId,opcode,cmdProperties)))
         {
-            PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+            CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject);
+			PlayerObject* player = creature->GetGhost();
+
             if(opcode == opOCRequestCraftingSession)
             {
                 gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,player);

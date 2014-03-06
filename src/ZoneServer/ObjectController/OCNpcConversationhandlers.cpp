@@ -75,7 +75,7 @@ using ::boost::regex_search;
 
 void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+	CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 	NPCObject*		npc		= dynamic_cast<NPCObject*>(gWorldManager->getObjectById(targetId));
 
 	if(!npc)
@@ -200,7 +200,7 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 
 void ObjectController::_handleNPCConversationStop(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*	playerObject = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* playerObject = creature->GetGhost();
 
     gConversationManager->stopConversation(playerObject);
 }
@@ -212,7 +212,7 @@ void ObjectController::_handleNPCConversationStop(uint64 targetId,Message* messa
 
 void ObjectController::_handleNPCConversationSelect(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* playerObject = creature->GetGhost();
     BString			dataStr;
     uint32			selectId		= 0;
 

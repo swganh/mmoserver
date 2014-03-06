@@ -613,6 +613,8 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 		PlayerObject*	GetGhost();
 		PlayerObject*	GetGhost(boost::unique_lock<boost::mutex>& lock);
 
+		void			SetGhost(PlayerObject* player){ghost_ = player;}
+
 		/*	@brief getReady() returns whether the playerObject has finished loading and been spawned to the zone
 		/
 		*/

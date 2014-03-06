@@ -62,7 +62,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 void ObjectController::destroyObject(uint64 objectId)
 {
 	
-	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
+	CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* playerObject = creature->GetGhost();
 	Datapad*		datapad			= playerObject->getDataPad();
 	Object*			object			= gWorldManager->getObjectById(objectId);
 

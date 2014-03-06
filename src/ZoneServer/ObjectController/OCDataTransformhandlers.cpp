@@ -67,7 +67,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 {
-    PlayerObject*			player = dynamic_cast<PlayerObject*>(mObject);
+   CreatureObject*			player = dynamic_cast<CreatureObject*>(mObject);
 
     glm::vec3		pos;
     glm::quat       dir;
@@ -81,15 +81,15 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
     inMoveCount = message->getUint32();
 
     // only process if its in sequence
-    if(player->GetCreature()->getInMoveCount() > inMoveCount)	{
+    if(player->getInMoveCount() > inMoveCount)	{
         return;
     }
 
     // update tick and move counters...
-    player->GetCreature()->setLastMoveTick(tickCount);
-    player->setClientTickCount(tickCount);
+    player->setLastMoveTick(tickCount);
+    player->GetGhost()->setClientTickCount(tickCount);
 
-    player->GetCreature()->setInMoveCount(inMoveCount);
+    player->setInMoveCount(inMoveCount);
 
     // get new direction, position and speed
     dir.x = message->getFloat();
@@ -105,18 +105,14 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
     // stop entertaining ???
     // important is, that if we move we change our posture to NOT skill animating anymore!
     // so only stop entertaining when we are performing and NOT skillanimationg
-    if(player->GetCreature()->getPerformingState() != PlayerPerformance_None && player->GetCreature()->GetPosture() != CreaturePosture_SkillAnimating)	{
-        gEntertainerManager->stopEntertaining(player);
+    if(player->getPerformingState() != PlayerPerformance_None && player->GetPosture() != CreaturePosture_SkillAnimating)	{
+        gEntertainerManager->stopEntertaining(player->GetGhost());
     }
 
     // if we just left a building
     // note that we remain in the grid at the worldposition
     if(player->getParentId() != 0)
     {
-
-        // Testing with 4 for add and 0 for remove.
-        // Remove us from previous cell.
-        gMessageLib->broadcastContainmentMessage(player->getId(),player->getParentId(),0,player);
 
         // remove us from the last cell we were in
         CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
@@ -126,35 +122,35 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
         }
         else
         {
-            assert(false && "cell not found");
-        }
+            LOG(error) << "ObjectController::handleDataTransform cell not found : " << player->getParentId();
+        }        
 
         // we are outside again
         player->setParentId(0);
 
         // Add us to the world.
-        gMessageLib->broadcastContainmentMessage(player->getId(),0,4,player);
+        gMessageLib->broadcastContainmentMessage(player->getId(),0,4,player->GetGhost());
 
         // Inform tutorial about cell change.
         if (gWorldConfig->isTutorial())
         {
-            player->getTutorial()->setCellId(0);
+            player->GetGhost()->getTutorial()->setCellId(0);
         }
 
     }
 
     player->mDirection = dir;
-    player->GetCreature()->setCurrentSpeed(speed);
+    player->setCurrentSpeed(speed);
     player->mPosition = pos;
 
     gSpatialIndexManager->UpdateObject(player);
 
     // destroy the instanced instrument if out of range
-    if (player->getPlacedInstrumentId())
+    if (player->GetGhost()->getPlacedInstrumentId())
     {
-        if (!gWorldManager->objectsInRange(player->getId(), player->getPlacedInstrumentId(), 5.0))
+        if (!gWorldManager->objectsInRange(player->getId(), player->GetGhost()->getPlacedInstrumentId(), 5.0))
         {
-            if (Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(player->getPlacedInstrumentId())))
+            if (Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(player->GetGhost()->getPlacedInstrumentId())))
             {
                 gWorldManager->destroyObject(item->getId());
             }
@@ -169,40 +165,40 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
         if (!gWorldManager->objectsInRange(player->getId(), (ac->getNpc())->getId(), 11.0))
         {
             // Terminate conversation, since we are out of range.
-            gMessageLib->SendSystemMessage(std::u16string(),player,"system_msg","out_of_range");
-            gConversationManager->stopConversation(player, true);			// We will get the current dialog text in a chat bubble, only seen by me. Impressive :)
+            gMessageLib->SendSystemMessage(std::u16string(),player->GetGhost(),"system_msg","out_of_range");
+            gConversationManager->stopConversation(player->GetGhost(), true);			// We will get the current dialog text in a chat bubble, only seen by me. Impressive :)
         }
     }
 
     if (gWorldConfig->isInstance())
     {
         // send out position updates to known players in group or self only
-        gMessageLib->sendUpdateTransformMessage(player->GetCreature(), player);
+        gMessageLib->sendUpdateTransformMessage(player, player->GetGhost());
         return;
     }	
 
     //If player is mounted... move his mount too!
-    if(player->checkIfMounted() && player->getMount())
+    if(player->GetGhost()->checkIfMounted() && player->GetGhost()->getMount())
     {
         //gMessageLib->sendDataTransform(player->getMount());
-        player->getMount()->mDirection = dir;
-        player->getMount()->mPosition = pos;
-        player->getMount()->setCurrentSpeed(speed);
+        player->GetGhost()->getMount()->mDirection = dir;
+        player->GetGhost()->getMount()->mPosition = pos;
+        player->GetGhost()->getMount()->setCurrentSpeed(speed);
 
         //player->setClientTickCount(tickCount);
-        player->getMount()->setLastMoveTick(tickCount);
-        player->getMount()->setInMoveCount((inMoveCount));
-        gMessageLib->sendUpdateTransformMessage(player->getMount());
+        player->GetGhost()->getMount()->setLastMoveTick(tickCount);
+        player->GetGhost()->getMount()->setInMoveCount((inMoveCount));
+        gMessageLib->sendUpdateTransformMessage(player->GetGhost()->getMount());
 
-        gSpatialIndexManager->UpdateObject(player->getMount());
+        gSpatialIndexManager->UpdateObject(player->GetGhost()->getMount());
     }
     else
     {
         // send out position updates to known players
         // please note that these updates mess up our dance performance
-        if(player->GetCreature()->getPerformingState() == PlayerPerformance_None)
+        if(player->getPerformingState() == PlayerPerformance_None)
         {
-            gMessageLib->sendUpdateTransformMessage(player->GetCreature());
+            gMessageLib->sendUpdateTransformMessage(player);
         }
 
     }
@@ -217,7 +213,8 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 void ObjectController::handleDataTransformWithParent(Message* message,bool inRangeUpdate)
 {
     // FIXME: for now assume we only get messages from players
-    PlayerObject*	player = dynamic_cast<PlayerObject*>(mObject);
+	CreatureObject*	body_	= dynamic_cast<CreatureObject*>(mObject);
+	PlayerObject*	player	= body_->GetGhost();
     glm::vec3       pos;
     glm::quat       dir;
     uint32          inMoveCount;
@@ -231,7 +228,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
     inMoveCount = message->getUint32();
 
     // only process if its in sequence
-    if (player->GetCreature()->getInMoveCount() > inMoveCount)	{
+    if (body_->getInMoveCount() > inMoveCount)	{
         return;
     }
 
@@ -239,7 +236,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 
     // update tick and move counters
     player->setClientTickCount(tickCount);
-    player->GetCreature()->setInMoveCount(inMoveCount);
+    body_->setInMoveCount(inMoveCount);
 
     // get new direction, position, parent and speed
     parentId = message->getUint64();
@@ -253,7 +250,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
     speed  = message->getFloat();
 
     // stop entertaining, if we were
-    if(player->GetCreature()->getPerformingState() != PlayerPerformance_None && player->GetCreature()->GetPosture() != CreaturePosture_SkillAnimating)	{
+    if(body_->getPerformingState() != PlayerPerformance_None && body_->GetPosture() != CreaturePosture_SkillAnimating)	{
         gEntertainerManager->stopEntertaining(player);
     }
 
@@ -279,7 +276,6 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
             newCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId));
             if (!newCell)	{
                 DLOG(info) << "Player " << player->getId() << " error casting new cell cell " << parentId;
-                assert(false);
                 return;
             }
 
@@ -298,7 +294,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
         }
 
         // put us into new cell
-        gMessageLib->broadcastContainmentMessage(player->getId(),parentId,4,player);
+        
         if((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId))))	{
             cell->AddObject(player);
             // Inform tutorial about cell change.
@@ -312,13 +308,15 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
         {
             assert(false && "handleDataTransformWithParent::cell cannot be found");
         }
+
+		gMessageLib->broadcastContainmentMessage(body_->getId(),parentId,body_->GetArrangementId(), player);
     }
 
     // update the player
     player->setParentId(parentId);
     player->mDirection = dir;
     player->mPosition  = pos;
-    player->GetCreature()->setCurrentSpeed(speed);
+    body_->setCurrentSpeed(speed);
 
     gSpatialIndexManager->UpdateObject(player);
 
@@ -350,12 +348,12 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
     if (!gWorldConfig->isInstance())
     {
         // send out updates
-        gMessageLib->sendUpdateTransformMessageWithParent(player->GetCreature());
+        gMessageLib->sendUpdateTransformMessageWithParent(body_);
     }
     else
     {
         // send out position updates to known players in group or self only
-        gMessageLib->sendUpdateTransformMessageWithParent(player->GetCreature(), player);
+        gMessageLib->sendUpdateTransformMessageWithParent(body_, player);
     }
 }
 

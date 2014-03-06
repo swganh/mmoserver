@@ -130,7 +130,7 @@ void WorldManager::initializeObject(std::shared_ptr <Object> &object)
 {
 	switch(object->getType())
 	{
-		//kets add our Region to the zmap
+		//lets add our Region to the zmap
 		case ObjType_Region:
 		{
 
@@ -144,6 +144,10 @@ void WorldManager::initializeObject(std::shared_ptr <Object> &object)
 		{
 
 			std::shared_ptr <PlayerObject> player = std::dynamic_pointer_cast<PlayerObject>(object);
+			if(!player)	{
+				//its the creature Object (the body) - ignore at this point
+				return;
+			}
 
 			// insert into the player map
 			mPlayerAccMap.insert(std::make_pair(player->getAccountId(),player.get()));			

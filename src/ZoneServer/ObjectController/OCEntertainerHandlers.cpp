@@ -82,7 +82,7 @@ void ObjectController::_handlestopwatching(uint64 targetId,Message* message,Obje
 
 void ObjectController::_handlewatch(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    //PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    //CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     // lets get the target player
     message->setIndex(32);
@@ -103,7 +103,7 @@ void ObjectController::_handlewatch(uint64 targetId,Message* message,ObjectContr
 
 void ObjectController::_handlelisten(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    //PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    //CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     // lets get the target player
     message->setIndex(32);

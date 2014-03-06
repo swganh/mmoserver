@@ -779,6 +779,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
 	player->body_ = creature;
 	
 	
+	
 	std::shared_ptr<TangibleObject> playerHair = std::make_shared<TangibleObject>();
 	
     MissionBag*		playerMissionBag;
@@ -828,13 +829,16 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
     creature->setSpeciesGroup("species");
     creature->setCL(0);
 	creature->mTypeOptions = 0x80;
-    
+    creature->SetGhost(player);
 	player->setId(creature->mId + PLAYER_OFFSET);
 	player->mBiography.convert(BSTRType_Unicode16);
 	player->setNameFile("string_id_table");
 	player->SetTemplate("object/player/shared_player.iff");//619BAE21,object/player/shared_player.iff,data_other_00_o.txt
 
 	player->setParentId(creature->getId());
+
+	gWorldManager->addObject(creature);
+	gWorldManager->addObject(player);
 
 	gObjectManager->LoadSlotsForObject(creature);
 	gObjectManager->LoadSlotsForObject(player);
@@ -1069,6 +1073,9 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
     {
         ilc->mInventory = true;
         
+		auto permissions_objects_ = gObjectManager->GetPermissionsMap();
+		object->SetPermissions(permissions_objects_.find(swganh::object::CREATURE_CONTAINER_PERMISSION)->second.get());//CREATURE_PERMISSION
+
 		creature->InitializeObject(inventory);
 		gWorldManager->addObject(inventory,true);
 

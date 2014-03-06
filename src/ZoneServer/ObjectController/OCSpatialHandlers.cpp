@@ -66,8 +66,8 @@ using boost::regex_match;
 void ObjectController::_handleSpatialChatInternal(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
     // FIXME: for now assume only players send chat
-    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
-
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
+	
     // Get the u16string and convert it to wstring for processing.
     std::u16string chat_data = message->getStringUnicode16();
     std::wstring tmp(chat_data.begin(), chat_data.end());
@@ -99,7 +99,7 @@ void ObjectController::_handleSpatialChatInternal(uint64 targetId,Message* messa
 void ObjectController::_handleSocialInternal(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
     // FIXME: for now assume only players send chat
-    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* playerObject = creature->GetGhost();
     BString			emoteData;
     BStringVector	emoteElement;
 
@@ -141,7 +141,7 @@ void ObjectController::_handleSocialInternal(uint64 targetId,Message* message,Ob
 void ObjectController::_handleSetMoodInternal(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
     // FIXME: for now assume only players send chat
-    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* playerObject = creature->GetGhost();
     BString			moodStr;
     int8			sql[256];
 

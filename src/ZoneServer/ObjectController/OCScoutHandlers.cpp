@@ -50,7 +50,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 void ObjectController::_handleHarvestCorpse(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
     AttackableCreature* target = dynamic_cast<AttackableCreature*>(gWorldManager->getObjectById(targetId));
-    PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* playerObject = creature->GetGhost();
 
     if(!playerObject || !playerObject->isConnected())
         return;
@@ -104,7 +104,7 @@ void ObjectController::_handleMaskScent(uint64 targetId,Message* message,ObjectC
 
 void ObjectController::_handleForage(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
     if(player)
         gForageManager->startForage(player, ForageClass_Scout);
 }

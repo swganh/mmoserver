@@ -63,9 +63,11 @@ void ObjectController::_handleTeach(uint64 targetId,Message* message,ObjectContr
     // parse the string if a known skill was selected
     // check what skills we can teach
     // check which of these skills the target might learn
-
-    PlayerObject*	teacherObject	= dynamic_cast<PlayerObject*>(mObject);
-    PlayerObject*	pupilObject	= dynamic_cast<PlayerObject*> (teacherObject->GetCreature()->getTarget());
+	
+	CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); 
+	PlayerObject* teacherObject = creature->GetGhost();
+    
+	PlayerObject*	pupilObject	= dynamic_cast<PlayerObject*> (teacherObject->GetCreature()->getTarget());
 
     // check if we have a target
     if(!pupilObject	)

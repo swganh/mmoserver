@@ -62,7 +62,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void ObjectController::_handleDuel(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*		player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); 
+	PlayerObject* player = creature->GetGhost();
     Object*				target	= gWorldManager->getObjectById(targetId);
 
 	auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
@@ -143,7 +144,7 @@ void ObjectController::_handleDuel(uint64 targetId,Message* message,ObjectContro
 
 void ObjectController::_handleEndDuel(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*		player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
     Object*				target	= gWorldManager->getObjectById(targetId);
 
     // make sure we got a target and that its a player
@@ -218,7 +219,7 @@ void ObjectController::_handleEndDuel(uint64 targetId,Message* message,ObjectCon
 
 void ObjectController::_handlePeace(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
     if (player)
     {
         // player->removeAllDefender();
@@ -304,7 +305,7 @@ void ObjectController::handleSetTarget(Message* message)
 
 void ObjectController::_handleDeathBlow(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     if (player && targetId)	// Any object targeted?
     {
@@ -336,7 +337,7 @@ void ObjectController::_handleDeathBlow(uint64 targetId,Message* message,ObjectC
 
 void ObjectController::_handleLoot(uint64 targetId, Message *message, ObjectControllerCmdProperties *cmdProperties)
 {	
-    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
     Datapad* datapad			= player->getDataPad();
 
     // Loot creatures

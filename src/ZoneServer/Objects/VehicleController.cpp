@@ -253,17 +253,18 @@ void VehicleController::Store()
 
 void VehicleController::DismountPlayer() {
     if(!body_) {
-        assert(false && "Vehicle::mountPlayer() no vehicle body!");
+		LOG(error) << "Vehicle::DismountPlayer() no vehicle body!";
         return;
     }
 
     if(!owner_->checkIfMounted()) {
-        assert(false && "Vehicle::mountPlayer() owner is not mounted!");
+        LOG(error) << "Vehicle::DismountPlayer() no vehicle body!";
         return;
     }
 
     //For safe measures make the player equipped by nothing
-    gMessageLib->sendContainmentMessage_InRange(owner_->getId(), 0, 0xffffffff, owner_);
+	body_->RemoveObject(owner_, owner_);
+	gMessageLib->sendContainmentMessage_InRange(owner_->getId(), owner_->getParentId(), owner_->GetArrangementId(), owner_);
 	gMessageLib->sendUpdateTransformMessage(body_);
 
     // TODO: make this more automatic...
@@ -286,13 +287,15 @@ void VehicleController::MountPlayer()
         return;
     }
     //Make the mount equip the player
-    gMessageLib->sendContainmentMessage_InRange(owner_->getId(), body_->getId(), 4, owner_);
+	body_->AddObject(owner_);
+	gMessageLib->sendContainmentMessage_InRange(owner_->getId(), body_->getId(), owner_->GetArrangementId(), owner_);
     gMessageLib->sendUpdateTransformMessage(body_);
   
     body_->states.toggleActionOn(CreatureState_MountedCreature);
     gMessageLib->sendStateUpdate(body_);
 
     gStateManager.setCurrentActionState(owner_->GetCreature(),CreatureState_RidingMount);
+	gMessageLib->sendStateUpdate(owner_->GetCreature());
     //gStateManager.setCurrentPostureState(owner_,CreaturePosture_DrivingVehicle);
     //gStateManager.setCurrentLocomotionState(owner_,CreatureLocomotion_DrivingVehicle);
 

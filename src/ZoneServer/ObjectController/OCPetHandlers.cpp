@@ -97,7 +97,7 @@ void ObjectController::_handleDismount(uint64 targetId,Message* message,ObjectCo
     // The very idea with using ID's instead of object refs are that you can TEST them without using the object itself.
     // And some parameter validation...
 
-    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     if (player && player->getMount() && (player->getParentId() == 0))
     {

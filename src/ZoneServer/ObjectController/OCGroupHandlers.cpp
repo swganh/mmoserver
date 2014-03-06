@@ -56,7 +56,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void ObjectController::_handleInvite(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     // lets get the target player
     message->setIndex(32);
@@ -85,7 +85,7 @@ void ObjectController::_handleInvite(uint64 targetId,Message* message,ObjectCont
 
 void ObjectController::_handleUninvite(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     // lets get the target player
     message->setIndex(32);
@@ -115,7 +115,7 @@ void ObjectController::_handleUninvite(uint64 targetId,Message* message,ObjectCo
 
 void ObjectController::_handleJoin(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     // resetting the sender's id
     gMessageLib->sendInviteSenderUpdateDeltasCreo6(0,player);
@@ -138,7 +138,7 @@ void ObjectController::_handleJoin(uint64 targetId,Message* message,ObjectContro
 
 void ObjectController::_handleDecline(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     // resetting the sender's id
     gMessageLib->sendInviteSenderUpdateDeltasCreo6(0,player);
@@ -162,7 +162,7 @@ void ObjectController::_handleDecline(uint64 targetId,Message* message,ObjectCon
 
 void ObjectController::_handleDisband(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     if(player->GetCreature()->getGroupId() == 0)
     {
@@ -184,7 +184,7 @@ void ObjectController::_handleDisband(uint64 targetId,Message* message,ObjectCon
 
 void ObjectController::_handleLeaveGroup(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     if(player->GetCreature()->getGroupId() == 0)
     {
@@ -202,7 +202,7 @@ void ObjectController::_handleLeaveGroup(uint64 targetId,Message* message,Object
 
 void ObjectController::_handleMakeLeader(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     if(player->GetCreature()->getGroupId() == 0)
     {
@@ -237,7 +237,7 @@ void ObjectController::_handleMakeLeader(uint64 targetId,Message* message,Object
 
 void ObjectController::_handleDismissGroupMember(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     // make sure its a fully grouped player
     if(player->GetCreature()->getGroupId() == 0)
@@ -274,7 +274,7 @@ void ObjectController::_handleDismissGroupMember(uint64 targetId,Message* messag
 
 void ObjectController::_handleGroupChat(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     BString msgText;
 
@@ -336,7 +336,7 @@ void ObjectController::_handleGroupLootMode(uint64 targetId,Message* message,Obj
     // disabled for now
     //return;
 
-    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     // make sure its a fully grouped player
     if(player->GetCreature()->getGroupId() == 0)
@@ -363,7 +363,7 @@ void ObjectController::_handleMakeMasterLooter(uint64 targetId,Message* message,
     //return;
 
 
-    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     // make sure its a fully grouped player
     if(player->GetCreature()->getGroupId() == 0)

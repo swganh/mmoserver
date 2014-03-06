@@ -53,8 +53,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void ObjectController::_handleResourceContainerTransfer(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*		playerObject		= dynamic_cast<PlayerObject*>(mObject);
-    ResourceContainer*	selectedContainer	= dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById(targetId));
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); 
+	PlayerObject* playerObject = creature->GetGhost();
+    
+	ResourceContainer*	selectedContainer	= dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById(targetId));
 
     if(selectedContainer)
     {
@@ -123,8 +125,10 @@ void ObjectController::_handleResourceContainerTransfer(uint64 targetId,Message*
 
 void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*		playerObject		= dynamic_cast<PlayerObject*>(mObject);
-    ResourceContainer*	selectedContainer	= dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById(targetId));
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); 
+	PlayerObject* playerObject = creature->GetGhost();
+    
+	ResourceContainer*	selectedContainer	= dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById(targetId));
 
 	if(!selectedContainer)
     {

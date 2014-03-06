@@ -40,7 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {    
-    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* playerObject = creature->GetGhost();
 
     if(playerObject)
     {
@@ -108,7 +108,7 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
 
 void ObjectController::_handleStand(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*	playerObject = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* playerObject = creature->GetGhost();
 
     if(playerObject)
         gStateManager.setCurrentPostureState(playerObject->GetCreature(), CreaturePosture_Upright);
@@ -121,7 +121,7 @@ void ObjectController::_handleStand(uint64 targetId,Message* message,ObjectContr
 
 void ObjectController::_handleProne(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* playerObject = creature->GetGhost();
 
     if(playerObject)
         gStateManager.setCurrentPostureState(playerObject->GetCreature(), CreaturePosture_Prone);
@@ -134,7 +134,7 @@ void ObjectController::_handleProne(uint64 targetId,Message* message,ObjectContr
 
 void ObjectController::_handleKneel(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*	playerObject = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* playerObject = creature->GetGhost();
 
     if(playerObject)
 		

@@ -57,7 +57,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void ObjectController::_handleSetCurrentSkillTitle(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* playerObject = creature->GetGhost();
     BString			newTitle;
 
     message->getStringUnicode16(newTitle);
@@ -86,7 +86,7 @@ void ObjectController::_handleSetCurrentSkillTitle(uint64 targetId,Message* mess
 
 void ObjectController::_handleSetSpokenLanguage(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* playerObject = creature->GetGhost();
     BString			tmpStr;
 
     message->getStringUnicode16(tmpStr);
@@ -104,7 +104,7 @@ void ObjectController::_handleSetSpokenLanguage(uint64 targetId,Message* message
 
 void ObjectController::_handleLfg(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* playerObject = creature->GetGhost();
 
     playerObject->togglePlayerFlag(PlayerFlag_Lfg);
 
@@ -118,7 +118,7 @@ void ObjectController::_handleLfg(uint64 targetId,Message* message,ObjectControl
 
 void ObjectController::_handleNewbieHelper(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* playerObject = creature->GetGhost();
 
     playerObject->togglePlayerFlag(PlayerFlag_NoobHelper);
 
@@ -132,7 +132,7 @@ void ObjectController::_handleNewbieHelper(uint64 targetId,Message* message,Obje
 
 void ObjectController::_handleRolePlay(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* playerObject = creature->GetGhost();
 
     playerObject->togglePlayerFlag(PlayerFlag_RolePlayer);
 
@@ -146,7 +146,7 @@ void ObjectController::_handleRolePlay(uint64 targetId,Message* message,ObjectCo
 
 void ObjectController::_handleToggleAFK(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* playerObject = creature->GetGhost();
 
     playerObject->togglePlayerFlag(PlayerFlag_Afk);
 
@@ -160,7 +160,7 @@ void ObjectController::_handleToggleAFK(uint64 targetId,Message* message,ObjectC
 
 void ObjectController::_handleToggleDisplayFactionRank(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* playerObject = creature->GetGhost();
 
     playerObject->togglePlayerFlag(PlayerFlag_FactionRank);
 
@@ -174,7 +174,7 @@ void ObjectController::_handleToggleDisplayFactionRank(uint64 targetId,Message* 
 
 void ObjectController::_handleAnon(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    //PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
+    //CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* playerObject = creature->GetGhost();
 
     // simple toggle, TODO: delta updates, figure and bitmask to playerobject, store to db
 }
@@ -186,7 +186,7 @@ void ObjectController::_handleAnon(uint64 targetId,Message* message,ObjectContro
 
 void ObjectController::_handleRequestBadges(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* playerObject = creature->GetGhost();
     PlayerObject* targetObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetId));
 
     if(targetObject == NULL)
@@ -204,7 +204,7 @@ void ObjectController::_handleRequestBadges(uint64 targetId,Message* message,Obj
 
 void ObjectController::_handleRequestCharacterSheetInfo(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* playerObject = creature->GetGhost();
 
     gMessageLib->sendCharacterSheetResponse(playerObject);
 }
@@ -216,7 +216,7 @@ void ObjectController::_handleRequestCharacterSheetInfo(uint64 targetId,Message*
 
 void ObjectController::_handleRequestBiography(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* playerObject = creature->GetGhost();
     PlayerObject* targetObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetId));
 
     if(targetObject == NULL)
@@ -234,7 +234,7 @@ void ObjectController::_handleRequestBiography(uint64 targetId,Message* message,
 
 void ObjectController::_handleSetBiography(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
     BString			bio;
     int8			sql[5000],end[64],*sqlPointer;
 
@@ -269,7 +269,7 @@ void ObjectController::_handleEditBiography(uint64 targetId,Message* message,Obj
 
 void ObjectController::_handleRequestCharacterMatch(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*	player			= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 	BString			dataStr;
 	PlayerList		playersMatched;
 	PlayerList*		matchReference;

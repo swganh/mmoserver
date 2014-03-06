@@ -58,7 +58,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void ObjectController::_handleAddFriend(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*	player		= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); 
+	PlayerObject* player = creature->GetGhost();
 
     if(player->getContactListUpdatePending())
         return;
@@ -133,7 +134,8 @@ void ObjectController::_handleAddFriend(uint64 targetId,Message* message,ObjectC
 
 void ObjectController::_handleRemoveFriend(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); 
+	PlayerObject* player = creature->GetGhost();
 
     if(player->getContactListUpdatePending())
         return;
@@ -184,7 +186,7 @@ void ObjectController::_handleRemoveFriend(uint64 targetId,Message* message,Obje
 
 void ObjectController::_handleAddIgnore(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     if(player->getContactListUpdatePending())
     {
@@ -262,7 +264,7 @@ void ObjectController::_handleAddIgnore(uint64 targetId,Message* message,ObjectC
 
 void ObjectController::_handleRemoveIgnore(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     if(player->getContactListUpdatePending())
         return;
@@ -312,7 +314,8 @@ void ObjectController::_handleRemoveIgnore(uint64 targetId,Message* message,Obje
 
 void ObjectController::_handleAddFriendDBReply(uint32 retCode,BString friendName)
 {
-    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); 
+	PlayerObject* player = creature->GetGhost();
 
     switch(retCode)
     {
@@ -361,7 +364,7 @@ void ObjectController::_handleAddFriendDBReply(uint32 retCode,BString friendName
 
 void ObjectController::_handleFindFriendDBReply(uint64 retCode,BString friendName)
 {
-    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
     friendName.convert(BSTRType_Unicode16);
     if(retCode == 0)
     {
@@ -403,7 +406,7 @@ void ObjectController::_handleFindFriendDBReply(uint64 retCode,BString friendNam
 
 void ObjectController::_handleRemoveFriendDBReply(uint32 retCode,BString friendName)
 {
-    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     switch(retCode)
     {
@@ -453,7 +456,7 @@ void ObjectController::_handleRemoveFriendDBReply(uint32 retCode,BString friendN
 void ObjectController::_handleAddIgnoreDBReply(uint32 retCode,BString ignoreName)
 {
 
-    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     switch(retCode)
     {
@@ -501,7 +504,7 @@ void ObjectController::_handleAddIgnoreDBReply(uint32 retCode,BString ignoreName
 
 void ObjectController::_handleRemoveIgnoreDBReply(uint32 retCode,BString ignoreName)
 {
-    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
 
     switch(retCode)
     {
@@ -553,7 +556,7 @@ void ObjectController::_handleRemoveIgnoreDBReply(uint32 retCode,BString ignoreN
 
 void ObjectController::_handlefindfriend(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* playerObject = creature->GetGhost();
     BString			friendName;
 
     message->getStringUnicode16(friendName);

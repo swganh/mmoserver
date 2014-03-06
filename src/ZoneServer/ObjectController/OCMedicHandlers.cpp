@@ -62,7 +62,7 @@ const char* const strength = "strength";
 
 void ObjectController::_handleDiagnose(uint64 targetId, Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* Medic = creature->GetGhost();
     PlayerObject* Target = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetId));
     if(Target != 0)
     {
@@ -80,7 +80,7 @@ void ObjectController::_handleDiagnose(uint64 targetId, Message* message,ObjectC
 
 void ObjectController::_handleHealDamage(uint64 targetId, Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* Medic = creature->GetGhost();
     PlayerObject* Target = dynamic_cast<PlayerObject*>(Medic->getHealingTarget(Medic));
 
     mHandlerCompleted = gMedicManager->CheckMedicine(Medic, Target, cmdProperties, stim);
@@ -98,7 +98,7 @@ void ObjectController::_handleHealDamage(uint64 targetId, Message* message,Objec
 
 void ObjectController::_handleHealWound(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* Medic = creature->GetGhost();
     PlayerObject* Target = dynamic_cast<PlayerObject*>(Medic->getHealingTarget(Medic));
 
     std::string messageResponse = gMedicManager->handleMessage(message,"(action|constitution|health|quickness|stamina|strength)");
@@ -134,7 +134,7 @@ void ObjectController::_handleHealWound(uint64 targetId,Message* message,ObjectC
 
 void ObjectController::_handleMedicalForage(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
     if(player)
         gForageManager->startForage(player, ForageClass_Medic);
 }
@@ -146,7 +146,7 @@ void ObjectController::_handleMedicalForage(uint64 targetId,Message* message,Obj
 
 void ObjectController::_handleTendDamage(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* Medic = creature->GetGhost();
     PlayerObject* Target = dynamic_cast<PlayerObject*>(Medic->getHealingTarget(Medic));
 
     //check Medic has enough Mind
@@ -177,7 +177,7 @@ void ObjectController::_handleTendDamage(uint64 targetId,Message* message,Object
 
 void ObjectController::_handleTendWound(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* Medic = creature->GetGhost();
     PlayerObject* Target = dynamic_cast<PlayerObject*>(Medic->getHealingTarget(Medic));
     //TODO:: add medic droid
     /*EMLocationType loc = Medic->getPlayerLocation();
@@ -218,7 +218,7 @@ void ObjectController::_handleTendWound(uint64 targetId,Message* message,ObjectC
 
 void ObjectController::_handleFirstAid(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    //PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
+    //CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* Medic = creature->GetGhost();
     //gMessageLib->sendSystemMessage(Medic, "First Aid has not been implemented yet. Sorry.");
 }
 
@@ -229,7 +229,7 @@ void ObjectController::_handleFirstAid(uint64 targetId,Message* message,ObjectCo
 
 void ObjectController::_handleQuickHeal(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* Medic = creature->GetGhost();
     PlayerObject* Target = dynamic_cast<PlayerObject*>(Medic->getHealingTarget(Medic));
 
     //check Medic has enough Mind
@@ -258,7 +258,7 @@ void ObjectController::_handleQuickHeal(uint64 targetId,Message* message,ObjectC
 
 void ObjectController::_handleDragIncapacitatedPlayer(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    //PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
+    //CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* Medic = creature->GetGhost();
     //gMessageLib->sendSystemMessage(Medic, "Drag has not been implemented yet. Sorry.");
 }
 

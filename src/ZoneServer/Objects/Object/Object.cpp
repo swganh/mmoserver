@@ -263,9 +263,9 @@ void Object::__InternalViewObjects(Object* requester, uint32_t max_depth, bool t
 			//LOG(info) <<"iterating through slot : " << slot->first ;
             slot->second->view_objects([&] (Object* object)
             {
-                uint32_t object_instance = object->GetInstanceId();
-                if(object_instance == 0 || object_instance == requester_instance)
-                {
+                //uint32_t object_instance = object->GetInstanceId();
+                //if(object_instance == 0 || object_instance == requester_instance)
+                //{
                     if(topDown)
                         func(object);
 
@@ -274,7 +274,7 @@ void Object::__InternalViewObjects(Object* requester, uint32_t max_depth, bool t
 
                     if(!topDown)
                         func(object);
-                }
+                //}
             });
         }
     }
@@ -325,6 +325,7 @@ void Object::InitializeObject(Object* newObject)
 		
 		newObject->SetPermissions(permissions_objects_.find(swganh::object::DEFAULT_PERMISSION)->second.get());//DEFAULT_PERMISSION
 	}
+
 
 	int32 arrangement = GetAppropriateArrangementId(newObject);
     if(!InitializeObject(nullptr, newObject, arrangement))	{

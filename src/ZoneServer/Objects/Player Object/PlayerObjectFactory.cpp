@@ -783,10 +783,6 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
 	
     MissionBag*		playerMissionBag;
 	
-   
-	
-
-
     // get our results
     result->getNextRow(ghost_binding,(void*)player);
     result->resetRowIndex();

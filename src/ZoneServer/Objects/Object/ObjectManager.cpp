@@ -141,8 +141,10 @@ void ObjectManager::LoadSlotsForObject(Object* object)
 	try	{
 		
 		auto oiff = kernel_->GetResourceManager()->GetResourceByName<ObjectVisitor>(object->GetTemplate());
-		if(oiff == nullptr)
+		if(oiff == nullptr)	{
+			LOG(error) << "ObjectManager::LoadSlotsForObject No Object Visitor";
 			return;
+		}
 	
 
 		oiff->load_aggregate_data(kernel_->GetResourceManager());
@@ -166,7 +168,7 @@ void ObjectManager::LoadSlotsForObject(Object* object)
 					std::vector<int32_t> arr;
 					std::vector<std::string>::iterator& str = arrangement.begin();
 				
-					for (str; str != arrangement.end(); str++)
+					for (str = arrangement.begin(); str != arrangement.end(); str++)
 					{
 						arr.push_back(slot_definition_->findSlotByName(*str));
 					}

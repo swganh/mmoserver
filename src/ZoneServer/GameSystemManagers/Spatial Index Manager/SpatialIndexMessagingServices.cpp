@@ -242,8 +242,8 @@ bool SpatialIndexManager::sendCreatePlayer(PlayerObject* playerObject,PlayerObje
 	playerObject->GetCreature()->ViewObjects(playerObject, 0, false, [&] (Object* object) {
 		LOG(info) << "creating : " << object->getId() << " " << object->GetTemplate();
 		TangibleObject* tangible = dynamic_cast<TangibleObject*>(object);
-		//if(tangible)
-			//sendCreateTangible(tangible,targetObject);
+		if(tangible)
+			sendCreateTangible(tangible,targetObject);
 	
 	});
 

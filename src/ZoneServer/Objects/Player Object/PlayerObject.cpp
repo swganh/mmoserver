@@ -1158,7 +1158,7 @@ void PlayerObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 void PlayerObject::updateBankCredits(int32 amount)
 {
 	auto equip_service	= gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto bank			= dynamic_cast<Bank*>(equip_service->GetEquippedObject(this, "bank"));
+	auto bank			= dynamic_cast<Bank*>(equip_service->GetEquippedObject(this->GetCreature(), "bank"));
 
     if(!bank)    {
 		LOG (error) << "PlayerObject::giveBankCredits no bank for " << this->getId();
@@ -1173,7 +1173,7 @@ void PlayerObject::updateBankCredits(int32 amount)
 void PlayerObject::updateInventoryCredits(int32 amount)
 {
 	auto equip_service	= gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory		= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(this, "inventory"));
+	auto inventory		= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(this->GetCreature(), "inventory"));
 
     if(! inventory)    {
 		LOG (error) << "PlayerObject::giveBankCredits no inventory for " << this->getId();
@@ -1733,7 +1733,7 @@ void PlayerObject::clone(uint64 parentId, const glm::quat& dir, const glm::vec3&
 
         // Update / remove insurance of items in inventory (or equppied).
 		auto equip_service	= gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-		auto inventory		= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(this, "inventory"));
+		auto inventory		= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(this->GetCreature(), "inventory"));
 
         if (inventory)        {
             SortedInventoryItemList insuranceList;

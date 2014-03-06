@@ -394,7 +394,7 @@ void ScoutManager::successForage(PlayerObject* player)
         //gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_noroom");
 
         auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-		auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
+		auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player->GetCreature(), "inventory"));
 
         if(!inventory)
             return;

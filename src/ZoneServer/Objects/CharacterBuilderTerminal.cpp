@@ -880,8 +880,8 @@ void CharacterBuilderTerminal::_handleExperienceMenu(PlayerObject* playerObject,
 void CharacterBuilderTerminal::_handleCreditMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
-	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player, "bank"));
+	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player->GetCreature(), "inventory"));
+	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player->GetCreature(), "bank"));
 
     if(window->getWindowType() == SUI_Window_CharacterBuilder_ListBox_CreditMenu)
     {
@@ -1309,7 +1309,7 @@ void CharacterBuilderTerminal::_handleResourcesCRC(PlayerObject* playerObject, u
         if(resource)
         {
             auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-			auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
+			auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject->GetCreature(), "inventory"));
 
             gObjectFactory->requestNewResourceContainer(inventory , resource->getId(), inventory->getId(), 99, 100000);
         }

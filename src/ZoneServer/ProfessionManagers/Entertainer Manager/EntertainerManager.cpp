@@ -2512,8 +2512,8 @@ void EntertainerManager::handlestartmusic(PlayerObject* entertainer)
     }
 
 	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(entertainer, "inventory"));
-	auto item	= dynamic_cast<Item*>(equip_service->GetEquippedObject(entertainer, "hold_r"));
+	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(entertainer->GetCreature(), "inventory"));
+	auto item		= dynamic_cast<Item*>(equip_service->GetEquippedObject(entertainer->GetCreature(), "hold_r"));
 
     //do we have an instrument?
     uint64 instrumentId = getInstrument(entertainer);

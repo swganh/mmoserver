@@ -863,7 +863,7 @@ void Tutorial::addQuestWeapon(uint32 familyId, uint32 typeId)
     {
 
 		auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-		auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(mPlayerObject, "inventory"));
+		auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(mPlayerObject->GetCreature(), "inventory"));
 
         if (inventory)
         {

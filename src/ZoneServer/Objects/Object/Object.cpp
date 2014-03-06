@@ -351,13 +351,13 @@ bool Object::InitializeObject(Object* requester, Object* obj, int32_t arrangemen
 
 	auto equipment_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
 
-	LOG (info) << "Object::InitializeObject added Object : " << obj->getId() << " to " << getId();
+	//LOG (info) << "Object::InitializeObject added Object : " << obj->getId() << " to " << getId();
 	if(arrangement_id != 0xffffffff)
 		LOG (info) << "slot_descriptor " << slot_descriptor << " : " << equipment_service->GetSlotNameById(arrangement_id);
 	else
 		LOG (info) << "slot_descriptor " << slot_descriptor ;
 
-	LOG (info) << "arrangement " << arrangement_id;
+	//LOG (info) << "arrangement " << arrangement_id;
 	//slot_descriptor->
 
 	

@@ -204,7 +204,7 @@ void Trade::endTradeSession()
 bool Trade::checkTradeListtoInventory()
 {
     auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(getPlayerObject(), "inventory"));
+	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(getPlayerObject()->GetCreature(), "inventory"));
 
     if(!inventory)
     {
@@ -293,7 +293,7 @@ void  Trade::processTradeListPostTransaction()
     PlayerObject*			TradePartner		= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(getPlayerObject()->getTradePartner()));
     
 	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto partnerInventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(TradePartner, "inventory"));
+	auto partnerInventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(TradePartner->GetCreature(), "inventory"));
 
     while(it != mItemTradeList.end())
     {

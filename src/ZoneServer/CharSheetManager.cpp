@@ -269,8 +269,8 @@ void CharSheetManager::_processPlayerMoneyRequest(Message* message,DispatchClien
     }
 
 	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
-	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player, "bank"));
+	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player->GetCreature(), "inventory"));
+	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player->GetCreature(), "bank"));
 
     gMessageFactory->StartMessage();
     gMessageFactory->addUint32(opPlayerMoneyResponse);

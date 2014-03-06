@@ -1073,6 +1073,7 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 		gWorldManager->addObject(inventory,true);
 
 		inventory->setParent(creature);
+		inventory->setTypeOptions(256);
 		
         player->setInventory(inventory);
 

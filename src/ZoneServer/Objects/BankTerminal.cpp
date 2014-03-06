@@ -74,8 +74,8 @@ void BankTerminal::handleObjectMenuSelect(uint8 messageType, Object* srcObject)
     case radId_bankTransfer:	{ // deposit - withdraw
 	
 		auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-		auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
-		auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(playerObject, "bank"));
+		auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject->GetCreature(), "inventory"));
+		auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(playerObject->GetCreature(), "bank"));
 
         gUIManager->createNewTransferBox(this,"handleDepositWithdraw", "@base_player:bank_title"
                                          ,"@base_player:bank_prompt", "Cash", "Bank"
@@ -135,8 +135,8 @@ void BankTerminal::handleUIEvent(BString strInventoryCash, BString strBankCash, 
     }
 
 	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
-	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(playerObject, "bank"));
+	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject->GetCreature(), "inventory"));
+	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(playerObject->GetCreature(), "bank"));
 
     // two money movement deltas stands for credits
     // variations into bank & inventory.

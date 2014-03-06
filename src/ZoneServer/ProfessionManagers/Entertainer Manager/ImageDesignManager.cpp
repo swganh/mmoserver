@@ -620,7 +620,7 @@ void EntertainerManager::applyMoney(PlayerObject* customer,PlayerObject* designe
     amountbank = 0;
     
 	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(customer, "inventory"));
+	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(customer->GetCreature(), "inventory"));
 
     if(inventory && inventory->getCredits() < amount)    {
         // cash alone isnt sufficient

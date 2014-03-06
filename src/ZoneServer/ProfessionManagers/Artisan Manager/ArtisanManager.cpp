@@ -629,7 +629,7 @@ void	ArtisanManager::finishSampling(PlayerObject* player, CurrentResource* resou
     // see if we can add it to an existing container
 
 	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
+	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player->GetCreature(), "inventory"));
 
 	inventory->ViewObjects(player, 0, true, [&] (Object* object) {
 	
@@ -693,7 +693,7 @@ bool	ArtisanManager::stopSampling(PlayerObject* player, CurrentResource* resourc
 {
 
 	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
+	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player->GetCreature(), "inventory"));
 
     auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
     bool stop = false;
@@ -805,7 +805,7 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,std::u16string in
     }
 
     auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
+	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player->GetCreature(), "inventory"));
 
     if(!inventory)    {
 		DLOG(error) << "ArtisanManager::handleUIEvent :: no inventory";

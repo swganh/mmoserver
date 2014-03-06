@@ -108,7 +108,7 @@ CraftingSession::CraftingSession(Anh_Utils::Clock* clock,swganh::database::Datab
 	mToolEffectivity = mTool->getAttribute<float>("craft_tool_effectiveness");
 
 	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	inventory_ = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(mOwner, "inventory"));
+	inventory_ = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(mOwner->GetCreature(), "inventory"));
 }
 
 //=============================================================================

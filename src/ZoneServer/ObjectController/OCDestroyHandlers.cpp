@@ -67,7 +67,7 @@ void ObjectController::destroyObject(uint64 objectId)
 	Object*			object			= gWorldManager->getObjectById(objectId);
 
 	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
+	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject->GetCreature(), "inventory"));
 
 	//could be a schematic!
 	ManufacturingSchematic* schem	= datapad->getManufacturingSchematicById(objectId);
@@ -129,7 +129,7 @@ void ObjectController::destroyObject(uint64 objectId)
 		TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object);
 		
 		auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-		auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
+		auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject->GetCreature(), "inventory"));
 
 		// items
 		if(Item* item = dynamic_cast<Item*>(tangibleObject))

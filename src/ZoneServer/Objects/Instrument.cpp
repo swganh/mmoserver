@@ -94,7 +94,7 @@ void Instrument::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
             {
                 // We are handling the original instrument.
                 auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-				auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
+				auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player->GetCreature(), "inventory"));
 
                 if (inventory && inventory->getId() == this->getParentId())	{
                     if (player->getPlacedInstrumentId() == 0)	{
@@ -232,7 +232,7 @@ void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount
         {
             // We may be handling the original instrument.
 			auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-			auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
+			auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject->GetCreature(), "inventory"));
             
             if (inventory)	{
                 if (inventory->getId() == this->getParentId())

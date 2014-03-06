@@ -136,8 +136,8 @@ void CloningTerminal::handleUIEvent(uint32 action,int32 element,std::u16string i
     }
 
 	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
-	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(playerObject, "bank"));
+	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject->GetCreature(), "inventory"));
+	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(playerObject->GetCreature(), "bank"));
 
     if (this->getParentId() && gWorldManager->getObjectById(this->getParentId())->getParentId())
     {

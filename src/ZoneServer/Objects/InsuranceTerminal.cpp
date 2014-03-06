@@ -233,8 +233,8 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,std::u16string
     }
 
 	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventoryObject	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
-	auto bankObject			= dynamic_cast<Bank*>(equip_service->GetEquippedObject(playerObject, "bank"));
+	auto inventoryObject	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject->GetCreature(), "inventory"));
+	auto bankObject			= dynamic_cast<Bank*>(equip_service->GetEquippedObject(playerObject->GetCreature(), "bank"));
 
     switch(window->getWindowType())
     {
@@ -568,7 +568,7 @@ void InsuranceTerminal::getUninsuredItems(PlayerObject* playerObject, StringVect
 
     // Build the items list and optional use error-messages if needed.
 	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
+	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject->GetCreature(), "inventory"));
 	//auto bankObject			= dynamic_cast<Bank*>(equip_service->GetEquippedObject(playerObject, "bank"));
 
     if (inventory)    {
@@ -600,7 +600,7 @@ void InsuranceTerminal::getInsuredItems(PlayerObject* playerObject, StringVector
 
     // Build the items list and optional use error-messages if needed.
     auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
+	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject->GetCreature(), "inventory"));
     
 	if (inventory)    {
 

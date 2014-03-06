@@ -395,7 +395,7 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
 	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(creatureObject, "inventory"));
 
 	// Player Inventory.
-	auto playerInventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
+	auto playerInventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject->GetCreature(), "inventory"));
 
     // AttackableCreature* npcObject = dynamic_cast<NPCObject*>(gWorldManager->getObjectById(targetId));
     if (creatureObject && playerObject->isConnected() && !playerObject->GetCreature()->isDead() && !playerObject->GetCreature()->isIncapacitated() && (creatureObject->getNpcFamily() == NpcFamily_AttackableCreatures) && creatureObject->isDead())
@@ -481,7 +481,7 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
 										gMessageLib->SendSystemMessage(::common::OutOfBand("group", "prose_split", 0, 0, 0, splittedCredits), member);
 
 										// Now we need to add the credits to player inventory.
-										auto groupmember_Inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(member, "inventory"));
+										auto groupmember_Inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(member->GetCreature(), "inventory"));
 										if (groupmember_Inventory)                                    {
 											groupmember_Inventory->updateCredits(splittedCredits);
 										}

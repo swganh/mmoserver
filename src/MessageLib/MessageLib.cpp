@@ -595,7 +595,7 @@ bool MessageLib::sendCreateInTangible(IntangibleObject* intangibleObject,uint64 
     gMessageLib->sendBaselinesITNO_6(intangibleObject,targetObject);
     gMessageLib->sendBaselinesITNO_8(intangibleObject,targetObject);
     gMessageLib->sendBaselinesITNO_9(intangibleObject,targetObject);
-    gMessageLib->sendContainmentMessage(intangibleObject->getId(), containmentId, 0xffffffff, targetObject);
+	gMessageLib->sendContainmentMessage(intangibleObject->getId(), containmentId, intangibleObject->GetArrangementId(), targetObject);
     gMessageLib->sendEndBaselines(intangibleObject->getId(),targetObject);
 
     return true;
@@ -614,30 +614,8 @@ bool MessageLib::sendCreateTano(TangibleObject* tangible, PlayerObject* target) 
     uint64 parentId = tangible->getParentId();
 
     sendCreateObjectByCRC(tangible, target);
+	sendContainmentMessage(tangible->getId(), tangible->getParentId(), tangible->GetArrangementId(), target);
 
-    if(parentId != 0) {
-        // its in a cell, container, inventory
-        if (parentId != target->getId()) {
-            // could be inside a crafting tool
-            Object* parent = gWorldManager->getObjectById(parentId);
-
-            if (parent && dynamic_cast<CraftingTool*>(parent)) {
-                sendContainmentMessage(tangible->getId(), parentId, 0, target);
-            }
-            // if equipped, also tie it to the object
-            else if (CreatureObject* creature = dynamic_cast<CreatureObject*>(parent)) {
-                sendContainmentMessage(tangible->getId(), creature->getId(), 4, target);
-            } else {
-                sendContainmentMessage(tangible->getId(), tangible->getParentId(), 0xffffffff, target);
-            }
-        }
-        // or tied directly to an object
-        else {
-            sendContainmentMessage(tangible->getId(), tangible->getParentId(), 4, target);
-        }
-    } else {
-        sendContainmentMessage(tangible->getId(), tangible->getParentId(), 0xffffffff, target);
-    }
 
     sendBaselinesTANO_3(tangible, target);
     sendBaselinesTANO_6(tangible, target);

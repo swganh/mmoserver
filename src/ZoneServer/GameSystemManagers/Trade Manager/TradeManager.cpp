@@ -510,7 +510,7 @@ void TradeManager::_processDeductMoneyMessage(Message* message,DispatchClient* c
     asyncContainer->mY = atoi(y.getAnsi());
 
     auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(asyncContainer->player1, "inventory"));
+	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(asyncContainer->player1->GetCreature(), "inventory"));
 
 	if(!asyncContainer->player1->testCash(amount))    {
         //cash alone isnt sufficient
@@ -547,7 +547,7 @@ void TradeManager::_processCreateItemMessage(Message* message,DispatchClient* cl
     PlayerObject*	player			= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(PlayerID));
 
 	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
+	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player->GetCreature(), "inventory"));
 
 
     if(player && player->isConnected())    {
@@ -1000,7 +1000,7 @@ void TradeManager::_processAddItemMessage(Message* message,DispatchClient* clien
 	if (theItem && (theItem->getParentId() == playerObject->getId()))    {
 
 		auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-		auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
+		auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject->GetCreature(), "inventory"));
 
 		//bail out if we cannot unequip it
 		if(!gContainerManager->transferItem(inventory->getId(),theItem->getId(),playerObject,4))

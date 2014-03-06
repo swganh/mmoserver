@@ -348,8 +348,8 @@ void StructureManager::createPayMaintenanceTransferBox(PlayerObject* player, Pla
     }
 
 	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
-	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player, "bank"));
+	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player->GetCreature(), "inventory"));
+	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player->GetCreature(), "bank"));
 
 	if(!inventory)	{
 		LOG (error) << "StructureManager::createPayMaintenanceTransferBox : No inventory for " << player->getId();

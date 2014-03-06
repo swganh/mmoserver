@@ -352,7 +352,7 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
     uint16			elements;
 
 	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
+	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject->GetCreature(), "inventory"));
 
     float		purchaseRange = gWorldConfig->getConfiguration<float>("Player_TicketTerminalAccess_Distance",(float)10.0);
 
@@ -471,7 +471,7 @@ void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* messag
     uint16			elementCount;
 
 	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
+	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject->GetCreature(), "inventory"));
 
 	if(!inventory)	{
 		LOG(error) << "ObjectController::_handleGetAttributesBatch couldnt cast inventory";

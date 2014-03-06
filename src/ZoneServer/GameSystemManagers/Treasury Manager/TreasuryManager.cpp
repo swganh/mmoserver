@@ -122,8 +122,8 @@ std::shared_ptr<RadialMenu> TreasuryManager::bankBuildTerminalRadialMenu(Creatur
 void TreasuryManager::bankDepositAll(PlayerObject* player)
 {
 	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
-	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player, "bank"));
+	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player->GetCreature(), "inventory"));
+	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player->GetCreature(), "bank"));
 
     if(!inventory)    {
 		LOG(error) << "TreasuryManager::bankDepositAll no Inventory";
@@ -157,8 +157,8 @@ void TreasuryManager::bankDepositAll(PlayerObject* player)
 void TreasuryManager::bankWithdrawAll(PlayerObject* player)
 {
 	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
-	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player, "bank"));
+	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player->GetCreature(), "inventory"));
+	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player->GetCreature(), "bank"));
         
     if(! bank)	{
 		LOG (error) << "TreasuryManager::bankWithdrawAll No Bank Object for " << player->getId();
@@ -187,8 +187,8 @@ void TreasuryManager::bankWithdrawAll(PlayerObject* player)
 void TreasuryManager::bankTransfer(int32 inventoryMoneyDelta, int32 bankMoneyDelta, PlayerObject* player)
 {
 	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
-	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player, "bank"));
+	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player->GetCreature(), "inventory"));
+	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player->GetCreature(), "bank"));
 
     if(! bank)	{
 		LOG (error) << "TreasuryManager::bankWithdrawAll No Bank Object for " << player->getId();
@@ -269,7 +269,7 @@ void TreasuryManager::bankQuit(PlayerObject* player)
 {
 	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
 	//auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
-	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player, "bank"));
+	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player->GetCreature(), "bank"));
 
     if(!bank)    {
 		LOG (error) << "TreasuryManager::bankWithdrawAll No Bank Object for " << player->getId();
@@ -298,7 +298,7 @@ void TreasuryManager::bankJoin(PlayerObject* player)
 {
 	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
 	//auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
-	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player, "bank"));
+	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player->GetCreature(), "bank"));
     if(!bank)    {
 		LOG (error) << "TreasuryManager::bankJoin No bank for " << player->getId();
 		return;
@@ -335,7 +335,7 @@ void TreasuryManager::bankTipOffline(uint32 amount,PlayerObject* player,BString 
     //dont forget the surcharge
     auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
 	//auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
-	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player, "bank"));
+	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player->GetCreature(), "bank"));
 
 	if(!bank)    {
 		LOG (error) << "TreasuryManager::bankJoin No bank for " << player->getId();
@@ -379,9 +379,9 @@ void TreasuryManager::bankTipOnline(uint32 amount, PlayerObject* playerObject, P
     uint32 surcharge = (uint32)((amount/100)*5);
 
 	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
-	auto playerBank = dynamic_cast<Bank*>(equip_service->GetEquippedObject(playerObject, "bank"));
-	auto targetBank = dynamic_cast<Bank*>(equip_service->GetEquippedObject(targetObject, "bank"));
+	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject->GetCreature(), "inventory"));
+	auto playerBank = dynamic_cast<Bank*>(equip_service->GetEquippedObject(playerObject->GetCreature(), "bank"));
+	auto targetBank = dynamic_cast<Bank*>(equip_service->GetEquippedObject(targetObject->GetCreature(), "bank"));
 
 	if(!playerBank)    {
 		LOG (error) << "TreasuryManager::bankTipOnline No bank for " << playerObject->getId();
@@ -419,10 +419,10 @@ void TreasuryManager::inventoryTipOnline(uint32 amount, PlayerObject* playerObje
     }
 
 	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto playerInventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject, "inventory"));
-	auto targetInventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(targetObject, "inventory"));
-	auto playerBank = dynamic_cast<Bank*>(equip_service->GetEquippedObject(playerObject, "bank"));
-	auto targetBank = dynamic_cast<Bank*>(equip_service->GetEquippedObject(targetObject, "bank"));
+	auto playerInventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject->GetCreature(), "inventory"));
+	auto targetInventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(targetObject->GetCreature(), "inventory"));
+	auto playerBank = dynamic_cast<Bank*>(equip_service->GetEquippedObject(playerObject->GetCreature(), "bank"));
+	auto targetBank = dynamic_cast<Bank*>(equip_service->GetEquippedObject(targetObject->GetCreature(), "bank"));
 
     //check if we have enough money
     if(amount > playerInventory->getCredits())    {

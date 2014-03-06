@@ -314,7 +314,7 @@ void StructureManager::_HandleStructureRedeedCallBack(StructureManagerAsyncConta
 	{
 		//load the deed into the inventory
 		auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-		auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
+		auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player->GetCreature(), "inventory"));
 		if(inventory)		{
 			//15 is itemfamily for deeds
 			gObjectFactory->createIteminInventory(inventory,deedId,TanGroup_Item);
@@ -1086,8 +1086,8 @@ void StructureManager::handleUIEvent(std::u16string leftValue, std::u16string ri
 		std::string harv_cash_ansi(harv_str.begin(), harv_str.end());
 
 		auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-		auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
-		auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player, "bank"));
+		auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player->GetCreature(), "inventory"));
+		auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player->GetCreature(), "bank"));
         
 		int32 bankFunds = bank->getCredits();
         int32 inventoryFunds = inventory->getCredits();

@@ -529,7 +529,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			if(structure->canRedeed())
 			{	
 				auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-				auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player, "inventory"));
+				auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player->GetCreature(), "inventory"));
 
 				if(!inventory->checkSlots(1))				{
 					gMessageLib->SendSystemMessage(std::u16string(),player,"player_structure","inventory_full");

@@ -307,6 +307,7 @@ public:
 
 private:
 
+	structure_admin_class		admin_data_;
 
     PlayerStructureFamily		mPlayerStructureFamily;
 

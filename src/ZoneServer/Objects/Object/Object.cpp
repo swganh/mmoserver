@@ -238,7 +238,6 @@ int32_t Object::__InternalInsert(Object* object, glm::vec3 new_position, int32_t
 
 void Object::__InternalViewObjects(Object* requester, uint32_t max_depth, bool topDown, std::function<void(Object*)> func)
 {
-
 	if(!GetPermissions() )	 {
 		LOG(error) << "Object::__InternalViewObjects no permissions : " << this->getId();
 		auto permissions_objects_ = gObjectManager->GetPermissionsMap();
@@ -254,7 +253,7 @@ void Object::__InternalViewObjects(Object* requester, uint32_t max_depth, bool t
 
         //// ITERATE THROUGH ALL SLOTS ////
 		
-        for(auto& slot = slot_descriptor_.begin();slot != slot_descriptor_.end(); slot++)
+		for(auto& slot = slot_descriptor_.begin();slot != slot_descriptor_.end(); slot++)
         {
 			if(!slot->second)	{
 				LOG(info) << " No Slot";
@@ -263,6 +262,7 @@ void Object::__InternalViewObjects(Object* requester, uint32_t max_depth, bool t
 			//LOG(info) <<"iterating through slot : " << slot->first ;
             slot->second->view_objects([&] (Object* object)
             {
+				
                 //uint32_t object_instance = object->GetInstanceId();
                 //if(object_instance == 0 || object_instance == requester_instance)
                 //{
@@ -278,6 +278,8 @@ void Object::__InternalViewObjects(Object* requester, uint32_t max_depth, bool t
             });
         }
     }
+	else
+		LOG(info) << "Object::__InternalViewObjects : " << this->getId() << " No Permission :(";
 }
 
 void Object::SetSlotInformation(ObjectSlots slots, ObjectArrangements arrangements)
@@ -290,6 +292,11 @@ void Object::SetSlotInformation(ObjectSlots slots, ObjectArrangements arrangemen
 {
     slot_descriptor_ = slots;
     slot_arrangements_ = arrangements;
+}
+
+bool Object::HasSlotInformation()
+{
+	return (slot_descriptor_.size() > 0);
 }
 
 void Object::SwapSlots(Object* requester, Object* object, int32_t new_arrangement_id)
@@ -326,6 +333,8 @@ void Object::InitializeObject(Object* newObject)
 		newObject->SetPermissions(permissions_objects_.find(swganh::object::DEFAULT_PERMISSION)->second.get());//DEFAULT_PERMISSION
 	}
 
+	gObjectManager->LoadSlotsForObject(newObject);
+	newObject->setParentId(this->getId());
 
 	int32 arrangement = GetAppropriateArrangementId(newObject);
     if(!InitializeObject(nullptr, newObject, arrangement))	{
@@ -761,20 +770,22 @@ glm::vec3 Object::getWorldPosition() const
 //        Object instance hold a reference to it's parent.
 // objects reference their parents - we just do not know who is the final (permissiongiving) container
 // as it is it will return either the player or the building owning the item regardless in what container it is
-//  @TODO: what if the player is in a building ???
+
 const Object* Object::getRootParent() const
 {
     // If there's no parent id then this is the root object.
-    if (! getParentId())
-    {
+    if (! getParentId())    {
         return this;
     }
+
+	if(this->getObjectType() == SWG_CREATURE)	{
+		return this;
+	}
 
     // Otherwise get the parent for this object and call getRootParent on it.
     Object* parent = gWorldManager->getObjectById(getParentId());
 
-    if(!parent)
-    {
+    if(!parent)    {
         return this;
     }
 

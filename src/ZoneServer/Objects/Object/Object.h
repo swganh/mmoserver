@@ -150,6 +150,8 @@ public:
     void SetSlotInformation(ObjectSlots slots, ObjectArrangements arrangements);
     void SetSlotInformation(ObjectSlots slots, ObjectArrangements arrangements, boost::unique_lock<boost::mutex>& lock);
 
+	bool HasSlotInformation();
+
 	/**
      * @brief Clears the given slot by slot_id
      */

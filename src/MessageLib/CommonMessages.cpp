@@ -222,7 +222,7 @@ bool MessageLib::sendDestroyObject_InRangeofObject(Object* object)
 //
 // updates an object parent<->child relationship
 //
-bool MessageLib::sendContainmentMessage(uint64 objectId,uint64 parentId,uint32 linkType,const PlayerObject* const targetObject) const
+bool MessageLib::sendContainmentMessage(uint64 objectId,uint64 parentId,int32 linkType,const PlayerObject* const targetObject) const
 {
     if(!targetObject || !targetObject->isConnected())
     {
@@ -234,6 +234,9 @@ bool MessageLib::sendContainmentMessage(uint64 objectId,uint64 parentId,uint32 l
 
     mMessageFactory->addUint64(objectId);
     mMessageFactory->addUint64(parentId);
+	if(linkType == -1)
+		linkType = 4;
+
     mMessageFactory->addUint32(linkType);
 
     (targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 4);
@@ -243,7 +246,7 @@ bool MessageLib::sendContainmentMessage(uint64 objectId,uint64 parentId,uint32 l
 
 //======================================================================================================================
 //same with broadcast to in Range
-bool MessageLib::sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,uint32 linkType,PlayerObject* targetObject)
+bool MessageLib::sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,int32 linkType,PlayerObject* targetObject)
 {
     if(!targetObject || !targetObject->isConnected())
     {
@@ -264,7 +267,7 @@ bool MessageLib::sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,
 
 //======================================================================================================================
 
-bool MessageLib::sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,uint32 linkType,CreatureObject* targetObject)
+bool MessageLib::sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,int32 linkType,CreatureObject* targetObject)
 {
     if(!targetObject)
     {
@@ -1298,7 +1301,7 @@ bool MessageLib::sendCreateAuctionItemResponseMessage(PlayerObject* targetPlayer
 //
 // updates an object parent<->child relationship
 //
-bool MessageLib::broadcastContainmentMessage(uint64 objectId,uint64 parentId,uint32 linkType,PlayerObject* targetPlayer)
+bool MessageLib::broadcastContainmentMessage(uint64 objectId,uint64 parentId,int32 linkType,PlayerObject* targetPlayer)
 {
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opUpdateContainmentMessage);
@@ -1317,7 +1320,7 @@ bool MessageLib::broadcastContainmentMessage(uint64 objectId,uint64 parentId,uin
 // updates an object parent<->child relationship
 // Used when Creatures updates their cell positions.
 //
-bool MessageLib::broadcastContainmentMessage(Object* targetObject,uint64 parentId,uint32 linkType)
+bool MessageLib::broadcastContainmentMessage(Object* targetObject,uint64 parentId,int32 linkType)
 {
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opUpdateContainmentMessage);

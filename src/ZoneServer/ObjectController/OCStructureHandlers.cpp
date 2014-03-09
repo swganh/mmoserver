@@ -176,6 +176,7 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
     {
         command.Command = Structure_Command_AddPermission;
         gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
+		//addNametoPermissionList(command.StructureId, command.PlayerId, command.PlayerStr, command.List);
     }
 
     if(action == "remove")

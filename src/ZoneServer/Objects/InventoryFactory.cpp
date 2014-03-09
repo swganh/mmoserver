@@ -268,7 +268,9 @@ void InventoryFactory::handleObjectReady(Object* object,DispatchClient* client)
 
     //for unequipped items only
 	auto permissions_objects_ = gObjectManager->GetPermissionsMap();
-	object->SetPermissions(permissions_objects_.find(swganh::object::CREATURE_CONTAINER_PERMISSION)->second.get());//CREATURE_PERMISSION
+	object->SetPermissions(permissions_objects_.find(swganh::object::DEFAULT_PERMISSION)->second.get());
+
+	gObjectManager->LoadSlotsForObject(object);
 	inventory->InitializeObject(object);
 	LOG(info) << "InventoryFactory::handleObjectReady : " << object->GetTemplate();
 

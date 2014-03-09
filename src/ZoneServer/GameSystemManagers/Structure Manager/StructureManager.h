@@ -86,7 +86,102 @@ private :
 
 };
 
+class structure_admin_class	{
 
+public :
+	structure_admin_class(){}
+	~structure_admin_class(){}
+
+	bool	admin_add_(uint64 player_id)	{
+		auto it = admin_map_.find(player_id);
+		if(it != admin_map_.end())	{
+			return false;
+		}
+		admin_map_.insert(std::make_pair(player_id, "ADMIN"));
+		return true;
+	}
+
+	bool	ban_add_(uint64 player_id)	{
+		auto it = ban_map_.find(player_id);
+		if(it != ban_map_.end())	{
+			return false;
+		}
+		ban_map_.insert(std::make_pair(player_id, "BAN"));
+		return true;
+	}
+
+	bool	entry_add_(uint64 player_id)	{
+		auto it = entry_map_.find(player_id);
+		if(it != entry_map_.end())	{
+			return false;
+		}
+		entry_map_.insert(std::make_pair(player_id, "ENTRY"));
+		return true;
+	}
+
+	bool	check_admin(uint64 player_id)	{
+		auto it = admin_map_.find(player_id);
+		if(it != admin_map_.end())	{
+			return true;
+		}
+		return false;
+	}
+
+	bool	check_ban(uint64 player_id)	{
+		auto it = ban_map_.find(player_id);
+		if(it != ban_map_.end())	{
+			return true;
+		}
+		return false;
+	}
+
+	bool	check_entry(uint64 player_id)	{
+		auto it = entry_map_.find(player_id);
+		if(it != entry_map_.end())	{
+			return true;
+		}
+		return false;
+	}
+
+	void	remove_entry(uint64 player_id)	{
+		auto it = entry_map_.find(player_id);
+		if(it != entry_map_.end())	{
+			entry_map_.erase(it);
+			return;
+		}
+	}
+
+	void	remove_ban(uint64 player_id)	{
+		auto it = ban_map_.find(player_id);
+		if(it != ban_map_.end())	{
+			ban_map_.erase(it);
+			return;
+		}
+	}
+
+	void	remove_admin(uint64 player_id)	{
+		auto it = admin_map_.find(player_id);
+		if(it != admin_map_.end())	{
+			admin_map_.erase(it);
+			return;
+		}
+	}
+
+
+
+	uint64							structure_id_;
+	uint64							owner_id_;
+
+private :
+	std::map<uint64, std::string>	admin_map_;
+	std::map<uint64, std::string>	ban_map_;
+	std::map<uint64, std::string>	entry_map_;
+	
+	
+
+};
+
+typedef		std::map<uint64, structure_admin_class>	structure_admin_map;
 typedef		std::vector<StructureDeedLink*>		DeedLinkList;
 typedef		std::vector<StructureItemTemplate*>	StructureItemList;
 typedef		std::vector<NoBuildRegionTemplate*>	NoBuildRegionList;

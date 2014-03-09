@@ -1317,12 +1317,18 @@ const Anh_Math::Rectangle WorldManager::getSpawnArea(uint64 spawnRegionId)
 
 void WorldManager::removePlayerfromAccountMap(uint64 playerID)
 {
-    if(PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerID)))
-    {
+	CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(playerID));
+	if(!creature)	{
+		LOG (error) << "WorldManager::removePlayerfromAccountMap : no player";
+		return;
+	}
+
+	PlayerObject* player = creature->GetGhost();
+
+    if(player)    {
         PlayerAccMap::iterator playerAccIt = mPlayerAccMap.find(player->getAccountId());
 
-        if(playerAccIt != mPlayerAccMap.end())
-        {
+        if(playerAccIt != mPlayerAccMap.end())        {
             LOG(info) << "Player left [" << player->getId() << "] Total players on zone [" << (getPlayerAccMap()->size() -1) << "]";
             mPlayerAccMap.erase(playerAccIt);
         }

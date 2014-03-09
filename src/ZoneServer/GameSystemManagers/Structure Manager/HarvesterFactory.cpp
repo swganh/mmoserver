@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceContainerFactory.h"
 #include "ZoneServer/WorldManager.h"
 
+#include <cppconn/resultset.h>
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -138,13 +139,54 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,swganh::database::Dat
             harvester->addInternalAttribute(BString(attribute.mKey.c_str()),attribute.mValue);
         }
 
-        harvester->setLoadState(LoadState_Loaded);
+		QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,HFQuery_AdminData,asyncContainer->mClient,asyncContainer->mId);
+        asynContainer->mId		= harvester->getId();
+        asynContainer->mObject	= harvester;
+
+		std::stringstream sql;
+		sql << "SELECT PlayerID, AdminType FROM " << mDatabase->galaxy() << ".structure_admin_data WHERE StructureID = " << harvester->getId();
+		mDatabase->executeSqlAsync(this, asynContainer, sql.str());
+
+
+    }
+    break;
+
+	case HFQuery_AdminData:
+	{
+		HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(asyncContainer->mObject);
+
+		std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+
+        while (result_set->next()) {
+		
+			std::string type = result_set->getString(2);
+			if(type == "ADMIN")	{
+				harvester->admin_data_.admin_add_(result_set->getInt64(1));
+				LOG(info) << " added Admin to harvester : " << harvester->getId();
+			}
+			else
+			if(type == "BAN")	{
+				harvester->admin_data_.ban_add_(result_set->getInt64(1));
+				LOG(info) << " added ban to harvester : " << harvester->getId();
+			}
+			else
+			if(type == "ENTRY")	{
+				harvester->admin_data_.entry_add_(result_set->getInt64(1));
+				LOG(info) << " added entry to harvester : " << harvester->getId();
+			}
+
+		}
+
+		harvester->admin_data_.structure_id_ = harvester->getId();
+		harvester->admin_data_.owner_id_		= harvester->getOwner();
+
+		harvester->setLoadState(LoadState_Loaded);
 
         LOG(info) << "Loaded harvester with id [" << harvester->getId() << "]";
         asyncContainer->mOfCallback->handleObjectReady(harvester,asyncContainer->mClient);
 
-    }
-    break;
+	}
+	break;
 
     case HFQuery_MainData:
     {

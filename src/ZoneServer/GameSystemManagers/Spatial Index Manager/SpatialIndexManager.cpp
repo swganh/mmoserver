@@ -264,14 +264,14 @@ void SpatialIndexManager::RemoveObjectFromWorld(PlayerObject *removePlayer)
     DLOG(info) << "SpatialIndexManager::RemoveObjectFromWorld:: Player : " << removePlayer->getId();
 
     //remove us from the grid
-    _RemoveObjectFromGrid(removePlayer);
+	_RemoveObjectFromGrid(removePlayer->GetCreature());
 
     //remove us out of the cell
     if(removePlayer->getParentId() == 0)	{
         return;
     }
 
-    CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(removePlayer->getParentId()));
+	CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(removePlayer->GetCreature()->getParentId()));
     if(!cell)    {
 		DLOG(info) << "SpatialIndexManager::RemoveObjectFromWorld (player): couldn't find cell " << removePlayer->getParentId();
 		return;
@@ -281,7 +281,7 @@ void SpatialIndexManager::RemoveObjectFromWorld(PlayerObject *removePlayer)
         gContainerManager->unRegisterPlayerFromBuilding(building,removePlayer);
     }
 
-    cell->RemoveObject(cell, removePlayer);
+	cell->RemoveObject(cell, removePlayer->GetCreature());
 
 }
 

@@ -108,8 +108,13 @@ void WorldManager::savePlayer(uint32 accId, bool remove, WMLogOut logout_type, C
 }
 
 void WorldManager::storeCharacterPosition_(PlayerObject* player_object, bool remove, WMLogOut logout_type, CharacterLoadingContainer* clContainer) {
-    if(!player_object) {
-        DLOG(warning) << "Trying to save character position with an invalid PlayerObject";
+	if(!player_object) {
+        DLOG(warning) << "WorldManager::storeCharacterPosition_ Trying to save character position with an invalid PlayerObject";
+        return;
+    }
+
+	if(player_object->getLoadState() == LoadState_Loading) {
+        DLOG(warning) << "WorldManager::storeCharacterPosition_ Trying to save character while loading";
         return;
     }
 
@@ -129,7 +134,7 @@ void WorldManager::storeCharacterPosition_(PlayerObject* player_object, bool rem
                  << "z=" << (transfer ? clContainer->destination.z : player_object->mPosition.z) << ", "
 				 << "planet_id=" << (transfer ? clContainer->planet : mZoneId) << ", "
                  << "jedistate=" << player_object->getJediState() << " "
-                 << "WHERE id=" << player_object->getId();
+				 << "WHERE id=" << player_object->GetCreature()->getId();
 
 	//getKernel()->GetDatabase()->executeSqlAsync(clContainer->dbCallback,clContainer, query_stream.str());
 	getKernel()->GetDatabase()->executeAsyncSql(query_stream.str(), [=] (swganh::database::DatabaseResult* result) {
@@ -143,7 +148,7 @@ void WorldManager::storeCharacterPosition_(PlayerObject* player_object, bool rem
 void WorldManager::storeCharacterAttributes_(PlayerObject* player_object, bool remove, WMLogOut logout_type, CharacterLoadingContainer* clContainer) {
     
 	if(!player_object) {
-        DLOG(warning) << "Trying to save character position with an invalid PlayerObject";
+        DLOG(warning) << "WorldManager::storeCharacterAttributes_ Trying to save character position with an invalid PlayerObject";
 		SAFE_DELETE(clContainer);
         return;
     }
@@ -194,7 +199,7 @@ void WorldManager::storeCharacterAttributes_(PlayerObject* player_object, bool r
                  << "states=" << player_creature->states.getAction() << ", "
                  << "language=" << player_object->getLanguage() << ", "
                  << "new_player_exemptions=" <<  static_cast<uint16_t>(player_object->getNewPlayerExemptions()) << " "
-                 << "WHERE character_id=" << player_object->getId();
+                 << "WHERE character_id=" << player_creature->getId();
 
 	//LOG(error) << "query : " << query_stream.str();
 

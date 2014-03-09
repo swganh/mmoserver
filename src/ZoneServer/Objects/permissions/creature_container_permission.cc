@@ -10,15 +10,18 @@ using namespace swganh::object;
 
 bool CreatureContainerPermission::canInsert(ContainerInterface* container, Object* requester, Object* object)
 {
-    return (container->GetContainer() == requester);
+	LOG(info) << "CreatureContainerPermission::canInsert container->GetContainer() " << container->GetContainer()->getId() << "requester : " << requester->getId();
+	return (container->GetContainer()->getId() == requester->getId());
 }
 
 bool CreatureContainerPermission::canRemove(ContainerInterface* container, Object* requester, Object* object)
 {
-    return (container->GetContainer() == requester);
+	LOG(info) << "CreatureContainerPermission::canRemove container->GetContainer() " << container->GetContainer()->getId() << "requester : " << requester->getId();
+    return (container->GetContainer()->getId() == requester->getId());
 }
 
 bool CreatureContainerPermission::canView(ContainerInterface* container, Object* requester)
 {
-    return (container->GetContainer() == requester);
+	LOG(info) << "CreatureContainerPermission::canView container->GetContainer() " << container->GetContainer()->getId() << "requester : " << requester->getId();
+    return (container->GetContainer()->getId() == requester->getId());
 }

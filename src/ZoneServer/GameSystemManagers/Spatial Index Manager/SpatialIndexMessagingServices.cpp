@@ -239,11 +239,13 @@ bool SpatialIndexManager::sendCreatePlayer(PlayerObject* playerObject,PlayerObje
     gMessageLib->sendCreatePlayer(playerObject, targetObject);
 	playerObject->registerWatcher(targetObject);
 
-	playerObject->GetCreature()->ViewObjects(playerObject, 0, false, [&] (Object* object) {
-		LOG(info) << "creating : " << object->getId() << " " << object->GetTemplate();
+	playerObject->GetCreature()->ViewObjects(playerObject->GetCreature(), 0, true, [&] (Object* object) {
+		
 		TangibleObject* tangible = dynamic_cast<TangibleObject*>(object);
-		if(tangible)
+		if(tangible)	{
+			LOG(info) << "creating : " << object->getId() << " " << object->GetTemplate();
 			sendCreateTangible(tangible,targetObject);
+		}
 	
 	});
 

@@ -834,7 +834,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
 	player->mBiography.convert(BSTRType_Unicode16);
 	player->setNameFile("string_id_table");
 	player->SetTemplate("object/player/shared_player.iff");//619BAE21,object/player/shared_player.iff,data_other_00_o.txt
-
+	player->SetContainer(creature);
 	player->setParentId(creature->getId());
 
 	gWorldManager->addObject(creature);
@@ -861,6 +861,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
         playerHair->setName("hair");
         playerHair->setNameFile("hair_name");
 		playerHair->SetPermissions(permissions_objects_.find(swganh::object::CREATURE_CONTAINER_PERMISSION)->second.get());//CREATURE_CONTAINER_PERMISSION
+		playerHair->SetContainer(creature);
 
         playerHair->buildTanoCustomization(3);
 
@@ -877,6 +878,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
 	gObjectManager->LoadSlotsForObject(playerMissionBag);
 	gWorldManager->addObject(playerMissionBag,true);
 	creature->InitializeObject(playerMissionBag);
+	playerMissionBag->SetContainer(creature);
 
     // bank
 	
@@ -892,6 +894,8 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
     gObjectManager->LoadSlotsForObject(playerBank.get());
 	gWorldManager->addObject(playerBank,true);
 	creature->InitializeObject(playerBank.get());
+	playerBank->SetContainer(creature);
+	
 
     // default player weapon
 	Weapon*			playerWeapon	= new Weapon();
@@ -901,6 +905,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
     playerWeapon->SetTemplate("object/weapon/melee/unarmed/shared_unarmed_default_player.iff");
     playerWeapon->setGroup(WeaponGroup_Unarmed);
     playerWeapon->addInternalAttribute("weapon_group","1");
+	playerWeapon->SetContainer(creature);
 	
 	gObjectManager->LoadSlotsForObject(playerWeapon);
 	gWorldManager->addObject(playerWeapon,true);
@@ -1067,8 +1072,6 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 
 	CreatureObject*		creature = dynamic_cast<CreatureObject*>(player->GetCreature());
 
-	gObjectManager->LoadSlotsForObject(object);
-
     if(Inventory* inventory = dynamic_cast<Inventory*>(object))
     {
         ilc->mInventory = true;
@@ -1081,6 +1084,7 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 
 		inventory->setParent(creature);
 		inventory->setTypeOptions(256);
+		inventory->SetContainer(creature);
 		
         player->setInventory(inventory);
 
@@ -1098,12 +1102,14 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 
         player->setDataPad(datapad);
 
+		datapad->SetContainer(creature);
         datapad->setOwner(creature);
     }
     else if(TangibleObject* item =  dynamic_cast<TangibleObject*>(object))
     {
 		item->setParentId(creature->getId());
         gWorldManager->addObject(item,true);
+		item->SetContainer(creature);
 
         creature->InitializeObject(item);
 		
@@ -1116,25 +1122,24 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 	LOG(info) <<"PlayerObjectFactory::handleObjectReady : loadcounter : " << ilc->mLoadCounter;
 	LOG(info) <<"object : " << object->GetTemplate();
 
-    if((!ilc->mLoadCounter) && ((!ilc->mInventory) || (!ilc->mDPad)))
-    {
+    if((!ilc->mLoadCounter) && ((!ilc->mInventory) || (!ilc->mDPad)))    {
         LOG(warning) << "mIlc LoadCounter is messed up - we have a race condition";
     }
 
-    if((!ilc->mLoadCounter) && (ilc->mInventory) && (ilc->mDPad))
-    {
+    if((!ilc->mLoadCounter) && (ilc->mInventory) && (ilc->mDPad))    {
 		LOG(info) <<"PlayerObjectFactory::handleObjectReady : done";
 
         if(!(_removeFromObjectLoadMap(creature->getId())))
             LOG(warning) << "Failed removing object from loadmap";
         
         Datapad* dpad = player->getDataPad();
-        if(!dpad)
-        {
+        if(!dpad)        {
             assert(dpad && "PlayerObjectFactory::No Datapad!!!!!");
             return;
 
         }
+
+		player->setLoadState(LoadState_Loaded);
 
         ilc->mOfCallback->handleObjectReady(creature,ilc->mClient);
 

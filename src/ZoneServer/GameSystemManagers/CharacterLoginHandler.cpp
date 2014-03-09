@@ -160,7 +160,8 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
 {
 	
 
-    PlayerObject*	playerObject;
+    PlayerObject*		playerObject;
+	CreatureObject*		creature_object;
     uint64			playerId = message->getUint64();
 
 	ObjectIDSet::iterator it = playerZoneList.find(playerId);
@@ -172,12 +173,18 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
 
     // player already exists and is in logged state
 
-    playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
+    creature_object = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(playerId));
+	playerObject = nullptr;
+	
+	if(creature_object)	{
+		auto equip_service	= gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+		playerObject		= dynamic_cast<PlayerObject*>(equip_service->GetEquippedObject(creature_object, "ghost"));
+	}
 
 	//this exact character is currently being logged out ...
-    if((playerObject) && playerObject->isLinkDead())
-    {
-			LOG(info) << "CharacterLoginHandler::_processSelectCharacter - if((playerObject) && playerObject->isLinkDead())";
+    if( playerObject && playerObject->isLinkDead())    {
+	
+		LOG(info) << "CharacterLoginHandler::_processSelectCharacter - if((playerObject) && playerObject->isLinkDead())";
 
         // Remove old client, if any.
         delete playerObject->getClient();
@@ -197,6 +204,7 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
 
         //initialize us for the world
         gWorldManager->addObject(playerObject);
+		gWorldManager->addObject(creature_object);
 
         //create us for others dont use create in world - we are still in the cell
         //we just want to reinitialize the grid for us
@@ -244,8 +252,8 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
     {
 
         DLOG(info) << "CharacterLoginHandler::_processSelectCharacter same account : new character ";
-        // remove old char immidiately
-        if(playerObject->getId() == playerId)
+        // remove old char immediately
+		if(playerObject->GetCreature()->getId() == playerId)
         {
             //we need to bail out. If a bot tries to rapidly login it can happen that we get here again even before the character
             //did finish loading or even with a properly logged in player ...
@@ -407,7 +415,6 @@ void CharacterLoginHandler::_processClusterClientDisconnect(Message* message, Di
         // put it to the disconnected list
         if((playerObject = gWorldManager->getPlayerByAccId(client->getAccountId())) != NULL)
         {
-            // playerObject->setClient(NULL);	// To early for this, not as long as we have the playerObject active.
             gWorldManager->addDisconnectedPlayer(playerObject);
         }
     }

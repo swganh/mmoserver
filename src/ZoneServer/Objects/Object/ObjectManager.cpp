@@ -138,6 +138,10 @@ void ObjectManager::LoadCollisionInfoForObject(std::shared_ptr<Object> obj)
 void ObjectManager::LoadSlotsForObject(Object* object)
 {
 
+	if(object->HasSlotInformation())	{
+		return;
+	}
+
 	try	{
 		
 		auto oiff = kernel_->GetResourceManager()->GetResourceByName<ObjectVisitor>(object->GetTemplate());

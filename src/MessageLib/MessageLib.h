@@ -223,11 +223,11 @@ public:
 
     // common messages, commonmessages.cpp
     bool				sendCreateObjectByCRC(Object* object,const PlayerObject* const targetObject) const;
-    bool				sendContainmentMessage(uint64 objectId,uint64 parentId,uint32 linkType,const PlayerObject* const targetObject) const;
-    bool				sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,uint32 linkType,PlayerObject* targetObject);
-    bool				sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,uint32 linkType,CreatureObject* targetObject);
-    bool				broadcastContainmentMessage(uint64 objectId,uint64 parentId,uint32 linkType,PlayerObject* targetObject);
-    bool				broadcastContainmentMessage(Object* targetObject,uint64 parentId,uint32 linkType);	// Used by Creatures.
+    bool				sendContainmentMessage(uint64 objectId,uint64 parentId,int32 linkType,const PlayerObject* const targetObject) const;
+    bool				sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,int32 linkType,PlayerObject* targetObject);
+    bool				sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,int32 linkType,CreatureObject* targetObject);
+    bool				broadcastContainmentMessage(uint64 objectId,uint64 parentId,int32 linkType,PlayerObject* targetObject);
+    bool				broadcastContainmentMessage(Object* targetObject,uint64 parentId,int32 linkType);	// Used by Creatures.
     bool				sendOpenedContainer(uint64 objectId, PlayerObject* targetObject);
     //bool				sendPostureMessage(CreatureObject* creatureObject,PlayerObject* targetObject);
     bool				sendEndBaselines(uint64 objectId,const PlayerObject* const targetObject) const;

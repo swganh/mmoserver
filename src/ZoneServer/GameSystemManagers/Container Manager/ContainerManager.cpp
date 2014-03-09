@@ -85,11 +85,12 @@ bool	ContainerManager::transferItem(uint64 targetContainerId, uint64 transferIte
 		return false;
 	}
 	
-	if (!oldContainer->GetPermissions()->canRemove(oldContainer, player, itemObject))	{
+	if (!oldContainer->GetPermissions()->canRemove(oldContainer, player->GetCreature(), itemObject))	{
 		DLOG(info) << "ContainerManager::transferItem: GetPermissions ContainingContainer is not allowing the transfer :(";
+		return false;
 	}
 
-	if (!newContainer->GetPermissions()->canInsert(oldContainer, player, itemObject))	{
+	if (!newContainer->GetPermissions()->canInsert(newContainer, player->GetCreature(), itemObject))	{
 		DLOG(info) << "ContainerManager::transferItem: GetPermissions ContainingContainer is not allowing the transfer :(";
 		return false;
 	}
@@ -104,7 +105,7 @@ bool	ContainerManager::transferItem(uint64 targetContainerId, uint64 transferIte
 
 	itemObject->setParentId(targetContainerId); 
 
-	uint32 arrangement_id = newContainer->GetAppropriateArrangementId(itemObject);
+	int32 arrangement_id = newContainer->GetAppropriateArrangementId(itemObject);
 	LOG(info) << "ContainerManager::transferItem arrangement id : " << arrangement_id;
 	
 
@@ -127,13 +128,13 @@ bool ContainerManager::checkContainingContainer(uint64 containingContainer, uint
 
 	//it might be our inventory or the inventory of a creature were looting
 	//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
-	if(containingContainer == (playerId + INVENTORY_OFFSET))
+	if(containingContainer == (playerId + INVENTORY_OFFSET-PLAYER_OFFSET)) //hackhackhackhackhack
 	{
 		//its our inventory ... - return true
 		return true;
 	}
 
-	if(containingContainer == playerId)	{
+	if(containingContainer == playerId-PLAYER_OFFSET)	{
 		//its us
 		return true;
 	}

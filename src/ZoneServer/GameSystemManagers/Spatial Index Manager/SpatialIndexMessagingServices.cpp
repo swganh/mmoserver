@@ -240,14 +240,23 @@ bool SpatialIndexManager::sendCreatePlayer(PlayerObject* playerObject,PlayerObje
 	playerObject->registerWatcher(targetObject);
 
 	playerObject->GetCreature()->ViewObjects(playerObject->GetCreature(), 0, true, [&] (Object* object) {
-		
+		object->registerWatcher(playerObject);
 		TangibleObject* tangible = dynamic_cast<TangibleObject*>(object);
 		if(tangible)	{
 			LOG(info) << "creating : " << object->getId() << " " << object->GetTemplate();
 			sendCreateTangible(tangible,targetObject);
 		}
+		
+		IntangibleObject* intangible = dynamic_cast<IntangibleObject*>(object);
+		if(intangible && (intangible->getId() != playerObject->getId()))	{
+			LOG(info) << "creating intangible : " << object->getId() << " " << object->GetTemplate();
+			gMessageLib->sendCreateInTangible(intangible, targetObject);
+		}
 	
 	});
+
+	//playerObject->setLoadState(LoadState_Loaded);
+
 
 	/*
     // tangible objects

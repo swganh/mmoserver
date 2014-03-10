@@ -285,7 +285,8 @@ void VehicleControllerFactory::handleObjectReady(Object* object,DispatchClient* 
                 datapad->addData(vehicle);
                 gWorldManager->addObject(vehicle,true);
                 //spawn it in the player's datapad
-                gMessageLib->sendCreateInTangible(vehicle, datapad->getId(), player);
+				vehicle->setParentId(datapad->getId()) ;
+                gMessageLib->sendCreateInTangible(vehicle, player);
 
                 //now spawn it in the world
                 vehicle->Call();

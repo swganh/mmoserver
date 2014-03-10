@@ -415,6 +415,7 @@ void WorldManager::destroyObject(Object* object)
 	
 			});
 
+			eraseObject(player->getId());
 			
 
 		}

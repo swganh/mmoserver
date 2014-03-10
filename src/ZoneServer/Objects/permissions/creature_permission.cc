@@ -10,15 +10,39 @@ using namespace swganh::object;
 
 bool CreaturePermission::canInsert(ContainerInterface* container, Object* requester, Object* object)
 {
+	Object* container_object = dynamic_cast<Object*>(container);
+
+	if(container_object->getRootParent()->getObjectType() == SWG_CREATURE)	{
+		if(container_object->getRootParent() == requester->getRootParent())	{
+			return true;
+		}
+	}
+
 	return (container->getId() == requester->getId());
 }
 
 bool CreaturePermission::canRemove(ContainerInterface* container, Object* requester, Object* object)
 {
+	Object* container_object = dynamic_cast<Object*>(container);
+
+	if(container_object->getRootParent()->getObjectType() == SWG_CREATURE)	{
+		if(container_object->getRootParent() == requester->getRootParent())	{
+			return true;
+		}
+	}
+
     return (container->getId() == requester->getId());
 }
 
 bool CreaturePermission::canView(ContainerInterface* container, Object* requester)
 {
+	Object* container_object = dynamic_cast<Object*>(container);
+
+	if(container_object->getRootParent()->getObjectType() == SWG_CREATURE)	{
+		if(container_object->getRootParent() == requester->getRootParent())	{
+			return true;
+		}
+	}
+
     return true;
 }

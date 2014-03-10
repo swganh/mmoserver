@@ -163,7 +163,7 @@ public:
     */
     bool sendCreateStaticObject(TangibleObject* tangible, PlayerObject* target);
 
-	bool				sendCreateInTangible(IntangibleObject* intangibleObject, uint64 containmentId, PlayerObject* targetObject);
+	bool				sendCreateInTangible(IntangibleObject* intangibleObject, PlayerObject* targetObject);
 
 	// structures
 	bool				sendCreateInstallation(PlayerStructure* structure,PlayerObject* player);

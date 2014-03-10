@@ -103,7 +103,7 @@ bool	ContainerManager::transferItem(uint64 targetContainerId, uint64 transferIte
 	//we need to destroy the old radial ... our item now gets a new one
 	itemObject->ResetRadialMenu();
 
-	itemObject->setParentId(targetContainerId); 
+	//itemObject->setParentId(targetContainerId); 
 
 	int32 arrangement_id = newContainer->GetAppropriateArrangementId(itemObject);
 	LOG(info) << "ContainerManager::transferItem arrangement id : " << arrangement_id;
@@ -138,6 +138,8 @@ bool ContainerManager::checkContainingContainer(uint64 containingContainer, uint
 		//its us
 		return true;
 	}
+
+	container->getRootParent();
 
 	uint64 ownerId = gSpatialIndexManager->getObjectMainParent(container);
 
@@ -182,7 +184,7 @@ bool ContainerManager::checkContainingContainer(uint64 containingContainer, uint
 
 bool ContainerManager::checkTargetContainer(uint64 targetContainerId, Object* object, PlayerObject* player)
 {
-	PlayerObject*		targetPlayer	=	dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetContainerId));
+	CreatureObject*		targetPlayer	=	dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetContainerId));
 	
 	TangibleObject*		tangibleItem	=	dynamic_cast<TangibleObject*>(object);
 	
@@ -263,12 +265,12 @@ bool ContainerManager::checkTargetContainer(uint64 targetContainerId, Object* ob
 
 	//**********************************
 	//this is our inventory - we are allowed to put stuff in there - but is there still enough place ?
-	auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player, "inventory");
+	auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player->GetCreature(), "inventory");
 	
 	if(inventory&& (inventory->getId() == ownerId))
 	{
 		//make sure its our inventory!!!!!!
-		access = ((inventory->getId()- INVENTORY_OFFSET) == player->getId());
+		access = ((inventory->getId()- INVENTORY_OFFSET) == player->GetCreature()->getId());
 		if(!access)
 		{
 			//You do not have permission to access that container. 

@@ -377,7 +377,7 @@ void CharacterLoginHandler::handleObjectReady(Object* object,DispatchClient* cli
         gWorldManager->addObject(ghost);
 
         //create us for others
-        gSpatialIndexManager->createInWorld(ghost);
+        //gSpatialIndexManager->createInWorld(ghost);
 
         //create ourselves for us
         gSpatialIndexManager->sendCreatePlayer(ghost,ghost);

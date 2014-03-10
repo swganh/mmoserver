@@ -799,6 +799,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
 	std::string name = creature->getFirstName() + " " + creature->getLastName();
 
 	creature->setCustomName(std::u16string(name.begin(), name.end()));
+	creature->mKnownPlayers.insert(player);
 
 	BString mModel = creature->GetTemplate().c_str();
 
@@ -1138,8 +1139,6 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
             return;
 
         }
-
-		player->setLoadState(LoadState_Loaded);
 
         ilc->mOfCallback->handleObjectReady(creature,ilc->mClient);
 

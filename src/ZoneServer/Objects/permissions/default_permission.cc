@@ -11,8 +11,14 @@ using namespace swganh::object;
 
 bool DefaultPermission::canInsert(ContainerInterface* container, Object* requester, Object* object)
 {
-	if(object->getRootParent() == requester)	{
-		return true;
+	Object* container_object = dynamic_cast<Object*>(container);
+
+	//if we are a creature and a container in our inventory gets accessed
+	//we need to make sure only we can access it (or an admin)
+	if(container_object->getRootParent()->getObjectType() == SWG_CREATURE)	{
+		if(container_object->getRootParent() == requester->getRootParent())	{
+			return true;
+		}
 	}
 
 	//in case the root parent is a building we need to check the admin list
@@ -27,9 +33,13 @@ bool DefaultPermission::canInsert(ContainerInterface* container, Object* request
 
 bool DefaultPermission::canRemove(ContainerInterface* container, Object* requester, Object* object)
 {
-	if(object->getRootParent() == requester)	{
-		return true;
+	Object* container_object = dynamic_cast<Object*>(container);
+	if(container_object->getRootParent()->getObjectType() == SWG_CREATURE)	{
+		if(container_object->getRootParent() == requester->getRootParent())	{
+			return true;
+		}
 	}
+
 
 	//in case the root parent is a building we need to check the admin list
 	//check admin list
@@ -43,13 +53,18 @@ bool DefaultPermission::canRemove(ContainerInterface* container, Object* request
 
 bool DefaultPermission::canView(ContainerInterface* container, Object* requester)
 {
+	Object* container_object = dynamic_cast<Object*>(container);
 
-	Object* object = gWorldManager->getObjectById(container->getId());
-	if(object->getRootParent() == requester)	{
-		return true;
+	if(container_object->getRootParent()->getObjectType() == SWG_CREATURE)	{
+		if(container_object->getRootParent() == requester->getRootParent())	{
+			return true;
+		}
+		else	{
+			return false;
+		}
 	}
 
-	if(object->getRootParent()->getObjectType() == SWG_BUILDING)	{
+	if(container_object->getRootParent()->getObjectType() == SWG_BUILDING)	{
 
 		return true;
 	}

@@ -262,7 +262,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 	BString			dataStr;
 	uint64			targetContainerId;
-	uint32			linkType;
+	int32			linkType;
 	float			x,y,z;
 
 	message->getStringUnicode16(dataStr);

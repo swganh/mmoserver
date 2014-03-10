@@ -494,8 +494,8 @@ bool MessageLib::sendCreatePlayer(PlayerObject* player, PlayerObject* target) {
         sendBaselinesCREO_4(player);
     }
 
-	sendBaselinesCREO_3(player->GetCreature(), target);
-    sendBaselinesCREO_6(player->GetCreature(), target);
+	sendBaselinesCREO_3(creature, target);
+    sendBaselinesCREO_6(creature, target);
 
     sendCreateObjectByCRC(player, target);
 	
@@ -515,18 +515,18 @@ bool MessageLib::sendCreatePlayer(PlayerObject* player, PlayerObject* target) {
     //sendPostureMessage(player, target);
 
     if (creature->getParentId()) {
-		sendContainmentMessage(player->GetCreature()->getId(), player->GetCreature()->getParentId(), player->GetCreature()->GetArrangementId(), target);
+		//sendContainmentMessage(creature->getId(), creature->getParentId(), creature->GetArrangementId(), target);
     }
 
     
     sendEndBaselines(creature->getId(), target);
 
-    sendUpdatePvpStatus(player->GetCreature(), target);
+    //sendUpdatePvpStatus(creature, target);
 
     if (player == target) {
         //request the GRUP baselines from chatserver if grouped
         if (player->getId() != 0) {
-            gMessageLib->sendIsmGroupBaselineRequest(player);
+            //gMessageLib->sendIsmGroupBaselineRequest(player);
         }
     }
 
@@ -582,7 +582,7 @@ bool MessageLib::sendCreateStaticObject(TangibleObject* tangible, PlayerObject* 
 //
 // create intangible
 //
-bool MessageLib::sendCreateInTangible(IntangibleObject* intangibleObject,uint64 containmentId,PlayerObject* targetObject)
+bool MessageLib::sendCreateInTangible(IntangibleObject* intangibleObject, PlayerObject* targetObject)
 {
     if(!_checkPlayer(targetObject) || !intangibleObject)
     {
@@ -595,7 +595,7 @@ bool MessageLib::sendCreateInTangible(IntangibleObject* intangibleObject,uint64 
     gMessageLib->sendBaselinesITNO_6(intangibleObject,targetObject);
     gMessageLib->sendBaselinesITNO_8(intangibleObject,targetObject);
     gMessageLib->sendBaselinesITNO_9(intangibleObject,targetObject);
-	gMessageLib->sendContainmentMessage(intangibleObject->getId(), containmentId, intangibleObject->GetArrangementId(), targetObject);
+	gMessageLib->sendContainmentMessage(intangibleObject->getId(), intangibleObject->getParentId(), intangibleObject->GetArrangementId(), targetObject);
     gMessageLib->sendEndBaselines(intangibleObject->getId(),targetObject);
 
     return true;

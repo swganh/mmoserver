@@ -221,9 +221,11 @@ int32_t Object::__InternalInsert(Object* object, glm::vec3 new_position, int32_t
 		}
 		object->SetArrangementId(arrangement_id);
 		object->SetContainer(this);
+		object->setParentIdIncDB(this->getId());
 
 		//Time to update the position to the new coordinates/update AABB
 		object->mPosition = new_position;
+
 
 		//Because we may have calculated it internally, send the arrangement_id used back
 		//To the caller so it can send the appropriate update.
@@ -358,7 +360,7 @@ bool Object::InitializeObject(Object* requester, Object* obj, int32_t arrangemen
 		return false;
 	}
 
-	auto equipment_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
+	//auto equipment_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
 
 	//LOG (info) << "Object::InitializeObject added Object : " << obj->getId() << " to " << getId();
 	//if(arrangement_id != 0xffffffff)
@@ -380,6 +382,13 @@ bool Object::InitializeObject(Object* requester, Object* obj, int32_t arrangemen
         arrangement_id = __InternalInsert(obj, obj->mPosition, arrangement_id);
     }
 	
+	//add our parents known players to our own
+	//this only makes sense on initializing players / creatures with their children before sending their baseline
+	std::for_each(mKnownPlayers.begin(), mKnownPlayers.end(), [&] (PlayerObject* player)	{
+		obj->mKnownPlayers.insert(player);
+		
+	});
+
 	obj->SetArrangementId(arrangement_id);
 
 	if (this->getObjectType() == SWG_PLAYER || this->getObjectType() == SWG_CREATURE)	{
@@ -630,6 +639,8 @@ void Object::TransferObject(Object* requester, Object* object, ContainerInterfac
             object->__InternalRemoveAwareObject(player, true);
         }
     }
+	else
+		LOG(info) << "transfer error no permission for object : " << object->getId();
 }
 
 void Object::__InternalAddAwareObject(PlayerObject* player)

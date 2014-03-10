@@ -224,8 +224,7 @@ bool MessageLib::sendDestroyObject_InRangeofObject(Object* object)
 //
 bool MessageLib::sendContainmentMessage(uint64 objectId,uint64 parentId,int32 linkType,const PlayerObject* const targetObject) const
 {
-    if(!targetObject || !targetObject->isConnected())
-    {
+    if(!targetObject || !targetObject->isConnected())    {
         return(false);
     }
 
@@ -234,10 +233,9 @@ bool MessageLib::sendContainmentMessage(uint64 objectId,uint64 parentId,int32 li
 
     mMessageFactory->addUint64(objectId);
     mMessageFactory->addUint64(parentId);
-	if(linkType == -1)
-		linkType = 4;
+	
 
-    mMessageFactory->addUint32(linkType);
+	mMessageFactory->addInt32(linkType);
 
     (targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 4);
 
@@ -258,7 +256,7 @@ bool MessageLib::sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,
 
     mMessageFactory->addUint64(objectId);
     mMessageFactory->addUint64(parentId);
-    mMessageFactory->addUint32(linkType);
+    mMessageFactory->addInt32(linkType);
 
     _sendToInRange(mMessageFactory->EndMessage(),targetObject,5);
 
@@ -279,7 +277,7 @@ bool MessageLib::sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,
 
     mMessageFactory->addUint64(objectId);
     mMessageFactory->addUint64(parentId);
-    mMessageFactory->addUint32(linkType);
+    mMessageFactory->addInt32(linkType);
 
     _sendToInRange(mMessageFactory->EndMessage(),targetObject,5);
 
@@ -1308,7 +1306,7 @@ bool MessageLib::broadcastContainmentMessage(uint64 objectId,uint64 parentId,int
 
     mMessageFactory->addUint64(objectId);
     mMessageFactory->addUint64(parentId);
-    mMessageFactory->addUint32(linkType);
+    mMessageFactory->addInt32(linkType);
 
     _sendToInRange(mMessageFactory->EndMessage(),targetPlayer,4);
 
@@ -1327,7 +1325,7 @@ bool MessageLib::broadcastContainmentMessage(Object* targetObject,uint64 parentI
 
     mMessageFactory->addUint64(targetObject->getId());
     mMessageFactory->addUint64(parentId);
-    mMessageFactory->addUint32(linkType);
+    mMessageFactory->addInt32(linkType);
 
     _sendToInRange(mMessageFactory->EndMessage(),targetObject,4);
 

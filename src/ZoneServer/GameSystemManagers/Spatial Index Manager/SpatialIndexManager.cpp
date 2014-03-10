@@ -267,13 +267,13 @@ void SpatialIndexManager::RemoveObjectFromWorld(PlayerObject *removePlayer)
 	_RemoveObjectFromGrid(removePlayer->GetCreature());
 
     //remove us out of the cell
-    if(removePlayer->getParentId() == 0)	{
+    if(removePlayer->GetCreature()->getParentId() == 0)	{
         return;
     }
 
 	CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(removePlayer->GetCreature()->getParentId()));
     if(!cell)    {
-		DLOG(info) << "SpatialIndexManager::RemoveObjectFromWorld (player): couldn't find cell " << removePlayer->getParentId();
+		//DLOG(info) << "SpatialIndexManager::RemoveObjectFromWorld (player): couldn't find cell " << removePlayer->GetCreature()->getParentId();
 		return;
 	}
     //unregister from the building and all its cells
@@ -342,16 +342,17 @@ void SpatialIndexManager::_RemoveObjectFromGrid(Object *removeObject)
     
         //if we are a watcher (player) unregister us from everything around us
 		if(removeObject->getType() == ObjType_Player)	{
-			PlayerObject* removePlayer = static_cast<PlayerObject*>(removeObject);
+			CreatureObject* player_creature = static_cast<CreatureObject*>(removeObject);
           
 			//start with destroying our surroundings for us
-			gMessageLib->sendDestroyObject((*i)->getId(), removePlayer);
+
+			gMessageLib->sendDestroyObject((*i)->getId(), player_creature->GetGhost());
 
 			//now unregister us from any container
-			gContainerManager->unRegisterPlayerFromContainer((*i), removePlayer);
+			gContainerManager->unRegisterPlayerFromContainer((*i), player_creature->GetGhost());
 			if((*i)->getType() == ObjType_Player)	{
-				PlayerObject* otherPlayer = static_cast<PlayerObject*>((*i));
-				gMessageLib->sendDestroyObject(removeObject->getId(), otherPlayer );
+				CreatureObject* otherPlayer = static_cast<CreatureObject*>((*i));
+				gMessageLib->sendDestroyObject(removeObject->getId(), otherPlayer->GetGhost() );
 			}
 			
         }
@@ -1081,63 +1082,31 @@ void SpatialIndexManager::sendToPlayersInRange(const Object* const object, bool 
 
 
 
-//============================================================================================================
-// the idea is that the container holding our new item might be held by a container, too
-// should this happen, we need to find the main container to determin what kind of creates to send to our player/s
-// we will iterate through the parentObjects until the parent is either a player (item has been equipped) or in the inventory or )
-// or a cell or a factory
+//==
 uint64 SpatialIndexManager::getObjectMainParent(Object* object) {
 
-    uint64 parentID = object->getParentId();
+	if(object->getObjectType() == SWG_CREATURE)	{
+		return object->getId();
+	}
 
-    // hack ourselves a player - it is not possible to get an inventory otherwise because
-    // inventories are not part of the WorldObjectMap ... which really gets cumbersom (resolved with newest trunc)
+	if(object->getObjectType() == SWG_BUILDING)	{
+		return object->getId();
+	}
 
-    PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(parentID-1));
-    if(!player)
-    {
-        // the backpack might have been equipped ?
-        //   this way we have of course a player directly
-        PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(parentID));
-        if(!player)
-        {
-            CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentID));
-            if(!cell)
-            {
-                CellObject* cell = dynamic_cast<CellObject*>(object);
-                if(cell)
-                {
-                    return parentID;
-                }
-                FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(parentID));
-                if(!factory)
-                {
-                    Object* ob = dynamic_cast<Object*>(gWorldManager->getObjectById(parentID));
-                    if(!ob)
-                    {
-                        return 0;
-                    }
-                    parentID = getObjectMainParent(ob);
-                }
-            }
-            else
-            {
-                //return the house
-                return cell->getParentId();
-            }
-        }
-    }
-    else
-    {
-        //its in the inventory
-        return parentID;
-        //Inventory is parent ID +1 - we cannot find inventories in the worldObjectMap but we can find players there
-        //so we have to go this way
-        //before changing this we need to settle the dispute what objects are part of the world objectmap and need to discuss objectownership
-        //Eru is right in saying that we cant have two object owners (well we can but obviously we shouldnt)
-    }
+    
+	uint64 parentID = object->getParentId();
+	
+	if(parentID == 0)	{
+		return object->getId();
+	}
+	
+	Object* parent_object = gWorldManager->getObjectById(parentID);
 
-    return parentID;
+	if(parent_object)	{
+		return getObjectMainParent(parent_object) ;
+	}
+	
+	return 0;
 }
 
 //====================================================================================================================

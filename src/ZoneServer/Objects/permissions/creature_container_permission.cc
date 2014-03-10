@@ -10,18 +10,21 @@ using namespace swganh::object;
 
 bool CreatureContainerPermission::canInsert(ContainerInterface* container, Object* requester, Object* object)
 {
-	LOG(info) << "CreatureContainerPermission::canInsert container->GetContainer() " << container->GetContainer()->getId() << "requester : " << requester->getId();
-	return (container->GetContainer()->getId() == requester->getId());
+	Object* container_object = dynamic_cast<Object*>(container);
+	LOG(info) << "CreatureContainerPermission::canInsert container->GetContainer() " << container_object->getRootParent()->getId() << "requester : " << requester->getRootParent()->getId();
+	return (container_object->getRootParent() == requester->getRootParent());
 }
 
 bool CreatureContainerPermission::canRemove(ContainerInterface* container, Object* requester, Object* object)
 {
-	LOG(info) << "CreatureContainerPermission::canRemove container->GetContainer() " << container->GetContainer()->getId() << "requester : " << requester->getId();
-    return (container->GetContainer()->getId() == requester->getId());
+	Object* container_object = dynamic_cast<Object*>(container);
+	LOG(info) << "CreatureContainerPermission::canRemove container->GetContainer() " << container_object->getRootParent()<< "requester : " << requester->getRootParent()->getId();
+    return (container_object->getRootParent() == requester->getRootParent());
 }
 
 bool CreatureContainerPermission::canView(ContainerInterface* container, Object* requester)
 {
-	LOG(info) << "CreatureContainerPermission::canView container->GetContainer() " << container->GetContainer()->getId() << "requester : " << requester->getId();
-    return (container->GetContainer()->getId() == requester->getId());
+	Object* container_object = dynamic_cast<Object*>(container);
+	LOG(info) << "CreatureContainerPermission::canView container->GetContainer() " << container_object->getRootParent()->getId() << "requester : " << requester->getRootParent()->getId();
+    return (container_object->getRootParent() == requester->getRootParent());
 }

@@ -699,32 +699,6 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 		
 		}
 		break;
-
-		case Structure_Command_Privacy:
-		{
-			HouseObject* house = dynamic_cast<HouseObject*>(gWorldManager->getObjectById(command.StructureId));
-			if(!house)
-			{
-				DLOG(info) << "StructureManager::processVerification : No Player Building ";
-				return;
-			}
-			//set to private
-			if(house->getPublic())
-			{
-				mDatabase->executeSqlAsync(0,0,"UPDATE %s.houses h SET h.private = 0 WHERE h.ID = %I64u",mDatabase->galaxy(),command.StructureId);
-				house->setPublic(false);
-				gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure","structure_now_private"),player);
-				updateKownPlayerPermissions(house);
-				return;
-			}
-
-			house->setPublic(true);
-			gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure","structure_now_public"),player);
-			mDatabase->executeSqlAsync(0,0,"UPDATE %s.houses h SET h.private = 1 WHERE h.ID = %I64u",mDatabase->galaxy(),command.StructureId);
-			updateKownPlayerPermissions(house);
-		}
-		break;
-
 		
 		case Structure_Command_StopFactory:
 		{

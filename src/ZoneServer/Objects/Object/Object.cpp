@@ -461,10 +461,20 @@ bool Object::AddObject(Object* requester, Object* obj, int32_t arrangement_id)
 	return true;
 }
 
+void Object::_InternalRemoveObject(Object* oldObject)
+{
+	//Remove Object from Datastructure
+    for(auto& slot = slot_descriptor_.begin();slot != slot_descriptor_.end(); slot++)
+    {
+        slot->second->remove_object(oldObject);
+    }
+    oldObject->SetContainer(nullptr);
+}
+
 bool Object::RemoveObject(Object* requester, Object* oldObject)
 {
     //// CHECK PERMISSIONS ////
-	if((requester != nullptr ) && (!container_permissions_->canRemove(this, requester, oldObject)))	{
+	if((requester != nullptr ) && (container_permissions_) && (!container_permissions_->canRemove(this, requester, oldObject)))	{
 		LOG (info) << "Object::RemoveObject couldnt remove Object : " << oldObject->getId() << " from " << getId() << " requester : " << requester->getId();
 		return false;
 	}

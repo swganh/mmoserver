@@ -1886,13 +1886,15 @@ void CreatureObject::RemoveEquipmentItem(uint64_t object_id, boost::unique_lock<
         return (object_id == item.object_id);
     });
 
-    if(iter != equipment_list_.end())
-    {
-        return;
+    if(iter != equipment_list_.end())    {
+		equipment_list_.remove(iter);
+		GetEventDispatcher()->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::EquipmentItem", this));
     }
-    equipment_list_.remove(iter);
+	
+	return;
+    
 
-    GetEventDispatcher()->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::EquipmentItem", this));
+    
 }
 
 void CreatureObject::UpdateEquipmentItem(swganh::object::EquipmentItem item)

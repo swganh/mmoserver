@@ -119,6 +119,7 @@ public:
 	bool				InitializeObject(Object* requester, Object* obj, int32_t arrangement_id=-2);
 	
 
+			void _InternalRemoveObject(Object* oldObject);
     virtual bool RemoveObject(Object* requester, Object* oldObject);
     virtual void TransferObject(Object* requester, Object* object, ContainerInterface* newContainer, glm::vec3 new_position,  int32_t arrangement_id=-2);
     virtual void SwapSlots(Object* requester, Object* object, int32_t new_arrangement_id);

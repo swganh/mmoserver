@@ -263,7 +263,7 @@ void ContainerManager::unRegisterPlayerFromContainer(Object* container, PlayerOb
 		DLOG(info) << "ContainerManager::unRegisterPlayerFromContainer :: unregister Building!!!!!!!! ( " << player->getId() << " from " << container->getId() << " )";
 	}            
 
-	if(container->getType() == ObjType_Player)	{
+	if(container->getObjectType() == SWG_PLAYER)	{
 		PlayerObject* containerPlayer = static_cast<PlayerObject*>(container);
 		if(!player->unRegisterWatcher(containerPlayer))		{
 			DLOG(info) << "ContainerManager::unRegisterPlayerFromContainer :: unregister player " << player->getId() << " from other player " << container->getId() << "failed!!!";

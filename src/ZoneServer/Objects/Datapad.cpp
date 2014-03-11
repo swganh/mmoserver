@@ -71,9 +71,16 @@ Datapad::Datapad()
 
 Datapad::~Datapad()
 {
-	LOG (info) << "Datapad::~Datapad()";
+	
 
-    //--------------------------------------------
+}
+
+void Datapad::cleanup()
+{
+
+	
+
+	 //--------------------------------------------
     auto it = waypoints_.begin();
     while(it != waypoints_.end())    {
 		gWorldManager->eraseObject(it->first);
@@ -109,10 +116,7 @@ Datapad::~Datapad()
 
 
     }
-    //--------------------------------------------
-
 }
-
 //=============================================================================
 
 std::shared_ptr<WaypointObject>   Datapad::getWaypointById(uint64 id)

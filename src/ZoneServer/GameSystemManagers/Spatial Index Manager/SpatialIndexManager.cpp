@@ -107,12 +107,12 @@ bool SpatialIndexManager::_AddObject(Object *newObject)
     getGrid()->GetPlayerViewingRangeCellContents(finalBucket, &playerList);
 
     for(ObjectListType::iterator i = playerList.begin(); i != playerList.end(); i++)    {
-        PlayerObject* foundPlayer = static_cast<PlayerObject*>((*i));
-        sendCreateObject(newObject,foundPlayer, false);
+        CreatureObject* foundPlayer = static_cast<CreatureObject*>((*i));
+		sendCreateObject(newObject,foundPlayer->GetGhost(), false);
 		
 		//lets register the player as a watcher and add our children to his watch list
         if((newObject->getType() == ObjType_Creature) || (newObject->getType() == ObjType_NPC))	{
-            gContainerManager->registerPlayerToContainer(newObject, foundPlayer);
+			gContainerManager->registerPlayerToContainer(newObject, foundPlayer->GetGhost());
         }
     }
 
@@ -169,6 +169,10 @@ bool SpatialIndexManager::_AddObject(PlayerObject *player)
 
 void SpatialIndexManager::UpdateObject(Object *updateObject)
 {
+	PlayerObject* player = dynamic_cast<PlayerObject*>(updateObject);
+	if(player)	{
+		LOG(error) << "SpatialIndexManager::UpdateObject ghost panik !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+	}
 
     uint32 oldBucket = updateObject->getGridBucket();
     uint32 newBucket = getGrid()->getCellId(updateObject->getWorldPosition().x, updateObject->getWorldPosition().z);
@@ -361,9 +365,9 @@ void SpatialIndexManager::_RemoveObjectFromGrid(Object *removeObject)
             //is the object a container?? do we need to despawn the content and unregister it ?
             //just dont unregister us for ourselves or our equipment - we likely only travel
             if((*i)->getType() == ObjType_Player)	{
-                PlayerObject* otherPlayer = static_cast<PlayerObject*>((*i));
-				gMessageLib->sendDestroyObject(removeObject->getId(), otherPlayer );
-                gContainerManager->unRegisterPlayerFromContainer(removeObject, otherPlayer);
+                CreatureObject* otherPlayer = static_cast<CreatureObject*>((*i));
+				gMessageLib->sendDestroyObject(removeObject->getId(), otherPlayer->GetGhost() );
+				gContainerManager->unRegisterPlayerFromContainer(removeObject, otherPlayer->GetGhost());
             }
 		}
     }
@@ -376,7 +380,7 @@ void SpatialIndexManager::_RemoveObjectFromGrid(Object *removeObject)
     PlayerObjectSet::iterator it	= knownPlayers->begin();
 
     while(it != knownPlayers->end())    {
-        //the only registration a player is still supposed to have at this point is himself and his inventory and hair
+        //the only registration a player is still supposed to have at this point is himself and his inventory and hair and datapad and defaultweapon ....
 		LOG (info) << "SpatialIndexManager::_RemoveObjectFromGrid " << (*it)->getId() << " is still known to player : " << removeObject->getId();
         PlayerObject* const player = static_cast<PlayerObject*>(*it);
         
@@ -385,12 +389,14 @@ void SpatialIndexManager::_RemoveObjectFromGrid(Object *removeObject)
             //unRegisterPlayerFromContainer invalidates the knownPlayer iterator
             gContainerManager->unRegisterPlayerFromContainer(removeObject, player);
 			
-			PlayerObject* const remove_player = static_cast<PlayerObject*>(removeObject);
-			if(remove_player)	{
-				gMessageLib->sendDestroyObject(player->getId(), remove_player);
+			if(removeObject->getType() == ObjType_Player)	{
+				CreatureObject* const remove_player = static_cast<CreatureObject*>(removeObject);
+				if(remove_player && remove_player->GetGhost())	{
+					gMessageLib->sendDestroyObject(player->getId(), remove_player->GetGhost());
+				}
 			}
 			
-			gMessageLib->sendDestroyObject(remove_player->getId(),player);
+			gMessageLib->sendDestroyObject(removeObject->getId(),player);
             
 			it = knownPlayers->begin();
         }
@@ -433,10 +439,7 @@ void SpatialIndexManager::removeStructureItemsForPlayer(PlayerObject* player, Bu
 			continue;
 		}
 
-        if(PlayerObject* otherPlayer = dynamic_cast<PlayerObject*>(object))	{
-            //do nothing players and creatures are always in the grid
-        }
-        else if(CreatureObject* pet = dynamic_cast<CreatureObject*>(object))	{
+        if(CreatureObject* creature = dynamic_cast<CreatureObject*>(object))	{
             //do nothing players and creatures are always in the grid
         }
         else	{
@@ -467,12 +470,12 @@ void SpatialIndexManager::_CheckObjectIterationForDestruction(Object* toBeTested
 	}
 
 	if(updatedObject->getType() == ObjType_Player)	{ 
-		PlayerObject* updatedPlayer = static_cast<PlayerObject*>(updatedObject);
+		CreatureObject* updatedPlayer = static_cast<CreatureObject*>(updatedObject);
 		
-		gContainerManager->unRegisterPlayerFromContainer(toBeTested,updatedPlayer);
+		gContainerManager->unRegisterPlayerFromContainer(toBeTested,updatedPlayer->GetGhost());
 		
 		//we (updateObject) got out of range of toBeTested
-		gMessageLib->sendDestroyObject(toBeTested->getId(),updatedPlayer);
+		gMessageLib->sendDestroyObject(toBeTested->getId(),updatedPlayer->GetGhost());
 		
 
 		if(toBeTested->getType() == ObjType_Player)    {
@@ -481,9 +484,12 @@ void SpatialIndexManager::_CheckObjectIterationForDestruction(Object* toBeTested
 	}    
 
     //if its a player, destroy us for him
-    if(toBeTested->getType() == ObjType_Player)    {
-        PlayerObject* testedPlayer = static_cast<PlayerObject*> (toBeTested);
-        gContainerManager->unRegisterPlayerFromContainer(updatedObject,testedPlayer);
+	if(toBeTested->getType() == ObjType_Player )    {
+		if(toBeTested->getObjectType() == SWG_CREATURE)	{
+			LOG(error) << "_CheckObjectIterationForDestruction ghost is not a body!!!!!!!!!!!!!";
+		}
+        CreatureObject* testedPlayer = static_cast<CreatureObject*> (toBeTested);
+		gContainerManager->unRegisterPlayerFromContainer(updatedObject,testedPlayer->GetGhost());
 		gMessageLib->sendDestroyObject(updatedObject->getId(),testedPlayer);
     }
 }
@@ -803,18 +809,18 @@ void SpatialIndexManager::_CheckObjectIterationForCreation(Object* toBeTested, O
     //we are a player and need to create the following object for us
 	if(updatedObject->getType() == ObjType_Player)	{
 		
-		PlayerObject* updatedPlayer = static_cast<PlayerObject*>(updatedObject);
-        sendCreateObject(toBeTested,updatedPlayer,false);
+		CreatureObject* updatedPlayer = static_cast<CreatureObject*>(updatedObject);
+		sendCreateObject(toBeTested,updatedPlayer->GetGhost(),false);
 
         if(toBeTested->getType() == ObjType_NPC || toBeTested->getType() == ObjType_Creature)	{
-            gContainerManager->registerPlayerToContainer(toBeTested, updatedPlayer);
+			gContainerManager->registerPlayerToContainer(toBeTested, updatedPlayer->GetGhost());
         }
     }
 
 	if(toBeTested->getType() == ObjType_Player)	{
-		PlayerObject* testedPlayer = static_cast<PlayerObject*> (toBeTested);
-        sendCreateObject(updatedObject,testedPlayer,false);
-        gContainerManager->registerPlayerToContainer(updatedObject, testedPlayer);
+		CreatureObject* testedPlayer = static_cast<CreatureObject*> (toBeTested);
+		sendCreateObject(updatedObject,testedPlayer->GetGhost(),false);
+        gContainerManager->registerPlayerToContainer(updatedObject, testedPlayer->GetGhost());
     }
 
 }
@@ -1063,7 +1069,7 @@ void SpatialIndexManager::getPlayersInRange(const Object* const object, PlayerOb
         }
 
         if (!player->getParentId() || cell_content) {
-            result_set->insert(static_cast<PlayerObject*>(player));
+			result_set->insert((static_cast<CreatureObject*>(player))->GetGhost());
         }
     });
 }
@@ -1118,7 +1124,7 @@ void SpatialIndexManager::sendToChatRange(Object* container, std::function<void 
     getGrid()->GetChatRangeCellContents(container->getGridBucket(), &player_list);
 
     std::for_each(player_list.begin(), player_list.end(), [callback] (Object* object) {
-        callback(static_cast<PlayerObject*>(object));
+		callback((static_cast<CreatureObject*>(object))->GetGhost());
     });
 }
 

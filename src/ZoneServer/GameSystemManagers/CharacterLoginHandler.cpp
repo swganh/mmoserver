@@ -365,6 +365,9 @@ void CharacterLoginHandler::handleObjectReady(Object* object,DispatchClient* cli
 		auto equip_service	= gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
 		auto ghost		= dynamic_cast<PlayerObject*>(equip_service->GetEquippedObject(player_creature, "ghost"));
         
+		ghost->setLoadState(LoadState_Loaded);
+		player_creature->setLoadState(LoadState_Loaded);
+
 		ghost->setConnectionState(PlayerConnState_Connected);
         ghost->setClient(client);
 

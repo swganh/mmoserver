@@ -326,6 +326,18 @@ void WorldManager::destroyObject(Object* object)
 			
 			auto equipment_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
 			auto player = dynamic_cast<PlayerObject*>(equipment_service->GetEquippedObject(creature, "ghost"));
+			auto pad = dynamic_cast<Datapad*>(equipment_service->GetEquippedObject(creature, "datapad"));
+
+			// store any eventually spawned vehicle
+			if(player->getMount())	{
+				if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(pad->getDataById(player->getMount()->controller())))			{
+					datapad_pet->Store();
+				}
+			}
+    
+
+			//destroy the waypoints and controllers here so we do not get deadlocks further on
+			pad->cleanup();
 
 			// remove the player out of his group - if any
 			if(GroupObject* group = gGroupManager->getGroupObject(creature->getGroupId()))
@@ -397,7 +409,7 @@ void WorldManager::destroyObject(Object* object)
 			// onPlayerLeft event, notify scripts
 			std::stringstream params;
 			params << getPlanetNameThis() << " " << creature->getFirstName()
-                    << " " << static_cast<uint32>(mPlayerAccMap.size());
+                   << " " << static_cast<uint32>(mPlayerAccMap.size());
 
 			//mWorldScriptsListener.handleScriptEvent("onPlayerLeft",params.str().c_str());
 
@@ -409,15 +421,26 @@ void WorldManager::destroyObject(Object* object)
 
 			//at this point our equipment should already have been destroyed for bystanders
 			//but our equipment might need to end any timers etc (craft tools)
+			std::list<uint64>	list;
+
+			//actually an item can cover more than one slot
+			//if we come across such an item  it will be displayed (viewed) several times
+			//should we remove it while viewing all items we will just invalidate the slot lists iterator
+			//the same is true for destroying it
+			
 			creature->ViewObjects(creature, 0, false, [&] (Object* object) {
 				LOG(info) << "destroying : " << object->getId() << " " << object->GetTemplate();
-				eraseObject(object->getId());
-	
+				list.push_back(object->getId());	
 			});
-
-			eraseObject(player->getId());
 			
+			auto it = list.begin();
+			while(it != list.end())	{
+				eraseObject(*it);
+				it++;
+			}
 
+			//eraseObject(player->getId());
+			
 		}
 		break;
 

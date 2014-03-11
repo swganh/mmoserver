@@ -93,9 +93,7 @@ enum Structure_Async_CommandEnum
     Structure_Command_AccessInHopper	=	20,
     Structure_Command_AccessOutHopper	=	21,
     Structure_Command_StartFactory		=	22,
-    Structure_Command_StopFactory		=	23,
-    Structure_Command_Privacy			=	24,
-    
+    Structure_Command_StopFactory		=	23,    
     Structure_Command_CellEnter			=	27,
     Structure_Command_CellEnterDenial	=	28
 

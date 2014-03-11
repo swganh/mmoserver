@@ -141,12 +141,36 @@ void PlayerStructureTerminal::handleObjectMenuSelect(uint8 messageType,Object* s
 
     case radId_serverTerminalManagementPrivacy:
     {
-        StructureAsyncCommand command;
-        command.Command = Structure_Command_Privacy;
-        command.PlayerId = player->getId();
-        command.StructureId = this->getStructure();
+		HouseObject* house = dynamic_cast<HouseObject*>(gWorldManager->getObjectById(this->getStructure()));
+			
+		if(!house)			{
+			DLOG(info) << "StructureManager::processVerification : No Player Building ";
+			return;
+		}
+			
+		auto db = gWorldManager->getKernel()->GetDatabase();
 
-        gStructureManager->checkNameOnPermissionList(this->getStructure(),player->GetCreature()->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
+		//set to private
+		if(house->getPublic())			{
+			std::stringstream sql;
+			sql << "UPDATE " << db->galaxy() << ".houses h SET h.private = 0 WHERE h.ID = " << this->getStructure();
+			db->executeSqlAsync(0,0,sql.str());
+
+			house->setPublic(false);
+			gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure","structure_now_private"),player);
+			gStructureManager->updateKownPlayerPermissions(house);
+			return;
+		}
+
+		house->setPublic(true);
+		gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure","structure_now_public"),player);
+			
+		std::stringstream sql;
+		sql << "UPDATE " << db->galaxy() << ".houses h SET h.private = 1 WHERE h.ID = " << this->getStructure();
+		db->executeSqlAsync(0,0,sql.str());
+
+		gStructureManager->updateKownPlayerPermissions(house);
+
     }
     break;
 

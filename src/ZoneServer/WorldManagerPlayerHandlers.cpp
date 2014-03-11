@@ -225,7 +225,8 @@ void WorldManager::storeCharacterAttributes_(PlayerObject* player_object, bool r
         if(group) {
             group->removePlayer(player_object->getId());
         }
-            destroyObject(player_object->GetCreature());
+            
+		destroyObject(player_object->GetCreature());
     }
 
 }

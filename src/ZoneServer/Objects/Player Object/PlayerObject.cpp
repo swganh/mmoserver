@@ -182,16 +182,7 @@ PlayerObject::~PlayerObject()
 	//at this point the client is already NULL so do NOT call any functions that might send messages
 	LOG(error) << "player destructor started";
     
-	// store any eventually spawned vehicle
-    Datapad* datapad			= getDataPad();
-
-    if(mMount && datapad)
-    {
-        if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(datapad->getDataById(mMount->controller())))
-        {
-            datapad_pet->Store();
-        }
-    }
+	
 
 	//LOG(info) << "player destructor removing controllers";
     

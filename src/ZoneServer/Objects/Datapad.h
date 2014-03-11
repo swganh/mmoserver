@@ -125,6 +125,8 @@ public:
     std::shared_ptr<WaypointObject> getWaypointById(uint64 id);
     
 	std::shared_ptr<WaypointObject> getWaypointByName(std::u16string name);
+
+	void			cleanup();
     
 	
     

@@ -305,20 +305,21 @@ bool MessageLib::sendAdminList(PlayerStructure* structure, PlayerObject* playerO
     if(!(playerObject->isConnected()))
         return(false);
 
+	auto data = structure->getAdminData();
+
     Message* newMessage;
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opSendPermissionList);
-    mMessageFactory->addUint32(structure->getStrucureAdminList().size() );
+	mMessageFactory->addUint32(data.admin_map_.size());
 
-    BString name;
-    BStringVector vector = 	structure->getStrucureAdminList();
-    BStringVector::iterator it = vector.begin();
-    while(it != vector.end())
-    {
-        name = (*it);
-        name.convert(BSTRType_Unicode16);
-        mMessageFactory->addString(name);
+	std::string name;
+
+	auto it = data.admin_map_.begin();
+    while(it != data.admin_map_.end())    {
+		name = (*it).second;
+		std::u16string u16_name(name.begin(), name.end());
+        mMessageFactory->addString(u16_name);
 
         it++;
     }
@@ -326,15 +327,13 @@ bool MessageLib::sendAdminList(PlayerStructure* structure, PlayerObject* playerO
     mMessageFactory->addUint32(0); // ???
     //mMessageFactory->addUint16(0);	// unknown
     name = "ADMIN";
-    name.convert(BSTRType_Unicode16);
-    mMessageFactory->addString(name);
+    std::u16string u16_name(name.begin(), name.end());
+    mMessageFactory->addString(u16_name);
     mMessageFactory->addUint32(0); // ???
 
     newMessage = mMessageFactory->EndMessage();
 
     (playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
-
-    structure->resetStructureAdminList();
 
     return(true);
 }
@@ -349,20 +348,21 @@ bool MessageLib::sendEntryList(PlayerStructure* structure, PlayerObject* playerO
     if(!(playerObject->isConnected()))
         return(false);
 
+    auto data = structure->getAdminData();
+
     Message* newMessage;
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opSendPermissionList);
-    mMessageFactory->addUint32(structure->getStrucureEntryList().size() );
+	mMessageFactory->addUint32(data.ban_map_.size());
 
-    BString name;
-    BStringVector vector = 	structure->getStrucureEntryList();
-    BStringVector::iterator it = vector.begin();
-    while(it != vector.end())
-    {
-        name = (*it);
-        name.convert(BSTRType_Unicode16);
-        mMessageFactory->addString(name);
+	std::string name;
+
+	auto it = data.entry_map_.begin();
+    while(it != data.entry_map_.end())    {
+		name = (*it).second;
+		std::u16string u16_name(name.begin(), name.end());
+        mMessageFactory->addString(u16_name);
 
         it++;
     }
@@ -370,15 +370,11 @@ bool MessageLib::sendEntryList(PlayerStructure* structure, PlayerObject* playerO
     mMessageFactory->addUint32(0); // ???
     //mMessageFactory->addUint16(0);	// unknown
     name = "ENTRY";
-    name.convert(BSTRType_Unicode16);
-    mMessageFactory->addString(name);
+    std::u16string u16_name(name.begin(), name.end());
+    mMessageFactory->addString(u16_name);
     mMessageFactory->addUint32(0); // ???
 
     newMessage = mMessageFactory->EndMessage();
-
-    (playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
-
-    structure->resetStructureAdminList();
 
     return(true);
 }
@@ -394,20 +390,21 @@ bool MessageLib::sendBanList(PlayerStructure* structure, PlayerObject* playerObj
     if(!(playerObject->isConnected()))
         return(false);
 
+   auto data = structure->getAdminData();
+
     Message* newMessage;
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opSendPermissionList);
-    mMessageFactory->addUint32(structure->getStrucureBanList().size() );
+	mMessageFactory->addUint32(data.ban_map_.size());
 
-    BString name;
-    BStringVector vector = 	structure->getStrucureBanList();
-    BStringVector::iterator it = vector.begin();
-    while(it != vector.end())
-    {
-        name = (*it);
-        name.convert(BSTRType_Unicode16);
-        mMessageFactory->addString(name);
+	std::string name;
+
+	auto it = data.ban_map_.begin();
+    while(it != data.ban_map_.end())    {
+		name = (*it).second;
+		std::u16string u16_name(name.begin(), name.end());
+        mMessageFactory->addString(u16_name);
 
         it++;
     }
@@ -415,15 +412,11 @@ bool MessageLib::sendBanList(PlayerStructure* structure, PlayerObject* playerObj
     mMessageFactory->addUint32(0); // ???
     //mMessageFactory->addUint16(0);	// unknown
     name = "BAN";
-    name.convert(BSTRType_Unicode16);
-    mMessageFactory->addString(name);
+    std::u16string u16_name(name.begin(), name.end());
+    mMessageFactory->addString(u16_name);
     mMessageFactory->addUint32(0); // ???
 
     newMessage = mMessageFactory->EndMessage();
-
-    (playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
-
-    structure->resetStructureAdminList();
 
     return(true);
 }

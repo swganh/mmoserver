@@ -193,24 +193,22 @@ void HarvesterObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject
     break;
     case radId_serverTerminalPermissionsAdmin:
     {
-        StructureAsyncCommand command;
-        command.Command = Structure_Command_PermissionAdmin;
-        command.PlayerId = player->getId();
-        command.StructureId = this->getId();
-
-        gStructureManager->checkNameOnPermissionList(this->getId(),player->GetCreature()->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
+        PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(this->getId()));
+		
+		if(structure->getAdminData().check_admin(player->getId()))	{
+			structure->sendStructureAdminList(player->getId());
+		}
 
     }
     break;
 
     case radId_serverTerminalPermissionsHopper:
     {
-        StructureAsyncCommand command;
-        command.Command = Structure_Command_PermissionHopper;
-        command.PlayerId = player->getId();
-        command.StructureId = this->getId();
-
-        gStructureManager->checkNameOnPermissionList(this->getId(),player->GetCreature()->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
+		PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(this->getId()));
+		
+		if(structure->getAdminData().check_admin(player->getId()))	{
+			structure->sendStructureHopperList(player->getId());
+		}
 
     }
     break;

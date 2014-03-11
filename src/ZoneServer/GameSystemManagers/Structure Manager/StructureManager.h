@@ -92,36 +92,89 @@ public :
 	structure_admin_class(){}
 	~structure_admin_class(){}
 
-	bool	admin_add_(uint64 player_id)	{
+	bool	admin_add_(uint64 player_id, std::string name)	{
 		auto it = admin_map_.find(player_id);
 		if(it != admin_map_.end())	{
 			return false;
 		}
-		admin_map_.insert(std::make_pair(player_id, "ADMIN"));
+		admin_map_.insert(std::make_pair(player_id, name));
 		return true;
 	}
 
-	bool	ban_add_(uint64 player_id)	{
+	bool	ban_add_(uint64 player_id, std::string name)	{
 		auto it = ban_map_.find(player_id);
 		if(it != ban_map_.end())	{
 			return false;
 		}
-		ban_map_.insert(std::make_pair(player_id, "BAN"));
+		ban_map_.insert(std::make_pair(player_id, name));
 		return true;
 	}
 
-	bool	entry_add_(uint64 player_id)	{
+	bool	entry_add_(uint64 player_id, std::string name)	{
 		auto it = entry_map_.find(player_id);
 		if(it != entry_map_.end())	{
 			return false;
 		}
-		entry_map_.insert(std::make_pair(player_id, "ENTRY"));
+		entry_map_.insert(std::make_pair(player_id, name));
 		return true;
+	}
+
+	bool	hopper_add_(uint64 player_id, std::string name)	{
+		auto it = hopper_map_.find(player_id);
+		if(it != hopper_map_.end())	{
+			return false;
+		}
+		hopper_map_.insert(std::make_pair(player_id, name));
+		return true;
+	}
+
+	bool	check_admin(std::string name)	{
+		std::for_each(admin_map_.begin(), admin_map_.end(), [&] (std::pair<const uint64, std::string>& pair)->bool {
+			if(pair.second == name)	{
+				return true;
+			}
+			return false;
+		});
+	}
+
+	bool	check_hopper(std::string name)	{
+		std::for_each(hopper_map_.begin(), hopper_map_.end(), [&] (std::pair<const uint64, std::string>& pair)->bool {
+			if(pair.second == name)	{
+				return true;
+			}
+			return false;
+		});
+	}
+
+	bool	check_ban(std::string name)	{
+		std::for_each(ban_map_.begin(), ban_map_.end(), [&] (std::pair<const uint64, std::string>& pair)->bool {
+			if(pair.second == name)	{
+				return true;
+			}
+			return false;
+		});
+	}
+
+	bool	check_entry(std::string name)	{
+		std::for_each(entry_map_.begin(), entry_map_.end(), [&] (std::pair<const uint64, std::string>& pair)->bool {
+			if(pair.second == name)	{
+				return true;
+			}
+			return false;
+		});
 	}
 
 	bool	check_admin(uint64 player_id)	{
 		auto it = admin_map_.find(player_id);
 		if(it != admin_map_.end())	{
+			return true;
+		}
+		return false;
+	}
+
+	bool	check_hopper(uint64 player_id)	{
+		auto it = hopper_map_.find(player_id);
+		if(it != hopper_map_.end())	{
 			return true;
 		}
 		return false;
@@ -172,10 +225,10 @@ public :
 	uint64							structure_id_;
 	uint64							owner_id_;
 
-private :
 	std::map<uint64, std::string>	admin_map_;
 	std::map<uint64, std::string>	ban_map_;
 	std::map<uint64, std::string>	entry_map_;
+	std::map<uint64, std::string>	hopper_map_;
 	
 	
 
@@ -327,12 +380,6 @@ public:
     //check all active harvesters once in a while they might have been turned off by the db
     bool					_handleStructureDBCheck(uint64 callTime, void* ref);
 
-    void					OpenStructureAdminList(uint64 structureId, uint64 playerId);
-    void					OpenStructureEntryList(uint64 structureId, uint64 playerId);
-    void					OpenStructureBanList(uint64 structureId, uint64 playerId);
-    void					OpenStructureHopperList(uint64 structureId, uint64 playerId);
-
-
     uint32					getCurrentPower(PlayerObject* player);
     uint32					deductPower(PlayerObject* player, uint32 amount);
 
@@ -355,10 +402,7 @@ public:
 private:
 
     //callback functions
-    void				_HandleQueryHopperPermissionData(StructureManagerAsyncContainer* asynContainer,swganh::database::DatabaseResult* result);
-    void				_HandleQueryAdminPermissionData(StructureManagerAsyncContainer* asynContainer,swganh::database::DatabaseResult* result);
-    void				_HandleQueryEntryPermissionData(StructureManagerAsyncContainer* asynContainer,swganh::database::DatabaseResult* result);
-    void				_HandleQueryBanPermissionData(StructureManagerAsyncContainer* asynContainer,swganh::database::DatabaseResult* result);
+ 
     void				_HandleUpdateCharacterLots(StructureManagerAsyncContainer* asynContainer,swganh::database::DatabaseResult* result);
     void				_HandleStructureRedeedCallBack(StructureManagerAsyncContainer* asynContainer,swganh::database::DatabaseResult* result);
     void				_HandleStructureDestruction(StructureManagerAsyncContainer* asynContainer,swganh::database::DatabaseResult* result);
@@ -366,7 +410,7 @@ private:
     void				_HandleStructureTransferLotsRecipient(StructureManagerAsyncContainer* asynContainer,swganh::database::DatabaseResult* result);
     void				_HandleQueryLoadDeedData(StructureManagerAsyncContainer* asynContainer,swganh::database::DatabaseResult* result);
     void				_HandleRemovePermission(StructureManagerAsyncContainer* asynContainer,swganh::database::DatabaseResult* result);
-    void				_HandleUpdateAdminPermission(StructureManagerAsyncContainer* asynContainer,swganh::database::DatabaseResult* result);
+    
     void				_HandleAddPermission(StructureManagerAsyncContainer* asynContainer,swganh::database::DatabaseResult* result);
     void				_HandleNonPersistantLoadStructureItem(StructureManagerAsyncContainer* asynContainer,swganh::database::DatabaseResult* result);
     void				_HandleCheckPermission(StructureManagerAsyncContainer* asynContainer,swganh::database::DatabaseResult* result);

@@ -61,12 +61,6 @@ void ContainerInterface::AddAwareObject(Object* observer)
     __InternalAddAwareObject(observer, true);
 }
 
-void ContainerInterface::InternalReloadPlayer()
-{
-	   boost::shared_lock<boost::shared_mutex> shared(global_container_lock_);
-	   __InternalReloadPlayer();
-}
-
 void ContainerInterface::ViewAwareObjects(std::function<void(Object*)> func)
 {
     boost::shared_lock<boost::shared_mutex> shared(global_container_lock_);

@@ -147,22 +147,4 @@ void HouseObject::handleDatabaseJobComplete(void* ref,swganh::database::Database
 }
 
 
-bool HouseObject::hasAdmin(uint64 id)
-{
-    ObjectIDList		adminList =	getHousingList();
-
-    ObjectIDList::iterator it =	 adminList.begin();
-
-    while (it != adminList.end())
-    {
-        if( id == (*it))
-            return true;
-
-        it++;
-    }
-    return false;
-}
-
-
-
 

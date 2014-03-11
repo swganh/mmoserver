@@ -144,8 +144,10 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,swganh::database::Dat
         asynContainer->mObject	= harvester;
 
 		std::stringstream sql;
-		sql << "SELECT PlayerID, AdminType FROM " << mDatabase->galaxy() << ".structure_admin_data WHERE StructureID = " << harvester->getId();
+		sql << "SELECT sad.PlayerID, sad.AdminType, c.firstname FROM " << mDatabase->galaxy() << ".structure_admin_data sad INNER JOIN "  << mDatabase->galaxy() << ".characters c ON (c.id = sad.PlayerID) WHERE StructureID = " << harvester->getId() << ";";
 		mDatabase->executeSqlAsync(this, asynContainer, sql.str());
+
+		
 
 
     }
@@ -161,17 +163,22 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,swganh::database::Dat
 		
 			std::string type = result_set->getString(2);
 			if(type == "ADMIN")	{
-				harvester->admin_data_.admin_add_(result_set->getInt64(1));
+				harvester->admin_data_.admin_add_(result_set->getInt64(1), result_set->getString(3));
 				LOG(info) << " added Admin to harvester : " << harvester->getId();
 			}
 			else
 			if(type == "BAN")	{
-				harvester->admin_data_.ban_add_(result_set->getInt64(1));
+				harvester->admin_data_.ban_add_(result_set->getInt64(1), result_set->getString(3));
 				LOG(info) << " added ban to harvester : " << harvester->getId();
 			}
 			else
 			if(type == "ENTRY")	{
-				harvester->admin_data_.entry_add_(result_set->getInt64(1));
+				harvester->admin_data_.entry_add_(result_set->getInt64(1), result_set->getString(3));
+				LOG(info) << " added entry to harvester : " << harvester->getId();
+			}
+			else
+			if(type == "HOPPER")	{
+				harvester->admin_data_.entry_add_(result_set->getInt64(1), result_set->getString(3));
 				LOG(info) << " added entry to harvester : " << harvester->getId();
 			}
 

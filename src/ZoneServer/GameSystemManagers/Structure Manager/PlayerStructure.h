@@ -226,61 +226,11 @@ public:
         return &mTTS;
     }
 
-    // thats the structures admin list
-    BStringVector			getStrucureAdminList() {
-        return mStructureAdminList;
-    }
-    void					addStructureAdminListEntry(BString name) {
-        mStructureAdminList.push_back(name);
-    }
-    void					resetStructureAdminList() {
-        mStructureAdminList.clear();
-    }
-
-    // thats the structures entry list
-    BStringVector			getStrucureEntryList() {
-        return mStructureEntryList;
-    }
-    void					addStructureEntryListEntry(BString name) {
-        mStructureEntryList.push_back(name);
-    }
-    void					resetStructureEntryList() {
-        mStructureEntryList.clear();
-    }
-
-    // thats the structures ban list
-    BStringVector			getStrucureBanList() {
-        return mStructureBanList;
-    }
-    void					addStructureBanListEntry(BString name) {
-        mStructureBanList.push_back(name);
-    }
-    void					resetStructureBanList() {
-        mStructureBanList.clear();
-    }
+    
 
     // thats the structures admin list
-    BStringVector			getStrucureHopperList() {
-        return mStructureHopperList;
-    }
-    void					addStructureHopperListEntry(BString name) {
-        mStructureHopperList.push_back(name);
-    }
-    void					resetStructureHopperList() {
-        mStructureHopperList.clear();
-    }
-
-    // thats the structures admin list
-    ObjectIDList			getHousingList() {
-        return mHousingAdminList;
-    }
-    void					addHousingAdminEntry(uint64 id) {
-        mHousingAdminList.push_back(id);
-    }
-    void					resetHousingAdminList() {
-        mHousingAdminList.clear();
-    }
-    bool					hasAdminRights(uint64 id);
+    
+    //bool					hasAdminRights(uint64 id);
 
     //check structure states - like destruction
     uint64				getState() {
@@ -304,6 +254,8 @@ public:
         return((mState & states) != 0);
     }
 
+	structure_admin_class	getAdminData(){ auto lock = AcquireLock(); return getAdminData(lock); }
+	structure_admin_class	getAdminData(boost::unique_lock<boost::mutex>& lock){return admin_data_;}
 
 private:
 
@@ -330,11 +282,11 @@ private:
     timerTodoStruct				mTTS;
     BString						mOName;
 
-    ObjectIDList				mHousingAdminList;
-    BStringVector				mStructureBanList;
-    BStringVector				mStructureEntryList;
-    BStringVector				mStructureAdminList;
-    BStringVector				mStructureHopperList;
+    //ObjectIDList				mHousingAdminList;
+    //BStringVector				mStructureBanList;
+    //BStringVector				mStructureEntryList;
+    //BStringVector				mStructureAdminList;
+    //BStringVector				mStructureHopperList;
 
     uint32						maint_cost_wk;
     uint32						mPowerUsed;

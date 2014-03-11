@@ -63,8 +63,6 @@ public:
 	
 	void					Shutdown();
 
-	//permissionsystem
-    bool					checkContainingContainer(uint64 containingContainer, uint64 playerId);
 	
 	/*@brief handles the transfer of an Item
 	*	/param targetId this is the uint64 id of the container the object is supposed to be put in

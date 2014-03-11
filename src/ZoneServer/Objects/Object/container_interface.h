@@ -57,10 +57,6 @@ public:
     void AddAwareObject(Object* observer);
     virtual void __InternalAddAwareObject(Object* observer, bool reverse_still_valid) {};
 
-	//Call to log a Player bag in
-	void InternalReloadPlayer();
-    virtual void __InternalReloadPlayer() {};
-
     //Call to View
     void ViewAwareObjects(std::function<void(Object*)> func);
     virtual void __InternalViewAwareObjects(std::function<void(Object*)> func) = 0;

@@ -110,34 +110,32 @@ void PlayerStructureTerminal::handleObjectMenuSelect(uint8 messageType,Object* s
     {
     case radId_serverTerminalPermissionsBanned:
     {
-        StructureAsyncCommand command;
-        command.Command = Structure_Command_PermissionBan;
-        command.PlayerId = player->getId();
-        command.StructureId = this->getStructure();
-
-        gStructureManager->checkNameOnPermissionList(this->getStructure(),player->GetCreature()->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
-    }
+       PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(this->getStructure()));
+		
+		if(structure->getAdminData().check_admin(player->getId()))	{
+			structure->sendStructureBanList(player->getId());
+		}
+	}
     break;
 
     case radId_serverTerminalPermissionsEnter:
     {
-        StructureAsyncCommand command;
-        command.Command = Structure_Command_PermissionEntry;
-        command.PlayerId = player->getId();
-        command.StructureId = this->getStructure();
+		PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(this->getStructure()));
+		
+		if(structure->getAdminData().check_admin(player->getId()))	{
+			structure->sendStructureEntryList(player->getId());
+		}
 
-        gStructureManager->checkNameOnPermissionList(this->getStructure(),player->GetCreature()->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
     }
     break;
 
-    case radId_serverTerminalPermissionsAdmin:
-    {
-        StructureAsyncCommand command;
-        command.Command = Structure_Command_PermissionAdmin;
-        command.PlayerId = player->getId();
-        command.StructureId = this->getStructure();
-
-        gStructureManager->checkNameOnPermissionList(this->getStructure(),player->GetCreature()->getId(),player->GetCreature()->getFirstName(),"ADMIN",command);
+    case radId_serverTerminalPermissionsAdmin:    {
+		PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(this->getStructure()));
+		
+		if(structure->getAdminData().check_admin(player->getId()))	{
+			structure->sendStructureAdminList(player->getId());
+		}
+	
     }
     break;
 

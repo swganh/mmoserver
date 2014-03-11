@@ -38,6 +38,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/GameSystemManagers/Structure Manager/CellObject.h"
 #include "ZoneServer/Objects/Tangible Object/TangibleFactory.h"
 #include "ZoneServer/WorldManager.h"
+
+#include <cppconn/resultset.h>
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -124,9 +126,9 @@ void HouseFactory::handleDatabaseJobComplete(void* ref,swganh::database::Databas
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,HOFQuery_AdminData,asyncContainer->mClient);
         asContainer->mObject = house;
 
-        int8 sql[1024];
-        sprintf(sql,"SELECT PlayerID FROM %s.structure_admin_data WHERE StructureID = %"PRIu64" AND AdminType like 'ADMIN';",mDatabase->galaxy(),house->getId());
-        mDatabase->executeSqlAsync(this,asContainer,sql);
+		std::stringstream sql;
+        sql << "SELECT sad.PlayerID, sad.AdminType, c.firstname FROM " << mDatabase->galaxy() << ".structure_admin_data sad INNER JOIN "  << mDatabase->galaxy() << ".characters c ON (c.id = sad.PlayerID) WHERE StructureID = " << house->getId() << ";";
+        mDatabase->executeSqlAsync(this,asContainer,sql.str());
         
 
     }
@@ -136,27 +138,36 @@ void HouseFactory::handleDatabaseJobComplete(void* ref,swganh::database::Databas
     {
         HouseObject*	house = dynamic_cast<HouseObject*>(asyncContainer->mObject);
 
+		std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
-        struct adminStruct
-        {
-            uint64 playerID;
-            BString adminList;
-        };
+        while (result_set->next()) {
+		
+			std::string type = result_set->getString(2);
+			if(type == "ADMIN")	{
+				house->admin_data_.admin_add_(result_set->getInt64(1), result_set->getString(3));
+				LOG(info) << " added Admin to harvester : " << house->getId();
+			}
+			else
+			if(type == "BAN")	{
+				house->admin_data_.ban_add_(result_set->getInt64(1), result_set->getString(3));
+				LOG(info) << " added ban to harvester : " << house->getId();
+			}
+			else
+			if(type == "ENTRY")	{
+				house->admin_data_.entry_add_(result_set->getInt64(1), result_set->getString(3));
+				LOG(info) << " added entry to harvester : " << house->getId();
+			}
+			else
+			if(type == "HOPPER")	{
+				house->admin_data_.entry_add_(result_set->getInt64(1), result_set->getString(3));
+				LOG(info) << " added entry to harvester : " << house->getId();
+			}
 
-        adminStruct adminData;
 
-        swganh::database::DataBinding*	adminBinding = mDatabase->createDataBinding(1);
-        adminBinding->addField(swganh::database::DFT_uint64,offsetof(adminStruct,playerID),8,0);
+		}
 
-        uint64 count = result->getRowCount();
-
-        for(uint32 j = 0; j < count; j++)
-        {
-            result->getNextRow(adminBinding,&adminData);
-            house->addHousingAdminEntry(adminData.playerID);
-        }
-
-        mDatabase->destroyDataBinding(adminBinding);
+		house->admin_data_.structure_id_	= house->getId();
+		house->admin_data_.owner_id_		= house->getOwner();
 
     }
     break;

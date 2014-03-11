@@ -639,86 +639,6 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 }
 
 
-//=======================================================================================================================
-//handles callback of altering the hopper Permission list
-//
-
-void StructureManager::OpenStructureHopperList(uint64 structureId, uint64 playerId)
-{
-    // load our structures Admin data
-    //
-
-    StructureManagerAsyncContainer* asyncContainer;
-    asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Hopper_Permission_Data, 0);
-    asyncContainer->mStructureId = structureId;
-    asyncContainer->mPlayerId = playerId;
-
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT c.firstname FROM %s.structure_admin_data sad  "
-            "INNER JOIN %s.characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %"PRIu64" AND sad.AdminType like 'HOPPER'",
-            mDatabase->galaxy(),mDatabase->galaxy(),structureId);
-}
-
-//=======================================================================================================================
-//handles callback of altering the admin list
-//
-
-void StructureManager::OpenStructureAdminList(uint64 structureId, uint64 playerId)
-{
-    // load our structures Admin data
-    //
-
-    StructureManagerAsyncContainer* asyncContainer;
-    asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Admin_Permission_Data, 0);
-    asyncContainer->mStructureId = structureId;
-    asyncContainer->mPlayerId = playerId;
-
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT c.firstname FROM %s.structure_admin_data sad  "
-        "INNER JOIN %s.characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %"PRIu64" AND sad.AdminType like 'ADMIN'",
-        mDatabase->galaxy(),mDatabase->galaxy(),structureId);
-
-}
-
-//=======================================================================================================================
-//handles callback of altering the admin list
-//
-
-void StructureManager::OpenStructureEntryList(uint64 structureId, uint64 playerId)
-{
-    // load our structures Admin data
-    //
-
-    StructureManagerAsyncContainer* asyncContainer;
-    asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Entry_Permission_Data, 0);
-    asyncContainer->mStructureId = structureId;
-    asyncContainer->mPlayerId = playerId;
-
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT c.firstname FROM %s.structure_admin_data sad  "
-        "INNER JOIN %s.characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %"PRIu64" AND sad.AdminType like 'Entry'",
-        mDatabase->galaxy(),mDatabase->galaxy(),structureId);
-
-}
-
-
-//=======================================================================================================================
-//handles callback of altering the admin list
-//
-
-void StructureManager::OpenStructureBanList(uint64 structureId, uint64 playerId)
-{
-    // load our structures Admin data
-    //
-
-    StructureManagerAsyncContainer* asyncContainer;
-    asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Ban_Permission_Data, 0);
-    asyncContainer->mStructureId = structureId;
-    asyncContainer->mPlayerId = playerId;
-
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT c.firstname FROM %s.structure_admin_data sad  "
-        "INNER JOIN %s.characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %"PRIu64" AND sad.AdminType like 'BAN'",
-        mDatabase->galaxy(),mDatabase->galaxy(),structureId);
-
-
-}
 
 
 //=======================================================================================================================
@@ -1232,35 +1152,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 		}
 		break;
 
-		case Structure_Command_PermissionBan:
-		{
-			player->setStructurePermissionId(command.StructureId);
-			OpenStructureBanList(command.StructureId, command.PlayerId);
-		}
-		break;
-
-		case Structure_Command_PermissionEntry:
-		{
-			player->setStructurePermissionId(command.StructureId);
-			OpenStructureEntryList(command.StructureId, command.PlayerId);
-		}
-		break;
-
-		case Structure_Command_PermissionAdmin:
-		{
-			player->setStructurePermissionId(command.StructureId);
-			OpenStructureAdminList(command.StructureId, command.PlayerId);
-
-		}
-		break;
-
-		case Structure_Command_PermissionHopper:
-		{
-			player->setStructurePermissionId(command.StructureId);
-			OpenStructureHopperList(command.StructureId, command.PlayerId);
-
-		}
-		break;
+		
 
 		case Structure_Command_AddPermission:
 		{

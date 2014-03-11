@@ -325,7 +325,6 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,swganh::database::
 		sql << "SELECT characters.firstname FROM " << mDatabase->galaxy() << ".chat_friendlist INNER JOIN " << mDatabase->galaxy() << ".characters ON (chat_friendlist.friend_id = characters.id) "
 			<< "WHERE (chat_friendlist.character_id = " << playerObject->GetCreature()->getId() << ")";
                                    
-		
 		mDatabase->executeSqlAsync(this,asContainer, sql.str());
 
     }

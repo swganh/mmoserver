@@ -80,10 +80,6 @@ bool	ContainerManager::transferItem(uint64 targetContainerId, uint64 transferIte
 		return false;
 	}
 
-	if(!gContainerManager->checkContainingContainer(itemObject->getParentId(), player->getId()))	{
-		DLOG(info) << "ContainerManager::transferItem:ContainingContainer is not allowing the transfer :(";
-		return false;
-	}
 	
 	if (!oldContainer->GetPermissions()->canRemove(oldContainer, player->GetCreature(), itemObject))	{
 		DLOG(info) << "ContainerManager::transferItem: GetPermissions ContainingContainer is not allowing the transfer :(";
@@ -118,70 +114,6 @@ bool	ContainerManager::transferItem(uint64 targetContainerId, uint64 transferIte
 }
 
 
-
-bool ContainerManager::checkContainingContainer(uint64 containingContainer, uint64 playerId)
-{
-	Object* container = gWorldManager->getObjectById(containingContainer);
-	if(!container)	{
-		return false;
-	}
-
-	//it might be our inventory or the inventory of a creature were looting
-	//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
-	if(containingContainer == (playerId + INVENTORY_OFFSET-PLAYER_OFFSET)) //hackhackhackhackhack
-	{
-		//its our inventory ... - return true
-		return true;
-	}
-
-	if(containingContainer == playerId-PLAYER_OFFSET)	{
-		//its us
-		return true;
-	}
-
-	container->getRootParent();
-
-	uint64 ownerId = gSpatialIndexManager->getObjectMainParent(container);
-
-	Object* owner = dynamic_cast<Object*>(gWorldManager->getObjectById(ownerId));
-
-	if(BuildingObject* building = dynamic_cast<BuildingObject*>(owner))	{
-		if(building->hasAdminRights(playerId))		{
-			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
-			uint64 playerOwnerId = gSpatialIndexManager->getObjectMainParent(player);
-			//are we in the same building?
-			if(playerOwnerId == building->getId())	{
-				//still get in a range check ???
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	PlayerObject* player = dynamic_cast<PlayerObject*>(owner);
-	if(player)
-	{
-		if(player->getId() == playerId)
-		{
-			return true;
-		}
-		else
-			return false;
-	}
-
-	//todo handle factory hoppers
-
-	//todo handle loot permissions
-	if(CreatureObject* creature = dynamic_cast<CreatureObject*>(owner))
-	{
-	}
-
-	
-	return true;
-}
-
-
-
 bool ContainerManager::checkTargetContainer(uint64 targetContainerId, Object* object, PlayerObject* player)
 {
 	CreatureObject*		targetPlayer	=	dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetContainerId));
@@ -193,14 +125,7 @@ bool ContainerManager::checkTargetContainer(uint64 targetContainerId, Object* ob
 	//if its a backpack etc we want to know how many items are in it!
 	uint32 objectSize = tangibleItem->getHeadCount();
 
-	//********************
-	//If we want to equip it we need to check for equip restrictions
-	//if(targetPlayer)	{
-	//	return targetPlayer->getEquipManager()->CheckEquipable(object);		
-	//}
-	
-	//*****************************
-	//ok everything else is an Object
+
 	
 	
 	//sanity check - 
@@ -209,6 +134,13 @@ bool ContainerManager::checkTargetContainer(uint64 targetContainerId, Object* ob
 		return false;
 	}
 
+	if(!targetContainer->checkCapacity(objectSize,player))	{
+		return false;
+	}
+			
+	return true;			
+
+	/*
 	//====================================================================00
 	//check access permissions first
 
@@ -216,19 +148,6 @@ bool ContainerManager::checkTargetContainer(uint64 targetContainerId, Object* ob
 	bool fit	 = false;
 
 
-	//********************
-	//Factory Outputhopper is retrieve only
-	//access has been granted through the UI already
-	TangibleObject* tangibleContainer = dynamic_cast<TangibleObject*>(targetContainer);
-	if((tangibleContainer)&&(strcmp(tangibleContainer->getName().getAnsi(),"ingredient_hopper")==0))
-	{
-		//do we have access rights to the factories hopper?? this would have to be checked asynchronously
-		//for now we can only access the hoppers UI through the client and checking our permission so its proven already
-		//a hacker might in theory exploit this, though factories items should only be in memory when someone accesses the hopper
-
-		access = true;
-	}
-	
 	//====================================================================================
 	//get the mainOwner of the container - thats a building or a player or an inventory or the main cell (0) for items in the main cell
 	uint64 ownerId = gSpatialIndexManager->getObjectMainParent(targetContainer);
@@ -252,10 +171,6 @@ bool ContainerManager::checkTargetContainer(uint64 targetContainerId, Object* ob
 			gMessageLib->SendSystemMessage(std::u16string(),player,"container_error_message","container03");
 			return false;
 		}
-
-		if(!tangibleContainer)   //its probably a cell
-			return true;
-
 		if(!targetContainer->checkCapacity(objectSize,player))	{
 			return false;
 		}
@@ -307,7 +222,7 @@ bool ContainerManager::checkTargetContainer(uint64 targetContainerId, Object* ob
 		return false;
 	}
 
-
+	*/
 	return true;
 }
 

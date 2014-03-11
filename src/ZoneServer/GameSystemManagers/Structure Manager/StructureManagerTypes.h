@@ -44,8 +44,7 @@ enum Structure_QueryType
     Structure_Query_LoadDeedData				=	1,
     Structure_Query_LoadstructureItem			=	2,
 
-    Structure_Query_Admin_Permission_Data		=	3,
-    Structure_Query_Hopper_Permission_Data		=	4,
+    
     Structure_Query_Add_Permission				=	5,
     Structure_Query_Remove_Permission			=	6,
     Structure_Query_Check_Permission			=	7,
@@ -63,8 +62,7 @@ enum Structure_QueryType
     Structure_UpdateStructureDeed				=	18,
     Structure_UpdateCharacterLots				=	19,
     Structure_UpdateAttributes					=	20,
-    Structure_Query_Entry_Permission_Data		=	21,
-    Structure_Query_Ban_Permission_Data			=	22,
+    
     Structure_Query_UpdateAdminPermission		=	23,
 
     Structure_Query_NoBuildRegionData			=	24
@@ -77,8 +75,7 @@ enum Structure_Async_CommandEnum
     Structure_Command_AddPermission		=	1,
     Structure_Command_RemovePermission	=	2,
     Structure_Command_Destroy			=	3,
-    Structure_Command_PermissionAdmin	=	4,
-    Structure_Command_PermissionHopper	=	5,
+    
     Structure_Command_TransferStructure	=	6,
     Structure_Command_RenameStructure	=	7,
     Structure_Command_DiscardHopper		=	8,
@@ -98,8 +95,7 @@ enum Structure_Async_CommandEnum
     Structure_Command_StartFactory		=	22,
     Structure_Command_StopFactory		=	23,
     Structure_Command_Privacy			=	24,
-    Structure_Command_PermissionEntry	=	25,
-    Structure_Command_PermissionBan		=	26,
+    
     Structure_Command_CellEnter			=	27,
     Structure_Command_CellEnterDenial	=	28
 

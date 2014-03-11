@@ -743,7 +743,7 @@ void	ObjectController::HandleItemMoveForward_(
     // Verify that the player has appropriate rights on this structure.
     if (playerCell) {
         if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playerCell->getParentId()))) {
-            if (!building->hasAdminRights(player->getId())) {
+			if (!building->getAdminData().check_admin(player->getId())) {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "admin_move_only"), player);
                 return;
             }
@@ -817,7 +817,7 @@ void	ObjectController::HandleItemMoveBack_(
     // Verify that the player has appropriate rights on this structure.
     if (playerCell) {
         if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playerCell->getParentId()))) {
-            if (!building->hasAdminRights(player->getId())) {
+            if (!building->getAdminData().check_admin(player->getId())) {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "admin_move_only"), player);
                 return;
             }
@@ -891,7 +891,7 @@ void	ObjectController::HandleItemMoveUp_(
     // Verify that the player has appropriate rights on this structure.
     if (playerCell) {
         if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playerCell->getParentId()))) {
-            if (!building->hasAdminRights(player->getId())) {
+            if (!building->getAdminData().check_admin(player->getId())) {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "admin_move_only"), player);
                 return;
             }
@@ -964,7 +964,7 @@ void ObjectController::HandleItemMoveDown_(
     // Verify that the player has appropriate rights on this structure.
     if (playerCell) {
         if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playerCell->getParentId()))) {
-            if (!building->hasAdminRights(player->getId())) {
+            if (!building->getAdminData().check_admin(player->getId())) {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "admin_move_only"), player);
                 return;
             }
@@ -1037,7 +1037,7 @@ void	ObjectController::HandleItemRotateRight_(
     // Verify that the player has appropriate rights on this structure.
     if (playerCell) {
         if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playerCell->getParentId()))) {
-            if (!building->hasAdminRights(player->getId())) {
+            if (!building->getAdminData().check_admin(player->getId())) {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "admin_move_only"), player);
                 return;
             }
@@ -1110,7 +1110,7 @@ void ObjectController::HandleItemRotateLeft_(
     // Verify that the player has appropriate rights on this structure.
     if (playerCell) {
         if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playerCell->getParentId()))) {
-            if (!building->hasAdminRights(player->getId())) {
+            if (!building->getAdminData().check_admin(player->getId())) {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "admin_move_only"), player);
                 return;
             }
@@ -1182,7 +1182,7 @@ void ObjectController::HandleRotateFurniture_(
     // Verify that the player has appropriate rights on this structure.
     if (playerCell) {
         if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playerCell->getParentId()))) {
-            if (!building->hasAdminRights(player->getId())) {
+            if (!building->getAdminData().check_admin(player->getId())) {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "admin_move_only"), player);
                 return;
             }
@@ -1292,7 +1292,7 @@ bool HandleMoveFurniture(
     // Verify that the player has appropriate rights on this structure.
     if (playerCell) {
         if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playerCell->getParentId()))) {
-            if (!building->hasAdminRights(player->getId())) {
+            if (!building->getAdminData().check_admin(player->getId())) {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "admin_move_only"), player);
                 return false;
             }

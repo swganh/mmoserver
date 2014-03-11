@@ -823,20 +823,21 @@ bool MessageLib::sendHopperList(PlayerStructure* structure, PlayerObject* player
     if(!(playerObject->isConnected()))
         return(false);
 
+    auto data = structure->getAdminData();
+
     Message* newMessage;
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opSendPermissionList);
-    mMessageFactory->addUint32(structure->getStrucureHopperList().size() );
+	mMessageFactory->addUint32(data.hopper_map_.size());
 
-    BString name;
-    BStringVector vector = 	structure->getStrucureHopperList();
-    BStringVector::iterator it = vector.begin();
-    while(it != vector.end())
-    {
-        name = (*it);
-        name.convert(BSTRType_Unicode16);
-        mMessageFactory->addString(name);
+	std::string name;
+
+	auto it = data.hopper_map_.begin();
+    while(it != data.hopper_map_.end())    {
+		name = (*it).second;
+		std::u16string u16_name(name.begin(), name.end());
+        mMessageFactory->addString(u16_name);
 
         it++;
     }
@@ -844,16 +845,11 @@ bool MessageLib::sendHopperList(PlayerStructure* structure, PlayerObject* player
     mMessageFactory->addUint32(0); // ???
     //mMessageFactory->addUint16(0);	// unknown
     name = "HOPPER";
-    name.convert(BSTRType_Unicode16);
-    mMessageFactory->addString(name);
+    std::u16string u16_name(name.begin(), name.end());
+    mMessageFactory->addString(u16_name);
     mMessageFactory->addUint32(0); // ???
 
     newMessage = mMessageFactory->EndMessage();
-
-    (playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
-
-    structure->resetStructureHopperList();
-
     return(true);
 }
 

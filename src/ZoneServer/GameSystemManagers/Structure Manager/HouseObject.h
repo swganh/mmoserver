@@ -74,8 +74,6 @@ public:
         mSign = sign;
     }
 
-    bool			hasAdmin(uint64 id);
-
     void			checkCellPermission(PlayerObject* player);
 
 

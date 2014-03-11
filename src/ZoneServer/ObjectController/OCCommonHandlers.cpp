@@ -194,6 +194,9 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 			if (tangObj->getCapacity())
 			{
 				//checkContainingContainer checks the permission
+				auto permission = tangObj->GetPermissions();
+				
+				/*
 				if(gContainerManager->checkContainingContainer(tangObj->getId(),playerObject->getId()))
 				{
 					aContainer = true;
@@ -201,6 +204,7 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 					//register the player to the container and create the content
 					gContainerManager->registerPlayerToContainer(tangObj,playerObject);
 				}
+				*/
 			}
 		}
 		//its not a Container* Object however in theory it still can be a backpack for example

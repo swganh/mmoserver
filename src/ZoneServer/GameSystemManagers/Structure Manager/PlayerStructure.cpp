@@ -50,8 +50,6 @@ PlayerStructure::PlayerStructure() : TangibleObject()
     mWillRedeed		= false;
 
     mState			= 0;
-
-    mHousingAdminList.clear();
 }
 
 //=============================================================================
@@ -224,17 +222,3 @@ void PlayerStructure::sendStructureHopperList(uint64 playerId)
 //=============================================================================
 //
 //
-
-bool PlayerStructure::hasAdminRights(uint64 id)
-{
-    ObjectIDList::iterator it = mHousingAdminList.begin();
-
-    while(it != mHousingAdminList.end())
-    {
-        if((*it) == id)
-            return(true);
-
-        ++it;
-    }
-    return false;
-}

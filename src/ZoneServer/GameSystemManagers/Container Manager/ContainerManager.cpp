@@ -133,6 +133,7 @@ bool ContainerManager::checkTargetContainer(uint64 targetContainerId, Object* ob
 		DLOG(info) << "ContainerManager::_handleTransferItemMisc: TargetContainer is NULL :(";
 		return false;
 	}
+	return true;
 
 	if(!targetContainer->checkCapacity(objectSize,player))	{
 		return false;

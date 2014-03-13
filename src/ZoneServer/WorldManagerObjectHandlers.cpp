@@ -433,6 +433,7 @@ void WorldManager::destroyObject(Object* object)
 				list.push_back(object->getId());	
 			});
 			
+			//so in this case we will just destroy the items after we have put them into a list for iterating
 			auto it = list.begin();
 			while(it != list.end())	{
 				eraseObject(*it);

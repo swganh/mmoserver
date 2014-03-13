@@ -124,17 +124,19 @@ void WorldManager::storeCharacterPosition_(PlayerObject* player_object, bool rem
 
     stringstream query_stream;
 
-    query_stream << "UPDATE "<<getKernel()->GetDatabase()->galaxy()<<".characters SET parent_id=" << player_object->getParentId() << ", "
-                 << "oX=" << player_object->mDirection.x << ", "
-                 << "oY=" << player_object->mDirection.y << ", "
-                 << "oZ=" << player_object->mDirection.z << ", "
-                 << "oW=" << player_object->mDirection.w << ", "
-                 << "x=" << (transfer ? clContainer->destination.x : player_object->mPosition.x) << ", "
-                 << "y=" << (transfer ? clContainer->destination.y : player_object->mPosition.y) << ", "
-                 << "z=" << (transfer ? clContainer->destination.z : player_object->mPosition.z) << ", "
-				 << "planet_id=" << (transfer ? clContainer->planet : mZoneId) << ", "
-                 << "jedistate=" << player_object->getJediState() << " "
-				 << "WHERE id=" << player_object->GetCreature()->getId();
+	CreatureObject* body = player_object->GetCreature();
+
+    query_stream << "UPDATE "<<getKernel()->GetDatabase()->galaxy()<<".characters SET parent_id=" << body->getParentId() << ", "
+                 << "oX=" << body->mDirection.x << ", "
+                 << "oY=" << body->mDirection.y << ", "
+                 << "oZ=" << body->mDirection.z << ", "
+                 << "oW=" << body->mDirection.w << ", "
+                 << "x=" << (transfer ? clContainer->destination.x : body->mPosition.x) << ", "
+                 << "y=" << (transfer ? clContainer->destination.y : body->mPosition.y) << ", "
+                 << "z=" << (transfer ? clContainer->destination.z : body->mPosition.z) << ", "
+				 << "planet_id=" << (transfer ? clContainer->planet : mZoneId) << " "
+                 //<< "jedistate=" << player_object->getJediState() << " "
+				 << "WHERE id=" << body->getId();
 
 	//getKernel()->GetDatabase()->executeSqlAsync(clContainer->dbCallback,clContainer, query_stream.str());
 	getKernel()->GetDatabase()->executeAsyncSql(query_stream.str(), [=] (swganh::database::DatabaseResult* result) {

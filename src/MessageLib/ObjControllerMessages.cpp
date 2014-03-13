@@ -215,7 +215,7 @@ void MessageLib::sendWatchEntertainer(PlayerObject* playerObject)
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000001b);
     mMessageFactory->addUint32(0x0000022B);
-    mMessageFactory->addUint64(playerObject->getId());
+	mMessageFactory->addUint64(playerObject->GetCreature()->getId());
     mMessageFactory->addUint32(0);
 
     _sendToInRange(mMessageFactory->EndMessage(),playerObject,5);
@@ -232,7 +232,7 @@ void MessageLib::sendperformFlourish(PlayerObject* playerObject,uint32 flourish)
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(27);
     mMessageFactory->addUint32(opEntertainerFlourish);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->GetCreature()->getId());
     mMessageFactory->addUint32(0);
     mMessageFactory->addUint32(flourish);
     mMessageFactory->addUint32(0);
@@ -302,14 +302,16 @@ bool MessageLib::sendObjectMenuResponse(Object* object,PlayerObject* targetObjec
     if(!(targetObject->isConnected()))
         return(false);
 
+	CreatureObject* creature = targetObject->GetCreature();
+
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
     mMessageFactory->addUint32(opObjectMenuResponse);
-    mMessageFactory->addUint64(targetObject->getId());
+    mMessageFactory->addUint64(creature->getId());
     mMessageFactory->addUint32(0);
     mMessageFactory->addUint64(object->getId());
-    mMessageFactory->addUint64(targetObject->getId());
+    mMessageFactory->addUint64(creature->getId());
 
     RadialMenuPtr radialMenu = object->getRadialMenu();
 
@@ -369,10 +371,10 @@ bool MessageLib::sendEmptyObjectMenuResponse(uint64 requestedId,PlayerObject* ta
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
     mMessageFactory->addUint32(opObjectMenuResponse);
-    mMessageFactory->addUint64(targetObject->getId());
+    mMessageFactory->addUint64(targetObject->GetCreature()->getId());
     mMessageFactory->addUint32(0);
     mMessageFactory->addUint64(requestedId);
-    mMessageFactory->addUint64(targetObject->getId());
+    mMessageFactory->addUint64(targetObject->GetCreature()->getId());
 
     mMessageFactory->addUint32(mMenuItemList.size());  // list counter
 
@@ -412,7 +414,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player, uint8 tatooine, 
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000001B);
     mMessageFactory->addUint32(opStartingLocationList);
-    mMessageFactory->addUint64(player->getId());
+    mMessageFactory->addUint64(player->GetCreature()->getId());
     mMessageFactory->addUint32(0);
 
     mMessageFactory->addUint32(16);  // list counter
@@ -642,7 +644,7 @@ bool MessageLib::sendDraftslotsResponse(DraftSchematic* schematic,PlayerObject* 
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
     mMessageFactory->addUint32(opDraftSlotsQueryResponse);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->GetCreature()->getId());
     mMessageFactory->addUint32(0);
     mMessageFactory->addUint64(schematic->getId());
 
@@ -705,7 +707,7 @@ bool MessageLib::sendDraftWeightsResponse(DraftSchematic* schematic,PlayerObject
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
     mMessageFactory->addUint32(opResourceWeights);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->GetCreature()->getId());
     mMessageFactory->addUint32(0);
     mMessageFactory->addUint64(schematic->getId());
 
@@ -944,9 +946,9 @@ bool MessageLib::sendBiography(PlayerObject* playerObject,PlayerObject* targetOb
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
     mMessageFactory->addUint32(opBiographyUpdate);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->GetCreature()->getId());
     mMessageFactory->addUint32(0);
-    mMessageFactory->addUint64(targetObject->getId());
+    mMessageFactory->addUint64(targetObject->GetCreature()->getId());
     mMessageFactory->addString(targetObject->getBiography());
 
     (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
@@ -968,7 +970,7 @@ bool MessageLib::sendCharacterMatchResults(const PlayerList* const matched_playe
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
     mMessageFactory->addUint32(opPlayersNearYou);
-    mMessageFactory->addUint64(target->getId());
+    mMessageFactory->addUint64(target->GetCreature()->getId());
     mMessageFactory->addUint32(0);
 
     mMessageFactory->addUint32(matched_players->size());
@@ -1034,7 +1036,7 @@ bool MessageLib::sendSecureTrade(PlayerObject* targetPlayer,PlayerObject* srcObj
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
     mMessageFactory->addUint32(opSecureTrade);
-    mMessageFactory->addUint64(targetPlayer->getId());
+    mMessageFactory->addUint64(targetPlayer->GetCreature()->getId());
     mMessageFactory->addUint32(0);
     mMessageFactory->addUint32(error);
 
@@ -1060,7 +1062,7 @@ bool MessageLib::sendStartNPCConversation(NPCObject* srcObject,PlayerObject* tar
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
     mMessageFactory->addUint32(opStartNpcConversation);
-    mMessageFactory->addUint64(targetObject->getId());
+    mMessageFactory->addUint64(targetObject->GetCreature()->getId());
     mMessageFactory->addUint32(0);
     mMessageFactory->addUint64(srcObject->getId());
     mMessageFactory->addUint32(0);
@@ -1086,7 +1088,7 @@ bool MessageLib::sendStopNPCConversation(NPCObject* srcObject,PlayerObject* targ
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
     mMessageFactory->addUint32(opStopNpcConversation);
-    mMessageFactory->addUint64(targetObject->getId());
+    mMessageFactory->addUint64(targetObject->GetCreature()->getId());
     mMessageFactory->addUint32(0);
     mMessageFactory->addUint64(srcObject->getId());
     mMessageFactory->addUint32(0);
@@ -1112,7 +1114,7 @@ bool MessageLib::sendNPCDialogMessage(ActiveConversation* av,PlayerObject* targe
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
     mMessageFactory->addUint32(opNpcConversationMessage);
-    mMessageFactory->addUint64(targetObject->getId());
+    mMessageFactory->addUint64(targetObject->GetCreature()->getId());
     mMessageFactory->addUint32(0);
 
     // custom text
@@ -1179,7 +1181,7 @@ bool MessageLib::sendNPCDialogOptions(std::vector<ConversationOption*>* options,
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
     mMessageFactory->addUint32(opNpcConversationOptions);
-    mMessageFactory->addUint64(targetObject->getId());
+    mMessageFactory->addUint64(targetObject->GetCreature()->getId());
     mMessageFactory->addUint32(0);
 
     mMessageFactory->addUint8(options->size());
@@ -1254,7 +1256,7 @@ bool MessageLib::sendDraftSchematicsList(CraftingTool* tool,PlayerObject* player
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
     mMessageFactory->addUint32(opDraftSchematics);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->GetCreature()->getId());
     mMessageFactory->addUint32(0);
     mMessageFactory->addUint64(tool->getId());
     mMessageFactory->addUint64(0); // station ?
@@ -1332,7 +1334,7 @@ bool MessageLib::sendSharedNetworkMessage(PlayerObject* playerObject,uint32 unkn
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
     mMessageFactory->addUint32(opSharedNetworkMessage);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->GetCreature()->getId());
     mMessageFactory->addUint32(unknown1);
     mMessageFactory->addUint32(unknown2);
 
@@ -1355,7 +1357,7 @@ bool MessageLib::sendManufactureSlots(ManufacturingSchematic* manSchem,CraftingT
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
     mMessageFactory->addUint32(opManufactureSlots);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->GetCreature()->getId());
     mMessageFactory->addUint32(0);
     mMessageFactory->addUint64(tool->getId());
     mMessageFactory->addUint64(manSchem->getId());
@@ -1417,7 +1419,7 @@ bool MessageLib::sendCraftAcknowledge(uint32 ackType,uint32 errorId,uint8 counte
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
     mMessageFactory->addUint32(opCraftAcknowledge);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->GetCreature()->getId());
     mMessageFactory->addUint32(0);
     mMessageFactory->addUint32(ackType);
     mMessageFactory->addUint32(errorId);
@@ -1442,7 +1444,7 @@ bool MessageLib::sendCraftExperimentResponse(uint32 ackType,uint32 resultId,uint
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
     mMessageFactory->addUint32(opCraftExperimentResponse);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->GetCreature()->getId());
     mMessageFactory->addUint32(0);
     mMessageFactory->addUint32(ackType);
     mMessageFactory->addUint32(resultId);
@@ -1467,7 +1469,7 @@ bool MessageLib::sendGenericIntResponse(uint32 value,uint8 counter,PlayerObject*
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
     mMessageFactory->addUint32(opGenericIntResponse);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->GetCreature()->getId());
     mMessageFactory->addUint32(0);
     mMessageFactory->addUint32(0x00000109);
     mMessageFactory->addUint32(value);
@@ -1630,7 +1632,7 @@ bool MessageLib::sendCommandQueueRemove(uint32 sequence,float tickCounter,uint32
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
     mMessageFactory->addUint32(opCommandQueueRemove);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->GetCreature()->getId());
     mMessageFactory->addUint32(0);
     mMessageFactory->addUint32(sequence);
     mMessageFactory->addFloat(tickCounter);
@@ -1653,16 +1655,16 @@ void MessageLib::sendImageDesignStartMessage(PlayerObject* srcObject,PlayerObjec
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
     mMessageFactory->addUint32(opImageDesignStartMessage);
-    mMessageFactory->addUint64(targetObject->getId());
+    mMessageFactory->addUint64(targetObject->GetCreature()->getId());
     mMessageFactory->addUint32(0);                    // unknown
-    mMessageFactory->addUint64(srcObject->getId());
-    mMessageFactory->addUint64(targetObject->getId());
+    mMessageFactory->addUint64(srcObject->GetCreature()->getId());
+    mMessageFactory->addUint64(targetObject->GetCreature()->getId());
 
     uint64 parentID = 0;
 
     if(targetObject->getParentId() != 0)
     {
-        Object* object = gWorldManager->getObjectById(targetObject->getParentId());
+        Object* object = gWorldManager->getObjectById(targetObject->GetCreature()->getParentId());
 
         if(object)
         {
@@ -1698,10 +1700,10 @@ void MessageLib::sendImageDesignStartMessage(PlayerObject* srcObject,PlayerObjec
         mMessageFactory->addUint32(0x0000000B);
         //needs to be 0x0000000B otherwise window wont open..
         mMessageFactory->addUint32(opImageDesignStartMessage);
-        mMessageFactory->addUint64(srcObject->getId());
+        mMessageFactory->addUint64(srcObject->GetCreature()->getId());
         mMessageFactory->addUint32(0);                    // unknown
-        mMessageFactory->addUint64(srcObject->getId());
-        mMessageFactory->addUint64(targetObject->getId());
+        mMessageFactory->addUint64(srcObject->GetCreature()->getId());
+        mMessageFactory->addUint64(targetObject->GetCreature()->getId());
 
         mMessageFactory->addUint64(parentID);
         mMessageFactory->addUint16(0);
@@ -1722,11 +1724,11 @@ void MessageLib::sendIDChangeMessage(PlayerObject* targetObject,PlayerObject* sr
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
     mMessageFactory->addUint32(opImageDesignChangeMessage);
-    mMessageFactory->addUint64(targetObject->getId());//the object were manipulating
+    mMessageFactory->addUint64(targetObject->GetCreature()->getId());//the object were manipulating
     mMessageFactory->addUint32(0);                    // unknown
 
-    mMessageFactory->addUint64(srcObject->getId()); //the recipient
-    mMessageFactory->addUint64(otherObject->getId());   //the manipulator
+    mMessageFactory->addUint64(srcObject->GetCreature()->getId()); //the recipient
+    mMessageFactory->addUint64(otherObject->GetCreature()->getId());   //the manipulator
 
     mMessageFactory->addUint64(parentId);
 
@@ -1803,12 +1805,12 @@ void MessageLib::sendIDEndMessage(PlayerObject* targetObject,PlayerObject* srcOb
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
     mMessageFactory->addUint32(opImageDesignStopMessage);
-    mMessageFactory->addUint64(targetObject->getId());//the recipient
+    mMessageFactory->addUint64(targetObject->GetCreature()->getId());//the recipient
     mMessageFactory->addUint32(0);                    // unknown
 
-    mMessageFactory->addUint64(otherObject->getId()); //the recipient
+    mMessageFactory->addUint64(otherObject->GetCreature()->getId()); //the recipient
     mMessageFactory->addUint64(srcObject->GetCreature()->getId());   //the manipulator
-    mMessageFactory->addUint64(otherObject->getParentId()-1);//????????????????
+    mMessageFactory->addUint64(otherObject->GetCreature()->getParentId()-1);//????????????????
 
     if(hair.getLength() > 0)
         mMessageFactory->addUint8(0); //flag
@@ -1901,7 +1903,7 @@ void MessageLib::sendPlayerAddBuff(PlayerObject* playerObject, int32 CRC, float 
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
     mMessageFactory->addUint32(opApplyBuff);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->GetCreature()->getId());
     mMessageFactory->addUint32(0);
 
     mMessageFactory->addUint32(CRC);
@@ -1920,7 +1922,7 @@ void MessageLib::sendPlayerRemoveBuff(PlayerObject* playerObject, int32 CRC)
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
     mMessageFactory->addUint32(opRemoveBuff);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->GetCreature()->getId());
     mMessageFactory->addUint32(0);
 
     mMessageFactory->addUint32(CRC);

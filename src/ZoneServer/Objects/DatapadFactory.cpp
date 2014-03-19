@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "Zoneserver/Objects/Item.h"
 #include "ZoneServer\Objects\Object\ObjectManager.h"
+#include "ZoneServer\Objects\VehicleController.h"
 
 #include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
 #include "ZoneServer/Objects/Tangible Object/TangibleFactory.h"
@@ -459,31 +460,41 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
     {
         theID	= object->getParentId();
         mIlc	= _getObject(theID);
-        if(!mIlc)//sanity
-        {
+        
+		if(!mIlc)	{	//sanity        
             LOG(warning) << "Failed getting ilc during ObjType_Intangible";
             return;
         }
 
-        if((datapad = dynamic_cast<Datapad*>(mIlc->mObject)))
-        {
-            mIlc->mLoadCounter--;
+        if((datapad = dynamic_cast<Datapad*>(mIlc->mObject)))        {
+            
+			mIlc->mLoadCounter--;
+			
+			IntangibleObject* itno = dynamic_cast<IntangibleObject*>(object);
+			if(!itno)            {
+				LOG(error) << "DatapadFactory::handleObjectReady couldn cast intangible : " <<	theID;
+				return;
+			}
 
-            if(IntangibleObject* itno = dynamic_cast<IntangibleObject*>(object))
-            {
-                if(datapad->getCapacity())
-                {
-                    datapad->addData(itno);
-                    Object* ob = gWorldManager->getObjectById(object->getId());
-                    if(!ob)
-                        gWorldManager->addObject(object,true);
-                }
-                else
-                {
-                	LOG(warning) << "Datapad at max Capacity";
-                    delete(object);
-                }
-            }
+			auto permissions_objects_ = gObjectManager->GetPermissionsMap();
+			object->SetPermissions(permissions_objects_.find(swganh::object::DEFAULT_PERMISSION)->second.get());//CREATURE_PERMISSION
+
+			datapad->InitializeObject(object);
+			gWorldManager->addObject(object,true);
+
+			if(!datapad->getCapacity())            {
+				LOG(warning) << "DatapadFactory::handleObjectReady :: warning :: Datapad " << datapad->getId() << " at max Capacity";
+			}
+
+			VehicleController* controller = dynamic_cast<VehicleController*>(object);
+
+			if(!controller)	{
+				LOG(warning) << "DatapadFactory::handleObjectReady :: warning :: couldnt cast Vehiclecontroller" << object->getId();
+				return;
+			}
+			
+			controller->setOwner(datapad->getParentId()+PLAYER_OFFSET);
+                
         }
 
     }

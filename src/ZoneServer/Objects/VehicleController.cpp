@@ -84,18 +84,22 @@ void VehicleController::handleObjectMenuSelect(uint8_t message_type, Object* sou
             case radId_vehicleGenerate:
             case radId_vehicleStore:
             {
-        // If a body for the vehicle exists then store it, if it doesn't then call it.
-        if (body_) {
-          Store();
-        } else {
-                  Call();
-        }
+				// If a body for the vehicle exists then store it, if it doesn't then call it.
+				if (body_) {
+
+				  Store();
+				} 
+				else {
+
+					Call();
+				}
             }
             break;
 
             default:
             {
-        assert(false && "Vehicle::handleObjectMenuSelect Unknown radial selection!");
+				//assert(false && "Vehicle::handleObjectMenuSelect Unknown radial selection!");
+				LOG(error) << "VehicleController::handleObjectMenuSelect Unknown radial selection for : " << this->getId();
             }
             break;
         }
@@ -123,11 +127,15 @@ void VehicleController::Call() {
         return;
     }
 
-    if(owner_->checkIfMountCalled()) {
+	PlayerObject* owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(owner_));
+	
+    if(owner->checkIfMountCalled()) {
+		LOG(info) << "VehicleController::Call : body already in world " << this->getId();
         return;
     }
 
-    if(!owner_->isConnected() || owner_->GetCreature()->isDead() || owner_->GetCreature()->isIncapacitated()) {
+    if(!owner->isConnected() || owner->GetCreature()->isDead() || owner->GetCreature()->isIncapacitated()) {
+		LOG(info) << "VehicleController::Call : owner statecheck fail for " << this->getId();
         return;
     }
 
@@ -145,7 +153,7 @@ void VehicleController::Call() {
 
     body_->set_controller(this->getId());
 
-    body_->set_owner(owner_->getId());
+    body_->set_owner(owner->getId());
     body_->setParentId(0);
     body_->SetTemplate(mPhysicalModel);
     body_->setSpeciesGroup(mNameFile.getAnsi());
@@ -167,13 +175,13 @@ void VehicleController::Call() {
 	body_->InitStatCurrent(HamBar_Health, health_current);
 	body_->InitStatMax(HamBar_Health, health_max);
 	
-    owner_->setMount(body_);
-    owner_->setMounted(false);
-    owner_->setMountCalled(false);
+    owner->setMount(body_);
+    owner->setMounted(false);
+    owner->setMountCalled(false);
 
     // Set default direction and position for the body.
-    body_->mDirection = owner_->mDirection;
-    body_->mPosition  = owner_->mPosition;
+	body_->mDirection = owner->GetCreature()->mDirection;
+    body_->mPosition  = owner->GetCreature()->mPosition;
 
     // Move it forward 2 meters
     body_->moveForward(2);
@@ -197,7 +205,7 @@ void VehicleController::Call() {
 
     gMessageLib->sendUpdateTransformMessage(body_);
 
-    owner_->setMountCalled(true);
+    owner->setMountCalled(true);
 
     return;
 }
@@ -207,25 +215,25 @@ void VehicleController::Call() {
 //stores the physical body
 void VehicleController::Store()
 {
-    if(!body_)
-    {
+    if(!body_)    {
         DLOG(info) << "Vehicle::store() Error: Store was called for a nonexistant body object!";
         return;
     }
 
-    if(!owner_ || owner_->GetCreature()->isDead() || owner_->GetCreature()->isIncapacitated())
-    {
+	PlayerObject* owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(owner_));
+
+    if(!owner_ || owner->GetCreature()->isDead() || owner->GetCreature()->isIncapacitated())    {
         DLOG(info) << "Vehicle::store() couldnt find owner";
         return;
     }
 
     // todo auto dismount
-    if(owner_->checkIfMounted())
+    if(owner->checkIfMounted())
     {
         DismountPlayer();
     }
 
-    if(!owner_->checkIfMountCalled())
+    if(!owner->checkIfMountCalled())
     {
         DLOG(info) << "Vehicle::store() Mount wasnt called !!!";
         return;
@@ -234,10 +242,10 @@ void VehicleController::Store()
 	//the body is a creature_object!!!
 	gSpatialIndexManager->RemoveObjectFromWorld(body_);
 
-    owner_->setMount(NULL);
+    owner->setMount(NULL);
 
-    owner_->setMounted(false);
-    owner_->setMountCalled(false);
+    owner->setMounted(false);
+    owner->setMountCalled(false);
 
     // finally unload & destroy the vehicle creature
     gWorldManager->destroyObject(body_);
@@ -257,23 +265,25 @@ void VehicleController::DismountPlayer() {
         return;
     }
 
-    if(!owner_->checkIfMounted()) {
+	PlayerObject* owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(owner_));
+
+    if(!owner->checkIfMounted()) {
         LOG(error) << "Vehicle::DismountPlayer() no vehicle body!";
         return;
     }
 
     //For safe measures make the player equipped by nothing
-	body_->RemoveObject(owner_, owner_);
-	gMessageLib->sendContainmentMessage_InRange(owner_->getId(), owner_->getParentId(), owner_->GetArrangementId(), owner_);
+	body_->RemoveObject(owner, owner);
+	gMessageLib->sendContainmentMessage_InRange(owner->getId(), owner->getParentId(), owner->GetArrangementId(), owner);
 	gMessageLib->sendUpdateTransformMessage(body_);
 
     // TODO: make this more automatic...
-    gStateManager.removeActionState(owner_->GetCreature(), CreatureState_RidingMount);   
+    gStateManager.removeActionState(owner->GetCreature(), CreatureState_RidingMount);   
     gStateManager.removeActionState(body_, CreatureState_MountedCreature);   
 
-    owner_->setMounted(false);
-    gMessageLib->sendPostureAndStateUpdate(owner_->GetCreature());  
-    gMessageLib->sendUpdateMovementProperties(owner_);
+    owner->setMounted(false);
+    gMessageLib->sendPostureAndStateUpdate(owner->GetCreature());  
+    gMessageLib->sendUpdateMovementProperties(owner);
 }
 
 //===============================================================================================
@@ -283,24 +293,27 @@ void VehicleController::DismountPlayer() {
 void VehicleController::MountPlayer()
 {
     if (!body_) {
-        assert(false && "Vehicle::mountPlayer() no vehicle body!");
+		assert(false && "Vehicle::mountPlayer() no vehicle body!");
         return;
     }
-    //Make the mount equip the player
-	body_->AddObject(owner_);
-	gMessageLib->sendContainmentMessage_InRange(owner_->getId(), body_->getId(), owner_->GetArrangementId(), owner_);
+	
+	PlayerObject* owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(owner_));
+    
+	//Make the mount equip the player
+	body_->AddObject(owner);
+	gMessageLib->sendContainmentMessage_InRange(owner->getId(), body_->getId(), owner->GetArrangementId(), owner);
     gMessageLib->sendUpdateTransformMessage(body_);
   
     body_->states.toggleActionOn(CreatureState_MountedCreature);
     gMessageLib->sendStateUpdate(body_);
 
-    gStateManager.setCurrentActionState(owner_->GetCreature(),CreatureState_RidingMount);
-	gMessageLib->sendStateUpdate(owner_->GetCreature());
+    gStateManager.setCurrentActionState(owner->GetCreature(),CreatureState_RidingMount);
+	gMessageLib->sendStateUpdate(owner->GetCreature());
     //gStateManager.setCurrentPostureState(owner_,CreaturePosture_DrivingVehicle);
     //gStateManager.setCurrentLocomotionState(owner_,CreatureLocomotion_DrivingVehicle);
 
-    owner_->setMounted(true);
-    gMessageLib->sendUpdateMovementProperties(owner_);
+    owner->setMounted(true);
+    gMessageLib->sendUpdateMovementProperties(owner);
 }
 
 //===============================================================================================

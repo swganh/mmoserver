@@ -195,6 +195,9 @@ CellObject* CellFactory::_createCell(swganh::database::DatabaseResult* result)
 
     result->getNextRow(mCellBinding,(void*)cell);
 
+	auto permissions_objects_ = gObjectManager->GetPermissionsMap();
+	cell->SetPermissions(permissions_objects_.find(swganh::object::WORLD_CELL_PERMISSION)->second.get());//CREATURE_PERMISSION
+	
 	//cells are added to the worldmanager in the buildingFactory!!
 	
 	return cell;
@@ -271,6 +274,11 @@ void CellFactory::handleObjectReady(Object* object,DispatchClient* client)
         break;
     }
 
+	auto permissions_objects_ = gObjectManager->GetPermissionsMap();
+			
+	object->SetPermissions(permissions_objects_.find(swganh::object::DEFAULT_PERMISSION)->second.get());//CREATURE_PERMISSION
+
+	gObjectManager->LoadSlotsForObject(object);
 	cell->InitializeObject(object);
 	cell->incLoad();
 

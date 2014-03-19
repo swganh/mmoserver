@@ -13,6 +13,8 @@ bool RideablePermission::canInsert(ContainerInterface* container, Object* reques
 {
     MountObject* mount = dynamic_cast<MountObject*>(container);
 	return requester == object && mount && mount->owner() == requester->getId();
+
+	//plus in case of multiperson rides the ones we invited
 }
 
 bool RideablePermission::canRemove(ContainerInterface* container, Object* requester, Object* object)

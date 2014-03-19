@@ -35,12 +35,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Zoneserver/Objects/Player Object/PlayerObject.h"
 #include "VehicleController.h"
 #include "ZoneServer/WorldManager.h"
+
 #include "DatabaseManager/DatabaseCallback.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
+
+#include "ZoneServer\Objects\Object\ObjectManager.h"
+
 #include "MessageLib/MessageLib.h"
 //
+
 //#include "Utils/utils.h"
 
 
@@ -220,7 +225,7 @@ void VehicleControllerFactory::createVehicle(uint32 vehicle_type,PlayerObject* t
 {
     int8 sql[256];
 
-    sprintf(sql, "SELECT %s.sf_DefaultVehicleCreate(%u, %"PRIu64")", mDatabase->galaxy(), vehicle_type,targetPlayer->getId());
+	sprintf(sql, "SELECT %s.sf_DefaultVehicleCreate(%u, %"PRIu64")", mDatabase->galaxy(), vehicle_type,targetPlayer->GetCreature()->getId());
     mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(this,VehicleControllerFactoryQuery_Create,targetPlayer->getClient()),sql);
     
 }
@@ -271,26 +276,41 @@ void VehicleControllerFactory::_destroyDatabindings()
 
 void VehicleControllerFactory::handleObjectReady(Object* object,DispatchClient* client)
 {
+	VehicleController* vehicle = dynamic_cast<VehicleController*>(object);
+    if(!vehicle)    {
+		LOG(error) << "VehicleControllerFactory::handleObjectReady :: no vehicle : " << object->getId();
+		return;
+	}
 
-    if(VehicleController* vehicle = dynamic_cast<VehicleController*>(object))
-    {
+    PlayerObject* player = gWorldManager->getPlayerByAccId(client->getAccountId());
+        
+	if(!player)        {
+		LOG(error) << "VehicleControllerFactory::handleObjectReady :: no player for account : " << client->getAccountId();
+		return;
+	}
+        
+	vehicle->setOwner(player->getId());
+    
+	Datapad* datapad			= player->getDataPad();
+    if(!datapad)            {
+		LOG(error) << "VehicleControllerFactory::handleObjectReady :: no datapad found for player : " << player->getId();
+		return;
+	}
 
-        PlayerObject* player = gWorldManager->getPlayerByAccId(client->getAccountId());
-        if(player)
-        {
-            vehicle->set_owner(player);
-            Datapad* datapad			= player->getDataPad();
-            if(datapad)
-            {
-                datapad->addData(vehicle);
-                gWorldManager->addObject(vehicle,true);
-                //spawn it in the player's datapad
-				vehicle->setParentId(datapad->getId()) ;
-                gMessageLib->sendCreateInTangible(vehicle, player);
+	auto permissions_objects_ = gObjectManager->GetPermissionsMap();
+			
+	object->SetPermissions(permissions_objects_.find(swganh::object::RIDEABLE_PERMISSION)->second.get());//CREATURE_PERMISSION
+	
+	datapad->InitializeObject(object);
+			
+    gWorldManager->addObject(vehicle,true);
+            
+	//spawn it in the player's datapad
+	vehicle->setParentId(datapad->getId()) ;
+            
+	gMessageLib->sendCreateInTangible(vehicle, player);
 
-                //now spawn it in the world
-                vehicle->Call();
-            }
-        }
-    }
+    //now spawn it in the world
+    vehicle->Call();            
+    
 }

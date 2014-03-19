@@ -787,12 +787,25 @@ glm::vec3 Object::getWorldPosition() const
 
 //=============================================================================
 
-// @TODO: This is a dependency on WorldManager that could be avoided by having an
-//        Object instance hold a reference to it's parent.
-// objects reference their parents - we just do not know who is the final (permissiongiving) container
-// as it is it will return either the player or the building owning the item regardless in what container it is
 
 const Object* Object::getRootParent() const
+{
+    // If there's no parent id then this is the root object.
+    if (! getParentId())    {
+        return this;
+    }
+
+    // Otherwise get the parent for this object and call getRootParent on it.
+    Object* parent = gWorldManager->getObjectById(getParentId());
+
+    if(!parent)    {
+        return this;
+    }
+
+    return parent->getRootParent();
+}
+
+const Object* Object::getPermissionParent() const
 {
     // If there's no parent id then this is the root object.
     if (! getParentId())    {
@@ -810,7 +823,7 @@ const Object* Object::getRootParent() const
         return this;
     }
 
-    return parent->getRootParent();
+    return parent->getPermissionParent();
 }
 
 //=============================================================================

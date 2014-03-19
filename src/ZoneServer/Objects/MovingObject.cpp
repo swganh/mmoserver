@@ -212,23 +212,19 @@ void MovingObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
 
 
         //dismount us if we were moved inside
-        if(player->checkIfMounted() && player->getMount() && parentId)
-        {
-            Datapad* datapad			= player->getDataPad();
-
-            if(datapad)
+        if(player->checkIfMounted() && player->getMount() && parentId)        {
+		
+			VehicleController* datapad_pet = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(player->getMount()->controller()));
+			if(datapad_pet)
             {
-                if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(datapad->getDataById(player->getMount()->controller())))
-                {
-                    datapad_pet->Store();
-                }
+                datapad_pet->Store();
             }
+            
         }
     }
 
     //check whether updates are necessary before building the packet and then destroying it
-    if ((!isPlayer) && this->getRegisteredWatchers()->empty())
-    {
+    if ((!isPlayer) && this->getRegisteredWatchers()->empty())    {
         return;
     }
 

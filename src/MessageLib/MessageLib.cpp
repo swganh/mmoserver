@@ -515,7 +515,7 @@ bool MessageLib::sendCreatePlayer(PlayerObject* player, PlayerObject* target) {
     //sendPostureMessage(player, target);
 
     if (creature->getParentId()) {
-		//sendContainmentMessage(creature->getId(), creature->getParentId(), creature->GetArrangementId(), target);
+		sendContainmentMessage(creature->getId(), creature->getParentId(), creature->GetArrangementId(), target);
     }
 
     

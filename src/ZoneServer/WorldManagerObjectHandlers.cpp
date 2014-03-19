@@ -330,7 +330,7 @@ void WorldManager::destroyObject(Object* object)
 
 			// store any eventually spawned vehicle
 			if(player->getMount())	{
-				if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(pad->getDataById(player->getMount()->controller())))			{
+				if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(this->getObjectById(player->getMount()->controller())))			{
 					datapad_pet->Store();
 				}
 			}
@@ -529,14 +529,10 @@ void WorldManager::destroyObject(Object* object)
 			
 			Datapad* pad = dynamic_cast<Datapad*>(gWorldManager->getObjectById(parentId));
 			
-			//update the datapad
-			if(!pad || !(pad->removeData(object->getId())))
-			{
-				DLOG(warning) << "WorldManager::destroyObject : Error removing Data from datapad " << object->getId();
-			}
+			pad->RemoveObject(pad, object);
+			
 
-			if(VehicleController* vehicle = dynamic_cast<VehicleController*>(object))
-			{
+			if(VehicleController* vehicle = dynamic_cast<VehicleController*>(object))			{
 				vehicle->Store();
 			}
 		

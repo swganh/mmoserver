@@ -113,7 +113,7 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 	// we are out of range
     if(!inRange)
     {
-        float distance = glm::distance(player->mPosition, npc->mPosition);
+		float distance = glm::distance(player->GetCreature()->mPosition, npc->mPosition);
         char buffer[100];
         sprintf(buffer, "You are out of range (%f m).", distance);
         BString msg(buffer);

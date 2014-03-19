@@ -26,8 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ZoneServer/Objects/MountObject.h"
-
-#include "Zoneserver/Objects/Datapad.h"
+#include "ZoneServer\WorldManager.h"
+//#include "Zoneserver/Objects/Datapad.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/Objects/VehicleController.h"
 
@@ -88,12 +88,12 @@ void MountObject::handleObjectMenuSelect(uint8 message_type, Object* source_obje
     switch (message_type) {
     case radId_vehicleStore:
     {
-        Datapad* datapad			= player->getDataPad();
-        if(datapad) {
-            if(VehicleController* vehicle = dynamic_cast<VehicleController*>(datapad->getDataById(mId-1))) {
-                vehicle->Store();
-            }
+		
+		VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(this->controller()));
+		if(vehicle) {
+			vehicle->Store();
         }
+        
     }
     break;
 

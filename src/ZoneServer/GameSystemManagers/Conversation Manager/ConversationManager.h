@@ -103,7 +103,11 @@ public:
     void							updateConversation(uint32 selectId,PlayerObject* player);
 
     Conversation*					getConversation(uint32 id);
-    ActiveConversation*				getActiveConversation(uint64 id);
+    
+	/*	@brief will get the conversation Object for the conversation currently active
+	*	@param uint64 id the ID of the PLAYER Object
+	*/
+	ActiveConversation*				getActiveConversation(uint64 id);
 
 private:
 

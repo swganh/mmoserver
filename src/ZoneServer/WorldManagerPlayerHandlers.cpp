@@ -312,8 +312,7 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 
     if(playerObject->getMount() && datapad)
     {
-        if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(datapad->getDataById(playerObject->getMount()->controller())))
-        {
+		if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(this->getObjectById(playerObject->getMount()->controller())))        {
             datapad_pet->Store();
         }
     }
@@ -419,9 +418,9 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 	// reset player properties
 	playerObject->resetProperties();
 
-	playerObject->setParentId(parentId);
-	playerObject->mPosition		= destination;
-	playerObject->mDirection	= direction;
+	playerObject->GetCreature()->setParentId(parentId);
+	playerObject->GetCreature()->mPosition		= destination;
+	playerObject->GetCreature()->mDirection	= direction;
 
 	// start the new scene
 	gMessageLib->sendStartScene(mZoneId,playerObject);

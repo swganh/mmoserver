@@ -15,15 +15,15 @@ bool DefaultPermission::canInsert(ContainerInterface* container, Object* request
 
 	//if we are a creature and a container in our inventory gets accessed
 	//we need to make sure only we can access it (or an admin)
-	if(container_object->getRootParent()->getObjectType() == SWG_CREATURE)	{
-		if(container_object->getRootParent() == requester->getRootParent())	{
+	if(container_object->getPermissionParent()->getObjectType() == SWG_CREATURE)	{
+		if(container_object->getPermissionParent() == requester->getPermissionParent())	{
 			return true;
 		}
 	}
 
 	//in case the root parent is a building we need to check the admin list
 	//check admin list
-	if(object->getRootParent()->getObjectType() == SWG_BUILDING)	{
+	if(object->getPermissionParent()->getObjectType() == SWG_BUILDING)	{
 
 		return true;
 	}
@@ -34,8 +34,8 @@ bool DefaultPermission::canInsert(ContainerInterface* container, Object* request
 bool DefaultPermission::canRemove(ContainerInterface* container, Object* requester, Object* object)
 {
 	Object* container_object = dynamic_cast<Object*>(container);
-	if(container_object->getRootParent()->getObjectType() == SWG_CREATURE)	{
-		if(container_object->getRootParent() == requester->getRootParent())	{
+	if(container_object->getPermissionParent()->getObjectType() == SWG_CREATURE)	{
+		if(container_object->getPermissionParent() == requester->getPermissionParent())	{
 			return true;
 		}
 	}
@@ -43,7 +43,7 @@ bool DefaultPermission::canRemove(ContainerInterface* container, Object* request
 
 	//in case the root parent is a building we need to check the admin list
 	//check admin list
-	if(object->getRootParent()->getObjectType() == SWG_BUILDING)	{
+	if(object->getPermissionParent()->getObjectType() == SWG_BUILDING)	{
 
 		return true;
 	}
@@ -55,8 +55,8 @@ bool DefaultPermission::canView(ContainerInterface* container, Object* requester
 {
 	Object* container_object = dynamic_cast<Object*>(container);
 
-	if(container_object->getRootParent()->getObjectType() == SWG_CREATURE)	{
-		if(container_object->getRootParent() == requester->getRootParent())	{
+	if(container_object->getPermissionParent()->getObjectType() == SWG_CREATURE)	{
+		if(container_object->getPermissionParent() == requester->getPermissionParent())	{
 			return true;
 		}
 		else	{
@@ -64,7 +64,7 @@ bool DefaultPermission::canView(ContainerInterface* container, Object* requester
 		}
 	}
 
-	if(container_object->getRootParent()->getObjectType() == SWG_BUILDING)	{
+	if(container_object->getPermissionParent()->getObjectType() == SWG_BUILDING)	{
 
 		return true;
 	}

@@ -50,7 +50,6 @@ Datapad::Datapad()
     : TangibleObject()
     , mManufacturingSchematics(0)
     , mMissions(0)
-    , mData(0)
     , mOwner(NULL)
     , mObjectLoadCounter(0) {
     mTanGroup					= TanGroup_Datapad;
@@ -95,27 +94,7 @@ void Datapad::cleanup()
         ite = mMissions.erase(ite);
     }
     //--------------------------------------------
-
     
-    DataList::iterator iter = mData.begin();
-    while(iter != mData.end())
-    {
-        //check to see whether its a vehicle controller
-        // PlayerObject* player = dynamic_cast<PlayerObject*>(creatureObject);
-        //Object* vehicle = dynamic_cast<Object*>(*iter);
-        //VehicleController* vehicle = dynamic_cast<VehicleController*>(*iter);
-
-        //if(vehicle)
-        //{
-        uint64 id = (*iter)->getId();
-        iter = mData.erase(iter);
-        gWorldManager->eraseObject(id);
-        //}
-        //else
-        //iter = mData.erase(iter);
-
-
-    }
 }
 //=============================================================================
 
@@ -218,32 +197,6 @@ bool Datapad::removeManufacturingSchematic(ManufacturingSchematic* ms)
 
 //=============================================================================
 
-
-bool Datapad::addData(IntangibleObject* Data)
-{
-    if(mCapacity)
-    {
-        mData.push_back(Data);
-        //PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));
-        mCapacity--;
-
-        // the datapads (or inventories) client volume counters are clientside updated
-        // items being contained by the inventory (or datapad) do count as made out
-        // by the objects volume count (in the tano 3)
-        // please make sure that the containment isnt send by the factory before the item is even created
-
-        return true;
-    }
-    else
-    {
-        PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));
-        if (player) {
-            gMessageLib->SendSystemMessage(::common::OutOfBand("base_player","too_many_waypoints"), player);
-        }
-        return false;
-
-    }
-}
 
 void Datapad::updateWaypoint(std::shared_ptr<WaypointObject> waypoint)
 {
@@ -380,61 +333,6 @@ MissionList::iterator Datapad::removeMission(MissionList::iterator it)
 
 //=============================================================================
 
-IntangibleObject* Datapad::getDataById(uint64 id)
-{
-    DataList::iterator it = mData.begin();
-
-    while(it != mData.end())
-    {
-        if((*it)->getId() == id) return(*it);
-        ++it;
-    }
-
-    return NULL;
-}
-
-//=============================================================================
-
-bool Datapad::removeData(IntangibleObject* Data)
-{
-    DataList::iterator it = mData.begin();
-    while(it != mData.end())
-    {
-        if((*it) == Data)
-        {
-            removeData(it);
-            return true;
-        }
-        ++it;
-    }
-    return false;
-}
-
-//=============================================================================
-
-bool Datapad::removeData(uint64 id)
-{
-    DataList::iterator it = mData.begin();
-    while(it != mData.end())
-    {
-        if((*it)->getId() == id)
-        {
-            removeData(it);
-            return true;
-        }
-        ++it;
-    }
-    return false;
-}
-
-//=============================================================================
-
-DataList::iterator Datapad::removeData(DataList::iterator it)
-{
-    it = mData.erase(it);
-    mCapacity++;
-    return it;
-}
 
 //=============================================================================
 

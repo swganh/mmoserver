@@ -308,7 +308,8 @@ void ContainerManager::initializePlayerToContainer(Object* container, PlayerObje
 	
 }
 
-void ContainerManager::registerPlayerToContainer(Object* container, PlayerObject* const player) const {
+void ContainerManager::registerPlayerToContainer(Object* container, PlayerObject* const player) const 
+{
     //DLOG(info) << "SpatialIndexManager::registerPlayerToContainer :: Try register player " << player->getId() << "to container " << container->getId();
 	if (!container->registerWatcher(player))	{
         DLOG(info) << "SpatialIndexManager::registerPlayerToContainer :: Container " << container->getId() << " already known to player" << player->getId();
@@ -322,7 +323,7 @@ void ContainerManager::registerPlayerToContainer(Object* container, PlayerObject
 
 			// check the permission
 			if(!object->GetPermissions()->canView(object, player))	{
-				DLOG(info) << "SpatialIndexManager::initializePlayerToContainer :: player " << player->getId() << " got no permission to register to " << object->getId();
+				//DLOG(info) << "SpatialIndexManager::initializePlayerToContainer :: player " << player->getId() << " got no permission to register to " << object->getId();
 				return;
 			}
 
@@ -333,8 +334,10 @@ void ContainerManager::registerPlayerToContainer(Object* container, PlayerObject
 
 
 
-void ContainerManager::registerPlayerToBuilding(BuildingObject* building, PlayerObject* player) {
-    if (!building) {
+void ContainerManager::registerPlayerToBuilding(BuildingObject* building, PlayerObject* player) 
+{
+
+	if (!building) {
         assert(false && "SpatialIndexManager::registerPlayerToBuilding no building");
         return;
     }

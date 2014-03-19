@@ -112,13 +112,13 @@ void CharacterLoginHandler::_processCmdSceneReady(Message* message, DispatchClie
     {
 		player->GetCreature()->setReady(true);
 
-        if(player->getParentId())
+        if(player->GetCreature()->getParentId())
         {
-            gMessageLib->sendDataTransformWithParent0B(player);
+            gMessageLib->sendDataTransformWithParent0B(player->GetCreature());
         }
         else
         {
-            gMessageLib->sendDataTransform0B(player);
+            gMessageLib->sendDataTransform0B(player->GetCreature());
         }
 
         // send our message of the day
@@ -380,7 +380,7 @@ void CharacterLoginHandler::handleObjectReady(Object* object,DispatchClient* cli
         gWorldManager->addObject(ghost);
 
         //create us for others
-        //gSpatialIndexManager->createInWorld(ghost);
+        gSpatialIndexManager->createInWorld(ghost);
 
         //create ourselves for us
         gSpatialIndexManager->sendCreatePlayer(ghost,ghost);

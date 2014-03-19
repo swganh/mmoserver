@@ -130,8 +130,8 @@ bool SpatialIndexManager::_AddObject(PlayerObject *player)
 
     ObjectListType playerList;
     getGrid()->GetViewingRangeCellContents(finalBucket, &playerList,(Bucket_Creatures|Bucket_Objects|Bucket_Players));
-	return true;
-    for(ObjectListType::iterator i = playerList.begin(); i != playerList.end(); i++)    {
+	    
+	for(ObjectListType::iterator i = playerList.begin(); i != playerList.end(); i++)    {
         //we just added ourselves to the grid - dont send a create to ourselves
         if(((*i)->getId() == player->GetCreature()->getId()))		{
 			//we want to be updated about ourselves
@@ -175,6 +175,7 @@ void SpatialIndexManager::UpdateObject(Object *updateObject)
 	}
 
     uint32 oldBucket = updateObject->getGridBucket();
+
     uint32 newBucket = getGrid()->getCellId(updateObject->getWorldPosition().x, updateObject->getWorldPosition().z);
 
     // now process the spatial index update
@@ -870,25 +871,28 @@ void SpatialIndexManager::createInWorld(PlayerObject* player)
 
     BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
     if(!building)	{
-        LOG(error) << "db integrity error! character : " << player->getId() << "in container : " << player->getParentId() << "cannot find building : " << cell->getParentId();
+        LOG(error) << "db integrity error! character : " << player->getId() << "in container : " << player->GetCreature()->getParentId() << "cannot find building : " << cell->getParentId();
         return;
     }
 
     //we *should* already be registered as known watcher to the building
 
     //add the Creature to the cell we are in
-    if(!cell->AddObject(player, player))	{
+	if(!cell->AddCreature(player->GetCreature()))	{
 		//if we are thrown out (building now private or whatever)
-		player->mPosition = building->mPosition;
-		player->mPosition.x += 10;
-		player->setParentId(0);
-		this->UpdateObject(player);
+		player->GetCreature()->mPosition = building->mPosition;
+		player->GetCreature()->mPosition.x += 10;
+		player->GetCreature()->setParentId(0);
+		this->UpdateObject(player->GetCreature());
 		return;
 	}
 
     //iterate through all the cells and add the player as listener
 	building->ViewObjects(player, 0, false, [&](Object* object){
-		gContainerManager->registerPlayerToContainer(object, player);
+		if(object->getId() != player->GetCreature()->getId())	{
+			LOG(info) << "SpatialIndexManager::createInWorld object : " << object->GetTemplate();
+			gContainerManager->registerPlayerToContainer(object, player);
+		}
 	});
     
 }

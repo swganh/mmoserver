@@ -538,14 +538,15 @@ void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* messag
                 continue;
             }
 
-            IntangibleObject* data = datapad->getDataById(itemId);
-            if(data != NULL)
-            {
-                data->sendAttributes(playerObject);
-                continue;
+			//finally, when we are crafting this could be the new item, not yet added to the worldmanager??
+            if(playerObject->getCraftingSession())            {
+                if(playerObject->getCraftingSession()->getItem()&&playerObject->getCraftingSession()->getItem()->getId() == itemId)
+                {
+                    playerObject->getCraftingSession()->getItem()->sendAttributes(playerObject);
+                }
             }
-
-            // TODO: check our datapad items
+            
+			//send empty response in case we cant find the respective Object
             if(playerObject->isConnected())
             {
                 // default reply for schematics
@@ -561,14 +562,7 @@ void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* messag
                 (playerObject->getClient())->SendChannelAUnreliable(newMessage, playerObject->getAccountId(),  CR_Client, 8);
             }
 
-            //finally, when we are crafting this could be the new item, not yet added to the worldmanager??
-            if(playerObject->getCraftingSession())
-            {
-                if(playerObject->getCraftingSession()->getItem()&&playerObject->getCraftingSession()->getItem()->getId() == itemId)
-                {
-                    playerObject->getCraftingSession()->getItem()->sendAttributes(playerObject);
-                }
-            }
+            
         }
         else
         {

@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CellObject.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/Objects/Tangible Object/TangibleObject.h"
+#include "ZoneServer\Objects\permissions\container_permissions_interface.h"
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/Objects/PlayerStructureTerminal.h"
 #include "MessageLib/MessageLib.h"
@@ -99,9 +100,74 @@ void CellObject::prepareDestruction() {
 }
 //=============================================================================
 
+void CellObject::RemoveCreature(Object* requester, Object* oldObject)
+{
+    //// CHECK PERMISSIONS //// --- no failure possible
+	if (oldObject->getObjectType() != SWG_PLAYER  && oldObject->getObjectType() != SWG_CREATURE)	{
+		LOG(error) << "CellObject::RemovePlayer " << oldObject->getId() << " is no player or creature";
+		return;
+	}
+	//just remove without checking for updates
+	//the spatial index manager keeps track of that 
+	boost::upgrade_lock<boost::shared_mutex> lock(global_container_lock_);
+
+    {
+        boost::upgrade_to_unique_lock<boost::shared_mutex> unique_lock(lock);
+
+        ////Remove Object from Datastructure
+        for(auto& slot = slot_descriptor_.begin();slot != slot_descriptor_.end(); slot++)
+        {
+            slot->second->remove_object(oldObject);
+        }
+        oldObject->SetContainer(nullptr);
+
+		//if(hasObject(data->getId()))
+		//{
+		//	assert(false);
+		//	return false;
+		//}
+
+		//mData.push_back(data->getId());
+
+    }
+	return;
+}
 //=============================================================================
 
+bool CellObject::AddCreature(Object* newObject)
+{
+	uint32 arrangement = GetAppropriateArrangementId(newObject);
+    if(AddCreature(newObject, arrangement))	{
+		newObject->SetArrangementId(arrangement);
+		return true;
+	}
+	return false;
+}
 
+bool CellObject::AddCreature(Object* creature, int32_t arrangement_id)
+{
+	if (creature->getObjectType() != SWG_PLAYER  && creature->getObjectType() != SWG_CREATURE)	{
+		LOG(error) << "CellObject::AddPlayer " << creature->getId() << " is no player or creature";
+		return false;
+	}
+
+    //// CHECK PERMISSIONS ////
+	if(!container_permissions_->canInsert(this, creature, creature))	{
+		LOG (info) << "CellObject::AddPlayercouldnt add Creature : " << creature->getId() << " to " << getId();
+		return false;
+	}
+
+    boost::upgrade_lock<boost::shared_mutex> lock(global_container_lock_);
+
+    //Add Object To Datastructure
+    {
+        boost::upgrade_to_unique_lock<boost::shared_mutex> unique_lock(lock);
+        arrangement_id = __InternalInsert(creature, creature->mPosition, arrangement_id);
+    }
+
+    
+	return true;
+}
 
 //=============================================================================
 

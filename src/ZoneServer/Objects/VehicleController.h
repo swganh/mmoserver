@@ -134,19 +134,19 @@ public:
         flat_acceleration_ = flat_acceleration;
     }
 
-    /// Returns the player object that owns this vehicle.
+    /// Returns the PlayerObject that owns this vehicle.
     /**
      * @returns PlayerObject The player object that owns this vehicle.
      */
-    PlayerObject* owner() {
+    uint64 owner() {
         return owner_;
     }
 
-    /// Sets the player object that owns this vehicle.
+    /// Sets the PlayerObject that owns this vehicle.
     /**
-     * @returns owner The player object that owns this vehicle.
+     * @returns owner The PlayerObject that owns this vehicle.
      */
-    void set_owner(PlayerObject* owner) {
+    void setOwner(uint64 owner) {
         owner_ = owner;
     }
 
@@ -183,8 +183,8 @@ public:
 
 private:
 
-    PlayerObject* owner_;
-    MountObject* body_;
+    uint64				owner_;
+    MountObject*		body_;
 
     uint32_t flat_acceleration_;
     uint32_t hit_point_loss_; //amount of hitpoints lost during travel

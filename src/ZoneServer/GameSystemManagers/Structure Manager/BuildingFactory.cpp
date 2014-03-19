@@ -212,6 +212,10 @@ BuildingObject* BuildingFactory::_createBuilding(swganh::database::DatabaseResul
 	//buildingObject->SetTemplate(buildingObject->mModel.getAnsi());
     buildingObject->setLoadState(LoadState_Loaded);
     buildingObject->setPlayerStructureFamily(PlayerStructure_TreBuilding);
+
+	auto permissions_objects_ = gObjectManager->GetPermissionsMap();
+	buildingObject->SetPermissions(permissions_objects_.find(swganh::object::WORLD_PERMISSION)->second.get());//CREATURE_PERMISSION
+
 	gObjectManager->LoadSlotsForObject(buildingObject);
     return buildingObject;
 }
@@ -271,6 +275,9 @@ void BuildingFactory::handleObjectReady(Object* object,DispatchClient* client)
 
     //this happens on load so no reason to update players
     gWorldManager->addObject(object,true);
+
+	gObjectManager->LoadSlotsForObject(object);
+	building->InitializeObject(object);
 
     building->addCell(dynamic_cast<CellObject*>(object));
 	//LOG(info) << "BuildingFactory::handleObjectReady -> building load cell " << object->getId() << "for " << building->getId();

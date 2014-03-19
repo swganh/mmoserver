@@ -296,11 +296,18 @@ public:
         */
     glm::vec3 getWorldPosition() const;
 
-    /*! Returns the current object's root (permission giving) parent. If the object is the root it returns itself.
+    /*! Returns the current object's root (last containing Object in the world) parent. If the object is the root it returns itself. This is used to determine the creatures world Position in a cell
+		*	
         *
         * \returns const Object* Root parent for the current object.
         */
     const Object* getRootParent() const;
+
+	/*! Returns the current object's permission giving parent. If the object is in the world it returns itself.
+        *
+        * \returns const Object* Root parent for the current object.
+        */
+	const Object* getPermissionParent() const;
         
 
     /*! Rotates an object by the specified degrees.

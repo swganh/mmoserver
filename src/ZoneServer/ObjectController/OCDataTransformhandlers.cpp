@@ -117,13 +117,13 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 
         // remove us from the last cell we were in
         CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(body_->getParentId()));
-        if(cell)
-        {
-            cell->RemoveObject(body_, body_);
+        if(cell)        {
+            
+			cell->RemoveCreature(body_, body_);
         }
-        else
-        {
-            LOG(error) << "ObjectController::handleDataTransform cell not found : " << body_->getParentId();
+        else        {
+            
+			LOG(error) << "ObjectController::handleDataTransform cell not found : " << body_->getParentId();
         }        
 
         // we are outside again
@@ -133,8 +133,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
         gMessageLib->broadcastContainmentMessage(body_->getId(),0,4,player_);
 
         // Inform tutorial about cell change.
-        if (gWorldConfig->isTutorial())
-        {
+        if (gWorldConfig->isTutorial())        {
             player_->getTutorial()->setCellId(0);
         }
 
@@ -147,32 +146,31 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
     gSpatialIndexManager->UpdateObject(body_);
 
     // destroy the instanced instrument if out of range
-    if (player_->getPlacedInstrumentId())
-    {
+    if (player_->getPlacedInstrumentId())    {
+
         if (!gWorldManager->objectsInRange(body_->getId(), player_->getPlacedInstrumentId(), 5.0))
-        {
-            if (Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(player_->getPlacedInstrumentId())))
-            {
+		{
+            if (Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(player_->getPlacedInstrumentId())))            {
+
                 gWorldManager->destroyObject(item->getId());
             }
         }
     }
 
     // Terminate active conversation with npc if to far away (trainers only so far).
-    ActiveConversation* ac = gConversationManager->getActiveConversation(body_->getId());
-    if (ac != NULL)
-    {
+    ActiveConversation* ac = gConversationManager->getActiveConversation(player_->getId());
+    if (ac != NULL)    {
+
         // We do have a npc conversation going.
-        if (!gWorldManager->objectsInRange(body_->getId(), (ac->getNpc())->getId(), 11.0))
-        {
+        if (!gWorldManager->objectsInRange(body_->getId(), (ac->getNpc())->getId(), 11.0))        {
+
             // Terminate conversation, since we are out of range.
             gMessageLib->SendSystemMessage(std::u16string(),player_,"system_msg","out_of_range");
             gConversationManager->stopConversation(player_, true);			// We will get the current dialog text in a chat bubble, only seen by me. Impressive :)
         }
     }
 
-    if (gWorldConfig->isInstance())
-    {
+    if (gWorldConfig->isInstance())    {
         // send out position updates to known players in group or self only
         gMessageLib->sendUpdateTransformMessage(body_, player_);
         return;
@@ -216,7 +214,8 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
     // FIXME: for now assume we only get messages from players
 	CreatureObject*	body_	= dynamic_cast<CreatureObject*>(mObject);
 	PlayerObject*	player	= body_->GetGhost();
-    glm::vec3       pos;
+    
+	glm::vec3       pos;
     glm::quat       dir;
     uint32          inMoveCount;
     uint32			tickCount;
@@ -233,7 +232,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
         return;
     }
 
-    uint64 oldParentId = player->getParentId();
+    uint64 oldParentId = body_->getParentId();
 
     // update tick and move counters
     player->setClientTickCount(tickCount);
@@ -260,11 +259,11 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
         CellObject* cell = NULL;
         // Remove us from whatever we where in before.
         // (4 for add and 0 for remove)
-        gMessageLib->broadcastContainmentMessage(player->getId(),oldParentId,0,player);
+        gMessageLib->broadcastContainmentMessage(body_->getId(),oldParentId,0,player);
 
         if (oldParentId != 0)	{
             if((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(oldParentId))))	{
-                cell->RemoveObject(player, player);
+                cell->RemoveCreature(body_, body_);
             }
             else	{
                 DLOG(info) << "Error removing  " << player->getId() << " from cell " << oldParentId;
@@ -276,12 +275,12 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
             CellObject* newCell;
             newCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId));
             if (!newCell)	{
-                DLOG(info) << "Player " << player->getId() << " error casting new cell cell " << parentId;
+                DLOG(info) << "Player " << body_->getId() << " error casting new cell cell " << parentId;
                 return;
             }
 
-            BuildingObject* newBuilding = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(newCell->getParentId()));
-            gContainerManager->registerPlayerToBuilding(newBuilding,player);
+            //BuildingObject* newBuilding = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(newCell->getParentId()));
+            //gContainerManager->registerPlayerToBuilding(newBuilding,player);
 
             if(player->checkIfMounted() && player->getMount())	{
                 //Can't ride into a building with a mount! :-p
@@ -297,7 +296,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
         // put us into new cell
         
         if((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId))))	{
-            cell->AddObject(player);
+            cell->AddCreature(body_);
             // Inform tutorial about cell change.
             if (gWorldConfig->isTutorial())
             {
@@ -314,9 +313,9 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
     }
 
     // update the player
-    player->setParentId(parentId);
-    player->mDirection = dir;
-    player->mPosition  = pos;
+    body_->setParentId(parentId);
+    body_->mDirection = dir;
+    body_->mPosition  = pos;
     body_->setCurrentSpeed(speed);
 
 	gSpatialIndexManager->UpdateObject(body_);
@@ -338,7 +337,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
     if (ac != NULL)
     {
         // We do have a npc conversation going.
-        if (!gWorldManager->objectsInRange(player->getId(), (ac->getNpc())->getId(), 11.0))
+        if (!gWorldManager->objectsInRange(body_->getId(), (ac->getNpc())->getId(), 11.0))
         {
             // Terminate conversation, since we are out of range.
             gMessageLib->SendSystemMessage(std::u16string(),player,"system_msg","out_of_range");

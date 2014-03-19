@@ -66,6 +66,12 @@ public:
 
     void		prepareDestruction();
 
+	void		RemoveCreature(Object* requester, Object* oldObject);
+
+	bool		AddCreature(Object* newObject);
+
+	bool		AddCreature(Object* creature, int32_t arrangement_id);
+
 
 private:
 

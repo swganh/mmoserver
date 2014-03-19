@@ -338,7 +338,7 @@ void ObjectController::_handleAdminSetName(uint64 targetId, Message* message, Ob
 
 void ObjectController::_handleAdminTeleportTo(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject* admin = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getObject()->getId()));
+	CreatureObject* admin = dynamic_cast<CreatureObject*>(this->getObject());
 
 	if(!admin)	{	
 		LOG(error) << "ObjectController::_handleAdminTeleportTo - No Admin ?? : " << targetId;
@@ -350,7 +350,7 @@ void ObjectController::_handleAdminTeleportTo(uint64 targetId, Message* message,
 		LOG(error) << "ObjectController::_handleAdminTeleportTo - the target player couldnt be located : " << targetId;
 		std::string result("the target player couldnt be located");
 		std::u16string message_u16(result.begin(), result.end());
-		gMessageLib->SendSystemMessage(message_u16, admin);
+		gMessageLib->SendSystemMessage(message_u16, admin->GetGhost());
 		return;
 	}
 
@@ -368,13 +368,15 @@ void ObjectController::_handleAdminTeleportTo(uint64 targetId, Message* message,
 	}*/
 
 	
-    gWorldManager->warpPlanet(admin, glm::vec3(static_cast<float>(x),static_cast<float>(y),static_cast<float>(z)),0);
+    gWorldManager->warpPlanet(admin->GetGhost(), glm::vec3(static_cast<float>(x),static_cast<float>(y),static_cast<float>(z)),0);
 
 }
 
 void ObjectController::_handleAdminTeleportTarget(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject* admin = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getObject()->getId()));
+	CreatureObject* creature = dynamic_cast<CreatureObject*>(this->getObject());
+
+	PlayerObject* admin = creature->GetGhost();
 	if(!admin)	{	
 		LOG(error) << "ObjectController::_handleAdminTeleportTo - No Admin ?? : " << targetId;
 		return;
@@ -422,7 +424,9 @@ void ObjectController::_handleAdminTeleport(uint64 targetId, Message* message, O
 
 	bool is_true = regex_search(text, result, pattern);
 
-	PlayerObject* admin = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getObject()->getId()));
+	CreatureObject* creature = dynamic_cast<CreatureObject*>(this->getObject());
+
+	PlayerObject* admin = creature->GetGhost();
 
 	if(!is_true)	{	
 		std::string result("Proper usage : /teleport [optional: planet] [x] [z]");

@@ -13,7 +13,7 @@ bool CreaturePermission::canInsert(ContainerInterface* container, Object* reques
 	Object* container_object = dynamic_cast<Object*>(container);
 
 	if(container_object->getRootParent()->getObjectType() == SWG_CREATURE)	{
-		if(container_object->getRootParent() == requester->getRootParent())	{
+		if(container_object->getPermissionParent() == requester->getPermissionParent())	{
 			return true;
 		}
 	}
@@ -26,7 +26,7 @@ bool CreaturePermission::canRemove(ContainerInterface* container, Object* reques
 	Object* container_object = dynamic_cast<Object*>(container);
 
 	if(container_object->getRootParent()->getObjectType() == SWG_CREATURE)	{
-		if(container_object->getRootParent() == requester->getRootParent())	{
+		if(container_object->getPermissionParent() == requester->getPermissionParent())	{
 			return true;
 		}
 	}
@@ -39,7 +39,7 @@ bool CreaturePermission::canView(ContainerInterface* container, Object* requeste
 	Object* container_object = dynamic_cast<Object*>(container);
 
 	if(container_object->getRootParent()->getObjectType() == SWG_CREATURE)	{
-		if(container_object->getRootParent() == requester->getRootParent())	{
+		if(container_object->getPermissionParent() == requester->getPermissionParent())	{
 			return true;
 		}
 	}

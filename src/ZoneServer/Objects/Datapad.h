@@ -156,16 +156,6 @@ public:
 
     MissionList::iterator removeMission(MissionList::iterator it);
 
-    //data -- aka mounts,pets,vehicles, etc
-    DataList*		   getData() {
-        return &mData;
-    }
-    IntangibleObject*  getDataById(uint64 id);
-    bool		       addData(IntangibleObject* Data);
-    bool		       removeData(uint64 id);
-    bool		       removeData(IntangibleObject* Data);
-    DataList::iterator removeData(DataList::iterator it);
-
     // ManufacturingSchematics
     ManufacturingSchematicList*		getManufacturingSchematics() {
         return &mManufacturingSchematics;
@@ -201,7 +191,7 @@ private:
 
     ManufacturingSchematicList	mManufacturingSchematics;
     MissionList					mMissions;
-    DataList					mData;
+    //DataList					mData;
     CreatureObject*				mOwner;
     uint32						mObjectLoadCounter;
 };

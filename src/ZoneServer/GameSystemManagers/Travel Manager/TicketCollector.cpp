@@ -74,7 +74,7 @@ void TicketCollector::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 		}
 
 		// in range check for shuttle not for the droid
-        if(playerObject->getParentId() != mParentId || (glm::distance(playerObject->mPosition, mShuttle->mPosition) > 25.0f))
+		if(playerObject->GetCreature()->getParentId() != mParentId || (glm::distance(playerObject->GetCreature()->mPosition, mShuttle->mPosition) > 25.0f))
         {
             gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "boarding_too_far"), playerObject);
             return;
@@ -149,7 +149,7 @@ void TicketCollector::handleUIEvent(uint32 action,int32 element,std::u16string i
         }
 
         // in range check
-        if(playerObject->getParentId() != mParentId || (glm::distance(playerObject->mPosition, this->mPosition) > 10.0f))
+		if(playerObject->getParentId() != mParentId || (glm::distance(playerObject->GetCreature()->mPosition, this->mPosition) > 10.0f))
         {
             gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "boarding_too_far"), playerObject);
             return;

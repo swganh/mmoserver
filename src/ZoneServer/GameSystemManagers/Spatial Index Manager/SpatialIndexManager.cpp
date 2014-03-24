@@ -108,7 +108,7 @@ bool SpatialIndexManager::_AddObject(Object *newObject)
 
     for(ObjectListType::iterator i = playerList.begin(); i != playerList.end(); i++)    {
         CreatureObject* foundPlayer = static_cast<CreatureObject*>((*i));
-		sendCreateObject(newObject,foundPlayer->GetGhost(), false);
+		sendCreateObject(newObject,foundPlayer->GetGhost());
 		
 		//lets register the player as a watcher and add our children to his watch list
         if((newObject->getType() == ObjType_Creature) || (newObject->getType() == ObjType_NPC))	{
@@ -142,7 +142,7 @@ bool SpatialIndexManager::_AddObject(PlayerObject *player)
         }
 
         //the object needs to be created no matter what
-        sendCreateObject((*i), player, false);
+        sendCreateObject((*i), player);
 
 		//we only register us to creatures - NOT to buildings
         if(((*i)->getType() == ObjType_Creature) || ((*i)->getType() == ObjType_NPC))	{
@@ -157,7 +157,7 @@ bool SpatialIndexManager::_AddObject(PlayerObject *player)
 			auto ghost			= dynamic_cast<PlayerObject*>(equip_service->GetEquippedObject((*i), "ghost"));
 
             PlayerObject* otherPlayer = static_cast<PlayerObject*>(ghost);
-            sendCreateObject(player, otherPlayer, false);
+            sendCreateObject(player, otherPlayer);
 
             gContainerManager->registerPlayerToContainer(otherPlayer, player);
 			gContainerManager->registerPlayerToContainer(player, otherPlayer);
@@ -811,7 +811,7 @@ void SpatialIndexManager::_CheckObjectIterationForCreation(Object* toBeTested, O
 	if(updatedObject->getType() == ObjType_Player)	{
 		
 		CreatureObject* updatedPlayer = static_cast<CreatureObject*>(updatedObject);
-		sendCreateObject(toBeTested,updatedPlayer->GetGhost(),false);
+		sendCreateObject(toBeTested,updatedPlayer->GetGhost());
 
         if(toBeTested->getType() == ObjType_NPC || toBeTested->getType() == ObjType_Creature)	{
 			gContainerManager->registerPlayerToContainer(toBeTested, updatedPlayer->GetGhost());
@@ -820,7 +820,7 @@ void SpatialIndexManager::_CheckObjectIterationForCreation(Object* toBeTested, O
 
 	if(toBeTested->getType() == ObjType_Player)	{
 		CreatureObject* testedPlayer = static_cast<CreatureObject*> (toBeTested);
-		sendCreateObject(updatedObject,testedPlayer->GetGhost(),false);
+		sendCreateObject(updatedObject,testedPlayer->GetGhost());
         gContainerManager->registerPlayerToContainer(updatedObject, testedPlayer->GetGhost());
     }
 
@@ -922,42 +922,6 @@ void SpatialIndexManager::createInWorld(Object* object)
 
 }
 
-//======================================================================================================================
-// when creating a player and the player is in a cell we need to create all the cells contents for the player
-// cellcontent is *NOT* in the grid
-
-
-
-void SpatialIndexManager::initObjectsInRange(PlayerObject* player) {
-    uint64_t player_id = player->getParentId();
-    if (player_id == 0) {
-        return;
-    }
-
-    Object* tmp = gWorldManager->getObjectById(player_id);
-    if (tmp->getType() != ObjType_Cell) {
-        return;
-    }
-
-    CellObject* cell = static_cast<CellObject*>(tmp);
-
-    tmp = gWorldManager->getObjectById(cell->getParentId());
-    if (tmp->getType() != ObjType_Building) {
-        return;
-    }
-
-    BuildingObject* building = static_cast<BuildingObject*>(tmp);
-
-    ObjectList children = building->getAllCellChilds();
-
-    std::for_each(children.begin(), children.end(), [this, player] (Object* cell_child) {
-        if (cell_child->getType() != ObjType_Tangible) {
-            return;
-        }
-
-        sendCreateObject(cell_child, player, true);
-    });
-}
 
 //==============================================================================================================
 //
@@ -1154,7 +1118,7 @@ void SpatialIndexManager::InitializeObject(PlayerObject *player) {
             return;
         }
 
-		sendCreateObject(object, player, false);
+		sendCreateObject(object, player);
 
 		if(object->getObjectType() == SWG_BUILDING)	{
 			if(!object->checkRegisteredWatchers(player))	{
@@ -1170,7 +1134,7 @@ void SpatialIndexManager::InitializeObject(PlayerObject *player) {
 			building->ViewObjects(building, 0, false, [&] (Object* content_object) {
 				if(content_object && content_object->getType() == ObjType_Tangible) {
 					if(content_object->checkRegisteredWatchers(player))	{
-						gSpatialIndexManager->sendCreateObject(content_object, player, false);
+						gSpatialIndexManager->sendCreateObject(content_object, player);
 					}	
 				}
 			});

@@ -744,7 +744,8 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
 {
 
     PlayerObject* designObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetId));
-    PlayerObject*	imageDesigner	= dynamic_cast<PlayerObject*>(mObject);
+    CreatureObject*	imageDesigner_body	= dynamic_cast<CreatureObject*>(mObject);
+	PlayerObject*	imageDesigner	= imageDesigner_body->GetGhost();
 
     if(!designObject)
         return;
@@ -794,7 +795,7 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
         return;
     }
 
-    if(glm::distance(designObject->getWorldPosition(), imageDesigner->getWorldPosition()) > 16)
+	if(glm::distance(designObject->GetCreature()->getWorldPosition(), imageDesigner_body->getWorldPosition()) > 16)
     {
         gMessageLib->SendSystemMessage(OutOfBand("image_designer","out_of_range"), imageDesigner);
         return;

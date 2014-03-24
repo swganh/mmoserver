@@ -172,7 +172,7 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 
 	if (itemObject)
 	{
-		if(glm::distance(playerObject->getWorldPosition(), itemObject->getWorldPosition()) > 10)
+		if(glm::distance(playerObject->GetCreature()->getWorldPosition(), itemObject->getWorldPosition()) > 10)
 		{
 			gMessageLib->SendSystemMessage(std::u16string(), playerObject, "system_msg", "out_of_range");
 			return;
@@ -364,12 +364,11 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
     uint16			elements;
 
 	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(playerObject->GetCreature(), "inventory"));
+	auto inventory = dynamic_cast<Inventory*>(equip_service->GetEquippedObject(creature, "inventory"));
 
     float		purchaseRange = gWorldConfig->getConfiguration<float>("Player_TicketTerminalAccess_Distance",(float)10.0);
 
-    if(playerObject->GetCreature()->GetPosture() == CreaturePosture_SkillAnimating)
-    {
+    if(creature->GetPosture() == CreaturePosture_SkillAnimating)    {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
         return;
     }
@@ -377,16 +376,18 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 
     //however we are able to use the purchaseticket command in starports
     //without having to use a ticketvendor by just giving commandline parameters
-    //when we are *near* a ticket vendor
+    //when we are *near* a ticket vendor ... ( ... ) ...
 
     TravelTerminal* terminal = dynamic_cast<TravelTerminal*> (gWorldManager->getNearestTerminal(playerObject,TanType_TravelTerminal));
     // iterate through the results
 
-    if((!terminal)|| (glm::distance(terminal->mPosition, playerObject->mPosition) > purchaseRange))
-    {
+	if((!terminal)|| (glm::distance(terminal->mPosition, creature->mPosition) > purchaseRange))    {
         gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "too_far"), playerObject);
         return;
     }
+
+	//LOG(info) << "Player Position : " << creature->mPosition.x << " : " << creature->mPosition.z  << " - in world : " << playerObject->getWorldPosition().x << " : " <<playerObject->getWorldPosition().z;
+	//LOG(info) << "Terminal Position : " << terminal->mPosition.x << " : " << terminal->mPosition.z  <<  " - in world : " << terminal->getWorldPosition().x<< " : " << terminal->getWorldPosition().z;
 
     playerObject->setTravelPoint(terminal);
 

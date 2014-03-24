@@ -380,7 +380,7 @@ void PlayerObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8
 
         }
         // start watching
-        else if(glm::distance(playerObject->mPosition, mPosition) < 20)
+        else if(glm::distance(playerObject->GetCreature()->mPosition, mPosition) < 20)
         {
             radial->addItem(radId++,0,radId_serverPerformanceWatch,radAction_ObjCallback,"Watch");
         }
@@ -394,7 +394,7 @@ void PlayerObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8
             radial->addItem(radId++,0,radId_serverPerformanceListenStop,radAction_ObjCallback,"Stop Listening");
         }
         // start listening
-        else if(glm::distance(playerObject->mPosition, mPosition) < 20)
+        else if(glm::distance(playerObject->GetCreature()->mPosition, mPosition) < 20)
         {
             radial->addItem(radId++,0,radId_serverPerformanceListen,radAction_ObjCallback,"Listen");
 
@@ -533,8 +533,8 @@ bool PlayerObject::UpdateIdColors(BString attribute,uint16 value)
 bool PlayerObject::testCredits(uint32 amount)
 {
 	auto equipment_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory = dynamic_cast<Inventory*>(equipment_service->GetEquippedObject(this, "inventory"));
-	auto bank = dynamic_cast<Bank*>(equipment_service->GetEquippedObject(this, "bank"));
+	auto inventory = dynamic_cast<Inventory*>(equipment_service->GetEquippedObject(this->GetCreature(), "inventory"));
+	auto bank = dynamic_cast<Bank*>(equipment_service->GetEquippedObject(this->GetCreature(), "bank"));
 
     if((!bank) || (!inventory))    {
 		LOG(error) << "PlayerObject::updateCredits No Bank / Inventory for : " << this->getId();
@@ -549,7 +549,7 @@ bool PlayerObject::testCredits(uint32 amount)
 bool PlayerObject::testBank(uint32 amount)
 {
 	auto equipment_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto bank = dynamic_cast<Bank*>(equipment_service->GetEquippedObject(this, "bank"));
+	auto bank = dynamic_cast<Bank*>(equipment_service->GetEquippedObject(this->GetCreature(), "bank"));
 
     if(bank)    {
         return(amount <= bank->getCredits());
@@ -563,7 +563,7 @@ bool PlayerObject::testBank(uint32 amount)
 bool PlayerObject::testCash(uint32 amount)
 {
 	auto equipment_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory = dynamic_cast<Inventory*>(equipment_service->GetEquippedObject(this, "inventory"));
+	auto inventory = dynamic_cast<Inventory*>(equipment_service->GetEquippedObject(this->GetCreature(), "inventory"));
 
     if(inventory)    {
         return(amount <= inventory->getCredits());
@@ -577,8 +577,8 @@ bool PlayerObject::testCash(uint32 amount)
 bool PlayerObject::updateCredits(int32 amount)
 {
 	auto equipment_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory = dynamic_cast<Inventory*>(equipment_service->GetEquippedObject(this, "inventory"));
-	auto bank = dynamic_cast<Bank*>(equipment_service->GetEquippedObject(this, "bank"));
+	auto inventory = dynamic_cast<Inventory*>(equipment_service->GetEquippedObject(this->GetCreature(), "inventory"));
+	auto bank = dynamic_cast<Bank*>(equipment_service->GetEquippedObject(this->GetCreature(), "bank"));
 
     if(!bank)    {
 		LOG(error) << "PlayerObject::updateCredits No Bank for : " << this->getId();

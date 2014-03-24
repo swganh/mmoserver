@@ -104,7 +104,7 @@ bool MedicManager::Diagnose(PlayerObject* Medic, PlayerObject* Patient)
 
     float distance = gWorldConfig->getConfiguration("Player_heal_distance",(float)6.0);
 
-    if(glm::distance(Medic->mPosition, Patient->mPosition) > distance)
+	if(glm::distance(Medic->GetCreature()->mPosition, Patient->GetCreature()->mPosition) > distance)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "healing_response_b7"), Medic);
         return false;
@@ -1075,7 +1075,7 @@ bool MedicManager::CheckMedicRange(PlayerObject* Medic, PlayerObject* Target, fl
 {
     float distance = gWorldConfig->getConfiguration<float>("Player_heal_distance", healRange);
 
-    if(glm::distance(Medic->mPosition, Target->mPosition) > distance)
+	if(glm::distance(Medic->GetCreature()->mPosition, Target->GetCreature()->mPosition) > distance)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("healing", "no_line_of_sight"), Medic);
         return false;

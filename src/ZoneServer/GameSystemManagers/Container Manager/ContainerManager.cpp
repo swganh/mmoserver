@@ -294,7 +294,7 @@ void ContainerManager::initializePlayerToContainer(Object* container, PlayerObje
     
 	container->ViewObjects(player, 0, false, [&] (Object* object) {
 		if(object && (object->getId() >= 5100273716)) {
-            gSpatialIndexManager->sendCreateObject(object, player, false);
+            gSpatialIndexManager->sendCreateObject(object, player);
 			
 			// check the permission
 			if(!object->GetPermissions()->canView(object, player))	{
@@ -316,10 +316,13 @@ void ContainerManager::registerPlayerToContainer(Object* container, PlayerObject
 		return;
     }
 	//DLOG(info) << "SpatialIndexManager::registerPlayerToContainer :: player " << player->getId() << " succesfully registered to container " << container->getId();
+
+	gSpatialIndexManager->sendCreateObject(container, player);
     
 	container->ViewObjects(player, 0, false, [&] (Object* object) {
         if(object && (object->getId() >= 5100273716)) {
-            gSpatialIndexManager->sendCreateObject(object, player, false);
+			registerPlayerToContainer(object, player);
+            //gSpatialIndexManager->sendCreateObject(object, player, false);
 
 			// check the permission
 			if(!object->GetPermissions()->canView(object, player))	{
@@ -392,7 +395,7 @@ void ContainerManager::createObjectToRegisteredPlayers(Object* container,Object*
     }
 
     sendToRegisteredWatchers(container, [this, object] (PlayerObject* const recipient) {
-        gSpatialIndexManager->sendCreateObject(object, recipient, false);
+        gSpatialIndexManager->sendCreateObject(object, recipient);
 
         //the registered object likely is a container in itself
         registerPlayerToContainer(object, recipient);
@@ -475,7 +478,7 @@ void ContainerManager::updateObjectPlayerRegistrations(Object* newContainer, Obj
     sendToRegisteredWatchers(newContainer, [=] (PlayerObject* const recipient) {
         if (!oldContainer->checkRegisteredWatchers(recipient)) {
             DLOG(info) << "SpatialIndexManager::updateObjectPlayerRegistrations :: player" << recipient->getId() << " added - create";
-            gSpatialIndexManager->sendCreateObject(object, recipient, false);
+            gSpatialIndexManager->sendCreateObject(object, recipient);
 
             //the registered object likely is a container in itself
             registerPlayerToContainer(object,recipient);

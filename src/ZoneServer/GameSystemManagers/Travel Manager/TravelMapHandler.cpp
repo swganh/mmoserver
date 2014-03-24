@@ -268,7 +268,10 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,swganh::database::Dat
 
 void TravelMapHandler::_processTutorialTravelList(Message* message, DispatchClient* client)
 {
-    PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(message->getUint64()));
+    
+	CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(message->getUint64()));
+    
+	PlayerObject* player = creature->GetGhost();
 
 
     //Why do we do this? Because I spent 2 days trying to get it work to discover it was call order.
@@ -295,101 +298,103 @@ void TravelMapHandler::_processTutorialTravelList(Message* message, DispatchClie
 
 void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchClient* client)
 {
-    PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(message->getUint64()));
+	CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(message->getUint64()));
+    
+	PlayerObject* playerObject = creature->GetGhost();	//dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(message->getUint64()));
+	if(!creature ||(! playerObject->isConnected()))	{
+		DLOG(info) << "TravelMapHandler::_processTravelListRequest: Couldnt find player for " << client->getAccountId();
+		return;
+	}
 
-    if(playerObject != NULL && playerObject->isConnected())
+    // we need to know where we query from
+    TravelTerminal* terminal = playerObject->getTravelPoint();
+
+    if(terminal == NULL)
     {
-        // we need to know where we query from
-        TravelTerminal* terminal = playerObject->getTravelPoint();
-
-        if(terminal == NULL)
-        {
-            DLOG(info) << "TravelMapHandler::_processTravelListRequest: No TravelPosition set, player "<<playerObject->getId();
-            return;
-        }
-
-        std::string requestedPlanet = message->getStringAnsi();
-
-        // find our planetId
-        uint8 planetId = gWorldManager->getPlanetIdByName(requestedPlanet);
-
-        char	queryPoint[64];
-        TravelPoint* qP = NULL;
-
-        // get our query point
-        strcpy(queryPoint,(playerObject->getTravelPoint())->getPosDescriptor().getAnsi());
-
-        TravelPointList::iterator it = mTravelPoints[mZoneId].begin();
-        TravelPointList::iterator end = mTravelPoints[mZoneId].end();
-        while(it != end)
-        {
-            TravelPoint* tp = (*it);
-
-            if(strcmp(queryPoint,tp->descriptor) == 0)
-            {
-                qP = tp;
-                break;
-            }
-            ++it;
-        }
-
-        TravelPointList printListing;
-        it = mTravelPoints[planetId].begin();
-        end = mTravelPoints[planetId].end();
-
-        while(it != end)
-        {
-            // If the requested planet list is not the planet of the current zone
-            // then only list it if the origin is a starport and the destination is a starport.
-            if((mZoneId != planetId && qP->portType == 1 && (*it)->portType == 1) ||
-                    mZoneId == planetId) // Show all starports/shuttleports on this planet.
-            {
-                printListing.push_back((*it));
-            }
-            ++it;
-        }
-
-        //Build our message.
-        gMessageFactory->StartMessage();
-        gMessageFactory->addUint32(opPlanetTravelPointListResponse);
-        gMessageFactory->addString(requestedPlanet);
-
-        end = printListing.end();
-        gMessageFactory->addUint32(printListing.size());
-        for(it = printListing.begin(); it != end; ++it)
-        {
-            gMessageFactory->addString((*it)->descriptor);
-        }
-
-        gMessageFactory->addUint32(printListing.size());
-        for(it = printListing.begin(); it != end; ++it)
-        {
-            gMessageFactory->addFloat((*it)->x);
-            gMessageFactory->addFloat((*it)->y);
-            gMessageFactory->addFloat((*it)->z);
-        }
-
-        gMessageFactory->addUint32(printListing.size());
-        for(it = printListing.begin(); it != end; ++it)
-        {
-            gMessageFactory->addUint32((*it)->taxes);
-        }
-
-        gMessageFactory->addUint32(printListing.size());
-        for(it = printListing.begin(); it != end; ++it)
-        {
-            // If it's a starport send a 1, otherwise shuttleports are set to 0
-            if ((*it)->portType == portType_Starport) {
-                gMessageFactory->addUint8(1);
-            } else {
-                gMessageFactory->addUint8(0);
-            }
-        }
-
-        playerObject->getClient()->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
+        DLOG(info) << "TravelMapHandler::_processTravelListRequest: No TravelPosition set, player "<<playerObject->getId();
+        return;
     }
-    else
-        DLOG(info) << "TravelMapHandler::_processTravelListRequest: Couldnt find player for " << client->getAccountId();
+
+    std::string requestedPlanet = message->getStringAnsi();
+
+    // find our planetId
+    uint8 planetId = gWorldManager->getPlanetIdByName(requestedPlanet);
+
+    char	queryPoint[64];
+    TravelPoint* qP = NULL;
+
+    // get our query point
+    strcpy(queryPoint,(playerObject->getTravelPoint())->getPosDescriptor().getAnsi());
+
+    TravelPointList::iterator it = mTravelPoints[mZoneId].begin();
+    TravelPointList::iterator end = mTravelPoints[mZoneId].end();
+    while(it != end)
+    {
+        TravelPoint* tp = (*it);
+
+        if(strcmp(queryPoint,tp->descriptor) == 0)
+        {
+            qP = tp;
+            break;
+        }
+        ++it;
+    }
+
+    TravelPointList printListing;
+    it = mTravelPoints[planetId].begin();
+    end = mTravelPoints[planetId].end();
+
+    while(it != end)
+    {
+        // If the requested planet list is not the planet of the current zone
+        // then only list it if the origin is a starport and the destination is a starport.
+        if((mZoneId != planetId && qP->portType == 1 && (*it)->portType == 1) ||
+                mZoneId == planetId) // Show all starports/shuttleports on this planet.
+        {
+            printListing.push_back((*it));
+        }
+        ++it;
+    }
+
+    //Build our message.
+    gMessageFactory->StartMessage();
+    gMessageFactory->addUint32(opPlanetTravelPointListResponse);
+    gMessageFactory->addString(requestedPlanet);
+
+    end = printListing.end();
+    gMessageFactory->addUint32(printListing.size());
+    for(it = printListing.begin(); it != end; ++it)
+    {
+        gMessageFactory->addString((*it)->descriptor);
+    }
+
+    gMessageFactory->addUint32(printListing.size());
+    for(it = printListing.begin(); it != end; ++it)
+    {
+        gMessageFactory->addFloat((*it)->x);
+        gMessageFactory->addFloat((*it)->y);
+        gMessageFactory->addFloat((*it)->z);
+    }
+
+    gMessageFactory->addUint32(printListing.size());
+    for(it = printListing.begin(); it != end; ++it)
+    {
+        gMessageFactory->addUint32((*it)->taxes);
+    }
+
+    gMessageFactory->addUint32(printListing.size());
+    for(it = printListing.begin(); it != end; ++it)
+    {
+        // If it's a starport send a 1, otherwise shuttleports are set to 0
+        if ((*it)->portType == portType_Starport) {
+            gMessageFactory->addUint8(1);
+        } else {
+            gMessageFactory->addUint8(0);
+        }
+    }
+
+    playerObject->getClient()->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
+       
 }
 
 //=======================================================================================================================
@@ -471,7 +476,9 @@ bool TravelMapHandler::findTicket(PlayerObject* player, BString port)
 {
     uint32	zoneId = gWorldManager->getZoneId();
 
-	auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player, "inventory");
+	CreatureObject* body = player->GetCreature();
+
+	auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(body, "inventory");
 	bool found = false;
 	inventory->ViewObjects(player, 0, true, [&] (Object* object) {
 
@@ -498,7 +505,9 @@ void TravelMapHandler::createTicketSelectMenu(PlayerObject* player, Shuttle* shu
     StringVector	availableTickets;
     uint32			zoneId = gWorldManager->getZoneId();
 
-	auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player, "inventory");
+	CreatureObject* body = player->GetCreature();
+
+	auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(body, "inventory");
 	inventory->ViewObjects(player, 0, true, [&] (Object* object) {
     
         TravelTicket* ticket = dynamic_cast<TravelTicket*>(object);
@@ -529,6 +538,8 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,std::u16string 
         PlayerObject*			player			= window->getOwner();
         UITicketSelectListBox*	listBox			= dynamic_cast<UITicketSelectListBox*>(window);
 
+		CreatureObject* body = player->GetCreature();
+
         if(player->getSurveyState() || player->getSamplingState() || !listBox)
             return;
 
@@ -545,14 +556,14 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,std::u16string 
             return;
         }
 
-        if((player->getParentId() != shuttle->getParentId()) || (glm::distance(player->mPosition, shuttle->mPosition) > 25.0f))
+        if((player->getParentId() != shuttle->getParentId()) || (glm::distance(player->GetCreature()->mPosition, shuttle->mPosition) > 25.0f))
         {
             gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "boarding_too_far"), player);
 
             return;
         }
 
-        auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player, "inventory");
+        auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(body, "inventory");
 		inventory->ViewObjects(player, 0, true, [&] (Object* object) {
             TravelTicket* ticket = dynamic_cast<TravelTicket*>(object);
             if(ticket)
@@ -604,9 +615,10 @@ void TravelMapHandler::useTicket(PlayerObject* player, TravelTicket* ticket,Shut
 {
     uint32	zoneId = gWorldManager->getZoneId();
 
+	CreatureObject* body = player->GetCreature();
+
     // in range check
-    if(player->getParentId() !=  shuttle->getParentId())
-    {
+    if(body->getParentId() !=  shuttle->getParentId())    {
         gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "shuttle_not_available"), player);
         return;
     }

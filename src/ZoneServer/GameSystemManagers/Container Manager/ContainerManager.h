@@ -122,11 +122,7 @@ public:
 	void					registerPlayerToBuilding(BuildingObject* building,PlayerObject* player);
 	void					unRegisterPlayerFromBuilding(BuildingObject* building,PlayerObject* player);
 
-	//======================================================================================================================
-	// when creating a player and the player is in a cell we need to create all the cells contents for the player
-	// cellcontent is *NOT* in the grid
-	void					initObjectsInRange(PlayerObject* playerObject);
-
+	
 	
 private:
 	ContainerManager();

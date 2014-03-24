@@ -60,7 +60,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //
 // send the matching object creates
 //
-bool SpatialIndexManager::sendCreateObject(Object* object,PlayerObject* player, bool sendSelftoTarget)
+bool SpatialIndexManager::sendCreateObject(Object* object,PlayerObject* player)
 {
     //DLOG(info) << "SpatialIndexManager::sendCreateObject: create :" << object->getId() << "for :" << player->getId();
 	
@@ -102,13 +102,7 @@ bool SpatialIndexManager::sendCreateObject(Object* object,PlayerObject* player, 
     case ObjType_Player:
     {
         // send creates to each other
-        if(PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(object))
-        {
-            if(sendSelftoTarget)
-            {
-                sendCreatePlayer(player,targetPlayer);
-            }
-
+        if(PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(object))        {
             sendCreatePlayer(targetPlayer,player);
         }
     }

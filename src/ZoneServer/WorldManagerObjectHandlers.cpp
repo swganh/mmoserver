@@ -373,7 +373,7 @@ void WorldManager::destroyObject(Object* object)
 					if(building && building->getBuildingFamily() == BuildingFamily_Cloning_Facility)
 					{
 						if(!nearestBuilding
-							|| (nearestBuilding != building && (glm::distance(player->getWorldPosition(), building->mPosition) < glm::distance(player->getWorldPosition(), nearestBuilding->mPosition))))
+							|| (nearestBuilding != building && (glm::distance(player->GetCreature()->getWorldPosition(), building->mPosition) < glm::distance(player->GetCreature()->getWorldPosition(), nearestBuilding->mPosition))))
 						{
 							nearestBuilding = building;
 						}
@@ -701,7 +701,7 @@ Object* WorldManager::getNearestTerminal(PlayerObject* player, TangibleType term
 	ObjectSet		inRangeObjects;
 
 	//gets all terminals in range even those in building
-	gSpatialIndexManager->getObjectsInRange(player,&inRangeObjects,(ObjType_Tangible),searchrange,true);
+	gSpatialIndexManager->getObjectsInRange(player->GetCreature(),&inRangeObjects,(ObjType_Tangible),searchrange,true);
     
     ObjectSet::iterator it = inRangeObjects.begin();
 
@@ -713,7 +713,7 @@ Object* WorldManager::getNearestTerminal(PlayerObject* player, TangibleType term
 		Terminal* terminal = dynamic_cast<Terminal*> (*it);
 		if(terminal&&(terminal->getTangibleType() == terminalType))
 		{
-            float nr = glm::distance(terminal->getWorldPosition(), player->getWorldPosition());
+			float nr = glm::distance(terminal->getWorldPosition(), player->GetCreature()->getWorldPosition());
 			
 			//double check the distance
 			if((nearestTerminal && (nr < range ))||(!nearestTerminal))

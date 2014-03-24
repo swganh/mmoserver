@@ -615,7 +615,7 @@ void MissionManager::missionCompleteEntertainer(PlayerObject* player,Buff* timer
             if(mission->getMissionType() == dancer || mission->getMissionType() == musician)
             {
                 //if(mission->getEntertainingTimer() != timer) { ++it; continue; } //check to see if this is the mission who's timer is expiring
-                if(glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
+                if(glm::distance(player->GetCreature()->mPosition, mission->getDestination().Coordinates) < 20)
                 {
                     missionComplete(player,mission);
                     datapad->removeMission(mission);
@@ -721,7 +721,7 @@ void MissionManager::missionFailedEntertainer(PlayerObject* player)
                     ++it;
                     continue;
                 }
-                if(glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
+                if(glm::distance(player->GetCreature()->mPosition, mission->getDestination().Coordinates) < 20)
                 {
                     missionFailed(player,mission);
                     it = datapad->removeMission(it);
@@ -814,7 +814,7 @@ void MissionManager::checkMusicianMission(PlayerObject* player)
                     continue;
                 }
 
-                if(glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
+				if(glm::distance(player->GetCreature()->mPosition, mission->getDestination().Coordinates) < 20)
                 {
                     BuffAttribute* performance_timer = new BuffAttribute(time_remaining, 0,0,0);
                     Buff* timer = Buff::SimpleBuff(player->GetCreature(), player->GetCreature(), 60000, 0, gWorldManager->GetCurrentGlobalTick());
@@ -847,7 +847,7 @@ void MissionManager::checkDancerMission(PlayerObject* player)
                     ++it;
                     continue;
                 }
-                if(glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
+				if(glm::distance(player->GetCreature()->mPosition, mission->getDestination().Coordinates) < 20)
                 {
                     BuffAttribute* performance_timer = new BuffAttribute(time_remaining, 0,0,0);
                     Buff* timer = Buff::SimpleBuff(player->GetCreature(), player->GetCreature(), 600000, 0, gWorldManager->GetCurrentGlobalTick());

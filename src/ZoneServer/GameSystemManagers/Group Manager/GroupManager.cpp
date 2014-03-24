@@ -569,7 +569,7 @@ void GroupManager::_processIsmGroupInviteInRangeRequest(Message *message, Dispat
         return;
     }
 
-    if (glm::distance(sender->getWorldPosition(), target->getWorldPosition()) < 90)
+	if (glm::distance(sender->GetCreature()->getWorldPosition(), target->GetCreature()->getWorldPosition()) < 90)
     {
         gMessageLib->sendIsmGroupInviteInRangeResponse(sender, target, true);
     }

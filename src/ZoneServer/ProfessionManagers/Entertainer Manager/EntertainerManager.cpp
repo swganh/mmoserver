@@ -1443,6 +1443,9 @@ void EntertainerManager::CheckDistances(PlayerObject* entertainer)
 {
     //iterate through the audience
 
+	CreatureObject* entertainer_body = entertainer->GetCreature();
+	
+
     if(!entertainer->getAudienceList())
     {
         DLOG(info) << "CheckDistances(PlayerObject* entertainer) getAudienceList does not exist !!!!!";
@@ -1456,11 +1459,11 @@ void EntertainerManager::CheckDistances(PlayerObject* entertainer)
     {
         //are we in range?
         PlayerObject* audience = dynamic_cast<PlayerObject*> (gWorldManager->getObjectById((*it)));
-        if(audience)
-        {
-            if(glm::distance(entertainer->mPosition, audience->mPosition) > 60)
+        if(audience)        {
+			CreatureObject* audience_body = audience->GetCreature();
+            if(glm::distance(entertainer_body->mPosition, audience_body->mPosition) > 60)
             {
-                if(entertainer->GetCreature()->getPerformingState() == PlayerPerformance_Dance)
+                if(entertainer_body->getPerformingState() == PlayerPerformance_Dance)
                 {
                     stopWatching(audience,true);
                 }
@@ -1720,7 +1723,7 @@ void EntertainerManager::startListening(PlayerObject* audience, PlayerObject* en
     }
 
     //is the entertainer near enough???
-    if(glm::distance(entertainer->mPosition, audience->mPosition) > 60)
+	if(glm::distance(entertainer->GetCreature()->mPosition, audience->GetCreature()->mPosition) > 60)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_fail"), audience);
         return;
@@ -1820,7 +1823,7 @@ void EntertainerManager::startWatching(PlayerObject* audience, PlayerObject* ent
 
     //is the entertainer near enough???
     //TODO range configureable ??
-    if(glm::distance(entertainer->mPosition, audience->mPosition) > 60)
+	if(glm::distance(entertainer->GetCreature()->mPosition, audience->GetCreature()->mPosition) > 60)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "dance_fail"), audience);
         return;

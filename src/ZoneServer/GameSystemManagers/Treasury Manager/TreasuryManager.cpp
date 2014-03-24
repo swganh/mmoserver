@@ -430,7 +430,7 @@ void TreasuryManager::inventoryTipOnline(uint32 amount, PlayerObject* playerObje
         return;
     }
 
-    if( glm::distance(playerObject->mPosition, targetObject->mPosition) > 10.0)
+    if( glm::distance(playerObject->GetCreature()->mPosition, targetObject->mPosition) > 10.0)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_tip_range", 0, targetObject->getId(), 0, amount), playerObject);
         return;

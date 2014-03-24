@@ -349,7 +349,7 @@ void ObjectController::_handleLoot(uint64 targetId, Message *message, ObjectCont
        MissionObject* mission = dynamic_cast<MissionObject*>(*it);
        if(mission->getMissionType() != destroy) { ++it; continue; }
 
-       if (glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
+       if (glm::distance(player->GetCreature()->mPosition, mission->getDestination().Coordinates) < 20)
        {
 		/*MissionList::iterator it = datapad->getMissions()->begin();
 		while(it != datapad->getMissions()->end())

@@ -529,9 +529,11 @@ bool	ArtisanManager::setupSampleEvent(PlayerObject* player, CurrentResource* res
 }
 bool	ArtisanManager::setupForNodeSampleRecovery(PlayerObject* player)
 {
+	CreatureObject* body = player->GetCreature();
+
     glm::vec2 playerPos;
-    playerPos.x = player->mPosition.x;
-    playerPos.y = player->mPosition.z;
+    playerPos.x = body->mPosition.x;
+    playerPos.y = body->mPosition.z;
     glm::vec2 nodePos;
     nodePos.x = player->getSampleData()->Position.x;
     nodePos.y = player->getSampleData()->Position.z;

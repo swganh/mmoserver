@@ -127,10 +127,7 @@ class SpatialIndexManager
 
 		void					sendToChatRange(Object* container, std::function<void (PlayerObject* const player)> callback);
         
-		//======================================================================================================================
-		// when creating a player and the player is in a cell we need to create all the cells contents for the player
-		// cellcontent is *NOT* in the grid
-		void					initObjectsInRange(PlayerObject* playerObject);
+		
 
 		//cave performs a range check
 		void					getObjectsInRange(const Object* const object,ObjectSet* resultSet,uint32 objTypes,float range, bool cellContent);
@@ -143,7 +140,7 @@ class SpatialIndexManager
 
 
 		//Messaging Services
-		bool					sendCreateObject(Object* object,PlayerObject* player,bool sendSelftoTarget);
+		bool					sendCreateObject(Object* object,PlayerObject* player);
 		bool					sendCreateTangible(TangibleObject* tangibleObject,PlayerObject* targetObject, bool sendchildren = true);
 		void					sendCreateTangible(TangibleObject* tangibleObject, ObjectList*	knownPlayers, bool sendchildren = true);
 		bool					sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targetObject);

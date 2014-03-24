@@ -50,9 +50,11 @@ void TravelTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
 	if(messageType == radId_itemUse)
 	{
-		PlayerObject* playerObject = dynamic_cast<PlayerObject*>(srcObject);
+		PlayerObject* player = dynamic_cast<PlayerObject*>(srcObject);
 
-		if(!playerObject || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->GetCreature()->isIncapacitated() || playerObject->GetCreature()->isDead() || playerObject->GetCreature()->states.checkState(CreatureState_Combat))
+		CreatureObject* body = player->GetCreature();
+
+		if(!player || !player->isConnected() || player->getSamplingState() || body->isIncapacitated() || body->isDead() || body->states.checkState(CreatureState_Combat))
 		{
 			return;
 		}
@@ -66,7 +68,7 @@ void TravelTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 			#endif
 			{
 				// This is the Travel Terminal in the tutorial.
-				Tutorial* tutorial = playerObject->getTutorial();
+				Tutorial* tutorial = player->getTutorial();
 
 				// We will not display this when tutorial is in state 26 or above.
 				if (tutorial->getSubState() < 26)
@@ -89,18 +91,18 @@ void TravelTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 			else if (this->getId() == 4294968331LLU)
 			#endif
 			{
-				Tutorial* tutorial = playerObject->getTutorial();
+				Tutorial* tutorial = player->getTutorial();
 				tutorial->sendStartingLocationList();
 			}
 		}
 		else
 		{
 			// set the players current position, needed for handling the travelpointlistrequest
-			playerObject->setTravelPoint(this);
+			player->setTravelPoint(this);
 
 			// bring up the terminal window
 			//gMessageLib->sendHeartBeat(playerObject->getClient());
-			gMessageLib->sendEnterTicketPurchaseModeMessage(this,playerObject);
+			gMessageLib->sendEnterTicketPurchaseModeMessage(this,player);
 		}
 	}
 	else

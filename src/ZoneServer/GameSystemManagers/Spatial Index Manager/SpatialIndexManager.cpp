@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cassert>
 #include <algorithm>
 
+#include "ZoneServer\Objects\permissions\container_permissions_interface.h"
+
 #include "ZoneServer/GameSystemManagers/Spatial Index Manager/SpatialIndexManager.h"
 #include "ZoneServer/GameSystemManagers/Structure Manager/BuildingObject.h"
 #include "ZoneServer/GameSystemManagers/Structure Manager/CellObject.h"
@@ -855,8 +857,11 @@ void SpatialIndexManager::createInWorld(CreatureObject* creature)
 
 void SpatialIndexManager::createInWorld(PlayerObject* player)
 {
+
     //just create in the SI - it will keep track of nearby players
     this->_AddObject(player);
+
+	LOG(info) << "SpatialIndexManager::createInWorld player : " << player->getId();
 
     //are we in a cell? otherwise bail out
     if(player->getParentId() == 0)	{
@@ -875,25 +880,39 @@ void SpatialIndexManager::createInWorld(PlayerObject* player)
         return;
     }
 
-    //we *should* already be registered as known watcher to the building
-
-    //add the Creature to the cell we are in
-	if(!cell->AddCreature(player->GetCreature()))	{
-		//if we are thrown out (building now private or whatever)
+	if(!building->GetPermissions()->canInsert(building, player, player))	{
+		LOG (info) << "SpatialIndexManager::createInWorld FAILED  add player : " << player->getId() << " to " << building->getId();
 		player->GetCreature()->mPosition = building->mPosition;
 		player->GetCreature()->mPosition.x += 10;
 		player->GetCreature()->setParentId(0);
 		this->UpdateObject(player->GetCreature());
+		// in this case we need to create ourselves
+		//this->sendCreatePlayer(player,player);
+		
 		return;
 	}
 
-    //iterate through all the cells and add the player as listener
-	building->ViewObjects(player, 0, false, [&](Object* object){
-		if(object->getId() != player->GetCreature()->getId())	{
-			LOG(info) << "SpatialIndexManager::createInWorld object : " << object->GetTemplate();
-			gContainerManager->registerPlayerToContainer(object, player);
+	//iterate through all the children and add the player as listener
+	building->ViewObjects(player, 0, true, [&](Object* object)	{
+		LOG(info) << "SpatialIndexManager::createInWorld object : " << object->getId() << " : " << object->GetTemplate();
+			
+		if (!object->registerWatcher(player))	{
+			DLOG(info) << "SpatialIndexManager::registerPlayerToContainer :: Container " << object->getId() << " already known to player" << player->getId();
+			return;
 		}
+			
+		//DLOG(info) << "SpatialIndexManager::registerPlayerToContainer :: player " << player->getId() << " succesfully registered to container " << container->getId();
+		//no need to create statics
+		if(object && (object->getId() >= 510027371)) {
+		//								 4294967384
+			sendCreateObject(object, player);
+		}		
+		
 	});
+
+    //add the player to the cell he/she is in
+	cell->AddCreature(player->GetCreature());    
+
     
 }
 

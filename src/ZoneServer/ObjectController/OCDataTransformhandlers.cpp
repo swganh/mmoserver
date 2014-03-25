@@ -112,7 +112,8 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 
     // if we just left a building
     // note that we remain in the grid at the worldposition
-    if(body_->getParentId() != 0)
+	//the buildings content remains known until the building leaves range
+    if(body_->getParentId() != 0 && (!player_->checkIfMounted()) )
     {
 
         // remove us from the last cell we were in
@@ -279,8 +280,8 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
                 return;
             }
 
-            //BuildingObject* newBuilding = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(newCell->getParentId()));
-            //gContainerManager->registerPlayerToBuilding(newBuilding,player);
+            BuildingObject* newBuilding = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(newCell->getParentId()));
+            gContainerManager->registerPlayerToBuilding(newBuilding,player);
 
             if(player->checkIfMounted() && player->getMount())	{
                 //Can't ride into a building with a mount! :-p
@@ -297,7 +298,8 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
         
         if((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId))))	{
             cell->AddCreature(body_);
-            // Inform tutorial about cell change.
+            
+			// Inform tutorial about cell change.
             if (gWorldConfig->isTutorial())
             {
                 player->getTutorial()->setCellId(parentId);

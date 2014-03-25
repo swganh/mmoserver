@@ -479,7 +479,7 @@ bool TravelMapHandler::findTicket(PlayerObject* player, BString port)
 	CreatureObject* body = player->GetCreature();
 
 	auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(body, "inventory");
-	bool found = false;
+	bool found = true;
 	inventory->ViewObjects(player, 0, true, [&] (Object* object) {
 
         TravelTicket* ticket = dynamic_cast<TravelTicket*>(object);
@@ -556,14 +556,18 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,std::u16string 
             return;
         }
 
-        if((player->getParentId() != shuttle->getParentId()) || (glm::distance(player->GetCreature()->mPosition, shuttle->mPosition) > 25.0f))
-        {
+        if((body->getParentId() != shuttle->getParentId()) || (glm::distance(body->mPosition, shuttle->mPosition) > 25.0f))        {
             gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "boarding_too_far"), player);
 
             return;
         }
 
         auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(body, "inventory");
+		
+		TravelTicket* selected_ticket = nullptr;
+		glm::vec3 destination;
+		uint16 dstPlanetId;
+		
 		inventory->ViewObjects(player, 0, true, [&] (Object* object) {
             TravelTicket* ticket = dynamic_cast<TravelTicket*>(object);
             if(ticket)
@@ -571,41 +575,47 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,std::u16string 
                 BString srcPoint		= (int8*)((ticket->getAttribute<std::string>("travel_departure_point")).c_str());
                 std::string dstPointStr	= ticket->getAttribute<std::string>("travel_arrival_point");
                 uint16 srcPlanetId	= static_cast<uint8>(gWorldManager->getPlanetIdByName(ticket->getAttribute<std::string>("travel_departure_planet")));
-                uint16 dstPlanetId	= static_cast<uint8>(gWorldManager->getPlanetIdByName(ticket->getAttribute<std::string>("travel_arrival_planet")));
+                dstPlanetId	= static_cast<uint8>(gWorldManager->getPlanetIdByName(ticket->getAttribute<std::string>("travel_arrival_planet")));
 
                 StringVector* items = (dynamic_cast<UIListBox*>(window))->getDataItems();
                 std::string selectedDst = items->at(element);
 
-				if(srcPlanetId == zoneId && (strcmp(dstPointStr.c_str(),selectedDst.c_str()) == 0)&&(strcmp(srcPoint.getAnsi(),listBox->getPort().getAnsi()) == 0))
-                {
-                    TravelPoint* dstPoint = getTravelPoint(dstPlanetId,dstPointStr);
+				if(srcPlanetId == zoneId && (strcmp(dstPointStr.c_str(),selectedDst.c_str()) == 0)&&(strcmp(srcPoint.getAnsi(),listBox->getPort().getAnsi()) == 0))                {
+                
+					TravelPoint* dstPoint = getTravelPoint(dstPlanetId,dstPointStr);
 
-                    if(dstPoint != NULL)
-                    {
-                        glm::vec3 destination;
-                        destination.x = dstPoint->spawnX + (gRandom->getRand()%5 - 2);
-                        destination.y = dstPoint->spawnY;
-                        destination.z = dstPoint->spawnZ + (gRandom->getRand()%5 - 2);
+                    if(dstPoint != NULL)                    {
 
-                        // If it's on this planet, then just warp, otherwize zone
-                        if(dstPlanetId == zoneId)
-                        {
-                            // only delete the ticket if we are warping on this planet.
-							TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ticket->getParentId()));
-							gContainerManager->deleteObject(ticket, tO);
-
-							gWorldManager->warpPlanet(player,destination,0);
-                        }
-                        else
-                        {
-                            gMessageLib->sendClusterZoneTransferRequestByTicket(player,ticket->getId(), dstPoint->planetId);
-                        }
+						selected_ticket = ticket;
+						destination.x = dstPoint->spawnX + (gRandom->getRand()%5 - 2);
+						destination.y = dstPoint->spawnY;
+						destination.z = dstPoint->spawnZ + (gRandom->getRand()%5 - 2);
+                        
                     }
                     return;
                 }
             }
           
         });
+
+		if(!selected_ticket)	{
+			return;
+		}
+
+        // If it's on this planet, then just warp, otherwize zone
+        if(dstPlanetId == zoneId)
+        {
+            // only delete the ticket if we are warping on this planet.
+			TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(selected_ticket->getParentId()));
+			gContainerManager->deleteObject(selected_ticket, tO);
+
+			gWorldManager->warpPlanet(player,destination,0);
+        }
+        else
+        {
+            gMessageLib->sendClusterZoneTransferRequestByTicket(player,selected_ticket->getId(), dstPlanetId);
+        }
+
     }
 }
 

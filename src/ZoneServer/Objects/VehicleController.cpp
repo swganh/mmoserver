@@ -29,10 +29,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/Objects/Creature Object/CreatureObject.h"
 #include "Zoneserver/objects/IntangibleObject.h"
 #include "Zoneserver/Objects/Player Object/PlayerObject.h"
+#include "ZoneServer\Objects\Object\ObjectManager.h"
+
 #include "Zoneserver/GameSystemManagers/State Manager/StateManager.h"
 #include "ZoneServer/Objects/MountObject.h"
 #include "ZoneServer/WorldManager.h"
 #include "MessageLib/MessageLib.h"
+
 
 #include <anh\app\swganh_kernel.h>
 #include <anh\service/service_manager.h>
@@ -187,6 +190,8 @@ void VehicleController::Call() {
     body_->moveForward(2);
 	
 	auto terrain = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::terrain::TerrainService>("TerrainService");
+
+	gObjectManager->LoadSlotsForObject(body_);
 	
 	body_->mPosition.y =	terrain->GetHeight(gWorldManager->getZoneId(), body_->mPosition.x,body_->mPosition.z) + 0.5;
 
@@ -266,6 +271,7 @@ void VehicleController::DismountPlayer() {
     }
 
 	PlayerObject* owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(owner_));
+	CreatureObject*		owner_creature = owner->GetCreature();
 
     if(!owner->checkIfMounted()) {
         LOG(error) << "Vehicle::DismountPlayer() no vehicle body!";
@@ -273,16 +279,16 @@ void VehicleController::DismountPlayer() {
     }
 
     //For safe measures make the player equipped by nothing
-	body_->RemoveObject(owner, owner);
-	gMessageLib->sendContainmentMessage_InRange(owner->getId(), owner->getParentId(), owner->GetArrangementId(), owner);
+	body_->RemoveObject(owner, owner_creature);
+	gMessageLib->sendContainmentMessage_InRange(owner_creature->getId(), 0, owner_creature->GetArrangementId(), owner_creature);
 	gMessageLib->sendUpdateTransformMessage(body_);
 
     // TODO: make this more automatic...
-    gStateManager.removeActionState(owner->GetCreature(), CreatureState_RidingMount);   
+    gStateManager.removeActionState(owner_creature, CreatureState_RidingMount);   
     gStateManager.removeActionState(body_, CreatureState_MountedCreature);   
 
     owner->setMounted(false);
-    gMessageLib->sendPostureAndStateUpdate(owner->GetCreature());  
+    gMessageLib->sendPostureAndStateUpdate(owner_creature);  
     gMessageLib->sendUpdateMovementProperties(owner);
 }
 
@@ -297,18 +303,25 @@ void VehicleController::MountPlayer()
         return;
     }
 	
-	PlayerObject* owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(owner_));
+	PlayerObject*		owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(owner_));
+	CreatureObject*		owner_creature = owner->GetCreature();
     
 	//Make the mount equip the player
-	body_->AddObject(owner);
-	gMessageLib->sendContainmentMessage_InRange(owner->getId(), body_->getId(), owner->GetArrangementId(), owner);
+	body_->AddObject(owner_creature);
+	//thats currently somewhat of a hack as addobject sets the objects parent id
+	//this currently upsets the spatial index code as it thinks the swoop might be a cell
+	//and getrootparent breaks everything as it tries to calculate the lokation relative to the swoop
+	//this needs to be ironed out somehow
+	owner_creature->setParentId(0);
+	LOG(info) << "VehicleController::MountPlayer : arrangement " << owner->GetArrangementId();
+	gMessageLib->sendContainmentMessage_InRange(owner_creature->getId(), body_->getId(), owner_creature->GetArrangementId(), owner_creature);
     gMessageLib->sendUpdateTransformMessage(body_);
   
     body_->states.toggleActionOn(CreatureState_MountedCreature);
     gMessageLib->sendStateUpdate(body_);
 
-    gStateManager.setCurrentActionState(owner->GetCreature(),CreatureState_RidingMount);
-	gMessageLib->sendStateUpdate(owner->GetCreature());
+    gStateManager.setCurrentActionState(owner_creature,CreatureState_RidingMount);
+	gMessageLib->sendStateUpdate(owner_creature);
     //gStateManager.setCurrentPostureState(owner_,CreaturePosture_DrivingVehicle);
     //gStateManager.setCurrentLocomotionState(owner_,CreatureLocomotion_DrivingVehicle);
 

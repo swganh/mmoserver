@@ -41,7 +41,7 @@ MountObject::MountObject()
 
 void MountObject::prepareCustomRadialMenu(CreatureObject* creature, uint8_t item_count) {
 
-    PlayerObject*	player	= dynamic_cast<PlayerObject*>(creature);
+	PlayerObject*	player	= creature->GetGhost();// dynamic_cast<PlayerObject*>(creature);
 
     if (!player) {
         // Verify the data passed in is what is expected. In debug mode the assert will

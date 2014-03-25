@@ -55,39 +55,55 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
         DLOG(info) << "ObjectController::_handleMount : Cannot find vehicle ID :(";
         return;
     }
+	CreatureObject* player_body = dynamic_cast<CreatureObject*>(mObject);
+	PlayerObject* player	= player_body->GetGhost();
 
-    PlayerObject* player	= dynamic_cast<PlayerObject*>(mObject);
+	if(!player)	{
 
-    if (player && player->getMount() && (player->getParentId() == 0))
-    {
-        // Do we have a valid target?
-        if (!player->checkIfMounted())
+		DLOG(info) << "ObjectController::_handleMount : Cannot find player :(" << mObject->getId();
+		return;
+	}
+
+    if(player_body->getParentId() != 0)	{
+
+		gMessageLib->SendSystemMessage(L"You need to be outside to mount.", player);
+		return;
+	}
+	
+	if (!player->getMount() )	{
+		DLOG(info) << "ObjectController::_handleMount : Cannot find mount :(" << mObject->getId();
+		return;
+	}
+
+    // Do we have a valid target?
+    if (player->checkIfMounted())        {
+		
+		gMessageLib->SendSystemMessage(L"You cannot mount this because you are already mounted.", player);
+		return;
+	}
+
+    // verify its player's mount
+    MountObject* pet	= dynamic_cast<MountObject*>(gWorldManager->getObjectById(targetId));
+    if (pet && (pet->owner() == player->getId()))    {
+
+        // get the mount Vehicle object by the id (Creature object id - 1 )
+
+        if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(pet->controller())))
         {
-            // verify its player's mount
-            MountObject* pet	= dynamic_cast<MountObject*>(gWorldManager->getObjectById(targetId));
-            if (pet && (pet->owner() == player->getId()))
-            {
-                // get the mount Vehicle object by the id (Creature object id - 1 )
-
-                if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(pet->controller())))
-                {
-                    //The /mount command can work up to 32m on live
-                    if(glm::distance(vehicle->body()->mPosition, player->mPosition) <= 32)	{
-                        //change locomotion
-                        vehicle->MountPlayer();
-                    }	else {
-                        gMessageLib->SendSystemMessage(L"Your target is too far away to mount.", player);
-                    }
-                }
-                else
-                {
-                    DLOG(info) << "ObjectController::_handleMount : Cannot find vehicle";
-                }
+            //The /mount command can work up to 32m on live
+            if(glm::distance(vehicle->body()->mPosition, player_body->mPosition) <= 32)	{
+                //change locomotion
+                vehicle->MountPlayer();
+            }	else {
+                gMessageLib->SendSystemMessage(L"Your target is too far away to mount.", player);
             }
-        } else {
-            gMessageLib->SendSystemMessage(L"You cannot mount this because you are already mounted.", player);
+        }
+        else
+        {
+            DLOG(info) << "ObjectController::_handleMount : Cannot find vehicle";
         }
     }
+     
 }
 
 //===============================================================================================
@@ -97,24 +113,16 @@ void ObjectController::_handleDismount(uint64 targetId,Message* message,ObjectCo
     // The very idea with using ID's instead of object refs are that you can TEST them without using the object itself.
     // And some parameter validation...
 
-    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
+    CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); 
+	PlayerObject* player = creature->GetGhost();
 
-    if (player && player->getMount() && (player->getParentId() == 0))
+    if (player && player->getMount())
     {
         if (player->checkIfMounted())
         {
             // verify its player's mount
-            MountObject* pet = NULL;
-            if (targetId == 0)
-            {
-                // No object targeted, assume the one we are riding.	- what else should we dismount ???
-                pet	= player->getMount();
-            }
-            else
-            {
-                pet = dynamic_cast<MountObject*>(gWorldManager->getObjectById(targetId));
-            }
-
+            MountObject* pet = player->getMount();
+            
             if (pet && (pet->owner() == player->getId()))
             {
                 // get the pets controller for a swoop its the vehicle

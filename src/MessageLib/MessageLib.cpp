@@ -214,7 +214,7 @@ void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object
             return;
         }
 
-        if(_checkDistance(recipient->mPosition, object, mMessageFactory->HeapWarningLevel())) {
+		if(_checkDistance(recipient->GetCreature()->mPosition, object, mMessageFactory->HeapWarningLevel())) {
             // clone our message
             mMessageFactory->StartMessage();
             mMessageFactory->addData(message->getData(),message->getSize());
@@ -245,7 +245,8 @@ void MessageLib::_sendToInRangeUnreliableChat(Message* message, const CreatureOb
     Message* cloned_message;
 
     std::for_each(in_range_players.begin(), in_range_players.end(), [=, &cloned_message] (Object* object) {
-        PlayerObject* player = dynamic_cast<PlayerObject*>(object);
+        CreatureObject* creature = static_cast<CreatureObject*>(object);
+		PlayerObject* player = creature->GetGhost();
 
         if(_checkPlayer(player) && (!player->checkIgnoreList(crc))) {
             // clone our message
@@ -342,7 +343,8 @@ void MessageLib::_sendToInRangeUnreliableChatGroup(Message* message, const Creat
     bool failed = false;
 
     std::for_each(in_range_players.begin(), in_range_players.end(), [=, &cloned_message] (Object* iter_object) {
-        PlayerObject* player = static_cast<PlayerObject*>(iter_object);
+        CreatureObject* creature = static_cast<CreatureObject*>(iter_object);
+		PlayerObject* player = creature->GetGhost();
 
         if(_checkPlayer(player) && object->getGroupId()
                 && (player->GetCreature()->getGroupId() == object->getGroupId())
@@ -371,7 +373,8 @@ void MessageLib::_sendToInRange(Message* message, const Object* object, unsigned
 	mGrid->GetPlayerViewingRangeCellContents(object->getGridBucket(), &in_range_players);
 
     std::for_each(in_range_players.begin(), in_range_players.end(), [=] (Object* object) {
-        PlayerObject* player = static_cast<PlayerObject*>(object);
+        CreatureObject* creature = static_cast<CreatureObject*>(object);
+		PlayerObject* player = creature->GetGhost();
         if(_checkPlayer(player)) {
             // clone our message
             mMessageFactory->StartMessage();
@@ -478,6 +481,33 @@ void MessageLib::_sendToAll(Message* message, unsigned char priority, bool unrel
     mMessageFactory->DestroyMessage(message);
 }
 
+
+bool MessageLib::sendCreateGhost(PlayerObject* player, PlayerObject* target) 
+{
+	if (!_checkPlayer(player) || !_checkPlayer(target)) {
+        return false;
+    }
+
+	sendCreateObjectByCRC(player, target);
+
+	sendContainmentMessage(player->getId(), player->GetCreature()->getId(), player->GetArrangementId(), target);
+
+    sendBaselinesPLAY_3(player, target);
+    sendBaselinesPLAY_6(player, target);
+
+    if (player == target) {
+        sendBaselinesPLAY_8(player, target);
+        sendBaselinesPLAY_9(player, target);
+    }
+
+    //close the yalp
+    sendEndBaselines(player->getId(), target);
+
+    //sendPostureMessage(player, target);
+
+    return true;
+
+}
 
 bool MessageLib::sendCreatePlayer(PlayerObject* player, PlayerObject* target) {
 

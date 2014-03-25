@@ -124,7 +124,7 @@ void Shuttle::useShuttle(PlayerObject* playerObject)
         bool noTicket = gTravelMapHandler->findTicket(playerObject,port);
 
         // in range check
-        if(playerObject->getParentId() != getParentId() || (glm::distance(playerObject->GetCreature()->mPosition, mPosition) > 25.0f))
+        if(playerObject->GetCreature()->getParentId() != getParentId() || (glm::distance(playerObject->GetCreature()->mPosition, mPosition) > 25.0f))
         {
             gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "boarding_too_far"), playerObject);
             return;

@@ -144,8 +144,8 @@ class SpatialIndexManager
 		bool					sendCreateTangible(TangibleObject* tangibleObject,PlayerObject* targetObject, bool sendchildren = true);
 		void					sendCreateTangible(TangibleObject* tangibleObject, ObjectList*	knownPlayers, bool sendchildren = true);
 		bool					sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targetObject);
-		void					sendInventory(PlayerObject* playerObject);
-		bool					sendEquippedItems(PlayerObject* srcObject,PlayerObject* targetObject);
+		
+		
 		bool					sendCreateFactoryCrate(FactoryCrate* crate,PlayerObject* targetObject);
 
 		uint64					getObjectMainParent(Object* object);

@@ -82,9 +82,9 @@ void TravelTicket::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
     if(messageType == radId_itemUse)
     {
         PlayerObject*	player	= dynamic_cast<PlayerObject*>(srcObject);
+		CreatureObject* body = player->GetCreature();
 
-		if(player->GetCreature()->GetPosture() == CreaturePosture_SkillAnimating)
-		{
+		if(body->GetPosture() == CreaturePosture_SkillAnimating)		{
             gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), player);
             return;
         }
@@ -92,16 +92,16 @@ void TravelTicket::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
         ObjectSet objects;
 
 		// see if a shuttle is in range
-		gSpatialIndexManager->getObjectsInRange(player,&objects,ObjType_NPC | ObjType_Creature,25.0f,true);
+		gSpatialIndexManager->getObjectsInRange(body,&objects,ObjType_NPC | ObjType_Creature,25.0f,true);
 
         ObjectSet::iterator objIt = objects.begin();
 
-        while(objIt != objects.end())
-        {
-            if(Shuttle* shuttle = dynamic_cast<Shuttle*> (*objIt))
-            {
-                if(player->getParentId() == shuttle->getParentId())
-                {
+        while(objIt != objects.end())        {
+
+            if(Shuttle* shuttle = dynamic_cast<Shuttle*> (*objIt))            {
+
+                if(body->getParentId() == shuttle->getParentId())                {
+
                     gTravelMapHandler->useTicket(player, (TravelTicket*) this,shuttle);
                     return;
                 }

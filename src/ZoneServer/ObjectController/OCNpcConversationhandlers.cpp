@@ -75,7 +75,8 @@ using ::boost::regex_search;
 
 void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); PlayerObject* player = creature->GetGhost();
+	CreatureObject* creature  = dynamic_cast<CreatureObject*>(mObject); 
+	PlayerObject* ghost = creature->GetGhost();
 	NPCObject*		npc		= dynamic_cast<NPCObject*>(gWorldManager->getObjectById(targetId));
 
 	if(!npc)
@@ -85,7 +86,7 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 	}
 
 	// in range check
-	uint64 playerParentId	= player->getParentId();
+	uint64 playerParentId	= creature->getParentId();
 	uint64 npcParentId		= npc->getParentId();
 	bool   inRange			= true;
 
@@ -93,20 +94,20 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 	uint64 npcBuildingId = 0;
 
 	//get building Ids if they are in buildings
-	if(playerParentId)
-	{
+	if(playerParentId)	{
+
 		playerBuildingId = gWorldManager->getObjectById(playerParentId)->getParentId();
 	}
 		
-	if(npcParentId)
-	{
+	if(npcParentId)	{
+
 		npcBuildingId	= gWorldManager->getObjectById(npcParentId)->getParentId();
 	}
 
 	// not inside same parent, or out of range
 	float distance = glm::distance(creature->getWorldPosition(), npc->getWorldPosition());
-	if ((npcBuildingId != playerParentId) || distance > 10.0f)
-	{
+	if ((npcBuildingId != playerParentId) || distance > 10.0f)	{
+
 		inRange = false;
 	}
 
@@ -118,7 +119,7 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
         sprintf(buffer, "You are out of range (%f m).", distance);
         BString msg(buffer);
         msg.convert(BSTRType_Unicode16);
-        gMessageLib->SendSystemMessage(msg.getUnicode16(), player);
+        gMessageLib->SendSystemMessage(msg.getUnicode16(), ghost);
         // gMessageLib->sendSystemMessage(player,L"","system_msg","out_of_range");
         return;
     }
@@ -136,8 +137,8 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
     if(npc->hasInternalAttribute("base_conversation"))
     {
         // Let the npc have your attention, and some npc-movement.
-        npc->prepareConversation(player);
-        gConversationManager->startConversation(npc,player);
+        npc->prepareConversation(ghost);
+        gConversationManager->startConversation(npc,ghost);
     }
 
     // say some chatter
@@ -145,7 +146,7 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
     {
         // spam protection
         uint64 localTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
-        if(npc->getLastConversationTarget() == player->getId())
+        if(npc->getLastConversationTarget() == ghost->getId())
         {
             if(localTime - npc->getLastConversationRequest() < NPC_CHAT_SPAM_PROTECTION_TIME)
             {
@@ -159,7 +160,7 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
         else
         {
             npc->setLastConversationRequest(localTime);
-            npc->setLastConversationTarget(player->getId());
+            npc->setLastConversationTarget(ghost->getId());
         }
 
         // Let the npc have your attention, and some npc-movement.
@@ -179,13 +180,13 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
         }
 
         if (!gWorldConfig->isInstance()) {
-            gMessageLib->SendSpatialChat(npc, npc_chat, player);
+            gMessageLib->SendSpatialChat(npc, npc_chat, ghost);
 
             if (animation) gMessageLib->sendCreatureAnimation(npc,gWorldManager->getNpcConverseAnimation(animation));
         } else {
-            gMessageLib->SendSpatialChat(npc, npc_chat, player);
+            gMessageLib->SendSpatialChat(npc, npc_chat, ghost);
 
-            if (animation) gMessageLib->sendCreatureAnimation(npc,gWorldManager->getNpcConverseAnimation(animation), player);
+            if (animation) gMessageLib->sendCreatureAnimation(npc,gWorldManager->getNpcConverseAnimation(animation), ghost);
         }
     }
     

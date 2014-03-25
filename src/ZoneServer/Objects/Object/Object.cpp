@@ -241,7 +241,7 @@ int32_t Object::__InternalInsert(Object* object, glm::vec3 new_position, int32_t
 void Object::__InternalViewObjects(Object* requester, uint32_t max_depth, bool topDown, std::function<void(Object*)> func)
 {
 	if(!GetPermissions() )	 {
-		LOG(error) << "Object::__InternalViewObjects no permissions : " << this->getId();
+		//LOG(error) << "Object::__InternalViewObjects no permissions : " << this->getId();
 		auto permissions_objects_ = gObjectManager->GetPermissionsMap();
 		
 		SetPermissions(permissions_objects_.find(swganh::object::DEFAULT_PERMISSION)->second.get());//DEFAULT_PERMISSION
@@ -384,10 +384,10 @@ bool Object::InitializeObject(Object* requester, Object* obj, int32_t arrangemen
 	
 	//add our parents known players to our own
 	//this only makes sense on initializing players / creatures with their children before sending their baseline
-	std::for_each(mKnownPlayers.begin(), mKnownPlayers.end(), [&] (PlayerObject* player)	{
-		obj->mKnownPlayers.insert(player);
+	//std::for_each(mKnownPlayers.begin(), mKnownPlayers.end(), [&] (PlayerObject* player)	{
+		//obj->mKnownPlayers.insert(player);
 		
-	});
+	//});
 
 	obj->SetArrangementId(arrangement_id);
 

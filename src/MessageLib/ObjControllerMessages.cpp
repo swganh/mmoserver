@@ -148,7 +148,14 @@ void MessageLib::SendSpatialChat_(CreatureObject* const speaking_object, const s
 	auto equipment_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
 	auto speaking_ghost = dynamic_cast<PlayerObject*>(equipment_service->GetEquippedObject(speaking_object, "ghost"));
 	
-	mMessageFactory->addUint8(static_cast<uint8>(speaking_ghost->getLanguage()));
+	uint8 language = 0;
+	if(speaking_ghost)	{
+		language = speaking_ghost->getLanguage();
+	}
+
+
+
+	mMessageFactory->addUint8(static_cast<uint8>(language));
 
     // Add the ProsePackage to the message if no custom string was set.
     if (!custom_message.length()) {

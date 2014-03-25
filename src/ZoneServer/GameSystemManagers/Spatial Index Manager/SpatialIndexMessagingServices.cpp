@@ -91,6 +91,19 @@ bool SpatialIndexManager::sendCreateObject(Object* object,PlayerObject* player)
 
 		}
 		break;
+	
+	case SWG_PLAYER :
+		{
+			PlayerObject* ghost = dynamic_cast<PlayerObject*>(object);
+			if(!ghost)	{
+				DLOG(info) << "SpatialIndexManager::sendCreateObject : invalid Object couldn cast player";
+				return false;
+			}
+
+			return gMessageLib->sendCreateGhost(ghost, player);
+
+		}
+		break;
 	}
 
 
@@ -99,15 +112,26 @@ bool SpatialIndexManager::sendCreateObject(Object* object,PlayerObject* player)
     
 
     // players
-    case ObjType_Player:
+    /*case ObjType_Player:
     {
         // send creates to each other
         if(PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(object))        {
-            sendCreatePlayer(targetPlayer,player);
+            gMessageLib->sendCreatePlayer(targetPlayer, player);
+			//sendCreatePlayer(targetPlayer,player);
         }
     }
         
     break;
+	*/
+	case ObjType_Intangible:
+	{
+		IntangibleObject* intangible = dynamic_cast<IntangibleObject*>(object);
+		if(intangible)	{
+			gMessageLib->sendCreateInTangible(intangible, player);
+		}
+
+	}
+	break;
 
     // tangibles
     case ObjType_Tangible:
@@ -229,14 +253,26 @@ void SpatialIndexManager::sendCreateTangible(TangibleObject* tangibleObject, Obj
 //
 bool SpatialIndexManager::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targetObject)
 {
-
-    gMessageLib->sendCreatePlayer(playerObject, targetObject);
+	
+    if(!playerObject->GetCreature()->registerWatcher(targetObject))	{
+		LOG(info) << "SpatialIndexManager::sendCreatePlayer : " << playerObject->getId() << "already known";
+	}
+	
 	playerObject->registerWatcher(targetObject);
 
+	gMessageLib->sendCreatePlayer(playerObject, targetObject);
+	
+
 	playerObject->GetCreature()->ViewObjects(playerObject->GetCreature(), 0, true, [&] (Object* object) {
-		object->registerWatcher(playerObject);
+		if(!object->registerWatcher(playerObject))	{
+
+			LOG(info) << "SpatialIndexManager::sendCreatePlayer : " << object->getId() << "already known";
+			return;
+		}
+
 		TangibleObject* tangible = dynamic_cast<TangibleObject*>(object);
 		if(tangible)	{
+		
 			LOG(info) << "creating : " << object->getId() << " " << object->GetTemplate();
 			sendCreateTangible(tangible,targetObject);
 		}
@@ -391,107 +427,6 @@ bool SpatialIndexManager::sendCreatePlayer(PlayerObject* playerObject,PlayerObje
     return(true);
 }
 
-//======================================================================================================================
-//
-// create the inventory contents for its owner
-//
-void SpatialIndexManager::sendInventory(PlayerObject* playerObject)
-{
-	/*
-    Inventory*	inventory	= playerObject->getInventory();
-
-    //to stop the server from crashing.
-    if(!inventory)
-    {
-        LOG(error) << "SpatialIndexManager::sendInventory cannot find inventory";
-        return;
-    }
-
-    inventory->setTypeOptions(256);
-
-    //todo - just use sendcreate tangible and have it send the children, too!!!!
-
-    // create the inventory
-    gMessageLib->sendCreateObjectByCRC(inventory,playerObject,false);
-    gMessageLib->sendContainmentMessage(inventory->getId(),inventory->getParentId(),4,playerObject);
-    gMessageLib->sendBaselinesTANO_3(inventory,playerObject);
-    gMessageLib->sendBaselinesTANO_6(inventory,playerObject);
-
-    gMessageLib->sendEndBaselines(inventory->getId(),playerObject);
-
-    // create objects contained *always* even if already registered
-    // register them as necessary
-    // please note that they need to be created even if already registered (client requirement)
-	inventory->registerWatcher(playerObject);
-    
-
-    ObjectIDList* invObjects		= inventory->getObjects();
-    ObjectIDList::iterator objIt	= invObjects->begin();
-
-    while(objIt != invObjects->end()) 
-    {
-        Object* object = gWorldManager->getObjectById((*objIt));
-        if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(object))
-        {
-            sendCreateTangible(tangible,playerObject);
-            
-            gContainerManager->registerPlayerToContainer(tangible,playerObject);//eventually move the registration to the factory ???
-        }
-
-        //sendCreateObject(object,playerObject,false);
-        ++objIt;
-    }
-
-    //creating the equipped Objects isnt technically part of the inventory ...
-    ObjectList invEquippedObjects		= playerObject->getEquipManager()->getEquippedObjects();
-    ObjectList::iterator objEIt			= invEquippedObjects.begin();
-
-    while(objEIt != invEquippedObjects.end())
-    {
-        if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(*objEIt))
-        {
-            sendCreateTangible(tangible,playerObject);
-            gContainerManager->registerPlayerToContainer(tangible,playerObject);//eventually move the registration to the factory
-        }
-
-        ++objEIt;
-    }
-	*/
-}
-
-//======================================================================================================================
-//
-// send creates of the equipped items from player to player
-// iterates all inventory items of the source and sends creates to the target
-//
-bool SpatialIndexManager::sendEquippedItems(PlayerObject* srcObject,PlayerObject* targetObject)
-{
-	/*
-    ObjectList				invObjects		= srcObject->getEquipManager()->getEquippedObjects();
-    ObjectList::iterator	invObjectsIt	= invObjects.begin();
-
-    while(invObjectsIt != invObjects.end())
-    {
-        // items
-        if(Item* item = dynamic_cast<Item*>(*invObjectsIt))
-        {
-            if(item->getParentId() == srcObject->getId())
-            {
-                sendCreateTangible(item,targetObject);
-            }
-            else
-            {
-                DLOG(info) << "MessageLib send equipped objects: Its not equipped ... " << item->getId();
-            }
-        }
-
-        ++invObjectsIt;
-    }
-
-    return(true);
-	*/
-	return false;
-}
 
 //======================================================================================================================
 //

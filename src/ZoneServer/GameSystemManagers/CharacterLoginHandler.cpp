@@ -379,10 +379,10 @@ void CharacterLoginHandler::handleObjectReady(Object* object,DispatchClient* cli
         //initialize us in the world
         gWorldManager->addObject(ghost);
 
-        //create us for others
+        //create us for others and create the world before we enter
         gSpatialIndexManager->createInWorld(ghost);
 
-        //create ourselves for us
+        //create ourselves for us and place us in the world
         gSpatialIndexManager->sendCreatePlayer(ghost,ghost);
 
 		//remove us from the loaders list

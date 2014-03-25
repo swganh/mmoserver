@@ -258,7 +258,7 @@ bool MessageLib::sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,
     mMessageFactory->addUint64(parentId);
     mMessageFactory->addInt32(linkType);
 
-    _sendToInRange(mMessageFactory->EndMessage(),targetObject,5);
+	_sendToInRange(mMessageFactory->EndMessage(),targetObject->GetCreature(),5);
 
     return(true);
 }
@@ -1308,7 +1308,7 @@ bool MessageLib::broadcastContainmentMessage(uint64 objectId,uint64 parentId,int
     mMessageFactory->addUint64(parentId);
     mMessageFactory->addInt32(linkType);
 
-    _sendToInRange(mMessageFactory->EndMessage(),targetPlayer,4);
+	_sendToInRange(mMessageFactory->EndMessage(),targetPlayer->GetCreature(),4);
 
     return(true);
 }

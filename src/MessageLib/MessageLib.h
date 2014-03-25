@@ -210,6 +210,8 @@ public:
     * \param target The target to receive the player object baselines.
     */
     bool sendCreatePlayer(PlayerObject* player, PlayerObject* target);
+
+	bool sendCreateGhost(PlayerObject* player, PlayerObject* target);
     
 
     void				sendInventory(PlayerObject* playerObject);

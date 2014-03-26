@@ -1364,7 +1364,7 @@ void Session::_processDataOrderPacket(Packet* packet)
 
 	//in situations of a lot of packet loss we lower the size of our send window to minimize packet loss
 	if (mWindowSizeCurrent > (mWindowResendSize/10))
-		mWindowSizeCurrent--;
+		mWindowSizeCurrent = 0;
 
     //The location of the packetsequence out of order has NOBEARING on the question on which list we will find the last properly received Packet!!!
     if(mRolloverWindowPacketList.size()&& (sequence > (65535-mRolloverWindowPacketList.size())))
@@ -1398,16 +1398,21 @@ void Session::_processDataOrderPacket(Packet* packet)
     }
 
 
-	if (mWindowSizeCurrent > (mWindowResendSize/10))
-                mWindowSizeCurrent--;
+
 
     uint64 localTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
-    for (iter = mWindowPacketList.begin(); iter != mWindowPacketList.end(); iter++)
+
+	LOG(warning) << "_processDataOrderPacket :: resend start sequence  : " << windowSequence;
+	LOG(warning) << "_processDataOrderPacket :: time  : now : " << localTime << " old :" << windowPacket->getTimeOOHSent();
+
+    uint16 seq;
+
+	for (iter = mWindowPacketList.begin(); iter != mWindowPacketList.end(); iter++)
     {
         // Grab our window packet
         windowPacket = (*iter);
         windowPacket->setReadIndex(2);
-		uint16 seq = ntohs(windowPacket->getUint16());
+		seq = ntohs(windowPacket->getUint16());
 
         // always send ALL packets on the list
 		uint64 old =  windowPacket->getTimeOOHSent();
@@ -1429,6 +1434,16 @@ void Session::_processDataOrderPacket(Packet* packet)
             return;
         }
     }
+
+	windowPacket->setReadIndex(2);
+    seq = windowPacket->getUint16(); 
+
+	localTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
+	uint64 packet_time =  windowPacket->getTimeOOHSent();
+
+	LOG(warning) << "_processDataOrderPacket :: resend stop sequence  : " << seq;
+	LOG(warning) << "_processDataOrderPacket :: time  : now : " << localTime << " old :" << packet_time;
+
 
     // Destroy our incoming packet, it's not needed any longer.
     mPacketFactory->DestroyPacket(packet);

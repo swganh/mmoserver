@@ -29,8 +29,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 #include "anh/logger.h"
-
+#include "ZoneServer\Objects\Object\ObjectManager.h"
 #include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
+
 #include "Resource.h"
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceContainer.h"
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceManager.h"
@@ -163,6 +164,11 @@ ResourceContainer* ResourceContainerFactory::_createResourceContainer(swganh::da
     } else {
     	LOG(warning) << "Resource not found [" << resourceContainer->mResourceId << "]";
     }
+
+	gObjectManager->LoadSlotsForObject(resourceContainer);
+	
+	auto permissions_objects_ = gObjectManager->GetPermissionsMap();
+	resourceContainer->SetPermissions(permissions_objects_.find(swganh::object::DEFAULT_PERMISSION)->second.get());//CREATURE_CONTAINER_PERMISSION
 
     resourceContainer->mMaxCondition = 100;
 

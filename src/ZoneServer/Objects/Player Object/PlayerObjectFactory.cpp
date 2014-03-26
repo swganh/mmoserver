@@ -33,7 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/GameSystemManagers/Mission Manager/MissionBag.h"
 #include "ZoneServer/GameSystemManagers/State Manager/StateManager.h"
 
-#include "ZoneServer\Objects\Object\ObjectManager.h"
 #include "Zoneserver/Objects/Bank.h"
 #include "Zoneserver/Objects/Datapad.h"
 #include "Zoneserver/Objects/DatapadFactory.h"

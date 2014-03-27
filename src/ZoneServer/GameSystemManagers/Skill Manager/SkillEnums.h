@@ -115,6 +115,7 @@ enum SMSkillType
     SMSkill_MasterCombatMedic		= 567,
     SMSkill_MasterImageDesigner		= 586,
     SMSkill_MasterSquadleader		= 605,
+	SMSkill_NovicePolitician		= 623,
     SMSkill_MasterPolitician		= 624
 
 };

@@ -94,7 +94,7 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
                 {
                     if(PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getOwner())))
                     {
-                        if(!player->GetCreature()->checkSkill(623)) // Must be a novice Politician
+                        if(!player->GetCreature()->checkSkill(SMSkill_NovicePolitician)) // Must be a novice Politician
                         {
                             gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "place_cityhall"), player);
                             return;
@@ -103,7 +103,7 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
                 }
 
                 //check the region whether were allowed to build
-                if(gStructureManager->checkNoBuildRegion(player))
+				if(gStructureManager->checkNoBuildRegion(player))
                 {
                     return;
                 }

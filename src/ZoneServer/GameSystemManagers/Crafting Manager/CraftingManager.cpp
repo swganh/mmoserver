@@ -76,7 +76,9 @@ CraftingManager::~CraftingManager(void)
 
 bool CraftingManager::HandleRequestDraftslotsBatch(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(object);
+    CreatureObject*		player_body		= dynamic_cast<CreatureObject*>(object);
+	PlayerObject*		playerObject	= player_body->GetGhost();
+
     BString			requestStr;
     BStringVector	dataElements;
     uint16			elementCount;
@@ -113,7 +115,9 @@ bool CraftingManager::HandleRequestDraftslotsBatch(Object* object,Object* target
 
 bool CraftingManager::HandleRequestResourceWeightsBatch(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(object);
+	CreatureObject*		player_body		= dynamic_cast<CreatureObject*>(object);
+	PlayerObject*		playerObject	= player_body->GetGhost();
+
     BString			requestStr;
     BStringVector	dataElements;
     uint16			elementCount;
@@ -238,7 +242,8 @@ CraftingTool* CraftingManager::getCraftingStationTool(PlayerObject* player, Craf
 
 bool CraftingManager::HandleRequestCraftingSession(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*		playerObject	= dynamic_cast<PlayerObject*>(object);
+	CreatureObject*		player_body		= dynamic_cast<CreatureObject*>(object);
+	PlayerObject*		player			= player_body->GetGhost();
     CraftingTool*		tool			= dynamic_cast<CraftingTool*>(target);
     CraftingStation*	station			= dynamic_cast<CraftingStation*>(target);
     uint32				expFlag			= 2;//needs to be >1 !!!!!
@@ -254,22 +259,22 @@ bool CraftingManager::HandleRequestCraftingSession(Object* object,Object* target
     // the player clicked directly on a station
     if(station)
     {
-        tool = getCraftingStationTool(playerObject, station);
+        tool = getCraftingStationTool(player, station);
     }
 
     if(!tool)
     {
-        gMessageLib->SendSystemMessage(common::OutOfBand("ui_craft","err_no_crafting_tool"),playerObject);
-        gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,playerObject);
+        gMessageLib->SendSystemMessage(common::OutOfBand("ui_craft","err_no_crafting_tool"),player);
+        gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,player);
         return false;
     }
     // if we haven't come in through a station
     if(!station)
     {
         // get the tangible objects in range
-	    gSpatialIndexManager->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Tangible),range,true);
+	    gSpatialIndexManager->getObjectsInRange(player_body,&inRangeObjects,(ObjType_Tangible),range,true);
         //and see if a fitting crafting station is near
-        station = playerObject->getCraftingStation(&inRangeObjects,(ItemType) tool->getItemType());
+        station = player->getCraftingStation(&inRangeObjects,(ItemType) tool->getItemType());
     }
 
     if(!station)
@@ -280,17 +285,17 @@ bool CraftingManager::HandleRequestCraftingSession(Object* object,Object* target
     if(tool->getAttribute<std::string>("craft_tool_status") == "@crafting:tool_status_working")
     {
         if(tool->getCurrentItem())
-            gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "crafting_tool_creating_prototype"), playerObject);
+            gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "crafting_tool_creating_prototype"), player);
 
         // TODO: put the right message for practice
         else
-            gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "crafting_tool_creating_prototype"), playerObject);
+            gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "crafting_tool_creating_prototype"), player);
 
-        gMessageLib->sendCraftAcknowledge(opCraftCancelResponse, 0, 0, playerObject);
+        gMessageLib->sendCraftAcknowledge(opCraftCancelResponse, 0, 0, player);
 
         return false;
     }
-	playerObject->setCraftingSession(gCraftingSessionFactory->createSession(Anh_Utils::Clock::getSingleton(), playerObject, tool, station, expFlag));
+	player->setCraftingSession(gCraftingSessionFactory->createSession(Anh_Utils::Clock::getSingleton(), player, tool, station, expFlag));
     return true;
 }
 
@@ -301,7 +306,9 @@ bool CraftingManager::HandleRequestCraftingSession(Object* object,Object* target
 
 bool CraftingManager::HandleSelectDraftSchematic(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*		playerObject	= dynamic_cast<PlayerObject*>(object);
+	CreatureObject*		player_body		= dynamic_cast<CreatureObject*>(object);
+	PlayerObject*		playerObject	= player_body->GetGhost();
+
     CraftingSession*	session			= playerObject->getCraftingSession();
     //DraftSchematic*		schematic		= NULL;
     BString				dataStr;
@@ -326,7 +333,8 @@ bool CraftingManager::HandleSelectDraftSchematic(Object* object,Object* target,M
 
 bool CraftingManager::HandleCancelCraftingSession(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(object);
+    CreatureObject*		player_body		= dynamic_cast<CreatureObject*>(object);
+	PlayerObject*		playerObject	= player_body->GetGhost();
 
     message->setIndex(24);
 
@@ -345,7 +353,10 @@ bool CraftingManager::HandleCancelCraftingSession(Object* object,Object* target,
 
 void CraftingManager::handleCraftFillSlot(Object* object,Message* message)
 {
-    PlayerObject*		player		= dynamic_cast<PlayerObject*>(object);
+    
+	CreatureObject*		player_body		= dynamic_cast<CreatureObject*>(object);
+	PlayerObject*		player			= player_body->GetGhost();
+
     CraftingSession*	session		= player->getCraftingSession();
 
     uint64				resContainerId	= message->getUint64();
@@ -372,7 +383,9 @@ void CraftingManager::handleCraftFillSlot(Object* object,Message* message)
 
 void CraftingManager::handleCraftEmptySlot(Object* object,Message* message)
 {
-    PlayerObject*		player		= dynamic_cast<PlayerObject*>(object);
+    CreatureObject*		player_body		= dynamic_cast<CreatureObject*>(object);
+	PlayerObject*		player			= player_body->GetGhost();
+
     CraftingSession*	session		= player->getCraftingSession();
     uint32				slotId		= message->getUint32();
     uint64				containerId	= message->getUint64();
@@ -397,7 +410,9 @@ void CraftingManager::handleCraftEmptySlot(Object* object,Message* message)
 
 void CraftingManager::handleCraftExperiment(Object* object, Message* message)
 {
-    PlayerObject*		player		= dynamic_cast<PlayerObject*>(object);
+    CreatureObject*		player_body		= dynamic_cast<CreatureObject*>(object);
+	PlayerObject*		player			= player_body->GetGhost();
+
     CraftingSession*	session		= player->getCraftingSession();
     uint8				counter		= message->getUint8();
     uint32				propCount	= message->getUint32();
@@ -419,7 +434,9 @@ void CraftingManager::handleCraftExperiment(Object* object, Message* message)
 
 void CraftingManager::handleCraftCustomization(Object* object,Message* message)
 {
-    PlayerObject*		player		= dynamic_cast<PlayerObject*>(object);
+    CreatureObject*		player_body		= dynamic_cast<CreatureObject*>(object);
+	PlayerObject*		player			= player_body->GetGhost();
+
     CraftingSession*	session		= player->getCraftingSession();
     BString				itemName;
     uint8				hmmm1,hmmm2;
@@ -468,7 +485,9 @@ void CraftingManager::handleCraftCustomization(Object* object,Message* message)
 
 bool CraftingManager::HandleNextCraftingStage(Object* object, Object* target,Message* message, ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*		playerObject	= dynamic_cast<PlayerObject*>(object);
+    CreatureObject*		player_body		= dynamic_cast<CreatureObject*>(object);
+	PlayerObject*		playerObject	= player_body->GetGhost();
+
     CraftingSession*	session			= playerObject->getCraftingSession();
     BString				dataStr;
     uint32				counter			= 1;
@@ -542,7 +561,9 @@ bool CraftingManager::HandleNextCraftingStage(Object* object, Object* target,Mes
 
 bool CraftingManager::HandleCreatePrototype(Object* object, Object* target,Message* message, ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*		player	= dynamic_cast<PlayerObject*>(object);
+    CreatureObject*		player_body		= dynamic_cast<CreatureObject*>(object);
+	PlayerObject*		player			= player_body->GetGhost();
+
     CraftingSession*	session	= player->getCraftingSession();
     BString				dataStr;
     uint32				mode,counter;
@@ -569,7 +590,9 @@ bool CraftingManager::HandleCreatePrototype(Object* object, Object* target,Messa
 
 bool CraftingManager::HandleCreateManufactureSchematic(Object* object, Object* target,Message* message, ObjectControllerCmdProperties* cmdProperties)
 {
-    PlayerObject*		player	= dynamic_cast<PlayerObject*>(object);
+    CreatureObject*		player_body		= dynamic_cast<CreatureObject*>(object);
+	PlayerObject*		player			= player_body->GetGhost();
+
     CraftingSession*	session	= player->getCraftingSession();
     BString				dataStr;
     uint32				counter;

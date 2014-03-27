@@ -412,7 +412,7 @@ bool StructureManager::checkinCamp(PlayerObject* player)
 //returns true if we're in a no build region
 bool StructureManager::checkNoBuildRegion(PlayerObject* player)
 {
-    if (checkNoBuildRegion(player->mPosition) /*||!checkCityRadius(player)*/)
+	if (checkNoBuildRegion(player->GetCreature()->mPosition) /*||!checkCityRadius(player)*/)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("faction_perk", "no_build_area"), player);
         return true;

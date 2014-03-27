@@ -60,7 +60,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <ZoneServer\Services\terrain\terrain_init.h>
 #include <ZoneServer\Services\ham\ham_init.h>
-#include <ZoneServer\Services\simulation\simulation_init.h>
+//#include <ZoneServer\Services\simulation\simulation_init.h>
 #include <ZoneServer\Services\equipment\equipment_init.h>
 
 #include "Zoneserver/Objects/Food.h"

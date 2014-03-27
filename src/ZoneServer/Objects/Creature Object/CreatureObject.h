@@ -28,8 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_CREATURE_OBJECT_H
 #define ANH_ZONESERVER_CREATURE_OBJECT_H
 
-#include "ZoneServer/GameSystemManagers/Equip Manager/EquipManager.h"
-#include "ZoneServer/GameSystemManagers/Ham Manager/Ham.h"
 #include "ZoneServer/Objects/MovingObject.h"
 #include "ZoneServer\Objects\Creature Object\equipment_item.h"
 #include "ZoneServer/GameSystemManagers/Skill Manager/SkillManager.h"

@@ -194,11 +194,11 @@ void WorldManager::storeCharacterAttributes_(PlayerObject* player_object, bool r
                  << "willpower_max=" << player_creature->GetStatBase(HamBar_Willpower) << ", "
 
 				 << "battlefatigue=" << player_creature->GetBattleFatigue() << ", "
-                 << "posture=" << player_creature->GetPosture() << ", "
+                 << "posture=" << (uint16) player_creature->GetPosture() << ", "
                  << "moodId=" << static_cast<uint16_t>(player_creature->getMoodId()) << ", "
                  << "title='" << getKernel()->GetDatabase()->escapeString(player_object->getTitle().getAnsi()) << "', "
                  << "character_flags=" << player_object->getPlayerFlags() << ", "
-                 << "states=" << player_creature->states.getAction() << ", "
+                 << "states=" << player_creature->GetStateBitmask() << ", "
                  << "language=" << player_object->getLanguage() << ", "
                  << "new_player_exemptions=" <<  static_cast<uint16_t>(player_object->getNewPlayerExemptions()) << " "
                  << "WHERE character_id=" << player_creature->getId();
@@ -263,7 +263,7 @@ void WorldManager::savePlayerSync(uint32 accId,bool remove)
                              ham->mFocus.getWounds(),
                              ham->mWillpower.getWounds(),
                              ham->getBattleFatigue(),
-                             playerObject->GetPosture(),
+                             (uint16) playerObject->GetPosture(),
                              playerObject->getMoodId(),
                              playerObject->getTitle().getAnsi(),
                              playerObject->getPlayerFlags(),

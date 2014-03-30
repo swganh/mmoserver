@@ -146,7 +146,7 @@ void VehicleController::Call() {
 
     BString cust;
     cust.initRawBSTR((int8*)Swoop_Customization, BSTRType_ANSI);
-    body_->setCustomizationStr(cust.getAnsi());
+    body_->setCustomizationStr("");//cust.getAnsi());
     body_->setCreoGroup(CreoGroup_Vehicle);
     body_->setTypeOptions(0x1080);
     body_->setMoodId(0);
@@ -193,7 +193,7 @@ void VehicleController::Call() {
 
 	gObjectManager->LoadSlotsForObject(body_);
 	
-	body_->mPosition.y =	terrain->GetHeight(gWorldManager->getZoneId(), body_->mPosition.x,body_->mPosition.z) + 0.5;
+	body_->mPosition.y =	terrain->GetHeight(gWorldManager->getZoneId(), body_->mPosition.x,body_->mPosition.z) + 0.3;
 
     // Finally rotate it perpendicular to the player.
     body_->rotateRight(90.0f);
@@ -204,6 +204,9 @@ void VehicleController::Call() {
         SAFE_DELETE(body_);
         return;
     }
+
+	auto permissions_objects_ = gObjectManager->GetPermissionsMap();
+	body_->SetPermissions(permissions_objects_.find(swganh::object::RIDEABLE_PERMISSION)->second.get());//CREATURE_PERMISSION
 
 	//currently done by gWorldManager->addObject(body_)
 	//gSpatialIndexManager->createInWorld(body_);
@@ -235,6 +238,7 @@ void VehicleController::Store()
     // todo auto dismount
     if(owner->checkIfMounted())
     {
+		DLOG(info) << "Vehicle::store() dismounted";
         DismountPlayer();
     }
 
@@ -270,6 +274,8 @@ void VehicleController::DismountPlayer() {
         return;
     }
 
+	LOG(error) << "Vehicle::DismountPlayer()";
+
 	PlayerObject* owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(owner_));
 	CreatureObject*		owner_creature = owner->GetCreature();
 
@@ -278,17 +284,20 @@ void VehicleController::DismountPlayer() {
         return;
     }
 
-    //For safe measures make the player equipped by nothing
-	body_->RemoveObject(owner, owner_creature);
-	gMessageLib->sendContainmentMessage_InRange(owner_creature->getId(), 0, owner_creature->GetArrangementId(), owner_creature);
-	gMessageLib->sendUpdateTransformMessage(body_);
+    //see elaboration downstairs
+	// body_->RemoveObject(owner, owner_creature);
+	gMessageLib->sendContainmentMessage_InRange(owner_creature->getId(), 0, 0, owner_creature);
+	//gMessageLib->sendUpdateTransformMessage(body_);
 
     // TODO: make this more automatic...
     gStateManager.removeActionState(owner_creature, CreatureState_RidingMount);   
-    gStateManager.removeActionState(body_, CreatureState_MountedCreature);   
+	gStateManager.setCurrentLocomotionState(owner_creature, CreatureLocomotion_Standing);
+	gStateManager.setCurrentPostureState(owner_creature, CreaturePosture_Upright);
+
+	gStateManager.removeActionState(body_, CreatureState_MountedCreature);   
 
     owner->setMounted(false);
-    gMessageLib->sendPostureAndStateUpdate(owner_creature);  
+
     gMessageLib->sendUpdateMovementProperties(owner);
 }
 
@@ -307,26 +316,24 @@ void VehicleController::MountPlayer()
 	CreatureObject*		owner_creature = owner->GetCreature();
     
 	//Make the mount equip the player
-	body_->AddObject(owner_creature);
-	//thats currently somewhat of a hack as addobject sets the objects parent id
-	//this currently upsets the spatial index code as it thinks the swoop might be a cell
-	//and getrootparent breaks everything as it tries to calculate the lokation relative to the swoop
-	//this needs to be ironed out somehow
-	owner_creature->setParentId(0);
-	LOG(info) << "VehicleController::MountPlayer : arrangement " << owner->GetArrangementId();
-	gMessageLib->sendContainmentMessage_InRange(owner_creature->getId(), body_->getId(), owner_creature->GetArrangementId(), owner_creature);
-    gMessageLib->sendUpdateTransformMessage(body_);
+	// body_->AddObject(owner_creature);
+	//ok this makes hughe problems starting with auto equipping the player crc in the creo (the naked woman riding behind me)
+	//and ending with the question on how to send the auto updates for the creates / destroys as we basically transfer into the main cell (which isnt existent in our core)	
+	
+	gMessageLib->sendContainmentMessage_InRange(owner_creature->getId(), body_->getId(), 4, owner_creature);
   
-    body_->states.toggleActionOn(CreatureState_MountedCreature);
-    gMessageLib->sendStateUpdate(body_);
+	gStateManager.setCurrentActionState(body_, CreatureState_MountedCreature);   
 
+	//gStateManager.removeActionState(owner_creature,CreatureState_ClearState);
     gStateManager.setCurrentActionState(owner_creature,CreatureState_RidingMount);
-	gMessageLib->sendStateUpdate(owner_creature);
-    //gStateManager.setCurrentPostureState(owner_,CreaturePosture_DrivingVehicle);
-    //gStateManager.setCurrentLocomotionState(owner_,CreatureLocomotion_DrivingVehicle);
+    
+	gStateManager.setCurrentPostureState(owner_creature,CreaturePosture_DrivingVehicle);
+    gStateManager.setCurrentLocomotionState(owner_creature,CreatureLocomotion_DrivingVehicle);
 
     owner->setMounted(true);
     gMessageLib->sendUpdateMovementProperties(owner);
+
+	//gMessageLib->sendUpdateTransformMessage(body_);
 }
 
 //===============================================================================================

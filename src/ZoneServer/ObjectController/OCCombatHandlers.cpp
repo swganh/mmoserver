@@ -249,7 +249,7 @@ void ObjectController::_handlePeace(uint64 targetId,Message* message,ObjectContr
 
         player->setCombatTargetId(0);
 
-        //player->states.toggleActionOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
+        //player->toggleStateOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
         // peace state automatically removes the combat states
         gStateManager.setCurrentActionState(player->GetCreature(),CreatureState_Peace);
 

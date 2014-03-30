@@ -479,6 +479,8 @@ bool Object::RemoveObject(Object* requester, Object* oldObject)
 		return false;
 	}
 	
+	//Please Note that a swoop DOES NOT equip its player through this
+	//otherwise were getting trailed by a naked guy/gal
 	if (this->getObjectType() == SWG_PLAYER || this->getObjectType() == SWG_CREATURE)	{
 		CreatureObject* creature = dynamic_cast<CreatureObject*>(this);
 		creature->RemoveEquipmentItem(oldObject->getId());

@@ -114,7 +114,7 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
                 {
                     return;
                 }
-                if(player->getParentId())
+				if(player->GetCreature()->getParentId())
                 {
                     gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "not_inside"), player);
                     return;

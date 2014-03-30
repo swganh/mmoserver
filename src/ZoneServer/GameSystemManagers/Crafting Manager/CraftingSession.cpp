@@ -99,7 +99,7 @@ CraftingSession::CraftingSession(Anh_Utils::Clock* clock,swganh::database::Datab
 	gStateManager.setCurrentActionState(mOwner->GetCreature(),CreatureState_Crafting);
 
 	// send the updates
-	gMessageLib->sendStateUpdate(mOwner->GetCreature());
+
 	gMessageLib->sendUpdateCraftingStage(mOwner);
 	gMessageLib->sendUpdateExperimentationFlag(mOwner);
 	gMessageLib->sendUpdateNearestCraftingStation(mOwner);
@@ -132,7 +132,6 @@ CraftingSession::~CraftingSession()
     gMessageLib->SendSystemMessage(::common::OutOfBand("ui_craft", "session_ended"), mOwner);
 
     // send player updates
-    gMessageLib->sendStateUpdate(mOwner->GetCreature());
     gMessageLib->sendUpdateCraftingStage(mOwner);
     gMessageLib->sendUpdateExperimentationFlag(mOwner);
     gMessageLib->sendUpdateNearestCraftingStation(mOwner);

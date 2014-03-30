@@ -60,9 +60,9 @@ ObjectControllerCommandMap::ObjectControllerCommandMap(swganh::database::Databas
     RegisterCppHooks_();
 
     // load the property map
-    mDatabase->executeSqlAsync(this,NULL,"SELECT commandname,characterability,deny_in_states,healthcost,actioncost,mindcost,"
-                               "animationCrc,addtocombatqueue,defaulttime,scripthook,requiredweapongroup,"
-                               "cbt_spam,trail1,trail2,commandgroup,allowInPosture,"
+    mDatabase->executeSqlAsync(this,NULL,"SELECT commandname,characterability,deny_in_states,healthcost,actioncost,mindcost,"//6
+                               "animationCrc,addtocombatqueue,defaulttime,scripthook,requiredweapongroup,"//11
+                               "cbt_spam,trail1,trail2,commandgroup,allowInPosture,"//16
                                "health_hit_chance,action_hit_chance,mind_hit_chance,"
                                "knockdown_chance,dizzy_chance,blind_chance,stun_chance,intimidate_chance,"
                                "posture_down_chance,extended_range,damage_multiplier,delay_multiplier,deny_in_locomotion"
@@ -124,7 +124,7 @@ void ObjectControllerCommandMap::handleDatabaseJobComplete(void* ref,swganh::dat
     binding->addField(swganh::database::DFT_uint8,offsetof(ObjectControllerCmdProperties,mTrail1),1,12);
     binding->addField(swganh::database::DFT_uint8,offsetof(ObjectControllerCmdProperties,mTrail2),1,13);
     binding->addField(swganh::database::DFT_uint8,offsetof(ObjectControllerCmdProperties,mCmdGroup),1,14);
-    binding->addField(swganh::database::DFT_uint64,offsetof(ObjectControllerCmdProperties,mPostureMask),8,15);
+    binding->addField(swganh::database::DFT_uint64,offsetof(ObjectControllerCmdProperties,mPostureMask),8,15);//allowInPosture
     binding->addField(swganh::database::DFT_float,offsetof(ObjectControllerCmdProperties,mHealthHitChance),4,16);
     binding->addField(swganh::database::DFT_float,offsetof(ObjectControllerCmdProperties,mActionHitChance),4,17);
     binding->addField(swganh::database::DFT_float,offsetof(ObjectControllerCmdProperties,mMindHitChance),4,18);

@@ -428,13 +428,13 @@ public:
     void				sendDataTransformWithParent(Object* object, PlayerObject* player);
     
     
-	void				sendPostureUpdate(CreatureObject* creatureObject);
+
 	void				sendMoodUpdate(CreatureObject* creatureObject);
 	
 	bool				sendUpdateMovementProperties(PlayerObject* playerObject);
-	void				sendStateUpdate(CreatureObject* creatureObject);
+	
 	void				sendSingleBarUpdate(CreatureObject* creatureObject);
-	void				sendPostureAndStateUpdate(CreatureObject* creatureObject);
+	
 	bool				sendSkillDeltasCreo1(Skill* skill,uint8 action,PlayerObject* targetObject);
 	bool				sendSkillModDeltasCREO_4(SkillModsList smList,uint8 remove,CreatureObject* creatureObject,PlayerObject* playerObject);
 	bool				sendUpdatePvpStatus(CreatureObject* creatureObject,PlayerObject* targetObject,uint32 statusMask = 0);

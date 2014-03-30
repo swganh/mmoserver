@@ -464,7 +464,7 @@ bool WorldManager::_handleShuttleUpdate(uint64 callTime,void* ref)
                     shuttle->SetPosture(0);
                     shuttle->setAwayTime(0);
                     shuttle->setShuttleState(ShuttleState_AboutBoarding);
-                    gMessageLib->sendPostureUpdate(shuttle);
+                 
                     gMessageLib->sendCombatAction(shuttle,NULL,opChange_Posture);
                 }
             }
@@ -512,7 +512,6 @@ bool WorldManager::_handleShuttleUpdate(uint64 callTime,void* ref)
                     shuttle->setInPortTime(0);
                     shuttle->setShuttleState(ShuttleState_Away);
                     shuttle->SetPosture(2);
-                    gMessageLib->sendPostureUpdate(shuttle);
                     gMessageLib->sendCombatAction(shuttle,NULL,opChange_Posture);
                 }
             }

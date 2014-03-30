@@ -173,7 +173,8 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
 
     //6
     mMessageFactory->addUint32(creatureObject->getTypeOptions());
-    //7 incap timer
+    
+	//7 incap timer
     mMessageFactory->addUint32(0); // unknown
 
     //8 condition damage (vehicle) //this is the amount of damage... used to set appearence of swoop
@@ -195,7 +196,8 @@ mMessageFactory->addUint32(creatureObject->GetStatMax(HamBar_Health) - creatureO
     {
         MountObject* mount = dynamic_cast<MountObject*>(creatureObject);
         if(mount)
-            mMessageFactory->addUint64(mount->owner());
+			//hack ugly only to test
+            mMessageFactory->addUint64(mount->owner()-7);
         else
             mMessageFactory->addUint64(0);
 
@@ -208,7 +210,7 @@ mMessageFactory->addUint32(creatureObject->GetStatMax(HamBar_Health) - creatureO
         mMessageFactory->addUint64(0);
         mMessageFactory->addFloat(creatureObject->getScale());
 		mMessageFactory->addUint32(creatureObject->GetBattleFatigue());
-        mMessageFactory->addUint64(creatureObject->states.getAction());
+        mMessageFactory->addUint64(creatureObject->GetStateBitmask());
     }
 
     // ham wounds
@@ -504,82 +506,6 @@ void MessageLib::sendMoodUpdate(CreatureObject* srcObject)
     _sendToInRange(mMessageFactory->EndMessage(),srcObject,5);
 }
 
-//======================================================================================================================
-//
-// Creature Deltas Type 6
-// update: posture
-//
-
-void MessageLib::sendPostureUpdate(CreatureObject* creatureObject)
-{
-    mMessageFactory->StartMessage();
-    mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(creatureObject->getId());
-    mMessageFactory->addUint32(opCREO);
-    mMessageFactory->addUint8(3);
-    mMessageFactory->addUint32(5);
-    mMessageFactory->addUint16(1);
-    mMessageFactory->addUint16(11);
-    mMessageFactory->addUint8(creatureObject->GetPosture());
-
-    _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
-}
-
-//======================================================================================================================
-//
-// Creature Deltas Type 6
-// update: posture and state
-//
-
-void MessageLib::sendPostureAndStateUpdate(CreatureObject* creatureObject)
-{
-    // Test code for npc combat with objects that can have no states, like debris.
-
-	MessageFactory* factory = getFactory_();
-
-    if (creatureObject->getCreoGroup() != CreoGroup_AttackableObject)
-    {
-        factory->StartMessage();
-        factory->addUint32(opDeltasMessage);
-        factory->addUint64(creatureObject->getId());
-        factory->addUint32(opCREO);
-        factory->addUint8(3);
-        factory->addUint32(15);
-        factory->addUint16(2);
-        factory->addUint16(11);
-        factory->addUint8(creatureObject->GetPosture());
-        factory->addUint16(16);
-        factory->addUint64(creatureObject->states.getAction());
-
-        _sendToInRange(factory->EndMessage(),creatureObject,5);
-		factory_queue_.push(factory);
-    }
-}
-
-//======================================================================================================================
-//
-// Creature Deltas Type 6
-// update: state
-//
-
-void MessageLib::sendStateUpdate(CreatureObject* creatureObject)
-{
-    // Test code for npc combat with objects that can have no states, like debris.
-    if (creatureObject->getCreoGroup() != CreoGroup_AttackableObject)
-    {
-        mMessageFactory->StartMessage();
-        mMessageFactory->addUint32(opDeltasMessage);
-        mMessageFactory->addUint64(creatureObject->getId());
-        mMessageFactory->addUint32(opCREO);
-        mMessageFactory->addUint8(3);
-        mMessageFactory->addUint32(12);
-        mMessageFactory->addUint16(1);
-        mMessageFactory->addUint16(16);
-        mMessageFactory->addUint64(creatureObject->states.getAction());
-
-        _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
-    }
-}
 
 //======================================================================================================================
 //

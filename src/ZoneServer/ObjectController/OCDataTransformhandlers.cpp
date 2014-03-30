@@ -115,7 +115,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	//the buildings content remains known until the building leaves range
     if(body_->getParentId() != 0 && (!player_->checkIfMounted()) )
     {
-
+		LOG(error) << "ObjectController::handleDataTransform parent : " << body_->getParentId();
         // remove us from the last cell we were in
         CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(body_->getParentId()));
         if(cell)        {
@@ -131,7 +131,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
         body_->setParentId(0);
 
         // Add us to the world.
-        gMessageLib->broadcastContainmentMessage(body_->getId(),0,4,player_);
+        gMessageLib->broadcastContainmentMessage(body_->getId(),body_->getParentId(),4,player_);
 
         // Inform tutorial about cell change.
         if (gWorldConfig->isTutorial())        {
@@ -171,12 +171,6 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
         }
     }
 
-    if (gWorldConfig->isInstance())    {
-        // send out position updates to known players in group or self only
-        gMessageLib->sendUpdateTransformMessage(body_, player_);
-        return;
-    }	
-
     //If player is mounted... move his mount too!
     if(player_->checkIfMounted() && player_->getMount())
     {
@@ -212,10 +206,14 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 
 void ObjectController::handleDataTransformWithParent(Message* message,bool inRangeUpdate)
 {
+
+
     // FIXME: for now assume we only get messages from players
 	CreatureObject*	body_	= dynamic_cast<CreatureObject*>(mObject);
 	PlayerObject*	player	= body_->GetGhost();
-    
+
+	LOG(error) << "ObjectController::handleDataTransformwithparent : " << body_->getParentId();
+
 	glm::vec3       pos;
     glm::quat       dir;
     uint32          inMoveCount;

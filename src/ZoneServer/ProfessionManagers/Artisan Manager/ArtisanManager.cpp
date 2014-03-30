@@ -871,7 +871,6 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,std::u16string in
             gStateManager.setCurrentPostureState(player->GetCreature(), CreaturePosture_Upright);
             player->GetCreature()->updateMovementProperties();
             gMessageLib->sendUpdateMovementProperties(player);
-            gMessageLib->sendPostureAndStateUpdate(player->GetCreature());
             
             return;
 

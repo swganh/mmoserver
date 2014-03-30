@@ -53,6 +53,12 @@ using namespace swganh::messages;
 
 void CreatureMessageBuilder::RegisterEventHandlers()
 {
+	event_dispatcher_->Subscribe("CreatureObject::StateBitmask", [this] (std::shared_ptr<EventInterface> incoming_event)
+    {
+        auto value_event = std::static_pointer_cast<CreatureObjectEvent>(incoming_event);
+        BuildStateBitmaskDelta(value_event->Get());
+    });
+
 	event_dispatcher_->Subscribe("CreatureObject::InventoryCredits", [this] (std::shared_ptr<EventInterface> incoming_event)
     {
         auto value_event = std::static_pointer_cast<CreatureObjectEvent>(incoming_event);
@@ -135,6 +141,14 @@ void CreatureMessageBuilder::RegisterEventHandlers()
         BuildPostureDelta(value_event->Get());
         //BuildPostureUpdate(value_event->Get());
     });
+}
+
+void CreatureMessageBuilder::BuildStateBitmaskDelta(CreatureObject* const creature)
+{
+	LOG(info) << "CreatureMessageBuilder::StateBitmask: " << creature->getId() << " : " << creature->GetStateBitmask();
+    DeltasMessage message = CreateDeltasMessage(creature, VIEW_3, 16, SWG_CREATURE);
+    message.data.write<uint64_t>(creature->GetStateBitmask());
+    gMessageLib->broadcastDelta(message,creature);
 }
 
 void CreatureMessageBuilder::BuildWeaponIdDelta(CreatureObject* const creature)
@@ -275,6 +289,7 @@ void CreatureMessageBuilder::BuildSkillDelta(CreatureObject* const  creature)
 
 void CreatureMessageBuilder::BuildPostureDelta(CreatureObject* const creature)
 {
+	LOG(info) << "CreatureMessageBuilder::PostureBitmask: " << creature->getId() << " : " << creature->GetPosture();
     DeltasMessage message = CreateDeltasMessage(creature, VIEW_3, 11, SWG_CREATURE);
     message.data.write<uint8_t>(creature->GetPosture());
     gMessageLib->broadcastDelta(message,creature);
@@ -319,7 +334,7 @@ boost::optional<BaselinesMessage> CreatureMessageBuilder::BuildBaseline3( Creatu
     message.data.write<uint64_t>(creature->owner());                      // Owner Id
     message.data.write<float>(creature->getScale());                            // Scale
     message.data.write<uint32_t>(creature->GetBattleFatigue(lock));                // Battle Fatigue
-    message.data.write<uint64_t>(creature->states.getAction());                 // States Bitmask
+    message.data.write<uint64_t>(creature->GetStateBitmask());                 // States Bitmask
     creature->SerializeStatWounds(&message, lock);                          // Stat Wounds
     return BaselinesMessage(std::move(message));
 }

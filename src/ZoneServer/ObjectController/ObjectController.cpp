@@ -843,7 +843,7 @@ void ObjectController::removeMsgFromCommandQueueBySequence(uint32 sequence)
 
 //=============================================================================
 //
-// checks if a command is allowed to be executed
+// checks if a command is allowed to be enqueued
 // sets the according error replies
 //
 

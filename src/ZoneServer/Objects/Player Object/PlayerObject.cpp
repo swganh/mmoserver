@@ -2044,7 +2044,7 @@ bool PlayerObject::handlePostureUpdate(IEventPtr triggered_event)
             }
 
             gMessageLib->sendUpdateMovementProperties(player);
-            gMessageLib->sendPostureAndStateUpdate(player->GetCreature());
+
             
         }
         return true;
@@ -2205,7 +2205,6 @@ bool PlayerObject::handleActionStateUpdate(::common::IEventPtr triggered_event)
     }
     if (CreatureObject* creo = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(pre_event->getCreatureObjectByID())))
     {
-        creo->creatureActionStateUpdate();
         return true;
     }
     return false;

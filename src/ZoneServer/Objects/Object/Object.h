@@ -196,7 +196,7 @@ public:
 	*			phase out and use the getObjectType()
 	*/
 	ObjectType					getType() const { return mType; }
-	uint32						getTypeOptions() const { return mTypeOptions; }
+	
 
 	void						setType(ObjectType type){ mType = type; }
 	
@@ -206,6 +206,7 @@ public:
 	CRC_Type					getObjectType() const { return object_type_; }
 		
 	void						setTypeOptions(uint32 options){ mTypeOptions = options; }
+	uint32						getTypeOptions() const { return mTypeOptions; }
 
 
 	RadialMenuPtr				getRadialMenu(){ return mRadialMenu; }

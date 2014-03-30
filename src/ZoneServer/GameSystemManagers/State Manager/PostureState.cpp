@@ -446,7 +446,7 @@ void PostureIncapacitated::Enter(CreatureObject* obj)
     obj->states.blockLayers();
     obj->SetPosture(mStateID);
     // clear all states
-    obj->states.toggleActionOn(CreatureState_ClearState);
+    obj->toggleStateOn(CreatureState_ClearState);
 }
 //	Posture Dead
 PostureDead::PostureDead(StateManager* const sm) : PostureState(sm)
@@ -461,5 +461,5 @@ void PostureDead::Enter(CreatureObject* obj)
     obj->states.blockLayers();
     obj->SetPosture(mStateID);
     // clear all states
-    obj->states.toggleActionOn(CreatureState_ClearState);
+    obj->toggleStateOn(CreatureState_ClearState);
 }

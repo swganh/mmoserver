@@ -639,11 +639,11 @@ void PlayerObjectFactory::storeCharacterAttributes_(PlayerObject* player_object)
                  << "focus_wounds=" << ham->mFocus.getWounds() << ", "
                  << "willpower_wounds=" << ham->mWillpower.getWounds() << ", "
                  << "battlefatigue=" << ham->getBattleFatigue() << ", "*/
-                 << "posture=" << player_object->GetCreature()->GetPosture() << ", "
+                 << "posture=" << (uint16) player_object->GetCreature()->GetPosture() << ", "
                  << "moodId=" << static_cast<uint16_t>(player_object->GetCreature()->getMoodId()) << ", "
                  << "title='" << mDatabase->escapeString(player_object->getTitle().getAnsi()) << "', "
                  << "character_flags=" << player_object->getPlayerFlags() << ", "
-                 << "states=" << player_object->GetCreature()->states.getAction() << ", "
+                 << "states=" << player_object->GetCreature()->GetStateBitmask() << ", "
                  << "language=" << player_object->getLanguage() << ", "
                  << "new_player_exemptions=" <<  static_cast<uint16_t>(player_object->getNewPlayerExemptions()) << " "
                  << "WHERE character_id=" << player_object->getId();
@@ -915,7 +915,8 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
 
     if(creature->GetPosture() == CreaturePosture_SkillAnimating
             || creature->GetPosture() == CreaturePosture_Incapacitated
-            || creature->GetPosture() == CreaturePosture_Dead)
+            || creature->GetPosture() == CreaturePosture_Dead
+			|| creature->GetPosture() == CreaturePosture_DrivingVehicle)
     {
         creature->SetPosture(CreaturePosture_Upright);
     }
@@ -924,7 +925,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
 	//on a fresh login however these states should be (??? or not ???) reset
 
     // Todo : which states remain valid after a zone to zone transition ??? in order to transfer zone e need to be out of combat - so ... none ?
-    creature->states.toggleActionOff((CreatureState)(
+    creature->toggleStateOff((CreatureState)(
             CreatureState_Cover |
             CreatureState_Combat |
             CreatureState_Aiming |
@@ -1002,7 +1003,7 @@ void PlayerObjectFactory::_setupDatabindings()
     creature_binding->addField(swganh::database::DFT_stdstring,offsetof(CreatureObject,last_name),64,12);
     creature_binding->addField(swganh::database::DFT_bstring,offsetof(CreatureObject,mSpecies),16,16);
     creature_binding->addField(swganh::database::DFT_bstring,offsetof(CreatureObject,mFaction),16,134);
-    creature_binding->addField(swganh::database::DFT_uint8,offsetof(CreatureObject,states.posture_),1,135);
+    creature_binding->addField(swganh::database::DFT_uint16,offsetof(CreatureObject,states.posture_),1,135);
     creature_binding->addField(swganh::database::DFT_uint8,offsetof(CreatureObject,mMoodId),1,136);
     //mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mJediState),4,137);
     //mPlayerBinding->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mTitle),255,138);

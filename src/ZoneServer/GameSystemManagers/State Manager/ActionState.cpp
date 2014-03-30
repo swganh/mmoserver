@@ -47,11 +47,11 @@ ActionState::ActionState(StateManager* const sm) : IState(),
 
 void ActionState::Enter(CreatureObject* obj)
 {
-    obj->states.toggleActionOn(mStateID);
+    obj->toggleStateOn(mStateID);
 }
 void ActionState::Exit(CreatureObject* obj)
 {
-    obj->states.toggleActionOff(mStateID);
+    obj->toggleStateOff(mStateID);
 }
 bool ActionState::CanTransition(CreatureObject* obj, uint64 newState)
 { 
@@ -152,7 +152,7 @@ void StateCombat::Enter(CreatureObject* obj)
 {
     actionMap[CreatureState_Peace]->Exit(obj);
 
-    obj->states.toggleActionOn(mStateID);
+    obj->toggleStateOn(mStateID);
 }
 
 // State Peace
@@ -172,14 +172,13 @@ void StatePeace::Enter(CreatureObject* obj)
 
     actionMap[CreatureState_Combat]->Exit(obj);
     
-    obj->states.toggleActionOn(mStateID);
+    obj->toggleStateOn(mStateID);
 
     // turn it back off after 5 seconds
     // yay for Lambdas
     std::shared_ptr<SimpleEvent> start_peace_delay_event = std::make_shared<SimpleEvent>(EventType("start_peace"),0, 5000, [=] 
     {
-         obj->states.toggleActionOff(CreatureState_Peace); 
-         gMessageLib->sendPostureAndStateUpdate(obj);
+         obj->toggleStateOff(CreatureState_Peace); 
     });
     gEventDispatcher.Notify(start_peace_delay_event);
 }
@@ -386,7 +385,7 @@ StateSwimming::StateSwimming(StateManager* const sm) : ActionState(sm)
 void StateSwimming::Enter(CreatureObject* obj)
 {
     actionMap[CreatureState_OnFire]->Exit(obj);
-    obj->states.toggleActionOn(mStateID);
+    obj->toggleStateOn(mStateID);
 }
 // SittingOnaChair State
 StateSittingOnChair::StateSittingOnChair(StateManager* const sm) : ActionState(sm)

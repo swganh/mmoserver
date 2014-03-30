@@ -47,12 +47,15 @@ bool EVState::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 o
 		// skip over commands with no state requirement and check the rest
 		if((cmdProperties->mStates != 0) && creature->states.checkStates(cmdProperties->mStates))
 		{
+			LOG(info) << "EVState::validate :: states Mask" << cmdProperties->mStates << " creature : " << creature->GetStateBitmask();
 			reply1 = kCannotDoWhileState;
-			reply2 = this->mController->getLowestCommonBit(creature->states.getAction(), cmdProperties->mStates);
+			reply2 = this->mController->getLowestCommonBit(creature->GetStateBitmask(), cmdProperties->mStates);
 			return false;
 		}
-		if (cmdProperties->mLocomotionMask !=0 && ((cmdProperties->mLocomotionMask & creature->GetPosture()) != 0))
+		//command_table.deny_in_locomotion
+		if (cmdProperties->mLocomotionMask !=0 && ((cmdProperties->mLocomotionMask & creature->states.getLocomotion()) != 0))
 		{
+			LOG(info) << "EVState::validate :: Locomotion Mask" << cmdProperties->mLocomotionMask << " creature : " << creature->states.getLocomotion();
 			reply1 = kCannotDoWhileLocomotion;
 			reply2 = mController->getPostureValidator(creature->states.getLocomotion());
 			return false;

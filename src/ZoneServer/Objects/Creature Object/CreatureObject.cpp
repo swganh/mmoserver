@@ -159,12 +159,10 @@ CreatureObject::~CreatureObject()
             }
 
             // if no more defenders, clear combat state
-            if(!defenderCreature->GetDefender().size())
-            {
+            if(!defenderCreature->GetDefender().size())            {
                 // TODO: replace
                 gStateManager.removeActionState(this, CreatureState_Combat);
 
-                gMessageLib->sendStateUpdate(defenderCreature);
             }
         }
 
@@ -662,11 +660,7 @@ void CreatureObject::updateRaceGenderMask(bool female)
         }
     }
 }
-//gets called by the active Object of the statemanager
-void CreatureObject::creatureActionStateUpdate()
-{
-	gMessageLib->sendPostureAndStateUpdate(this);   
-}
+
 void CreatureObject::creaturePostureUpdate()
 {
     this->updateMovementProperties();
@@ -2083,25 +2077,60 @@ PlayerObject*	CreatureObject::GetGhost(boost::unique_lock<boost::mutex>& lock)
 	return ghost_;
 }
 
-void CreatureObject::SetPosture(uint32 posture)
+uint64_t CreatureObject::GetStateBitmask()
+{
+    auto lock = AcquireLock();
+    return GetStateBitmask(lock);
+}
+
+uint64_t CreatureObject::GetStateBitmask(boost::unique_lock<boost::mutex>& lock)
+{
+    return states.action;
+}
+
+void CreatureObject::toggleStateOn(CreatureState state)
+{ 
+	auto lock = AcquireLock();
+	toggleStateOn(state, lock);
+}
+
+void CreatureObject::toggleStateOn(CreatureState state, boost::unique_lock<boost::mutex>& lock)
+{ 
+	states.action = states.action | state; 
+	GetEventDispatcher()->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StateBitmask", this));
+}
+
+void CreatureObject::toggleStateOff(CreatureState state)
+{ 
+	auto lock = AcquireLock();
+	toggleStateOff(state, lock);
+}
+
+void CreatureObject::toggleStateOff(CreatureState state, boost::unique_lock<boost::mutex>& lock)
+{ 
+	states.action = states.action & ~ state;
+	GetEventDispatcher()->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StateBitmask", this));
+}
+
+void CreatureObject::SetPosture(uint8 posture)
 {
     auto lock = AcquireLock();
     SetPosture(posture, lock);
 }
 
-void CreatureObject::SetPosture(uint32 posture, boost::unique_lock<boost::mutex>& lock)
+void CreatureObject::SetPosture(uint8 posture, boost::unique_lock<boost::mutex>& lock)
 {
     states.posture_ = posture;
 	GetEventDispatcher()->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::Posture", this));
 }
 
-uint32_t	CreatureObject::GetPosture()
+uint8	CreatureObject::GetPosture()
 {
     auto lock = AcquireLock();
     return GetPosture(lock);
 }
 
-uint32_t CreatureObject::GetPosture(boost::unique_lock<boost::mutex>& lock)
+uint8 CreatureObject::GetPosture(boost::unique_lock<boost::mutex>& lock)
 {
     return states.posture_;
     //GetEventDispatcher()->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::Posture", this));

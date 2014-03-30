@@ -39,10 +39,13 @@ EVPosture::~EVPosture()
 
 bool EVPosture::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 opcode, ObjectControllerCmdProperties*& cmdProperties)
 {
+	//command_table.allowInPosture
     if(CreatureObject* creature = dynamic_cast<CreatureObject*>(mController->getObject()))
     {
-        uint32 postureBit = 1 << creature->GetPosture();
-
+        //uint32 postureBit = 1 << creature->GetPosture();
+		uint64 postureBit = creature->GetPosture();
+		LOG(info) << "EVPosture::validate creature" << postureBit;
+		LOG(info) << "EVPosture::validate command" << cmdProperties->mPostureMask;
         // check our posture
         if(cmdProperties && ((cmdProperties->mPostureMask & postureBit) != postureBit))
         {

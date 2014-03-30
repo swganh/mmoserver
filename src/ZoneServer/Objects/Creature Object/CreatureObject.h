@@ -198,19 +198,28 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
         bool				checkPvPState(CreaturePvPStatus state){ return((CreaturePvPStatus)(mPvPStatus & state) == state); }
         
 		// posture states
-        uint32_t        GetPosture();
-		uint32_t        GetPosture(boost::unique_lock<boost::mutex>& lock);
+        uint8        GetPosture();
+		uint8        GetPosture(boost::unique_lock<boost::mutex>& lock);
 
-		void			SetPosture(uint32_t posture);
-		void			SetPosture(uint32_t posture, boost::unique_lock<boost::mutex>& lock);
-                        
+		void			SetPosture(uint8 posture);
+		void			SetPosture(uint8 posture, boost::unique_lock<boost::mutex>& lock);
+            
+		void            toggleStateOn(CreatureState state);
+		void            toggleStateOn(CreatureState state, boost::unique_lock<boost::mutex>& lock);
+
+		void            toggleStateOff(CreatureState state);
+		void            toggleStateOff(CreatureState state, boost::unique_lock<boost::mutex>& lock);
+
+		uint64_t		GetStateBitmask();
+		uint64_t		GetStateBitmask(boost::unique_lock<boost::mutex>& lock);
 
         // ONLY SWITCH STATES THROUGH THE STATE MANAGER!
         struct STATES
         {
-            uint32_t          posture_;
+            uint8			  posture_;
             uint32_t          locomotion;
             uint64_t          action;
+
             bool              blockPosture;
             bool              blockAction;
             bool              blockLocomotion;
@@ -218,15 +227,13 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
             void            blockLayers() { blockPosture = true; blockAction = true; blockLocomotion = true; }
             void            unblock() { blockPosture = false; blockAction = false; blockLocomotion = false; }
 			
-			bool			checkPosture(uint32_t pos) const { return (posture_ == pos); }
+			bool			checkPosture(uint8 pos) const { return (posture_ == pos); }
             // locomotion states
             uint32_t        getLocomotion() { return locomotion; }
             void            setLocomotion(uint32_t loco) { locomotion = loco; }
             bool			checkLocomotion(uint32_t loco) const { return (locomotion == loco); }
             // action states
-            uint64_t        getAction(){return action;}
-            void            toggleActionOn(CreatureState state){ action = action | state; }
-            void            toggleActionOff(CreatureState state){ action = action & ~ state; }
+            
             bool            checkState(CreatureState state){ return ((action & state) == state); }
             bool            checkStates(uint64_t states){ return ((action & states) == states); }
             bool            checkStatesEither(uint64_t states){ return ((action & states) != 0); }
@@ -333,7 +340,7 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
         // new event helper functions
         void                creaturePostureUpdate();
         void                creatureLocomotionUpdate();
-        void                creatureActionStateUpdate();
+      
         // event functions
         void				onIncapRecovery(const IncapRecoveryEvent* event);
 

@@ -137,7 +137,7 @@ void StateManager::setCurrentPostureState(CreatureObject* object, CreaturePostur
         if (mPostureStateMap[object->GetPosture()]->CanTransition(object, newPosture))
         {
             // EXIT OLD STATE
-            mPostureStateMap[object->GetPosture()]->Exit(object);
+            //mPostureStateMap[object->GetPosture()]->Exit(object);
 
             // ENTER NEW STATE
             mPostureStateMap[newPosture]->Enter(object);
@@ -154,7 +154,7 @@ void StateManager::setCurrentPostureState(CreatureObject* object, CreaturePostur
 
 void StateManager::setCurrentActionState(CreatureObject* object, CreatureState newState)
 {    
-    auto action_update_event = std::make_shared<ActionStateUpdateEvent>(object->getId(), object->states.getAction(), newState);
+    auto action_update_event = std::make_shared<ActionStateUpdateEvent>(object->getId(), object->GetStateBitmask(), newState);
     ActionStateMap::iterator iter = mActionStateMap.find(newState);
     if (iter != mActionStateMap.end())
     {
@@ -173,11 +173,11 @@ void StateManager::setCurrentActionState(CreatureObject* object, CreatureState n
         }
         else
         {
-            DLOG(warning) << "unable to transition from " << object->states.getAction() << " to" << static_cast<uint64_t>(newState);
+            DLOG(warning) << "unable to transition from " << object->GetStateBitmask() << " to" << static_cast<uint64_t>(newState);
 			std::string message("You cannot transition from this Action state");
 			gMessageLib->SendSystemMessage(std::u16string(message.begin(), message.end()));
         }
-        gEventDispatcher.Notify(action_update_event);
+        //gEventDispatcher.Notify(action_update_event);
     }
 }
 
@@ -191,9 +191,23 @@ void StateManager::setCurrentLocomotionState(CreatureObject* object, CreatureLoc
         if (mActionStateMap[newLocomotion]->CanTransition(object, newLocomotion))
         {
             // Exit old State
-            mLocomotionStateMap[object->states.getLocomotion()]->Exit(object);
+			auto it = mLocomotionStateMap.find(object->states.getLocomotion());
+			if(it != mLocomotionStateMap.end())	{
+			
+				mLocomotionStateMap[object->states.getLocomotion()]->Exit(object);
+			} else	{
+				LOG(error) << "StateManager::setCurrentLocomotionState unable to find old Locomotion state" << object->states.getLocomotion();
+			}
+
             // Enter new State
-            mLocomotionStateMap[newLocomotion]->Enter(object);
+			it = mLocomotionStateMap.find(newLocomotion);
+			if(it != mLocomotionStateMap.end())	{
+			
+				mLocomotionStateMap[newLocomotion]->Enter(object);
+			}	else	{
+
+				LOG(error) << "StateManager::setCurrentLocomotionState unable to find new Locomotion state";
+			}
         }
         else
         {
@@ -206,12 +220,12 @@ void StateManager::setCurrentLocomotionState(CreatureObject* object, CreatureLoc
 }
 void StateManager::removeActionState(CreatureObject* obj, CreatureState stateToRemove)
 {
-        auto action_update_event = std::make_shared<ActionStateUpdateEvent>(obj->getId(), obj->states.getAction(), stateToRemove);
+        auto action_update_event = std::make_shared<ActionStateUpdateEvent>(obj->getId(), obj->GetStateBitmask(), stateToRemove);
         // check if we can transition out of this action state
         if (mActionStateMap[stateToRemove]->CanTransition(obj, stateToRemove))
         {
             // Exit old State
-            obj->states.toggleActionOff(stateToRemove);
+            obj->toggleStateOff(stateToRemove);
         }
         else
         {

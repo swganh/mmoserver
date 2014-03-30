@@ -918,8 +918,8 @@ void	EntertainerManager::startMusicPerformance(PlayerObject* entertainer,BString
         //gMessageLib->sendEntertainerCreo6PartB(this);
 
         //posture
-        entertainer->GetCreature()->SetPosture(CreaturePosture_SkillAnimating);
-        gMessageLib->sendPostureUpdate(entertainer->GetCreature());
+		gStateManager.setCurrentPostureState(entertainer->GetCreature(),CreaturePosture_SkillAnimating);
+
         //gMessageLib->sendSelfPostureUpdate(entertainer->GetCreature());
 
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_start_self"), entertainer);
@@ -960,8 +960,7 @@ void	EntertainerManager::startDancePerformance(PlayerObject* entertainer,BString
         gMessageLib->sendPerformanceId(entertainer->GetCreature());
 
         //posture
-        entertainer->GetCreature()->SetPosture(CreaturePosture_SkillAnimating);
-        gMessageLib->sendPostureUpdate(entertainer->GetCreature());
+        gStateManager.setCurrentPostureState(entertainer->GetCreature(),CreaturePosture_SkillAnimating);
 
         gMessageLib->sendAnimationString(entertainer->GetCreature());
 
@@ -1910,8 +1909,8 @@ void EntertainerManager::handlePerformancePause(CreatureObject* mObject)
         gMessageLib->sendCreatureAnimation(entertainer->GetCreature(), BString(animation));
         gMessageLib->sendperformFlourish(entertainer, 0);
 
-        gStateManager.setCurrentPostureState(entertainer->GetCreature(), CreaturePosture_Upright);
-        gMessageLib->sendPostureUpdate(entertainer->GetCreature());
+		gStateManager.setCurrentPostureState(entertainer->GetCreature(),CreaturePosture_Upright);
+        
         //gMessageLib->sendSelfPostureUpdate(entertainer);
 
         entertainer->GetCreature()->setCurrentAnimation("");

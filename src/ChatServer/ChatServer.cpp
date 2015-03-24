@@ -31,7 +31,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <fstream>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "anh/logger.h"
+=======
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
 #include <glog/logging.h>
 >>>>>>> parent of 5bd772a... got rid of google log
@@ -83,11 +87,15 @@ ChatServer::ChatServer(int argc, char* argv[])
 {
     Anh_Utils::Clock::Init();
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 	std::stringstream log_file_name;
 	log_file_name << "logs/Chatserver.log";
 	LOG(warning) << "Chat Server Startup";	
 	LOGINIT(log_file_name.str());
+=======
+    LOG(WARNING) << "Chat Server Startup";
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
     LOG(WARNING) << "Chat Server Startup";
 >>>>>>> parent of 5bd772a... got rid of google log
@@ -226,6 +234,9 @@ void ChatServer::Process()
 =======
         mLastHeartbeat = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
         DLOG(INFO) << "ChatServer Heartbeat.";
+<<<<<<< HEAD
+>>>>>>> parent of 5bd772a... got rid of google log
+=======
 >>>>>>> parent of 5bd772a... got rid of google log
     }
 }
@@ -285,9 +296,12 @@ void ChatServer::_connectToConnectionServer()
     mClient = new DispatchClient();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	LOG(info) << "New connection to " << processAddress.mAddress << " on port " << processAddress.mPort;
 	mRouterService->Connect(mClient, processAddress.mAddress.c_str(), processAddress.mPort);
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log
 	LOG(INFO) << "New connection to " << processAddress.mAddress.getAnsi() << " on port " << processAddress.mPort;
     mRouterService->Connect(mClient, processAddress.mAddress.getAnsi(), processAddress.mPort);
 >>>>>>> parent of 5bd772a... got rid of google log

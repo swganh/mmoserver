@@ -127,8 +127,11 @@ bool SpatialIndexManager::_AddObject(PlayerObject *player)
 	uint32 finalBucket = getGrid()->AddObject(player->GetCreature());
 
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Spatial Index Manager/SpatialIndexManager.cpp
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Spatial Index Manager/SpatialIndexManager.cpp
     //DLOG(info) << "SpatialIndexManager::AddObject :: Player " << player->GetCreature()->getId() << " added to bucket " <<  finalBucket;
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/SpatialIndexManager.cpp
     DLOG(INFO) << "SpatialIndexManager::AddObject :: Player " << player->getId() << " added to bucket " <<  finalBucket;
 
     //any errors ?
@@ -309,6 +312,9 @@ void SpatialIndexManager::RemoveObjectFromWorld(PlayerObject *removePlayer)
     }
     else    {
         DLOG(INFO) << "SpatialIndexManager::RemoveObjectFromWorld (player): couldn't find cell " << removePlayer->getParentId();
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Spatial Index Manager/SpatialIndexManager.cpp
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/SpatialIndexManager.cpp
+=======
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/SpatialIndexManager.cpp
     }
 
@@ -488,6 +494,7 @@ void SpatialIndexManager::removeStructureItemsForPlayer(PlayerObject* player, Bu
 void SpatialIndexManager::_CheckObjectIterationForDestruction(Object* toBeTested, Object* updatedObject)
 {
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Spatial Index Manager/SpatialIndexManager.cpp
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Spatial Index Manager/SpatialIndexManager.cpp
     //DLOG(info) << "SpatialIndexManager::_CheckObjectIterationForDestruction (Player) :: check : " <<toBeTested->getId() << " to be removed from " << toBeUpdated->getId();
 	//remove updateObject from toBeTested watcher list in case updateObject is a player
 
@@ -496,6 +503,9 @@ void SpatialIndexManager::_CheckObjectIterationForDestruction(Object* toBeTested
 		DLOG(info) << "SpatialIndexManager::_CheckObjectIterationForDestruction :: prevented static from being destroyed";
 		return;
 	}
+=======
+    //DLOG(INFO) << "SpatialIndexManager::_CheckObjectIterationForDestruction (Player) :: check : " <<toBeTested->getId() << " to be removed from " << toBeUpdated->getId();
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/SpatialIndexManager.cpp
 =======
     //DLOG(INFO) << "SpatialIndexManager::_CheckObjectIterationForDestruction (Player) :: check : " <<toBeTested->getId() << " to be removed from " << toBeUpdated->getId();
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/SpatialIndexManager.cpp

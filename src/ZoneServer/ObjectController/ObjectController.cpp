@@ -50,14 +50,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageLib/MessageLib.h"
 
 <<<<<<< HEAD:src/ZoneServer/ObjectController/ObjectController.cpp
+<<<<<<< HEAD:src/ZoneServer/ObjectController/ObjectController.cpp
 #include "anh/logger.h"
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ObjectController.cpp
 // Fix for issues with glog redefining this constant
 #ifdef ERROR
 #undef ERROR
 #endif
 
 #include <glog/logging.h>
+<<<<<<< HEAD:src/ZoneServer/ObjectController/ObjectController.cpp
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ObjectController.cpp
+=======
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ObjectController.cpp
 
 #include "DatabaseManager/Database.h"

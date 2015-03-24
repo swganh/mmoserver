@@ -28,7 +28,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log
 #include <glog/logging.h>
 
 >>>>>>> parent of 5bd772a... got rid of google log
@@ -146,9 +149,12 @@ using boost::smatch;
 using boost::regex_match;
 #endif
 
+<<<<<<< HEAD
 
 using swganh::event_dispatcher::EventDispatcher;
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log
 using anh::event_dispatcher::EventDispatcher;
 >>>>>>> parent of 5bd772a... got rid of google log
 using std::make_shared;
@@ -208,6 +214,9 @@ ZoneServer::ZoneServer(int argc, char* argv[], swganh::app::SwganhKernel*	kernel
 
 
     LOG(ERROR) << "ZoneServer startup sequence for [" << mZoneName << "]";
+<<<<<<< HEAD
+>>>>>>> parent of 5bd772a... got rid of google log
+=======
 >>>>>>> parent of 5bd772a... got rid of google log
 
     // Create and startup our core services.
@@ -260,7 +269,11 @@ ZoneServer::ZoneServer(int argc, char* argv[], swganh::app::SwganhKernel*	kernel
 	if (!result->getRowCount())
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
 		LOG(error) << "Map not found for [" << kernel_->GetAppConfig().zone_name << "]";
+=======
+        LOG(ERROR) << "Map not found for [" << mZoneName << "]";
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
         LOG(ERROR) << "Map not found for [" << mZoneName << "]";
 >>>>>>> parent of 5bd772a... got rid of google log
@@ -365,7 +378,11 @@ ZoneServer::ZoneServer(int argc, char* argv[], swganh::app::SwganhKernel*	kernel
 ZoneServer::~ZoneServer(void)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
     LOG(info) << "ZoneServer shutting down...";
+=======
+    LOG(INFO) << "ZoneServer shutting down";
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
     LOG(INFO) << "ZoneServer shutting down";
 >>>>>>> parent of 5bd772a... got rid of google log
@@ -408,9 +425,13 @@ ZoneServer::~ZoneServer(void)
     gMessageFactory->destroySingleton();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	gClock->destroySingleton();
 
     LOG(info) << "...ZoneServer shutdown complete";
+=======
+    LOG(INFO) << "ZoneServer shutdown complete";
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
     LOG(INFO) << "ZoneServer shutdown complete";
 >>>>>>> parent of 5bd772a... got rid of google log
@@ -528,10 +549,25 @@ void ZoneServer::_connectToConnectionServer(void)
 int main(int argc, char* argv[])
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
     //InitAllocCheck();
 =======
     // Initialize the google logging.
     google::InitGoogleLogging(argv[0]);
+=======
+    // Initialize the google logging.
+    google::InitGoogleLogging(argv[0]);
+
+#ifndef _WIN32
+    google::InstallFailureSignalHandler();
+#endif
+
+    FLAGS_log_dir = "./logs";
+    FLAGS_stderrthreshold = 0;
+
+    //set stdout buffers to 0 to force instant flush
+    setvbuf( stdout, NULL, _IONBF, 0);
+>>>>>>> parent of 5bd772a... got rid of google log
 
 #ifndef _WIN32
     google::InstallFailureSignalHandler();

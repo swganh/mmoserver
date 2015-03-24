@@ -27,8 +27,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/WorldConfig.h"
 
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/UI Manager/UIManager.cpp
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/UI Manager/UIManager.cpp
 #include "anh/logger.h"
 #include "anh/Utils/rand.h"
+=======
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/UIManager.cpp
 =======
 #include <glog/logging.h>
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/UIManager.cpp
@@ -57,7 +61,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageDispatch.h"
 #include "NetworkManager/MessageFactory.h"
 
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/UI Manager/UIManager.cpp
 
+=======
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/UIManager.cpp
 #ifdef WIN32
 #undef ERROR
 #endif

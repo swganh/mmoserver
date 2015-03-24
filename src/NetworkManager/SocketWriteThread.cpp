@@ -28,7 +28,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "SocketWriteThread.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "anh/logger.h"
+=======
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
 #include <glog/logging.h>
 >>>>>>> parent of 5bd772a... got rid of google log

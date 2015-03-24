@@ -31,13 +31,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageLib/MessageLib.h"
 
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Travel Manager/TravelTerminal.cpp
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Travel Manager/TravelTerminal.cpp
 #include "anh/logger.h"
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/TravelTerminal.cpp
 #ifdef WIN32
 #undef ERROR
 #endif
 
 #include <glog/logging.h>
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Travel Manager/TravelTerminal.cpp
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/TravelTerminal.cpp
+=======
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/TravelTerminal.cpp
 
 //=============================================================================

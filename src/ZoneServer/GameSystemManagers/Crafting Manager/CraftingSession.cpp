@@ -541,10 +541,13 @@ bool CraftingSession::selectDraftSchematic(uint32 schematicIndex)
     if(!mDraftSchematic->isCraftEnabled())
     {
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Crafting Manager/CraftingSession.cpp
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Crafting Manager/CraftingSession.cpp
         LOG(info) << "CraftingSession::selectDraftSchematic: schematic not craftable crc:" <<schemCrc;
 		std::string message("This item is currently not craftable.");
 		gMessageLib->SendSystemMessage(std::u16string(message.begin(), message.end()), mOwner);
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/CraftingSession.cpp
         LOG(INFO) << "CraftingSession::selectDraftSchematic: schematic not craftable crc:" <<schemCrc;
         gMessageLib->SendSystemMessage(L"This item is currently not craftable.", mOwner);
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/CraftingSession.cpp
@@ -740,7 +743,11 @@ void CraftingSession::addComponentAttribute()
                     else
                     {
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Crafting Manager/CraftingSession.cpp
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Crafting Manager/CraftingSession.cpp
                         DLOG(info) << "CraftingSession::addComponentAttribute  : Attribute " << (*cAPPiT)->getAffectedAttributeKey() << " is not part of the item";
+=======
+                        DLOG(INFO) << "CraftingSession::addComponentAttribute  : Attribute " << (*cAPPiT)->getAffectedAttributeKey().getAnsi()  << " is not part of the item";
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/CraftingSession.cpp
 =======
                         DLOG(INFO) << "CraftingSession::addComponentAttribute  : Attribute " << (*cAPPiT)->getAffectedAttributeKey().getAnsi()  << " is not part of the item";
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/CraftingSession.cpp

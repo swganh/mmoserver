@@ -104,7 +104,11 @@ bool CraftingSession::AdjustComponentStack(Item* item, uint32 uses)
         if(uses == 1)
         {
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Crafting Manager/CraftingSessionHelper.cpp
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Crafting Manager/CraftingSessionHelper.cpp
             DLOG(info) << "CraftingSession::AdjustComponentStack no stacksize attribute";
+=======
+            DLOG(INFO) << "CraftingSession::AdjustComponentStack no stacksize attribute set stack to 1";
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/CraftingSessionHelper.cpp
 =======
             DLOG(INFO) << "CraftingSession::AdjustComponentStack no stacksize attribute set stack to 1";
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/CraftingSessionHelper.cpp

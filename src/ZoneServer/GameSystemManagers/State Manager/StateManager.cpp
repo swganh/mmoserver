@@ -32,14 +32,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/EventDispatcher.h"
 
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/State Manager/StateManager.cpp
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/State Manager/StateManager.cpp
 #include "anh/logger.h"
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/StateManager.cpp
 // Fix for issues with glog redefining this constant
 #ifdef ERROR
 #undef ERROR
 #endif
 
 #include <glog/logging.h>
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/State Manager/StateManager.cpp
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/StateManager.cpp
+=======
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/StateManager.cpp
 
 using ::common::EventType;
@@ -154,10 +160,13 @@ void StateManager::setCurrentPostureState(CreatureObject* object, CreaturePostur
         else
         {
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/State Manager/StateManager.cpp
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/State Manager/StateManager.cpp
             DLOG(warning) << "unable to transition from " << object->GetPosture() << " to" << newPosture;
 			std::string message("You cannot transition from this Posture state");
 			gMessageLib->SendSystemMessage(std::u16string(message.begin(), message.end()));
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/StateManager.cpp
             DLOG(WARNING) << "unable to transition from " << object->states.getPosture() << " to" << newPosture;
             gMessageLib->SendSystemMessage(L"You cannot transition from this Posture state");
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/StateManager.cpp
@@ -188,10 +197,13 @@ void StateManager::setCurrentActionState(CreatureObject* object, CreatureState n
         else
         {
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/State Manager/StateManager.cpp
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/State Manager/StateManager.cpp
             DLOG(warning) << "unable to transition from " << object->GetStateBitmask() << " to" << static_cast<uint64_t>(newState);
 			std::string message("You cannot transition from this Action state");
 			gMessageLib->SendSystemMessage(std::u16string(message.begin(), message.end()));
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/StateManager.cpp
             DLOG(WARNING) << "unable to transition from " << object->states.getAction() << " to" << static_cast<uint64_t>(newState);
             gMessageLib->SendSystemMessage(L"You cannot transition from this Action state");
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/StateManager.cpp
@@ -231,10 +243,13 @@ void StateManager::setCurrentLocomotionState(CreatureObject* object, CreatureLoc
         else
         {
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/State Manager/StateManager.cpp
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/State Manager/StateManager.cpp
             DLOG(warning) << "unable to transition from " << object->states.getLocomotion() << " to" << static_cast<uint64_t>(newLocomotion);
 			std::string message("You cannot transition from this Locomotion state");
             gMessageLib->SendSystemMessage(std::u16string(message.begin(), message.end()));
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/StateManager.cpp
             DLOG(WARNING) << "unable to transition from " << object->states.getLocomotion() << " to" << static_cast<uint64_t>(newLocomotion);
             gMessageLib->SendSystemMessage(L"You cannot transition from this Locomotion state");
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/StateManager.cpp
@@ -254,10 +269,13 @@ void StateManager::removeActionState(CreatureObject* obj, CreatureState stateToR
         else
         {
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/State Manager/StateManager.cpp
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/State Manager/StateManager.cpp
             DLOG(warning) << "unable to remove action state " << static_cast<uint64_t>(stateToRemove);
             std::string message("You cannot remove this Action state");
             gMessageLib->SendSystemMessage(std::u16string(message.begin(), message.end()));
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/StateManager.cpp
             DLOG(WARNING) << "unable to remove action state " << static_cast<uint64_t>(stateToRemove);
             gMessageLib->SendSystemMessage(L"You cannot remove this Action state");
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/StateManager.cpp

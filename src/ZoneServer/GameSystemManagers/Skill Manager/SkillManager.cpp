@@ -34,6 +34,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #undef ERROR
 #endif
 #include <glog/logging.h>
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Skill Manager/SkillManager.cpp
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/SkillManager.cpp
+=======
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/SkillManager.cpp
 
 #include "ZoneServer/Objects/Creature Object/CreatureObject.h"
@@ -858,6 +861,9 @@ void SkillManager::dropSkill(uint32 skillId,CreatureObject* creatureObject, bool
 =======
     if(!(creatureObject->removeSkill(skill)))
     	LOG(ERROR) << "Failed removing skill [" << skillId << "] from object [" << creatureObject->getId() << "]";
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Skill Manager/SkillManager.cpp
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/SkillManager.cpp
+=======
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/SkillManager.cpp
 
     creatureObject->prepareSkillMods();

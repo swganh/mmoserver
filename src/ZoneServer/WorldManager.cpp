@@ -32,12 +32,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cppconn/resultset.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "anh/logger.h"
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log
 #ifdef WIN32
 #undef ERROR
 #endif
 #include <glog/logging.h>
+<<<<<<< HEAD
+>>>>>>> parent of 5bd772a... got rid of google log
+=======
 >>>>>>> parent of 5bd772a... got rid of google log
 
 #include "anh/Utils/Scheduler.h"
@@ -117,7 +123,11 @@ WorldManager::WorldManager(uint32 zoneId, ZoneServer* zoneServer,swganh::app::Sw
 	, mTrn(trn)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
     DLOG(info) << "WorldManager initialization zoneId : " << mZoneId << "trn : " << trn;
+=======
+    DLOG(INFO) << "WorldManager initialization";
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
     DLOG(INFO) << "WorldManager initialization";
 >>>>>>> parent of 5bd772a... got rid of google log
@@ -836,8 +846,11 @@ void WorldManager::_handleLoadComplete()
 	_startWorldScripts();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	LOG(info) << "World load complete";
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log
 	LOG(INFO) << "World load complete";
 			
 	if(mZoneId != 41)
@@ -1113,8 +1126,12 @@ void WorldManager::_startWorldScripts()
         ++scriptIt;
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
     LOG(error) << "Loaded world scripts";
 	*/
+=======
+    LOG(ERROR) << "Loaded world scripts";
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
     LOG(ERROR) << "Loaded world scripts";
 >>>>>>> parent of 5bd772a... got rid of google log
@@ -1359,6 +1376,9 @@ void WorldManager::removePlayerfromAccountMap(uint64 playerID)
         if(playerAccIt != mPlayerAccMap.end())
         {
             LOG(INFO) << "Player left [" << player->getId() << "] Total players on zone [" << (getPlayerAccMap()->size() -1) << "]";
+<<<<<<< HEAD
+>>>>>>> parent of 5bd772a... got rid of google log
+=======
 >>>>>>> parent of 5bd772a... got rid of google log
             mPlayerAccMap.erase(playerAccIt);
         }

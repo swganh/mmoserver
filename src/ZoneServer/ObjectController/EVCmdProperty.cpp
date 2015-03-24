@@ -30,14 +30,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/ObjectController/ObjectControllerCommandMap.h"
 
 <<<<<<< HEAD:src/ZoneServer/ObjectController/EVCmdProperty.cpp
+<<<<<<< HEAD:src/ZoneServer/ObjectController/EVCmdProperty.cpp
 #include "anh/logger.h"
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/EVCmdProperty.cpp
 // Fix for issues with glog redefining this constant
 #ifdef ERROR
 #undef ERROR
 #endif
 
 #include <glog/logging.h>
+<<<<<<< HEAD:src/ZoneServer/ObjectController/EVCmdProperty.cpp
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/EVCmdProperty.cpp
+=======
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/EVCmdProperty.cpp
 
 EVCmdProperty::EVCmdProperty(ObjectController* controller)

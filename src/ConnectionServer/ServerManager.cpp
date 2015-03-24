@@ -36,14 +36,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/Service.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "anh/logger.h"
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log
 // Fix for issues with glog redefining this constant
 #ifdef _WIN32
 #undef ERROR
 #endif
 
 #include <glog/logging.h>
+<<<<<<< HEAD
+>>>>>>> parent of 5bd772a... got rid of google log
+=======
 >>>>>>> parent of 5bd772a... got rid of google log
 
 #include "DatabaseManager/DataBinding.h"
@@ -124,7 +130,11 @@ void ServerManager::SendMessageToServer(Message* message)
     else
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
         LOG(info) << "ServerManager: failed routing message to server : " << message->getDestinationId();
+=======
+        LOG(INFO) << "ServerManager: failed routing message to server " << message->getDestinationId();
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
         LOG(INFO) << "ServerManager: failed routing message to server " << message->getDestinationId();
 >>>>>>> parent of 5bd772a... got rid of google log
@@ -170,7 +180,11 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
         mServerAddressMap[serverAddress.mId].mConnectionClient = connClient;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 		DLOG(info) << "*** Backend server connected id: " << mServerAddressMap[serverAddress.mId].mId << " : " << mServerAddressMap[serverAddress.mId].mName;
+=======
+        DLOG(INFO) << "*** Backend server connected id: " << mServerAddressMap[serverAddress.mId].mId;
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
         DLOG(INFO) << "*** Backend server connected id: " << mServerAddressMap[serverAddress.mId].mId;
 >>>>>>> parent of 5bd772a... got rid of google log
@@ -190,7 +204,11 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
     else
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
         LOG(warning) << "*** Backend server connect error - Server not found in DB RsultCount : " << result->getRowCount() << "" << sql;
+=======
+        LOG(WARNING) << "*** Backend server connect error - Server not found in DB" << sql;
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
         LOG(WARNING) << "*** Backend server connect error - Server not found in DB" << sql;
 >>>>>>> parent of 5bd772a... got rid of google log
@@ -233,10 +251,13 @@ void ServerManager::handleSessionDisconnect(NetworkClient* client)
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	LOG(info) << "Servermanager handle server down : " << mServerAddressMap[connClient->getServerId()].mName;
     
 	mClientManager->handleServerDown(connClient->getServerId());
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log
     DLOG(INFO) << "Servermanager handle server down";
     mClientManager->handleServerDown(connClient->getServerId());
 >>>>>>> parent of 5bd772a... got rid of google log

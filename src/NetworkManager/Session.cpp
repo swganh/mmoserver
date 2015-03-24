@@ -48,7 +48,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "anh/logger.h"
+=======
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
 #include <glog/logging.h>
 >>>>>>> parent of 5bd772a... got rid of google log
@@ -143,6 +147,9 @@ Session::~Session(void)
 =======
   
     DLOG(INFO) <<  "Session::~Session " << this->getId();
+<<<<<<< HEAD
+>>>>>>> parent of 5bd772a... got rid of google log
+=======
 >>>>>>> parent of 5bd772a... got rid of google log
     Message* message = 0;
 
@@ -432,6 +439,10 @@ void Session::ProcessWriteThread(void)
     case SCOM_Disconnect:
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+		DLOG(INFO) << "Handle Session Disconnect " << this->getId() <<" endcount " << endCount;
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
 		DLOG(INFO) << "Handle Session Disconnect " << this->getId() <<" endcount " << endCount;
 >>>>>>> parent of 5bd772a... got rid of google log
@@ -465,8 +476,13 @@ void Session::ProcessWriteThread(void)
             if(this->mServerService)
             {
 <<<<<<< HEAD
+<<<<<<< HEAD
 				LOG(info) << "Session disconnect last received packet > 60  ("<< diff.total_seconds()  << ") seconds - session Id : " << this->getId();
 				LOG(info) << "Session lastpacket " << mLastPacketReceived.time_of_day() << " now " << now.time_of_day() << " diff :" << diff.total_milliseconds() ;
+=======
+                LOG(INFO) << "Session disconnect last received packet > 60  ("<< (float)t/1000 << ") seconds session Id : " << this->getId();
+				LOG(INFO) << "Session lastpacket " << mLastPacketReceived << " now " << now << " diff :" << (now - mLastPacketReceived);
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
                 LOG(INFO) << "Session disconnect last received packet > 60  ("<< (float)t/1000 << ") seconds session Id : " << this->getId();
 				LOG(INFO) << "Session lastpacket " << mLastPacketReceived << " now " << now << " diff :" << (now - mLastPacketReceived);
@@ -476,7 +492,11 @@ void Session::ProcessWriteThread(void)
             else
             {
 <<<<<<< HEAD
+<<<<<<< HEAD
                 LOG(info) << "Session disconnect last received packet > 60  ("<< diff.total_seconds()  << ") seconds session Id : " << this->getId();
+=======
+                LOG(INFO) << "Session disconnect last received packet > 60  ("<< (float)t/1000 << ") seconds session Id : " << this->getId();
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
                 LOG(INFO) << "Session disconnect last received packet > 60  ("<< (float)t/1000 << ") seconds session Id : " << this->getId();
 >>>>>>> parent of 5bd772a... got rid of google log
@@ -668,7 +688,11 @@ void Session::HandleSessionPacket(Packet* packet)
     case SESSIONOP_Disconnect:
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
         //DLOG(info) << "Session::HandleSessionPacket Session received SESSIONOP_Disconnect";
+=======
+        DLOG(INFO) << "Session::remote side disconnected";
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
         DLOG(INFO) << "Session::remote side disconnected";
 >>>>>>> parent of 5bd772a... got rid of google log
@@ -1508,8 +1532,12 @@ void Session::_processDataOrderPacket(Packet* packet)
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     LOG(warning) << "Out-Of-order packet session 0x"<< mService->getId() << mId <<" OOOPacket had  sequence: " << sequence <<" windowsequ : " << windowSequence;
 	LOG(warning) << "";
+=======
+    LOG(WARNING) << "Out-Of-order packet session 0x"<< mService->getId() << mId <<" seq: " << sequence <<" windowsequ : " << windowSequence;
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
     LOG(WARNING) << "Out-Of-order packet session 0x"<< mService->getId() << mId <<" seq: " << sequence <<" windowsequ : " << windowSequence;
 >>>>>>> parent of 5bd772a... got rid of google log
@@ -1517,6 +1545,7 @@ void Session::_processDataOrderPacket(Packet* packet)
     //Do some bounds checking
     if (sequence < windowSequence)
     {
+<<<<<<< HEAD
 <<<<<<< HEAD
         LOG(warning) << "Out-Of-Order packet sequence too small, may be a duplicate or we handled our acks wrong.  seq: " << sequence << ", expect >: " << windowSequence;
 		mPacketFactory->DestroyPacket(packet);
@@ -1532,6 +1561,13 @@ void Session::_processDataOrderPacket(Packet* packet)
     }
 
     if (sequence > windowSequence + mWindowPacketList.size())    {
+=======
+        LOG(WARNING) << "Out-Of-Order packet sequence too small, may be a duplicate or we handled our acks wrong.  seq: " << sequence << ", expect >: " << windowSequence;
+
+    }
+
+    if (sequence > windowSequence + mWindowPacketList.size())    {
+>>>>>>> parent of 5bd772a... got rid of google log
         LOG(WARNING) << "Rollover Out-Of-Order packet  seq: " << sequence << ", expect >: " << windowSequence;
 
 >>>>>>> parent of 5bd772a... got rid of google log

@@ -62,10 +62,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageLib/MessageLib.h"
 
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Mission Manager/MissionManager.cpp
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Mission Manager/MissionManager.cpp
 #include "anh/logger.h"
 #include <glm/glm.hpp>
 #include "anh/Utils/rand.h"
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/MissionManager.cpp
 // Fix for issues with glog redefining this constant
 #ifdef ERROR
 #undef ERROR

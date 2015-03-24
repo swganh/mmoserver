@@ -63,9 +63,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 bool SpatialIndexManager::sendCreateObject(Object* object,PlayerObject* player)
 {
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Spatial Index Manager/SpatialIndexMessagingServices.cpp
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Spatial Index Manager/SpatialIndexMessagingServices.cpp
     //DLOG(info) << "SpatialIndexManager::sendCreateObject: create :" << object->getId() << "for :" << player->getId();
 	
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/SpatialIndexMessagingServices.cpp
     //DLOG(INFO) << "SpatialIndexManager::sendCreateObject: create :" << object->getId() << "for :" << player->getId();
 
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/SpatialIndexMessagingServices.cpp
@@ -177,8 +180,12 @@ bool SpatialIndexManager::sendCreateObject(Object* object,PlayerObject* player)
     default:
     {
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Spatial Index Manager/SpatialIndexMessagingServices.cpp
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Spatial Index Manager/SpatialIndexMessagingServices.cpp
         DLOG(info) << "MessageLib::createObject: Unhandled object type: " << object->getType();
 		return false;
+=======
+        DLOG(INFO) << "MessageLib::createObject: Unhandled object type: " << object->getType();
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/SpatialIndexMessagingServices.cpp
 =======
         DLOG(INFO) << "MessageLib::createObject: Unhandled object type: " << object->getType();
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/SpatialIndexMessagingServices.cpp

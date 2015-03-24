@@ -34,7 +34,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/typedefs.h"
 #include "Utils/bstring.h"
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "anh/logger.h"
+=======
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
 >>>>>>> parent of 5bd772a... got rid of google log
 

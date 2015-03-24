@@ -28,7 +28,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "SocketReadThread.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "anh/logger.h"
+=======
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
 #include <glog/logging.h>
 >>>>>>> parent of 5bd772a... got rid of google log
@@ -43,7 +47,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Socket.h"
 #include "SocketWriteThread.h"
 <<<<<<< HEAD
+<<<<<<< HEAD
 //#include <errno.h>
+=======
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
 >>>>>>> parent of 5bd772a... got rid of google log
 
@@ -116,6 +123,7 @@ SocketReadThread::SocketReadThread(SOCKET socket, SocketWriteThread* writeThread
     mThread = boost::move(t);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	#ifdef _WIN32
 	    HANDLE mtheHandle = mThread.native_handle();
 		//SetPriorityClass(mtheHandle,NORMAL_PRIORITY_CLASS);
@@ -125,6 +133,8 @@ SocketReadThread::SocketReadThread(SOCKET socket, SocketWriteThread* writeThread
 
     //SetPriorityClass(mThread,NORMAL_PRIORITY_CLASS);
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log
 #ifdef _WIN32
     HANDLE th =  mThread.native_handle();
     SetPriorityClass(th,REALTIME_PRIORITY_CLASS);
@@ -174,7 +184,11 @@ void SocketReadThread::run(void)
         if(mNewConnection.mPort != 0)
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
             LOG(info) << "Connecting to remote server...";
+=======
+            LOG(INFO) << "Connecting to remote server";
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
             LOG(INFO) << "Connecting to remote server";
 >>>>>>> parent of 5bd772a... got rid of google log
@@ -252,7 +266,11 @@ void SocketReadThread::run(void)
                 if(FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, errorNr, MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),(LPTSTR)errorMsg, (sizeof(errorMsg) / sizeof(TCHAR)) - 1, NULL))
                 {
 <<<<<<< HEAD
+<<<<<<< HEAD
                     LOG(warning) << "Error(recvFrom): " << errorNr << " : " << errorMsg;
+=======
+                    LOG(WARNING) << "Error(recvFrom): " << errorMsg;
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
                     LOG(WARNING) << "Error(recvFrom): " << errorMsg;
 >>>>>>> parent of 5bd772a... got rid of google log

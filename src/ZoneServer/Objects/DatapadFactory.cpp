@@ -211,8 +211,12 @@ void DatapadFactory::handleDatabaseJobComplete(void* ref,swganh::database::Datab
         {
             //factoryPanic!!!!!!!!
 <<<<<<< HEAD:src/ZoneServer/Objects/DatapadFactory.cpp
+<<<<<<< HEAD:src/ZoneServer/Objects/DatapadFactory.cpp
         	LOG(warning) << "DatapadFactory::handleDatabaseJobComplete Failed getting player to create MS";
 			mQueryContainerPool.free(asyncContainer);
+=======
+        	LOG(WARNING) << "Failed getting player to create MS";
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/DatapadFactory.cpp
 =======
         	LOG(WARNING) << "Failed getting player to create MS";
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/DatapadFactory.cpp
@@ -225,8 +229,12 @@ void DatapadFactory::handleDatabaseJobComplete(void* ref,swganh::database::Datab
         {
             //factoryPanic!!!!!!!!
 <<<<<<< HEAD:src/ZoneServer/Objects/DatapadFactory.cpp
+<<<<<<< HEAD:src/ZoneServer/Objects/DatapadFactory.cpp
         	LOG(error) << "DatapadFactory::handleDatabaseJobComplete Failed getting datapad to create Manufacturing Schematic";
 			mQueryContainerPool.free(asyncContainer);
+=======
+        	LOG(ERROR) << "Failed getting datapad to create MS";
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/DatapadFactory.cpp
 =======
         	LOG(ERROR) << "Failed getting datapad to create MS";
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/DatapadFactory.cpp

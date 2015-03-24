@@ -38,6 +38,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #undef ERROR
 #endif
 #include <glog/logging.h>
+<<<<<<< HEAD:src/ZoneServer/Objects/Object/ObjectFactory.cpp
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ObjectFactory.cpp
+=======
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ObjectFactory.cpp
 
 #include "Utils/utils.h"
@@ -477,8 +480,11 @@ void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,De
 
 
     DLOG(INFO) << "New Factory dir is "<<dir<<","<<oX<<","<<oY<<","<<oZ<<","<<oW;
+<<<<<<< HEAD:src/ZoneServer/Objects/Object/ObjectFactory.cpp
 
     std::string		name(mDatabase->escapeString(customName));
+=======
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ObjectFactory.cpp
 
     stringstream query_stream;
     query_stream << "SELECT "<<mDatabase->galaxy() << ".sf_DefaultFactoryCreate("
@@ -570,6 +576,10 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
 
 
 <<<<<<< HEAD:src/ZoneServer/Objects/Object/ObjectFactory.cpp
+<<<<<<< HEAD:src/ZoneServer/Objects/Object/ObjectFactory.cpp
+=======
+    DLOG(INFO) << "New House dir is "<<dir<<","<<oX<<","<<oY<<","<<oZ<<","<<oW;
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ObjectFactory.cpp
 =======
     DLOG(INFO) << "New House dir is "<<dir<<","<<oX<<","<<oY<<","<<oZ<<","<<oW;
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ObjectFactory.cpp
@@ -693,7 +703,11 @@ void ObjectFactory::requestUpdatedWaypoint(ObjectFactoryCallback* ofCallback,uin
 
         if (!result_set->next()) {
 <<<<<<< HEAD:src/ZoneServer/Objects/Object/ObjectFactory.cpp
+<<<<<<< HEAD:src/ZoneServer/Objects/Object/ObjectFactory.cpp
             LOG(warning) << "ObjectFactory::requestUpdatedWaypoint - DB Unable to update waypoint, sql failed with error : " << wpId;
+=======
+            LOG(WARNING) << "Unable to update waypoint ";
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ObjectFactory.cpp
 =======
             LOG(WARNING) << "Unable to update waypoint ";
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ObjectFactory.cpp
@@ -702,7 +716,11 @@ void ObjectFactory::requestUpdatedWaypoint(ObjectFactoryCallback* ofCallback,uin
         if (result_set->getInt(1) != 0)
         {
 <<<<<<< HEAD:src/ZoneServer/Objects/Object/ObjectFactory.cpp
+<<<<<<< HEAD:src/ZoneServer/Objects/Object/ObjectFactory.cpp
             LOG(warning) << "ObjectFactory::requestUpdatedWaypoint - DB Unable to update waypoint, sql failed with error: " << result_set->getInt(1) << " : " << wpId;
+=======
+            LOG(WARNING) << "Unable to update waypoint, sql failed with error: " << result_set->getInt(1);
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ObjectFactory.cpp
 =======
             LOG(WARNING) << "Unable to update waypoint, sql failed with error: " << result_set->getInt(1);
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ObjectFactory.cpp

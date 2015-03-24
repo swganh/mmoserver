@@ -275,8 +275,11 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
             newCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId));
             if (!newCell)	{
 <<<<<<< HEAD:src/ZoneServer/ObjectController/OCDataTransformhandlers.cpp
+<<<<<<< HEAD:src/ZoneServer/ObjectController/OCDataTransformhandlers.cpp
                 DLOG(info) << "Player " << body_->getId() << " error casting new cell cell " << parentId;
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/OCDataTransformhandlers.cpp
                 DLOG(INFO) << "Player " << player->getId() << " error casting new cell cell " << parentId;
                 assert(false);
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/OCDataTransformhandlers.cpp

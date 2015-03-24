@@ -331,11 +331,19 @@ T	ManufacturingSchematic::getPPAttribute(std::string key) const
         catch(boost::bad_lexical_cast &)
         {
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Crafting Manager/ManufacturingSchematic.h
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Crafting Manager/ManufacturingSchematic.h
             DLOG(info) << "ManufacturingSchematic::getPPAttribute: cast failed " << key;
         }
     }
     else
         DLOG(info) << "ManufacturingSchematic::getPPAttribute: could not find " << key;
+=======
+            DLOG(INFO) << "ManufacturingSchematic::getPPAttribute: cast failed " << key.getAnsi();
+        }
+    }
+    else
+        DLOG(INFO) << "ManufacturingSchematic::getPPAttribute: could not find " << key.getAnsi();
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ManufacturingSchematic.h
 =======
             DLOG(INFO) << "ManufacturingSchematic::getPPAttribute: cast failed " << key.getAnsi();
         }

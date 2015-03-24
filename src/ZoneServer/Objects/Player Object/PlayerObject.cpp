@@ -1525,7 +1525,11 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,std::u16string inpu
     default:
     {
 <<<<<<< HEAD:src/ZoneServer/Objects/Player Object/PlayerObject.cpp
+<<<<<<< HEAD:src/ZoneServer/Objects/Player Object/PlayerObject.cpp
 		LOG(info) << "handleUIEvent:Default: " << action << "," << element << "," << inputStr.c_str();
+=======
+        DLOG(INFO) << "handleUIEvent:Default: " <<action<<","<<element<<","<<inputStr.getAnsi();
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/PlayerObject.cpp
 =======
         DLOG(INFO) << "handleUIEvent:Default: " <<action<<","<<element<<","<<inputStr.getAnsi();
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/PlayerObject.cpp

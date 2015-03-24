@@ -40,11 +40,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 
 #include "anh/logger.h"
 =======
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log
+=======
+
 #include <glog/logging.h>
 >>>>>>> parent of 5bd772a... got rid of google log
 

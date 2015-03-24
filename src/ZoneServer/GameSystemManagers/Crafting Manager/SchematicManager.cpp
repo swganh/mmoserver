@@ -35,6 +35,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #undef ERROR
 #endif
 #include <glog/logging.h>
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Crafting Manager/SchematicManager.cpp
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/SchematicManager.cpp
+=======
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/SchematicManager.cpp
 
 #include "CraftBatch.h"

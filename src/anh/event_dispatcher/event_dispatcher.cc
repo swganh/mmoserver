@@ -32,6 +32,7 @@ using namespace boost::posix_time;
 using namespace std;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 using namespace boost::chrono;
 
@@ -41,6 +42,8 @@ using namespace std;
 
 namespace ba = boost::asio;
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log
 IEventDispatcher::~IEventDispatcher() {}
 
 EventDispatcher::EventDispatcher()
@@ -55,6 +58,7 @@ EventDispatcher::~EventDispatcher() {
 bool EventDispatcher::hasListeners(const EventType& event_type) const {
     auto map_it = event_listeners_.find(event_type);
     if (map_it == event_listeners_.end()) {
+<<<<<<< HEAD
         return false;
     }
 >>>>>>> parent of 5bd772a... got rid of google log
@@ -137,6 +141,8 @@ bool EventDispatcher::subscribe(const EventType& event_type, EventListener liste
     });
 
     if (find_it != listener_list.end()) {
+=======
+>>>>>>> parent of 5bd772a... got rid of google log
         return false;
     }
 
@@ -145,6 +151,57 @@ bool EventDispatcher::subscribe(const EventType& event_type, EventListener liste
     return true;
 }
 
+<<<<<<< HEAD
+void EventDispatcher::unsubscribe(const EventType& event_type, const EventListenerType& listener_type) {    
+=======
+EventTypeSet EventDispatcher::registered_event_types() const {
+    return registered_event_types_;
+}
+
+bool EventDispatcher::subscribe(const EventType& event_type, EventListener listener) {
+    if (!validateEventType_(event_type)) {
+        return false;
+    }
+
+>>>>>>> parent of 5bd772a... got rid of google log
+    auto map_it = event_listeners_.find(event_type);
+    if (map_it == event_listeners_.end()) {
+        auto insert_result = event_listeners_.insert(make_pair(event_type, EventListenerList()));
+
+        // Check if there was an insertion failure
+        if (insert_result.second == false) {
+            return false;
+        }
+
+        // Cache the iterator and verify we didn't somehow create an empty map.
+        if ((map_it = insert_result.first) == event_listeners_.end()) {
+            return false;
+        }
+    }
+
+    EventListenerList& listener_list = (*map_it).second;    
+
+<<<<<<< HEAD
+    auto remove_it = remove_if(listener_list.begin(), listener_list.end(), [&listener_type] (const EventListener& list_listener) {
+        return list_listener.first == listener_type;
+=======
+    // Look for the listener in the list before adding.
+    auto find_it = find_if(listener_list.begin(), listener_list.end(), [&listener] (const EventListener& list_listener) {
+        return list_listener.first == listener.first;
+>>>>>>> parent of 5bd772a... got rid of google log
+    });
+
+    if (find_it != listener_list.end()) {
+        return false;
+    }
+
+    listener_list.push_back(listener);
+
+    return true;
+}
+
+<<<<<<< HEAD
+=======
 void EventDispatcher::unsubscribe(const EventType& event_type, const EventListenerType& listener_type) {    
     auto map_it = event_listeners_.find(event_type);
     if (map_it == event_listeners_.end()) {
@@ -160,6 +217,7 @@ void EventDispatcher::unsubscribe(const EventType& event_type, const EventListen
     listener_list.erase(remove_it, listener_list.end());
 }
 
+>>>>>>> parent of 5bd772a... got rid of google log
 void EventDispatcher::unsubscribe(const EventListenerType& listener_type) {
     std::for_each(registered_event_types_.begin(), registered_event_types_.end(), [this, &listener_type] (const EventType& event_type) {        
         unsubscribe(event_type, listener_type);
@@ -206,6 +264,7 @@ bool EventDispatcher::trigger(std::shared_ptr<IEvent> incoming_event, PostTrigge
 >>>>>>> parent of 5bd772a... got rid of google log
 }
 
+<<<<<<< HEAD
 shared_ptr<EventInterface> EventDispatcher::DispatchMainThread(const shared_ptr<EventInterface>& dispatch_event)
 {
   
@@ -215,6 +274,9 @@ shared_ptr<EventInterface> EventDispatcher::DispatchMainThread(const shared_ptr<
   return (dispatch_event);
   
 =======
+=======
+
+>>>>>>> parent of 5bd772a... got rid of google log
 void EventDispatcher::triggerWhen(std::shared_ptr<IEvent> incoming_event, TriggerCondition condition) {
     // Do a few quick sanity checks in debug mode to ensure our queue cycling is always on track.
     assert(active_queue_ >= 0);
@@ -242,6 +304,7 @@ void EventDispatcher::triggerWhen(std::shared_ptr<IEvent> incoming_event, Trigge
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 boost::unique_future<shared_ptr<EventInterface>> EventDispatcher::Dispatch(const shared_ptr<EventInterface>& dispatch_event)
 {
     auto task = make_shared<boost::packaged_task<shared_ptr<EventInterface>>>(
@@ -249,6 +312,8 @@ boost::unique_future<shared_ptr<EventInterface>> EventDispatcher::Dispatch(const
     {
         InvokeCallbacks(dispatch_event);
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log
 void EventDispatcher::triggerWhen(std::shared_ptr<IEvent> incoming_event, TriggerCondition condition, PostTriggerCallback callback) {
     // Do a few quick sanity checks in debug mode to ensure our queue cycling is always on track.
     assert(active_queue_ >= 0);

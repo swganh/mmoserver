@@ -34,6 +34,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #undef ERROR
 #endif
 #include <glog/logging.h>
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Resource Manager/ResourceManager.cpp
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ResourceManager.cpp
+=======
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ResourceManager.cpp
 
 #include "ZoneServer/GameSystemManagers/Resource Manager/CurrentResource.h"

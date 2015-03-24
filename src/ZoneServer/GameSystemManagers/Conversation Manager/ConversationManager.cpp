@@ -35,6 +35,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #undef ERROR
 #endif
 #include <glog/logging.h>
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Conversation Manager/ConversationManager.cpp
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ConversationManager.cpp
+=======
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ConversationManager.cpp
 
 #include "ActiveConversation.h"
@@ -127,7 +130,11 @@ void ConversationManager::handleDatabaseJobComplete(void* ref, swganh::database:
         }
 
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Conversation Manager/ConversationManager.cpp
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Conversation Manager/ConversationManager.cpp
         LOG(info) << "Loaded " << count << " conversations";
+=======
+        LOG_IF(INFO, count) << "Loaded " << count << " conversations";
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ConversationManager.cpp
 =======
         LOG_IF(INFO, count) << "Loaded " << count << " conversations";
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ConversationManager.cpp

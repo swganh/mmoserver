@@ -864,6 +864,7 @@ void TradeManager::TradeTransaction(DispatchClient* client,PlayerObject* player1
         player2->getTrade()->cancelTradeSession();
 
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Trade Manager/TradeManager.cpp
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Trade Manager/TradeManager.cpp
         DLOG(info) << "TradeManager::TradeTransaction Trade likely to have been tampered with";
 
         if (!player1->testCash(asyncContainer->amount1) )
@@ -873,6 +874,17 @@ void TradeManager::TradeTransaction(DispatchClient* client,PlayerObject* player1
         if (!player2->testCash(asyncContainer->amount2) )
         {
             DLOG(info) <<"Player : "<<player2->GetCreature()->getFirstName() << "id "<<player2->getId()<< "wanted to trade "<<asyncContainer->amount2<<" credits but had not enough cash";
+=======
+        DLOG(INFO) << "TradeManager Trade likely to have been tampered with";
+
+        if (!player1->testCash(asyncContainer->amount1) )
+        {
+			DLOG(INFO) <<"Player : "<<player1->getFirstName().getAnsi()<< "id "<<player1->getId()<< "wanted to trade "<<asyncContainer->amount1<<" credits but had only " << dynamic_cast<Inventory*>(player1->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits();
+        }
+        if (!player2->testCash(asyncContainer->amount2) )
+        {
+            DLOG(INFO) <<"Player : "<<player2->getFirstName().getAnsi()<< "id "<<player2->getId()<< "wanted to trade "<<asyncContainer->amount2<<" credits but had only " << dynamic_cast<Inventory*>(player2->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits();
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/TradeManager.cpp
 =======
         DLOG(INFO) << "TradeManager Trade likely to have been tampered with";
 

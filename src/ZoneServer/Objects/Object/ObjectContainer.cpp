@@ -71,8 +71,11 @@ ObjectContainer::~ObjectContainer()
 		if(!object)
 		{
 <<<<<<< HEAD:src/ZoneServer/Objects/Object/ObjectContainer.cpp
+<<<<<<< HEAD:src/ZoneServer/Objects/Object/ObjectContainer.cpp
 			DLOG(info) << "ObjectContainer::~ObjectContainer() : "<< *objectIt << " Object not found for removal !!!!";
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ObjectContainer.cpp
 			DLOG(INFO) << "ObjectContainer::remove Object : No Object!!!!";
 			assert(false && "ObjectContainer::~ObjectContainer WorldManager unable to find object instance");
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ObjectContainer.cpp
@@ -142,8 +145,12 @@ bool ObjectContainer::addObject(Object* data)
 	else
 	{
 <<<<<<< HEAD:src/ZoneServer/Objects/Object/ObjectContainer.cpp
+<<<<<<< HEAD:src/ZoneServer/Objects/Object/ObjectContainer.cpp
 		//assert(0);
 		DLOG(warning) << "ObjectContainer::addObject No Capacity left for container " << this->getId();			
+=======
+		DLOG(WARNING) << "ObjectContainer::addObject No Capacity left for container " << this->getId();			
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ObjectContainer.cpp
 =======
 		DLOG(WARNING) << "ObjectContainer::addObject No Capacity left for container " << this->getId();			
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ObjectContainer.cpp

@@ -235,6 +235,9 @@ void ObjectController::_handleSetWaypointName(uint64 targetId,Message* message,O
     if(waypoint == NULL)
     {
         DLOG(INFO) << "ObjController::handlesetwaypointname: could not find waypoint "<< targetId;
+<<<<<<< HEAD:src/ZoneServer/ObjectController/OCDatapadHandlers.cpp
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/OCDatapadHandlers.cpp
+=======
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/OCDatapadHandlers.cpp
         return;
     }

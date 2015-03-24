@@ -41,14 +41,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageLib/MessageLib.h"
 
 <<<<<<< HEAD:src/ZoneServer/ProfessionManagers/Entertainer Manager/ImageDesignManager.cpp
+<<<<<<< HEAD:src/ZoneServer/ProfessionManagers/Entertainer Manager/ImageDesignManager.cpp
 #include "anh/logger.h"
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ImageDesignManager.cpp
 // Fix for issues with glog redefining this constant
 #ifdef _WIN32
 #undef ERROR
 #endif
 
 #include <glog/logging.h>
+<<<<<<< HEAD:src/ZoneServer/ProfessionManagers/Entertainer Manager/ImageDesignManager.cpp
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ImageDesignManager.cpp
+=======
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ImageDesignManager.cpp
 
 #include "DatabaseManager/Database.h"

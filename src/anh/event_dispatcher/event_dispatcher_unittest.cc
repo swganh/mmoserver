@@ -48,6 +48,7 @@ TEST(EventDispatcherTest, HasNoListenersByDefault) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /*
 TEST(EventDispatcherTest, CanRegisterEventType) {
     /*EventDispatcher dispatcher;
@@ -55,6 +56,13 @@ TEST(EventDispatcherTest, CanRegisterEventType) {
     EXPECT_FALSE(dispatcher.hasRegisteredEventType("some_event_type"));
 
 
+=======
+/// Verify event types can be registered to the event dispatcher.
+TEST(EventDispatcherTest, CanRegisterEventType) {
+    EventDispatcher dispatcher;
+
+    dispatcher.registerEventType("some_event_type");
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
 /// Verify event types can be registered to the event dispatcher.
 TEST(EventDispatcherTest, CanRegisterEventType) {
@@ -77,12 +85,23 @@ TEST(EventDispatcherTest, CannotSubscribeToUnregisteredEvent) {
     EXPECT_FALSE(dispatcher.subscribe("some_event_type", my_listener));
 }
 
+/// Ensure that a listener cannot subscribe to an event that has not yet been registered.
+TEST(EventDispatcherTest, CannotSubscribeToUnregisteredEvent) {
+    EventDispatcher dispatcher;
+
+    auto my_listener = make_pair(EventListenerType("some_listener_type"), 
+                                 [] (shared_ptr<IEvent> incoming_event) {return true;});
+
+    EXPECT_FALSE(dispatcher.subscribe("some_event_type", my_listener));
+}
+
 /// This test checks to see that the dispatcher has a listener after a
 /// successful subscription.
 /*TEST(EventDispatcherTest, HasListenersAfterOneSubscribes) {
 	boost::asio::io_service io_pool_;
     EventDispatcher dispatcher(io_pool_);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     EXPECT_NE(0, dispatcher.Subscribe(
         "some_event_type", 
@@ -97,12 +116,20 @@ TEST(EventDispatcherTest, CannotSubscribeToUnregisteredEvent) {
     auto my_listener = make_pair(EventListenerType("some_listener_type"), 
                                  [] (shared_ptr<IEvent> incoming_event) {return true;});
 
+=======
+    dispatcher.registerEventType("some_event_type");
+    
+    auto my_listener = make_pair(EventListenerType("some_listener_type"), 
+                                 [] (shared_ptr<IEvent> incoming_event) {return true;});
+
+>>>>>>> parent of 5bd772a... got rid of google log
     EXPECT_TRUE(dispatcher.subscribe("some_event_type", my_listener));
     EXPECT_TRUE(dispatcher.hasListeners("some_event_type"));
 }
 
 /// A single listener shouldn't be registered for the same event more than once.
 TEST(EventDispatcherTest, SubscribingListenerToEventTwiceFails) {
+<<<<<<< HEAD
     EventDispatcher dispatcher;
 
     dispatcher.registerEventType("some_event_type");
@@ -130,6 +157,34 @@ TEST(EventDispatcherTest, SubscribingListenerToEventTwiceFails) {
     auto my_listener = make_pair(EventListenerType("some_listener_type"), 
                                  [] (shared_ptr<IEvent> incoming_event) {return true;});
 
+=======
+    EventDispatcher dispatcher;
+
+    dispatcher.registerEventType("some_event_type");
+    
+    auto my_listener = make_pair(EventListenerType("some_listener_type"), 
+                                 [] (shared_ptr<IEvent> incoming_event) {return true;});
+
+    // Should succeed the first time.
+    EXPECT_TRUE(dispatcher.subscribe("some_event_type", my_listener));
+
+    // Then fail on subsequent requests.
+    EXPECT_FALSE(dispatcher.subscribe("some_event_type", my_listener));
+    EXPECT_FALSE(dispatcher.subscribe("some_event_type", my_listener));
+    EXPECT_FALSE(dispatcher.subscribe("some_event_type", my_listener));
+}
+
+/// Verify that a listener can subscribe to multiple events.
+TEST(EventDispatcherTest, CanSubscribeToMultipleEvents) {
+    EventDispatcher dispatcher;
+
+    dispatcher.registerEventType("event_type_1");
+    dispatcher.registerEventType("event_type_2");
+    
+    auto my_listener = make_pair(EventListenerType("some_listener_type"), 
+                                 [] (shared_ptr<IEvent> incoming_event) {return true;});
+
+>>>>>>> parent of 5bd772a... got rid of google log
     EXPECT_TRUE(dispatcher.subscribe("event_type_1", my_listener));
     EXPECT_TRUE(dispatcher.hasListeners("event_type_1"));
     
@@ -158,10 +213,13 @@ TEST(EventDispatcherTest, SubscribingListenerToEventTwiceFails) {
 //}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /// Verify that all listeners can be unsubscribed from an event type.
 //TEST(EventDispatcherTest, CanUnsubscribeAllListenersFromEvent) {
   /*  EventDispatcher dispatcher;
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log
 /// Verify that a listener can be unsubscribed from all event types.
 TEST(EventDispatcherTest, CanUnsubscribeFromAllEventTypes) {
     EventDispatcher dispatcher;
@@ -180,10 +238,13 @@ TEST(EventDispatcherTest, CanUnsubscribeFromAllEventTypes) {
     EXPECT_TRUE(dispatcher.hasListeners("event_type_2"));
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     EXPECT_FALSE(dispatcher.hasListeners("event_type"));
 	*/
 //}
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log
     dispatcher.unsubscribe("some_listener_type");
 
     EXPECT_FALSE(dispatcher.hasListeners("event_type_1"));
@@ -203,16 +264,22 @@ TEST(EventDispatcherTest, TriggeringEventNotifiesListeners) {
     dispatcher.registerEventType("some_event_type");
     
 <<<<<<< HEAD
+<<<<<<< HEAD
     auto my_listener = [&notified] (shared_ptr<EventInterface> incoming_event) 
     {
         notified = true;
     };
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log
     auto my_listener = make_pair(EventListenerType("some_listener_type"), 
         [&notified] (shared_ptr<IEvent> incoming_event) -> bool {
             notified = true;
             return true;
         });
+<<<<<<< HEAD
+>>>>>>> parent of 5bd772a... got rid of google log
+=======
 >>>>>>> parent of 5bd772a... got rid of google log
     
     dispatcher.Subscribe("some_event_type", my_listener);
@@ -432,6 +499,7 @@ TEST(EventDispatcherTest, TriggeringEventSetsTimestamp) {
     EXPECT_GT(my_event2->timestamp(), 0);
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 /// Subscribing with an invalid event type throws exception
 TEST(EventDispatcherTest, SubscribingWithInvalidEventTypeThrows) {
@@ -447,5 +515,7 @@ TEST(EventDispatcherTest, SubscribingWithInvalidEventTypeThrows) {
         anh::event_dispatcher::InvalidEventType);
 }
 */
+=======
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
 >>>>>>> parent of 5bd772a... got rid of google log

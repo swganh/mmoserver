@@ -295,7 +295,11 @@ void ManufacturingSchematic::setPPAttribute(std::string key,std::string value)
     if(it == mPPAttributeMap.end())
     {
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Crafting Manager/ManufacturingSchematic.cpp
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Crafting Manager/ManufacturingSchematic.cpp
         DLOG(warning) << "ManufacturingSchematic::setPPAttribute: could not find " << common::memcrc(key);
+=======
+        DLOG(WARNING) << "ManufacturingSchematic::setPPAttribute: could not find " << key.getAnsi();
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ManufacturingSchematic.cpp
 =======
         DLOG(WARNING) << "ManufacturingSchematic::setPPAttribute: could not find " << key.getAnsi();
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ManufacturingSchematic.cpp
@@ -326,7 +330,11 @@ void ManufacturingSchematic::removePPAttribute(std::string key)
         mPPAttributeMap.erase(it);
     else
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Crafting Manager/ManufacturingSchematic.cpp
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Crafting Manager/ManufacturingSchematic.cpp
         DLOG(warning) << "ManufacturingSchematic::removePostProcessAttribute: could not find " << key;
+=======
+        DLOG(WARNING) << "ManufacturingSchematic::removePostProcessAttribute: could not find " << key.getAnsi();
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ManufacturingSchematic.cpp
 =======
         DLOG(WARNING) << "ManufacturingSchematic::removePostProcessAttribute: could not find " << key.getAnsi();
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ManufacturingSchematic.cpp

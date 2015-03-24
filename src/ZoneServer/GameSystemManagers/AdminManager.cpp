@@ -39,7 +39,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/AdminManager.cpp
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/AdminManager.cpp
 #include "anh/logger.h"
+=======
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/AdminManager.cpp
 =======
 #include <glog/logging.h>
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/AdminManager.cpp
@@ -316,6 +320,9 @@ uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
                 LOG(WARNING) << optReason.getAnsi();
             }
             LOG(WARNING) << broadcast.getAnsi();
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/AdminManager.cpp
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/AdminManager.cpp
+=======
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/AdminManager.cpp
 
             // For logging, we need ansi versions.

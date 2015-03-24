@@ -34,6 +34,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/GroupManager.h"
 
 #include <glog/logging.h>
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Group Manager/GroupManager.cpp
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/GroupManager.cpp
+=======
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/GroupManager.cpp
 
 #include "Utils/utils.h"

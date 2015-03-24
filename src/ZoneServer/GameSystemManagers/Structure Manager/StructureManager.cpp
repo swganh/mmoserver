@@ -24,19 +24,30 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Structure Manager/StructureManager.cpp
 #include "ZoneServer/GameSystemManagers/Structure Manager/StructureManager.h"
 
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Structure Manager/StructureManager.cpp
 #include "anh/logger.h"
 =======
+=======
+#include "StructureManager.h"
+
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/StructureManager.cpp
 #ifdef WIN32
 #undef ERROR
 #endif
 #include <glog/logging.h>
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Structure Manager/StructureManager.cpp
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/StructureManager.cpp
 
 #include "ZoneServer/WorldConfig.h"
 #include "ZoneServer/Objects/PlayerStructureTerminal.h"
+=======
+
+#include "WorldConfig.h"
+#include "PlayerStructureTerminal.h"
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/StructureManager.cpp
 #include "FactoryFactory.h"
 #include "ZoneServer/Objects/nonPersistantObjectFactory.h"
 #include "HarvesterObject.h"

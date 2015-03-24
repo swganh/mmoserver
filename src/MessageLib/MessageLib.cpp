@@ -32,12 +32,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <boost/lexical_cast.hpp>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "anh/logger.h"
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log
 #ifdef _WIN32
 #undef ERROR
 #endif
 #include <glog/logging.h>
+<<<<<<< HEAD
+>>>>>>> parent of 5bd772a... got rid of google log
+=======
 >>>>>>> parent of 5bd772a... got rid of google log
 
 #include "Common/atMacroString.h"

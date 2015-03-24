@@ -156,6 +156,10 @@ void WorldManager::initializeObject(std::shared_ptr <Object> &object)
 			}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+			LOG(INFO) << "New Player: " << player->getId() << ", Total Players on zone " << (getPlayerAccMap())->size() + 1;
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
 			LOG(INFO) << "New Player: " << player->getId() << ", Total Players on zone " << (getPlayerAccMap())->size() + 1;
 >>>>>>> parent of 5bd772a... got rid of google log
@@ -587,7 +591,10 @@ void WorldManager::destroyObject(Object* object)
 		default:
 		{
 			DLOG(WARNING) << "Unhandled ObjectType in WorldManager::destroyObject: " << (uint32)(object->getType());
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 5bd772a... got rid of google log
 
 		}
 		break;
@@ -611,6 +618,9 @@ void WorldManager::destroyObject(Object* object)
 	{
 		delete(object);
 		DLOG(WARNING) << "WorldManager::destroyObject: error removing from objectmap: " << object->getId();
+<<<<<<< HEAD
+>>>>>>> parent of 5bd772a... got rid of google log
+=======
 >>>>>>> parent of 5bd772a... got rid of google log
 	}
 }
@@ -667,9 +677,17 @@ void WorldManager::eraseObject(uint64 key)
 	if(shared_it != object_map_.end())
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
         object_map_.erase(shared_it);
 		return;
 =======
+        DLOG(INFO) << "WorldManager::destroyObject: error removing from objectmap: " << key;
+>>>>>>> parent of 5bd772a... got rid of google log
+=======
+        mObjectMap.erase(objMapIt);
+    }
+    else
+    {
         DLOG(INFO) << "WorldManager::destroyObject: error removing from objectmap: " << key;
 >>>>>>> parent of 5bd772a... got rid of google log
     }

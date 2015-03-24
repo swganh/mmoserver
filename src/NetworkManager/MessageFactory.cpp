@@ -35,14 +35,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cstring>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "anh/logger.h"
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log
 // Fix for issues with glog redefining this constant
 #ifdef ERROR
 #undef ERROR
 #endif
 
 #include <glog/logging.h>
+<<<<<<< HEAD
+>>>>>>> parent of 5bd772a... got rid of google log
+=======
 >>>>>>> parent of 5bd772a... got rid of google log
 
 // TODO: There is no bounds checking on the heap yet.
@@ -495,7 +501,11 @@ void MessageFactory::_processGarbageCollection(void)
     {
         mHeapWarnLevel = static_cast<float>(mCurrentUsed+1.2);
 <<<<<<< HEAD
+<<<<<<< HEAD
         LOG(warning) << "MessageFactory::_processGarbageCollection MessageFactory Heap at " << mCurrentUsed;
+=======
+        LOG(WARNING) << "MessageFactory Heap at " << mCurrentUsed;
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
         LOG(WARNING) << "MessageFactory Heap at " << mCurrentUsed;
 >>>>>>> parent of 5bd772a... got rid of google log
@@ -555,6 +565,7 @@ void MessageFactory::_processGarbageCollection(void)
                 if (!message->mLogged)
                 {
 <<<<<<< HEAD
+<<<<<<< HEAD
                     LOG(warning) <<  "MessageFactory::_processGarbageCollection Garbage Collection found a new stuck message! Message age : " 
 						<< ( uint32((Anh_Utils::Clock::getSingleton()->getStoredTime() - message->getCreateTime())/1000))
 						<< " seconds";
@@ -562,6 +573,8 @@ void MessageFactory::_processGarbageCollection(void)
                     message->mLogged = true;
                     message->mLogTime = Anh_Utils::Clock::getSingleton()->getStoredTime();    
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log
                     LOG(WARNING) <<  "Garbage Collection found a new stuck message!"
                         << " : " << ( uint32((Anh_Utils::Clock::getSingleton()->getStoredTime() - message->getCreateTime())/1000));
 
@@ -587,7 +600,11 @@ void MessageFactory::_processGarbageCollection(void)
                 if(!session)
                 {
 <<<<<<< HEAD
+<<<<<<< HEAD
                     LOG(info) << "MessageFactory::_processGarbageCollection Garbage Collection found sessionless packet";
+=======
+                    LOG(INFO) << "Garbage Collection found sessionless packet";
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
                     LOG(INFO) << "Garbage Collection found sessionless packet";
 >>>>>>> parent of 5bd772a... got rid of google log
@@ -597,7 +614,11 @@ void MessageFactory::_processGarbageCollection(void)
                 else if(Anh_Utils::Clock::getSingleton()->getStoredTime() >(message->mLogTime +10000))
                 {
 <<<<<<< HEAD
+<<<<<<< HEAD
                     LOG(warning) << "MessageFactory::_processGarbageCollection Garbage Collection found an old stuck message!"
+=======
+                    LOG(WARNING) << "Garbage Collection found a old stuck message!"
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
                     LOG(WARNING) << "Garbage Collection found a old stuck message!"
 >>>>>>> parent of 5bd772a... got rid of google log

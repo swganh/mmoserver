@@ -256,6 +256,9 @@ void VehicleController::Store()
     if(!owner_ || owner_->isDead() || owner_->isIncapacitated())
     {
         DLOG(INFO) << "Vehicle::store() couldnt find owner";
+<<<<<<< HEAD:src/ZoneServer/Objects/VehicleController.cpp
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/VehicleController.cpp
+=======
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/VehicleController.cpp
         return;
     }

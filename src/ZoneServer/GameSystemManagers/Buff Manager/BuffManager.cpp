@@ -43,7 +43,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Buff Manager/BuffManager.cpp
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Buff Manager/BuffManager.cpp
 #include "anh/logger.h"
+=======
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/BuffManager.cpp
 =======
 #include <glog/logging.h>
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/BuffManager.cpp
@@ -343,8 +347,11 @@ void BuffManager::LoadBuffs(PlayerObject* playerObject, uint64 currenttime)
     if(playerObject->GetCreature()->GetNoOfBuffs() > 0)
     {
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Buff Manager/BuffManager.cpp
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Buff Manager/BuffManager.cpp
         LOG(warning) << "BuffManager::LoadBuffs - PlayerObject has ghosted Buffs. Inform a developer";
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/BuffManager.cpp
         LOG(WARNING) << "PlayerObject has ghosted Buffs. Inform a developer";
         gMessageLib->SendSystemMessage(L"You appear to have Ghosted Buffs (Bug #958). Please inform an SWG:ANH developer or Server Admin you saw this message", playerObject);
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/BuffManager.cpp

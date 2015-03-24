@@ -84,6 +84,9 @@ void UIListBox::handleEvent(Message* message)
 
         if(swscanf(selectedDataItemStr.getUnicode16(),L"%i",&selectedItem) != 1)
             DLOG(INFO) << "UIListBox::handleEvent: item mismatch";
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/UI Manager/UIListBox.cpp
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/UIListBox.cpp
+=======
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/UIListBox.cpp
 
         if(items >= 2)

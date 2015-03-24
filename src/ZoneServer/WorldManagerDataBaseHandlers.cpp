@@ -279,7 +279,11 @@ void WorldManager::_loadWorldObjects()
                     //mWorldScripts.push_back(script);
                 }
 <<<<<<< HEAD
+<<<<<<< HEAD
                 //LOG(info) << "Loaded " << mWorldScripts.size() << " World Scripts";
+=======
+                LOG_IF(INFO, mWorldScripts.size()) << "Loaded " << mWorldScripts.size() << " World Scripts";
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
                 LOG_IF(INFO, mWorldScripts.size()) << "Loaded " << mWorldScripts.size() << " World Scripts";
 >>>>>>> parent of 5bd772a... got rid of google log

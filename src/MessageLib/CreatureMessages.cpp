@@ -41,17 +41,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/ZoneOpcodes.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "ZoneServer\Services\equipment\equipment_service.h"
 #include "ZoneServer\Objects\Creature Object\equipment_item.h"
 
 #include "anh/logger.h"
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log
 // Fix for issues with glog redefining this constant
 #ifdef ERROR
 #undef ERROR
 #endif
 
 #include <glog/logging.h>
+<<<<<<< HEAD
+>>>>>>> parent of 5bd772a... got rid of google log
+=======
 >>>>>>> parent of 5bd772a... got rid of google log
 
 #include "NetworkManager/DispatchClient.h"
@@ -1080,8 +1086,13 @@ bool MessageLib::sendSkillModDeltasCREO_4(SkillModsList smList,uint8 remove,Crea
     mMessageFactory->addUint32(smList.size());
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     mMessageFactory->addUint32(creatureObject->getAndIncrementSkillModUpdateCounter(smList.size()));
     //mMessageFactory->addUint8(remove);
+=======
+    mMessageFactory->addUint32(playerObject->getAndIncrementSkillModUpdateCounter(smList.size()));
+    mMessageFactory->addUint8(remove);
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
     mMessageFactory->addUint32(playerObject->getAndIncrementSkillModUpdateCounter(smList.size()));
     mMessageFactory->addUint8(remove);

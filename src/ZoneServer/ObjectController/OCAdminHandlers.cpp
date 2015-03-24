@@ -206,6 +206,9 @@ void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,Objec
     {
         dataStr.convert(BSTRType_ANSI);
         DLOG(INFO) << "Admin (anon): " <<  dataStr.getAnsi();
+<<<<<<< HEAD:src/ZoneServer/ObjectController/OCAdminHandlers.cpp
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/OCAdminHandlers.cpp
+=======
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/OCAdminHandlers.cpp
     }
 
@@ -1075,7 +1078,11 @@ void ObjectController::sendAdminFeedback(BString reply) const
         else
         {
 <<<<<<< HEAD:src/ZoneServer/ObjectController/OCAdminHandlers.cpp
+<<<<<<< HEAD:src/ZoneServer/ObjectController/OCAdminHandlers.cpp
             DLOG(info) << "Admin :" << player->GetCreature()->getFirstName();
+=======
+            DLOG(INFO) << "Admin :" << player->getFirstName().getAnsi();
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/OCAdminHandlers.cpp
 =======
             DLOG(INFO) << "Admin :" << player->getFirstName().getAnsi();
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/OCAdminHandlers.cpp

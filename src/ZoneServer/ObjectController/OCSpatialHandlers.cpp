@@ -84,6 +84,10 @@ using boost::smatch;
 #endif
 
 #ifdef WIN32
+#undef ERROR
+#endif
+
+#ifdef WIN32
 using std::wregex;
 using std::wsmatch;
 using std::regex_match;
@@ -112,8 +116,13 @@ void ObjectController::_handleSpatialChatInternal(uint64 targetId,Message* messa
     boost::wsmatch m;
 
 <<<<<<< HEAD:src/ZoneServer/ObjectController/OCSpatialHandlers.cpp
+<<<<<<< HEAD:src/ZoneServer/ObjectController/OCSpatialHandlers.cpp
     if (! boost::regex_match(tmp, m, p)) {
         LOG(error) << "Invalid spatial chat message format";
+=======
+    if (! regex_match(tmp, m, p)) {
+        LOG(ERROR) << "Invalid spatial chat message format";
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/OCSpatialHandlers.cpp
 =======
     if (! regex_match(tmp, m, p)) {
         LOG(ERROR) << "Invalid spatial chat message format";

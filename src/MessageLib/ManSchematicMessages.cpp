@@ -51,7 +51,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "anh/logger.h"
+=======
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
 #include <glog/logging.h>
 >>>>>>> parent of 5bd772a... got rid of google log
@@ -146,8 +150,13 @@ bool MessageLib::sendBaselinesMSCO_3(ManufacturingSchematic* manSchem,PlayerObje
                 float attributeValue = boost::lexical_cast<float,std::string>((*it).second);
                 float attributeAddValue = manSchem->getPPAttribute<float>(gWorldManager->getAttributeKey((*it).first));
 <<<<<<< HEAD
+<<<<<<< HEAD
                 DLOG(info) << "MessageLib::sendBaselinesMSCO_3 Attribute Add Value";
                 DLOG(info) << "MessageLib::sendBaselinesMSCO_3 we will add " << attributeAddValue << " to " << gWorldManager->getAttributeKey((*it).first);
+=======
+                DLOG(INFO) << "MessageLib::sendBaselinesMSCO_3 Attribute Add Value";
+                DLOG(INFO) << "MessageLib::sendBaselinesMSCO_3 we will add " << attributeAddValue << " to " << gWorldManager->getAttributeKey((*it).first).getAnsi();
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
                 DLOG(INFO) << "MessageLib::sendBaselinesMSCO_3 Attribute Add Value";
                 DLOG(INFO) << "MessageLib::sendBaselinesMSCO_3 we will add " << attributeAddValue << " to " << gWorldManager->getAttributeKey((*it).first).getAnsi();

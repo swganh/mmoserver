@@ -733,7 +733,11 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	if (!targetContainerId)
 	{
 <<<<<<< HEAD:src/ZoneServer/ObjectController/OCCommonHandlers.cpp
+<<<<<<< HEAD:src/ZoneServer/ObjectController/OCCommonHandlers.cpp
 		DLOG(info) << "ObjController::_handleTransferItemMisc  TargetContainer is NULL :(";
+=======
+		DLOG(INFO) << "ObjController::_handleTransferItemMisc:TargetContainer is 0 :(";
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/OCCommonHandlers.cpp
 =======
 		DLOG(INFO) << "ObjController::_handleTransferItemMisc:TargetContainer is 0 :(";
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/OCCommonHandlers.cpp

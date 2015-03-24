@@ -34,6 +34,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #undef ERROR
 #endif
 #include <glog/logging.h>
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Structure Manager/HarvesterFactory.cpp
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/HarvesterFactory.cpp
+=======
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/HarvesterFactory.cpp
 
 #include "ZoneServer/Objects/Deed.h"
@@ -150,6 +153,7 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,swganh::database::Dat
         asynContainer->mId		= harvester->getId();
         asynContainer->mObject	= harvester;
 
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Structure Manager/HarvesterFactory.cpp
 		std::stringstream sql;
 		sql << "SELECT sad.PlayerID, sad.AdminType, c.firstname FROM " << mDatabase->galaxy() << ".structure_admin_data sad INNER JOIN "  << mDatabase->galaxy() << ".characters c ON (c.id = sad.PlayerID) WHERE StructureID = " << harvester->getId() << ";";
 		mDatabase->executeSqlAsync(this, asynContainer, sql.str());
@@ -158,6 +162,8 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,swganh::database::Dat
 
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Structure Manager/HarvesterFactory.cpp
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/HarvesterFactory.cpp
         LOG(INFO) << "Loaded harvester with id [" << harvester->getId() << "]";
         asyncContainer->mOfCallback->handleObjectReady(harvester,asyncContainer->mClient);
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/HarvesterFactory.cpp

@@ -28,7 +28,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/ProfessionManagers/Entertainer Manager/EntertainerManager.h"
 
 <<<<<<< HEAD:src/ZoneServer/ProfessionManagers/Entertainer Manager/EntertainerManager.cpp
+<<<<<<< HEAD:src/ZoneServer/ProfessionManagers/Entertainer Manager/EntertainerManager.cpp
 #include "anh/logger.h"
+=======
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/EntertainerManager.cpp
 =======
 #include <glog/logging.h>
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/EntertainerManager.cpp
@@ -58,8 +62,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/utils.h"
 
 <<<<<<< HEAD:src/ZoneServer/ProfessionManagers/Entertainer Manager/EntertainerManager.cpp
+<<<<<<< HEAD:src/ZoneServer/ProfessionManagers/Entertainer Manager/EntertainerManager.cpp
 #include "ZoneServer\Services\equipment\equipment_service.h"
 #include "ZoneServer\Services\ham\ham_service.h"
+=======
+#ifdef WIN32
+#undef ERROR
+#endif
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/EntertainerManager.cpp
 =======
 #ifdef WIN32
 #undef ERROR

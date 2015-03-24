@@ -32,6 +32,7 @@
 
 #include <boost/optional.hpp>
 #include <tbb/concurrent_queue.h>
+<<<<<<< HEAD
 
 #include <cstdint>
 #include <functional>
@@ -39,6 +40,8 @@
 #include <memory>
 #include <unordered_map>
 #include <vector>
+=======
+>>>>>>> parent of 5bd772a... got rid of google log
 
 #include "anh/event_dispatcher/basic_event.h"
 
@@ -60,6 +63,7 @@ class PlayerObject;
 namespace swganh {
 namespace event_dispatcher {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	
 	class EventInterface;
 
@@ -67,6 +71,8 @@ namespace event_dispatcher {
     typedef HashString EventType;
     typedef std::function<void (const std::shared_ptr<EventInterface>&)> EventHandlerCallback;
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log
 
 typedef std::function<bool (std::shared_ptr<IEvent>)> EventListenerCallback;
 typedef anh::HashString EventListenerType;
@@ -92,6 +98,7 @@ public:
 
 public:
     virtual ~IEventDispatcher();
+<<<<<<< HEAD
     
     virtual bool subscribe(const EventType& event_type, EventListener listener) = 0;
     virtual void unsubscribe(const EventType& event_type, const EventListenerType& listener_type) = 0;
@@ -100,6 +107,16 @@ public:
     virtual bool trigger(std::shared_ptr<IEvent> incoming_event) = 0;
     virtual bool trigger(std::shared_ptr<IEvent> incoming_event, PostTriggerCallback callback) = 0;
     
+=======
+    
+    virtual bool subscribe(const EventType& event_type, EventListener listener) = 0;
+    virtual void unsubscribe(const EventType& event_type, const EventListenerType& listener_type) = 0;
+    virtual void unsubscribe(const EventListenerType& listener_type) = 0;
+
+    virtual bool trigger(std::shared_ptr<IEvent> incoming_event) = 0;
+    virtual bool trigger(std::shared_ptr<IEvent> incoming_event, PostTriggerCallback callback) = 0;
+    
+>>>>>>> parent of 5bd772a... got rid of google log
     virtual void triggerWhen(std::shared_ptr<IEvent> incoming_event, TriggerCondition condition) = 0;
     virtual void triggerWhen(std::shared_ptr<IEvent> incoming_event, TriggerCondition condition, PostTriggerCallback callback) = 0;
 
@@ -123,6 +140,7 @@ public:
     public:
         virtual ~EventInterface() {}
 
+<<<<<<< HEAD
         virtual EventType Type() const = 0;
     };
 
@@ -134,6 +152,8 @@ public:
 
         EventType Type() const;
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log
     bool hasListeners(const EventType& event_type) const;
     bool hasRegisteredEventType(const EventType& event_type) const;
     bool hasEvents() const;
@@ -197,6 +217,7 @@ public:
             , data_(std::move(data))
         {}
 
+<<<<<<< HEAD
         const T& Get() const
         {
             return data_;
@@ -224,6 +245,20 @@ public:
 		// Shutdown the event dispatcher and stops dispatching events immediately
 		virtual void Shutdown() = 0;
     };
+=======
+    bool subscribe(const EventType& event_type, EventListener listener);
+    void unsubscribe(const EventType& event_type, const EventListenerType& listener_type);
+    void unsubscribe(const EventListenerType& listener_type);
+
+    bool trigger(std::shared_ptr<IEvent> incoming_event);
+    bool trigger(std::shared_ptr<IEvent> incoming_event, PostTriggerCallback callback);
+    
+    void triggerWhen(std::shared_ptr<IEvent> incoming_event, TriggerCondition condition);
+    void triggerWhen(std::shared_ptr<IEvent> incoming_event, TriggerCondition condition, PostTriggerCallback callback);
+
+    bool triggerAsync(std::shared_ptr<IEvent> incoming_event);
+    bool triggerAsync(std::shared_ptr<IEvent> incoming_event, PostTriggerCallback callback);
+>>>>>>> parent of 5bd772a... got rid of google log
 
     class EventDispatcher : public EventDispatcherInterface
     {
@@ -254,6 +289,7 @@ public:
 		void Shutdown();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     private:
         typedef std::unordered_map<CallbackId, EventHandlerCallback> EventHandlerList;
         
@@ -271,6 +307,8 @@ public:
     };
 
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log
     int active_queue_;
 };
 >>>>>>> parent of 5bd772a... got rid of google log

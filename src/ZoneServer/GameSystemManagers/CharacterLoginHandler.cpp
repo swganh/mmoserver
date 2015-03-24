@@ -36,7 +36,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/CharacterLoginHandler.cpp
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/CharacterLoginHandler.cpp
 #include "anh/logger.h"
+=======
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/CharacterLoginHandler.cpp
 =======
 #include <glog/logging.h>
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/CharacterLoginHandler.cpp
@@ -260,10 +264,13 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
     {
 
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/CharacterLoginHandler.cpp
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/CharacterLoginHandler.cpp
         DLOG(info) << "CharacterLoginHandler::_processSelectCharacter same account : new character ";
         // remove old char immediately
 		if(playerObject->GetCreature()->getId() == playerId)
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/CharacterLoginHandler.cpp
         DLOG(INFO) << "CharacterLoginHandler::_processSelectCharacter same account : new character ";
         // remove old char immidiately
         if(playerObject->getId() == playerId)

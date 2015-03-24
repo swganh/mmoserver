@@ -37,14 +37,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/Service.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "anh/logger.h"
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log
 // Fix for issues with glog redefining this constant
 #ifdef _WIN32
 #undef ERROR
 #endif
 
 #include <glog/logging.h>
+<<<<<<< HEAD
+>>>>>>> parent of 5bd772a... got rid of google log
+=======
 >>>>>>> parent of 5bd772a... got rid of google log
 
 #include <iostream>
@@ -86,6 +92,7 @@ ConnectionServer::ConnectionServer(int argc, char* argv[]) :
 {
     Anh_Utils::Clock::Init();
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 	std::stringstream log_file_name;
 	log_file_name << "logs/ConnectionServer.log";
@@ -93,6 +100,9 @@ ConnectionServer::ConnectionServer(int argc, char* argv[]) :
 	LOGINIT(log_file_name.str());
 
     LOG(warning) << "ConnectionServer Startup";
+=======
+    LOG(WARNING) << "ConnectionServer Startup";
+>>>>>>> parent of 5bd772a... got rid of google log
 =======
     LOG(WARNING) << "ConnectionServer Startup";
 >>>>>>> parent of 5bd772a... got rid of google log

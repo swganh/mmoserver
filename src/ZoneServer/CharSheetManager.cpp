@@ -32,6 +32,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #undef ERROR
 #endif
 #include <glog/logging.h>
+<<<<<<< HEAD
+>>>>>>> parent of 5bd772a... got rid of google log
+=======
 >>>>>>> parent of 5bd772a... got rid of google log
 
 #include "anh/logger.h"
@@ -232,6 +235,9 @@ void CharSheetManager::_processFactionRequest(Message* message,DispatchClient* c
     if(player == NULL)
     {
         DLOG(INFO) << "CharSheetManager::_processFactionRequest: could not find player " << client->getAccountId();
+<<<<<<< HEAD
+>>>>>>> parent of 5bd772a... got rid of google log
+=======
 >>>>>>> parent of 5bd772a... got rid of google log
         return;
     }
@@ -283,6 +289,9 @@ void CharSheetManager::_processPlayerMoneyRequest(Message* message,DispatchClien
     if(player == NULL)
     {
         DLOG(INFO) << "CharSheetManager::_processPlayerMoneyRequest: could not find player " << client->getAccountId();
+<<<<<<< HEAD
+>>>>>>> parent of 5bd772a... got rid of google log
+=======
 >>>>>>> parent of 5bd772a... got rid of google log
         return;
     }

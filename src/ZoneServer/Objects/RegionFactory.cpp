@@ -35,6 +35,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #undef ERROR
 #endif
 #include <glog/logging.h>
+<<<<<<< HEAD:src/ZoneServer/Objects/RegionFactory.cpp
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/RegionFactory.cpp
+=======
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/RegionFactory.cpp
 
 #include "BadgeRegionFactory.h"

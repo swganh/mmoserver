@@ -174,7 +174,11 @@ void StructureManager::_HandleStructureRedeedCallBack(StructureManagerAsyncConta
 	if(!deedId)
 	{
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Structure Manager/StructureManagerCallbackHandler.cpp
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Structure Manager/StructureManagerCallbackHandler.cpp
 		DLOG(info) << "StructureManager::create deed no valid return value... : " << deedId;
+=======
+		DLOG(INFO) << "StructureManager::create deed no valid return value...";
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/StructureManagerCallbackHandler.cpp
 =======
 		DLOG(INFO) << "StructureManager::create deed no valid return value...";
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/StructureManagerCallbackHandler.cpp
@@ -400,7 +404,11 @@ void StructureManager::_HandleQueryLoadDeedData(StructureManagerAsyncContainer* 
 
     if(result->getRowCount())
 <<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Structure Manager/StructureManagerCallbackHandler.cpp
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Structure Manager/StructureManagerCallbackHandler.cpp
         LOG(info) << "Loaded structure Data.";
+=======
+        LOG(INFO) << "Loaded structures.";
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/StructureManagerCallbackHandler.cpp
 =======
         LOG(INFO) << "Loaded structures.";
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/StructureManagerCallbackHandler.cpp

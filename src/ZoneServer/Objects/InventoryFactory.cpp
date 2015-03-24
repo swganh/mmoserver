@@ -28,12 +28,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "InventoryFactory.h"
 
 <<<<<<< HEAD:src/ZoneServer/Objects/InventoryFactory.cpp
+<<<<<<< HEAD:src/ZoneServer/Objects/InventoryFactory.cpp
 #include "anh/logger.h"
 =======
+=======
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/InventoryFactory.cpp
 #ifdef WIN32
 #undef ERROR
 #endif
 #include <glog/logging.h>
+<<<<<<< HEAD:src/ZoneServer/Objects/InventoryFactory.cpp
 >>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/InventoryFactory.cpp
 
 #include "Zoneserver/Objects/Inventory.h"
@@ -42,6 +46,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer\Objects\Object\ObjectManager.h"
 #include "ZoneServer\PlayerEnums.h"
 #include "ZoneServer/WorldManager.h"
+=======
+
+#include "Inventory.h"
+#include "ObjectFactoryCallback.h"
+#include "TangibleFactory.h"
+#include "WorldManager.h"
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/InventoryFactory.cpp
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"

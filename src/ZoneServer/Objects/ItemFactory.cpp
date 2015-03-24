@@ -28,10 +28,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ItemFactory.h"
 #include "anh/logger.h"
 
+<<<<<<< HEAD:src/ZoneServer/Objects/ItemFactory.cpp
 #include "ZoneServer\Objects\Object\ObjectManager.h"
 #include "ZoneServer/Objects/CraftingTool.h"
 #include "ZoneServer/Objects/CraftingStation.h"
 #include "Zoneserver/Objects/Deed.h"
+=======
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
+#include "CraftingTool.h"
+#include "CraftingStation.h"
+#include "Deed.h"
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ItemFactory.cpp
 #include "Firework.h"
 #include "Zoneserver/Objects/Food.h"
 #include "Furniture.h"
@@ -368,7 +379,7 @@ Item* ItemFactory::_createItem(swganh::database::DatabaseResult* result)
     default:
     {
         item = new Item();
-        LOG(info) << "ItemFactory::createItem (itemType:"<< itemIdentifier.mTypeId << ") with unknown Family " << itemIdentifier.mFamilyId;
+        LOG(INFO) << "ItemFactory::createItem (itemType:"<< itemIdentifier.mTypeId << ") with unknown Family " << itemIdentifier.mFamilyId;
     }
     break;
     }
@@ -510,8 +521,8 @@ void ItemFactory::handleObjectReady(Object* object,DispatchClient* client)
     InLoadingContainer* ilc	= _getObject(object->getParentId());
 
     if (! ilc) {
-        LOG(warning) << "Failed to locate InLoadingContainer for parent id [" << object->getParentId() << "]";
-        LOG(warning) << "ItemFactory::handleObjectReady could not locate ILC for objectParentId: " << object->getParentId();
+        LOG(WARNING) << "Failed to locate InLoadingContainer for parent id [" << object->getParentId() << "]";
+        LOG(WARNING) << "ItemFactory::handleObjectReady could not locate ILC for objectParentId: " << object->getParentId();
         return;
     }
     assert(ilc && "ItemFactory::handleObjectReady unable to find InLoadingContainer");
@@ -531,7 +542,7 @@ void ItemFactory::handleObjectReady(Object* object,DispatchClient* client)
         ilc->mOfCallback->handleObjectReady(item,ilc->mClient);
 
         if(!(_removeFromObjectLoadMap(item->getId())))
-            LOG(warning) << "Failed removing object from loadmap";
+            LOG(WARNING) << "Failed removing object from loadmap";
 
         mILCPool.free(ilc);
         return;

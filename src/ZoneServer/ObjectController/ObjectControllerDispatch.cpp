@@ -96,7 +96,7 @@ void ObjectControllerDispatch::_dispatchMessage(Message* message, DispatchClient
             break;
 
             default:
-                DLOG(info) << "ObjectControllerDispatch: Unhandled Cmd(0x00000021) " << subOp2;
+                DLOG(INFO) << "ObjectControllerDispatch: Unhandled Cmd(0x00000021) " << subOp2;
                 break;
             }
         }
@@ -161,7 +161,7 @@ void ObjectControllerDispatch::_dispatchMessage(Message* message, DispatchClient
             break;
 
             default:
-                DLOG(info) << "ObjectControllerDispatch: Unhandled Cmd(0x00000023) " << subOp2;
+                DLOG(INFO) << "ObjectControllerDispatch: Unhandled Cmd(0x00000023) " << subOp2;
                 break;
             }
         }
@@ -231,19 +231,19 @@ void ObjectControllerDispatch::_dispatchMessage(Message* message, DispatchClient
                 break;
 
             default:
-                DLOG(info) << "ObjectControllerDispatch: Unhandled Cmd(0x00000083) " << subOp2;
+                DLOG(INFO) << "ObjectControllerDispatch: Unhandled Cmd(0x00000083) " << subOp2;
                 break;
             }
         }
         break;
 
         default:
-            DLOG(info) << "ObjectControllerDispatch: Unhandled Cmd(op1) "<<subOp1<<subOp2;
+            DLOG(INFO) << "ObjectControllerDispatch: Unhandled Cmd(op1) "<<subOp1<<subOp2;
             break;
         }
     }
     else
-        DLOG(info) << "ObjectControllerDispatch: Couldn't find Object " << objId;
+        DLOG(INFO) << "ObjectControllerDispatch: Couldn't find Object " << objId;
 
     message->setPendingDelete(true);
 }
@@ -258,7 +258,7 @@ void ObjectControllerDispatch::_dispatchObjectMenuSelect(Message* message,Dispat
     if(object != NULL)
         object->handleObjectMenuSelect(message->getUint8(),gWorldManager->getPlayerByAccId(client->getAccountId()));
     else
-        DLOG(info) << "ObjectControllerDispatch: Couldn't find Object " << objectId;
+        DLOG(INFO) << "ObjectControllerDispatch: Couldn't find Object " << objectId;
 
     message->setPendingDelete(true);
 }

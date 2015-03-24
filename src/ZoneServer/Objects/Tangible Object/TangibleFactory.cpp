@@ -37,7 +37,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <assert.h>
 
+<<<<<<< HEAD:src/ZoneServer/Objects/Tangible Object/TangibleFactory.cpp
 #include "anh/logger.h"
+=======
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/TangibleFactory.cpp
 //=============================================================================
 
 bool					TangibleFactory::mInsFlag    = false;
@@ -100,7 +109,7 @@ void TangibleFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,
         break;
 
     default:
-        DLOG(info) << "TangibleFactory::requestObject Unknown Group";
+        DLOG(INFO) << "TangibleFactory::requestObject Unknown Group";
         break;
     }
 }

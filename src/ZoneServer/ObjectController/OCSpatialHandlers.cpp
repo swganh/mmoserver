@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <iostream>
 
 #include <boost/regex.hpp>
+<<<<<<< HEAD:src/ZoneServer/ObjectController/OCSpatialHandlers.cpp
 
 #include "anh/logger.h"
 
@@ -44,6 +45,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 
 #include "ZoneServer/WorldConfig.h"
+=======
+#endif
+
+#include <glog/logging.h>
+
+#include "CraftingTool.h"
+#include "CurrentResource.h"
+#include "Item.h"
+#include "NPCObject.h"
+#include "ObjectController.h"
+#include "ObjectControllerCommandMap.h"
+#include "ObjectControllerOpcodes.h"
+#include "PlayerObject.h"
+#include "SurveyTool.h"
+#include "TravelMapHandler.h"
+#include "UIManager.h"
+#include "Wearable.h"
+#include "WorldConfig.h"
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/OCSpatialHandlers.cpp
 
 #include "MessageLib/MessageLib.h"
 
@@ -55,8 +75,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <boost/lexical_cast.hpp>
 
+<<<<<<< HEAD:src/ZoneServer/ObjectController/OCSpatialHandlers.cpp
 using boost::regex;
 using boost::smatch;
+=======
+#ifdef WIN32
+#undef ERROR
+#endif
+
+#ifdef WIN32
+using std::wregex;
+using std::wsmatch;
+using std::regex_match;
+#else
+using boost::wregex;
+using boost::wsmatch;
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/OCSpatialHandlers.cpp
 using boost::regex_match;
 
 //=============================================================================
@@ -77,8 +111,13 @@ void ObjectController::_handleSpatialChatInternal(uint64 targetId,Message* messa
 	const boost::wregex p(L"(\\d+) (\\d+) (\\d+) (\\d+) (\\d+) (.*)");
     boost::wsmatch m;
 
+<<<<<<< HEAD:src/ZoneServer/ObjectController/OCSpatialHandlers.cpp
     if (! boost::regex_match(tmp, m, p)) {
         LOG(error) << "Invalid spatial chat message format";
+=======
+    if (! regex_match(tmp, m, p)) {
+        LOG(ERROR) << "Invalid spatial chat message format";
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/OCSpatialHandlers.cpp
         return; // We suffered an unrecoverable error, bail out now.
     }
    

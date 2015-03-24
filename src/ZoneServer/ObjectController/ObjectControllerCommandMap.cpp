@@ -27,6 +27,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer/ObjectController/ObjectControllerCommandMap.h"
 
+<<<<<<< HEAD:src/ZoneServer/ObjectController/ObjectControllerCommandMap.cpp
+=======
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ObjectControllerCommandMap.cpp
 
 #include "anh/logger.h"
 
@@ -171,7 +178,7 @@ void ObjectControllerCommandMap::handleDatabaseJobComplete(void* ref,swganh::dat
 
     mDatabase->destroyDataBinding(binding);
 
-    //LOG_IF(INFO, !mCmdPropertyMap.empty()) << "Mapped " << mCmdPropertyMap.size() << " commands";
+    LOG_IF(INFO, !mCmdPropertyMap.empty()) << "Mapped " << mCmdPropertyMap.size() << " commands";
 }
 
 const CommandMap& ObjectControllerCommandMap::getCommandMap() {

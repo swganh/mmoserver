@@ -27,7 +27,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "InventoryFactory.h"
 
+<<<<<<< HEAD:src/ZoneServer/Objects/InventoryFactory.cpp
 #include "anh/logger.h"
+=======
+#ifdef WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/InventoryFactory.cpp
 
 #include "Zoneserver/Objects/Inventory.h"
 #include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
@@ -257,7 +264,7 @@ void InventoryFactory::handleObjectReady(Object* object,DispatchClient* client)
 
 
     if (! ilc) {
-    	LOG(warning) << "Could not locate InLoadingContainer for object with id [" << object->getId() << "]";
+    	LOG(WARNING) << "Could not locate InLoadingContainer for object with id [" << object->getId() << "]";
         assert(ilc && "InventoryFactory::handleObjectReady unable to find InLoadingContainer");//moved below the return
         return;
     }
@@ -281,7 +288,7 @@ void InventoryFactory::handleObjectReady(Object* object,DispatchClient* client)
         inventory->setLoadState(LoadState_Loaded);
 
         if(!(_removeFromObjectLoadMap(inventory->getId())))
-        	LOG(info) << "Failed removing object from loadmap";
+        	LOG(INFO) << "Failed removing object from loadmap";
 
         ilc->mOfCallback->handleObjectReady(inventory,ilc->mClient);
 

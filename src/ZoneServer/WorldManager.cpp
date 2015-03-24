@@ -31,7 +31,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <cppconn/resultset.h>
 
+<<<<<<< HEAD
 #include "anh/logger.h"
+=======
+#ifdef WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log
 
 #include "anh/Utils/Scheduler.h"
 #include "Utils/VariableTimeScheduler.h"
@@ -109,7 +116,11 @@ WorldManager::WorldManager(uint32 zoneId, ZoneServer* zoneServer,swganh::app::Sw
     , mZoneId(zoneId)
 	, mTrn(trn)
 {
+<<<<<<< HEAD
     DLOG(info) << "WorldManager initialization zoneId : " << mZoneId << "trn : " << trn;
+=======
+    DLOG(INFO) << "WorldManager initialization";
+>>>>>>> parent of 5bd772a... got rid of google log
 
 	SpatialIndexManager::Init(getKernel()->GetDatabase());
 
@@ -177,7 +188,7 @@ WorldManager::WorldManager(uint32 zoneId, ZoneServer* zoneServer,swganh::app::Sw
         }
         // we got the total objectCount we need to load
         mTotalObjectCount = result_set->getUInt(1);
-        LOG(info) << "Loading " << mTotalObjectCount << " World Manager Objects... ";
+        LOG(INFO) << "Loading " << mTotalObjectCount << " World Manager Objects... ";
 
         _loadWorldObjects();
     } ) ;
@@ -344,7 +355,7 @@ void WorldManager::LoadCurrentGlobalTick()
     getKernel()->GetDatabase()->destroyResult(temp);
 
 
-    LOG(info) << "Current global tick count [" << Tick << "]";
+    LOG(INFO) << "Current global tick count [" << Tick << "]";
     mTick = Tick;
     mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleTick),7,1000,NULL);
 }
@@ -569,7 +580,7 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
         CraftingTool*	tool	=	dynamic_cast<CraftingTool*>(getObjectById((*it)));
         if(!tool)
         {
-            LOG(error) << "Missing crafting tool";
+            LOG(ERROR) << "Missing crafting tool";
             it = mBusyCraftTools.erase(it);
             continue;
         }
@@ -824,7 +835,17 @@ void WorldManager::_handleLoadComplete()
 	// register script hooks
 	_startWorldScripts();
 
+<<<<<<< HEAD
 	LOG(info) << "World load complete";
+=======
+	LOG(INFO) << "World load complete";
+			
+	if(mZoneId != 41)
+	{
+		while(!gHeightmap->isReady())
+			boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+	}
+>>>>>>> parent of 5bd772a... got rid of google log
 
 	// switch into running state
 	mState = WMState_Running;
@@ -1091,8 +1112,12 @@ void WorldManager::_startWorldScripts()
 
         ++scriptIt;
     }
+<<<<<<< HEAD
     LOG(error) << "Loaded world scripts";
 	*/
+=======
+    LOG(ERROR) << "Loaded world scripts";
+>>>>>>> parent of 5bd772a... got rid of google log
 }
 
 //======================================================================================================================
@@ -1327,17 +1352,23 @@ void WorldManager::removePlayerfromAccountMap(uint64 playerID)
     if(player)    {
         PlayerAccMap::iterator playerAccIt = mPlayerAccMap.find(player->getAccountId());
 
+<<<<<<< HEAD
         if(playerAccIt != mPlayerAccMap.end())        {
             LOG(info) << "Player left [" << player->getId() << "] Total players on zone [" << (getPlayerAccMap()->size() -1) << "]";
+=======
+        if(playerAccIt != mPlayerAccMap.end())
+        {
+            LOG(INFO) << "Player left [" << player->getId() << "] Total players on zone [" << (getPlayerAccMap()->size() -1) << "]";
+>>>>>>> parent of 5bd772a... got rid of google log
             mPlayerAccMap.erase(playerAccIt);
         }
         else
         {
-            LOG(error) << "Error removing player from account map [" << player->getAccountId() << "]";
+            LOG(ERROR) << "Error removing player from account map [" << player->getAccountId() << "]";
         }
     }
     else
     {
-        LOG(error) << "Error removing player from account map [" << player->getAccountId() << "]";
+        LOG(ERROR) << "Error removing player from account map [" << player->getAccountId() << "]";
     }
 }

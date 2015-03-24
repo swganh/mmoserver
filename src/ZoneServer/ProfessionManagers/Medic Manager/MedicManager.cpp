@@ -201,6 +201,7 @@ bool MedicManager::CheckMedicine(PlayerObject* Medic, PlayerObject* Target, Obje
         //TODO have an automated function that looks for the first item of a certain type in ALL containers
 
         //Look through inventory to find the correct MedicinePack
+<<<<<<< HEAD:src/ZoneServer/ProfessionManagers/Medic Manager/MedicManager.cpp
         auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(Medic, "inventory");
 		inventory->ViewObjects(Medic, 0, true, [&] (Object* object) {
 			Item* item = dynamic_cast<Item*>(object);
@@ -357,6 +358,177 @@ bool MedicManager::CheckMedicine(PlayerObject* Medic, PlayerObject* Target, Obje
         gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "healing_response_60"), Medic);
         return false;
     }
+=======
+        Inventory* inventory = dynamic_cast<Inventory*>(Medic->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+
+        ObjectIDList::iterator It = inventory->getObjects()->begin();
+        while(It != inventory->getObjects()->end())
+        {
+            Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById((*It)));
+            if(!item)
+            {
+                //hell resource containers are no items!!!
+                //they would cast as tangibles though
+                //assert(false);
+                It++;
+                continue;
+            }
+            //ItemType
+            uint32 mItemType = item->getItemType();
+            //check the opCode to see which medicine we need ??
+            if (medpackType == stim)
+            {
+                switch(mItemType)
+                {
+                case ItemType_Stimpack_A:
+                case ItemType_Stimpack_B:
+                case ItemType_Stimpack_C:
+                case ItemType_Stimpack_D:
+                case ItemType_Stimpack_E:
+                    MedicinePackObjectID = item->getId();
+                    medicine = dynamic_cast<Medicine*>(item);
+                default:
+                    break;
+                }
+            }
+            else if (medpackType == rangedstim)
+            {
+                switch(mItemType)
+                {
+                case ItemType_Ranged_Stimpack_A:
+                case ItemType_Ranged_Stimpack_B:
+                case ItemType_Ranged_Stimpack_C:
+                case ItemType_Ranged_Stimpack_D:
+                case ItemType_Ranged_Stimpack_E:
+                    MedicinePackObjectID = item->getId();
+                    medicine = dynamic_cast<Medicine*>(item);
+                default:
+                    break;
+                }
+            }
+            else if (medpackType == action )
+            {
+                switch(mItemType)
+                {
+                    //action
+                case ItemType_Wound_Action_A:
+                case ItemType_Wound_Action_B:
+                case ItemType_Wound_Action_C:
+                case ItemType_Wound_Action_D:
+                case ItemType_Wound_Action_E:
+                    MedicinePackObjectID = item->getId();
+                    medicine = dynamic_cast<Medicine*>(item);
+                    wound = true;
+                default:
+                    break;
+                }
+            }
+            else if	(medpackType == constitution)
+            {
+                switch(mItemType)
+                {
+                    //constitution
+                case ItemType_Wound_Constitution_A:
+                case ItemType_Wound_Constitution_B:
+                case ItemType_Wound_Constitution_C:
+                case ItemType_Wound_Constitution_D:
+                case ItemType_Wound_Constitution_E:
+                    MedicinePackObjectID = item->getId();
+                    medicine = dynamic_cast<Medicine*>(item);
+                    wound = true;
+                default:
+                    break;
+                }
+            }
+            else if (medpackType == health)
+            {
+                switch(mItemType)
+                {
+                    // health
+                case ItemType_Wound_Health_A:
+                case ItemType_Wound_Health_B:
+                case ItemType_Wound_Health_C:
+                case ItemType_Wound_Health_D:
+                case ItemType_Wound_Health_E:
+                    MedicinePackObjectID = item->getId();
+                    medicine = dynamic_cast<Medicine*>(item);
+                    wound = true;
+                default:
+                    break;
+                }
+            }
+            else if (medpackType == quickness)
+            {
+                switch(mItemType)
+                {
+                    // quickness
+                case ItemType_Wound_Quickness_A:
+                case ItemType_Wound_Quickness_B:
+                case ItemType_Wound_Quickness_C:
+                case ItemType_Wound_Quickness_D:
+                case ItemType_Wound_Quickness_E:
+                    MedicinePackObjectID = item->getId();
+                    medicine = dynamic_cast<Medicine*>(item);
+                    wound = true;
+                default:
+                    break;
+                }
+            }
+            else if (medpackType == stamina)
+            {
+                switch(mItemType)
+                {
+                    // stamina
+                case ItemType_Wound_Stamina_A:
+                case ItemType_Wound_Stamina_B:
+                case ItemType_Wound_Stamina_C:
+                case ItemType_Wound_Stamina_D:
+                case ItemType_Wound_Stamina_E:
+                    MedicinePackObjectID = item->getId();
+                    medicine = dynamic_cast<Medicine*>(item);
+                    wound = true;
+                default:
+                    break;
+                }
+            }
+            else if (medpackType == strength)
+            {
+                switch(mItemType)
+                {
+                    // strength
+                case ItemType_Wound_Strength_A:
+                case ItemType_Wound_Strength_B:
+                case ItemType_Wound_Strength_C:
+                case ItemType_Wound_Strength_D:
+                case ItemType_Wound_Strength_E:
+                    MedicinePackObjectID = item->getId();
+                    medicine = dynamic_cast<Medicine*>(item);
+                    wound = true;
+                default:
+                    break;
+                }
+            }
+            else
+            {
+                DLOG(INFO) << "Invalid Medicine Type" ;
+            }
+
+            if(medicine)
+            {
+                break;
+            }
+            else
+            {
+                It++;
+            }
+        }
+        //Check if a Stim was found
+        if(medicine == 0)
+        {
+            gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "healing_response_60"), Medic);
+            return false;
+        }
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/MedicManager.cpp
     } else
     {
         medicine = dynamic_cast<Medicine*>(gWorldManager->getObjectById(MedicinePackObjectID));

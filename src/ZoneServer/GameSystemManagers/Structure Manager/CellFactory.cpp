@@ -27,7 +27,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "CellFactory.h"
 
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Structure Manager/CellFactory.cpp
 #include "anh/logger.h"
+=======
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/CellFactory.cpp
 
 #include "CellObject.h"
 //#include "ZoneServer/Objects/Creature Object/CreatureEnums.h"
@@ -226,7 +233,7 @@ void CellFactory::handleObjectReady(Object* object,DispatchClient* client)
     InLoadingContainer* ilc = _getObject(object->getParentId());
 
     if (! ilc) {//Crashbug fix: http://paste.swganh.org/viewp.php?id=20100627114151-8f7df7f74013af71c0d0b00bc240770d
-        LOG(warning) << "Could not locate InLoadingContainer for object parent id [" << object->getParentId() << "]";
+        LOG(WARNING) << "Could not locate InLoadingContainer for object parent id [" << object->getParentId() << "]";
         return;
     }
 
@@ -290,7 +297,7 @@ void CellFactory::handleObjectReady(Object* object,DispatchClient* client)
 		//LOG(info) << "cellFactory::handleObjectReady -> cell done " << cell->getId();
 
         if(!(_removeFromObjectLoadMap(cell->getId())))
-            LOG(warning) << "Failed removing object from loadmap";
+            LOG(WARNING) << "Failed removing object from loadmap";
 
         ilc->mOfCallback->handleObjectReady(cell,ilc->mClient);
 

@@ -134,6 +134,7 @@ void ObjectController::_handleSetWaypointActiveStatus(uint64 targetId,Message* m
 
     if(!waypoint)
     {
+<<<<<<< HEAD:src/ZoneServer/ObjectController/OCDatapadHandlers.cpp
 		DLOG(info) << "ObjController::handleSetWaypointStatus: could not find waypoint " << targetId;
 		return;
 	}
@@ -143,6 +144,15 @@ void ObjectController::_handleSetWaypointActiveStatus(uint64 targetId,Message* m
 	sql << "UPDATE " << mDatabase->galaxy() << ".waypoints set active=" << (waypoint->getActive() ? 1 : 0) << " WHERE waypoint_id=" << targetId << ";";
     mDatabase->executeSqlAsync(0,0,sql.str());
     
+=======
+        waypoint->toggleActive();
+        mDatabase->executeSqlAsync(0,0,"UPDATE %s.waypoints set active=%u WHERE waypoint_id=%"PRIu64"",mDatabase->galaxy(),(uint8)waypoint->getActive(),targetId);
+    }
+    else
+    {
+        DLOG(INFO) << "ObjController::handleSetWaypointStatus: could not find waypoint " << targetId;
+    }
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/OCDatapadHandlers.cpp
 }
 
 //======================================================================================================================
@@ -218,8 +228,14 @@ void ObjectController::_handleSetWaypointName(uint64 targetId,Message* message,O
     Datapad* datapad			= player->getDataPad();
     std::shared_ptr<WaypointObject>	waypoint	= datapad->getWaypointById(targetId);
 
+<<<<<<< HEAD:src/ZoneServer/ObjectController/OCDatapadHandlers.cpp
     if(waypoint == NULL)    {
         DLOG(info) << "ObjController::handlesetwaypointname: could not find waypoint "<< targetId;
+=======
+    if(waypoint == NULL)
+    {
+        DLOG(INFO) << "ObjController::handlesetwaypointname: could not find waypoint "<< targetId;
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/OCDatapadHandlers.cpp
         return;
     }
 

@@ -24,6 +24,7 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
+<<<<<<< HEAD:src/ZoneServer/Objects/Food.cpp
 
 #include "anh/logger.h"
 
@@ -38,6 +39,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer/WorldConfig.h"
 #include "ZoneServer/WorldManager.h"
+=======
+#include "Food.h"
+
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
+#include "Buff.h"
+#include "Inventory.h"
+#include "NPCObject.h"
+#include "ObjectFactory.h"
+#include "PlayerObject.h"
+#include "WorldConfig.h"
+#include "WorldManager.h"
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/Food.cpp
 #include "Common/OutOfBand.h"
 
 #include "ZoneServer/Tutorial.h"
@@ -158,7 +175,7 @@ void Food::handleFoodUse(Object* srcObject)
         mIcon = 0;
         mIcon = this->getInternalAttribute<uint32>("food_icon");
     } else {
-    	LOG(warning) << "Food/Drink found with no buff icon";
+    	LOG(WARNING) << "Food/Drink found with no buff icon";
     }
 
     if(this->hasAttribute("counter_uses_remaining"))

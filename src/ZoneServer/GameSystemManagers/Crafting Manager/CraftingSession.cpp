@@ -354,7 +354,7 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
     Item* item = dynamic_cast<Item*>(object);
     if(!item)
     {   //Manufacturingschematic couldnt be created!!! Crashbug patch for: http://paste.swganh.org/viewp.php?id=20100627064849-3d026388be3dc63f7d9706f737e6d510
-        LOG(warning) << "CraftingSession::handleObjectReady: Couldnt Cast item.";
+        LOG(WARNING) << "CraftingSession::handleObjectReady: Couldnt Cast item.";
         mManufacturingSchematic = NULL;
 
         gMessageLib->sendCraftAcknowledge(opCreatePrototypeResponse,CraftCreate_Failure,this->getCounter(),mOwner);
@@ -371,11 +371,11 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
         mManufacturingSchematic = dynamic_cast<ManufacturingSchematic*>(item);
         if(!mManufacturingSchematic)
         {
-            LOG(warning) << "CraftingSession::handleObjectReady: Couldnt Cast ManufacturingSchematic.";
+            LOG(WARNING) << "CraftingSession::handleObjectReady: Couldnt Cast ManufacturingSchematic.";
 
             if(mDraftSchematic)
             {
-                LOG(warning) << "CraftingSession::handleObjectReady: DraftSchematic : " << mDraftSchematic->getModel().getAnsi() << " Object " << object->getId();
+                LOG(WARNING) << "CraftingSession::handleObjectReady: DraftSchematic : " << mDraftSchematic->getModel().getAnsi() << " Object " << object->getId();
             }
             mManufacturingSchematic = NULL;
             gMessageLib->sendCraftAcknowledge(opCreatePrototypeResponse,CraftCreate_Failure,this->getCounter(),mOwner);
@@ -454,7 +454,7 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
 
         if(!mAsyncManSlot)
         {
-            LOG(warning) << "CraftingSession::handleObjectReady: Couldnt find Slot!!!.";
+            LOG(WARNING) << "CraftingSession::handleObjectReady: Couldnt find Slot!!!.";
 
             mManufacturingSchematic = NULL;
             gMessageLib->sendCraftAcknowledge(opCreatePrototypeResponse,CraftCreate_Failure,this->getCounter(),mOwner);
@@ -533,16 +533,21 @@ bool CraftingSession::selectDraftSchematic(uint32 schematicIndex)
 
     if(!mDraftSchematic)
     {
-        LOG(info) << "CraftingSession::selectDraftSchematic: not found crc:" << schemCrc;
+        LOG(INFO) << "CraftingSession::selectDraftSchematic: not found crc:" << schemCrc;
         return(false);
     }
 
     // temporary check until all items are craftable
     if(!mDraftSchematic->isCraftEnabled())
     {
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Crafting Manager/CraftingSession.cpp
         LOG(info) << "CraftingSession::selectDraftSchematic: schematic not craftable crc:" <<schemCrc;
 		std::string message("This item is currently not craftable.");
 		gMessageLib->SendSystemMessage(std::u16string(message.begin(), message.end()), mOwner);
+=======
+        LOG(INFO) << "CraftingSession::selectDraftSchematic: schematic not craftable crc:" <<schemCrc;
+        gMessageLib->SendSystemMessage(L"This item is currently not craftable.", mOwner);
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/CraftingSession.cpp
         return(true);
     }
 
@@ -734,7 +739,11 @@ void CraftingSession::addComponentAttribute()
                     }
                     else
                     {
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Crafting Manager/CraftingSession.cpp
                         DLOG(info) << "CraftingSession::addComponentAttribute  : Attribute " << (*cAPPiT)->getAffectedAttributeKey() << " is not part of the item";
+=======
+                        DLOG(INFO) << "CraftingSession::addComponentAttribute  : Attribute " << (*cAPPiT)->getAffectedAttributeKey().getAnsi()  << " is not part of the item";
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/CraftingSession.cpp
                     }
 
                 }
@@ -1170,11 +1179,11 @@ float CraftingSession::_calcWeightedResourceValue(CraftWeights* weights)
         if(manSlot->mFilledResources.size() == 0)
         {
             //PANICK - theres no resource filled !!!!!!!!!!!!!!!!!!!!!!!!!!
-            DLOG(info) << "CraftingSession::_calcWeightedResourceValue: NO REOURCE IN RESOURCE SLOT :";
+            DLOG(INFO) << "CraftingSession::_calcWeightedResourceValue: NO REOURCE IN RESOURCE SLOT :";
 
             if(manSlot->mDraftSlot->getOptional())
             {
-                DLOG(info) << "CraftingSession::_calcWeightedResourceValue: SLOT WAS OPTIONAL:";
+                DLOG(INFO) << "CraftingSession::_calcWeightedResourceValue: SLOT WAS OPTIONAL:";
             }
             assert(false&&"CraftingSession::_calcWeightedResourceValue: NO RESSOURCE IN RESOURCE SLOT ");
             ++manIt;

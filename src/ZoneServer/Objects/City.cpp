@@ -58,7 +58,11 @@ void City::onObjectEnter(Object* object)
 
 	addVisitor(object);
 
+<<<<<<< HEAD:src/ZoneServer/Objects/City.cpp
 	DLOG(info) << player->GetCreature()->getFirstName() << " entered " 
+=======
+	DLOG(INFO) << player->getFirstName().getAnsi() << " entered " 
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/City.cpp
         << mCityName << " (" << mVisitingPlayers.size() << " players in city)";
 }
 
@@ -73,7 +77,11 @@ void City::onObjectLeave(Object* object)
 
 	removeVisitor(object);
 
+<<<<<<< HEAD:src/ZoneServer/Objects/City.cpp
 	DLOG(info) << player->GetCreature()->getFirstName() << " left " 
+=======
+	DLOG(INFO) << player->getFirstName().getAnsi() << " left " 
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/City.cpp
         << mCityName << " (" << mVisitingPlayers.size() << " players in city)";
 }
 

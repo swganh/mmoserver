@@ -27,7 +27,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer/WorldConfig.h"
 
+<<<<<<< HEAD
 #include "anh/logger.h"
+=======
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log
 
 #include "DatabaseManager/Database.h"
 //#include "DatabaseManager/"
@@ -272,7 +276,7 @@ void WorldConfig::buildAttributeMap(swganh::database::DatabaseResult* result)
 		}*/
     }
 
-    LOG(info)  << "Mapped attributes mapped: [" << count << "]";
+    LOG_IF(INFO, count > 0) << "Mapped attributes mapped: [" << count << "]";
 
 	mKernel->GetDatabase()->destroyDataBinding(ConfigurationBinding);
 
@@ -286,7 +290,11 @@ void WorldConfig::setConfiguration(std::string key,std::string value)
 
     if(it == mConfigurationMap.end())
     {
+<<<<<<< HEAD
     	LOG(warning) << "Could not find configuration setting with key [" << key << "]";
+=======
+    	LOG(WARNING) << "Could not find configuration setting with key [" << key.getAnsi() << "]";
+>>>>>>> parent of 5bd772a... got rid of google log
         return;
     }
 
@@ -319,7 +327,11 @@ void WorldConfig::removeConfiguration(std::string key)
     if(it != mConfigurationMap.end())
         mConfigurationMap.erase(it);
     else
+<<<<<<< HEAD
     	LOG(warning) << "Could not find configuration setting with key [" << key << "]";
+=======
+    	LOG(WARNING) << "Could not find configuration setting with key [" << key.getAnsi() << "]";
+>>>>>>> parent of 5bd772a... got rid of google log
 }
 
 //=========================================================================

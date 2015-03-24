@@ -27,6 +27,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceContainerFactory.h"
 
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Resource Manager/ResourceContainerFactory.cpp
+=======
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ResourceContainerFactory.cpp
 
 #include "anh/logger.h"
 #include "ZoneServer\Objects\Object\ObjectManager.h"
@@ -162,7 +169,7 @@ ResourceContainer* ResourceContainerFactory::_createResourceContainer(swganh::da
         resourceContainer->setResource(resource);
         resourceContainer->SetTemplate((resource->getType())->GetTemplate());
     } else {
-    	LOG(warning) << "Resource not found [" << resourceContainer->mResourceId << "]";
+    	LOG(WARNING) << "Resource not found [" << resourceContainer->mResourceId << "]";
     }
 
 	gObjectManager->LoadSlotsForObject(resourceContainer);

@@ -37,8 +37,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
 
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
 
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Buff Manager/BuffManager.cpp
 #include "anh/logger.h"
+=======
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/BuffManager.cpp
 
 
 
@@ -334,7 +342,12 @@ void BuffManager::LoadBuffs(PlayerObject* playerObject, uint64 currenttime)
     //check we don't have ghosted buffs
     if(playerObject->GetCreature()->GetNoOfBuffs() > 0)
     {
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Buff Manager/BuffManager.cpp
         LOG(warning) << "BuffManager::LoadBuffs - PlayerObject has ghosted Buffs. Inform a developer";
+=======
+        LOG(WARNING) << "PlayerObject has ghosted Buffs. Inform a developer";
+        gMessageLib->SendSystemMessage(L"You appear to have Ghosted Buffs (Bug #958). Please inform an SWG:ANH developer or Server Admin you saw this message", playerObject);
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/BuffManager.cpp
         return;
     }
 

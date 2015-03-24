@@ -31,12 +31,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cstdio>
 #include <cstring>
 
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
+
 #ifdef _WIN32
 #pragma warning(push)
 #pragma warning(disable : 4251)
 #endif
 
+<<<<<<< HEAD
 #include "anh/logger.h"
+=======
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log
 
 #include <mysql_connection.h>
 #include <mysql_driver.h>
@@ -83,7 +92,7 @@ DatabaseResult* DatabaseImplementationMySql::executeSql(const std::string& sql, 
     DatabaseResult* result = nullptr;
 
     try {
-        //DLOG(info) << sql;
+        //DLOG(INFO) << sql;
 
         sql::Statement* statement = connection_->createStatement();    
         statement->execute(sql);
@@ -93,7 +102,7 @@ DatabaseResult* DatabaseImplementationMySql::executeSql(const std::string& sql, 
 
         result = new(ResultPool::ordered_malloc()) DatabaseResult(*this, statement, result_set, procedure);
     } catch(const sql::SQLException& e) {
-        LOG(fatal) << e.what();
+        LOG(FATAL) << e.what();
     }
 
     return result;
@@ -103,8 +112,7 @@ DatabaseResult* DatabaseImplementationMySql::executeSql(const std::string& sql, 
 void DatabaseImplementationMySql::destroyResult(DatabaseResult* result) {
     if (!result)
     {
-		LOG(error) << "DatabaseResult is NULL";
-		
+        LOG(WARNING) << "DatabaseResult is NULL";
         return;
     }
     // For a multi-result statement to be destroyed properly all results must
@@ -162,14 +170,14 @@ void DatabaseImplementationMySql::getNextRow(DatabaseResult* result, DataBinding
 
 void DatabaseImplementationMySql::resetRowIndex(DatabaseResult* result, uint64_t index) const {
     if(!result) {
-        LOG(error) << "Bad Ptr 'DatabaseResult* result' at DatabaseImplementationMySql::ResetRowIndex.";
+        LOG(ERROR) << "Bad Ptr 'DatabaseResult* result' at DatabaseImplementationMySql::ResetRowIndex.";
         return;
     }
 
     std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
     if (!result_set) {
-        LOG(error) <<"Bad Ptr '(MYSQL_RES*)result->getResultSetReference()' at DatabaseImplementationMySql::ResetRowIndex.";
+        LOG(ERROR) <<"Bad Ptr '(MYSQL_RES*)result->getResultSetReference()' at DatabaseImplementationMySql::ResetRowIndex.";
         return;
     }
 
@@ -179,12 +187,12 @@ void DatabaseImplementationMySql::resetRowIndex(DatabaseResult* result, uint64_t
 
 uint32_t DatabaseImplementationMySql::escapeString(char* target, const char* source, uint32_t length) {
     if (!target) {
-        LOG(error) << "Bad Ptr 'int8* target' at DatabaseImplementationMySql::Escape_String.";
+        LOG(ERROR) << "Bad Ptr 'int8* target' at DatabaseImplementationMySql::Escape_String.";
         return 0;
     }
 
     if (!source) {
-        LOG(error) << "Bad Ptr 'const int8* source' at DatabaseImplementationMySql::Escape_String.";
+        LOG(ERROR) << "Bad Ptr 'const int8* source' at DatabaseImplementationMySql::Escape_String.";
         return 0;
     }
 

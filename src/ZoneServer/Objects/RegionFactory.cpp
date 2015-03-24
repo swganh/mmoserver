@@ -27,8 +27,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "RegionFactory.h"
 
+<<<<<<< HEAD:src/ZoneServer/Objects/RegionFactory.cpp
 #include "Utils/utils.h"
 #include "anh/logger.h"
+=======
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/RegionFactory.cpp
 
 #include "BadgeRegionFactory.h"
 #include "CityFactory.h"
@@ -69,7 +76,7 @@ void RegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,ui
         break;
 
     default:
-        LOG(error) << "Unknown group [" << subGroup << "]";
+        LOG(ERROR) << "Unknown group [" << subGroup << "]";
         break;
     }
 }

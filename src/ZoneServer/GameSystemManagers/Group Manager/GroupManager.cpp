@@ -28,7 +28,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/GameSystemManagers/Group Manager/GroupManagerCallbackContainer.h"
 #include "ZoneServer/GameSystemManagers/Group Manager/GroupObject.h"
 
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Group Manager/GroupManager.cpp
 #include "anh/logger.h"
+=======
+#include "ZoneServer/GroupManager.h"
+
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/GroupManager.cpp
 
 #include "Utils/utils.h"
 
@@ -64,7 +70,7 @@ GroupManager*		GroupManager::mSingleton  = NULL;
 
 GroupManager::GroupManager(swganh::database::Database* database, MessageDispatch* dispatch)
 {
-    LOG(info) << "Beginning GroupManager initialization";
+    LOG(INFO) << "Beginning GroupManager initialization";
     mDatabase = database;
     mMessageDispatch = dispatch;
 
@@ -75,7 +81,7 @@ GroupManager::GroupManager(swganh::database::Database* database, MessageDispatch
     mMessageDispatch->RegisterMessageCallback(opIsmGroupInviteInRangeRequest, std::bind(&GroupManager::_processIsmGroupInviteInRangeRequest, this, std::placeholders::_1, std::placeholders::_2));
     mMessageDispatch->RegisterMessageCallback(opIsmIsGroupLeaderResponse, std::bind(&GroupManager::_processIsmIsGroupLeaderResponse, this, std::placeholders::_1, std::placeholders::_2));
 
-    LOG(info) << "GroupManager initialization complete";
+    LOG(INFO) << "GroupManager initialization complete";
 }
 
 
@@ -224,7 +230,7 @@ void GroupManager::_processIsmGroupCREO6deltaGroupId(Message* message, DispatchC
     PlayerObject* const player = gWorldManager->getPlayerByAccId(message->getUint32());  // the player whos group_id has changed
     if(player == NULL)
     {
-        DLOG(warning) << "GroupManager::_processIsmGroupCREO6deltaGroupId PlayerAccId not found";
+        DLOG(WARNING) << "GroupManager::_processIsmGroupCREO6deltaGroupId PlayerAccId not found";
         return;
     }
 

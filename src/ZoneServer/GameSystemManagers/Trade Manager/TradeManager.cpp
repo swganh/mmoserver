@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "TradeManager.h"
 
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Trade Manager/TradeManager.cpp
 
 #include "anh/logger.h"
 
@@ -47,6 +48,27 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer\Services\equipment\equipment_service.h"
 
+=======
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
+#include "Bank.h"
+#include "CharacterBuilderTerminal.h"
+#include "Datapad.h"
+#include "Inventory.h"
+#include "ObjectFactory.h"
+#include "PlayerObject.h"
+#include "TreasuryManager.h"
+#include "WaypointObject.h"
+#include "Wearable.h"
+#include "WorldConfig.h"
+#include "WorldManager.h"
+#include "ContainerManager.h"
+#include "ZoneOpcodes.h"
+#include "MessageLib/MessageLib.h"
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/TradeManager.cpp
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/Transaction.h"
@@ -167,13 +189,13 @@ void TradeManager::handleDatabaseJobComplete(void* ref,swganh::database::Databas
 
         if((!asynContainer->player1)||(!asynContainer->player2))
         {
-            DLOG(info) << "TradeManager TRMQuery_MoneyTransaction : one of the tradepartners doesnt exist";
+            DLOG(INFO) << "TradeManager TRMQuery_MoneyTransaction : one of the tradepartners doesnt exist";
             error = 1;
         }
 
         if (error )
         {
-            DLOG(info) << "TradeManager Trade transaction failed";
+            DLOG(INFO) << "TradeManager Trade transaction failed";
             // oh woe we need to rollback :(
             // (ie do nothing)
             //oh and send an error to the client!
@@ -365,7 +387,7 @@ void TradeManager::handleDatabaseJobComplete(void* ref,swganh::database::Databas
             type->InsertItem(item);
 
         }
-    	LOG(info) << "Loaded " << count << " frog items";
+    	LOG_IF(INFO, count) << "Loaded " << count << " frog items";
 
     }
     break;
@@ -796,7 +818,7 @@ void TradeManager::_processTradeCompleteMessage(Message* message,DispatchClient*
         }
         else
         {
-            DLOG(info) << "TradeManager Trade finished without Accept !!!!!";
+            DLOG(INFO) << "TradeManager Trade finished without Accept !!!!!";
         }
     }
 }
@@ -841,6 +863,7 @@ void TradeManager::TradeTransaction(DispatchClient* client,PlayerObject* player1
         player1->getTrade()->cancelTradeSession();
         player2->getTrade()->cancelTradeSession();
 
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Trade Manager/TradeManager.cpp
         DLOG(info) << "TradeManager::TradeTransaction Trade likely to have been tampered with";
 
         if (!player1->testCash(asyncContainer->amount1) )
@@ -850,6 +873,17 @@ void TradeManager::TradeTransaction(DispatchClient* client,PlayerObject* player1
         if (!player2->testCash(asyncContainer->amount2) )
         {
             DLOG(info) <<"Player : "<<player2->GetCreature()->getFirstName() << "id "<<player2->getId()<< "wanted to trade "<<asyncContainer->amount2<<" credits but had not enough cash";
+=======
+        DLOG(INFO) << "TradeManager Trade likely to have been tampered with";
+
+        if (!player1->testCash(asyncContainer->amount1) )
+        {
+			DLOG(INFO) <<"Player : "<<player1->getFirstName().getAnsi()<< "id "<<player1->getId()<< "wanted to trade "<<asyncContainer->amount1<<" credits but had only " << dynamic_cast<Inventory*>(player1->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits();
+        }
+        if (!player2->testCash(asyncContainer->amount2) )
+        {
+            DLOG(INFO) <<"Player : "<<player2->getFirstName().getAnsi()<< "id "<<player2->getId()<< "wanted to trade "<<asyncContainer->amount2<<" credits but had only " << dynamic_cast<Inventory*>(player2->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits();
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/TradeManager.cpp
         }
     }
 }

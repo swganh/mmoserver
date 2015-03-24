@@ -40,10 +40,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
 
+<<<<<<< HEAD
 #include "ZoneServer\Services\equipment\equipment_service.h"
 #include "ZoneServer\Objects\Creature Object\equipment_item.h"
 
 #include "anh/logger.h"
+=======
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log
 
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/Message.h"
@@ -447,6 +456,425 @@ mMessageFactory->addData(equipment_baseline_message.data.data(),equipment_baseli
     return(true);
 }
 
+<<<<<<< HEAD
+=======
+//======================================================================================================================
+//
+// Posture Message
+// updates a creatures posture
+//
+
+bool MessageLib::sendPostureMessage(CreatureObject* creatureObject,PlayerObject* targetObject)
+{
+    if(!(targetObject->isConnected()))
+        return(false);
+
+    Message*		message;
+
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opUpdatePostureMessage);
+    mMessageFactory->addUint8(creatureObject->states.getPosture());
+    mMessageFactory->addUint64(creatureObject->getId());
+
+    message = mMessageFactory->EndMessage();
+
+    (targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 3);
+
+    return(true);
+}
+
+//======================================================================================================================
+//
+// Creature Deltas Type 6
+// updates: defenders single
+//
+
+void MessageLib::sendDefenderUpdate(CreatureObject* creatureObject,uint8 updateType,uint16 index,uint64 defenderId)
+{
+    // ObjectList*	defenders = creatureObject->getDefenders();
+
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opDeltasMessage);
+    mMessageFactory->addUint64(creatureObject->getId());
+    mMessageFactory->addUint32(opCREO);
+    mMessageFactory->addUint8(6);
+
+    uint32	payloadSize = 0;
+
+    if (updateType == 0)
+    {
+        // Clear defender
+        payloadSize = 15;
+    }
+    else if ((updateType == 1) || (updateType == 2))
+    {
+        // Add or change defender
+        payloadSize = 23;
+    }
+    else if (updateType == 4)
+    {
+        // Clear all
+        payloadSize = 13;
+    }
+    else // if (updateType == 3)
+    {
+        // Reset all
+        // Not suported yet
+        DLOG(INFO) << "MessageLib::sendDefenderUpdate Invalid option = " << updateType;
+
+        //NEVER EVER BAIL OUT WITHOUT closing the message and deleting it
+        Message* message = mMessageFactory->EndMessage();
+        message->setPendingDelete(true);
+        return;
+    }
+
+    mMessageFactory->addUint32(payloadSize);
+
+    mMessageFactory->addUint16(1);
+    mMessageFactory->addUint16(1);
+
+    mMessageFactory->addUint32(1);
+    mMessageFactory->addUint32(++creatureObject->mDefenderUpdateCounter);
+
+    mMessageFactory->addUint8(updateType);
+
+    if (updateType == 0)
+    {
+        mMessageFactory->addUint16(index);
+    }
+    else if ((updateType == 1) || (updateType == 2))
+    {
+        mMessageFactory->addUint16(index);
+        mMessageFactory->addUint64(defenderId);
+    }
+    _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
+
+}
+
+//======================================================================================================================
+//
+// Creature Deltas Type 6
+// updates: defenders full
+//
+
+
+void MessageLib::sendNewDefenderList(CreatureObject* creatureObject)
+{
+    ObjectIDList* defenders = creatureObject->getDefenders();
+    uint32 byteCount = 15;
+
+    if (defenders->empty())
+    {
+        // Doing a reset if 0 defenders.
+        byteCount = 13;
+    }
+
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opDeltasMessage);
+    mMessageFactory->addUint64(creatureObject->getId());
+    mMessageFactory->addUint32(opCREO);
+    mMessageFactory->addUint8(6);
+
+    mMessageFactory->addUint32(byteCount + (defenders->size() * 8));
+    mMessageFactory->addUint16(1);
+    mMessageFactory->addUint16(1);
+
+    ObjectIDList::iterator defenderIt = defenders->begin();
+    // Shall we not advance the updatecounter if we send a reset, where size() is 0?
+
+    // I'm pretty sure the idea of update counters is to let the client know that somethings have changed,
+    // and to know in what order, given several messages "at once".
+    // creatureObject->mDefenderUpdateCounter = creatureObject->mDefenderUpdateCounter + defenders->size();
+    // mMessageFactory->addUint32(++creatureObject->mDefenderUpdateCounter);
+
+    if(!defenders->size())
+    {
+        // Even an update with zero defenders is a new update.
+        mMessageFactory->addUint32(1);
+
+        mMessageFactory->addUint32(++creatureObject->mDefenderUpdateCounter);
+        mMessageFactory->addUint8(4);
+    }
+    else
+    {
+        mMessageFactory->addUint32(defenders->size());
+        // mMessageFactory->addUint32(1);
+
+        mMessageFactory->addUint32(++creatureObject->mDefenderUpdateCounter);
+        mMessageFactory->addUint8(3);
+        mMessageFactory->addUint16(defenders->size());
+
+        while (defenderIt != defenders->end())
+        {
+            mMessageFactory->addUint64((*defenderIt));
+            ++defenderIt;
+        }
+    }
+
+    _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
+}
+
+
+//======================================================================================================================
+//
+// Creature Deltas Type 6
+// updates: list of equipped objects
+//
+
+bool MessageLib::sendEquippedListUpdate_InRange(CreatureObject* creatureObject)
+{
+    PlayerObject* player = dynamic_cast<PlayerObject*>(creatureObject);
+    if(player)
+    {
+        if(!player->isConnected())
+            return(false);
+    }
+
+    ObjectList*				equippedObjects				= creatureObject->getEquipManager()->getEquippedObjects();
+    ObjectList::iterator	eqIt						= equippedObjects->begin();
+    uint32					cSize						= 0;
+
+    // customization is necessary for haircolor on imagedesign
+    while(eqIt != equippedObjects->end())
+    {
+        if(TangibleObject* object = dynamic_cast<TangibleObject*>(*eqIt))
+        {
+            cSize += object->getCustomizationStr().getLength();
+        }
+        else if(CreatureObject* pet = dynamic_cast<CreatureObject*>(*eqIt))
+        {
+            cSize += pet->getCustomizationStr().getLength();
+        }
+
+        ++eqIt;
+    }
+
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opDeltasMessage);
+    mMessageFactory->addUint64(creatureObject->getId());
+    mMessageFactory->addUint32(opCREO);
+    mMessageFactory->addUint8(6);
+
+    mMessageFactory->addUint32(15 + (equippedObjects->size() * 18)+ cSize);
+    mMessageFactory->addUint16(1);   //one update
+    mMessageFactory->addUint16(15);				 //id 15
+
+    // creatures tangible objects
+    eqIt = equippedObjects->begin();
+
+    mMessageFactory->addUint32(equippedObjects->size());
+    mMessageFactory->addUint32(creatureObject->getEquipManager()->advanceEquippedObjectsUpdateCounter(equippedObjects->size()));//+1
+    creatureObject->getEquipManager()->advanceEquippedObjectsUpdateCounter(1);
+
+    mMessageFactory->addUint8(3);
+    mMessageFactory->addUint16(equippedObjects->size());
+
+    while(eqIt != equippedObjects->end())
+    {
+        Object* object = (*eqIt);
+
+        if(TangibleObject* tObject = dynamic_cast<TangibleObject*>(object))
+        {
+            mMessageFactory->addString(tObject->getCustomizationStr());
+        }
+        else if(CreatureObject* pet = dynamic_cast<CreatureObject*>(object))
+        {
+            mMessageFactory->addString(pet->getCustomizationStr());
+        }
+        else
+        {
+            mMessageFactory->addUint16(0);
+        }
+
+        mMessageFactory->addUint32(4);
+        mMessageFactory->addUint64(object->getId());
+        mMessageFactory->addUint32((object->getModelString()).getCrc());
+
+        ++eqIt;
+    }
+
+    _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
+
+    return(true);
+}
+
+
+bool MessageLib::sendEquippedListUpdate(CreatureObject* creature, CreatureObject* target) {
+    PlayerObject* player = dynamic_cast<PlayerObject*>(creature);
+    if (!player || !player->isConnected()) {
+        return false;
+    }
+
+    PlayerObject* target_player = dynamic_cast<PlayerObject*>(target);
+    if (!target_player || !target_player->isConnected()) {
+        return false;
+    }
+
+    ObjectList* equipped = player->getEquipManager()->getEquippedObjects();
+    uint32 customization_size = 0;
+
+    std::for_each(equipped->begin(), equipped->end(), [=, &customization_size] (Object* equipped_object) {
+        if (TangibleObject* object = dynamic_cast<TangibleObject*>(equipped_object)) {
+            customization_size += object->getCustomizationStr().getLength();
+        } else if (CreatureObject* pet = dynamic_cast<CreatureObject*>(equipped_object)) {
+            customization_size += pet->getCustomizationStr().getLength();
+        }
+    });
+
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opDeltasMessage);
+    mMessageFactory->addUint64(creature->getId());
+    mMessageFactory->addUint32(opCREO);
+    mMessageFactory->addUint8(6);
+
+    mMessageFactory->addUint32(15 + (equipped->size() * 18)+ customization_size);
+    mMessageFactory->addUint16(1);   //one update
+    mMessageFactory->addUint16(15);				 //id 15
+
+    mMessageFactory->addUint32(equipped->size());
+    mMessageFactory->addUint32(creature->getEquipManager()->advanceEquippedObjectsUpdateCounter(equipped->size()));//+1
+    creature->getEquipManager()->advanceEquippedObjectsUpdateCounter(1);
+
+    mMessageFactory->addUint8(3);// 3 for ??
+    mMessageFactory->addUint16(equipped->size());
+
+    std::for_each(equipped->begin(), equipped->end(), [=] (Object* object) {
+        if(TangibleObject* tObject = dynamic_cast<TangibleObject*>(object)) {
+            mMessageFactory->addString(tObject->getCustomizationStr());
+        }
+
+        else if(CreatureObject* pet = dynamic_cast<CreatureObject*>(object)) {
+            mMessageFactory->addString(pet->getCustomizationStr());
+        }
+
+        else {
+            mMessageFactory->addUint16(0);
+        }
+
+        mMessageFactory->addUint32(4);
+        mMessageFactory->addUint64(object->getId());
+        mMessageFactory->addUint32((object->getModelString()).getCrc());
+    });
+
+    target_player->getClient()->SendChannelA(mMessageFactory->EndMessage(), target_player->getAccountId(), CR_Client, 4);
+
+    return true;
+}
+
+
+//======================================================================================================================
+//
+// Creature Deltas Type 6
+// updates: list of equipped objects
+//
+
+bool MessageLib::sendEquippedItemUpdate_InRange(CreatureObject* creatureObject, uint64 itemId)
+{
+    PlayerObject* player = dynamic_cast<PlayerObject*>(creatureObject);
+    if((!player)||(!player->isConnected()))
+    {
+        return(false);
+    }
+
+    ObjectList*				equippedObjects				= creatureObject->getEquipManager()->getEquippedObjects();
+    ObjectList::iterator	eqIt						= equippedObjects->begin();
+    uint32					cSize						= 0;
+
+    // customization is necessary for haircolor on imagedesign
+    //we only want to change the object with the given ID
+    uint16	index	= 0;
+    uint16	i		= 0;
+    bool	found	= false;
+
+    while(eqIt != equippedObjects->end())
+    {
+        if(TangibleObject* object = dynamic_cast<TangibleObject*>(*eqIt))
+        {
+            if(object->getId() == itemId)
+            {
+                cSize += object->getCustomizationStr().getLength();
+                index = i;
+                found = true;
+                break;
+            }
+
+        }
+        else if(CreatureObject* pet = dynamic_cast<CreatureObject*>(*eqIt))
+        {
+            if(pet->getId() == itemId)
+            {
+                cSize += pet->getCustomizationStr().getLength();
+                index = i;
+                found = true;
+                break;
+            }
+        }
+        i++;
+        ++eqIt;
+    }
+
+    if(!found)
+    {
+        DLOG(INFO) << "MessageLib::sendEquippedItemUpdate_InRange : Item not found : " << itemId;
+        return false;
+    }
+
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opDeltasMessage);
+    mMessageFactory->addUint64(creatureObject->getId());
+    mMessageFactory->addUint32(opCREO);
+    mMessageFactory->addUint8(6);
+
+    mMessageFactory->addUint32(15 + (1 * 18)+ cSize);
+    mMessageFactory->addUint16(1);   //one update
+    mMessageFactory->addUint16(15);				 //id 15
+
+    // creatures tangible objects
+    eqIt = equippedObjects->begin();
+
+    mMessageFactory->addUint32(1);	//only one item gets updated
+    mMessageFactory->addUint32(creatureObject->getEquipManager()->advanceEquippedObjectsUpdateCounter(1));//+1
+    creatureObject->getEquipManager()->advanceEquippedObjectsUpdateCounter(1);
+
+    mMessageFactory->addUint8(2);  //2 for change a given entry
+    mMessageFactory->addUint16(index);//index of the entry
+
+    while(eqIt != equippedObjects->end())
+    {
+        Object* object = (*eqIt);
+        if ( object->getId() == itemId)
+        {
+            if(TangibleObject* tObject = dynamic_cast<TangibleObject*>(object))
+            {
+                mMessageFactory->addString(tObject->getCustomizationStr());
+            }
+            else if(CreatureObject* pet = dynamic_cast<CreatureObject*>(object))
+            {
+                mMessageFactory->addString(pet->getCustomizationStr());
+            }
+            else
+            {
+                mMessageFactory->addUint16(0);
+            }
+
+            mMessageFactory->addUint32(4);
+            mMessageFactory->addUint64(object->getId());
+            mMessageFactory->addUint32((object->getModelString()).getCrc());
+            break;
+        }
+        ++eqIt;
+    }
+
+    Message* message = mMessageFactory->EndMessage();
+    //gLogger->hexDump(message->getData(),message->getSize());
+    //message->ResetIndex();
+    _sendToInRange(message,creatureObject,5);
+
+
+    return(true);
+}
+
+>>>>>>> parent of 5bd772a... got rid of google log
 
 //======================================================================================================================
 //
@@ -651,13 +1079,18 @@ bool MessageLib::sendSkillModDeltasCREO_4(SkillModsList smList,uint8 remove,Crea
 
     mMessageFactory->addUint32(smList.size());
 
+<<<<<<< HEAD
     mMessageFactory->addUint32(creatureObject->getAndIncrementSkillModUpdateCounter(smList.size()));
     //mMessageFactory->addUint8(remove);
+=======
+    mMessageFactory->addUint32(playerObject->getAndIncrementSkillModUpdateCounter(smList.size()));
+    mMessageFactory->addUint8(remove);
+>>>>>>> parent of 5bd772a... got rid of google log
 
     it = smList.begin();
     while(it != smList.end())
     {
-        mMessageFactory->addUint8(remove);
+        mMessageFactory->addUint8(0);
         mMessageFactory->addString(gSkillManager->getSkillModById((*it).first));
         mMessageFactory->addUint32((*it).second);
         mMessageFactory->addUint32(0);

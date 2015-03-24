@@ -602,7 +602,7 @@ void TreasuryManager::handleDatabaseJobComplete(void* ref,swganh::database::Data
 
         if (error > 0)
         {
-            DLOG(info) << "TreasuryManager::Account_TipSurcharge: error " << error;
+            DLOG(INFO) << "TreasuryManager::Account_TipSurcharge: error " << error;
         }
     }
     break;

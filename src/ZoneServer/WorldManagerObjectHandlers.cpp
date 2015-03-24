@@ -106,10 +106,18 @@ bool WorldManager::addSharedObject(std::shared_ptr<Object> &object, bool manual)
     uint64 key = object->getId();
 	boost::lock_guard<boost::shared_mutex> lg(object_map_mutex_);
 
+<<<<<<< HEAD
 	SharedObjectMap::iterator it = object_map_.find(key);
 	if(it != object_map_.end())    {
 		LOG(error) << "WorldManager::addObject Object(" << key<<") already exists added several times or ID messup ???";
 		return false;
+=======
+    //make sure objects arnt added several times!!!!
+    if(getObjectById(key))
+    {
+        LOG(INFO) << "WorldManager::addObject Object(" << key<<") already exists added several times or ID messup ???";
+        return false;
+>>>>>>> parent of 5bd772a... got rid of google log
     }
 	
 	
@@ -147,6 +155,10 @@ void WorldManager::initializeObject(std::shared_ptr <Object> &object)
 				return;
 			}
 
+<<<<<<< HEAD
+=======
+			LOG(INFO) << "New Player: " << player->getId() << ", Total Players on zone " << (getPlayerAccMap())->size() + 1;
+>>>>>>> parent of 5bd772a... got rid of google log
 			// insert into the player map
 			mPlayerAccMap.insert(std::make_pair(player->getAccountId(),player.get()));			
 
@@ -225,7 +237,7 @@ void WorldManager::initializeObject(std::shared_ptr <Object> &object)
 		case ObjType_Intangible:
 		{
 			//they dont get added here in the firstplace ...
-			DLOG(info) << "Object of type ObjType_Intangible UNHANDLED in WorldManager::addObject:";
+			DLOG(INFO) << "Object of type ObjType_Intangible UNHANDLED in WorldManager::addObject:";
 		}
 		break;
 
@@ -521,6 +533,21 @@ void WorldManager::destroyObject(Object* object)
 		}
 		break;
 
+<<<<<<< HEAD
+=======
+		case ObjType_Waypoint:
+		{
+			uint64 parentId = object->getParentId();
+			
+			Datapad* pad = dynamic_cast<Datapad*>(gWorldManager->getObjectById(parentId+DATAPAD_OFFSET));
+			
+			//update the datapad
+			if(!pad || !(pad->removeWaypoint(object->getId())))
+			{
+				DLOG(WARNING) << "Worldmanager::destroyObject: Error removing Waypoint from datapad " << parentId;
+				return;
+			}
+>>>>>>> parent of 5bd772a... got rid of google log
 
 
 		case ObjType_Intangible:
@@ -529,8 +556,16 @@ void WorldManager::destroyObject(Object* object)
 			
 			Datapad* pad = dynamic_cast<Datapad*>(gWorldManager->getObjectById(parentId));
 			
+<<<<<<< HEAD
 			pad->RemoveObject(pad, object);
 			
+=======
+			//update the datapad
+			if(!pad || !(pad->removeData(object->getId())))
+			{
+				DLOG(WARNING) << "WorldManager::destroyObject : Error removing Data from datapad " << object->getId();
+			}
+>>>>>>> parent of 5bd772a... got rid of google log
 
 			if(VehicleController* vehicle = dynamic_cast<VehicleController*>(object))			{
 				vehicle->Store();
@@ -551,7 +586,7 @@ void WorldManager::destroyObject(Object* object)
 
 		default:
 		{
-			DLOG(warning) << "Unhandled ObjectType in WorldManager::destroyObject: " << (uint32)(object->getType());
+			DLOG(WARNING) << "Unhandled ObjectType in WorldManager::destroyObject: " << (uint32)(object->getType());
 
 
 		}
@@ -564,8 +599,19 @@ void WorldManager::destroyObject(Object* object)
 	boost::lock_guard<boost::shared_mutex> lg(object_map_mutex_);
 	SharedObjectMap::iterator objMapIt = object_map_.find(object->getId());
 
+<<<<<<< HEAD
 	if(objMapIt != object_map_.end())	{
 		object_map_.erase(objMapIt);
+=======
+	if(objMapIt != mObjectMap.end())
+	{
+		mObjectMap.erase(objMapIt);
+	}
+	else
+	{
+		delete(object);
+		DLOG(WARNING) << "WorldManager::destroyObject: error removing from objectmap: " << object->getId();
+>>>>>>> parent of 5bd772a... got rid of google log
 	}
 }
 
@@ -620,8 +666,12 @@ void WorldManager::eraseObject(uint64 key)
 	SharedObjectMap::iterator shared_it = object_map_.find(key);
 	if(shared_it != object_map_.end())
     {
+<<<<<<< HEAD
         object_map_.erase(shared_it);
 		return;
+=======
+        DLOG(INFO) << "WorldManager::destroyObject: error removing from objectmap: " << key;
+>>>>>>> parent of 5bd772a... got rid of google log
     }
 
 

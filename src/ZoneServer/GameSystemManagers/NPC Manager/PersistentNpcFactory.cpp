@@ -179,7 +179,7 @@ NPCObject* PersistentNpcFactory::_createPersistentNpc(swganh::database::Database
     default:
     {
         npc = new NPCObject();
-        DLOG(info) << "PersistentNpcFactory::createPersistent unknown Family " << npcIdentifier.mFamilyId;
+        DLOG(INFO) << "PersistentNpcFactory::createPersistent unknown Family " << npcIdentifier.mFamilyId;
     }
     break;
     }

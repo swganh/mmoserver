@@ -27,7 +27,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "HarvesterFactory.h"
 
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Structure Manager/HarvesterFactory.cpp
 #include "anh/logger.h"
+=======
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/HarvesterFactory.cpp
 
 #include "ZoneServer/Objects/Deed.h"
 #include "HarvesterObject.h"
@@ -149,6 +156,11 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,swganh::database::Dat
 
 		
 
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Structure Manager/HarvesterFactory.cpp
+=======
+        LOG(INFO) << "Loaded harvester with id [" << harvester->getId() << "]";
+        asyncContainer->mOfCallback->handleObjectReady(harvester,asyncContainer->mClient);
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/HarvesterFactory.cpp
 
     }
     break;
@@ -312,7 +324,7 @@ void HarvesterFactory::handleObjectReady(Object* object,DispatchClient* client)
 
     InLoadingContainer* ilc = _getObject(object->getParentId());
     if (! ilc) {//ILC sanity check...
-    	LOG(warning) << "Could not locate InLoadingContainer for object parent [" << object->getParentId() << "]";
+    	LOG(WARNING) << "Could not locate InLoadingContainer for object parent [" << object->getParentId() << "]";
         return;
     }
 
@@ -325,7 +337,7 @@ void HarvesterFactory::handleObjectReady(Object* object,DispatchClient* client)
     if(harvester->decLoadCount() == 0)
     {
         if(!(_removeFromObjectLoadMap(harvester->getId())))
-        	LOG(warning) << "Failed removing object from loadmap";
+        	LOG(WARNING) << "Failed removing object from loadmap";
 
         ilc->mOfCallback->handleObjectReady(harvester,ilc->mClient);
 

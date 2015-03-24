@@ -36,7 +36,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/NetworkManager.h"
 #include "NetworkManager/Service.h"
 
+<<<<<<< HEAD
 #include "anh/logger.h"
+=======
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log
 
 #include <iostream>
 #include <fstream>
@@ -76,6 +85,7 @@ ConnectionServer::ConnectionServer(int argc, char* argv[]) :
     mLastHeartbeat(0)
 {
     Anh_Utils::Clock::Init();
+<<<<<<< HEAD
 
 	std::stringstream log_file_name;
 	log_file_name << "logs/ConnectionServer.log";
@@ -83,6 +93,9 @@ ConnectionServer::ConnectionServer(int argc, char* argv[]) :
 	LOGINIT(log_file_name.str());
 
     LOG(warning) << "ConnectionServer Startup";
+=======
+    LOG(WARNING) << "ConnectionServer Startup";
+>>>>>>> parent of 5bd772a... got rid of google log
 
 	configuration_options_description_.add_options()
 		("ClientServiceMessageHeap", boost::program_options::value<uint32_t>()->default_value(50000), "")
@@ -147,11 +160,11 @@ ConnectionServer::ConnectionServer(int argc, char* argv[]) :
     // We're done initiailizing.
     _updateDBServerList(2);
 
-    LOG(warning) << "Connection server startup complete";
+    LOG(WARNING) << "Connection server startup complete";
 
 #ifdef _WIN32
 	//I cannot speak for *nix but under windows the main thread pauses for times, leaving the services workthreads unemployed
-	//SetPriorityClass(GetCurrentThread(),REALTIME_PRIORITY_CLASS);
+	SetPriorityClass(GetCurrentThread(),REALTIME_PRIORITY_CLASS);
 	
 #endif
 
@@ -161,7 +174,7 @@ ConnectionServer::ConnectionServer(int argc, char* argv[]) :
 
 ConnectionServer::~ConnectionServer(void)
 {
-    LOG(warning) << "ConnectionServer Shutting down...";
+    LOG(WARNING) << "ConnectionServer Shutting down...";
 
     // Update our status for the LoginServer
     mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_GalaxyStatusUpdate(%u, %u);",mDatabase->galaxy(), 0, mClusterId); // Status set to offline
@@ -185,7 +198,7 @@ ConnectionServer::~ConnectionServer(void)
 
     MessageFactory::getSingleton()->destroySingleton();	// Delete message factory and call shutdown();
 
-    LOG(warning) << "ConnectionServer Shutdown Complete";
+    LOG(WARNING) << "ConnectionServer Shutdown Complete";
 }
 
 //======================================================================================================================
@@ -251,18 +264,30 @@ void ConnectionServer::ToggleLock()
         // Update our status for the LoginServer
         mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_GalaxyStatusUpdate(%u, %u);",mDatabase->galaxy(), 3, mClusterId); // Status set to online (DEV / CSR Only)
         
-        LOG(warning) << "Locking server to normal users";
+        LOG(WARNING) << "Locking server to normal users";
     } else {
         // Update our status for the LoginServer
         mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_GalaxyStatusUpdate(%u, %u);",mDatabase->galaxy(), 2, mClusterId); // Status set to online
         
-        LOG(warning) << "unlocking server to normal users";
+        LOG(WARNING) << "unlocking server to normal users";
     }
 }
 //======================================================================================================================
 
 int main(int argc, char* argv[])
 {
+    // Initialize the google logging.
+    google::InitGoogleLogging(argv[0]);
+
+#ifndef _WIN32
+    google::InstallFailureSignalHandler();
+#endif
+
+    FLAGS_log_dir = "./logs";
+    FLAGS_stderrthreshold = 0;
+
+    //set stdout buffers to 0 to force instant flush
+    setvbuf( stdout, NULL, _IONBF, 0);
 
 	try {
 		gConnectionServer = new ConnectionServer(argc, argv);

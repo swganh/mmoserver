@@ -294,7 +294,7 @@ void ObjectController::_handleRequestCharacterMatch(uint64 targetId,Message* mes
 
     if(elementCount != 9)
     {
-        DLOG(info) << "ObjController::_handleRequestCharacterMatch: argument mismatch " << player->getId();
+        DLOG(INFO) << "ObjController::_handleRequestCharacterMatch: argument mismatch " << player->getId();
         return;
     }
 
@@ -304,7 +304,7 @@ void ObjectController::_handleRequestCharacterMatch(uint64 targetId,Message* mes
 
         if(skill == NULL)
         {
-            DLOG(info) << "ObjController::_handleRequestCharacterMatch: could not find matching skill for " << titleStr;
+            DLOG(INFO) << "ObjController::_handleRequestCharacterMatch: could not find matching skill for " << titleStr;
             return;
         }
     }

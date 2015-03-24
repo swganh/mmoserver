@@ -220,7 +220,7 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
     }
     else
     {
-        DLOG(info) <<  "ObjectController::_handleOpenContainer: INVALID Object id " << targetId;
+        DLOG(INFO) <<  "ObjectController::_handleOpenContainer: INVALID Object id " << targetId;
     }
 }
 
@@ -246,7 +246,407 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 	_handleTransferItemMisc(targetId, message, cmdProperties);
 }
 
+<<<<<<< HEAD:src/ZoneServer/ObjectController/OCCommonHandlers.cpp
 
+=======
+//=============================================================================
+//
+// checks whether we have access to the container containing the item
+//
+
+bool ObjectController::checkContainingContainer(uint64 containingContainer, uint64 playerId)
+{
+	Object* container = gWorldManager->getObjectById(containingContainer);
+	
+	if(!container)
+	{
+		//it might be our inventory or the inventory of a creature were looting
+		//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
+		if(containingContainer == (playerId + INVENTORY_OFFSET))
+		{
+			//its our inventory ... - return true
+			return true;
+		}
+
+		return false;
+
+	}
+
+	if(containingContainer == playerId)
+	{
+		//its us
+		return true;
+	}
+
+	uint64 ownerId = gSpatialIndexManager->getObjectMainParent(container);
+
+	Object* object = dynamic_cast<Object*>(gWorldManager->getObjectById(ownerId));
+
+	//it might be the inventory
+	if(!object)
+	{
+		//Hack ourselves an inventory .... - its not part of the world ObjectMap
+        if((ownerId - INVENTORY_OFFSET) == playerId)
+		{
+			object = gWorldManager->getObjectById(playerId);
+		}
+	}
+
+	if(BuildingObject* building = dynamic_cast<BuildingObject*>(object))
+	{
+		if(building->hasAdminRights(playerId) || gWorldConfig->isTutorial())
+		{
+			return true;
+		}
+		return false;
+	}
+
+	if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(ownerId)))
+	{
+		if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))
+		{
+			if(building->hasAdminRights(playerId))
+			{
+				//now test whether we are in the same building
+				PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
+				if(CellObject* playercell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId())))
+				{
+					if(BuildingObject* playerparent = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playercell->getParentId())))
+					{
+						//still get in a range check ???
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	if(PlayerObject* player = dynamic_cast<PlayerObject*>(object))
+	{
+		if(player->getId() == playerId)
+		{
+			return true;
+		}
+		else
+			return false;
+	}
+
+	//todo handle factory hoppers
+
+	//todo handle loot permissions
+	if(CreatureObject* creature = dynamic_cast<CreatureObject*>(object))
+	{
+	}
+
+	
+	return true;
+}
+
+//=============================================================================
+//
+// checks whether we have a valid and useable targetcontainer
+//
+
+
+bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* object)
+{
+	PlayerObject*	playerObject	=	dynamic_cast<PlayerObject*>(mObject);
+	Inventory*		inventory		=	dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+	
+	TangibleObject* tangibleItem = dynamic_cast<TangibleObject*>(object);
+	
+	//if its a backpack etc we want to know how many items are in it!
+	uint32 objectSize = tangibleItem->getHeadCount();
+
+	//********************
+	//this is a special case as we are equipping the item
+	//so handle it separately 
+	if(playerObject->getId() == targetContainerId)
+	{
+		//check for equip restrictions!!!!
+		//we cant drop that check - further down we assume that the transfer is accepted
+		// a failing equip will just loose us our item in the receiving container and crash the server in the end
+		return playerObject->getEquipManager()->CheckEquipable(object);		
+	}
+	
+	//*****************************
+	//ok everything else is a tangible Object
+	Object* targetContainer = gWorldManager->getObjectById(targetContainerId);
+	
+	//sanity check - 
+	if(!targetContainer)
+	{
+		//inventory is NOT part of the main ObjectMap - everything else should be in there
+		if(inventory && (inventory->getId() != targetContainerId))
+		{
+			return false;
+		}
+		if(inventory)
+			targetContainer = dynamic_cast<TangibleObject*>(inventory);
+		else
+		{
+			DLOG(INFO) << "ObjController::_handleTransferItemMisc: TargetContainer is NULL and not an inventory :(";
+			return false;
+		}
+		
+	}
+
+	//====================================================================00
+	//check access permissions first
+
+	bool access = false;
+	bool fit	 = false;
+
+	//********************
+	//The tutorial Container is a special case
+	//so handle it separately
+	Container* container = dynamic_cast<Container*>(targetContainer );
+	if (container)
+	{
+		if (gWorldConfig->isTutorial())
+		{
+			// We don't allow users to place item in the container.
+			// gMessageLib->sendSystemMessage(playerObject,L"","event_perk","chest_can_not_add");
+			gMessageLib->SendSystemMessage(L"",playerObject,"error_message","remove_only");
+			return false;
+		}
+	}
+
+	//********************
+	//Factory Outputhopper is retrieve only
+	//access has been granted through the UI already
+	TangibleObject* tangibleContainer = dynamic_cast<TangibleObject*>(targetContainer);
+	if((tangibleContainer)&&(strcmp(tangibleContainer->getName().getAnsi(),"ingredient_hopper")==0))
+	{
+		//do we have access rights to the factories hopper?? this would have to be checked asynchronously
+		//for now we can only access the hoppers UI through the client and checking our permission so its proven already
+		//a hacker might in theory exploit this, though factories items should only be in memory when someone accesses the hopper
+
+		access = true;
+	}
+	
+	//====================================================================================
+	//get the mainOwner of the container - thats a building or a player or an inventory
+	//
+	
+	uint64 ownerId = gSpatialIndexManager->getObjectMainParent(targetContainer);
+	
+	Object* objectOwner = dynamic_cast<Object*>(gWorldManager->getObjectById(ownerId));
+
+	if(BuildingObject* building = dynamic_cast<BuildingObject*>(objectOwner))
+	{
+		if(building->hasAdminRights(playerObject->getId()))
+		{
+			access = true;
+			//do we have enough room ?
+			if(building->checkCapacity(objectSize))
+			{
+				//*****************************
+				//if it is the House wé dont need to check a containers capacity further down
+				if(!tangibleContainer)   //mainly as the container might not exist if its placed in the house directly
+					return true;
+
+				if(tangibleContainer->checkCapacity(objectSize,playerObject))
+					return true;
+				else
+					return false;
+			}
+			else
+			{
+				//This container is full. 
+				gMessageLib->SendSystemMessage(L"",playerObject,"container_error_message","container03");
+				return false;
+			}
+			
+		}
+		else
+		{
+			//You do not have permission to access that container. 
+			gMessageLib->SendSystemMessage(L"",playerObject,"container_error_message","container08");
+			return false;
+		}
+
+		
+	}
+
+	//**********************************
+	//the inventory is *NOT* part of the worldmanagers ObjectMap  
+	//this is our inventory - we are allowed to put stuff in there - but is there still enough place ?
+	if(inventory&& (inventory->getId() == ownerId))
+	{
+		//make sure its our inventory!!!!!!
+		access = ((inventory->getId()- INVENTORY_OFFSET) == playerObject->getId());
+		if(!access)
+		{
+			//You do not have permission to access that container. 
+			gMessageLib->SendSystemMessage(L"",playerObject,"container_error_message","container08");
+			return false;
+		}
+		
+		//check space in inventory
+		fit = inventory->checkCapacity(1,playerObject,true);
+		if(!fit)
+		{
+			//This container is full. 
+			gMessageLib->SendSystemMessage(L"",playerObject,"container_error_message","container03");
+			return false;
+		}
+	}	
+	
+	//if this is a tangible container (backpack, satchel) we want to make sure,
+	//that we do not put another backpack in it.
+	//in other words, the contained container MUST be smaller than the containing container
+
+	//**********************
+	//check capacity - return false if full
+	//we wont get here if its an inventory
+	if(tangibleContainer && (!tangibleContainer->checkCapacity(objectSize,playerObject))) //automatically sends errormsg to player
+	{
+		return false;
+	}
+
+	uint32 containingContainersize =  tangibleContainer->getCapacity();
+	uint32 containedContainersize =  tangibleItem->getCapacity();
+
+	//we can only add smaller containers inside other containers
+	if(containedContainersize >= containingContainersize)
+	{
+		//This item is too bulky to fit inside this container.
+		gMessageLib->SendSystemMessage(L"",playerObject,"container_error_message","container12");
+		return false;
+	}
+
+
+	return true;
+}
+
+//=============================================================================
+//
+// removes our item from the container containing it
+//
+
+bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targetId)
+{
+	PlayerObject*	playerObject	=	dynamic_cast<PlayerObject*>(mObject);
+	Object*			itemObject		=	gWorldManager->getObjectById(targetId);
+	Inventory*		inventory		=	dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+	TangibleObject* targetContainer = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(targetContainerId));
+
+	TangibleObject* tangible = dynamic_cast<TangibleObject*>(itemObject);
+
+	Item* item = dynamic_cast<Item*>(itemObject);
+
+	// its us
+	if (tangible->getParentId() == playerObject->getId())
+	{
+		// unequip it
+		return playerObject->getEquipManager()->unEquipItem(itemObject);
+		
+	}
+	
+	//the containerObject is the container used in the tutorial or some random dungeon container
+	Container* container = dynamic_cast<Container*>(gWorldManager->getObjectById(tangible->getParentId()));
+	if (container)
+	{
+		container->removeObject(itemObject);
+		//gContainerManager->destroyObjectToRegisteredPlayers(container, tangible->getId());
+		if (gWorldConfig->isTutorial())
+		{
+			playerObject->getTutorial()->transferedItemFromContainer(targetId, tangible->getParentId());
+
+			// If object is owned by player (private owned for instancing), we remove the owner from the object.
+			// what is this used for ???
+			if (itemObject->getPrivateOwner() == playerObject->getId())
+			{
+				itemObject->setPrivateOwner(0);
+			}
+		}
+		return true;
+	}
+
+	//creature inventories are a special case - their items are temporary!!! we cannot loot them directly
+	CreatureObject* unknownCreature;
+	Inventory*		creatureInventory;
+
+
+	if (itemObject->getParentId() &&
+		(unknownCreature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(itemObject->getParentId() - INVENTORY_OFFSET))) &&
+		(creatureInventory = dynamic_cast<Inventory*>(unknownCreature->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))) &&
+		(creatureInventory->getId() == itemObject->getParentId()) && (creatureInventory->getId() != inventory->getId()))
+	{
+		
+		if(!creatureInventory->removeObject(itemObject))
+		{
+			LOG(WARNING) << "ObjectController::removeFromContainer: Internal Error could not remove  " <<  itemObject->getId() << " from creature inventory "  << creatureInventory->getId();
+			return false;
+		}
+
+
+		// we destroy the item in this case as its a temporary!! 
+		// we do not want to clog the db with unlooted items
+		gContainerManager->destroyObjectToRegisteredPlayers(creatureInventory, tangible->getId());
+
+		ObjectIDList* invObjList = creatureInventory->getObjects();
+		if (invObjList->size() == 0)
+		{
+			// Put this creature in the pool of delayed destruction and remove the corpse from scene.
+			gWorldManager->addCreatureObjectForTimedDeletion(creatureInventory->getParentId(), LootedCorpseTimeout);
+		}
+		
+		if (gWorldConfig->isTutorial())
+		{
+			// TODO: Update tutorial about the loot.
+			playerObject->getTutorial()->transferedItemFromContainer(targetId, creatureInventory->getId());
+		}
+
+		//bail out here and request the item over the db - as the item in the NPC has a temporary id and we dont want that in the db
+		// This ensure that we do not use/store any of the temp id's in the database.
+        gObjectFactory->requestNewDefaultItem(inventory, item->getItemFamily(), item->getItemType(), inventory->getId(), 99, glm::vec3(), "");
+		return false;
+
+	}		   
+
+	//cells are NOT tangibles - thei are static Objects
+	CellObject* cell;
+	if(cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(itemObject->getParentId())))
+	{
+		// Stop playing if we pick up the (permanently placed) instrument we are playing
+		if (item && (item->getItemFamily() == ItemFamily_Instrument))
+		{
+			uint32 instrumentType = item->getItemType();
+			if ((instrumentType == ItemType_Nalargon) || (instrumentType == ItemType_omni_box) || (instrumentType == ItemType_nalargon_max_reebo))
+			{
+				// It's a placeable original instrument.
+				// Are we targeting the instrument we actually play on?
+				if (playerObject->getActiveInstrumentId() == item->getId())
+				{
+					gEntertainerManager->stopEntertaining(playerObject);
+				}
+			}
+		}
+		
+		//we *cannot* remove static tangibles like the structureterminal!!!!
+		if(tangible->getStatic())
+		{
+			return false;
+		}
+
+		// Remove object from cell.
+		cell->removeObject(itemObject);
+		return true;
+	}
+
+	//some other container ... hopper backpack chest etc
+	TangibleObject* containingContainer = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(tangible->getParentId()));
+	if(containingContainer && containingContainer->removeObject(itemObject))
+	{
+		return true;
+	}
+	
+	return false;
+}
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/OCCommonHandlers.cpp
 
 //	Transfer items between player inventories, containers and cells. Also handles transfer from  creature inventories (looting).
 //	Also handles trandfer between player inventory and player (equipping items).
@@ -275,13 +675,13 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 	if(swscanf(dataStr.getUnicode16(),L"%"WidePRIu64 L" %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
 	{
-		DLOG(info) << "ObjController::_handleTransferItemMisc: Error in parameters";
+		DLOG(INFO) << "ObjController::_handleTransferItemMisc: Error in parameters";
 		return;
 	}
 
 	if (!itemObject)
 	{
-		DLOG(warning) << "ObjController::_handleTransferItemMisc: No Object to transfer :(";
+		DLOG(WARNING) << "ObjController::_handleTransferItemMisc: No Object to transfer :(";
 		return;
 	}
 
@@ -289,15 +689,15 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	if(!tangible)
 	{
 		//no tagible - get out of here
-		DLOG(warning) << "ObjController::_handleTransferItemMisc: No tangible to transfer :(";
+		DLOG(WARNING) << "ObjController::_handleTransferItemMisc: No tangible to transfer :(";
 		return;
 	}
 
 	
-	DLOG(info) << "ObjController::_handleTransferItemMisc: parameters";
-	DLOG(info) << "ObjController::_handleTransferItemMisc: newcontainer : " << targetContainerId;
-	DLOG(info) << "ObjController::_handleTransferItemMisc: oldcontainer : " << tangible->getParentId();
-	DLOG(info) << "ObjController::_handleTransferItemMisc: linktype : " << linkType;
+	DLOG(INFO) << "ObjController::_handleTransferItemMisc: parameters";
+	DLOG(INFO) << "ObjController::_handleTransferItemMisc: newcontainer : " << targetContainerId;
+	DLOG(INFO) << "ObjController::_handleTransferItemMisc: oldcontainer : " << tangible->getParentId();
+	DLOG(INFO) << "ObjController::_handleTransferItemMisc: linktype : " << linkType;
 
 	// We may want to transfer other things than items...basically tangibleObjects!
 	// resourcecontainers / factory crates
@@ -332,7 +732,11 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 	if (!targetContainerId)
 	{
+<<<<<<< HEAD:src/ZoneServer/ObjectController/OCCommonHandlers.cpp
 		DLOG(info) << "ObjController::_handleTransferItemMisc  TargetContainer is NULL :(";
+=======
+		DLOG(INFO) << "ObjController::_handleTransferItemMisc:TargetContainer is 0 :(";
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/OCCommonHandlers.cpp
 		//return;
 
 	}
@@ -341,8 +745,99 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	//basically I want to use ObjectContainer as standard access point for item handling!
 	//so far we have different accesses for Objects on the player and for the inventory	and for ContainerObjects and for cells ...
 
+<<<<<<< HEAD:src/ZoneServer/ObjectController/OCCommonHandlers.cpp
 	//
 	
+=======
+	//lets begin by getting the target Object
+
+	if(!checkTargetContainer(targetContainerId,itemObject))
+	{
+		DLOG(INFO) << "ObjController::_handleTransferItemMisc:TargetContainer is not valid :(";
+		return;
+	}
+
+	if(!checkContainingContainer(tangible->getParentId(), playerObject->getId()))
+	{
+		DLOG(INFO) << "ObjController::_handleTransferItemMisc:ContainingContainer is not allowing the transfer :(";
+		return;
+
+	}
+	
+	// Remove the object from whatever contains it.
+	if(!removeFromContainer(targetContainerId, targetId))
+	{
+		DLOG(INFO) << "ObjectController::_handleTransferItemMisc: removeFromContainer failed :( this might be caused by looting a corpse though";
+		return;
+	}
+
+	
+	//we need to destroy the old radial ... our item now gets a new one
+	//delete(itemObject->getRadialMenu());
+	itemObject->ResetRadialMenu();
+
+	itemObject->setParentId(targetContainerId); 
+
+	//Now update the registered watchers!!
+	gContainerManager->updateObjectPlayerRegistrations(newContainer, oldContainer, tangible, linkType);
+
+	//now go and move it to wherever it belongs
+	cell = dynamic_cast<CellObject*>(newContainer);
+	if (cell)
+	{
+		// drop in a cell
+		//special case temp instrument
+		if (item&&item->getItemFamily() == ItemFamily_Instrument)
+		{
+			if (playerObject->getPlacedInstrumentId())
+			{
+				// We do have a placed instrument.
+				uint32 instrumentType = item->getItemType();
+				if ((instrumentType == ItemType_Nalargon) || (instrumentType == ItemType_omni_box) || (instrumentType == ItemType_nalargon_max_reebo))
+				{
+					// We are about to drop the real thing, remove any copied instrument.
+					// item->setOwner(playerObject->getId();
+					playerObject->getController()->destroyObject(playerObject->getPlacedInstrumentId());
+		
+				}
+			}
+		}
+	
+		itemObject->mPosition = playerObject->mPosition;
+		
+		//do the db update manually because of the position - unless we get an automated position save in
+		itemObject->setParentId(targetContainerId); 
+		
+		ResourceContainer* rc = dynamic_cast<ResourceContainer*>(itemObject);
+		if(rc)
+			mDatabase->executeSqlAsync(0,0,"UPDATE %s.resource_containers SET parent_id ='%I64u', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",mDatabase->galaxy(),itemObject->getParentId(), itemObject->mDirection.x, itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId());
+		else
+			mDatabase->executeSqlAsync(0,0,"UPDATE %s.items SET parent_id ='%I64u', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",mDatabase->galaxy(),itemObject->getParentId(), itemObject->mDirection.x, itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId());
+
+
+		cell->addObjectSecure(itemObject);
+
+		gMessageLib->sendDataTransformWithParent053(itemObject);
+		itemObject->updateWorldPosition();
+
+		return;
+		
+	}	
+	
+	PlayerObject* player = dynamic_cast<PlayerObject*>(newContainer);
+	if(player)
+	{
+		//equip / unequip handles the db side, too
+		if(!player->getEquipManager()->EquipItem(item))
+		{
+			LOG(WARNING) << "ObjectController::_handleTransferItemMisc: Error equipping  " << item->getId();
+			//panik!!!!!!
+		}
+		
+		itemObject->setParentIdIncDB(newContainer->getId());
+		return;
+	}
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/OCCommonHandlers.cpp
 
 	
 	gContainerManager->transferItem(targetContainerId, targetId, playerObject, linkType);
@@ -642,7 +1137,7 @@ void ObjectController::_handleSurrenderSkill(uint64 targetId,Message* message,Ob
 
     if(!(skillStr.getLength()))
     {
-        DLOG(info) << "ObjectController::handleSurrenderSkill: no skillname";
+        DLOG(INFO) << "ObjectController::handleSurrenderSkill: no skillname";
         return;
     }
 
@@ -650,7 +1145,7 @@ void ObjectController::_handleSurrenderSkill(uint64 targetId,Message* message,Ob
 
     if(skill == NULL)
     {
-        DLOG(info)<<"ObjectController::handleSurrenderSkill: could not find skill " << skillStr.getAnsi();
+        DLOG(INFO)<<"ObjectController::handleSurrenderSkill: could not find skill " << skillStr.getAnsi();
         return;
     }
 

@@ -28,9 +28,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NonPersistentNpcFactory.h"
 #include "anh/logger.h"
 
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/NPC Manager/NonPersistentNpcFactory.cpp
 #include "ZoneServer/PlayerEnums.h"
 #include "Zoneserver/Objects/AttackableCreature.h"
 #include "ZoneServer/GameSystemManagers/NPC Manager/AttackableStaticNpc.h"
+=======
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
+#include "PlayerEnums.h"
+#include "AttackableCreature.h"
+#include "AttackableStaticNpc.h"
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/NonPersistentNpcFactory.cpp
 #include "FillerNPC.h"
 #include "Zoneserver/Objects/Inventory.h"
 #include "Zoneserver/Objects/LairObject.h"
@@ -170,7 +181,7 @@ NonPersistentNpcFactory::~NonPersistentNpcFactory()
 void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,swganh::database::DatabaseResult* result)
 {
     if(!result) { //Crash bug; http://paste.swganh.org/viewp.php?id=20100627073558-0930186c997f6dae885bf5b9b0655b8f
-    	LOG(error) << "Database result is invalid";
+    	LOG(ERROR) << "Database result is invalid";
         return;
     }
     QueryNonPersistentNpcFactory* asyncContainer = reinterpret_cast<QueryNonPersistentNpcFactory*>(ref);
@@ -190,7 +201,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,swganh::databa
         }
         else
         {
-        	LOG(error) << "NonPersistentNpcFactory::handleDatabaseJobComplete Object cannot be found";
+        	LOG(ERROR) << "NonPersistentNpcFactory::handleDatabaseJobComplete Object cannot be found";
         }
     }
     break;
@@ -352,7 +363,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,swganh::databa
         //we can't assert here, as not all npc types are implemented (yet)
         //assert(npc);
         if(!npc) {
-        	LOG(error) << "Unable to create non-persistent npc";
+        	LOG(ERROR) << "Unable to create non-persistent npc";
             break;
         }
 
@@ -462,7 +473,7 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(swganh::database::Dat
         // First time lairs.
 
         //Lairs are not supported here, at least not yet.
-    	LOG(error) << "NaturalLairs family [" << familyId << "] not implemented";
+    	LOG(ERROR) << "NaturalLairs family [" << familyId << "] not implemented";
         return NULL;
         //npc	= new LairObject(templateId);
     }
@@ -470,7 +481,7 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(swganh::database::Dat
 
     default:
     {
-    	LOG(error) << "Unknown family [" << familyId << "]";
+    	LOG(ERROR) << "Unknown family [" << familyId << "]";
         return NULL;
         //npc = new NPCObject();
     }
@@ -523,7 +534,7 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(swganh::database::Dat
     else if (npc->getNpcFamily() == NpcFamily_NaturalLairs)
     {
         //Lairs are not supported here, at least not yet.
-    	LOG(error) << "NaturalLairs family [" << familyId << "] not implemented";
+    	LOG(ERROR) << "NaturalLairs family [" << familyId << "] not implemented";
         return NULL;
 
         // Dynamic spawned pve-enabled "static" creatures like lairs.

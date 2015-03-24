@@ -202,6 +202,7 @@ void AttackableStaticNpc::spawn() {
     // send out position updates to known players
     this->setInMoveCount(this->getInMoveCount() + 1);
 
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/NPC Manager/AttackableStaticNpc.cpp
    
    DLOG(info) << "AttackableStaticNpc::spawn: Spawned an object.";
    if (this->getParentId())
@@ -216,4 +217,49 @@ void AttackableStaticNpc::spawn() {
        gMessageLib->sendUpdateTransformMessage(this);
    }
    
+=======
+    if (gWorldConfig->isTutorial())
+    {
+        // We need to get the player object that is the owner of this npc.
+        if (this->getPrivateOwner() != 0)
+        {
+            PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getPrivateOwner()));
+            if (playerObject)
+            {
+                DLOG(INFO) << "AttackableStaticNpc::spawn: Spawned a private object.";
+                if (this->getParentId())
+                {
+                    // We are inside a cell.
+                    gMessageLib->sendDataTransformWithParent(this, playerObject);
+                    gMessageLib->sendUpdateTransformMessageWithParent(this, playerObject);
+                }
+                else
+                {
+                    gMessageLib->sendDataTransform(this, playerObject);
+                    gMessageLib->sendUpdateTransformMessage(this, playerObject);
+                }
+            }
+            else
+            {
+                assert(false);
+                DLOG(INFO) << "AttackableStaticNpc::spawn: Failed to spawn a private object.";
+            }
+        }
+    }
+    else
+    {
+        DLOG(INFO) << "AttackableStaticNpc::spawn: Spawned an object.";
+        if (this->getParentId())
+        {
+            // We are inside a cell.
+            gMessageLib->sendDataTransformWithParent053(this);
+            gMessageLib->sendUpdateTransformMessageWithParent(this);
+        }
+        else
+        {
+            gMessageLib->sendDataTransform053(this);
+            gMessageLib->sendUpdateTransformMessage(this);
+        }
+    }
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/AttackableStaticNpc.cpp
 }

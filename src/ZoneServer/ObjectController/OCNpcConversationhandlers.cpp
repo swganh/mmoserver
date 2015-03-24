@@ -81,7 +81,7 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 
 	if(!npc)
 	{
-		DLOG(info) << "ObjController::_handleNPCConversationStart: Couldn't find object " << targetId;
+		DLOG(INFO) << "ObjController::_handleNPCConversationStart: Couldn't find object " << targetId;
 		return;
 	}
 
@@ -221,7 +221,7 @@ void ObjectController::_handleNPCConversationSelect(uint64 targetId,Message* mes
 
     if(swscanf(dataStr.getUnicode16(),L"%u",&selectId) != 1)
     {
-        DLOG(info) << "ObjController::handleNPCConversationSelect: Error in parameters";
+        DLOG(INFO) << "ObjController::handleNPCConversationSelect: Error in parameters";
         return;
     }
 

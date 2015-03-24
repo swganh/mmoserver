@@ -247,8 +247,72 @@ PlayerObject::~PlayerObject()
     }
     mDuelList.clear();
 
+<<<<<<< HEAD:src/ZoneServer/Objects/Player Object/PlayerObject.cpp
     
     clearAllUIWindows();    
+=======
+
+
+    // update defender lists
+    ObjectIDList::iterator defenderIt = mDefenders.begin();
+
+    while (defenderIt != mDefenders.end())
+    {
+        if (CreatureObject* defenderCreature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById((*defenderIt))))
+        {
+            defenderCreature->removeDefenderAndUpdateList(mId);
+
+            if(PlayerObject* defenderPlayer = dynamic_cast<PlayerObject*>(defenderCreature))
+            {
+                gMessageLib->sendUpdatePvpStatus(this,defenderPlayer);
+            }
+
+            // if no more defenders, clear combat state
+            if(!defenderCreature->getDefenders()->size())
+            {
+                // TODO: replace
+                gStateManager.removeActionState(this, CreatureState_Combat);
+
+                gMessageLib->sendStateUpdate(defenderCreature);
+            }
+        }
+
+        ++defenderIt;
+    }
+
+    // remove us from cell / SI
+    //please note that players are always in the si and get handled through it!
+    //we dont need to update the cellcontainer to make them disappear
+    if(mParentId)
+    {
+        if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(mParentId)))
+        {
+            cell->removeObject(this);
+        }
+        else
+        {
+            DLOG(WARNING) << "PlayerObject::destructor: couldn't find cell " << mParentId;
+        }
+    }
+
+    clearAllUIWindows();
+
+    stopTutorial();
+
+    /*// mission bag
+    Object* missionBag = mEquipManager.getEquippedObject(CreatureEquipSlot_MissionBag);
+    mEquipManager.removeEquippedObject(CreatureEquipSlot_MissionBag);
+    delete(missionBag);
+
+    // datapad
+    mEquipManager.removeEquippedObject(CreatureEquipSlot_Datapad);
+    delete(datapad);
+
+    // bank
+    Object* bank = mEquipManager.getEquippedObject(CreatureEquipSlot_Bank);
+    mEquipManager.removeEquippedObject(CreatureEquipSlot_Bank);
+    delete(bank);*/
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/PlayerObject.cpp
 
     delete(mStomach);
     delete(mTrade);
@@ -1138,7 +1202,7 @@ void PlayerObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
     default:
     {
-        DLOG(info) << "PlayerObject: Unhandled MenuSelect: " << messageType;
+        DLOG(INFO) << "PlayerObject: Unhandled MenuSelect: " << messageType;
     }
     break;
     }
@@ -1276,7 +1340,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,std::u16string inpu
 
         if(!skill)
         {
-            DLOG(info) << "PlayerObject: teach skill : skill list surprisingly empty";
+            DLOG(INFO) << "PlayerObject: teach skill : skill list surprisingly empty";
             return;
         }
 
@@ -1460,7 +1524,11 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,std::u16string inpu
 
     default:
     {
+<<<<<<< HEAD:src/ZoneServer/Objects/Player Object/PlayerObject.cpp
 		LOG(info) << "handleUIEvent:Default: " << action << "," << element << "," << inputStr.c_str();
+=======
+        DLOG(INFO) << "handleUIEvent:Default: " <<action<<","<<element<<","<<inputStr.getAnsi();
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/PlayerObject.cpp
     }
     break;
     }
@@ -1559,7 +1627,7 @@ void PlayerObject::addToDuelList(PlayerObject* player)
     if(this->getId()!= player->getId())
         mDuelList.push_back(player);
     else
-        DLOG(info) << "PlayerObject::addToDuelList: "<<player->getId() << " wanted to add himself to his/her duel list";
+        DLOG(INFO) << "PlayerObject::addToDuelList: "<<player->getId() << " wanted to add himself to his/her duel list";
 }
 //=============================================================================
 //
@@ -1912,7 +1980,7 @@ Object* PlayerObject::getHealingTarget(PlayerObject* Player) const
         if(Player->GetCreature()->getPvPStatus() != PlayerTarget->GetCreature()->getPvPStatus())
         {
             //send pvp_no_help
-            DLOG(info) << "PVP Flag not right";
+            DLOG(INFO) << "PVP Flag not right";
             gMessageLib->SendSystemMessage(::common::OutOfBand("healing", "pvp_no_help"), Player);
             //return Player as the healing target
             return Player;

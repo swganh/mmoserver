@@ -31,7 +31,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "NetworkManager/Service.h"
 
+<<<<<<< HEAD
 #include "anh/logger.h"
+=======
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log
 
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/Database.h"
@@ -407,7 +416,7 @@ void ClientManager::_processClusterZoneTransferCharacter(ConnectionClient* clien
     else
     {
         // client may have disconnected right in the middle of the transfer
-        LOG(warning) << "Client not found during zone transfer.\n";
+        LOG(WARNING) << "Client not found during zone transfer.\n";
     }
 }
 

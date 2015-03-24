@@ -219,12 +219,19 @@ bool zmap::RemoveObject(Object *removeObject)
 {
     uint32 cellId = removeObject->getGridBucket();
 
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Spatial Index Manager/Zmap.cpp
     if(!GetCellValidFlag(cellId))    {
         DLOG(info) << "zmap::RemoveObject :: bucket " << cellId << " NOT valid";
         return false;
+=======
+    if(!GetCellValidFlag(cellId))
+    {
+        DLOG(INFO) << "zmap::RemoveObject :: bucket " << cellId << " NOT valid";
+        return;
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/Zmap.cpp
     }
 
-    //DLOG(info) << "zmap::RemoveObject :: " << removeObject->getId() << " bucket " << cellId << " ";
+    //DLOG(INFO) << "zmap::RemoveObject :: " << removeObject->getId() << " bucket " << cellId << " ";
 
     ObjectListType *list;
 
@@ -301,11 +308,11 @@ void zmap::GetCellContents(uint32 CellID, ObjectListType* list, uint32 type)
     }
     
 	if(CellID > (GRIDWIDTH*GRIDHEIGHT))    {
-        DLOG(info) << "zmap::GetCellContents :: bucket " << CellID << " out of grid";
+        DLOG(INFO) << "zmap::GetCellContents :: bucket " << CellID << " out of grid";
         return;
     }
 
-    //DLOG(info) << "zmap::GetCellContents :: bucket " << CellID << " type : " << type;
+    //DLOG(INFO) << "zmap::GetCellContents :: bucket " << CellID << " type : " << type;
 
     ObjectListType::iterator it = list->begin();
 
@@ -576,7 +583,7 @@ uint32 zmap::AddObject(Object *newObject)
 
     uint32 finalBucket = _getCellId(newObject->getWorldPosition().x, newObject->getWorldPosition().z);
 
-    //DLOG(info) << "zmap::AddObject :: " << newObject->getId() << " bucket " << finalBucket<< " ";
+    //DLOG(INFO) << "zmap::AddObject :: " << newObject->getId() << " bucket " << finalBucket<< " ";
 
     if(!GetCellValidFlag(finalBucket))    {
         //something fishy here
@@ -586,7 +593,7 @@ uint32 zmap::AddObject(Object *newObject)
 
     //already in there
     if(newObject->getGridBucket() == finalBucket)    {
-		DLOG(info) << "zmap::AddObject :: " << newObject->getId() << " bucket " << finalBucket<< " Object was already in there";
+		DLOG(INFO) << "zmap::AddObject :: " << newObject->getId() << " bucket " << finalBucket<< " Object was already in there";
         return finalBucket;
     }
 

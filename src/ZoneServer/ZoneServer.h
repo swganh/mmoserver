@@ -47,7 +47,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 namespace swganh {
 namespace event_dispatcher {
-    class EventDispatcherInterface;
+    class IEventDispatcher;
 }}  // namespace anh::event_dispatcher
 //using namespace swganh;
 
@@ -138,6 +138,22 @@ private:
     std::unique_ptr<zone::HamService>			ham_service_;
 };
 
+<<<<<<< HEAD
+=======
+    std::string                   mZoneName;
+    uint32						  mLastHeartbeat;
+
+    std::shared_ptr<anh::event_dispatcher::IEventDispatcher> event_dispatcher_;
+    NetworkManager*               mNetworkManager;
+    DatabaseManager*              mDatabaseManager;
+
+    Service*                      mRouterService;
+    Database*                     mDatabase;
+
+    MessageDispatch*              mMessageDispatch;
+    CharacterLoginHandler*        mCharacterLoginHandler;
+    ObjectControllerDispatch*     mObjectControllerDispatch;
+>>>>>>> parent of 5bd772a... got rid of google log
 
 
 //======================================================================================================================

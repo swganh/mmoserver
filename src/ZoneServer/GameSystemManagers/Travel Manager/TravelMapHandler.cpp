@@ -27,6 +27,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "TravelMapHandler.h"
 
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Travel Manager/TravelMapHandler.cpp
+=======
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/TravelMapHandler.cpp
 
 #include "anh/logger.h"
 
@@ -183,7 +190,7 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,swganh::database::Dat
             mTravelPoints[travelPoint->planetId].push_back(travelPoint);
         }
 
-        LOG(info) << "Loaded " << count << " outdoor travel points";
+        LOG_IF(INFO, count) << "Loaded " << count << " outdoor travel points";
 
         mPointCount += static_cast<uint32>(count);
         mWorldPointsLoaded = true;
@@ -216,7 +223,7 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,swganh::database::Dat
             mTravelPoints[travelPoint->planetId].push_back(travelPoint);
         }
 
-        LOG(info)  << "Loaded " << count << " in-cell travel points";
+        LOG_IF(INFO, count) << "Loaded " << count << " in-cell travel points";
 
         mPointCount += static_cast<uint32>(count);
         mCellPointsLoaded = true;
@@ -243,7 +250,7 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,swganh::database::Dat
             mTravelRoutes[route.srcId].push_back(std::make_pair(route.destId,route.price));
         }
 
-        LOG(info) << "Loaded " << count << " routes";
+        LOG_IF(INFO, count) << "Loaded " << count << " routes";
 
         mRouteCount = static_cast<uint32>(count);
         mRoutesLoaded = true;
@@ -315,7 +322,15 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
         return;
     }
 
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Travel Manager/TravelMapHandler.cpp
     std::string requestedPlanet = message->getStringAnsi();
+=======
+        if(terminal == NULL)
+        {
+            DLOG(INFO) << "TravelMapHandler::_processTravelListRequest: No TravelPosition set, player "<<playerObject->getId();
+            return;
+        }
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/TravelMapHandler.cpp
 
     // find our planetId
     uint8 planetId = gWorldManager->getPlanetIdByName(requestedPlanet);
@@ -392,9 +407,14 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
             gMessageFactory->addUint8(0);
         }
     }
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Travel Manager/TravelMapHandler.cpp
 
     playerObject->getClient()->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
        
+=======
+    else
+        DLOG(INFO) << "TravelMapHandler::_processTravelListRequest: Couldnt find player for " << client->getAccountId();
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/TravelMapHandler.cpp
 }
 
 //=======================================================================================================================

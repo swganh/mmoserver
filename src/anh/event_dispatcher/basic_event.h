@@ -23,13 +23,27 @@
 #include <cstdint>
 
 #include "anh/hash_string.h"
-#include "anh/event_dispatcher/event_interface.h"
 
 namespace swganh {
 namespace event_dispatcher {
+    
+typedef anh::HashString EventType;
+
+class IEvent {
+public:
+    virtual ~IEvent() {}
+
+    virtual const EventType& type() = 0;
+    
+    virtual uint32_t priority() const = 0;
+    virtual void priority(uint32_t priority) = 0;
+
+    virtual uint64_t timestamp() const = 0;
+    virtual void timestamp(uint64_t timestamp) = 0;
+};
 
 template<typename T>
-class BasicEvent : public T, public EventInterface {
+class BasicEvent : public T, public IEvent {
 public:
     BasicEvent()
         : type_(T::type())

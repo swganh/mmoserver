@@ -109,10 +109,10 @@ StateCover::StateCover(StateManager* const sm) : ActionState(sm)
     //mClientEffect       = "clienteffect/combat_special_attacker_cover.cef";
 
     loadCommonLocomotionList(mTransitionList);
-    mTransitionList.insert(std::make_pair(State_Locomotion,CreatureLocomotion_Sitting));
-    mTransitionList.insert(std::make_pair(State_Locomotion,CreatureLocomotion_Sneaking));
-    mTransitionList.insert(std::make_pair(State_Locomotion,CreatureLocomotion_CrouchSneaking));
-    mTransitionList.insert(std::make_pair(State_Locomotion,CreatureLocomotion_Blocking));
+    insertLocomotion,CreatureLocomotion_Sitting));
+    insertLocomotion,CreatureLocomotion_Sneaking));
+    insertLocomotion,CreatureLocomotion_CrouchSneaking));
+    insertLocomotion,CreatureLocomotion_Blocking));
    
     loadCommonActionList(mTransitionList);
     insertAction,CreatureState_Cover));

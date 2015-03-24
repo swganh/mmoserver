@@ -30,8 +30,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <iostream>
 #include <sstream>
 
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
 
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/CharacterLoginHandler.cpp
 #include "anh/logger.h"
+=======
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/CharacterLoginHandler.cpp
 
 #include "Common/BuildInfo.h"
 #include "anh/Utils/rand.h"
@@ -251,14 +259,20 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
 	else if((playerObject = gWorldManager->getPlayerByAccId(client->getAccountId())))
     {
 
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/CharacterLoginHandler.cpp
         DLOG(info) << "CharacterLoginHandler::_processSelectCharacter same account : new character ";
         // remove old char immediately
 		if(playerObject->GetCreature()->getId() == playerId)
+=======
+        DLOG(INFO) << "CharacterLoginHandler::_processSelectCharacter same account : new character ";
+        // remove old char immidiately
+        if(playerObject->getId() == playerId)
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/CharacterLoginHandler.cpp
         {
             //we need to bail out. If a bot tries to rapidly login it can happen that we get here again even before the character
             //did finish loading or even with a properly logged in player ...
             //loading this player a second time and logging it out at the same time will lead to desaster
-            LOG(warning) << "CharacterLoginHandler::_processSelectCharacter account " << client->getAccountId() << " is spamming logins";
+            LOG(WARNING) << "CharacterLoginHandler::_processSelectCharacter account " << client->getAccountId() << " is spamming logins";
             return;
         }
 
@@ -395,7 +409,7 @@ void CharacterLoginHandler::handleObjectReady(Object* object,DispatchClient* cli
     break;
 
     default:
-        DLOG(warning) << "CharacterLoginHandler::ObjectFactoryCallback: Unhandled object: " << object->getType();
+        DLOG(WARNING) << "CharacterLoginHandler::ObjectFactoryCallback: Unhandled object: " << object->getType();
         break;
     }
 }
@@ -411,7 +425,7 @@ void CharacterLoginHandler::_processClusterClientDisconnect(Message* message, Di
 
     if (reason == 1)
     {
-        DLOG(info) << "Removed Player: Total Players on zone : " << gWorldManager->getPlayerAccMap()->size();
+        DLOG(INFO) << "Removed Player: Total Players on zone : " << gWorldManager->getPlayerAccMap()->size();
     }
     else
     {

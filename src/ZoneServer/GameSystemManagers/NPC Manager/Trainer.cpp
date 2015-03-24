@@ -396,7 +396,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
         if (!skill)
         {
             // This is a system error.
-            DLOG(info) << "Trainer::conversationEvent: ERROR: It's no skill option";
+            DLOG(INFO) << "Trainer::conversationEvent: ERROR: It's no skill option";
         }
         // no skill requirements, Novice Skills have no requirements.
         /*
@@ -410,12 +410,12 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
         else if(player->GetCreature()->checkSkill(skill->mId))
         {
             // This is a system failure.
-            DLOG(info) << "Trainer::conversationEvent: ERROR: Player already have the skill";
+            DLOG(INFO) << "Trainer::conversationEvent: ERROR: Player already have the skill";
         }
         else if (player->getXpAmount(skill->mXpType) < skill->mXpCost)
         {
             // This is a system failure.
-            DLOG(info) << "Trainer::conversationEvent: ERROR: Player need "<<player->getXpAmount(skill->mXpType)<<" XP, but only have "<< skill->mXpCost;
+            DLOG(INFO) << "Trainer::conversationEvent: ERROR: Player need "<<player->getXpAmount(skill->mXpType)<<" XP, but only have "<< skill->mXpCost;
         }
         // see if we got the required skills
         else
@@ -748,7 +748,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
         }
         else
         {
-            DLOG(info) << "Trainer: No skill avaliable";
+            DLOG(INFO) << "Trainer: No skill avaliable";
         }
     }
     break;

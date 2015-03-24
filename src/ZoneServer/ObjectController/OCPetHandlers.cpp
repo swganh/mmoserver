@@ -52,7 +52,7 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
     // And some parameter validation...
     if (targetId == 0)
     {
-        DLOG(info) << "ObjectController::_handleMount : Cannot find vehicle ID :(";
+        DLOG(INFO) << "ObjectController::_handleMount : Cannot find vehicle ID :(";
         return;
     }
 	CreatureObject* player_body = dynamic_cast<CreatureObject*>(mObject);
@@ -64,6 +64,7 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
 		return;
 	}
 
+<<<<<<< HEAD:src/ZoneServer/ObjectController/OCPetHandlers.cpp
     if(player_body->getParentId() != 0)	{
 
 		gMessageLib->SendSystemMessage(L"You need to be outside to mount.", player);
@@ -96,6 +97,22 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
                 vehicle->MountPlayer();
             }	else {
                 gMessageLib->SendSystemMessage(L"Your target is too far away to mount.", player);
+=======
+                if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(pet->controller())))
+                {
+                    //The /mount command can work up to 32m on live
+                    if(glm::distance(vehicle->body()->mPosition, player->mPosition) <= 32)	{
+                        //change locomotion
+                        vehicle->MountPlayer();
+                    }	else {
+                        gMessageLib->SendSystemMessage(L"Your target is too far away to mount.", player);
+                    }
+                }
+                else
+                {
+                    DLOG(INFO) << "ObjectController::_handleMount : Cannot find vehicle";
+                }
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/OCPetHandlers.cpp
             }
         }
         else

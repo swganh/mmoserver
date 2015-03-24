@@ -41,7 +41,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
     SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
     # the RPATH to be used when installing
-    SET(CMAKE_INSTALL_RPATH "${CMAKE_CURRENT_SOURCE_DIR}/deps/boost/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/gtest/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/mysql/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/mysql-connector-cpp/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/noise/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/spatialindex/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/tbb/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/zlib/lib:$ENV{LD_RUN_PATH}")
+    SET(CMAKE_INSTALL_RPATH "${CMAKE_CURRENT_SOURCE_DIR}/deps/boost/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/glog/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/gtest/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/mysql/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/mysql-connector-cpp/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/noise/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/spatialindex/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/tbb/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/zlib/lib:$ENV{LD_RUN_PATH}")
 
     # add the automatically determined parts of the RPATH
     # which point to directories outside the build tree to the install RPATH
@@ -85,7 +85,11 @@ ENDIF()
 # Use the static/multithreaded libraries.
 SET(Boost_USE_STATIC_LIBS ON)
 SET(Boost_USE_MULTITHREADED ON)
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> parent of 5bd772a... got rid of google log
 INCLUDE(CheckCXXCompilerFlag)
 
 CHECK_CXX_COMPILER_FLAG(-Wno-invalid-offsetof HAS_NO_INVALID_OFFSETOF)
@@ -119,6 +123,8 @@ IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps")
     
     SET(GLM_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/${__deps_dir}/glm")
     
+    SET(GLOG_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/${__deps_dir}/glog")
+    
     SET(GTEST_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/${__deps_dir}/gtest")
     
     SET(ENV{MYSQL_DIR} "${CMAKE_CURRENT_SOURCE_DIR}/${__deps_dir}/mysql-connector-c")
@@ -132,8 +138,13 @@ IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps")
     SET(ZLIB_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/${__deps_dir}/zlib")
 ENDIF()
 
+<<<<<<< HEAD
 FIND_PACKAGE(Boost 1.55.0 COMPONENTS date_time regex thread system program_options log python3 REQUIRED)
+=======
+FIND_PACKAGE(Boost 1.44.0 COMPONENTS date_time regex thread system program_options REQUIRED)
+>>>>>>> parent of 5bd772a... got rid of google log
 FIND_PACKAGE(GLM REQUIRED)
+FIND_PACKAGE(GLog REQUIRED)
 FIND_PACKAGE(GTest REQUIRED)
 FIND_PACKAGE(MySQL REQUIRED)
 FIND_PACKAGE(MysqlConnectorCpp REQUIRED)
@@ -143,7 +154,11 @@ find_package(PythonLibs REQUIRED)
 FIND_PACKAGE(ZLIB REQUIRED)
 
 # Add boost and tbb to the include and link directories as everything needs it.
+<<<<<<< HEAD
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src/ ${Boost_INCLUDE_DIRS} ${GLM_INCLUDE_DIR}  ${TBB_INCLUDE_DIRS}  ${PYTHON_INCLUDE_DIRS}  ${ZLIB_INCLUDE_DIRS})
+=======
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src/ ${Boost_INCLUDE_DIRS} ${GLOG_INCLUDE_DIR} ${GLM_INCLUDE_DIR}  ${TBB_INCLUDE_DIRS})
+>>>>>>> parent of 5bd772a... got rid of google log
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS} ${TBB_LIBRARY_DIRS})
 
 # Enable testing and add gtest to the include directories.

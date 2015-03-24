@@ -30,7 +30,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <iostream>
 #include <fstream>
 
+<<<<<<< HEAD
 #include "anh/logger.h"
+=======
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log
 // External references
 #include "ChatManager.h"
 #include "CSRManager.h"
@@ -78,11 +82,15 @@ ChatServer::ChatServer(int argc, char* argv[])
 	, mLastHeartbeat(0)
 {
     Anh_Utils::Clock::Init();
+<<<<<<< HEAD
 
 	std::stringstream log_file_name;
 	log_file_name << "logs/Chatserver.log";
 	LOG(warning) << "Chat Server Startup";	
 	LOGINIT(log_file_name.str());
+=======
+    LOG(WARNING) << "Chat Server Startup";
+>>>>>>> parent of 5bd772a... got rid of google log
 
 	// Load Configuration Options
 	std::list<std::string> config_files;
@@ -149,19 +157,19 @@ ChatServer::ChatServer(int argc, char* argv[])
     // We're done initializing.
     _updateDBServerList(2);
 
-    LOG(warning) << "Chat Server startup complete";
+    LOG(WARNING) << "Chat Server startup complete";
     //gLogger->printLogo();
     // std::string BuildString(GetBuildString());
 
-    LOG(warning) << "Chat Server - Build " << GetBuildString().c_str();
-    LOG(warning) << "Welcome to your SWGANH Experience!";
+    LOG(WARNING) << "Chat Server - Build " << GetBuildString().c_str();
+    LOG(WARNING) << "Welcome to your SWGANH Experience!";
 }
 
 //======================================================================================================================
 
 ChatServer::~ChatServer()
 {
-    LOG(warning) << "ChatServer shutting down...";
+    LOG(WARNING) << "ChatServer shutting down...";
 
     // We're shutting down, so update the DB again.
     _updateDBServerList(0);
@@ -186,7 +194,7 @@ ChatServer::~ChatServer()
 
     delete mDatabaseManager;
 
-    LOG(warning) << "ChatServer Shutdown Complete";
+    LOG(WARNING) << "ChatServer Shutdown Complete";
 }
 
 //======================================================================================================================
@@ -212,8 +220,13 @@ void ChatServer::Process()
 	uint64 time = Anh_Utils::Clock::getSingleton()->getLocalTime();
     if ((time - mLastHeartbeat) > 180000)
     {
+<<<<<<< HEAD
         mLastHeartbeat = time;
 		DLOG(info) << "ChatServer Heartbeat : " << Anh_Utils::Clock::getSingleton()->GetCurrentDateTimeString();
+=======
+        mLastHeartbeat = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
+        DLOG(INFO) << "ChatServer Heartbeat.";
+>>>>>>> parent of 5bd772a... got rid of google log
     }
 }
 
@@ -271,8 +284,13 @@ void ChatServer::_connectToConnectionServer()
     // Now connect to the ConnectionServer
     mClient = new DispatchClient();
 
+<<<<<<< HEAD
 	LOG(info) << "New connection to " << processAddress.mAddress << " on port " << processAddress.mPort;
 	mRouterService->Connect(mClient, processAddress.mAddress.c_str(), processAddress.mPort);
+=======
+	LOG(INFO) << "New connection to " << processAddress.mAddress.getAnsi() << " on port " << processAddress.mPort;
+    mRouterService->Connect(mClient, processAddress.mAddress.getAnsi(), processAddress.mPort);
+>>>>>>> parent of 5bd772a... got rid of google log
 }
 
 //======================================================================================================================
@@ -286,7 +304,18 @@ void handleExit()
 
 int main(int argc, char* argv[])
 {
-    
+    // Initialize the google logging.
+    google::InitGoogleLogging(argv[0]);
+
+#ifndef _WIN32
+    google::InstallFailureSignalHandler();
+#endif
+
+    FLAGS_log_dir = "./logs";
+    FLAGS_stderrthreshold = 1;
+
+    //set stdout buffers to 0 to force instant flush
+    setvbuf( stdout, NULL, _IONBF, 0);
 
     bool exit = false;
 	

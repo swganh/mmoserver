@@ -26,7 +26,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "BuildingFactory.h"
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Structure Manager/BuildingFactory.cpp
 #include "anh/logger.h"
+=======
+
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/BuildingFactory.cpp
 
 #include "BuildingObject.h"
 #include "CellFactory.h"
@@ -129,7 +137,7 @@ void BuildingFactory::handleDatabaseJobComplete(void* ref,swganh::database::Data
 
         if(!spawnCount)
         {
-        	LOG(error) << "Cloning facility [" << building->getId() << "] has no spawn points";
+        	LOG(ERROR) << "Cloning facility [" << building->getId() << "] has no spawn points";
         }
 
         for(uint64 i = 0; i < spawnCount; i++)
@@ -267,7 +275,7 @@ void BuildingFactory::handleObjectReady(Object* object,DispatchClient* client)
     InLoadingContainer* ilc = _getObject(object->getParentId());
 
     if (! ilc) {//ILC sanity check...
-    	LOG(warning) << "Could not locate InLoadingContainer for object parent [" << object->getParentId() << "]";
+    	LOG(WARNING) << "Could not locate InLoadingContainer for object parent [" << object->getParentId() << "]";
         return;
     }
 
@@ -287,7 +295,7 @@ void BuildingFactory::handleObjectReady(Object* object,DispatchClient* client)
     {
 		//LOG(info) << "BuildingFactory::handleObjectReady -> building loadcount done for " << building->getId();
         if(!(_removeFromObjectLoadMap(building->getId())))
-            LOG(warning) << "Failed removing object from loadmap";
+            LOG(WARNING) << "Failed removing object from loadmap";
 
         ilc->mOfCallback->handleObjectReady(building,ilc->mClient);
 

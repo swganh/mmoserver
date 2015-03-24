@@ -27,7 +27,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Service.h"
 
+<<<<<<< HEAD
 #include "anh/logger.h"
+=======
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log
 
 #include "NetworkCallback.h"
 #include "NetworkClient.h"
@@ -133,7 +137,7 @@ Service::Service(NetworkManager* networkManager, bool serverservice, uint32 id, 
 	int configvalue = network_configuration.getUdpBufferSize();
 
     //gLogger->log(LogManager::INFORMATION, "UDPBuffer set to %ukb", configvalue);
-    LOG(info) << "UDP buffer size set to " << configvalue << "kb";
+    LOG(INFO) << "UDP buffer size set to " << configvalue << "kb";
     
     if(configvalue < 128)
         configvalue = 128;
@@ -204,8 +208,8 @@ void Service::Process()
     uint32 sessionCount = mSessionProcessQueue.size();
 
 	//if((this->mServerService) && sessionCount)	{
-		//	DLOG(info) << "Service::Process() START";
-			//DLOG(info) << "servicing : " << sessionCount << " Sessions";
+		//	DLOG(INFO) << "Service::Process() START";
+			//DLOG(INFO) << "servicing : " << sessionCount << " Sessions";
 		//}
 	uint32 messages = 0;
     for(uint32 i = 0; i < sessionCount; i++)
@@ -304,8 +308,8 @@ void Service::Process()
     }
 	/*
 	if((this->mServerService) && sessionCount)	{
-			DLOG(info) << "Service::Process() END";
-			DLOG(info) << messages << " messages send";
+			DLOG(INFO) << "Service::Process() END";
+			DLOG(INFO) << messages << " messages send";
 		}*/
 }
 
@@ -314,7 +318,7 @@ void Service::Process()
 void Service::Connect(NetworkClient* client, const int8* address, uint16 port)
 {
 
-	LOG(info) << "New connection to " << address << " on port " << port;
+	LOG(INFO) << "New connection to " << address << " on port " << port;
 
     // Setup our new connection object and pass it to SocketReadThread.  This is temporary until there is time to implemnt
     // a queue/async connect method.  FIXME:  Make queue based, async using NetworkCallback for status changes.

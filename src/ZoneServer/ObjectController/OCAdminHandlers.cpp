@@ -190,6 +190,7 @@ void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,Objec
     {
         // gMessageLib->sendSystemMessage(player, dataStr, true);
 
+<<<<<<< HEAD:src/ZoneServer/ObjectController/OCAdminHandlers.cpp
         //dataStr.convert(BSTRType_ANSI);
         DLOG(info) << "Admin "<< player->GetCreature()->getFirstName() <<":" << dataStr.getAnsi();
     }
@@ -197,6 +198,15 @@ void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,Objec
     {
         //dataStr.convert(BSTRType_ANSI);
         DLOG(info) << "Admin (anon): " <<  dataStr.getAnsi();
+=======
+        dataStr.convert(BSTRType_ANSI);
+        DLOG(INFO) << "Admin "<< player->getFirstName().getAnsi() <<":" << dataStr.getAnsi();
+    }
+    else
+    {
+        dataStr.convert(BSTRType_ANSI);
+        DLOG(INFO) << "Admin (anon): " <<  dataStr.getAnsi();
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/OCAdminHandlers.cpp
     }
 
     int8 rawData[128];
@@ -1064,14 +1074,18 @@ void ObjectController::sendAdminFeedback(BString reply) const
         }
         else
         {
+<<<<<<< HEAD:src/ZoneServer/ObjectController/OCAdminHandlers.cpp
             DLOG(info) << "Admin :" << player->GetCreature()->getFirstName();
+=======
+            DLOG(INFO) << "Admin :" << player->getFirstName().getAnsi();
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/OCAdminHandlers.cpp
         }
     }
     else
     {
         if (reply.getDataLength())
         {
-            DLOG(info) << "Admin (anon): " << reply.getAnsi();
+            DLOG(INFO) << "Admin (anon): " << reply.getAnsi();
         }
         else
         {

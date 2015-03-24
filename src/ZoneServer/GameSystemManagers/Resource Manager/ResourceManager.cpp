@@ -27,7 +27,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceManager.h"
 
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Resource Manager/ResourceManager.cpp
 #include "anh/logger.h"
+=======
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ResourceManager.cpp
 
 #include "ZoneServer/GameSystemManagers/Resource Manager/CurrentResource.h"
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceCategory.h"
@@ -284,7 +291,7 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,swganh::database::Data
                 delete(resource);
         }
 
-        //LOG(info) << "Loaded " << count << " resources";
+        LOG_IF(INFO, count) << "Loaded " << count << " resources";
     }
     break;
 
@@ -306,7 +313,7 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,swganh::database::Data
             (getResourceCategoryById(resource->mType->mCatId))->insertResource(resource);
         }
 
-        //LOG(info) << "Generated " << count << " resource maps";
+        LOG_IF(INFO, count) << "Generated " << count << " resource maps";
 
         // query old and current resources not from this planet
         mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_OldResources),
@@ -406,7 +413,7 @@ bool ResourceManager::setResourceDepletion(Resource* resource, int32 amt)
     }
     else
     {
-        LOG(warning) << "Resource " << resource->getName().getAnsi() << " was not found or is inactive";
+        LOG(WARNING) << "Resource " << resource->getName().getAnsi() << " was not found or is inactive";
         return false;
     }
 

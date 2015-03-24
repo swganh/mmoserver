@@ -27,7 +27,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer/GameSystemManagers/Skill Manager/SkillManager.h"
 
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Skill Manager/SkillManager.cpp
 #include "anh/logger.h"
+=======
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/SkillManager.cpp
 
 #include "ZoneServer/Objects/Creature Object/CreatureObject.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
@@ -77,7 +84,7 @@ SkillManager::SkillManager(swganh::database::Database* database)
     
 
     // load extended skill information (tex)
-    DLOG(info) << "Start Loading Skill Descriptions.";
+    DLOG(INFO) << "Start Loading Skill Descriptions.";
     mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillDescriptions),"SELECT * FROM %s.skills_description ORDER BY skill_id",mDatabase->galaxy());
     
 }
@@ -136,7 +143,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,swganh::database::Databas
         }
 
         mDatabase->destroyDataBinding(binding);
-        LOG(info) << "Loaded "<< count << " skill mods";
+        LOG(INFO) << "Loaded "<< count << " skill mods";
     }
     break;
 
@@ -156,7 +163,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,swganh::database::Databas
         }
 
         mDatabase->destroyDataBinding(binding);
-        LOG(info) << "Loaded "<< count << " skill commands";
+        LOG(INFO) << "Loaded "<< count << " skill commands";
         //gLogger->log(LogManager::DEBUG,"Finished Loading Skill Commands.");
     }
     break;
@@ -184,7 +191,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,swganh::database::Databas
         }
 
         mDatabase->destroyDataBinding(binding);
-        LOG(info) << "Loaded "<< count << " skill xp types";
+        LOG(INFO) << "Loaded "<< count << " skill xp types";
         //gLogger->log(LogManager::DEBUG,"Finish Loading Skill XP Types.");
     }
     break;
@@ -285,7 +292,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,swganh::database::Databas
         }
 
         mDatabase->destroyDataBinding(binding);
-        LOG(info) << "Loaded "<< count << " skill species requirements";
+        LOG(INFO) << "Loaded "<< count << " skill species requirements";
         //gLogger->log(LogManager::DEBUG,"Finish Loading Skill Species Requirements.");
     }
     break;
@@ -308,7 +315,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,swganh::database::Databas
         }
 
         mDatabase->destroyDataBinding(binding);
-        LOG(info) << "Loaded "<< count << " skill precisions";
+        LOG(INFO) << "Loaded "<< count << " skill precisions";
         //gLogger->log(LogManager::DEBUG,"Finish Loading Skill Preclusions.");
     }
     break;
@@ -331,7 +338,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,swganh::database::Databas
         }
 
         mDatabase->destroyDataBinding(binding);
-        LOG(info) << "Loaded "<< count << " skill requirements";
+        LOG(INFO) << "Loaded "<< count << " skill requirements";
         //gLogger->log(LogManager::DEBUG,"Finished Loading Skill Requirements.");
     }
     break;
@@ -354,7 +361,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,swganh::database::Databas
         }
 
         mDatabase->destroyDataBinding(binding);
-        LOG(info) << "Loaded "<< count << " skill xp types";
+        LOG(INFO) << "Loaded "<< count << " skill xp types";
         //gLogger->log(LogManager::DEBUG,"Finish Loading Skill XP Types.");
     }
     break;
@@ -377,7 +384,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,swganh::database::Databas
         }
 
         mDatabase->destroyDataBinding(binding);
-        LOG(info) << "Loaded "<< count << " granted skill commands";
+        LOG(INFO) << "Loaded "<< count << " granted skill commands";
         //gLogger->log(LogManager::DEBUG,"Finish Loading Skill Commands Granted.");
     }
     break;
@@ -400,7 +407,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,swganh::database::Databas
         }
 
         mDatabase->destroyDataBinding(binding);
-        LOG(info) << "Loaded "<< count << " granted skill schematics";
+        LOG(INFO) << "Loaded "<< count << " granted skill schematics";
         //gLogger->log(LogManager::DEBUG,"Finish Loading Skill Schematics Granted.");
     }
     break;
@@ -424,7 +431,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,swganh::database::Databas
         }
 
         mDatabase->destroyDataBinding(binding);
-        LOG(info) << "Loaded "<< count << " granted skill mods";
+        LOG(INFO) << "Loaded "<< count << " granted skill mods";
         //gLogger->log(LogManager::DEBUG,"Finish Loading Skill Mods Granted.");
     }
     break;
@@ -452,7 +459,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,swganh::database::Databas
             mSkillInfoList.push_back(std::make_pair(skillDescription->skillId, skillDescription->skillInfo));
         }
         mDatabase->destroyDataBinding(binding);
-        LOG(info) << "Loaded "<< rowCount << " skill descriptions";
+        LOG(INFO) << "Loaded "<< rowCount << " skill descriptions";
         //gLogger->log(LogManager::DEBUG,"Finish Loading Skill Descriptions.");
     }
     break;
@@ -463,7 +470,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,swganh::database::Databas
 
     if(++mLoadCounter == mTotalLoadCount)
     {
-        LOG(info) << "Loaded all skill mod data";
+        LOG(INFO) << "Loaded all skill mod data";
     }
 
     mDBAsyncPool.ordered_free(asyncContainer);
@@ -481,13 +488,13 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
 
     if (skill == NULL)
     {
-        LOG(error) << "Could not find skill [" << skillId << "]";
+        LOG(ERROR) << "Could not find skill [" << skillId << "]";
         return false;
     }
 
     if (creatureObject->checkSkill(skillId))
     {
-        LOG(error) << "Object [" << creatureObject->getId() << "] already has skill [" << skillId << "]";
+        LOG(ERROR) << "Object [" << creatureObject->getId() << "] already has skill [" << skillId << "]";
         return false;
     }
 
@@ -835,18 +842,23 @@ void SkillManager::dropSkill(uint32 skillId,CreatureObject* creatureObject, bool
 
     if(skill == NULL)
     {
-    	LOG(error) << "Could not find skill [" << skillId << "]";
+    	LOG(ERROR) << "Could not find skill [" << skillId << "]";
         return;
     }
 
     if(!(creatureObject->checkSkill(skillId)))
     {
-    	LOG(error) << "Object [" << creatureObject->getId() << "] does not have skill [" << skillId << "]";
+    	LOG(ERROR) << "Object [" << creatureObject->getId() << "] does not have skill [" << skillId << "]";
         return;
     }
 
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Skill Manager/SkillManager.cpp
 	creatureObject->RemoveSkill(skill->mName.getAnsi());
     	
+=======
+    if(!(creatureObject->removeSkill(skill)))
+    	LOG(ERROR) << "Failed removing skill [" << skillId << "] from object [" << creatureObject->getId() << "]";
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/SkillManager.cpp
 
     creatureObject->prepareSkillMods();
     
@@ -1152,7 +1164,7 @@ void SkillManager::addExperience(uint32 xpType,int32 valueDiff,PlayerObject* pla
 
         if (!(playerObject->UpdateXp(xpType, newXpBoost)))
         {
-        	LOG(warning) << "Could not find xp type [" << xpType << "] for object [" << playerObject->getId() << "]";
+        	LOG(WARNING) << "Could not find xp type [" << xpType << "] for object [" << playerObject->getId() << "]";
             return;
         }
         // gLogger->log(LogManager::DEBUG,"SkillManager::addExperience: XP cap = %u", xpCap);

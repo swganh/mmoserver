@@ -70,12 +70,25 @@ ObjectContainer::~ObjectContainer()
 	 	Object* object = gWorldManager->getObjectById((*objectIt));
 		if(!object)
 		{
+<<<<<<< HEAD:src/ZoneServer/Objects/Object/ObjectContainer.cpp
 			DLOG(info) << "ObjectContainer::~ObjectContainer() : "<< *objectIt << " Object not found for removal !!!!";
+=======
+			DLOG(INFO) << "ObjectContainer::remove Object : No Object!!!!";
+			assert(false && "ObjectContainer::~ObjectContainer WorldManager unable to find object instance");
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ObjectContainer.cpp
 			objectIt = removeObject(objectIt);
 			
 			continue;
 		}
 
+<<<<<<< HEAD:src/ZoneServer/Objects/Object/ObjectContainer.cpp
+=======
+		if(object->getId() == 2533274790395904)
+		{
+			DLOG(INFO) << "ObjectContainer::remove Object 2533274790395904";
+		}
+
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ObjectContainer.cpp
 		//take care of a crafting tool
 		if(CraftingTool* tool = dynamic_cast<CraftingTool*>(object))
 		{
@@ -109,7 +122,7 @@ bool ObjectContainer::addObjectSecure(Object* data)
 	}
 	else
 	{
-		DLOG(info) << "ObjectContainer::addObjectSecure No Capacity!!!!";
+		DLOG(INFO) << "ObjectContainer::addObjectSecure No Capacity!!!!";
 		return true;
 
 	}
@@ -128,8 +141,12 @@ bool ObjectContainer::addObject(Object* data)
 	}
 	else
 	{
+<<<<<<< HEAD:src/ZoneServer/Objects/Object/ObjectContainer.cpp
 		//assert(0);
 		DLOG(warning) << "ObjectContainer::addObject No Capacity left for container " << this->getId();			
+=======
+		DLOG(WARNING) << "ObjectContainer::addObject No Capacity left for container " << this->getId();			
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ObjectContainer.cpp
 		return false;	
 	}
 }
@@ -184,7 +201,7 @@ bool ObjectContainer::deleteObject(Object* data)
 		}
 		++it;
 	}
-	DLOG(warning) << "ObjectContainer::removeDataByPointer Data " << data->getId() << " not found";
+	DLOG(WARNING) << "ObjectContainer::removeDataByPointer Data " << data->getId() << " not found";
 	return false;
 }
 
@@ -203,7 +220,7 @@ bool ObjectContainer::removeObject(uint64 id)
 		}
 		++it;
 	}
-	DLOG(warning) << "ObjectContainer::removeDataById  " << id <<" not found";
+	DLOG(WARNING) << "ObjectContainer::removeDataById  " << id <<" not found";
 	return false;
 }
 

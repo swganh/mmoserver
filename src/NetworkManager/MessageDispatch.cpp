@@ -35,8 +35,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/Session.h"
 #include "NetworkManager/NetworkClient.h"
 
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
 
+<<<<<<< HEAD
 #include "anh/logger.h"
+=======
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log
 
 
 //#include <stdio.h>
@@ -143,7 +151,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
             dispatchClient = (*iter).second;
             mAccountClientMap.erase(iter);
 
-            DLOG(info) << "Destroying Dispatch Client for account " << message->getAccountId();
+            DLOG(INFO) << "Destroying Dispatch Client for account " << message->getAccountId();
 
             // Mark it for deletion
             deleteClient = true;
@@ -151,7 +159,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
         }
         else
         {
-            LOG(info) << "Could not find DispatchClient for account " <<  message->getAccountId() << " to be deleted.";
+            LOG(INFO) << "Could not find DispatchClient for account " <<  message->getAccountId() << " to be deleted.";
 
             client->getSession()->DestroyIncomingMessage(message);
             //lk.unlock();
@@ -198,7 +206,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
     }
     else
     {
-        LOG(info) <<  "Unhandled opcode in MessageDispatch - " << opcode ;
+        LOG(INFO) <<  "Unhandled opcode in MessageDispatch - " << opcode ;
     }
 
 

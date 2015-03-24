@@ -1472,7 +1472,7 @@ void CharacterBuilderTerminal::_handleTeleportMenu(PlayerObject* playerObject, u
     }
     catch(...)
     {
-        DLOG(warning) << "Teleport Unsucssessful";
+        DLOG(WARNING) << "Teleport Unsucssessful";
         gMessageLib->SendSystemMessage(L"Teleport Unsuccessful, Usage: X,Y", playerObject);
     }
 }

@@ -29,8 +29,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <boost/lexical_cast.hpp>
 
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
 
+<<<<<<< HEAD
 #include "anh/logger.h"
+=======
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log
 
 #include "Common/atMacroString.h"
 
@@ -163,10 +171,49 @@ bool MessageLib::sendBaselinesPLAY_8(PlayerObject* playerObject,PlayerObject* ta
 	XPList* xpList				= playerObject->getXpList();
 	XPList::iterator xpIt		= xpList->begin();
 
+<<<<<<< HEAD
 	//start with the data
 	
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint16(7);										//Operand Count
+=======
+    uint32 xpListSize = 0;
+    while(xpIt != xpList->end())
+    {
+        //if ((*xpIt).second > 0)	// Only add xptypes that we actually have any xp from.
+        //{
+        xpByteCount += ((gSkillManager->getXPTypeById((*xpIt).first)).getLength() + 7); // strlen + value + delimiter
+        xpListSize++;
+        //}
+        ++xpIt;
+    }
+
+    // waypoint list size
+    uint32					waypointsByteCount	= 0;
+    Datapad* datapad							= playerObject->getDataPad();
+    WaypointList*			waypointList;
+    WaypointList::iterator	waypointIt;
+    if(datapad) {
+        waypointList		= datapad->getWaypoints();
+        waypointIt			= waypointList->begin();
+    } else { //Crashbug patch: http://paste.swganh.org/viewp.php?id=20100627075254-3882bd68067f13266819ae6d0c4428e4
+        LOG(WARNING) << "MessageLib::sendBaselinesPLAY_8: Failed to find datapad for playerId: " <<  playerObject->getId() << ". Did not initialize waypList(s).";
+        gWorldManager->addDisconnectedPlayer(playerObject);
+
+        Message* message = mMessageFactory->EndMessage();
+        message->setPendingDelete(true);
+        return false;
+    }
+
+    while(waypointIt != waypointList->end())
+    {
+        waypointsByteCount += (51 + ((*waypointIt)->getName().getLength() *2));
+        ++waypointIt;
+    }
+
+    mMessageFactory->addUint32(76 + xpByteCount + waypointsByteCount);
+    mMessageFactory->addUint16(7);
+>>>>>>> parent of 5bd772a... got rid of google log
 
     // xp list
     mMessageFactory->addUint32(xpList->size());

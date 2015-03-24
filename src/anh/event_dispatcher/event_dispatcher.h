@@ -20,7 +20,18 @@
 #ifndef LIBANH_EVENT_DISPATCHER_EVENT_DISPATCHER_H_
 #define LIBANH_EVENT_DISPATCHER_EVENT_DISPATCHER_H_
 
-#include <tbb/atomic.h>
+#include <cstdint>
+#include <deque>
+#include <functional>
+#include <list>
+#include <map>
+#include <memory>
+#include <set>
+#include <string>
+#include <tuple>
+
+#include <boost/optional.hpp>
+#include <tbb/concurrent_queue.h>
 
 #include <cstdint>
 #include <functional>
@@ -30,8 +41,6 @@
 #include <vector>
 
 #include "anh/event_dispatcher/basic_event.h"
-#include "anh/event_dispatcher/event_dispatcher_interface.h"
-#include "anh/event_dispatcher/exceptions.h"
 
 #include <boost/asio/strand.hpp>
 #include <boost/thread/future.hpp>
@@ -50,12 +59,64 @@ class PlayerObject;
 
 namespace swganh {
 namespace event_dispatcher {
+<<<<<<< HEAD
 	
 	class EventInterface;
 
     typedef uint32_t CallbackId;
     typedef HashString EventType;
     typedef std::function<void (const std::shared_ptr<EventInterface>&)> EventHandlerCallback;
+=======
+
+typedef std::function<bool (std::shared_ptr<IEvent>)> EventListenerCallback;
+typedef anh::HashString EventListenerType;
+typedef std::pair<EventListenerType, EventListenerCallback> EventListener;
+
+
+typedef std::list<EventListener> EventListenerList;
+typedef std::map<EventType, EventListenerList> EventListenerMap;
+typedef std::set<EventType> EventTypeSet;
+
+typedef std::function<bool (uint64_t current_time_ms)> TriggerCondition;
+typedef std::function<void (std::shared_ptr<IEvent>, bool)> PostTriggerCallback;
+
+typedef std::tuple<std::shared_ptr<IEvent>, boost::optional<TriggerCondition>, boost::optional<PostTriggerCallback>> EventQueueItem;
+typedef tbb::concurrent_queue<EventQueueItem> EventQueue;
+typedef std::deque<EventQueue> EventQueueList;
+
+class IEventDispatcher {
+public:
+    enum constants {
+        INFINITE_TIMEOUT = 0xfffffff
+    };
+
+public:
+    virtual ~IEventDispatcher();
+    
+    virtual bool subscribe(const EventType& event_type, EventListener listener) = 0;
+    virtual void unsubscribe(const EventType& event_type, const EventListenerType& listener_type) = 0;
+    virtual void unsubscribe(const EventListenerType& listener_type) = 0;
+
+    virtual bool trigger(std::shared_ptr<IEvent> incoming_event) = 0;
+    virtual bool trigger(std::shared_ptr<IEvent> incoming_event, PostTriggerCallback callback) = 0;
+    
+    virtual void triggerWhen(std::shared_ptr<IEvent> incoming_event, TriggerCondition condition) = 0;
+    virtual void triggerWhen(std::shared_ptr<IEvent> incoming_event, TriggerCondition condition, PostTriggerCallback callback) = 0;
+
+    virtual bool triggerAsync(std::shared_ptr<IEvent> incoming_event) = 0;
+    virtual bool triggerAsync(std::shared_ptr<IEvent> incoming_event, PostTriggerCallback callback) = 0;
+
+    virtual bool abort(const EventType& event_type, bool all_of_type = false) = 0;
+
+    virtual bool tick(uint64_t timeout_ms = INFINITE_TIMEOUT) = 0;
+};
+
+class EventDispatcher : public IEventDispatcher {
+public:
+    enum constants {    
+        NUM_QUEUES = 2
+    };
+>>>>>>> parent of 5bd772a... got rid of google log
 
     class EventInterface
     {
@@ -65,17 +126,24 @@ namespace event_dispatcher {
         virtual EventType Type() const = 0;
     };
 
+<<<<<<< HEAD
     class BaseEvent : public EventInterface
     {
     public:
         explicit BaseEvent(EventType type);
 
         EventType Type() const;
+=======
+    bool hasListeners(const EventType& event_type) const;
+    bool hasRegisteredEventType(const EventType& event_type) const;
+    bool hasEvents() const;
+>>>>>>> parent of 5bd772a... got rid of google log
 
     private:
         EventType type_;
     };
 
+<<<<<<< HEAD
     template<typename T>
     class ValueEvent : public BaseEvent
     {
@@ -162,6 +230,20 @@ namespace event_dispatcher {
     public:
         explicit EventDispatcher(boost::asio::io_service& io_service);
         ~EventDispatcher();
+=======
+    bool subscribe(const EventType& event_type, EventListener listener);
+    void unsubscribe(const EventType& event_type, const EventListenerType& listener_type);
+    void unsubscribe(const EventListenerType& listener_type);
+
+    bool trigger(std::shared_ptr<IEvent> incoming_event);
+    bool trigger(std::shared_ptr<IEvent> incoming_event, PostTriggerCallback callback);
+    
+    void triggerWhen(std::shared_ptr<IEvent> incoming_event, TriggerCondition condition);
+    void triggerWhen(std::shared_ptr<IEvent> incoming_event, TriggerCondition condition, PostTriggerCallback callback);
+
+    bool triggerAsync(std::shared_ptr<IEvent> incoming_event);
+    bool triggerAsync(std::shared_ptr<IEvent> incoming_event, PostTriggerCallback callback);
+>>>>>>> parent of 5bd772a... got rid of google log
 
         CallbackId Subscribe(EventType type, EventHandlerCallback callback);
         void Unsubscribe(EventType type, CallbackId identifier);
@@ -171,6 +253,7 @@ namespace event_dispatcher {
 
 		void Shutdown();
 
+<<<<<<< HEAD
     private:
         typedef std::unordered_map<CallbackId, EventHandlerCallback> EventHandlerList;
         
@@ -187,6 +270,10 @@ namespace event_dispatcher {
         boost::asio::io_service& io_service_;
     };
 
+=======
+    int active_queue_;
+};
+>>>>>>> parent of 5bd772a... got rid of google log
 
 }  // namespace anh
  

@@ -27,7 +27,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "SocketWriteThread.h"
 
+<<<<<<< HEAD
 #include "anh/logger.h"
+=======
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log
 
 #include "CompCryptor.h"
 #include "Packet.h"
@@ -116,7 +120,7 @@ SocketWriteThread::SocketWriteThread(SOCKET socket, Service* service, bool serve
 
 SocketWriteThread::~SocketWriteThread()
 {
-    LOG(info) << "Socket Write Thread Ended.";
+    LOG(INFO) << "Socket Write Thread Ended.";
 
     // shutdown our thread
     mExit = true;
@@ -142,9 +146,9 @@ void SocketWriteThread::run()
     while(!mExit)    {
 
 		//if((!this->mServerService) && sessionCount)	{
-			//DLOG(info) << "SocketWriteThread::run() START";
-			//DLOG(info) << "servicing : " << sessionCount << " Sessions";
-			//DLOG(info) << "NO ACTIVE OBJECT";
+			//DLOG(INFO) << "SocketWriteThread::run() START";
+			//DLOG(INFO) << "servicing : " << sessionCount << " Sessions";
+			//DLOG(INFO) << "NO ACTIVE OBJECT";
 		//}
 		uint32 packetsSend = 0;
 
@@ -165,8 +169,8 @@ void SocketWriteThread::run()
 		}
 
 		//if((!this->mServerService) && sessionCount)	{
-			//DLOG(info) << "SocketWriteThread::run() END";
-			//DLOG(info) << "sending : " << packetsSend << "Packets";
+			//DLOG(INFO) << "SocketWriteThread::run() END";
+			//DLOG(INFO) << "sending : " << packetsSend << "Packets";
 		//}
 
         boost::this_thread::sleep(boost::posix_time::milliseconds(1));
@@ -295,12 +299,12 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
         outLen += 2;
     }
 
-    //LOG(info) << "Sending message to " << session->getAddressString() << " on port " << ntohs(session->getPort());
+    //LOG(INFO) << "Sending message to " << session->getAddressString() << " on port " << ntohs(session->getPort());
     sent = sendto(mSocket, mSendBuffer, outLen, 0, &toAddr, toLen);
 
     if (sent < 0)
     {
-        LOG(warning) << "Unkown Error from socket sendto: " << errno;
+        LOG(WARNING) << "Unkown Error from socket sendto: " << errno;
     }
 }
 

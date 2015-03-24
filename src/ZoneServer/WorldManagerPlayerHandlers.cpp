@@ -97,8 +97,12 @@ void WorldManager::savePlayer(uint32 accId, bool remove, WMLogOut logout_type, C
     // Lookup the requested player and abort if not found
     PlayerObject* player_object = getPlayerByAccId(accId);
     if(!player_object) {
+<<<<<<< HEAD
         DLOG(warning) << "WorldManager::savePlayer could not find player with AccId:" << accId << ", save aborted.";
 		SAFE_DELETE(clContainer);
+=======
+        DLOG(WARNING) << "WorldManager::savePlayer could not find player with AccId:" << accId << ", save aborted.";
+>>>>>>> parent of 5bd772a... got rid of google log
         return;
     }
 
@@ -107,6 +111,7 @@ void WorldManager::savePlayer(uint32 accId, bool remove, WMLogOut logout_type, C
     storeCharacterPosition_(player_object, remove, logout_type, clContainer);    
 }
 
+<<<<<<< HEAD
 void WorldManager::storeCharacterPosition_(PlayerObject* player_object, bool remove, WMLogOut logout_type, CharacterLoadingContainer* clContainer) {
 	if(!player_object) {
         DLOG(warning) << "WorldManager::storeCharacterPosition_ Trying to save character position with an invalid PlayerObject";
@@ -115,6 +120,11 @@ void WorldManager::storeCharacterPosition_(PlayerObject* player_object, bool rem
 
 	if(player_object->getLoadState() == LoadState_Loading) {
         DLOG(warning) << "WorldManager::storeCharacterPosition_ Trying to save character while loading";
+=======
+void WorldManager::storeCharacterPosition_(PlayerObject* player_object, WMLogOut logout_type, CharacterLoadingContainer* clContainer) {
+    if(!player_object) {
+        DLOG(WARNING) << "Trying to save character position with an invalid PlayerObject";
+>>>>>>> parent of 5bd772a... got rid of google log
         return;
     }
 
@@ -148,10 +158,21 @@ void WorldManager::storeCharacterPosition_(PlayerObject* player_object, bool rem
 }
 
 void WorldManager::storeCharacterAttributes_(PlayerObject* player_object, bool remove, WMLogOut logout_type, CharacterLoadingContainer* clContainer) {
+<<<<<<< HEAD
     
 	if(!player_object) {
         DLOG(warning) << "WorldManager::storeCharacterAttributes_ Trying to save character position with an invalid PlayerObject";
 		SAFE_DELETE(clContainer);
+=======
+    if(!player_object) {
+        DLOG(WARNING) << "Trying to save character position with an invalid PlayerObject";
+        return;
+    }
+
+    Ham* ham = player_object->getHam();
+    if(!ham) {
+        DLOG(WARNING) << "Unable to retrieve Ham for player: [" << player_object->getId() << "]";
+>>>>>>> parent of 5bd772a... got rid of google log
         return;
     }
 
@@ -391,7 +412,7 @@ void WorldManager::removePlayerFromDisconnectedList(PlayerObject* playerObject)
     it = std::find(mPlayersToRemove.begin(),mPlayersToRemove.end(),playerObject);
     if(it == mPlayersToRemove.end())
     {
-        DLOG(info) << "WorldManager::addReconnectedPlayer: Error removing Player from Disconnected List: " << playerObject->getId();
+        DLOG(INFO) << "WorldManager::addReconnectedPlayer: Error removing Player from Disconnected List: " << playerObject->getId();
     }
     else
     {
@@ -469,7 +490,11 @@ bool	WorldManager::_handlePlayerSaveTimers(uint64 callTime, void* ref)
 
         ++playerIt;
     }
+<<<<<<< HEAD
     //LOG(warning) << "Periodic Save of "<< playerSaveCount <<" Players";
+=======
+    LOG(WARNING) << "Periodic Save of "<< playerSaveCount <<" Players";
+>>>>>>> parent of 5bd772a... got rid of google log
     return true;
 }
 //======================================================================================================================

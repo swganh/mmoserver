@@ -191,16 +191,29 @@ void VehicleController::Call() {
 	
 	auto terrain = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::terrain::TerrainService>("TerrainService");
 
+<<<<<<< HEAD:src/ZoneServer/Objects/VehicleController.cpp
 	gObjectManager->LoadSlotsForObject(body_);
 	
 	body_->mPosition.y =	terrain->GetHeight(gWorldManager->getZoneId(), body_->mPosition.x,body_->mPosition.z) + 0.3;
+=======
+    // And drop it a little below the terrain to allow the client to normalize it.
+    //body_->mPosition.y = Heightmap::getSingletonPtr()->getHeight(body_->mPosition.x, body_->mPosition.z) - 0.3f;
+    //TODO: Remove this patch when heightmaps are corrected!
+    if(owner_) {
+        float hmapHighest = Heightmap::getSingletonPtr()->getHeight(body_->mPosition.x, body_->mPosition.z) - 0.3f;
+        body_->mPosition.y = gHeightmap->compensateForInvalidHeightmap(hmapHighest, body_->mPosition.y, (float)10.0);
+        if(hmapHighest != body_->mPosition.y) {
+            DLOG(INFO) << " VehicleController::Call: PlayerID("<<owner_->getId() << ") calling vehicle... Heightmap found inconsistent, compensated height.";
+        }
+    }//end TODO
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/VehicleController.cpp
 
     // Finally rotate it perpendicular to the player.
     body_->rotateRight(90.0f);
 
     // add to world
     if(!gWorldManager->addObject(body_)) {
-		DLOG(info) << "void Vehicle::call() creating vehicle with id "<<body_->getId()<<" failed : couldnt add to world";
+		DLOG(INFO) << "void Vehicle::call() creating vehicle with id "<<body_->getId()<<" failed : couldnt add to world";
         SAFE_DELETE(body_);
         return;
     }
@@ -223,6 +236,7 @@ void VehicleController::Call() {
 //stores the physical body
 void VehicleController::Store()
 {
+<<<<<<< HEAD:src/ZoneServer/Objects/VehicleController.cpp
     if(!body_)    {
         DLOG(info) << "Vehicle::store() Error: Store was called for a nonexistant body object!";
         return;
@@ -232,6 +246,17 @@ void VehicleController::Store()
 
     if(!owner_ || owner->GetCreature()->isDead() || owner->GetCreature()->isIncapacitated())    {
         DLOG(info) << "Vehicle::store() couldnt find owner";
+=======
+    if(!body_)
+    {
+        DLOG(INFO) << "Vehicle::store() Error: Store was called for a nonexistant body object!";
+        return;
+    }
+
+    if(!owner_ || owner_->isDead() || owner_->isIncapacitated())
+    {
+        DLOG(INFO) << "Vehicle::store() couldnt find owner";
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/VehicleController.cpp
         return;
     }
 
@@ -244,7 +269,7 @@ void VehicleController::Store()
 
     if(!owner->checkIfMountCalled())
     {
-        DLOG(info) << "Vehicle::store() Mount wasnt called !!!";
+        DLOG(INFO) << "Vehicle::store() Mount wasnt called !!!";
         return;
     }
 

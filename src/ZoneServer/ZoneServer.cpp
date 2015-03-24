@@ -27,6 +27,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer.h"
 
+<<<<<<< HEAD
+=======
+#include <glog/logging.h>
+
+>>>>>>> parent of 5bd772a... got rid of google log
 #include <iostream>
 #include <fstream>
 #include "anh/event_dispatcher/event_dispatcher.h"
@@ -107,6 +112,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer/GameSystemManagers/Ham Manager/HamService.h"
 
+<<<<<<< HEAD
 //#include <boost/thread/thread.hpp>
 #include <boost/thread.hpp>
 #include <boost/python.hpp>
@@ -142,10 +148,18 @@ using boost::regex_match;
 
 
 using swganh::event_dispatcher::EventDispatcher;
+=======
+using anh::event_dispatcher::EventDispatcher;
+>>>>>>> parent of 5bd772a... got rid of google log
 using std::make_shared;
 using std::shared_ptr;
 
 using utils::Singleton;
+
+#ifdef WIN32
+#undef ERROR
+#endif
+
 
 //======================================================================================================================
 
@@ -164,7 +178,37 @@ ZoneServer::ZoneServer(int argc, char* argv[], swganh::app::SwganhKernel*	kernel
     Anh_Utils::Clock::Init();
 	
 
+<<<<<<< HEAD
 	LOG(error) << "ZoneServer startup sequence for [" << kernel_->GetAppConfig().zone_name << "]";
+=======
+    configuration_options_description_.add_options()
+    ("ZoneName", boost::program_options::value<std::string>())
+    ("writeResourceMaps", boost::program_options::value<bool>())
+    ("heightMapResolution", boost::program_options::value<uint16>()->default_value(3))
+    ;
+
+    // This is to retrieve the ZoneName
+    LoadOptions_(argc, argv);
+
+    if(configuration_variables_map_.count("ZoneName") == 0) {
+        std::cout << "Enter a zone: ";
+        std::cin >> mZoneName;
+    } else {
+        mZoneName = configuration_variables_map_["ZoneName"].as<std::string>();
+    }
+
+    std::stringstream config_file_name;
+    config_file_name << "config/" << mZoneName << ".cfg";
+
+    // Load Configuration Options
+    std::list<std::string> config_files;
+    config_files.push_back("config/general.cfg");
+    config_files.push_back(config_file_name.str());
+    LoadOptions_(argc, argv, config_files);
+
+
+    LOG(ERROR) << "ZoneServer startup sequence for [" << mZoneName << "]";
+>>>>>>> parent of 5bd772a... got rid of google log
 
     // Create and startup our core services.
     //mDatabaseManager = new swganh::database::DatabaseManager(swganh::database::DatabaseConfig(configuration_variables_map_["DBMinThreads"].as<uint32_t>(), configuration_variables_map_["DBMaxThreads"].as<uint32_t>(), configuration_variables_map_["DBGlobalSchema"].as<std::string>(), configuration_variables_map_["DBGalaxySchema"].as<std::string>(), configuration_variables_map_["DBConfigSchema"].as<std::string>()));
@@ -215,7 +259,11 @@ ZoneServer::ZoneServer(int argc, char* argv[], swganh::app::SwganhKernel*	kernel
 	swganh::database::DatabaseResult* result = kernel_->GetDatabase()->executeSql(sql.str());
 	if (!result->getRowCount())
     {
+<<<<<<< HEAD
 		LOG(error) << "Map not found for [" << kernel_->GetAppConfig().zone_name << "]";
+=======
+        LOG(ERROR) << "Map not found for [" << mZoneName << "]";
+>>>>>>> parent of 5bd772a... got rid of google log
 
         abort();
     }
@@ -316,7 +364,11 @@ ZoneServer::ZoneServer(int argc, char* argv[], swganh::app::SwganhKernel*	kernel
 
 ZoneServer::~ZoneServer(void)
 {
+<<<<<<< HEAD
     LOG(info) << "ZoneServer shutting down...";
+=======
+    LOG(INFO) << "ZoneServer shutting down";
+>>>>>>> parent of 5bd772a... got rid of google log
 
     // We're shutting down, so update the DB again.
     _updateDBServerList(0);
@@ -355,9 +407,13 @@ ZoneServer::~ZoneServer(void)
     // NOW, I can feel that it should be safe to delete the data holding messages.
     gMessageFactory->destroySingleton();
 
+<<<<<<< HEAD
 	gClock->destroySingleton();
 
     LOG(info) << "...ZoneServer shutdown complete";
+=======
+    LOG(INFO) << "ZoneServer shutdown complete";
+>>>>>>> parent of 5bd772a... got rid of google log
 }
 
 //======================================================================================================================
@@ -365,7 +421,7 @@ ZoneServer::~ZoneServer(void)
 void ZoneServer::handleWMReady()
 {
     _updateDBServerList(2);
-    LOG(warning) << "ZoneServer startup complete";
+    LOG(WARNING) << "ZoneServer startup complete";
 
     // Connect to the ConnectionServer;
     _connectToConnectionServer();
@@ -471,7 +527,22 @@ void ZoneServer::_connectToConnectionServer(void)
 
 int main(int argc, char* argv[])
 {
+<<<<<<< HEAD
     //InitAllocCheck();
+=======
+    // Initialize the google logging.
+    google::InitGoogleLogging(argv[0]);
+
+#ifndef _WIN32
+    google::InstallFailureSignalHandler();
+#endif
+
+    FLAGS_log_dir = "./logs";
+    FLAGS_stderrthreshold = 0;
+
+    //set stdout buffers to 0 to force instant flush
+    setvbuf( stdout, NULL, _IONBF, 0);
+>>>>>>> parent of 5bd772a... got rid of google log
 
 	Py_Initialize();
     PyEval_InitThreads();

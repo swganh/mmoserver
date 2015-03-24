@@ -27,6 +27,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "HouseFactory.h"
 
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Structure Manager/HouseFactory.cpp
+=======
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/HouseFactory.cpp
 
 #include "anh/logger.h"
 
@@ -336,7 +343,7 @@ void HouseFactory::handleObjectReady(Object* object,DispatchClient* client)
     if(house->getLoadCount() == (house->getCellList())->size())
     {
         if(!(_removeFromObjectLoadMap(house->getId())))
-            LOG(warning) << "Failed removing object from loadmap";
+            LOG(WARNING) << "Failed removing object from loadmap";
 
         ilc->mOfCallback->handleObjectReady(house,ilc->mClient);
 

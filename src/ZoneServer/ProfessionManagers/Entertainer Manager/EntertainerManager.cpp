@@ -27,7 +27,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer/ProfessionManagers/Entertainer Manager/EntertainerManager.h"
 
+<<<<<<< HEAD:src/ZoneServer/ProfessionManagers/Entertainer Manager/EntertainerManager.cpp
 #include "anh/logger.h"
+=======
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/EntertainerManager.cpp
 
 #include "ZoneServer/GameSystemManagers/Group Manager/GroupManager.h"
 #include "ZoneServer/GameSystemManagers/Group Manager/GroupManagerCallbackContainer.h"
@@ -53,8 +57,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/atMacroString.h"
 #include "Utils/utils.h"
 
+<<<<<<< HEAD:src/ZoneServer/ProfessionManagers/Entertainer Manager/EntertainerManager.cpp
 #include "ZoneServer\Services\equipment\equipment_service.h"
 #include "ZoneServer\Services\ham\ham_service.h"
+=======
+#ifdef WIN32
+#undef ERROR
+#endif
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/EntertainerManager.cpp
 
 bool EntertainerManager::mInsFlag = false;
 EntertainerManager*	EntertainerManager::mSingleton = NULL;
@@ -498,7 +508,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,swganh::database::D
         }
         else
         {
-            LOG(error) << "Image design transaction failed";
+            LOG(ERROR) << "Image design transaction failed";
             // oh woe we need to rollback :(
             // (ie do nothing)
 
@@ -531,7 +541,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,swganh::database::D
             holo->pCRC = emote.getCrc();
         }
 
-        //LOG(info) << "Loaded " << count << " holo emotes";
+        LOG_IF(INFO, count) << "Loaded " << count << " holo emotes";
 
     }
     break;
@@ -631,7 +641,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,swganh::database::D
             else
             {
                 //somebodies trying to cheat here
-                LOG(error) << "newHamCount != oldHamCount ";
+                LOG(ERROR) << "newHamCount != oldHamCount ";
             }
 
 
@@ -748,7 +758,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,swganh::database::D
             mIDList.push_back(idData);
         }
 
-        LOG(info) << "Loaded " << count << " image designer attributes";
+        LOG_IF(INFO, count) << "Loaded " << count << " image designer attributes";
     }
     break;
 
@@ -779,7 +789,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,swganh::database::D
 
         }
 
-        LOG(info) << "Loaded " << count << " performances";
+        LOG_IF(INFO, count) << "Loaded " << count << " performances";
     }
     break;
 
@@ -1447,7 +1457,7 @@ void EntertainerManager::CheckDistances(PlayerObject* entertainer)
 
     if(!entertainer->getAudienceList())
     {
-        DLOG(info) << "CheckDistances(PlayerObject* entertainer) getAudienceList does not exist !!!!!";
+        DLOG(INFO) << "CheckDistances(PlayerObject* entertainer) getAudienceList does not exist !!!!!";
         return;
     }
 

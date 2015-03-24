@@ -35,7 +35,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/Session.h"
 #include "NetworkManager/Service.h"
 
+<<<<<<< HEAD
 #include "anh/logger.h"
+=======
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log
 
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/Database.h"
@@ -114,7 +123,11 @@ void ServerManager::SendMessageToServer(Message* message)
     }
     else
     {
+<<<<<<< HEAD
         LOG(info) << "ServerManager: failed routing message to server : " << message->getDestinationId();
+=======
+        LOG(INFO) << "ServerManager: failed routing message to server " << message->getDestinationId();
+>>>>>>> parent of 5bd772a... got rid of google log
         gMessageFactory->DestroyMessage(message);
     }
 }
@@ -156,7 +169,11 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
         memcpy(&mServerAddressMap[serverAddress.mId], &serverAddress, sizeof(ServerAddress));
         mServerAddressMap[serverAddress.mId].mConnectionClient = connClient;
 
+<<<<<<< HEAD
 		DLOG(info) << "*** Backend server connected id: " << mServerAddressMap[serverAddress.mId].mId << " : " << mServerAddressMap[serverAddress.mId].mName;
+=======
+        DLOG(INFO) << "*** Backend server connected id: " << mServerAddressMap[serverAddress.mId].mId;
+>>>>>>> parent of 5bd772a... got rid of google log
 
         // If this is one of the servers we're waiting for, then update our count
         if(mServerAddressMap[serverAddress.mId].mActive)
@@ -172,7 +189,11 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
     }
     else
     {
+<<<<<<< HEAD
         LOG(warning) << "*** Backend server connect error - Server not found in DB RsultCount : " << result->getRowCount() << "" << sql;
+=======
+        LOG(WARNING) << "*** Backend server connect error - Server not found in DB" << sql;
+>>>>>>> parent of 5bd772a... got rid of google log
     }
 
     // Delete our DB objects.
@@ -211,9 +232,14 @@ void ServerManager::handleSessionDisconnect(NetworkClient* client)
         
     }
 
+<<<<<<< HEAD
 	LOG(info) << "Servermanager handle server down : " << mServerAddressMap[connClient->getServerId()].mName;
     
 	mClientManager->handleServerDown(connClient->getServerId());
+=======
+    DLOG(INFO) << "Servermanager handle server down";
+    mClientManager->handleServerDown(connClient->getServerId());
+>>>>>>> parent of 5bd772a... got rid of google log
 
     connClient->getSession()->setStatus(SSTAT_Destroy);
     connClient->getSession()->getService()->AddSessionToProcessQueue(connClient->getSession());
@@ -348,7 +374,7 @@ void ServerManager::_processClusterZoneTransferRequestByTicket(ConnectionClient*
 
 void ServerManager::_processClusterZoneTutorialTerminal(ConnectionClient* client, Message* message)
 {
-    DLOG(info) << "Sending Tutorial Status Reply";
+    DLOG(INFO) << "Sending Tutorial Status Reply";
 
     gMessageFactory->StartMessage();
     gMessageFactory->addUint32(opTutorialServerStatusReply);

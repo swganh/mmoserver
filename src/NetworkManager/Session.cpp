@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //#define SEND_OUT_OF_ORDERS
 
 #include "Session.h"
-#include "Socket.h"
 
 #include <cstdio>
 #include <algorithm>
@@ -43,8 +42,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "anh/Utils/rand.h"
 #include "Utils/utils.h"
 
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
 
+<<<<<<< HEAD
 #include "anh/logger.h"
+=======
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log
 
 #include "NetworkManager/MessageFactory.h"
 #include "NetworkManager/NetworkClient.h"
@@ -132,6 +139,11 @@ Session::Session(void) :
 
 Session::~Session(void)
 {
+<<<<<<< HEAD
+=======
+  
+    DLOG(INFO) <<  "Session::~Session " << this->getId();
+>>>>>>> parent of 5bd772a... got rid of google log
     Message* message = 0;
 
     boost::recursive_mutex::scoped_lock lk(mSessionMutex);
@@ -419,6 +431,10 @@ void Session::ProcessWriteThread(void)
     }
     case SCOM_Disconnect:
     {
+<<<<<<< HEAD
+=======
+		DLOG(INFO) << "Handle Session Disconnect " << this->getId() <<" endcount " << endCount;
+>>>>>>> parent of 5bd772a... got rid of google log
         _processDisconnectCommand();
         break;
     }
@@ -448,13 +464,22 @@ void Session::ProcessWriteThread(void)
         {
             if(this->mServerService)
             {
+<<<<<<< HEAD
 				LOG(info) << "Session disconnect last received packet > 60  ("<< diff.total_seconds()  << ") seconds - session Id : " << this->getId();
 				LOG(info) << "Session lastpacket " << mLastPacketReceived.time_of_day() << " now " << now.time_of_day() << " diff :" << diff.total_milliseconds() ;
+=======
+                LOG(INFO) << "Session disconnect last received packet > 60  ("<< (float)t/1000 << ") seconds session Id : " << this->getId();
+				LOG(INFO) << "Session lastpacket " << mLastPacketReceived << " now " << now << " diff :" << (now - mLastPacketReceived);
+>>>>>>> parent of 5bd772a... got rid of google log
                 mCommand = SCOM_Disconnect;
             }
             else
             {
+<<<<<<< HEAD
                 LOG(info) << "Session disconnect last received packet > 60  ("<< diff.total_seconds()  << ") seconds session Id : " << this->getId();
+=======
+                LOG(INFO) << "Session disconnect last received packet > 60  ("<< (float)t/1000 << ") seconds session Id : " << this->getId();
+>>>>>>> parent of 5bd772a... got rid of google log
 
                 mCommand = SCOM_Disconnect;
             }
@@ -573,7 +598,7 @@ void Session::SortSessionPacket(Packet* packet, uint16 type)
     default:
     {
         // Unknown SESSIONOP code
-        DLOG(info) << "Destroying packet because!!! --tmr <3";
+        DLOG(INFO) << "Destroying packet because!!! --tmr <3";
         mPacketFactory->DestroyPacket(packet);
         break;
     }
@@ -642,7 +667,11 @@ void Session::HandleSessionPacket(Packet* packet)
     // Remote side disconnceted
     case SESSIONOP_Disconnect:
     {
+<<<<<<< HEAD
         //DLOG(info) << "Session::HandleSessionPacket Session received SESSIONOP_Disconnect";
+=======
+        DLOG(INFO) << "Session::remote side disconnected";
+>>>>>>> parent of 5bd772a... got rid of google log
 
         mStatus = SSTAT_Disconnecting;
         _processDisconnectPacket(packet);
@@ -690,6 +719,7 @@ void Session::HandleSessionPacket(Packet* packet)
     }
     else if (mInSequenceNext < sequence)
     {
+<<<<<<< HEAD
 		out_of_order = true;
         
         //were missing something
@@ -707,6 +737,108 @@ void Session::HandleSessionPacket(Packet* packet)
         _addOutgoingUnreliablePacket(orderPacket);
         
         mPacketFactory->DestroyPacket(packet);
+=======
+        //last line of defense synchronization
+        if(sequence > (mInSequenceNext+50))
+        {
+            mInSequenceNext = sequence;
+            SortSessionPacket(packet,packetType);
+            return;
+        }
+
+        mOutOfOrderPackets.push_back(packet);
+
+        uint32 itCount = 0;
+        PacketWindowList::iterator ooopsIt = mOutOfOrderPackets.begin();
+
+        while(ooopsIt != mOutOfOrderPackets.end())
+        {
+            itCount++;
+
+            if(itCount > 10)
+                break;
+
+            Packet* ooopsPacket = (*ooopsIt);
+            ooopsPacket->setReadIndex(2);
+            uint16 ooopsSequence = ntohs(ooopsPacket->getUint16());
+
+            if(ooopsSequence == mInSequenceNext)
+            {
+                DLOG(INFO) << "Use stored packet - sequence " << ooopsSequence;
+                HandleSessionPacket(ooopsPacket);
+                mOutOfOrderPackets.erase(ooopsIt++);
+            }
+            else if(ooopsSequence < mInSequenceNext)
+            {
+                DLOG(INFO) << "Destroy stored packet - sequence "<< ooopsSequence;
+                mPacketFactory->DestroyPacket(ooopsPacket);
+                mOutOfOrderPackets.erase(ooopsIt++);
+            }
+            else
+            {
+                DLOG(INFO) <<  "Ignore stored packet - sequence " << ooopsSequence;
+                ooopsIt++;
+            }
+        }
+
+        //were missing something
+		DLOG(INFO) << "Handle Session Packet :: Incoming data - seq: " << sequence << "expect: " << mInSequenceNext
+		<< "Session:0x"<< mService->getId() << getId() << "4x";
+
+        switch(packetType )
+        {
+        case SESSIONOP_DataFrag1:
+        case SESSIONOP_DataChannel1:
+        {
+            Packet* orderPacket;
+            orderPacket = mPacketFactory->CreatePacket();
+            orderPacket->addUint16(SESSIONOP_DataOrder1);
+            orderPacket->addUint16(htons(sequence));
+            orderPacket->setIsCompressed(false);
+            orderPacket->setIsEncrypted(true);
+
+            _addOutgoingUnreliablePacket(orderPacket);
+
+
+        }
+        break;
+
+        case SESSIONOP_DataFrag2:
+        case SESSIONOP_DataChannel2:
+        {
+            Packet* orderPacket;
+            orderPacket = mPacketFactory->CreatePacket();
+            orderPacket->addUint16(SESSIONOP_DataOrder2);
+            orderPacket->addUint16(htons(sequence));
+            orderPacket->addUint16(htons(mInSequenceNext));
+            orderPacket->setIsCompressed(false);
+            orderPacket->setIsEncrypted(true);
+
+            _addOutgoingUnreliablePacket(orderPacket);
+
+        }
+        break;
+
+        default:
+        {
+            DLOG(INFO) << "HandleSessionPacket :: wanted to send Out-of-Order packet - Sequence: " << sequence 
+			<< " Service " << mService->getId() <<" Session:0x" << getId();
+            Packet* orderPacket;
+            orderPacket = mPacketFactory->CreatePacket();
+            orderPacket->addUint16(SESSIONOP_DataOrder2);
+            orderPacket->addUint16(htons(sequence));
+            orderPacket->addUint16(htons(mInSequenceNext));
+            orderPacket->setIsCompressed(false);
+            orderPacket->setIsEncrypted(true);
+
+            _addOutgoingUnreliablePacket(orderPacket);
+
+            //mPacketFactory->DestroyPacket(packet);
+            return;
+        }
+        }
+        //mPacketFactory->DestroyPacket(packet);
+>>>>>>> parent of 5bd772a... got rid of google log
         return;
 
     }
@@ -714,6 +846,36 @@ void Session::HandleSessionPacket(Packet* packet)
     {
         mPacketFactory->DestroyPacket(packet);
     }
+<<<<<<< HEAD
+=======
+
+    if(mOutOfOrderPackets.size() > 50)
+    {
+        LOG(INFO) <<  "Stored packet count > 50! " <<  mOutOfOrderPackets.size();
+
+        PacketWindowList::iterator ooopsIt = mOutOfOrderPackets.begin();
+
+        uint32 itCount = 0;
+        while(ooopsIt != mOutOfOrderPackets.end())
+        {
+            itCount++;
+
+            if(itCount > 10)
+                break;
+
+            Packet* ooopsPacket = (*ooopsIt);
+            ooopsPacket->setReadIndex(2);
+            uint16 ooopsSequence = ntohs(ooopsPacket->getUint16());
+
+            if(ooopsSequence > (mInSequenceNext+20))
+            {
+                mPacketFactory->DestroyPacket(ooopsPacket);
+                mOutOfOrderPackets.erase(ooopsIt++);
+            }
+
+        }
+    }
+>>>>>>> parent of 5bd772a... got rid of google log
 }
 
 
@@ -1175,7 +1337,7 @@ void Session::_processDataChannelAck(Packet* packet)
         else if((sequence < (0xFFFF - (mRolloverWindowPacketList.size()+mNewRolloverWindowPacketList.size()))))
         {
 
-			DLOG(info) << "Data Channel Ack Rollover complete. Windowsize " << mWindowSizeCurrent <<  " ack seq new queue " << sequence;
+			DLOG(INFO) << "Data Channel Ack Rollover complete. Windowsize " << mWindowSizeCurrent <<  " ack seq new queue " << sequence;
             mLastRemotePacketAckReceived = Anh_Utils::Clock::getSingleton()->getLocalTime();
 
             mOutSequenceRollover = false;
@@ -1234,7 +1396,7 @@ void Session::_processDataChannelAck(Packet* packet)
                     // If the list is empty, break out
                     if(mRolloverWindowPacketList.size() == 0)
                     {
-                        DLOG(info) << "Data Channel Ack Rollover complete. Windowsize " << mWindowSizeCurrent <<  " ack seq new queue " << sequence;
+                        DLOG(INFO) << "Data Channel Ack Rollover complete. Windowsize " << mWindowSizeCurrent <<  " ack seq new queue " << sequence;
                         windowPacket = 0;
                         windowPacketSequence = 0;
 
@@ -1257,7 +1419,7 @@ void Session::_processDataChannelAck(Packet* packet)
             }//if(sequence < windowPacketSequence)
 
             mPacketFactory->DestroyPacket(packet);
-            DLOG(info) << "Data Channel Ack Rollover complete. Windowsize " << mWindowSizeCurrent <<  " ack seq new queue " << sequence;
+            DLOG(INFO) << "Data Channel Ack Rollover complete. Windowsize " << mWindowSizeCurrent <<  " ack seq new queue " << sequence;
 
             return;
         }//else if(sequence < 0xFFFF - mRolloverWindowPacketList.size())
@@ -1345,12 +1507,17 @@ void Session::_processDataOrderPacket(Packet* packet)
     uint16 windowSequence = ntohs(windowPacket->getUint16());
 
 
+<<<<<<< HEAD
     LOG(warning) << "Out-Of-order packet session 0x"<< mService->getId() << mId <<" OOOPacket had  sequence: " << sequence <<" windowsequ : " << windowSequence;
 	LOG(warning) << "";
+=======
+    LOG(WARNING) << "Out-Of-order packet session 0x"<< mService->getId() << mId <<" seq: " << sequence <<" windowsequ : " << windowSequence;
+>>>>>>> parent of 5bd772a... got rid of google log
 
     //Do some bounds checking
     if (sequence < windowSequence)
     {
+<<<<<<< HEAD
         LOG(warning) << "Out-Of-Order packet sequence too small, may be a duplicate or we handled our acks wrong.  seq: " << sequence << ", expect >: " << windowSequence;
 		mPacketFactory->DestroyPacket(packet);
         return;
@@ -1359,6 +1526,15 @@ void Session::_processDataOrderPacket(Packet* packet)
     if (sequence > windowSequence + mWindowPacketList.size())    {
         LOG(warning) << "Rollover Out-Of-Order packet  seq: " << sequence << ", expect >: " << windowSequence;
 		mPacketFactory->DestroyPacket(packet);
+=======
+        LOG(WARNING) << "Out-Of-Order packet sequence too small, may be a duplicate or we handled our acks wrong.  seq: " << sequence << ", expect >: " << windowSequence;
+
+    }
+
+    if (sequence > windowSequence + mWindowPacketList.size())    {
+        LOG(WARNING) << "Rollover Out-Of-Order packet  seq: " << sequence << ", expect >: " << windowSequence;
+
+>>>>>>> parent of 5bd772a... got rid of google log
         return;
     }
 
@@ -1531,6 +1707,122 @@ void Session::_resendData()
 
 
 //======================================================================================================================
+<<<<<<< HEAD
+=======
+void Session::_processDataOrderChannelB(Packet* packet)
+{
+    boost::recursive_mutex::scoped_lock lk(mSessionMutex);//
+
+    packet->setReadIndex(2);
+    uint16 sequence = ntohs(packet->getUint16());
+    uint16 bottomSequence = ntohs(packet->getUint16());
+
+    if(!mWindowPacketList.size())
+    {
+        mPacketFactory->DestroyPacket(packet);
+        return;
+    }
+
+    PacketWindowList::iterator iter = mWindowPacketList.begin();
+    PacketWindowList::iterator iterRoll = mRolloverWindowPacketList.begin();
+
+    Packet* windowPacket = *iter;
+    windowPacket->setReadIndex(2);
+    uint16 windowSequence = ntohs(windowPacket->getUint16());
+
+
+    LOG(WARNING) << "Out-Of-order packet session 0x"<< mService->getId() << mId <<" seq: " << sequence <<" windowsequ : " << windowSequence;
+
+    //Do some bounds checking
+    if (sequence < windowSequence)
+    {
+        LOG(WARNING) << "Out-Of-Order packet sequence too small, may be a duplicate or we handled our acks wrong.  seq: " << sequence << ", expect >: " << windowSequence;
+
+    }
+
+    if (sequence > windowSequence + mWindowPacketList.size())
+    {
+        LOG(WARNING) << "Rollover Out-Of-Order packet  seq: " << sequence << ", expect >: " << windowSequence;
+
+        return;
+    }
+
+    //The location of the packetsequence out of order has NOBEARING on the question on which list we will find the last properly received Packet!!!
+
+
+    if(mRolloverWindowPacketList.size()&& (sequence > (65535-mRolloverWindowPacketList.size())))
+    {
+        //jupp its on the rolloverlist
+        //mRolloverWindowPacketList and WindowPacketList get accessed by the socketwritethread and by the socketreadthread both through the session
+
+        for (iterRoll = mRolloverWindowPacketList.begin(); iterRoll != mWindowPacketList.end(); iterRoll++)
+        {
+            // Grab our window packet
+            windowPacket = (*iterRoll);
+            windowPacket->setReadIndex(2);
+            uint16 windowRollSequence = ntohs(windowPacket->getUint16());
+
+            // If it's smaller than the order packet send it, otherwise break;
+            if ((windowRollSequence < sequence) && (windowRollSequence >= bottomSequence))
+            {
+                //count++;
+                //if(count > 50)
+                //	break;
+
+                if(Anh_Utils::Clock::getSingleton()->getLocalTime() - windowPacket->getTimeOOHSent() < 200)
+                    break;
+
+                _addOutgoingReliablePacket(windowPacket);
+
+                windowPacket->setTimeOOHSent(Anh_Utils::Clock::getSingleton()->getLocalTime());
+
+                if (mWindowSizeCurrent > (mWindowResendSize/10))
+                    mWindowSizeCurrent--;
+
+            }
+        }
+
+    }
+
+    uint64 localTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
+    for (iter = mWindowPacketList.begin(); iter != mWindowPacketList.end(); iter++)
+    {
+        // boost::recursive_mutex::scoped_lock lk(mSessionMutex);
+        // Grab our window packet
+        windowPacket = (*iter);
+        windowPacket->setReadIndex(2);
+        windowPacket->getUint16(); // windowSequence
+
+        // If it's smaller than the order packet send it, otherwise break;
+        // do we want to throttle the amount of packets being send to 10 or 50 or 100 ???
+        // if we receive a sequence on the rolloverlist (65530 for example) we will
+        // always send ALL packets on the regular list - I dont anticipate a big deal here though!!!
+        if((windowPacket->getTimeOOHSent() == 0) || (localTime - windowPacket->getTimeOOHSent() > 200))
+        {
+
+            _addOutgoingReliablePacket(windowPacket);
+
+            windowPacket->setTimeOOHSent(Anh_Utils::Clock::getSingleton()->getLocalTime());
+
+            if (mWindowSizeCurrent > (mWindowResendSize/10))
+                mWindowSizeCurrent--;
+
+        }
+        else
+        {
+            mPacketFactory->DestroyPacket(packet);
+            return;
+        }
+    }
+
+
+    // Destroy our incoming packet, it's not needed any longer.
+    mPacketFactory->DestroyPacket(packet);
+}
+
+
+//======================================================================================================================
+>>>>>>> parent of 5bd772a... got rid of google log
 void Session::_processFragmentedPacket(Packet* packet)
 {
     packet->setReadIndex(2); //skip the header
@@ -1548,7 +1840,7 @@ void Session::_processFragmentedPacket(Packet* packet)
     if (sequence < mInSequenceNext)
     {
         // This is a duplicate packet that we've already recieved.
-        LOG(info) << "Duplicate Fragged Packet Recieved.  seq: " << sequence;
+        LOG(INFO) << "Duplicate Fragged Packet Recieved.  seq: " << sequence;
 
         // Destroy our incoming packet, it's not needed any longer.
         mPacketFactory->DestroyPacket(packet);
@@ -1556,7 +1848,7 @@ void Session::_processFragmentedPacket(Packet* packet)
     }
     else if (sequence > mInSequenceNext)
     {
-		LOG(info) << "Fragged packet received out of order - expect: " <<mInSequenceNext << " received: " << sequence;
+		LOG(INFO) << "Fragged packet received out of order - expect: " <<mInSequenceNext << " received: " << sequence;
 
         mPacketFactory->DestroyPacket(packet);
         return;
@@ -1582,7 +1874,7 @@ void Session::_processFragmentedPacket(Packet* packet)
         if (priority > 0x10)
         {
             // the packet has had a proper sequence .. otherwise we wouldnt be here ...
-           LOG(warning) << "Start incoming fragged packets - total: " << mFragmentedPacketTotalSize << " seq: " << sequence;
+           LOG(WARNING) << "Start incoming fragged packets - total: " << mFragmentedPacketTotalSize << " seq: " << sequence;
 
         }
 
@@ -1654,7 +1946,7 @@ void Session::_processFragmentedPacket(Packet* packet)
 
             if (priority > 0x10)
             {
-                LOG(info) << "Fragmented Packet priority messup!!!";
+                LOG(INFO) << "Fragmented Packet priority messup!!!";
                 return;
             }
 
@@ -1761,7 +2053,7 @@ void Session::_processRoutedFragmentedPacket(Packet* packet)
             if (priority > 0x10)
             {
 
-                LOG(info) << "Fragmented Packet priority messup!!!";
+                LOG(INFO) << "Fragmented Packet priority messup!!!";
                 return;
             }
 
@@ -1919,7 +2211,7 @@ void Session::_processConnectCommand(void)
         mStatus = SSTAT_Connecting;
         mConnectStartEvent = Anh_Utils::Clock::getSingleton()->getLocalTime();
         mLastConnectRequestSent = 0;
-        LOG(info) << "Attempting to make a connection at [" << mConnectStartEvent << "]";
+        LOG(INFO) << "Attempting to make a connection at [" << mConnectStartEvent << "]";
     }
 
     // Otherwise, see if we need to send another request packet, or if our timeout expired
@@ -1938,7 +2230,7 @@ void Session::_processConnectCommand(void)
             {
                 mLastConnectRequestSent = Anh_Utils::Clock::getSingleton()->getLocalTime();
 
-                LOG(info) << "Sending session request";
+                LOG(INFO) << "Sending session request";
 
                 // Build a session request packet and send it.
                 Packet* newPacket = mPacketFactory->CreatePacket();
@@ -1977,7 +2269,7 @@ void Session::_processDisconnectCommand(void)
 
     mService->AddSessionToProcessQueue(this);
 
-    DLOG(info) << "Disconnect Command added session to processqueue";
+    DLOG(INFO) << "Disconnect Command added session to processqueue";
 
     // Send out packet out.
     _addOutgoingUnreliablePacket(newPacket);
@@ -2560,7 +2852,7 @@ void Session::_buildUnreliableMultiDataPacket()
 void Session::_handleOutSequenceRollover()
 {
     //rollover of the packet sequence from 0xffff to 0
-    DLOG(info) << "Session Sequence Rollover queuesize " << mWindowPacketList.size() << " nextseqsent: " << mNextPacketSequenceSent << " Service " << mService->getId();
+    DLOG(INFO) << "Session Sequence Rollover queuesize " << mWindowPacketList.size() << " nextseqsent: " << mNextPacketSequenceSent << " Service " << mService->getId();
     mOutSequenceRollover = true;
 
     mRolloverWindowPacketList = mWindowPacketList;

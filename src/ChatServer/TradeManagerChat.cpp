@@ -31,7 +31,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "TradeManagerChat.h"
 #include "TradeManagerHelp.h"
 
+<<<<<<< HEAD
 #include "anh/logger.h"
+=======
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
@@ -244,7 +253,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
             player = (*accIt).second;
         else
         {
-            LOG(warning) << "Error getting player from account map " << asynContainer->mClient->getAccountId();
+            LOG(WARNING) << "Error getting player from account map " << asynContainer->mClient->getAccountId();
             return;
         }
     }
@@ -572,7 +581,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
         else
         {
             gChatMessageLib->sendCanceLiveAuctionResponseMessage(asynContainer->mClient, 1, asynContainer->AuctionID);
-            LOG(info) << "TradeManager::TRMQuery_CancelAuction::Aucction not found : " << asynContainer->AuctionID;
+            LOG(INFO) << "TradeManager::TRMQuery_CancelAuction::Aucction not found : " << asynContainer->AuctionID;
         }
     }
     break;
@@ -1051,7 +1060,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
     if(mBazaarsLoaded)
     {
         mBazaarsLoaded = false;
-        LOG(warning) << "Loaded bazaars";
+        LOG(WARNING) << "Loaded bazaars";
     }
 }
 

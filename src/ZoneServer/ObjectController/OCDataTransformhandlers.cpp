@@ -265,7 +265,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
                 cell->RemoveCreature(body_, body_);
             }
             else	{
-                DLOG(info) << "Error removing  " << player->getId() << " from cell " << oldParentId;
+                DLOG(INFO) << "Error removing  " << player->getId() << " from cell " << oldParentId;
             }
         }
         else	{
@@ -274,7 +274,12 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
             CellObject* newCell;
             newCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId));
             if (!newCell)	{
+<<<<<<< HEAD:src/ZoneServer/ObjectController/OCDataTransformhandlers.cpp
                 DLOG(info) << "Player " << body_->getId() << " error casting new cell cell " << parentId;
+=======
+                DLOG(INFO) << "Player " << player->getId() << " error casting new cell cell " << parentId;
+                assert(false);
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/OCDataTransformhandlers.cpp
                 return;
             }
 

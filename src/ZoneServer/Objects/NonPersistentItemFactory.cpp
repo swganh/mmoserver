@@ -28,7 +28,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Zoneserver/Objects/NonPersistentItemFactory.h"
 #include "anh/logger.h"
 
+<<<<<<< HEAD:src/ZoneServer/Objects/NonPersistentItemFactory.cpp
 #include "Zoneserver/Objects/Food.h"
+=======
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
+#include "Food.h"
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/NonPersistentItemFactory.cpp
 #include "ItemFactory.h"
 #include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
 #include "ZoneServer/WorldManager.h"
@@ -179,7 +188,7 @@ Item* NonPersistentItemFactory::_createItem(swganh::database::DatabaseResult* re
     default:
     {
         item = new Item();
-    	LOG(error) << "Created item for unknown family [" << itemIdentifier.mFamilyId << "]";
+    	LOG(ERROR) << "Created item for unknown family [" << itemIdentifier.mFamilyId << "]";
     }
     break;
     }

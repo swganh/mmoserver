@@ -33,8 +33,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "MessageLib/MessageLib.h"
 
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
 
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/AdminManager.cpp
 #include "anh/logger.h"
+=======
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/AdminManager.cpp
 
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageDispatch.h"
@@ -201,7 +209,7 @@ void AdminManager::addAdminRequest(uint64 requestType, std::u16string message, i
     {
         if (timeToFirstEvent > 0)
         {
-            LOG(warning) << "Admin Manager: You have to wait %d seconds until first announcement" << timeToFirstEvent;
+            LOG(WARNING) << "Admin Manager: You have to wait %d seconds until first announcement" << timeToFirstEvent;
         }
         mAdminRequests.insert(std::make_pair(requestType, requestObject));
         gWorldManager->addAdminRequest(requestType, (uint64)(timeToFirstEvent * 1000));
@@ -298,9 +306,17 @@ uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
             std::string broadcast(rawData);
             std::string optReason(((*adminRequestIterator).second)->mReason.getAnsi());
 
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/AdminManager.cpp
             
             LOG(warning) << "Admin Scheduled Shutdown" << optReason;
             LOG(warning) << broadcast;
+=======
+            if (optReason.getLength())
+            {
+                LOG(WARNING) << optReason.getAnsi();
+            }
+            LOG(WARNING) << broadcast.getAnsi();
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/AdminManager.cpp
 
             // For logging, we need ansi versions.
             std::u16string OptReason_u16(optReason.begin(), optReason.end());

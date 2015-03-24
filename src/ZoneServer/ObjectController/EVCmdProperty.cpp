@@ -29,7 +29,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Zoneserver/ObjectController/ObjectController.h"
 #include "ZoneServer/ObjectController/ObjectControllerCommandMap.h"
 
+<<<<<<< HEAD:src/ZoneServer/ObjectController/EVCmdProperty.cpp
 #include "anh/logger.h"
+=======
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/EVCmdProperty.cpp
 
 EVCmdProperty::EVCmdProperty(ObjectController* controller)
     : EnqueueValidator(controller)
@@ -47,7 +56,7 @@ bool EVCmdProperty::validate(uint32 &reply1,uint32 &reply2,uint64 targetId,uint3
     {
         // don't want to parse the annoying error, lets log it though
         // @todo find root cause of why command isn't in the map
-        DLOG(info) <<  "Unknown command found " << opcode;
+        DLOG(INFO) <<  "Unknown command found " << opcode;
         reply1 = 0;
         reply2 = 1;
 

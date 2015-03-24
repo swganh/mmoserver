@@ -75,9 +75,16 @@ void UIListBox::handleEvent(Message* message)
     {
 		
         message->getUint32(); // item count again
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/UI Manager/UIListBox.cpp
         selectedDataItemStr = message->getStringUnicode16();
 		std::string selection_ansi(selectedDataItemStr.begin(), selectedDataItemStr.end());
 		selectedItem = boost::lexical_cast<int32, std::string>(selection_ansi);
+=======
+        message->getStringUnicode16(selectedDataItemStr);
+
+        if(swscanf(selectedDataItemStr.getUnicode16(),L"%i",&selectedItem) != 1)
+            DLOG(INFO) << "UIListBox::handleEvent: item mismatch";
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/UIListBox.cpp
 
         if(items >= 2)
             message->getStringUnicode16(caption);

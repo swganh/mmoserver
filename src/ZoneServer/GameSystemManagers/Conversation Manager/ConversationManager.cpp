@@ -27,8 +27,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer/GameSystemManagers/Conversation Manager/ConversationManager.h"
 
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Conversation Manager/ConversationManager.cpp
 
 #include "anh/logger.h"
+=======
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ConversationManager.cpp
 
 #include "ActiveConversation.h"
 #include "ZoneServer/GameSystemManagers/Conversation Manager/Conversation.h"
@@ -119,7 +126,11 @@ void ConversationManager::handleDatabaseJobComplete(void* ref, swganh::database:
             
         }
 
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Conversation Manager/ConversationManager.cpp
         LOG(info) << "Loaded " << count << " conversations";
+=======
+        LOG_IF(INFO, count) << "Loaded " << count << " conversations";
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/ConversationManager.cpp
 
         mDatabase->destroyDataBinding(binding);
     }
@@ -327,7 +338,7 @@ void ConversationManager::updateConversation(uint32 selectId,PlayerObject* playe
 
     if(!av)
     {
-    	LOG(error) << "Could not find conversation intended for player [" << player->getId() << "]";
+    	LOG(ERROR) << "Could not find conversation intended for player [" << player->getId() << "]";
         return;
     }
 

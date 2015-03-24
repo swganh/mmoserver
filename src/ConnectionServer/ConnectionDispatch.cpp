@@ -30,7 +30,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/Session.h"
 #include "NetworkManager/Message.h"
 
+<<<<<<< HEAD
 #include "anh/logger.h"
+=======
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log
 
 #include <stdio.h>
 
@@ -99,7 +108,7 @@ void ConnectionDispatch::handleIncomingMessage(ConnectionClient* client, Message
     }
     else
     {
-        LOG(info) << "Unhandled opcode in ConnectionDispatch - " << opcode;
+        LOG(INFO) << "Unhandled opcode in ConnectionDispatch - " << opcode;
     }
 
     // Delete our message

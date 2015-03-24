@@ -26,8 +26,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "ZoneServer/WorldConfig.h"
 
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/UI Manager/UIManager.cpp
 #include "anh/logger.h"
 #include "anh/Utils/rand.h"
+=======
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/UIManager.cpp
 
 #include "Common/atMacroString.h"
 
@@ -54,7 +58,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageFactory.h"
 
 
-
+#ifdef WIN32
+#undef ERROR
+#endif
 //======================================================================================================================
 
 bool		UIManager::mInsFlag		= false;
@@ -130,7 +136,7 @@ void UIManager::_processEventNotification(Message* message,DispatchClient* clien
 
     if(window == NULL)
     {
-    	LOG(error) << "Could not find window [" << windowId << "]";
+    	LOG(ERROR) << "Could not find window [" << windowId << "]";
         return;
     }
 
@@ -349,7 +355,7 @@ void UIManager::destroyUIWindow(uint32 id,bool sendForceClose)
         mUIWindows.erase(it);
     }
     else
-    	LOG(error) << "Could not find window [" << id << "]";
+    	LOG(ERROR) << "Could not find window [" << id << "]";
 }
 
 //======================================================================================================================

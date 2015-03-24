@@ -62,11 +62,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //
 bool SpatialIndexManager::sendCreateObject(Object* object,PlayerObject* player)
 {
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Spatial Index Manager/SpatialIndexMessagingServices.cpp
     //DLOG(info) << "SpatialIndexManager::sendCreateObject: create :" << object->getId() << "for :" << player->getId();
 	
+=======
+    //DLOG(INFO) << "SpatialIndexManager::sendCreateObject: create :" << object->getId() << "for :" << player->getId();
+
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/SpatialIndexMessagingServices.cpp
     if(!object)
     {
-        DLOG(info) << "Attempting sendCreateObject on an invalid object instance";
+        DLOG(INFO) << "Attempting sendCreateObject on an invalid object instance";
         return false;
     }
 
@@ -171,8 +176,12 @@ bool SpatialIndexManager::sendCreateObject(Object* object,PlayerObject* player)
     // unknown types
     default:
     {
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Spatial Index Manager/SpatialIndexMessagingServices.cpp
         DLOG(info) << "MessageLib::createObject: Unhandled object type: " << object->getType();
 		return false;
+=======
+        DLOG(INFO) << "MessageLib::createObject: Unhandled object type: " << object->getType();
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/SpatialIndexMessagingServices.cpp
     }
     break;
     }
@@ -215,7 +224,7 @@ bool SpatialIndexManager::sendCreateTangible(TangibleObject* tangibleObject,Play
     	TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
     	if(!tO)
     	{
-    		DLOG(info) << "Unable to find object with ID " << (*it);
+    		DLOG(INFO) << "Unable to find object with ID " << (*it);
     		it++;
     		continue;
     	}
@@ -427,6 +436,109 @@ bool SpatialIndexManager::sendCreatePlayer(PlayerObject* playerObject,PlayerObje
     return(true);
 }
 
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Spatial Index Manager/SpatialIndexMessagingServices.cpp
+=======
+//======================================================================================================================
+//
+// create the inventory contents for its owner
+//
+void SpatialIndexManager::sendInventory(PlayerObject* playerObject)
+{
+
+    Inventory*	inventory	= playerObject->getInventory();
+
+    //to stop the server from crashing.
+    if(!inventory)
+    {
+        assert(false && "SpatialIndexManager::sendInventory cannot find inventory");
+        return;
+    }
+
+    inventory->setTypeOptions(256);
+
+    //todo - just use sendcreate tangible and have it send the children, too!!!!
+
+    // create the inventory
+    gMessageLib->sendCreateObjectByCRC(inventory,playerObject,false);
+    gMessageLib->sendContainmentMessage(inventory->getId(),inventory->getParentId(),4,playerObject);
+    gMessageLib->sendBaselinesTANO_3(inventory,playerObject);
+    gMessageLib->sendBaselinesTANO_6(inventory,playerObject);
+
+    gMessageLib->sendEndBaselines(inventory->getId(),playerObject);
+
+    // create objects contained *always* even if already registered
+    // register them as necessary
+    // please note that they need to be created even if already registered (client requirement)
+    inventory->registerStatic(playerObject);
+    playerObject-> registerStatic(inventory);
+
+    ObjectIDList* invObjects		= inventory->getObjects();
+    ObjectIDList::iterator objIt	= invObjects->begin();
+
+    while(objIt != invObjects->end()) 
+    {
+        Object* object = gWorldManager->getObjectById((*objIt));
+        if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(object))
+        {
+            sendCreateTangible(tangible,playerObject);
+            
+			//TODO make this static as its si independent??
+            gContainerManager->registerPlayerToContainer(tangible,playerObject);//eventually move the registration to the factory ???
+        }
+
+        //sendCreateObject(object,playerObject,false);
+        ++objIt;
+    }
+
+    //creating the equipped Objects isnt technically part of the inventory ...
+    ObjectList* invEquippedObjects		= playerObject->getEquipManager()->getEquippedObjects();
+    ObjectList::iterator objEIt			= invEquippedObjects->begin();
+
+    while(objEIt != invEquippedObjects->end())
+    {
+        if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(*objEIt))
+        {
+            sendCreateTangible(tangible,playerObject);
+            //TODO make this static as its si independent ???
+            gContainerManager->registerPlayerToContainer(tangible,playerObject);//eventually move the registration to the factory
+        }
+
+        ++objEIt;
+    }
+
+}
+
+//======================================================================================================================
+//
+// send creates of the equipped items from player to player
+// iterates all inventory items of the source and sends creates to the target
+//
+bool SpatialIndexManager::sendEquippedItems(PlayerObject* srcObject,PlayerObject* targetObject)
+{
+    ObjectList*				invObjects		= srcObject->getEquipManager()->getEquippedObjects();
+    ObjectList::iterator	invObjectsIt	= invObjects->begin();
+
+    while(invObjectsIt != invObjects->end())
+    {
+        // items
+        if(Item* item = dynamic_cast<Item*>(*invObjectsIt))
+        {
+            if(item->getParentId() == srcObject->getId())
+            {
+                sendCreateTangible(item,targetObject);
+            }
+            else
+            {
+                DLOG(INFO) << "MessageLib send equipped objects: Its not equipped ... " << item->getId();
+            }
+        }
+
+        ++invObjectsIt;
+    }
+
+    return(true);
+}
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/SpatialIndexMessagingServices.cpp
 
 //======================================================================================================================
 //
@@ -457,7 +569,7 @@ bool SpatialIndexManager::sendCreateFactoryCrate(FactoryCrate* crate,PlayerObjec
         TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
         if(!tO)
         {
-            DLOG(info) << "Unable to find object with ID " <<  (*it);
+            DLOG(INFO) << "Unable to find object with ID " <<  (*it);
             continue;
         }
 

@@ -34,7 +34,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cassert>
 #include <cstring>
 
+<<<<<<< HEAD
 #include "anh/logger.h"
+=======
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log
 
 // TODO: There is no bounds checking on the heap yet.
 //======================================================================================================================
@@ -179,7 +188,7 @@ Message* MessageFactory::EndMessage(void)
     if(mCurrentUsed > mHeapWarnLevel)
     {
         mHeapWarnLevel = static_cast<float>(mCurrentUsed+1.2);
-        LOG(warning) << "MessageFactory Heap at " << mCurrentUsed;
+        LOG(WARNING) << "MessageFactory Heap at " << mCurrentUsed;
     } else if (((mCurrentUsed+2.2) < mHeapWarnLevel) && mHeapWarnLevel > 80.0)
         mHeapWarnLevel = mCurrentUsed;
 	*/
@@ -485,7 +494,11 @@ void MessageFactory::_processGarbageCollection(void)
     if(mCurrentUsed > mHeapWarnLevel)
     {
         mHeapWarnLevel = static_cast<float>(mCurrentUsed+1.2);
+<<<<<<< HEAD
         LOG(warning) << "MessageFactory::_processGarbageCollection MessageFactory Heap at " << mCurrentUsed;
+=======
+        LOG(WARNING) << "MessageFactory Heap at " << mCurrentUsed;
+>>>>>>> parent of 5bd772a... got rid of google log
     } else if (((mCurrentUsed+2.2) < mHeapWarnLevel) && mHeapWarnLevel > 80.0)
         mHeapWarnLevel = mCurrentUsed;
 
@@ -541,25 +554,53 @@ void MessageFactory::_processGarbageCollection(void)
                 further = false;
                 if (!message->mLogged)
                 {
+<<<<<<< HEAD
                     LOG(warning) <<  "MessageFactory::_processGarbageCollection Garbage Collection found a new stuck message! Message age : " 
 						<< ( uint32((Anh_Utils::Clock::getSingleton()->getStoredTime() - message->getCreateTime())/1000))
 						<< " seconds";
 
                     message->mLogged = true;
                     message->mLogTime = Anh_Utils::Clock::getSingleton()->getStoredTime();    
+=======
+                    LOG(WARNING) <<  "Garbage Collection found a new stuck message!"
+                        << " : " << ( uint32((Anh_Utils::Clock::getSingleton()->getStoredTime() - message->getCreateTime())/1000));
+
+                    message->mLogged = true;
+                    message->mLogTime = Anh_Utils::Clock::getSingleton()->getStoredTime();
+
+                    Session* session = (Session*)message->mSession;
+
+                    if(!session)
+                    {
+                        LOG(INFO) << "Packet is Sessionless.";
+                        message->setPendingDelete(true);
+                    }
+                    else if(session->getStatus() > SSTAT_Disconnected || session->getStatus() == SSTAT_Disconnecting)
+                    {
+                        LOG(INFO) << "Session is about to be destroyed.";
+                    }
+>>>>>>> parent of 5bd772a... got rid of google log
                 }
 
                 Session* session = (Session*)message->mSession;
 
                 if(!session)
                 {
+<<<<<<< HEAD
                     LOG(info) << "MessageFactory::_processGarbageCollection Garbage Collection found sessionless packet";
+=======
+                    LOG(INFO) << "Garbage Collection found sessionless packet";
+>>>>>>> parent of 5bd772a... got rid of google log
                     message->setPendingDelete(true);
 					return;
                 }
                 else if(Anh_Utils::Clock::getSingleton()->getStoredTime() >(message->mLogTime +10000))
                 {
+<<<<<<< HEAD
                     LOG(warning) << "MessageFactory::_processGarbageCollection Garbage Collection found an old stuck message!"
+=======
+                    LOG(WARNING) << "Garbage Collection found a old stuck message!"
+>>>>>>> parent of 5bd772a... got rid of google log
                     << "age : "<< (uint32((Anh_Utils::Clock::getSingleton()->getStoredTime() - message->getCreateTime())/1000))
                     << "Session status : " << session->getStatus();
                     message->mLogTime  = Anh_Utils::Clock::getSingleton()->getStoredTime();
@@ -567,6 +608,7 @@ void MessageFactory::_processGarbageCollection(void)
                 }
                 else if(Anh_Utils::Clock::getSingleton()->getStoredTime() - message->getCreateTime() > MESSAGE_MAX_LIFE_TIME*2)
                 {
+<<<<<<< HEAD
 
                     // make sure that the status is not set again from Destroy to Disconnecting
                     // otherwise we wont ever get rid of that session
@@ -574,6 +616,28 @@ void MessageFactory::_processGarbageCollection(void)
                     {
                         session->setCommand(SCOM_Disconnect);
                         LOG(warning) << "MessageFactory::_processGarbageCollection : Garbage Collection Message Heap Time out. Destroying Session";
+=======
+                    if(session)
+                    {
+                        // make sure that the status is not set again from Destroy to Disconnecting
+                        // otherwise we wont ever get rid of that session
+                        if(session->getStatus() < SSTAT_Disconnecting)
+                        {
+                            session->setCommand(SCOM_Disconnect);
+                            LOG(WARNING) << "Garbage Collection Message Heap Time out. Destroying Session";
+                        }
+                        if(session->getStatus() == SSTAT_Destroy)
+                        {
+                            LOG(WARNING) << "Garbage Collection Message Heap Time out. Session about to Destroyed.";
+                        }
+                        return;
+                    }
+                    else
+                    {
+                        message->setPendingDelete(true);
+                        LOG(WARNING) << "Garbage Collection Message Heap Time out. Session Already Destroyed. Tagged Message as Deletable.";
+                        return;
+>>>>>>> parent of 5bd772a... got rid of google log
                     }
                      if(session->getStatus() == SSTAT_Destroy)
                      {
@@ -635,7 +699,7 @@ void MessageFactory::_adjustHeapStartBounds(uint32 size)
 
         mCurrentMessage->setData(mMessageHeap + sizeof(Message));
 
-       LOG(warning)<< "Heap Rollover Service " << mServiceId << "STATS: MessageHeap - size:"
+       LOG(WARNING)<< "Heap Rollover Service " << mServiceId << "STATS: MessageHeap - size:"
         << heapSize << " maxUsed: " << mMaxHeapUsedPercent <<", created: " << mMessagesCreated <<", destroyed: " << mMessagesDestroyed;
     }
 }
@@ -678,7 +742,7 @@ void MessageFactory::_adjustMessageStart(uint32 size)
 
         //mCurrentMessage->setData(mMessageHeap + sizeof(Message));
 
-        LOG(warning)<< "Heap Rollover Service " << mServiceId << "STATS: MessageHeap - size:"
+        LOG(WARNING)<< "Heap Rollover Service " << mServiceId << "STATS: MessageHeap - size:"
         << heapSize << " maxUsed: " << mMaxHeapUsedPercent <<", created: " << mMessagesCreated <<", destroyed: " << mMessagesDestroyed;
     }
 }

@@ -122,7 +122,7 @@ TangibleObject* FireworkManager::createFirework(uint32 typeId, PlayerObject* pla
 
 	default:
 		{
-			DLOG(warning) << "Error creating firework, type:" << typeId;
+			DLOG(WARNING) << "Error creating firework, type:" << typeId;
 			return NULL;
 		}
 	}

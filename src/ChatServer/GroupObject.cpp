@@ -36,9 +36,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "GroupManager.h"
 #include "GroupObject.h"
 
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
 
+<<<<<<< HEAD
 
 #include "anh/logger.h"
+=======
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log
 
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/Message.h"
@@ -68,7 +76,7 @@ GroupObject::GroupObject(Player* leader, uint64 groupId)
 
     mMembers.push_back(leader);
 
-	DLOG(info) << "New group created by "<<leader->getName().getAnsi() << " with id " << groupId;
+	DLOG(INFO) << "New group created by "<<leader->getName().getAnsi() << " with id " << groupId;
 }
 
 
@@ -80,9 +88,9 @@ GroupObject::~GroupObject()
     {
         gChatManager->unregisterChannel(mChannel);
         delete mChannel;
-        DLOG(info) << "Group Channel destroyed.";
+        DLOG(INFO) << "Group Channel destroyed.";
     }
-    DLOG(info)<< "Group destroyed.";
+    DLOG(INFO)<< "Group destroyed.";
 }
 
 //======================================================================================================================
@@ -334,7 +342,7 @@ void GroupObject::createChannel()
     swprintf(temp,64,L"%"WidePRIu64, mId);
     channel->setTitle(temp);
 
-	DLOG(info)  << "Group channel created: " << channel->getName().getAnsi() << " with id " << channel->getId();
+	DLOG(INFO)  << "Group channel created: " << channel->getName().getAnsi() << " with id " << channel->getId();
     channel->setOwner(gSystemAvatar);
     mChannel = channel;
     gChatManager->registerChannel(mChannel);

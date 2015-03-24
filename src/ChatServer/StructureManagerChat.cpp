@@ -32,7 +32,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer/Objects/Tangible Object/TangibleEnums.h"
 
+<<<<<<< HEAD
 #include "anh/logger.h"
+=======
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
@@ -456,7 +465,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
         if(exitCode == 3)
         {
             //unspecified db error
-            LOG(warning) << "StructureManagerChat::HarvesterPowerUsage "<< asynContainer->harvesterID <<" unspecified db error" ;
+            LOG(WARNING) << "StructureManagerChat::HarvesterPowerUsage "<< asynContainer->harvesterID <<" unspecified db error" ;
         }
 
 
@@ -529,17 +538,17 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
             if(exitCode == 1)
             {
                 //resource never existed in the first place
-				DLOG(info) << "StructureMabagerChat::Harvester "<<asynContainer->harvesterID << " hopper full";
+				DLOG(INFO ) << "StructureMabagerChat::Harvester "<<asynContainer->harvesterID << " hopper full";
             }
             if(exitCode == 2)
             {
                 //resource never existed in the first place
-                DLOG(info) << "StructureMabagerChat::Harvester "<< asynContainer->harvesterID << " resourcechange";
+                DLOG(INFO) << "StructureMabagerChat::Harvester "<< asynContainer->harvesterID << " resourcechange";
             }
             if(exitCode == 3)
             {
                 //resource never existed in the first place
-               DLOG(info) << "StructureMabagerChat::Harvester "<< asynContainer->harvesterID <<" harvested an invalid resource";
+               DLOG(INFO) << "StructureMabagerChat::Harvester "<< asynContainer->harvesterID <<" harvested an invalid resource";
             }
 
         }

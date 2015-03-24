@@ -26,6 +26,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "CharSheetManager.h"
 
+<<<<<<< HEAD
+=======
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log
 
 #include "anh/logger.h"
 
@@ -144,7 +151,7 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, swganh::database::Da
             mvFactions.push_back(BString(name.getAnsi()));
         }
 
-        //LOG(info) << "Loaded " << count << " factions";
+        LOG_IF(INFO, count) << "Loaded " << count << " factions";
 
         mDatabase->destroyDataBinding(binding);
 
@@ -168,7 +175,7 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, swganh::database::Da
             mvBadgeCategories.push_back(BString(name.getAnsi()));
         }
 
-        //LOG(info) << "Loaded " << count << " badge categories";
+        LOG_IF(INFO, count) << "Loaded " << count << " badge categories";
 
         mDatabase->destroyDataBinding(binding);
 
@@ -198,7 +205,7 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, swganh::database::Da
             mvBadges.push_back(badge);
         }
 
-        //LOG(info) << "Loaded " << count << " badges";
+        LOG_IF(INFO, count) << "Loaded " << count << " badges";
 
         mDatabase->destroyDataBinding(binding);
         //gLogger->log(LogManager::DEBUG,"Finished Loading Badges.");
@@ -218,8 +225,14 @@ void CharSheetManager::_processFactionRequest(Message* message,DispatchClient* c
 {
     PlayerObject* player = gWorldManager->getPlayerByAccId(client->getAccountId());
 
+<<<<<<< HEAD
     if(player == NULL)    {
         DLOG(info) << "CharSheetManager::_processFactionRequest: could not find player " << client->getAccountId();
+=======
+    if(player == NULL)
+    {
+        DLOG(INFO) << "CharSheetManager::_processFactionRequest: could not find player " << client->getAccountId();
+>>>>>>> parent of 5bd772a... got rid of google log
         return;
     }
 
@@ -263,8 +276,14 @@ void CharSheetManager::_processPlayerMoneyRequest(Message* message,DispatchClien
 {
     PlayerObject* player = gWorldManager->getPlayerByAccId(client->getAccountId());
 
+<<<<<<< HEAD
     if(player == NULL)    {
         DLOG(info) << "CharSheetManager::_processPlayerMoneyRequest: could not find player " << client->getAccountId();
+=======
+    if(player == NULL)
+    {
+        DLOG(INFO) << "CharSheetManager::_processPlayerMoneyRequest: could not find player " << client->getAccountId();
+>>>>>>> parent of 5bd772a... got rid of google log
         return;
     }
 

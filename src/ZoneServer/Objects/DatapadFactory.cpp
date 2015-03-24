@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "DatapadFactory.h"
 
+<<<<<<< HEAD:src/ZoneServer/Objects/DatapadFactory.cpp
 #include "anh/logger.h"
 
 #include "Zoneserver/Objects/Datapad.h"
@@ -45,6 +46,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/GameSystemManagers/Crafting Manager/ManufacturingSchematic.h"
 
 #include "ZoneServer/WorldManager.h"
+=======
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
+#include "Datapad.h"
+#include "IntangibleObject.h"
+#include "PlayerObject.h"
+#include "Item.h"
+#include "ManufacturingSchematic.h"
+#include "ObjectFactoryCallback.h"
+#include "TangibleFactory.h"
+#include "VehicleControllerFactory.h"
+#include "WaypointFactory.h"
+#include "WaypointObject.h"
+#include "WorldManager.h"
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/DatapadFactory.cpp
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -191,8 +210,12 @@ void DatapadFactory::handleDatabaseJobComplete(void* ref,swganh::database::Datab
         if(!player)
         {
             //factoryPanic!!!!!!!!
+<<<<<<< HEAD:src/ZoneServer/Objects/DatapadFactory.cpp
         	LOG(warning) << "DatapadFactory::handleDatabaseJobComplete Failed getting player to create MS";
 			mQueryContainerPool.free(asyncContainer);
+=======
+        	LOG(WARNING) << "Failed getting player to create MS";
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/DatapadFactory.cpp
             return;
         }
 
@@ -201,8 +224,12 @@ void DatapadFactory::handleDatabaseJobComplete(void* ref,swganh::database::Datab
         if(!datapad)
         {
             //factoryPanic!!!!!!!!
+<<<<<<< HEAD:src/ZoneServer/Objects/DatapadFactory.cpp
         	LOG(error) << "DatapadFactory::handleDatabaseJobComplete Failed getting datapad to create Manufacturing Schematic";
 			mQueryContainerPool.free(asyncContainer);
+=======
+        	LOG(ERROR) << "Failed getting datapad to create MS";
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/DatapadFactory.cpp
             return;
         }
         mObjectLoadMap.insert(std::make_pair(datapad->getId(),new(mILCPool.ordered_malloc()) InLoadingContainer(datapad,datapad,NULL,1)));
@@ -395,7 +422,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 
             if(!mIlc)
             {
-            	LOG(warning) << "Failed getting ilc during ObjType_Tangible where ItemType_ManSchematic";
+            	LOG(WARNING) << "Failed getting ilc during ObjType_Tangible where ItemType_ManSchematic";
                 return;
             }
 
@@ -427,7 +454,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
             InLoadingContainer*mIlcDPad		= _getObject(id);
             if(!mIlcDPad)
             {
-            	LOG(warning) << "Failed getting mIlcDPad during ObjType_Tangible";
+            	LOG(WARNING) << "Failed getting mIlcDPad during ObjType_Tangible";
                 return;
             }
             datapad							= dynamic_cast<Datapad*>(mIlcDPad->mObject);
@@ -440,7 +467,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 
             if(!mIlc)
             {
-            	LOG(warning) << "Failed getting ilc during ObjType_Tangible";
+            	LOG(WARNING) << "Failed getting ilc during ObjType_Tangible";
                 return;
             }
 
@@ -460,6 +487,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
     {
         theID	= object->getParentId();
         mIlc	= _getObject(theID);
+<<<<<<< HEAD:src/ZoneServer/Objects/DatapadFactory.cpp
         
 		if(!mIlc)	{	//sanity        
             LOG(warning) << "Failed getting ilc during ObjType_Intangible";
@@ -495,6 +523,33 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 			
 			controller->setOwner(datapad->getParentId()+PLAYER_OFFSET);
                 
+=======
+        if(!mIlc)//sanity
+        {
+            LOG(WARNING) << "Failed getting ilc during ObjType_Intangible";
+            return;
+        }
+
+        if((datapad = dynamic_cast<Datapad*>(mIlc->mObject)))
+        {
+            mIlc->mLoadCounter--;
+
+            if(IntangibleObject* itno = dynamic_cast<IntangibleObject*>(object))
+            {
+                if(datapad->getCapacity())
+                {
+                    datapad->addData(itno);
+                    Object* ob = gWorldManager->getObjectById(object->getId());
+                    if(!ob)
+                        gWorldManager->addObject(object,true);
+                }
+                else
+                {
+                	LOG(WARNING) << "Datapad at max Capacity";
+                    delete(object);
+                }
+            }
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/DatapadFactory.cpp
         }
 
     }
@@ -509,7 +564,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
     if(!(mIlc->mLoadCounter))
     {
         if(!(_removeFromObjectLoadMap(theID)))
-        	LOG(warning) << "Failed removing object from loadmap";
+        	LOG(WARNING) << "Failed removing object from loadmap";
 
         mIlc->mOfCallback->handleObjectReady(datapad,mIlc->mClient);
 

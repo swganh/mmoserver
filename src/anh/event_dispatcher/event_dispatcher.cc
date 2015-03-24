@@ -31,6 +31,7 @@ using namespace swganh::event_dispatcher;
 using namespace boost::posix_time;
 using namespace std;
 
+<<<<<<< HEAD
 
 using namespace boost::chrono;
 
@@ -39,6 +40,24 @@ using namespace swganh;
 using namespace std;
 
 namespace ba = boost::asio;
+=======
+IEventDispatcher::~IEventDispatcher() {}
+
+EventDispatcher::EventDispatcher()
+    : event_queues_(NUM_QUEUES)
+    , active_queue_(0)
+{}
+
+EventDispatcher::~EventDispatcher() {
+    active_queue_ = 0;
+}
+
+bool EventDispatcher::hasListeners(const EventType& event_type) const {
+    auto map_it = event_listeners_.find(event_type);
+    if (map_it == event_listeners_.end()) {
+        return false;
+    }
+>>>>>>> parent of 5bd772a... got rid of google log
 
 BaseEvent::BaseEvent(EventType type)
     : type_(type)
@@ -64,6 +83,7 @@ CallbackId EventDispatcher::Subscribe(EventType type, EventHandlerCallback callb
 
     boost::upgrade_lock<boost::shared_mutex> lg(event_handlers_mutex_);
 
+<<<<<<< HEAD
     auto find_iter = event_handlers_.find(type);
 
     if (find_iter == end(event_handlers_))
@@ -88,6 +108,102 @@ void EventDispatcher::Unsubscribe(EventType type, CallbackId identifier)
         type_handlers.erase(identifier);
         type_handlers.clear();
     }
+=======
+bool EventDispatcher::subscribe(const EventType& event_type, EventListener listener) {
+    if (!validateEventType_(event_type)) {
+        return false;
+    }
+
+    auto map_it = event_listeners_.find(event_type);
+    if (map_it == event_listeners_.end()) {
+        auto insert_result = event_listeners_.insert(make_pair(event_type, EventListenerList()));
+
+        // Check if there was an insertion failure
+        if (insert_result.second == false) {
+            return false;
+        }
+
+        // Cache the iterator and verify we didn't somehow create an empty map.
+        if ((map_it = insert_result.first) == event_listeners_.end()) {
+            return false;
+        }
+    }
+
+    EventListenerList& listener_list = (*map_it).second;    
+
+    // Look for the listener in the list before adding.
+    auto find_it = find_if(listener_list.begin(), listener_list.end(), [&listener] (const EventListener& list_listener) {
+        return list_listener.first == listener.first;
+    });
+
+    if (find_it != listener_list.end()) {
+        return false;
+    }
+
+    listener_list.push_back(listener);
+
+    return true;
+}
+
+void EventDispatcher::unsubscribe(const EventType& event_type, const EventListenerType& listener_type) {    
+    auto map_it = event_listeners_.find(event_type);
+    if (map_it == event_listeners_.end()) {
+        return;
+    }
+
+    EventListenerList& listener_list = (*map_it).second;
+
+    auto remove_it = remove_if(listener_list.begin(), listener_list.end(), [&listener_type] (const EventListener& list_listener) {
+        return list_listener.first == listener_type;
+    });
+
+    listener_list.erase(remove_it, listener_list.end());
+}
+
+void EventDispatcher::unsubscribe(const EventListenerType& listener_type) {
+    std::for_each(registered_event_types_.begin(), registered_event_types_.end(), [this, &listener_type] (const EventType& event_type) {        
+        unsubscribe(event_type, listener_type);
+    });
+}
+
+bool EventDispatcher::trigger(std::shared_ptr<IEvent> incoming_event) {
+    const EventType& event_type = incoming_event->type();
+    if (!validateEventType_(event_type)) {
+        assert(false && "Event was triggered before its type was registered");
+        return false;
+    }
+    
+    auto map_it = event_listeners_.find(event_type);
+    if (map_it == event_listeners_.end()) {        
+        assert(false && "Inconsistency between listener map and event type set found");
+        return false;
+    }
+
+    if (!incoming_event->timestamp()) {
+        time_duration duration = microsec_clock::local_time().time_of_day();
+        incoming_event->timestamp(duration.total_milliseconds());
+    }
+
+    EventListenerList& listener_list = (*map_it).second;
+
+    bool processed = false;
+
+    for_each(listener_list.begin(), listener_list.end(), [incoming_event, &processed] (EventListener& list_listener) {
+        if (list_listener.second(incoming_event)) {
+            processed = true;
+        }
+    });
+
+    return processed;
+}
+
+bool EventDispatcher::trigger(std::shared_ptr<IEvent> incoming_event, PostTriggerCallback callback) {
+    bool processed = trigger(incoming_event);
+
+    callback(incoming_event, processed);
+
+    return processed;
+>>>>>>> parent of 5bd772a... got rid of google log
 }
 
 shared_ptr<EventInterface> EventDispatcher::DispatchMainThread(const shared_ptr<EventInterface>& dispatch_event)
@@ -95,19 +211,80 @@ shared_ptr<EventInterface> EventDispatcher::DispatchMainThread(const shared_ptr<
   
   InvokeCallbacks(dispatch_event);
 
+<<<<<<< HEAD
   return (dispatch_event);
   
+=======
+void EventDispatcher::triggerWhen(std::shared_ptr<IEvent> incoming_event, TriggerCondition condition) {
+    // Do a few quick sanity checks in debug mode to ensure our queue cycling is always on track.
+    assert(active_queue_ >= 0);
+    assert(active_queue_ < NUM_QUEUES);
+    
+    const EventType& event_type = incoming_event->type();
+    if (!validateEventType_(event_type)) {
+        assert(false && "Event was triggered before its type was registered");
+        return;
+    }
+
+    auto map_it = event_listeners_.find(event_type);
+    if (map_it == event_listeners_.end()) {
+        return;
+    }
+
+    if (!incoming_event->timestamp()) {
+        time_duration duration = microsec_clock::local_time().time_of_day();
+        incoming_event->timestamp(duration.total_milliseconds());
+    }
+>>>>>>> parent of 5bd772a... got rid of google log
     
 	//return task->get_future();
 }
 
 
+<<<<<<< HEAD
 boost::unique_future<shared_ptr<EventInterface>> EventDispatcher::Dispatch(const shared_ptr<EventInterface>& dispatch_event)
 {
     auto task = make_shared<boost::packaged_task<shared_ptr<EventInterface>>>(
                     [this, dispatch_event] () -> shared_ptr<EventInterface>
     {
         InvokeCallbacks(dispatch_event);
+=======
+void EventDispatcher::triggerWhen(std::shared_ptr<IEvent> incoming_event, TriggerCondition condition, PostTriggerCallback callback) {
+    // Do a few quick sanity checks in debug mode to ensure our queue cycling is always on track.
+    assert(active_queue_ >= 0);
+    assert(active_queue_ < NUM_QUEUES);
+    
+    const EventType& event_type = incoming_event->type();
+    if (!validateEventType_(event_type)) {
+        assert(false && "Event was triggered before its type was registered");
+        return;
+    }
+
+    auto map_it = event_listeners_.find(event_type);
+    if (map_it == event_listeners_.end()) {
+        return;
+    }
+
+    if (!incoming_event->timestamp()) {
+        time_duration duration = microsec_clock::local_time().time_of_day();
+        incoming_event->timestamp(duration.total_milliseconds());
+    }
+    
+    uint32_t placement_queue = calculatePlacementQueue_(incoming_event->priority());
+    event_queues_[placement_queue].push(make_tuple(incoming_event, condition, callback));
+}
+
+bool EventDispatcher::triggerAsync(std::shared_ptr<IEvent> incoming_event) {
+    // Do a few quick sanity checks in debug mode to ensure our queue cycling is always on track.
+    assert(active_queue_ >= 0);
+    assert(active_queue_ < NUM_QUEUES);
+    
+    const EventType& event_type = incoming_event->type();
+    if (!validateEventType_(event_type)) {
+        assert(false && "Event was triggered before its type was registered");
+        return false;
+    }
+>>>>>>> parent of 5bd772a... got rid of google log
 
         return dispatch_event;
     });
@@ -120,9 +297,38 @@ boost::unique_future<shared_ptr<EventInterface>> EventDispatcher::Dispatch(const
     return task->get_future();
 }
 
+<<<<<<< HEAD
 CallbackId EventDispatcher::GenerateCallbackId()
 {
     return CallbackId(steady_clock::now().time_since_epoch().count());
+=======
+
+bool EventDispatcher::triggerAsync(std::shared_ptr<IEvent> incoming_event, PostTriggerCallback callback) {
+    // Do a few quick sanity checks in debug mode to ensure our queue cycling is always on track.
+    assert(active_queue_ >= 0);
+    assert(active_queue_ < NUM_QUEUES);
+    
+    const EventType& event_type = incoming_event->type();
+    if (!validateEventType_(event_type)) {
+        assert(false && "Event was triggered before its type was registered");
+        return false;
+    }
+
+    auto map_it = event_listeners_.find(event_type);
+    if (map_it == event_listeners_.end()) {
+        return false;
+    }
+
+    if (!incoming_event->timestamp()) {
+        time_duration duration = microsec_clock::local_time().time_of_day();
+        incoming_event->timestamp(duration.total_milliseconds());
+    }
+
+    uint32_t placement_queue = calculatePlacementQueue_(incoming_event->priority());
+    event_queues_[placement_queue].push(make_tuple(incoming_event, boost::optional<TriggerCondition>(), callback));
+
+    return true;
+>>>>>>> parent of 5bd772a... got rid of google log
 }
 
 void EventDispatcher::InvokeCallbacks(const shared_ptr<EventInterface>& dispatch_event)
@@ -161,5 +367,20 @@ void EventDispatcher::Shutdown()
     event_handlers_.clear();
 }
 
+<<<<<<< HEAD
+=======
+bool EventDispatcher::validateEventType_(const EventType& event_type) const {
+    if (! event_type.ident_string().length()) {
+        return false;
+    }
+
+    auto type_it = registered_event_types_.find(event_type); 
+    if (type_it == registered_event_types_.end()) {
+        return false;
+    }
+
+    return true;
+}
+>>>>>>> parent of 5bd772a... got rid of google log
 
 

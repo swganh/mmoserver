@@ -103,11 +103,15 @@ bool CraftingSession::AdjustComponentStack(Item* item, uint32 uses)
         //no stack, just a singular item
         if(uses == 1)
         {
+<<<<<<< HEAD:src/ZoneServer/GameSystemManagers/Crafting Manager/CraftingSessionHelper.cpp
             DLOG(info) << "CraftingSession::AdjustComponentStack no stacksize attribute";
+=======
+            DLOG(INFO) << "CraftingSession::AdjustComponentStack no stacksize attribute set stack to 1";
+>>>>>>> parent of 5bd772a... got rid of google log:src/ZoneServer/CraftingSessionHelper.cpp
         }
         else
         {
-            DLOG(info) << "CraftingSession::AdjustComponentStack no stacksize attribute return false";
+            DLOG(INFO) << "CraftingSession::AdjustComponentStack no stacksize attribute return false";
             return false;
         }
 
@@ -157,7 +161,7 @@ uint32 CraftingSession::AdjustFactoryCrate(FactoryCrate* crate, uint32 uses)
 
     if(takeOut>crateSize)
     {
-        DLOG(info) << "CraftingSession::AdjustFactoryCrate :: Crate does not have enough content";
+        DLOG(INFO) << "CraftingSession::AdjustFactoryCrate :: Crate does not have enough content";
         return 0;
     }
 
@@ -218,7 +222,7 @@ uint32 CraftingSession::getComponentOffer(Item* component, uint32 needed)
     {
         if(!fC->hasAttribute("factory_count"))
         {
-            DLOG(info) << "CraftingSession::prepareComponent crate without factory_count attribute";
+            DLOG(INFO) << "CraftingSession::prepareComponent crate without factory_count attribute";
             return 0;
         }
 
@@ -271,7 +275,7 @@ bool CraftingSession::prepareComponent(Item* component, uint32 needed, Manufactu
     {
 
         uint32 amount = AdjustFactoryCrate(fC, needed);
-        DLOG(info) << "CraftingSession::prepareComponent FactoryCrate take " << amount;
+        DLOG(INFO) << "CraftingSession::prepareComponent FactoryCrate take " << amount;
 
         //TODO - added stacks shouldnt have more items than maximally possible - needed is the amount needed for the slot
         // that might be bigger than the max stack size
@@ -1518,7 +1522,7 @@ uint8 CraftingSession::getExperimentationRoll(ExperimentationProperty* expProper
 
     if(expProperty->mRoll == -1)
     {
-        DLOG(info) << "CraftingSession:: expProperty is a Virgin!";
+        DLOG(INFO) << "CraftingSession:: expProperty is a Virgin!";
 
         // get our Roll and take into account the relevant modifiers
         roll			= _experimentRoll(expPoints);
@@ -1542,7 +1546,7 @@ uint8 CraftingSession::getExperimentationRoll(ExperimentationProperty* expProper
     else
     {
         roll = static_cast<uint8>(expProperty->mRoll);
-        DLOG(info) << "CraftingSession:: experiment expProperty isnt a virgin anymore ...(roll:" << roll;
+        DLOG(INFO) << "CraftingSession:: experiment expProperty isnt a virgin anymore ...(roll:" << roll;
     }
 
     return roll;

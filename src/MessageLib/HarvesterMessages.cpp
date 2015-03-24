@@ -41,7 +41,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/ZoneOpcodes.h"
 #include "ZoneServer/ObjectController/ObjectControllerOpcodes.h"
 
+<<<<<<< HEAD
 #include "anh/logger.h"
+=======
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
+>>>>>>> parent of 5bd772a... got rid of google log
 
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/Message.h"
@@ -776,7 +785,7 @@ void MessageLib::SendHarvesterHopperUpdate(HarvesterObject* harvester, PlayerObj
     HResourceList*	hRList = harvester->getResourceList();
     harvester->setRListUpdateCounter(harvester->getRListUpdateCounter() + hRList->size());
 
-    DLOG(info) << "adding update Counter  ID " << harvester->getRListUpdateCounter();
+    DLOG(INFO) << "adding update Counter  ID " << harvester->getRListUpdateCounter();
 
     mMessageFactory->addUint32(hRList->size());
     mMessageFactory->addUint32(harvester->getRListUpdateCounter());

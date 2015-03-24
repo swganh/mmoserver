@@ -926,7 +926,7 @@ uint64 Tutorial::getSkillTrainerTypeId(void)
     uint64 typeId = getSkillTrainerTypeId(this->mStartingProfession);
     if (typeId == 0)
     {
-        DLOG(info) << "Tutorial::getSkillTrainerTypeId WARNING: Player have no starting profession set.";
+        DLOG(INFO) << "Tutorial::getSkillTrainerTypeId WARNING: Player have no starting profession set.";
     }
     return typeId;
 }
@@ -1040,7 +1040,7 @@ void Tutorial::makeCreatureAttackable(uint64 npcId)
     }
     else
     {
-        DLOG(info) << "Tutorial::makeCreatureAttackable FAILED";
+        DLOG(INFO) << "Tutorial::makeCreatureAttackable FAILED";
     }
 }
 

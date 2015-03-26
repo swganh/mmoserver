@@ -27,10 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "PlayerObjectFactory.h"
 
-#ifdef _WIN32
-#undef ERROR
-#endif
-#include <glog/logging.h>
+#include "utils/logger.h"
 
 #include "Bank.h"
 #include "BuffManager.h"
@@ -108,7 +105,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         PlayerObject* playerObject = _createPlayer(result);
         if(!playerObject)
         {
-            LOG(ERROR) << "Failed to load player account [" << asyncContainer->mClient->getAccountId() << "]";
+            DLOG(error) << "Failed to load player account [" << asyncContainer->mClient->getAccountId() << "]";
             return;
         }
 
@@ -444,7 +441,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         uint64 count = result->getRowCount();
         if(!count)
         {
-            LOG(WARNING) << "sf_getLotCount did not return a value";
+            LOG(warning) << "sf_getLotCount did not return a value";
             //now we have a problem ...
             mDatabase->destroyDataBinding(binding);
             break;
@@ -569,7 +566,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
     if(dataElements.size() > 1) {
         playerObject->setGender(dataElements[1].getCrc() == BString("female.iff").getCrc());
     } else { //couldn't find data, default to male. Is this acceptable? Crash bug patch: http://paste.swganh.org/viewp.php?id=20100627013612-b69ab274646815fb2a9befa4553c93f7
-        LOG(WARNING) << "Player [" << playerObject->getId() << "] Could not determine requested gender, defaulting to male";
+        LOG(warning) << "Player [" << playerObject->getId() << "] Could not determine requested gender, defaulting to male";
         playerObject->setGender(false);
     }
 
@@ -860,18 +857,18 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
     }
     else
     {
-        LOG(WARNING) << "Unable to determine the object type";
+        LOG(warning) << "Unable to determine the object type";
     }
 
     if((!ilc->mLoadCounter) && ((!ilc->mInventory) || (!ilc->mDPad)))
     {
-        LOG(WARNING) << "mIlc LoadCounter is messed up - we have a race condition";
+        LOG(warning) << "mIlc LoadCounter is messed up - we have a race condition";
     }
 
     if((!ilc->mLoadCounter) && (ilc->mInventory) && (ilc->mDPad))
     {
         if(!(_removeFromObjectLoadMap(playerObject->getId())))
-            LOG(WARNING) << "Failed removing object from loadmap";
+            LOG(warning) << "Failed removing object from loadmap";
 
         // if weapon slot is empty, equip the unarmed default weapon
         if(!playerObject->mEquipManager.getEquippedObject(CreatureEquipSlot_Hold_Left))

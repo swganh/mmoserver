@@ -1,7 +1,7 @@
 /*
  This file is part of MMOServer. For more information, visit http://swganh.com
  
- Copyright (c) 2006 - 2014 The SWG:ANH Team
+ Copyright (c) 2006 - 2010 The SWG:ANH Team
 
  MMOServer is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 
 #include "anh/crc.h"
 
-using swganh::memcrc;
+using anh::memcrc;
 
 /// This test shows how to find the 32bit checksum of a c-style string.
 TEST(CrcTest, CanCrcCstyleStrings) {

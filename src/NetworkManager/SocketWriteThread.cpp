@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -27,15 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "SocketWriteThread.h"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-#include "anh/logger.h"
-=======
-#include <glog/logging.h>
->>>>>>> parent of 5bd772a... got rid of google log
-=======
-#include <glog/logging.h>
->>>>>>> parent of 5bd772a... got rid of google log
+#include "utils/logger.h"
 
 #include "CompCryptor.h"
 #include "Packet.h"
@@ -44,7 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 
-#include "anh/Utils/rand.h"
+#include "Utils/rand.h"
 
 #if defined(__GNUC__)
 // GCC implements tr1 in the <tr1/*> headers. This does not conform to the TR1
@@ -99,6 +91,10 @@ SocketWriteThread::SocketWriteThread(SOCKET socket, Service* service, bool serve
         mMessageMaxSize = network_configuration.getServerToClientReliableSize();
     }
 
+
+    // We do have a global clock object, don't use seperate clock and times for every process.
+    // mClock = new Anh_Utils::Clock();
+
     // Create our CompCryptor object.
     mCompCryptor = new CompCryptor();
 
@@ -107,12 +103,10 @@ SocketWriteThread::SocketWriteThread(SOCKET socket, Service* service, bool serve
 
     mThread = boost::move(t);
 
-	#ifdef _WIN32
-	    HANDLE mtheHandle = mThread.native_handle();
-		//SetPriorityClass(mtheHandle,NORMAL_PRIORITY_CLASS);
-		SetPriorityClass(mtheHandle,HIGH_PRIORITY_CLASS);
-		//SetPriorityClass(mtheHandle,REALTIME_PRIORITY_CLASS);
-	#endif
+#ifdef _WIN32
+    HANDLE mtheHandle = mThread.native_handle();
+    SetPriorityClass(mtheHandle,REALTIME_PRIORITY_CLASS);
+#endif
 
 
     //our thread load values
@@ -124,7 +118,7 @@ SocketWriteThread::SocketWriteThread(SOCKET socket, Service* service, bool serve
 
 SocketWriteThread::~SocketWriteThread()
 {
-    LOG(INFO) << "Socket Write Thread Ended.";
+    LOG(info) << "Socket Write Thread Ended.";
 
     // shutdown our thread
     mExit = true;
@@ -150,9 +144,9 @@ void SocketWriteThread::run()
     while(!mExit)    {
 
 		//if((!this->mServerService) && sessionCount)	{
-			//DLOG(INFO) << "SocketWriteThread::run() START";
-			//DLOG(INFO) << "servicing : " << sessionCount << " Sessions";
-			//DLOG(INFO) << "NO ACTIVE OBJECT";
+			//DLOG(info) << "SocketWriteThread::run() START";
+			//DLOG(info) << "servicing : " << sessionCount << " Sessions";
+			//DLOG(info) << "NO ACTIVE OBJECT";
 		//}
 		uint32 packetsSend = 0;
 
@@ -173,8 +167,8 @@ void SocketWriteThread::run()
 		}
 
 		//if((!this->mServerService) && sessionCount)	{
-			//DLOG(INFO) << "SocketWriteThread::run() END";
-			//DLOG(INFO) << "sending : " << packetsSend << "Packets";
+			//DLOG(info) << "SocketWriteThread::run() END";
+			//DLOG(info) << "sending : " << packetsSend << "Packets";
 		//}
 
         boost::this_thread::sleep(boost::posix_time::milliseconds(1));
@@ -303,12 +297,12 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
         outLen += 2;
     }
 
-    //LOG(INFO) << "Sending message to " << session->getAddressString() << " on port " << ntohs(session->getPort());
+    //LOG(info) << "Sending message to " << session->getAddressString() << " on port " << ntohs(session->getPort());
     sent = sendto(mSocket, mSendBuffer, outLen, 0, &toAddr, toLen);
 
     if (sent < 0)
     {
-        LOG(WARNING) << "Unkown Error from socket sendto: " << errno;
+        LOG(warning) << "Unkown Error from socket sendto: " << errno;
     }
 }
 

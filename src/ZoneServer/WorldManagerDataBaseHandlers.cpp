@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -24,7 +24,7 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
-#include "ZoneServer/WorldManager.h"
+#include "WorldManager.h"
 
 #include <cppconn/resultset.h>
 
@@ -34,20 +34,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
 
-//#include "ScriptEngine/ScriptEngine.h"
-//#include "ScriptEngine/ScriptSupport.h"
+#include "ScriptEngine/ScriptEngine.h"
+#include "ScriptEngine/ScriptSupport.h"
 
-#include "ZoneServer/GameSystemManagers/CharacterLoginHandler.h"
-#include "ZoneServer/GameSystemManagers/Spawn Manager/CreatureSpawnRegion.h"
-#include "ZoneServer/GameSystemManagers/Structure Manager/FactoryFactory.h"
-#include "ZoneServer/GameSystemManagers/Group Manager/GroupObject.h"
-#include "ZoneServer/GameSystemManagers/Group Manager/GroupManager.h"
-#include "ZoneServer/GameSystemManagers/Structure Manager/HarvesterFactory.h"
-#include "ZoneServer/GameSystemManagers/Structure Manager/HouseFactory.h"
-#include "ZoneServer/Objects/Object/ObjectFactory.h"
-#include "ZoneServer/Objects/Player Object/PlayerObject.h"
-
-#include <anh\app\swganh_kernel.h>
+#include "CharacterLoginHandler.h"
+#include "CreatureSpawnRegion.h"
+#include "FactoryFactory.h"
+#include "GroupObject.h"
+#include "GroupManager.h"
+#include "HarvesterFactory.h"
+#include "Heightmap.h"
+#include "HouseFactory.h"
+#include "ObjectFactory.h"
+#include "PlayerObject.h"
 
 using std::stringstream;
 
@@ -67,9 +66,9 @@ void WorldManager::_loadWorldObjects()
 
             // load zone regions
             stringstream query_stream;
-			query_stream << "SELECT id FROM "<< getKernel()->GetDatabase()->galaxy()<<".zone_regions WHERE planet_id=" << mZoneId
+            query_stream << "SELECT id FROM "<<mDatabase->galaxy()<<".zone_regions WHERE planet_id=" << mZoneId
                          << " ORDER BY id;";
-            getKernel()->GetDatabase()->executeAsyncSql(query_stream, [=] (swganh::database::DatabaseResult* result) {
+            mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
                 if (! result) {
                     return;
                 }
@@ -80,16 +79,15 @@ void WorldManager::_loadWorldObjects()
                 {
                     gObjectFactory->requestObject(ObjType_Region, Region_Zone, 0, this, result_set->getUInt64(1));
                 }
-                LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Zone Regions";
+                LOG(info) << "Loaded " << result_set->rowsCount() << " Zone Regions";
             });
 
         }
-        
-		
-		// load client effects
+        // load client effects
         stringstream query_stream;
-        query_stream << "SELECT * FROM "<< getKernel()->GetDatabase()->galaxy()<<".clienteffects ORDER BY id;";            
-        getKernel()->GetDatabase()->executeAsyncSql(query_stream, [=] (swganh::database::DatabaseResult* result) {
+        query_stream << "SELECT * FROM "<<mDatabase->galaxy()<<".clienteffects ORDER BY id;";
+                    
+        mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
             if (! result) {
                 return;
             }
@@ -102,13 +100,13 @@ void WorldManager::_loadWorldObjects()
             {
                 mvClientEffects.push_back(result_set->getString("effect"));
             }
-            LOG_IF(INFO, mvClientEffects.size()) << "Loaded " << mvClientEffects.size() << " Client Effects";
+            LOG(info) << "Loaded " << mvClientEffects.size() << " Client Effects";
         });
 
         // load attribute keys
         query_stream.str(std::string());
-        query_stream << "SELECT id, name FROM " << getKernel()->GetDatabase()->galaxy()<<".attributes ORDER BY id;";
-        getKernel()->GetDatabase()->executeAsyncSql(query_stream, [=] (swganh::database::DatabaseResult* result) {
+        query_stream << "SELECT id, name FROM "<<mDatabase->galaxy()<<".attributes ORDER BY id;";
+        mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
             if (! result) {
                 return;
             }
@@ -117,17 +115,17 @@ void WorldManager::_loadWorldObjects()
 
             while(result_set->next())
             {
-                std::string name = result_set->getString("name");
-				mObjectAttributeKeyMap.insert(std::make_pair(common::memcrc(name), name));
-                mObjectAttributeIDMap.insert(std::make_pair(common::memcrc(name), result_set->getInt("id")));
+                BString name = result_set->getString("name").c_str();
+                mObjectAttributeKeyMap.insert(std::make_pair(name.getCrc(), name));
+                mObjectAttributeIDMap.insert(std::make_pair(name.getCrc(), result_set->getInt("id")));
             }
-            LOG_IF(INFO, mObjectAttributeKeyMap.size()) << "Loaded " << mObjectAttributeKeyMap.size() << " Attributes";
+            LOG(info) << "Loaded " << mObjectAttributeKeyMap.size() << " Attributes";
         });
 
         // load sounds
         query_stream.str(std::string());
-        query_stream << "SELECT * FROM " << getKernel()->GetDatabase()->galaxy()<<".sounds ORDER BY id;";
-        getKernel()->GetDatabase()->executeAsyncSql(query_stream, [=] (swganh::database::DatabaseResult* result) {
+        query_stream << "SELECT * FROM "<<mDatabase->galaxy()<<".sounds ORDER BY id;";
+        mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
             if (! result) {
                 return;
             }
@@ -138,13 +136,13 @@ void WorldManager::_loadWorldObjects()
                 mvSounds.push_back(result_set->getString("name"));
             }
 
-            LOG_IF(INFO, mvSounds.size()) << "Loaded " << mvSounds.size() << " Sounds";
+            LOG(info) << "Loaded " << mvSounds.size() << " Sounds";
         });
 
         // load moods
         query_stream.str(std::string());
-        query_stream << "SELECT * FROM "<<getKernel()->GetDatabase()->galaxy()<<".moods ORDER BY id;";
-        getKernel()->GetDatabase()->executeAsyncSql(query_stream, [=] (swganh::database::DatabaseResult* result) {
+        query_stream << "SELECT * FROM "<<mDatabase->galaxy()<<".moods ORDER BY id;";
+        mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
             if (! result) {
                 return;
             }
@@ -156,13 +154,13 @@ void WorldManager::_loadWorldObjects()
             {
                 mvMoods.push_back(result_set->getString("name"));
             }
-            LOG_IF(INFO, mvMoods.size()) << "Loaded " << mvMoods.size() << " Moods";
+            LOG(info) << "Loaded " << mvMoods.size() << " Moods";
         });
 
         // load npc converse animations
         query_stream.str(std::string());
-        query_stream << "SELECT * FROM "<<getKernel()->GetDatabase()->galaxy()<<".conversation_animations ORDER BY id;";
-        getKernel()->GetDatabase()->executeAsyncSql(query_stream, [=] (swganh::database::DatabaseResult* result) {
+        query_stream << "SELECT * FROM "<<mDatabase->galaxy()<<".conversation_animations ORDER BY id;";
+        mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
             if (! result) {
                 return;
             }
@@ -174,13 +172,13 @@ void WorldManager::_loadWorldObjects()
             {
                 mvNpcConverseAnimations.push_back(result_set->getString("name"));
             }
-            LOG_IF(INFO, mvNpcConverseAnimations.size()) << "Loaded " << mvNpcConverseAnimations.size() << " NPC Converse Animations";
+            LOG(info) << "Loaded " << mvNpcConverseAnimations.size() << " NPC Converse Animations";
         });
         // load npc chatter
         query_stream.str(std::string());
-        query_stream << "SELECT * FROM "<<getKernel()->GetDatabase()->galaxy()<<".npc_chatter WHERE planetId=" << mZoneId
+        query_stream << "SELECT * FROM "<<mDatabase->galaxy()<<".npc_chatter WHERE planetId=" << mZoneId
                      << " OR planetId=99";
-        getKernel()->GetDatabase()->executeAsyncSql(query_stream, [=] (swganh::database::DatabaseResult* result) {
+        mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
             if (! result) {
                 return;
             }
@@ -198,16 +196,16 @@ void WorldManager::_loadWorldObjects()
 
                 mvNpcChatter.push_back(std::make_pair(ws, anim));
             }
-            LOG_IF(INFO, mvNpcChatter.size()) << "Loaded " << mvNpcChatter.size()<< " NPC Chatter Phrases";
+            LOG(info) << "Loaded " << mvNpcChatter.size()<< " NPC Chatter Phrases";
         });
 
         if(mZoneId != 41)
         {
             // load cities
             stringstream query_stream;
-            query_stream << "SELECT id FROM "<<getKernel()->GetDatabase()->galaxy()<<".cities WHERE planet_id=" << mZoneId
+            query_stream << "SELECT id FROM "<<mDatabase->galaxy()<<".cities WHERE planet_id=" << mZoneId
                          << " ORDER BY id;";
-            getKernel()->GetDatabase()->executeAsyncSql(query_stream, [=] (swganh::database::DatabaseResult* result) {
+            mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
                 if (! result) {
                     return;
                 }
@@ -218,15 +216,18 @@ void WorldManager::_loadWorldObjects()
                 {
                     gObjectFactory->requestObject(ObjType_Region, Region_City, 0, this, result_set->getUInt64(1));
                 }
-                LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " City Regions";
-                LOG_IF(INFO, !result_set->rowsCount()) <<"Unable to load cities with region id: " << mZoneId;
+				if (result_set->rowsCount())	{
+					LOG(info)  << "Loaded " << result_set->rowsCount() << " City Regions";
+				}
+				else
+					LOG(info) <<"Unable to load cities with region id: " << mZoneId;
             });
 
             // load badge regions
             query_stream.str(std::string());
-            query_stream << "SELECT id FROM "<<getKernel()->GetDatabase()->galaxy()<<".badge_regions WHERE planet_id=" << mZoneId
+            query_stream << "SELECT id FROM "<<mDatabase->galaxy()<<".badge_regions WHERE planet_id=" << mZoneId
                          << " ORDER BY id;";
-            getKernel()->GetDatabase()->executeAsyncSql(query_stream, [=] (swganh::database::DatabaseResult* result) {
+            mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
                 if (! result) {
                     return;
                 }
@@ -237,15 +238,15 @@ void WorldManager::_loadWorldObjects()
                 {
                     gObjectFactory->requestObject(ObjType_Region, Region_Badge, 0, this, result_set->getUInt64(1));
                 }
-                LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Badge Regions";
-                LOG_IF(INFO, !result_set->rowsCount()) << "Unable to load badges with region id: " << mZoneId;
+                LOG(info) << "Loaded " << result_set->rowsCount() << " Badge Regions";
+                
             });
 
             //load spawn regions
             query_stream.str(std::string());
-            query_stream << "SELECT id FROM "<<getKernel()->GetDatabase()->galaxy()<<".spawn_regions WHERE planet_id=" << mZoneId
+            query_stream << "SELECT id FROM "<<mDatabase->galaxy()<<".spawn_regions WHERE planet_id=" << mZoneId
                          << " ORDER BY id;";
-            getKernel()->GetDatabase()->executeAsyncSql(query_stream, [=] (swganh::database::DatabaseResult* result) {
+            mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
                 if (! result) {
                     return;
                 }
@@ -256,15 +257,15 @@ void WorldManager::_loadWorldObjects()
                 {
                     gObjectFactory->requestObject(ObjType_Region, Region_Spawn, 0, this, result_set->getUInt64(1));
                 }
-                LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Spawn Regions";
-                LOG_IF(INFO, !result_set->rowsCount())  << "Unable to load spawn regions with id: " << mZoneId;
+                LOG(info) << "Loaded " << result_set->rowsCount() << " Spawn Regions";
+               
             });
 
             // load world scripts
             query_stream.str(std::string());
-            query_stream << "SELECT priority,file FROM "<<getKernel()->GetDatabase()->galaxy()<<".config_zone_scripts WHERE planet_id=" << mZoneId
+            query_stream << "SELECT priority,file FROM "<<mDatabase->galaxy()<<".config_zone_scripts WHERE planet_id=" << mZoneId
                          << " ORDER BY id;";
-            getKernel()->GetDatabase()->executeAsyncSql(query_stream, [=] (swganh::database::DatabaseResult* result) {
+            mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
                 if (! result) {
                     return;
                 }
@@ -273,27 +274,19 @@ void WorldManager::_loadWorldObjects()
 
                 while(result_set->next())
                 {
-                    //Script* script = gScriptEngine->createScript();
-                    //script->setPriority(result_set->getUInt("priority"));
-                    //script->setFileName(result_set->getString("file").c_str());
-                    //mWorldScripts.push_back(script);
+                    Script* script = gScriptEngine->createScript();
+                    script->setPriority(result_set->getUInt("priority"));
+                    script->setFileName(result_set->getString("file").c_str());
+                    mWorldScripts.push_back(script);
                 }
-<<<<<<< HEAD
-<<<<<<< HEAD
-                //LOG(info) << "Loaded " << mWorldScripts.size() << " World Scripts";
-=======
-                LOG_IF(INFO, mWorldScripts.size()) << "Loaded " << mWorldScripts.size() << " World Scripts";
->>>>>>> parent of 5bd772a... got rid of google log
-=======
-                LOG_IF(INFO, mWorldScripts.size()) << "Loaded " << mWorldScripts.size() << " World Scripts";
->>>>>>> parent of 5bd772a... got rid of google log
+                LOG(info) << "Loaded " << mWorldScripts.size() << " World Scripts";
             });
 
             //load creature spawn regions, and optionally heightmaps cache.
             query_stream.str(std::string());
-            query_stream << "SELECT id, spawn_x, spawn_z, spawn_width, spawn_length FROM "<<getKernel()->GetDatabase()->galaxy()<<".spawns WHERE spawn_planet=" << mZoneId
+            query_stream << "SELECT id, spawn_x, spawn_z, spawn_width, spawn_length FROM "<<mDatabase->galaxy()<<".spawns WHERE spawn_planet=" << mZoneId
                          << " ORDER BY id;";
-            getKernel()->GetDatabase()->executeAsyncSql(query_stream, [=] (swganh::database::DatabaseResult* result) {
+            mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
                 if (! result) {
                     return;
                 }
@@ -311,15 +304,15 @@ void WorldManager::_loadWorldObjects()
 
                     mCreatureSpawnRegionMap.insert(std::make_pair(creatureSpawnRegion->mId, creatureSpawnRegion));
                 }
-                LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Creature Spawn Regions";
-                LOG_IF(INFO, !result_set->rowsCount()) << "No Creature Spawn Regions Loaded with ID: " << mZoneId;
+                LOG(info) << "Loaded " << result_set->rowsCount() << " Creature Spawn Regions";
+                
             });
 
             // load harvesters
             query_stream.str(std::string());
-            query_stream << "SELECT s.id FROM "<<getKernel()->GetDatabase()->galaxy()<<".structures s INNER JOIN "<<getKernel()->GetDatabase()->galaxy()<<".harvesters h ON (s.id = h.id) WHERE zone=" << mZoneId
+            query_stream << "SELECT s.id FROM "<<mDatabase->galaxy()<<".structures s INNER JOIN "<<mDatabase->galaxy()<<".harvesters h ON (s.id = h.id) WHERE zone=" << mZoneId
                          << " ORDER BY id;";
-            getKernel()->GetDatabase()->executeAsyncSql(query_stream, [=] (swganh::database::DatabaseResult* result) {
+            mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
                 if (! result) {
                     return;
                 }
@@ -329,15 +322,15 @@ void WorldManager::_loadWorldObjects()
                 {
                     gHarvesterFactory->requestObject(this,result_set->getUInt64(1),0,0,0);
                 }
-                LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Player Harvesters";
-                LOG_IF(INFO, !result_set->rowsCount()) << "No Harvesters to Load in Zone: " << mZoneId;
+                LOG(info) << "Loaded " << result_set->rowsCount() << " Player Harvesters";
+                
             });
 
             // load factories
             query_stream.str(std::string());
-            query_stream << "SELECT s.id FROM "<<getKernel()->GetDatabase()->galaxy()<<".structures s INNER JOIN "<<getKernel()->GetDatabase()->galaxy()<<".factories f ON (s.id = f.id) WHERE zone=" << mZoneId
+            query_stream << "SELECT s.id FROM "<<mDatabase->galaxy()<<".structures s INNER JOIN "<<mDatabase->galaxy()<<".factories f ON (s.id = f.id) WHERE zone=" << mZoneId
                          << " ORDER BY id;";
-            getKernel()->GetDatabase()->executeAsyncSql(query_stream, [=] (swganh::database::DatabaseResult* result) {
+            mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
                 if (! result) {
                     return;
                 }
@@ -348,15 +341,15 @@ void WorldManager::_loadWorldObjects()
                 {
                     gFactoryFactory->requestObject(this,result_set->getUInt64(1),0,0,0);
                 }
-                LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Player Factories";
-                LOG_IF(INFO, !result_set->rowsCount()) << "No Player Factories to Load in Zone: " << mZoneId;
+                LOG(info) << "Loaded " << result_set->rowsCount() << " Player Factories";
+                
             });
 
             // load playerhouses
             query_stream.str(std::string());
-            query_stream << "SELECT s.id FROM "<<getKernel()->GetDatabase()->galaxy()<<".structures s INNER JOIN "<<getKernel()->GetDatabase()->galaxy()<<".houses h ON (s.id = h.id) WHERE zone=" << mZoneId
+            query_stream << "SELECT s.id FROM "<<mDatabase->galaxy()<<".structures s INNER JOIN "<<mDatabase->galaxy()<<".houses h ON (s.id = h.id) WHERE zone=" << mZoneId
                          << " ORDER BY id;";
-            getKernel()->GetDatabase()->executeAsyncSql(query_stream, [=] (swganh::database::DatabaseResult* result) {
+            mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
                 if (! result) {
                     return;
                 }
@@ -367,8 +360,8 @@ void WorldManager::_loadWorldObjects()
                 {
                     gHouseFactory->requestObject(this,result_set->getUInt64(1),0,0,0);
                 }
-                LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Player Houses";
-                LOG_IF(INFO, !result_set->rowsCount()) << "No Player Houses to Load in Zone: " << mZoneId;
+                LOG(info) << "Loaded " << result_set->rowsCount() << " Player Houses";
+                
             });
         }
     }
@@ -381,8 +374,8 @@ void WorldManager::_loadWorldObjects()
 void WorldManager::_loadBuildings()
 {
     stringstream query_stream;
-    query_stream << "SELECT id FROM "<<getKernel()->GetDatabase()->galaxy()<<".buildings WHERE planet_id = " << mZoneId;
-    getKernel()->GetDatabase()->executeAsyncSql(query_stream, [=] (swganh::database::DatabaseResult* result) {
+    query_stream << "SELECT id FROM "<<mDatabase->galaxy()<<".buildings WHERE planet_id = " << mZoneId;
+    mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
         if (! result) {
             return;
         }
@@ -393,24 +386,24 @@ void WorldManager::_loadBuildings()
         {
             gObjectFactory->requestObject(ObjType_Building,0,0,this,result_set->getUInt64(1));
         }
-        LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Buildings";
+        LOG(info) << "Loaded " << result_set->rowsCount() << " Buildings";
     });
 }
 
 void WorldManager::_loadAllObjects(uint64 parentId)
 {
     stringstream query_stream;
-    query_stream << "(SELECT \'terminals\',terminals.id FROM "<<getKernel()->GetDatabase()->galaxy()<<".terminals INNER JOIN "<<getKernel()->GetDatabase()->galaxy()<<".terminal_types ON (terminals.terminal_type = terminal_types.id)"
+    query_stream << "(SELECT \'terminals\',terminals.id FROM "<<mDatabase->galaxy()<<".terminals INNER JOIN "<<mDatabase->galaxy()<<".terminal_types ON (terminals.terminal_type = terminal_types.id)"
                  << " WHERE (terminal_types.name NOT LIKE 'unknown') AND (terminals.parent_id = " << parentId << ") AND (terminals.planet_id = "<< mZoneId << " ))"
-                 //<< " UNION (SELECT \'containers\',containers.id FROM "<<getKernel()->GetDatabase()->galaxy()<<".containers INNER JOIN "<<getKernel()->GetDatabase()->galaxy()<<".container_types ON (containers.container_type = container_types.id)"
-                 //<< " WHERE (container_types.name NOT LIKE 'unknown') AND (containers.parent_id = " << parentId << ") AND (containers.planet_id = "<< mZoneId << "))"
-                 << " UNION (SELECT \'ticket_collectors\',ticket_collectors.id FROM "<<getKernel()->GetDatabase()->galaxy()<<".ticket_collectors WHERE (parent_id=" << parentId << ") AND (planet_id="<< mZoneId << "))"
-                 << " UNION (SELECT \'persistent_npcs\',persistent_npcs.id FROM "<<getKernel()->GetDatabase()->galaxy()<<".persistent_npcs WHERE (parentId=" << parentId << ") AND (planet_id = "<< mZoneId << "))"
-                 << " UNION (SELECT \'shuttles\',shuttles.id FROM "<<getKernel()->GetDatabase()->galaxy()<<".shuttles WHERE (parentId=" << parentId << ") AND (planet_id = "<< mZoneId << "))"
-                 << " UNION (SELECT \'items\',items.id FROM "<<getKernel()->GetDatabase()->galaxy()<<".items WHERE (parent_id=" << parentId << ") AND (planet_id = "<< mZoneId << "))"
-                 << " UNION (SELECT \'resource_containers\',resource_containers.id FROM "<<getKernel()->GetDatabase()->galaxy()<<".resource_containers WHERE (parent_id=" << parentId << ") AND (planet_id = "<< mZoneId <<"))";
+                 << " UNION (SELECT \'containers\',containers.id FROM "<<mDatabase->galaxy()<<".containers INNER JOIN "<<mDatabase->galaxy()<<".container_types ON (containers.container_type = container_types.id)"
+                 << " WHERE (container_types.name NOT LIKE 'unknown') AND (containers.parent_id = " << parentId << ") AND (containers.planet_id = "<< mZoneId << "))"
+                 << " UNION (SELECT \'ticket_collectors\',ticket_collectors.id FROM "<<mDatabase->galaxy()<<".ticket_collectors WHERE (parent_id=" << parentId << ") AND (planet_id="<< mZoneId << "))"
+                 << " UNION (SELECT \'persistent_npcs\',persistent_npcs.id FROM "<<mDatabase->galaxy()<<".persistent_npcs WHERE (parentId=" << parentId << ") AND (planet_id = "<< mZoneId << "))"
+                 << " UNION (SELECT \'shuttles\',shuttles.id FROM "<<mDatabase->galaxy()<<".shuttles WHERE (parentId=" << parentId << ") AND (planet_id = "<< mZoneId << "))"
+                 << " UNION (SELECT \'items\',items.id FROM "<<mDatabase->galaxy()<<".items WHERE (parent_id=" << parentId << ") AND (planet_id = "<< mZoneId << "))"
+                 << " UNION (SELECT \'resource_containers\',resource_containers.id FROM "<<mDatabase->galaxy()<<".resource_containers WHERE (parent_id=" << parentId << ") AND (planet_id = "<< mZoneId <<"))";
     
-        getKernel()->GetDatabase()->executeAsyncSql(query_stream, [=] (swganh::database::DatabaseResult* result) {
+        mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
         if (! result) {
             return;
         }
@@ -437,16 +430,14 @@ void WorldManager::_loadAllObjects(uint64 parentId)
             else if(strcmp(str.c_str(),"resource_containers") == 0)
                 gObjectFactory->requestObject(ObjType_Tangible,TanGroup_ResourceContainer,0,this,id);
         }
-        LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Objects";
+        LOG(info) << "Loaded " << result_set->rowsCount() << " Objects";
     });
 }
-
 void    WorldManager::_loadPlanetNamesAndFiles()
 {
     stringstream query_stream;
-    query_stream << "SELECT * FROM "<< getKernel()->GetDatabase()->galaxy()<<".planet ORDER BY planet_id;";
-	LOG (info) << query_stream.str();
-    getKernel()->GetDatabase()->executeAsyncSql(query_stream, [=] (swganh::database::DatabaseResult* result) {
+    query_stream << "SELECT * FROM "<<mDatabase->galaxy()<<".planet ORDER BY planet_id;";
+    mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
         if (! result) {
             return;
         }
@@ -458,12 +449,21 @@ void    WorldManager::_loadPlanetNamesAndFiles()
         mvTrnFileNames.reserve(count);
         while(result_set->next())
         {
-            mvPlanetNames.push_back(result_set->getString("name"));
-            mvTrnFileNames.push_back(result_set->getString("terrain_file"));
+            mvPlanetNames.push_back(BString(result_set->getString("name").c_str()));
+            mvTrnFileNames.push_back(BString(result_set->getString("terrain_file").c_str()));
         }
 
-        
+        //start loading heightmap
+        if(mZoneId != 41)
+        {
+            int16 resolution = 0;
+            if (mHeightmapResolution)
+                resolution =mHeightmapResolution;
+
+            if (!Heightmap::Instance(mHeightmapResolution))
+                assert(false && "WorldManager::_handleLoadComplete Missing heightmap, look for it on the forums.");
+        }
     } ) ;
 }
-void WorldManager::handleDatabaseJobComplete(void* ref,swganh::database::DatabaseResult* result)
+void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {}

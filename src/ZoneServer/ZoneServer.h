@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -29,42 +29,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_ZONESERVER_ZONESERVER_H
 
 #include <memory>
-#include <boost/thread/thread.hpp>
-
 #include "Utils/bstring.h"
 #include "Utils/typedefs.h"
-
 #include "Common/Server.h"
-#include "anh/app/swganh_kernel.h"
-#include "anh/service/service_directory.h"
-#include "anh/service/service_interface.h"
-#include "anh/app/kernel_interface.h"
-#include "anh/app/bindings.h"
-
-
 
 //======================================================================================================================
 
-namespace swganh {
+namespace anh {
 namespace event_dispatcher {
-    class IEventDispatcher;
+    class EventDispatcherInterface;
 }}  // namespace anh::event_dispatcher
-//using namespace swganh;
 
 class NetworkManager;
 class Service;
-
-namespace swganh	{
-namespace service	{
-	class ServiceInterface;
-}
-}
-
-namespace swganh	{
-namespace database	{
 class DatabaseManager;
 class Database;
-}}
 
 class MessageDispatch;
 class CharacterLoginHandler;
@@ -76,7 +55,6 @@ class ObjectControllerDispatch;
 namespace zone {
 class HamService;
 }
-
 
 //======================================================================================================================
 
@@ -93,23 +71,21 @@ public:
 
 //======================================================================================================================
 
-
-
-class ZoneServer 
+class ZoneServer : public common::BaseServer
 {
 public:
 
-    ZoneServer(int argc, char* argv[], swganh::app::SwganhKernel*	kernel);
+    ZoneServer(int argc, char* argv[]);
     ~ZoneServer(void);
 
     void	Process(void);
 
     void	handleWMReady();
 
-	//this will hold the Kernel. We need it to access our applications data
-	//until it has all been given to app
-	swganh::app::SwganhKernel*	kernel_;
-	
+    std::string  getZoneName()  {
+        return mZoneName;
+    }
+
 private:
     // Disable compiler generated methods.
     ZoneServer();
@@ -118,32 +94,11 @@ private:
 
     void	_updateDBServerList(uint32 status);
     void	_connectToConnectionServer(void);
-	
-	/*@brief this will load the individual services
-	*
-	*/
-	void LoadCoreServices_();
-    void CleanupServices_();
 
-    uint64										mLastHeartbeat;
-    
-	NetworkManager*								mNetworkManager;
-    swganh::database::DatabaseManager*          mDatabaseManager;
-
-    Service*									mRouterService;
-    
-    CharacterLoginHandler*						mCharacterLoginHandler;
-    ObjectControllerDispatch*					mObjectControllerDispatch;
-
-    std::unique_ptr<zone::HamService>			ham_service_;
-};
-
-<<<<<<< HEAD
-=======
     std::string                   mZoneName;
     uint32						  mLastHeartbeat;
 
-    std::shared_ptr<anh::event_dispatcher::IEventDispatcher> event_dispatcher_;
+    std::shared_ptr<anh::event_dispatcher::EventDispatcherInterface> event_dispatcher_;
     NetworkManager*               mNetworkManager;
     DatabaseManager*              mDatabaseManager;
 
@@ -153,8 +108,9 @@ private:
     MessageDispatch*              mMessageDispatch;
     CharacterLoginHandler*        mCharacterLoginHandler;
     ObjectControllerDispatch*     mObjectControllerDispatch;
->>>>>>> parent of 5bd772a... got rid of google log
 
+    std::unique_ptr<zone::HamService>   ham_service_;
+};
 
 //======================================================================================================================
 

@@ -1,7 +1,7 @@
 /*
  This file is part of MMOServer. For more information, visit http://swganh.com
  
- Copyright (c) 2006 - 2014 The SWG:ANH Team
+ Copyright (c) 2006 - 2010 The SWG:ANH Team
 
  MMOServer is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #include <cstdint>
 #include <string>
 
-namespace swganh {
+namespace anh {
 
 /*! \brief This class provides a utility for generating identifiers that are
  * easy to read and can be used as key values in the standard 
@@ -31,6 +31,9 @@ namespace swganh {
  */
 class HashString {
 public:
+	/// Takes a regular std::string and stores a hash of it.
+    HashString(const std::string& std_string); 
+
     /// Takes a human readable string and stores a hash of it.
     HashString(const char* ident_string);
 
@@ -48,6 +51,9 @@ public:
 
     /// Universal assignment operator.
     HashString& operator=(HashString other);
+
+	/// Conversion operator allows a hash string to be cast to a uint32_t
+    operator uint32_t () const;
 
     /*! Uses a less-than comparison on two HashStrings.
      *

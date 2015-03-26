@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -28,37 +28,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "MessageLib.h"
 
-#include <anh\app\swganh_kernel.h>
-#include <anh\service/service_manager.h>
-#include "ZoneServer\Services\ham\ham_service.h"
-
-#include "ZoneServer/Objects/Bank.h"
-#include "ZoneServer/Objects/Inventory.h"
-#include "ZoneServer/Objects/Object/ObjectFactory.h"
-#include "ZoneServer/Objects/Player Object/PlayerObject.h"
-#include "ZoneServer/Objects/Wearable.h"
+#include "ZoneServer/Bank.h"
+#include "ZoneServer/Inventory.h"
+#include "ZoneServer/ObjectFactory.h"
+#include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/Wearable.h"
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-#include "ZoneServer\Services\equipment\equipment_service.h"
-#include "ZoneServer\Objects\Creature Object\equipment_item.h"
 
-#include "anh/logger.h"
-=======
-=======
->>>>>>> parent of 5bd772a... got rid of google log
-// Fix for issues with glog redefining this constant
-#ifdef ERROR
-#undef ERROR
-#endif
-
-#include <glog/logging.h>
-<<<<<<< HEAD
->>>>>>> parent of 5bd772a... got rid of google log
-=======
->>>>>>> parent of 5bd772a... got rid of google log
+#include "utils/logger.h"
 
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/Message.h"
@@ -81,67 +60,78 @@ bool MessageLib::sendBaselinesCREO_1(PlayerObject* player)
         return(false);
 
     Message*	message;
-    //SkillList*	playerSkills	= player->getSkills();
+    Ham*		playerHam		= player->getHam();
+    SkillList*	playerSkills	= player->getSkills();
 
     mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opBaselinesMessage);
+    mMessageFactory->addUint64(player->getId());
+    mMessageFactory->addUint32(opCREO);
+    mMessageFactory->addUint8(1);
+
+    // compute the skill list size
+    uint32				skillByteCount	= 0;
+    SkillList::iterator it				= playerSkills->begin();
+
+    while(it != playerSkills->end())
+    {
+        skillByteCount += ((*it)->mName.getLength() + 2);
+
+        ++it;
+    }
+
+    mMessageFactory->addUint32(62 + skillByteCount);
     mMessageFactory->addUint16(4);
 
     // bank credits
-	auto bank_object = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player->GetCreature(), "bank");
-    if(Bank* bank = dynamic_cast<Bank*>(bank_object)) {
-        mMessageFactory->addUint32(bank->getCredits());
+    if(Bank* bank = dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank)))
+    {
+        mMessageFactory->addUint32(bank->credits());
     }
     else
     {
-		LOG (error) << "MessageLib::sendBaselinesCREO_1 :: No Bank Object for " << player->GetCreature()->getId();
         mMessageFactory->addUint32(0);
     }
 
     // inventory credits
-	auto inventory_object = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player->GetCreature(), "inventory");
-    if(Inventory* inventory = dynamic_cast<Inventory*>(inventory_object)) {
+    if(Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)))
+    {
         mMessageFactory->addUint32(inventory->getCredits());
     }
     else
     {
-		LOG (error) << "MessageLib::sendBaselinesCREO_1 :: No Inventory Object for " << player->getId();
         mMessageFactory->addUint32(0);
     }
 
     // ham maxs
-	swganh::messages::BaselinesMessage baseline_message;
-	player->GetCreature()->SerializeMaxStats(&baseline_message);
+    mMessageFactory->addUint32(9);
+    mMessageFactory->addUint32(9);
 
-	mMessageFactory->addData(baseline_message.data.data(),baseline_message.data.size());
+    mMessageFactory->addUint32(playerHam->mHealth.getBaseHitPoints());
+    mMessageFactory->addUint32(playerHam->mStrength.getBaseHitPoints());
+    mMessageFactory->addUint32(playerHam->mConstitution.getBaseHitPoints());
+    mMessageFactory->addUint32(playerHam->mAction.getBaseHitPoints());
+    mMessageFactory->addUint32(playerHam->mQuickness.getBaseHitPoints());
+    mMessageFactory->addUint32(playerHam->mStamina.getBaseHitPoints());
+    mMessageFactory->addUint32(playerHam->mMind.getBaseHitPoints());
+    mMessageFactory->addUint32(playerHam->mFocus.getBaseHitPoints());
+    mMessageFactory->addUint32(playerHam->mWillpower.getBaseHitPoints());
 
     // skills
-	auto skilllist		= player->GetCreature()->GetSkills(); 
-	auto skillIt		= skilllist.begin();
+    mMessageFactory->addUint64(playerSkills->size());
 
-	mMessageFactory->addUint32(skilllist.size());
-	mMessageFactory->addUint32(0);
+    it = playerSkills->begin();
 
-    while(skillIt != skilllist.end())
+    while(it != playerSkills->end())
     {
-		mMessageFactory->addString((*skillIt));
+        mMessageFactory->addString((*it)->mName);
 
-        skillIt++;
+        ++it;
     }
 
     message = mMessageFactory->EndMessage();
 
-    
-mMessageFactory->StartMessage();
-    mMessageFactory->addUint32(opBaselinesMessage);
-    mMessageFactory->addUint64(player->GetCreature()->getId());
-    mMessageFactory->addUint32(opCREO);
-    mMessageFactory->addUint8(1);
-
-mMessageFactory->addUint32(message->getSize());
-mMessageFactory->addData(message->getData(), message->getSize());
-message->setPendingDelete(true);
-
-(player->getClient())->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(), CR_Client, 3);
+    (player->getClient())->SendChannelA(message, player->getAccountId(), CR_Client, 3);
 
     return(true);
 }
@@ -157,62 +147,85 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
     if(!(targetObject->isConnected()))
         return(false);
 
-    Message*	message;
-    
+    Message*		message;
+    Ham*			creatureHam = creatureObject->getHam();
+    BString			firstName = creatureObject->getFirstName().getAnsi();
+    BString			lastName = creatureObject->getLastName().getAnsi();
+    BString			fullName;
+    uint32			creoByteCount;
+    uint32			byteCount;
+
+    // if its a persistent npc, we don't need all ham bars
+    if(creatureObject->getCreoGroup() == CreoGroup_PersistentNpc)
+        byteCount = 107;
+    else
+        byteCount = 119;
+
     // make sure we got a name
-	std::stringstream stream;
-	stream << creatureObject->getFirstName() << " " << creatureObject->getLastName();
-	std::string s(stream.str());
-	std::u16string custom_name_u16(s.begin(), s.end());
+    if(firstName.getLength() > 1)
+    {
+        fullName << firstName.getAnsi();
+    }
 
+    if(lastName.getLength() > 1)
+    {
+        fullName << " ";
+        fullName << lastName.getAnsi();
+    }
 
+    // needs to be send as unicode
+    fullName.convert(BSTRType_Unicode16);
+
+    creoByteCount = byteCount + creatureObject->getSpeciesGroup().getLength() + (fullName.getLength() << 1) + creatureObject->getCustomizationStr().getLength() + creatureObject->getSpeciesString().getLength();
     mMessageFactory->StartMessage();
-    
-    mMessageFactory->addUint16(12); //Object Operand count
+    mMessageFactory->addUint32(opBaselinesMessage);
+    mMessageFactory->addUint64(creatureObject->getId());
+    mMessageFactory->addUint32(opCREO);
+    mMessageFactory->addUint8(3);
+    mMessageFactory->addUint32(creoByteCount);
+    mMessageFactory->addUint16(12);
     //0
-    mMessageFactory->addUint32(16256); // float complexity
+    mMessageFactory->addUint32(16256); // unknown
     //1
     mMessageFactory->addString(creatureObject->getSpeciesGroup());
-    mMessageFactory->addUint32(0); // unknown
+    mMessageFactory->addUint32(0);     // unknown
     mMessageFactory->addString(creatureObject->getSpeciesString());
     //2
-    mMessageFactory->addString(custom_name_u16);
+    mMessageFactory->addString(fullName);
     //3
-    mMessageFactory->addUint32(1); //volume
+    mMessageFactory->addUint32(1); // unknown
     //4
     mMessageFactory->addString(creatureObject->getCustomizationStr());
-   
-//5 customization list
-    mMessageFactory->addUint32(0); //
-    mMessageFactory->addUint32(0); //
+    //5 unknown list
+    mMessageFactory->addUint32(0); // unknown
+    mMessageFactory->addUint32(0); // unknown
 
     //6
     mMessageFactory->addUint32(creatureObject->getTypeOptions());
-    
-	//7 incap timer
+    //7 incap timer
     mMessageFactory->addUint32(0); // unknown
 
-    //8 condition damage (vehicle) //this is the amount of damage... used to set appearence of swoop
 
-//auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
-mMessageFactory->addUint32(creatureObject->GetStatMax(HamBar_Health) - creatureObject->GetStatCurrent(HamBar_Health));
+    // For now, we use the Health bar when using a single H-bar.
+
+    //8 condition damage (vehicle) //this is the amount of damage... used to set appearence of swoop
+    mMessageFactory->addUint32(creatureHam->getPropertyValue(HamBar_Health,HamProperty_MaxHitpoints) - creatureHam->getPropertyValue(HamBar_Health,HamProperty_CurrentHitpoints));
 
     //9 max condition (vehicle)
-    mMessageFactory->addUint32(creatureObject->GetStatMax(HamBar_Health));
+    mMessageFactory->addUint32(creatureHam->getPropertyValue(HamBar_Health,HamProperty_MaxHitpoints));
 
     //10 locomotion ??
     mMessageFactory->addUint8(1);
     //11 posture
-    mMessageFactory->addUint8(creatureObject->GetPosture());
+    mMessageFactory->addUint8(creatureObject->states.getPosture());
     //12
     mMessageFactory->addUint8(creatureObject->getFactionRank());
     //13 owner id
-    if(creatureObject->getCreoGroup() == CreoGroup_Vehicle)
+    if(creatureObject->getCreoGroup()  == CreoGroup_Vehicle)
     {
         MountObject* mount = dynamic_cast<MountObject*>(creatureObject);
         if(mount)
-			//hack ugly only to test
-            mMessageFactory->addUint64(mount->owner()-7);
+            mMessageFactory->addUint64(mount->owner());
         else
             mMessageFactory->addUint64(0);
 
@@ -224,29 +237,50 @@ mMessageFactory->addUint32(creatureObject->GetStatMax(HamBar_Health) - creatureO
     {
         mMessageFactory->addUint64(0);
         mMessageFactory->addFloat(creatureObject->getScale());
-		mMessageFactory->addUint32(creatureObject->GetBattleFatigue());
-        mMessageFactory->addUint64(creatureObject->GetStateBitmask());
+        mMessageFactory->addUint32(creatureHam->getBattleFatigue());
+        mMessageFactory->addUint64(creatureObject->states.getAction());
     }
 
     // ham wounds
 
-	swganh::messages::BaselinesMessage baseline_message;
-	creatureObject->SerializeStatWounds(&baseline_message);
+    if(creatureObject->getCreoGroup() == CreoGroup_PersistentNpc)
+    {
+        mMessageFactory->addUint32(6);
+        mMessageFactory->addUint32(creatureHam->getWoundsUpdateCounter());
 
-	mMessageFactory->addData(baseline_message.data.data(),baseline_message.data.size());
+        mMessageFactory->addUint32(0);
+        mMessageFactory->addUint32(0);
+        mMessageFactory->addUint32(0);
+        mMessageFactory->addUint32(0);
+        mMessageFactory->addUint32(0);
+        mMessageFactory->addUint32(0);
+    }
+    else if(creatureObject->getCreoGroup() == CreoGroup_Vehicle)
+    {
+        //no wounds for vehicles
+        mMessageFactory->addUint32(0);
+        mMessageFactory->addUint32(0);
+    }
+    else
+    {
+        mMessageFactory->addUint32(9);
+        //ok make sure updatecounter gets send as 9 on baseline
+        mMessageFactory->addUint32(creatureHam->getWoundsUpdateCounter());
+
+        mMessageFactory->addUint32(creatureHam->mHealth.getWounds());
+        mMessageFactory->addUint32(creatureHam->mStrength.getWounds());
+        mMessageFactory->addUint32(creatureHam->mConstitution.getWounds());
+        mMessageFactory->addUint32(creatureHam->mAction.getWounds());
+        mMessageFactory->addUint32(creatureHam->mQuickness.getWounds());
+        mMessageFactory->addUint32(creatureHam->mStamina.getWounds());
+        mMessageFactory->addUint32(creatureHam->mMind.getWounds());
+        mMessageFactory->addUint32(creatureHam->mFocus.getWounds());
+        mMessageFactory->addUint32(creatureHam->mWillpower.getWounds());
+    }
 
     message = mMessageFactory->EndMessage();
 
-	mMessageFactory->StartMessage();
-    mMessageFactory->addUint32(opBaselinesMessage);
-    mMessageFactory->addUint64(creatureObject->getId());
-    mMessageFactory->addUint32(opCREO);
-    mMessageFactory->addUint8(3);
-mMessageFactory->addUint32(message->getSize());
-mMessageFactory->addData(message->getData(), message->getSize());
-message->setPendingDelete(true);
-
-(targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
+    (targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
     return(true);
 }
@@ -262,8 +296,8 @@ bool MessageLib::sendBaselinesCREO_4(PlayerObject* player)
     if(!(player->isConnected()))
         return(false);
 
-	CreatureObject* creature = player->GetCreature();
-    SkillModsList*	playerSkillMods = creature->getSkillMods();
+    Ham*			playerHam		= player->getHam();
+    SkillModsList*	playerSkillMods = player->getSkillMods();
 
     //thats the message databody
     mMessageFactory->StartMessage();
@@ -274,14 +308,17 @@ bool MessageLib::sendBaselinesCREO_4(PlayerObject* player)
     mMessageFactory->addFloat(1.0f); // acceleration mod
 
     // ham encumbrance
-	swganh::messages::BaselinesMessage baseline_message;
-	creature->SerializeStatEncumberances(&baseline_message);
-	mMessageFactory->addData(baseline_message.data.data(),baseline_message.data.size());
+    mMessageFactory->addUint32(3);
+    mMessageFactory->addUint32(3);
+
+    mMessageFactory->addUint32(playerHam->mHealth.getEncumbrance());
+    mMessageFactory->addUint32(playerHam->mAction.getEncumbrance());
+    mMessageFactory->addUint32(playerHam->mMind.getEncumbrance());
 
     // skillmods
     mMessageFactory->addUint32(playerSkillMods->size());
-    creature->mSkillModUpdateCounter += playerSkillMods->size();
-    mMessageFactory->addUint32(creature->mSkillModUpdateCounter);
+    player->mSkillModUpdateCounter += playerSkillMods->size();
+    mMessageFactory->addUint32(player->mSkillModUpdateCounter);
 
     SkillModsList::iterator it = playerSkillMods->begin();
 
@@ -302,22 +339,22 @@ bool MessageLib::sendBaselinesCREO_4(PlayerObject* player)
     mMessageFactory->addFloat(1.0f);
 
     //6 Listen to Id
-    mMessageFactory->addUint64(creature->getEntertainerListenToId());
+    mMessageFactory->addUint64(player->getEntertainerListenToId());
 
     //7
-    mMessageFactory->addFloat(creature->getCurrentRunSpeedLimit()); //RUN speed
+    mMessageFactory->addFloat(player->getCurrentRunSpeedLimit()); //RUN speed
 
     //8
     mMessageFactory->addFloat(1.02f);	// slopemod angle
 
     //9
-    mMessageFactory->addFloat(creature->getCurrentTerrainNegotiation());
+    mMessageFactory->addFloat(player->getCurrentTerrainNegotiation());
 
     //10 (a)
-    mMessageFactory->addFloat(creature->getCurrentTurnRate());
+    mMessageFactory->addFloat(player->getCurrentTurnRate());
 
     //11(b)
-    mMessageFactory->addFloat(creature->getCurrentAcceleration()); // This is the walk speed, nothing else.
+    mMessageFactory->addFloat(player->getCurrentAcceleration()); // This is the walk speed, nothing else.
 
     mMessageFactory->addFloat(0.0125f);	// unknown
     mMessageFactory->addUint64(0);	// unknown
@@ -329,7 +366,7 @@ bool MessageLib::sendBaselinesCREO_4(PlayerObject* player)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opBaselinesMessage);
-    mMessageFactory->addUint64(creature->getId());
+    mMessageFactory->addUint64(player->getId());
     mMessageFactory->addUint32(opCREO);
     mMessageFactory->addUint8(4);
 
@@ -354,20 +391,24 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
     if(!(targetObject->isConnected()))
         return(false);
 
+    Ham*			creatureHam		= creatureObject->getHam();
+
+    // Test ERU
     // If no mood is set, use neutral for avatar / npc, then they will look less angry as default.
     // This will NOT affect the chat-mood
-    // BString moodStr = gWorldManager->getMood(creatureObject->getMoodId());
+    // BString			moodStr			= gWorldManager->getMood(creatureObject->getMoodId());
     uint8 moodId = creatureObject->getMoodId();
     if (moodId == 0)
     {
         moodId = 74;
     }
 
-    std::string	moodStr	= gWorldManager->getMood(moodId);
+    std::string			moodStr			= gWorldManager->getMood(moodId);
 
-    auto	defenders	= creatureObject->GetDefender();
+    ObjectList*		equippedObjects = creatureObject->getEquipManager()->getEquippedObjects();
+    ObjectIDList*	defenders		= creatureObject->getDefenders();
 
-    //ObjectList::iterator eqIt = equippedObjects.begin();
+    ObjectList::iterator eqIt = equippedObjects->begin();
 
 
     mMessageFactory->StartMessage();
@@ -377,28 +418,36 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
     mMessageFactory->addUint32(creatureObject->getSubZoneId());
 
     // defenders
-    mMessageFactory->addUint32(defenders.size());
-    mMessageFactory->addUint32(creatureObject->GetDefenderCounter());
+    mMessageFactory->addUint32(defenders->size());
+    mMessageFactory->addUint32(creatureObject->mDefenderUpdateCounter);
 
-    auto defenderIt = defenders.begin();
+    ObjectIDList::iterator defenderIt = defenders->begin();
 
-    while(defenderIt != defenders.end())
+    while(defenderIt != defenders->end())
     {
+        //mMessageFactory->addUint64((*defenderIt)->getId());
         mMessageFactory->addUint64(*defenderIt);
         ++defenderIt;
     }
 
     mMessageFactory->addUint16(creatureObject->getCL());
-    mMessageFactory->addString(creatureObject->getCurrentAnimation()); // music/dance string here - current animation
+    mMessageFactory->addString(creatureObject->getCurrentAnimation());   // music/dance string here - current animation
     mMessageFactory->addString(moodStr);
 
-    mMessageFactory->addUint64(creatureObject->GetWeaponId());
+    if(Object* weapon = creatureObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left))
+    {
+        mMessageFactory->addUint64(weapon->getId());
+    }
+    else
+    {
+        mMessageFactory->addUint64(0);
+    }
 
     //6 Group Id
     mMessageFactory->addUint64(creatureObject->getGroupId());
-    mMessageFactory->addUint64(0); // Invite sender Id
-    mMessageFactory->addUint64(0); // Invite Counter
-    mMessageFactory->addUint32(0); // guild Id
+    mMessageFactory->addUint64(0);   // Invite sender Id
+    mMessageFactory->addUint64(0);   // Invite Counter
+    mMessageFactory->addUint32(0);   // guild Id
 
     //9
     mMessageFactory->addUint64(creatureObject->getTargetId());
@@ -413,35 +462,128 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
     }
     else
     {
-        mMessageFactory->addUint32(creatureObject->UpdatePerformanceCounter()); // unknown
+        mMessageFactory->addUint32(creatureObject->UpdatePerformanceCounter());   // unknown
     }
 
     //c thats not performance id to be used with dancing
     //use with music only
-    mMessageFactory->addUint32(creatureObject->getPerformanceId()); // performance id
+    mMessageFactory->addUint32(creatureObject->getPerformanceId());   // performance id
 
     // current ham
-swganh::messages::BaselinesMessage baseline_message;
-creatureObject->SerializeCurrentStats(&baseline_message);
+    if(creatureObject->getCreoGroup() == CreoGroup_PersistentNpc)
+    {
+        if(!creatureHam->getCurrentHitpointsUpdateCounter())
+        {
+            creatureHam->advanceCurrentHitpointsUpdateCounter(6);
+        }
 
-mMessageFactory->addData(baseline_message.data.data(),baseline_message.data.size());
+        mMessageFactory->addUint32(6);
+        mMessageFactory->addUint32(creatureHam->getCurrentHitpointsUpdateCounter());
 
-// max ham
-swganh::messages::BaselinesMessage haxham_message;
-creatureObject->SerializeMaxStats(&haxham_message);
+        mMessageFactory->addUint32(creatureHam->mHealth.getCurrentHitPoints());
+        mMessageFactory->addUint32(creatureHam->mStrength.getCurrentHitPoints());
+        mMessageFactory->addUint32(creatureHam->mConstitution.getCurrentHitPoints());
+        mMessageFactory->addUint32(creatureHam->mAction.getCurrentHitPoints());
+        mMessageFactory->addUint32(creatureHam->mQuickness.getCurrentHitPoints());
+        mMessageFactory->addUint32(creatureHam->mStamina.getCurrentHitPoints());
 
-mMessageFactory->addData(haxham_message.data.data(),haxham_message.data.size());
+        // max ham
+        if(!creatureHam->getMaxHitpointsUpdateCounter())
+        {
+            creatureHam->advanceMaxHitpointsUpdateCounter(6);
+        }
 
-    
-    // creatures tangible objects ->equipped list
-swganh::messages::BaselinesMessage equipment_baseline_message;
-creatureObject->SerializeEquipment(&equipment_baseline_message);	// Equipment
-mMessageFactory->addData(equipment_baseline_message.data.data(),equipment_baseline_message.data.size());
+        mMessageFactory->addUint32(6);
+        mMessageFactory->addUint32(creatureHam->getMaxHitpointsUpdateCounter());
 
+        mMessageFactory->addUint32(creatureHam->mHealth.getMaxHitPoints());
+        mMessageFactory->addUint32(creatureHam->mStrength.getMaxHitPoints());
+        mMessageFactory->addUint32(creatureHam->mConstitution.getMaxHitPoints());
+        mMessageFactory->addUint32(creatureHam->mAction.getMaxHitPoints());
+        mMessageFactory->addUint32(creatureHam->mQuickness.getMaxHitPoints());
+        mMessageFactory->addUint32(creatureHam->mStamina.getMaxHitPoints());
+    }
+    else if(creatureObject->getCreoGroup() == CreoGroup_Vehicle)
+    {
+        mMessageFactory->addUint32(0);
+        mMessageFactory->addUint32(0);
+        mMessageFactory->addUint32(0);
+        mMessageFactory->addUint32(0);
 
+    }
+    else
+    {
+        if(!creatureHam->getCurrentHitpointsUpdateCounter())
+        {
+            creatureHam->advanceCurrentHitpointsUpdateCounter(9);
+        }
 
-    mMessageFactory->addUint16(0); // unknown set object template string
-    mMessageFactory->addUint8(0); // extra byte that was needed to correct movement stationary byte
+        mMessageFactory->addUint32(9);
+        mMessageFactory->addUint32(creatureHam->getCurrentHitpointsUpdateCounter());
+
+        mMessageFactory->addUint32(creatureHam->mHealth.getCurrentHitPoints());
+        mMessageFactory->addUint32(creatureHam->mStrength.getCurrentHitPoints());
+        mMessageFactory->addUint32(creatureHam->mConstitution.getCurrentHitPoints());
+        mMessageFactory->addUint32(creatureHam->mAction.getCurrentHitPoints());
+        mMessageFactory->addUint32(creatureHam->mQuickness.getCurrentHitPoints());
+        mMessageFactory->addUint32(creatureHam->mStamina.getCurrentHitPoints());
+        mMessageFactory->addUint32(creatureHam->mMind.getCurrentHitPoints());
+        mMessageFactory->addUint32(creatureHam->mFocus.getCurrentHitPoints());
+        mMessageFactory->addUint32(creatureHam->mWillpower.getCurrentHitPoints());
+
+        // max ham
+        if(!creatureHam->getMaxHitpointsUpdateCounter())
+        {
+            creatureHam->advanceMaxHitpointsUpdateCounter(9);
+        }
+
+        mMessageFactory->addUint32(9);
+        mMessageFactory->addUint32(creatureHam->getMaxHitpointsUpdateCounter());
+
+        mMessageFactory->addUint32(creatureHam->mHealth.getMaxHitPoints());
+        mMessageFactory->addUint32(creatureHam->mStrength.getMaxHitPoints());
+        mMessageFactory->addUint32(creatureHam->mConstitution.getMaxHitPoints());
+        mMessageFactory->addUint32(creatureHam->mAction.getMaxHitPoints());
+        mMessageFactory->addUint32(creatureHam->mQuickness.getMaxHitPoints());
+        mMessageFactory->addUint32(creatureHam->mStamina.getMaxHitPoints());
+        mMessageFactory->addUint32(creatureHam->mMind.getMaxHitPoints());
+        mMessageFactory->addUint32(creatureHam->mFocus.getMaxHitPoints());
+        mMessageFactory->addUint32(creatureHam->mWillpower.getMaxHitPoints());
+    }
+
+    // creatures tangible objects	 ->equipped list
+    eqIt = equippedObjects->begin();
+
+    mMessageFactory->addUint32(equippedObjects->size());
+    creatureObject->getEquipManager()->setEquippedObjectsUpdateCounter(0);
+    mMessageFactory->addUint32(creatureObject->getEquipManager()->getEquippedObjectsUpdateCounter());
+
+    while(eqIt != equippedObjects->end())
+    {
+        Object* object = (*eqIt);
+
+        if(TangibleObject* tObject = dynamic_cast<TangibleObject*>(object))
+        {
+            mMessageFactory->addString(tObject->getCustomizationStr());
+        }
+        else if(CreatureObject* pet = dynamic_cast<CreatureObject*>(object)) //support for mounts
+        {
+            mMessageFactory->addString(pet->getCustomizationStr());
+        }
+        else
+        {
+            mMessageFactory->addUint16(0);
+        }
+
+        mMessageFactory->addUint32(4);
+        mMessageFactory->addUint64(object->getId());
+        mMessageFactory->addUint32((object->getModelString()).getCrc());
+
+        ++eqIt;
+    }
+
+    mMessageFactory->addUint16(0); // unknown
+    mMessageFactory->addUint8(0);  // extra byte that was needed to correct movement
 
     Message* data = mMessageFactory->EndMessage();
 
@@ -462,8 +604,6 @@ mMessageFactory->addData(equipment_baseline_message.data.data(),equipment_baseli
     return(true);
 }
 
-<<<<<<< HEAD
-=======
 //======================================================================================================================
 //
 // Posture Message
@@ -526,7 +666,7 @@ void MessageLib::sendDefenderUpdate(CreatureObject* creatureObject,uint8 updateT
     {
         // Reset all
         // Not suported yet
-        DLOG(INFO) << "MessageLib::sendDefenderUpdate Invalid option = " << updateType;
+        DLOG(info) << "MessageLib::sendDefenderUpdate Invalid option = " << updateType;
 
         //NEVER EVER BAIL OUT WITHOUT closing the message and deleting it
         Message* message = mMessageFactory->EndMessage();
@@ -821,7 +961,7 @@ bool MessageLib::sendEquippedItemUpdate_InRange(CreatureObject* creatureObject, 
 
     if(!found)
     {
-        DLOG(INFO) << "MessageLib::sendEquippedItemUpdate_InRange : Item not found : " << itemId;
+        DLOG(info) << "MessageLib::sendEquippedItemUpdate_InRange : Item not found : " << itemId;
         return false;
     }
 
@@ -880,7 +1020,6 @@ bool MessageLib::sendEquippedItemUpdate_InRange(CreatureObject* creatureObject, 
     return(true);
 }
 
->>>>>>> parent of 5bd772a... got rid of google log
 
 //======================================================================================================================
 //
@@ -940,6 +1079,78 @@ void MessageLib::sendMoodUpdate(CreatureObject* srcObject)
     _sendToInRange(mMessageFactory->EndMessage(),srcObject,5);
 }
 
+//======================================================================================================================
+//
+// Creature Deltas Type 6
+// update: posture
+//
+
+void MessageLib::sendPostureUpdate(CreatureObject* creatureObject)
+{
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opDeltasMessage);
+    mMessageFactory->addUint64(creatureObject->getId());
+    mMessageFactory->addUint32(opCREO);
+    mMessageFactory->addUint8(3);
+    mMessageFactory->addUint32(5);
+    mMessageFactory->addUint16(1);
+    mMessageFactory->addUint16(11);
+    mMessageFactory->addUint8(creatureObject->states.getPosture());
+
+    _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5,true);
+}
+
+//======================================================================================================================
+//
+// Creature Deltas Type 6
+// update: posture and state
+//
+
+void MessageLib::sendPostureAndStateUpdate(CreatureObject* creatureObject)
+{
+    // Test code for npc combat with objects that can have no states, like debris.
+    if (creatureObject->getCreoGroup() != CreoGroup_AttackableObject)
+    {
+        mMessageFactory->StartMessage();
+        mMessageFactory->addUint32(opDeltasMessage);
+        mMessageFactory->addUint64(creatureObject->getId());
+        mMessageFactory->addUint32(opCREO);
+        mMessageFactory->addUint8(3);
+        mMessageFactory->addUint32(15);
+        mMessageFactory->addUint16(2);
+        mMessageFactory->addUint16(11);
+        mMessageFactory->addUint8(creatureObject->states.getPosture());
+        mMessageFactory->addUint16(16);
+        mMessageFactory->addUint64(creatureObject->states.getAction());
+
+        _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
+    }
+}
+
+//======================================================================================================================
+//
+// Creature Deltas Type 6
+// update: state
+//
+
+void MessageLib::sendStateUpdate(CreatureObject* creatureObject)
+{
+    // Test code for npc combat with objects that can have no states, like debris.
+    if (creatureObject->getCreoGroup() != CreoGroup_AttackableObject)
+    {
+        mMessageFactory->StartMessage();
+        mMessageFactory->addUint32(opDeltasMessage);
+        mMessageFactory->addUint64(creatureObject->getId());
+        mMessageFactory->addUint32(opCREO);
+        mMessageFactory->addUint8(3);
+        mMessageFactory->addUint32(12);
+        mMessageFactory->addUint16(1);
+        mMessageFactory->addUint16(16);
+        mMessageFactory->addUint64(creatureObject->states.getAction());
+
+        _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
+    }
+}
 
 //======================================================================================================================
 //
@@ -952,7 +1163,13 @@ void MessageLib::sendSingleBarUpdate(CreatureObject* creatureObject)
     // Test code for npc combat with objects that can have no states, like debris.
     if (creatureObject->getCreoGroup() == CreoGroup_AttackableObject)
     {
-        
+        Ham* ham = creatureObject->getHam();
+
+        if (ham == NULL)
+        {
+            return;
+        }
+
         mMessageFactory->StartMessage();
         mMessageFactory->addUint32(opDeltasMessage);
         mMessageFactory->addUint64(creatureObject->getId());
@@ -961,14 +1178,82 @@ void MessageLib::sendSingleBarUpdate(CreatureObject* creatureObject)
         mMessageFactory->addUint32(8); // bytes
         mMessageFactory->addUint16(1);	// No of items
         mMessageFactory->addUint16(8);	// Index 8 condition damage (vehicle)
-		uint32 damage = creatureObject->GetStatMax(HamBar_Health);
-		damage -= creatureObject->GetStatCurrent(HamBar_Health);
-		
+        uint32 damage = ham->getPropertyValue(HamBar_Health,HamProperty_MaxHitpoints);
+        damage -= ham->getPropertyValue(HamBar_Health,HamProperty_CurrentHitpoints);
+        // mMessageFactory->addUint32(ham->getPropertyValue(HamBar_Health,HamProperty_CurrentHitpoints));
         mMessageFactory->addUint32(damage);
         _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
     }
 }
 
+
+//======================================================================================================================
+//
+// Creature Deltas Type 1
+// update: bank credits
+//
+
+bool MessageLib::sendBankCreditsUpdate(PlayerObject* playerObject)
+{
+    if(!(playerObject->isConnected()))
+        return(false);
+
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opDeltasMessage);
+    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint32(opCREO);
+    mMessageFactory->addUint8(1);
+    mMessageFactory->addUint32(8);
+    mMessageFactory->addUint16(1);
+    mMessageFactory->addUint16(0);
+
+    if(Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank)))
+    {
+        mMessageFactory->addUint32(bank->credits());
+    }
+    else
+    {
+        mMessageFactory->addUint32(0);
+    }
+
+    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
+
+    return(true);
+}
+
+//======================================================================================================================
+//
+// Creature Deltas Type 1
+// update: inventory credits
+//
+
+bool MessageLib::sendInventoryCreditsUpdate(PlayerObject* playerObject)
+{
+    if(!(playerObject->isConnected()))
+        return(false);
+
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opDeltasMessage);
+    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint32(opCREO);
+    mMessageFactory->addUint8(1);
+    mMessageFactory->addUint32(8);
+    mMessageFactory->addUint16(1);
+    mMessageFactory->addUint16(1);
+
+    if(Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)))
+    {
+        mMessageFactory->addUint32(inventory->getCredits());
+    }
+    else
+    {
+        mMessageFactory->addUint32(0);
+    }
+
+    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
+
+    return(true);
+}
 
 //======================================================================================================================
 //
@@ -978,44 +1263,37 @@ void MessageLib::sendSingleBarUpdate(CreatureObject* creatureObject)
 
 bool MessageLib::sendUpdateMovementProperties(PlayerObject* playerObject)
 {
-    if(!_checkPlayer(playerObject)) {
-		return false;
-	}
+    if(!(playerObject->isConnected()))
+        return(false);
 
-	CreatureObject* creature = playerObject->GetCreature();
-
-	MessageFactory* factory = getFactory_();
-
-    MovingObject* object = dynamic_cast<MovingObject*>(creature);
+    MovingObject* object = dynamic_cast<MovingObject*>(playerObject);
 
     if (playerObject->checkIfMounted()) {
         object = dynamic_cast<MovingObject*>(playerObject->getMount());
     }
 
-    factory->StartMessage();
-    factory->addUint32(opDeltasMessage);
-    factory->addUint64(creature->getId());
-    factory->addUint32(opCREO);
-    factory->addUint8(4);
-    factory->addUint32(26);
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opDeltasMessage);
+    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint32(opCREO);
+    mMessageFactory->addUint8(4);
+    mMessageFactory->addUint32(26);
 
-    factory->addUint16(4);
+    mMessageFactory->addUint16(4);
 
-    factory->addUint16(5);
-    factory->addFloat(object->getCurrentSpeedModifier());
+    mMessageFactory->addUint16(5);
+    mMessageFactory->addFloat(object->getCurrentSpeedModifier());
 
-    factory->addUint16(7);
-    factory->addFloat(object->getCurrentRunSpeedLimit());
+    mMessageFactory->addUint16(7);
+    mMessageFactory->addFloat(object->getCurrentRunSpeedLimit());
 
-    factory->addUint16(10);
-    factory->addFloat(object->getCurrentTurnRate());
+    mMessageFactory->addUint16(10);
+    mMessageFactory->addFloat(object->getCurrentTurnRate());
 
-    factory->addUint16(11);
-    factory->addFloat(object->getCurrentAcceleration());
+    mMessageFactory->addUint16(11);
+    mMessageFactory->addFloat(object->getCurrentAcceleration());
 
-    (playerObject->getClient())->SendChannelA(factory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
-
-	factory_queue_.push(factory);
+    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
 
     return(true);
 }
@@ -1031,11 +1309,9 @@ bool MessageLib::sendSkillDeltasCreo1(Skill* skill,uint8 action,PlayerObject* ta
     if(!(targetObject->isConnected()))
         return(false);
 
-	CreatureObject* creature = targetObject->GetCreature();
-
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(creature->getId());
+    mMessageFactory->addUint64(targetObject->getId());
     mMessageFactory->addUint32(opCREO);
     mMessageFactory->addUint8(1);
 
@@ -1044,7 +1320,7 @@ bool MessageLib::sendSkillDeltasCreo1(Skill* skill,uint8 action,PlayerObject* ta
     mMessageFactory->addUint16(3);
 
     mMessageFactory->addUint32(1); // listsize
-    mMessageFactory->addUint32(creature->getAndIncrementSkillUpdateCounter());
+    mMessageFactory->addUint32(targetObject->getAndIncrementSkillUpdateCounter());
     mMessageFactory->addUint8(action);
     mMessageFactory->addString(skill->mName);
 
@@ -1085,23 +1361,13 @@ bool MessageLib::sendSkillModDeltasCREO_4(SkillModsList smList,uint8 remove,Crea
 
     mMessageFactory->addUint32(smList.size());
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    mMessageFactory->addUint32(creatureObject->getAndIncrementSkillModUpdateCounter(smList.size()));
+    mMessageFactory->addUint32(playerObject->getAndIncrementSkillModUpdateCounter(smList.size()));
     //mMessageFactory->addUint8(remove);
-=======
-    mMessageFactory->addUint32(playerObject->getAndIncrementSkillModUpdateCounter(smList.size()));
-    mMessageFactory->addUint8(remove);
->>>>>>> parent of 5bd772a... got rid of google log
-=======
-    mMessageFactory->addUint32(playerObject->getAndIncrementSkillModUpdateCounter(smList.size()));
-    mMessageFactory->addUint8(remove);
->>>>>>> parent of 5bd772a... got rid of google log
 
     it = smList.begin();
     while(it != smList.end())
     {
-        mMessageFactory->addUint8(0);
+        mMessageFactory->addUint8(remove);
         mMessageFactory->addString(gSkillManager->getSkillModById((*it).first));
         mMessageFactory->addUint32((*it).second);
         mMessageFactory->addUint32(0);
@@ -1114,6 +1380,218 @@ bool MessageLib::sendSkillModDeltasCREO_4(SkillModsList smList,uint8 remove,Crea
     return(true);
 }
 
+//======================================================================================================================
+//
+// Creature Deltas Type 6
+// update: curent hitpoints 1 bar
+//
+
+
+void MessageLib::sendCurrentHitpointDeltasCreo6_Single(CreatureObject* creatureObject,uint8 barIndex)
+{
+    Ham*	ham = creatureObject->getHam();
+
+    if(ham == NULL)
+        return;
+
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opDeltasMessage);
+    mMessageFactory->addUint64(creatureObject->getId());
+    mMessageFactory->addUint32(opCREO);
+    mMessageFactory->addUint8(6);
+
+    mMessageFactory->addUint32(19);
+    mMessageFactory->addUint16(1);
+    mMessageFactory->addUint16(13);
+
+    // advance by 1 (overload for bigger increment)
+    ham->advanceCurrentHitpointsUpdateCounter();
+    mMessageFactory->addUint32(1);
+    mMessageFactory->addUint32(ham->getCurrentHitpointsUpdateCounter());
+
+    mMessageFactory->addUint8(2);
+    mMessageFactory->addUint16(barIndex);
+    mMessageFactory->addInt32(ham->getPropertyValue(barIndex,HamProperty_CurrentHitpoints));
+
+    _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
+}
+
+//======================================================================================================================
+//
+// Creature Deltas Type 6
+// update: max hitpoints 1 bar
+//
+
+void MessageLib::sendMaxHitpointDeltasCreo6_Single(CreatureObject* creatureObject,uint8 barIndex)
+{
+    Ham* ham = creatureObject->getHam();
+
+    if(ham == NULL)
+        return;
+
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opDeltasMessage);
+    mMessageFactory->addUint64(creatureObject->getId());
+    mMessageFactory->addUint32(opCREO);
+    mMessageFactory->addUint8(6);
+
+    mMessageFactory->addUint32(19);
+
+    mMessageFactory->addUint16(1);
+    mMessageFactory->addUint16(14);//delta nr
+
+    mMessageFactory->addUint32(1);
+    ham->advanceMaxHitpointsUpdateCounter();  // increment list up counter by 1
+    mMessageFactory->addUint32(ham->getMaxHitpointsUpdateCounter());
+
+    mMessageFactory->addUint8(2);
+    mMessageFactory->addUint16(barIndex);
+    mMessageFactory->addInt32(ham->getPropertyValue(barIndex,HamProperty_MaxHitpoints));
+
+    _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
+}
+
+//======================================================================================================================
+//
+// Creature Deltas Type 1
+// update: base hitpoints 1 bar
+//
+
+void MessageLib::sendBaseHitpointDeltasCreo1_Single(CreatureObject* creatureObject,uint8 barIndex)
+{
+    Ham* ham = creatureObject->getHam();
+
+    if(ham == NULL)
+        return;
+
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opDeltasMessage);
+    mMessageFactory->addUint64(creatureObject->getId());
+    mMessageFactory->addUint32(opCREO);
+    mMessageFactory->addUint8(1);
+
+    mMessageFactory->addUint32(19);
+
+    mMessageFactory->addUint16(1);
+    mMessageFactory->addUint16(2);//delta nr
+
+    mMessageFactory->addUint32(1);
+    ham->advanceBaseHitpointsUpdateCounter();
+    mMessageFactory->addUint32(ham->getBaseHitpointsUpdateCounter());  // increment list up counter by 1
+
+    mMessageFactory->addUint8(2);
+    mMessageFactory->addUint16(barIndex);
+    mMessageFactory->addInt32(ham->getPropertyValue(barIndex,HamProperty_BaseHitpoints));
+
+    _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
+}
+
+//======================================================================================================================
+//
+// Creature Deltas Type 3
+// update: wounds 1 bar
+//
+
+void MessageLib::sendWoundUpdateCreo3(CreatureObject* creatureObject,uint8 barIndex)
+{
+    Ham* ham = creatureObject->getHam();
+
+    if(ham == NULL)
+        return;
+
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opDeltasMessage);
+    mMessageFactory->addUint64(creatureObject->getId());
+    mMessageFactory->addUint32(opCREO);
+    mMessageFactory->addUint8(3);
+
+    mMessageFactory->addUint32(19);
+    mMessageFactory->addUint16(1);
+    mMessageFactory->addUint16(17);
+
+    ham->advanceWoundsUpdateCounter();
+    mMessageFactory->addUint32(1);
+    mMessageFactory->addUint32(ham->getWoundsUpdateCounter());
+
+    mMessageFactory->addUint8(2);
+    mMessageFactory->addUint16(barIndex);
+    mMessageFactory->addInt32(ham->getPropertyValue(barIndex,HamProperty_Wounds));
+
+    _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
+}
+
+//======================================================================================================================
+//
+// Creature Deltas Type 6
+// update: hitpoints all bars, only send when all values have changed !
+//
+
+void MessageLib::sendCurrentHitpointDeltasCreo6_Full(CreatureObject* creatureObject)
+{
+    Ham* ham = creatureObject->getHam();
+
+    if(ham == NULL)
+        return;
+
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opDeltasMessage);
+    mMessageFactory->addUint64(creatureObject->getId());
+    mMessageFactory->addUint32(opCREO);
+    mMessageFactory->addUint8(6);
+
+    mMessageFactory->addUint32(33);
+    mMessageFactory->addUint16(1);
+    mMessageFactory->addUint16(13);
+
+    mMessageFactory->addUint32(3);
+
+    ham->advanceCurrentHitpointsUpdateCounter(3);
+
+    mMessageFactory->addUint32(ham->getCurrentHitpointsUpdateCounter());
+
+    mMessageFactory->addUint8(2);
+    mMessageFactory->addUint16(HamBar_Health);
+    mMessageFactory->addInt32(ham->getPropertyValue(HamBar_Health,HamProperty_CurrentHitpoints));
+
+    mMessageFactory->addUint8(2);
+    mMessageFactory->addUint16(HamBar_Action);
+    mMessageFactory->addInt32(ham->getPropertyValue(HamBar_Action,HamProperty_CurrentHitpoints));
+
+    mMessageFactory->addUint8(2);
+    mMessageFactory->addUint16(HamBar_Mind);
+    mMessageFactory->addInt32(ham->getPropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints));
+
+    _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
+}
+
+//======================================================================================================================
+//
+// Creature Deltas Type 3
+// update: battlefatigue
+// Only players are aware of this, so PlayerObject*
+
+void MessageLib::sendBFUpdateCreo3(CreatureObject* playerObject)
+{
+    Ham*			ham = playerObject->getHam();
+    PlayerObject*	pObject = dynamic_cast<PlayerObject*>(playerObject);
+
+    if(!ham || !pObject || !(pObject->isConnected()))
+        return;
+
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opDeltasMessage);
+    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint32(opCREO);
+    mMessageFactory->addUint8(3);
+
+    mMessageFactory->addUint32(8);
+    mMessageFactory->addUint16(1);
+    mMessageFactory->addUint16(15);
+
+    mMessageFactory->addInt32(ham->getBattleFatigue());
+
+    (pObject)->getClient()->SendChannelA(mMessageFactory->EndMessage(),pObject->getAccountId(),CR_Client,5);
+}
 
 //======================================================================================================================
 //
@@ -1131,7 +1609,7 @@ void MessageLib::sendOwnerUpdateCreo3(MountObject* mount)
     mMessageFactory->addUint8(3);
 
     mMessageFactory->addUint32(12);
-    mMessageFactory->addUint16(1);
+    mMessageFactory->addUint16(2);
     mMessageFactory->addUint16(13); // CREO 3 owner id
 
     mMessageFactory->addInt64(mount->owner());
@@ -1172,11 +1650,9 @@ void MessageLib::sendInviteSenderUpdateDeltasCreo6(uint64 id, PlayerObject* targ
     if(!(targetPlayer->isConnected()))
         return;
 
-	CreatureObject* creature = targetPlayer->GetCreature();
-
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(creature->getId());
+    mMessageFactory->addUint64(targetPlayer->getId());
     mMessageFactory->addUint32(opCREO);
     mMessageFactory->addUint8(6);
 
@@ -1195,16 +1671,14 @@ void MessageLib::sendInviteSenderUpdateDeltasCreo6(uint64 id, PlayerObject* targ
 // update: group
 //
 
-void MessageLib::sendGroupIdUpdateDeltasCreo6(uint64 groupId,  PlayerObject*  player, const PlayerObject* const target) const
+void MessageLib::sendGroupIdUpdateDeltasCreo6(uint64 groupId, const PlayerObject* const player, const PlayerObject* const target) const
 {
     if(!(target->isConnected()))
         return;
 
-	CreatureObject* creature = player->GetCreature();
-
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(creature->getId());
+    mMessageFactory->addUint64(player->getId());
     mMessageFactory->addUint32(opCREO);
     mMessageFactory->addUint8(6);
     mMessageFactory->addUint32(12); // Size, short short long
@@ -1223,8 +1697,6 @@ void MessageLib::sendGroupIdUpdateDeltasCreo6(uint64 groupId,  PlayerObject*  pl
 
 void MessageLib::sendTerrainNegotiation(CreatureObject* creatureObject)
 {
-
-
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
     mMessageFactory->addUint64(creatureObject->getId());
@@ -1247,20 +1719,15 @@ void MessageLib::sendTerrainNegotiation(CreatureObject* creatureObject)
 
 void MessageLib::sendListenToId(PlayerObject* playerObject)
 {
-	if(!(playerObject->isConnected()))
-        return;
-
-	CreatureObject* creature = playerObject->GetCreature();
-
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(creature->getId());
+    mMessageFactory->addUint64(playerObject->getId());
     mMessageFactory->addUint32(opCREO);
     mMessageFactory->addUint8(4);
     mMessageFactory->addUint32(12);
     mMessageFactory->addUint16(1);
     mMessageFactory->addUint16(6);
-    mMessageFactory->addUint64(creature->getEntertainerListenToId());
+    mMessageFactory->addUint64(playerObject->getEntertainerListenToId());
 
     (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
     //_sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
@@ -1274,7 +1741,6 @@ void MessageLib::sendListenToId(PlayerObject* playerObject)
 
 void MessageLib::UpdateEntertainerPerfomanceCounter(CreatureObject* creatureObject)
 {
-
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
     mMessageFactory->addUint64(creatureObject->getId());
@@ -1393,6 +1859,34 @@ void MessageLib::sendScaleUpdateCreo3(CreatureObject* creatureObject)
     _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
 }
 
+//======================================================================================================================
+//
+// Creature Deltas Type 6
+// update: weapon id
+//
+
+void MessageLib::sendWeaponIdUpdate(CreatureObject* creatureObject)
+{
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opDeltasMessage);
+    mMessageFactory->addUint64(creatureObject->getId());
+    mMessageFactory->addUint32(opCREO);
+    mMessageFactory->addUint8(6);
+    mMessageFactory->addUint32(12);
+    mMessageFactory->addUint16(1);
+    mMessageFactory->addUint16(5);
+
+    if(Object* weapon = creatureObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left))
+    {
+        mMessageFactory->addUint64(weapon->getId());
+    }
+    else
+    {
+        mMessageFactory->addUint64(0);
+    }
+
+    _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
+}
 
 //======================================================================================================================
 //
@@ -1430,11 +1924,9 @@ bool MessageLib::sendSkillModUpdateCreo4(PlayerObject* playerObject)
     if(!(playerObject->isConnected()))
         return(false);
 
-	CreatureObject* creature = playerObject->GetCreature();
-
     // compute skillmod list size
     //uint32			skillModByteCount	= 0;
-    SkillModsList*	playerSkillMods		= creature->getSkillMods();
+    SkillModsList*	playerSkillMods		= playerObject->getSkillMods();
 
     SkillModsList::iterator it	= playerSkillMods->begin();
 
@@ -1450,7 +1942,7 @@ bool MessageLib::sendSkillModUpdateCreo4(PlayerObject* playerObject)
     // skillmods
 
     mMessageFactory->addUint32(playerSkillMods->size());
-    mMessageFactory->addUint32(creature->getAndIncrementSkillModUpdateCounter(playerSkillMods->size()));
+    mMessageFactory->addUint32(playerObject->getAndIncrementSkillModUpdateCounter(playerSkillMods->size()));
     //playerObject->getAndIncrementSkillModUpdateCounter(1)
 
     //mMessageFactory->addUint16(playerSkillMods->size());
@@ -1471,7 +1963,7 @@ bool MessageLib::sendSkillModUpdateCreo4(PlayerObject* playerObject)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(creature->getId());
+    mMessageFactory->addUint64(playerObject->getId());
     mMessageFactory->addUint32(opCREO);
     mMessageFactory->addUint8(4);
 
@@ -1493,22 +1985,17 @@ bool MessageLib::sendSkillModUpdateCreo4(PlayerObject* playerObject)
 
 void MessageLib::sendStationaryFlagUpdate(PlayerObject* playerObject)
 {
-	if(!(playerObject->isConnected()))
-        return;
-
-	CreatureObject* creature = playerObject->GetCreature();
-
     mMessageFactory->StartMessage();
 
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(creature->getId());
+    mMessageFactory->addUint64(playerObject->getId());
     mMessageFactory->addUint32(opCREO);
     mMessageFactory->addUint8(6);
     mMessageFactory->addUint32(5);
     mMessageFactory->addUint16(1);
     mMessageFactory->addUint16(17);
 
-    if(creature->isStationary())
+    if(playerObject->isStationary())
         mMessageFactory->addUint8(1);
     else
         mMessageFactory->addUint8(0);

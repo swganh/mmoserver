@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -31,22 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "TradeManagerChat.h"
 #include "TradeManagerHelp.h"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-#include "anh/logger.h"
-=======
-=======
->>>>>>> parent of 5bd772a... got rid of google log
-// Fix for issues with glog redefining this constant
-#ifdef _WIN32
-#undef ERROR
-#endif
-
-#include <glog/logging.h>
-<<<<<<< HEAD
->>>>>>> parent of 5bd772a... got rid of google log
-=======
->>>>>>> parent of 5bd772a... got rid of google log
+#include "utils/logger.h"
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
@@ -65,9 +50,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <cstring>
 #include <ctime>
-
-using namespace swganh;
-using namespace database;
 
 bool						TradeManagerChatHandler::mInsFlag    = false;
 TradeManagerChatHandler*		TradeManagerChatHandler::mSingleton  = NULL;
@@ -259,7 +241,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
             player = (*accIt).second;
         else
         {
-            LOG(WARNING) << "Error getting player from account map " << asynContainer->mClient->getAccountId();
+            LOG(warning) << "Error getting player from account map " << asynContainer->mClient->getAccountId();
             return;
         }
     }
@@ -587,7 +569,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
         else
         {
             gChatMessageLib->sendCanceLiveAuctionResponseMessage(asynContainer->mClient, 1, asynContainer->AuctionID);
-            LOG(INFO) << "TradeManager::TRMQuery_CancelAuction::Aucction not found : " << asynContainer->AuctionID;
+            LOG(info) << "TradeManager::TRMQuery_CancelAuction::Aucction not found : " << asynContainer->AuctionID;
         }
     }
     break;
@@ -1066,7 +1048,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
     if(mBazaarsLoaded)
     {
         mBazaarsLoaded = false;
-        LOG(WARNING) << "Loaded bazaars";
+        LOG(warning) << "Loaded bazaars";
     }
 }
 

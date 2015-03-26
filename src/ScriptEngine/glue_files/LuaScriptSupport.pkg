@@ -1,0 +1,101 @@
+$#include "ScriptEngine/ScriptSupport.h"
+
+typedef char			int8;
+typedef short			int16;
+typedef long			int32;
+typedef unsigned int      	uint;
+typedef unsigned char     	uint8;
+typedef unsigned short   	uint16;
+typedef unsigned long     	uint32;
+typedef signed char      	sint8;
+typedef signed short      	sint16;
+typedef signed long       	sint32;
+
+class ScriptSupport
+{
+		static ScriptSupport* Instance();
+
+		// NPC's
+		uint64				npcCreate(uint64 npcId);
+		NPCObject*			npcGetObject(uint64 id);
+		void				npcSpawn(NPCObject* npc,
+									uint64 npcId,
+									uint64 cellForSpawn,
+									std::string firstname,
+									std::string lastname,
+									float dirY,
+									float dirW,
+									float posX,
+									float posY,
+									float posZ);
+		
+		void				npcSpawnPrivate(NPCObject* npc,
+									uint64 npcId,
+									uint64 npcPrivateOwnerId,
+									uint64 cellForSpawn,
+									std::string firstname,
+									std::string lastname,
+									float dirY,
+									float dirW,
+									float posX,
+									float posY,
+									float posZ);
+									
+		void				npcSpawnPersistent(NPCObject* npc,
+												uint64 npcId,
+												uint64 cellForSpawn,
+												std::string firstname,
+												std::string lastname,
+												float dirY,
+												float dirW,
+												float posX,
+												float posY,
+												float posZ,
+												uint64 respawnPeriod,
+												uint64 templateId);
+
+		void				lairSpawn(uint64 lairTypeId);												
+
+		void				npcDirection(NPCObject* npc, float deltaX, float deltaZ);
+		void				npcMove(NPCObject* npc, float posX, float posY, float posZ);
+		void				npcMoveToZone(NPCObject* npc, uint64 zoneId, float posX, float posY, float posZ);
+
+		void				npcFormationPosition(NPCObject* npcMember, float xOffset, float zOffset);
+		void				npcClonePosition(NPCObject* npcDest, NPCObject* npcSrc);
+		void				npcFormationMove(NPCObject* npc, float posX, float posY, float posZ);
+		void				npcFormationMoveEx(NPCObject* npc, float posX, float posY, float posZ , float xOffset, float zOffset);
+		
+		// Items
+		uint64				itemCreate(uint64 itemTypesId);
+		void				itemPopulateInventory(uint64 itemId, uint64 npcId, uint64 playerId);
+
+		// General
+		bool				objectIsReady(uint64 npcId);
+		Object*				getObject(uint64 id);
+		void				eraseObject(uint64 id);
+		uint32				getZoneId();
+		void				enableInstance();
+		bool				isInstance();
+		// void				scriptPlayMusic(uint32 soundId, Object* creatureObject);
+		void				scriptPlayMusic(uint32 soundId, NPCObject* creatureObject);
+		uint64				getTarget(uint64 playerId);
+		uint64				getParentOfTarget(uint64 playerId);
+		void				sendFlyText(uint64 targetId,
+										uint64 playerId,
+										std::string stfFile,
+										std::string stfVar,
+										uint8 red,
+										uint8 green,
+										uint8 blue,
+										uint8 duration);
+
+		void				scriptSystemMessage(uint64 playerId, uint64 targetId, std::string message);
+		void				setPlayerPosition(uint64 playerId, uint64 cellId, float posX, float posY, float posZ);
+		bool				npcInCombat(uint64 npcId);
+		bool				npcIsDead(uint64 npcId);
+		void				npcKill(uint64 npcId);		
+		
+		void				npcTestDir(NPCObject* npc, float dirX, float dirZ);
+		
+
+};

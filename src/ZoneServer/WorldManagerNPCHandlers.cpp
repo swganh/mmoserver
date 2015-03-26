@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -25,18 +25,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "ZoneServer/WorldManager.h"
-#include "ZoneServer/WorldConfig.h"
-#include "anh/Utils/rand.h"
-#include "ZoneServer/Objects/Player Object/PlayerObject.h"
-#include "ZoneServer/GameSystemManagers/Conversation Manager/ConversationManager.h"
-#include "Zoneserver/GameSystemManagers/NPC Manager/NpcManager.h"
-#include "ZoneServer/GameSystemManagers/NPC Manager/NPCObject.h"
-#include "Zoneserver/Objects/Inventory.h"
-//#include "ScriptEngine/ScriptEngine.h"
-//#include "ScriptEngine/ScriptSupport.h"
+#include "WorldManager.h"
+#include "WorldConfig.h"
+#include "Utils/rand.h"
+#include "PlayerObject.h"
+#include "ConversationManager.h"
+#include "NpcManager.h"
+#include "NPCObject.h"
+#include "Inventory.h"
+#include "ScriptEngine/ScriptEngine.h"
+#include "ScriptEngine/ScriptSupport.h"
 #include "Utils/utils.h"
-#include "anh/Utils/clock.h"
+#include "Utils/clock.h"
 
 
 //======================================================================================================================
@@ -107,7 +107,6 @@ bool WorldManager::_handleDormantNpcs(uint64 callTime, void* ref)
                 {
                     // Set next execution time.
                     (*it).second = callTime + waitTime;
-					it++;
                 }
                 else
                 {
@@ -424,7 +423,7 @@ void WorldManager::addNpcConversation(uint64 interval, NPCObject* npc)
     target->mGroupId = 0;
     if (PlayerObject* player = dynamic_cast<PlayerObject*>(getObjectById(npc->getLastConversationTarget())))
     {
-        target->mGroupId = player->GetCreature()->getGroupId();
+        target->mGroupId = player->getGroupId();
     }
 
     if (gWorldConfig->isInstance())

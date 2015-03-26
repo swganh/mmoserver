@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -25,36 +25,35 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "ZoneServer\Services\ham\ham_service.h"
 
-#include "ZoneServer/Tutorial.h"
-#include "Zoneserver/Objects/AttackableCreature.h"
-#include "Zoneserver/GameSystemManagers/Buff Manager/Buff.h"
-#include "Zoneserver/GameSystemManagers/Structure Manager/BuildingObject.h"
+#include "Tutorial.h"
+#include "AttackableCreature.h"
+#include "Buff.h"
+#include "BuildingObject.h"
 #include "CharSheetManager.h"
-#include "Zoneserver/Objects/Datapad.h"
-#include "ZoneServer/GameSystemManagers/NPC Manager/FillerNPC.h"
-#include "Zoneserver/Objects/Inventory.h"
-#include "Zoneserver/GameSystemManagers/NPC Manager/NonPersistentNpcFactory.h"
-#include "ZoneServer/Objects/Player Object/PlayerObject.h"
-#include "ZoneServer/Objects/Object/ObjectFactory.h"
-#include "ZoneServer/ProfessionManagers/Artisan Manager/SampleEvent.h"
-#include "Zoneserver/GameSystemManagers/Crafting Manager/SchematicManager.h"
-#include "ZoneServer/GameSystemManagers/UI Manager/UICloneSelectListBox.h"
-#include "ZoneServer/GameSystemManagers/UI Manager/UIManager.h"
-#include "ZoneServer/GameSystemManagers/UI Manager/UISkillSelectBox.h"
-#include "ZoneServer/GameSystemManagers/UI Manager/UIOfferTeachBox.h"
-#include "ZoneServer/GameSystemManagers/UI Manager/UIPlayerSelectBox.h"
-#include "ZoneServer/WorldConfig.h"
-#include "ZoneServer/WorldManager.h"
-#include "Zoneserver/Objects/waypoints/WaypointObject.h"
+#include "Container.h"
+#include "Datapad.h"
+#include "FillerNPC.h"
+#include "Inventory.h"
+#include "NonPersistentNpcFactory.h"
+#include "PlayerObject.h"
+#include "ObjectFactory.h"
+#include "SampleEvent.h"
+#include "SchematicManager.h"
+#include "UICloneSelectListBox.h"
+#include "UIManager.h"
+#include "UISkillSelectBox.h"
+#include "UIOfferTeachBox.h"
+#include "UIPlayerSelectBox.h"
+#include "WorldConfig.h"
+#include "WorldManager.h"
+#include "WaypointObject.h"
 #include "SendSystemMailMessage.h"
 #include "SocialChatTypes.h"
 
-#include "ZoneServer\Services\equipment\equipment_service.h"
-
 #include "Utils/EventHandler.h"
 #include "MessageLib/MessageLib.h"
+#include "ScriptEngine/ScriptEngine.h"
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -62,8 +61,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/atMacroString.h"
 #include "ChatServer/Mail.h"
 #include "ChatServer/ChatOpcodes.h"
-
-#include <anh\app\swganh_kernel.h>
 
 #ifdef _MSC_VER
 #include <regex>  // NOLINT
@@ -81,7 +78,7 @@ using ::boost::wsmatch;
 using ::boost::regex_search;
 #endif
 
-#include "anh/Utils/rand.h"
+#include "Utils/rand.h"
 
 class TutorialQueryContainer
 {
@@ -129,13 +126,13 @@ Tutorial::Tutorial(PlayerObject* player) :
     mCloseHolocron(false),
     mChangeLookAtTarget(false),
     mOpenInventory(false),
-    mCloseInventory(false)/*,
+    mCloseInventory(false),
     mCellId(0),
     mNpcConversationId(0),
     mContainerEventId(0),
     mQuestWeaponFamily(DefaultQuestWeaponFamily),
     mQuestWeaponType(DefaultQuestWeaponType)
-// mSpawnedNpc(NULL)*/
+// mSpawnedNpc(NULL)
 {
     // State shall be stored/fetched to/from DB.
 
@@ -145,7 +142,7 @@ Tutorial::Tutorial(PlayerObject* player) :
     asContainer->mQueryType = TutorialQuery_MainData;
     asContainer->mId = player->getId();
 
-    (gWorldManager->getKernel()->GetDatabase())->executeSqlAsync(this,asContainer,"SELECT character_state, character_substate, starting_profession FROM %s.character_tutorial WHERE character_id = %"PRIu64"",gWorldManager->getKernel()->GetDatabase()->galaxy(),player->getId());
+    (gWorldManager->getDatabase())->executeSqlAsync(this,asContainer,"SELECT character_state, character_substate, starting_profession FROM %s.character_tutorial WHERE character_id = %"PRIu64"",gWorldManager->getDatabase()->galaxy(),player->getId());
     
 }
 
@@ -153,17 +150,17 @@ Tutorial::~Tutorial()
 {
 
     // Save-update the state.
-    //gWorldManager->getKernel()->GetDatabase()->executeSqlAsync(0,0,"UPDATE %s.character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",gWorldManager->getKernel()->GetDatabase()->galaxy(),mState, mSubState, mPlayerObject->getId());
+    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",gWorldManager->getDatabase()->galaxy(),mState, mSubState, mPlayerObject->getId());
     
 
     // clear scripts
-    //ScriptList::iterator scriptIt = mPlayerScripts.begin();
+    ScriptList::iterator scriptIt = mPlayerScripts.begin();
 
-    //while(scriptIt != mPlayerScripts.end())
-    //{
-        //gScriptEngine->removeScript(*scriptIt);
-      //  scriptIt = mPlayerScripts.erase(scriptIt);
-    //}
+    while(scriptIt != mPlayerScripts.end())
+    {
+        gScriptEngine->removeScript(*scriptIt);
+        scriptIt = mPlayerScripts.erase(scriptIt);
+    }
 }
 
 void Tutorial::warpToStartingLocation(BString startingLocation)
@@ -172,12 +169,11 @@ void Tutorial::warpToStartingLocation(BString startingLocation)
     asContainer->mQueryType = TutorialQuery_PlanetLocation;
     asContainer->mId = mPlayerObject->getId();
 
-    (gWorldManager->getKernel()->GetDatabase())->executeSqlAsync(this,asContainer,"SELECT planet_id, x, y, z FROM %s.starting_location WHERE location LIKE '%s'",gWorldManager->getKernel()->GetDatabase()->galaxy(), startingLocation.getAnsi());
+    (gWorldManager->getDatabase())->executeSqlAsync(this,asContainer,"SELECT planet_id, x, y, z FROM %s.starting_location WHERE location LIKE '%s'",gWorldManager->getDatabase()->galaxy(), startingLocation.getAnsi());
     
 }
 
-
-void Tutorial::handleDatabaseJobComplete(void* ref,swganh::database::DatabaseResult* result)
+void Tutorial::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
     TutorialQueryContainer* asyncContainer = reinterpret_cast<TutorialQueryContainer*>(ref);
 
@@ -185,10 +181,10 @@ void Tutorial::handleDatabaseJobComplete(void* ref,swganh::database::DatabaseRes
     {
     case TutorialQuery_MainData:
     {
-        swganh::database::DataBinding* binding = gWorldManager->getKernel()->GetDatabase()->createDataBinding(3);
-        binding->addField(swganh::database::DFT_uint32,offsetof(Tutorial,mState),4,0);
-        binding->addField(swganh::database::DFT_int32,offsetof(Tutorial,mSubState),4,1);
-        binding->addField(swganh::database::DFT_bstring,offsetof(Tutorial,mStartingProfession),64,2);
+        DataBinding* binding = gWorldManager->getDatabase()->createDataBinding(3);
+        binding->addField(DFT_uint32,offsetof(Tutorial,mState),4,0);
+        binding->addField(DFT_int32,offsetof(Tutorial,mSubState),4,1);
+        binding->addField(DFT_bstring,offsetof(Tutorial,mStartingProfession),64,2);
 
         uint64 count = result->getRowCount();
 
@@ -203,10 +199,10 @@ void Tutorial::handleDatabaseJobComplete(void* ref,swganh::database::DatabaseRes
             mState = 1;
 
             // Save the state.
-            (gWorldManager->getKernel()->GetDatabase())->executeSqlAsync(0,0,"INSERT INTO %s.character_tutorial VALUES (%"PRIu64",%u,%u)",gWorldManager->getKernel()->GetDatabase()->galaxy(),asyncContainer->mId,mState, mSubState);
+            (gWorldManager->getDatabase())->executeSqlAsync(0,0,"INSERT INTO %s.character_tutorial VALUES (%"PRIu64",%u,%u)",gWorldManager->getDatabase()->galaxy(),asyncContainer->mId,mState, mSubState);
     
         }
-        gWorldManager->getKernel()->GetDatabase()->destroyDataBinding(binding);
+        gWorldManager->getDatabase()->destroyDataBinding(binding);
 
         // Here we go...
         this->startScript();
@@ -218,13 +214,13 @@ void Tutorial::handleDatabaseJobComplete(void* ref,swganh::database::DatabaseRes
         PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->mId));
         if (player)
         {
-            swganh::database::DataBinding* binding = gWorldManager->getKernel()->GetDatabase()->createDataBinding(4);
+            DataBinding* binding = gWorldManager->getDatabase()->createDataBinding(4);
             TutorialStartingLocation startingLocation;
 
-            binding->addField(swganh::database::DFT_uint32, offsetof(TutorialStartingLocation, destinationPlanet), 4, 0);
-            binding->addField(swganh::database::DFT_float, offsetof(TutorialStartingLocation, destX), 4, 1);
-            binding->addField(swganh::database::DFT_float, offsetof(TutorialStartingLocation, destY), 4, 2);
-            binding->addField(swganh::database::DFT_float, offsetof(TutorialStartingLocation, destZ), 4, 3);
+            binding->addField(DFT_uint32, offsetof(TutorialStartingLocation, destinationPlanet), 4, 0);
+            binding->addField(DFT_float, offsetof(TutorialStartingLocation, destX), 4, 1);
+            binding->addField(DFT_float, offsetof(TutorialStartingLocation, destY), 4, 2);
+            binding->addField(DFT_float, offsetof(TutorialStartingLocation, destZ), 4, 3);
 
             result->getNextRow(binding, &startingLocation);
 
@@ -242,17 +238,13 @@ void Tutorial::handleDatabaseJobComplete(void* ref,swganh::database::DatabaseRes
 
             Datapad* datapad = player->getDataPad();
 
-			std::string name("@ui:cpt_avatar_location");
-			std::u16string name_u16(name.begin(), name.end());
-
-            std::shared_ptr<WaypointObject> wp = datapad->getWaypointByName(name_u16);
-            
-			if(wp)
+            WaypointObject* wp = datapad->getWaypointByName("@ui:cpt_avatar_location");
+            if(wp)
             {
-				datapad->RemoveWaypoint(wp->getId());
+                datapad->removeWaypoint(wp->getId());
             }
-			
-            datapad->requestNewWaypoint(name_u16, position, startingLocation.destinationPlanet, Waypoint_blue);
+
+            datapad->requestNewWaypoint("@ui:cpt_avatar_location", position, startingLocation.destinationPlanet, Waypoint_blue);
 
             //send starting emails
             sendStartingMails();
@@ -279,17 +271,17 @@ void Tutorial::handleDatabaseJobComplete(void* ref,swganh::database::DatabaseRes
 
 void Tutorial::ScriptRegisterEvent(void* script,std::string eventFunction)
 {
-    //mCmdScriptListener.registerScript(reinterpret_cast<Script*>(script),(int8*)eventFunction.c_str());
+    mCmdScriptListener.registerScript(reinterpret_cast<Script*>(script),(int8*)eventFunction.c_str());
 }
 
 //======================================================================================================================
 //
 // available for scripts
 //
-//void Tutorial::scriptPlayMusic(uint32 soundId)
-//{
-  //  gMessageLib->sendPlayMusicMessage(soundId, mPlayerObject);
-//}
+void Tutorial::scriptPlayMusic(uint32 soundId)
+{
+    gMessageLib->sendPlayMusicMessage(soundId, mPlayerObject);
+}
 
 //======================================================================================================================
 //
@@ -346,7 +338,7 @@ void Tutorial::updateTutorial(std::string customMessage)
     }
     else
     {
-        //tutorialResponseReset((int8*)(customMessage.c_str()));
+        tutorialResponseReset((int8*)(customMessage.c_str()));
     }
     gMessageLib->sendUpdateTutorialRequest(mPlayerObject, BString((int8*)(customMessage.c_str())));
 }
@@ -385,7 +377,7 @@ void Tutorial::disableHudElement(std::string customMessage)
 //======================================================================================================================
 //
 //
-/*
+
 void Tutorial::tutorialResponse(BString tutorialEventString)
 {
     if (strcmp(tutorialEventString.getAnsi(), "zoomCamera") == 0)
@@ -434,7 +426,6 @@ void Tutorial::tutorialResponse(BString tutorialEventString)
 //
 //
 
-/*
 void Tutorial::tutorialResponseReset(BString tutorialEventString)
 {
     if (strcmp(tutorialEventString.getAnsi(), "zoomCamera") == 0)
@@ -463,7 +454,7 @@ void Tutorial::tutorialResponseReset(BString tutorialEventString)
     }
 
 }
-*/
+
 //======================================================================================================================
 //
 // available for scripts
@@ -559,7 +550,6 @@ bool Tutorial::isCloseInventory()
 //
 // available for scripts
 //
-/*
 uint32 Tutorial::getState()
 {
     return mState;
@@ -574,18 +564,17 @@ void Tutorial::setState(uint32 state)
     mState = state;
 
     // Save-update the state.
-    gWorldManager->getKernel()->GetDatabase()->executeSqlAsync(0,0,"UPDATE %s.character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",gWorldManager->getKernel()->GetDatabase()->galaxy(),mState, mSubState, mPlayerObject->getId());
+    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",gWorldManager->getDatabase()->galaxy(),mState, mSubState, mPlayerObject->getId());
     
 
 }
-*/
+
 //======================================================================================================================
 //
 // Start the script.
 //
 void Tutorial::startScript(void)
 {
-	/*
     Script* script = ScriptEngine::Init()->createScript();
     script->setPriority(0);
 
@@ -594,7 +583,6 @@ void Tutorial::startScript(void)
 
     mPlayerScripts.push_back(script);
     script->run();
-	*/
 }
 
 
@@ -616,7 +604,7 @@ void Tutorial::setSubState(uint32 subState)
     mSubState = subState;
 
     // Save-update the state.
-    gWorldManager->getKernel()->GetDatabase()->executeSqlAsync(0,0,"UPDATE %s.character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",gWorldManager->getKernel()->GetDatabase()->galaxy(),mState, mSubState, mPlayerObject->getId());
+    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",gWorldManager->getDatabase()->galaxy(),mState, mSubState, mPlayerObject->getId());
     
 
 }
@@ -630,7 +618,7 @@ bool Tutorial::getReady()
     bool status = false;
     if (mPlayerObject && mPlayerObject->isConnected())
     {
-		status = mPlayerObject->GetCreature()->getReady();
+        status = mPlayerObject->getReady();
     }
     return status;
 }
@@ -814,17 +802,29 @@ bool Tutorial::isContainerEmpty(uint64 containerId)
     bool empty = false;
     if (containerId == mContainerEventId)
     {
-	    TangibleObject* container = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(containerId));
+	    Container* container = dynamic_cast<Container*>(gWorldManager->getObjectById(containerId));
 	    if (container)
 	    {
-			uint32 objectCount = 0;
-			container->ViewObjects(container, 0, true, [&](Object* object){
-		   
-				++objectCount;
-            });
-		}
+		    uint32 objectCount = 0;
+		    ObjectIDList* objList = container->getObjects();
+		    ObjectIDList::iterator it = objList->begin();
+
+		    ObjectIDList::iterator cEnd = objList->end();
+
+		    while(it != cEnd)
+		    {
+			    TangibleObject* item = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
+			    if(item->getPrivateOwner() == this->getPlayer())
+                {
+				    ++objectCount;
+                }
+
+                ++it;
+            }
+
+            empty = (objectCount == 0);
+        }
     }
-    
     return empty;
 }
 
@@ -861,10 +861,7 @@ void Tutorial::addQuestWeapon(uint32 familyId, uint32 typeId)
     // gLogger->log(LogManager::DEBUG,"Tutorial::addItem Invoked",MSG_NORMAL);
     if (mPlayerObject && mPlayerObject->isConnected())
     {
-
-		auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-		auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(mPlayerObject->GetCreature(), "inventory"));
-
+        Inventory* inventory = dynamic_cast<Inventory*>(mPlayerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
         if (inventory)
         {
             if ((familyId != 0) && (typeId != 0))
@@ -906,7 +903,6 @@ bool Tutorial::isLowHam(uint64 npcId, int32 hamLevel)
     NPCObject* npc = dynamic_cast<NPCObject*>(gWorldManager->getObjectById(npcId));
     if (npc)
     {
-		/*
         if ((npc->getHam()->getPropertyValue(HamBar_Health,HamProperty_CurrentHitpoints) < hamLevel) ||
                 (npc->getHam()->getPropertyValue(HamBar_Action,HamProperty_CurrentHitpoints) < hamLevel) ||
                 (npc->getHam()->getPropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints) < hamLevel) ||
@@ -916,7 +912,6 @@ bool Tutorial::isLowHam(uint64 npcId, int32 hamLevel)
         {
             return true;
         }
-		*/
     }
     return false;
 }
@@ -926,7 +921,7 @@ uint64 Tutorial::getSkillTrainerTypeId(void)
     uint64 typeId = getSkillTrainerTypeId(this->mStartingProfession);
     if (typeId == 0)
     {
-        DLOG(INFO) << "Tutorial::getSkillTrainerTypeId WARNING: Player have no starting profession set.";
+        DLOG(info) << "Tutorial::getSkillTrainerTypeId WARNING: Player have no starting profession set.";
     }
     return typeId;
 }
@@ -992,7 +987,7 @@ bool Tutorial::isPlayerTrained(void)
 
     if (mPlayerObject && mPlayerObject->isConnected())
     {
-        isTrained = (mPlayerObject->GetCreature()->getSkillPointsLeft() < 250);
+        isTrained = (mPlayerObject->getSkillPointsLeft() < 250);
     }
     return isTrained;
 }
@@ -1040,7 +1035,7 @@ void Tutorial::makeCreatureAttackable(uint64 npcId)
     }
     else
     {
-        DLOG(INFO) << "Tutorial::makeCreatureAttackable FAILED";
+        DLOG(info) << "Tutorial::makeCreatureAttackable FAILED";
     }
 }
 

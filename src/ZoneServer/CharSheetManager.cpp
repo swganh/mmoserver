@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -26,27 +26,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "CharSheetManager.h"
 
-<<<<<<< HEAD
-=======
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include <glog/logging.h>
-<<<<<<< HEAD
->>>>>>> parent of 5bd772a... got rid of google log
-=======
->>>>>>> parent of 5bd772a... got rid of google log
+#include "utils/logger.h"
 
-#include "anh/logger.h"
+#include "Badge.h"
+#include "Bank.h"
+#include "PlayerObject.h"
+#include "WorldManager.h"
+#include "Inventory.h"
+#include "ZoneOpcodes.h"
 
-#include "Zoneserver/Objects/Badge.h"
-#include "Zoneserver/Objects/Bank.h"
-#include "ZoneServer/Objects/Player Object/PlayerObject.h"
-#include "ZoneServer/WorldManager.h"
-#include "Zoneserver/Objects/Inventory.h"
-#include "ZoneServer/ZoneOpcodes.h"
 
-#include "ZoneServer\Services\equipment\equipment_service.h"
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -57,8 +49,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageDispatch.h"
 #include "NetworkManager/MessageFactory.h"
 
-using namespace swganh;
-using namespace database;
 
 //=========================================================================================
 
@@ -67,7 +57,7 @@ CharSheetManager*	CharSheetManager::mSingleton = NULL;
 
 //=========================================================================================
 
-CharSheetManager::CharSheetManager(swganh::database::Database* database,MessageDispatch* dispatch) :
+CharSheetManager::CharSheetManager(Database* database,MessageDispatch* dispatch) :
     mDatabase(database),
     mMessageDispatch(dispatch),
     mDBAsyncPool(sizeof(CSAsyncContainer))
@@ -81,7 +71,7 @@ CharSheetManager::CharSheetManager(swganh::database::Database* database,MessageD
 
 //=========================================================================================
 
-CharSheetManager* CharSheetManager::Init(swganh::database::Database* database,MessageDispatch* dispatch)
+CharSheetManager* CharSheetManager::Init(Database* database,MessageDispatch* dispatch)
 {
     if(mInsFlag == false)
     {
@@ -119,21 +109,13 @@ CharSheetManager::~CharSheetManager()
 {
     _unregisterCallbacks();
 
-	uint32 count = mvBadges.size();
-	BadgeList::iterator it = mvBadges.begin();
-	for(it = mvBadges.begin(); it !=mvBadges.end(); it++)	{
-		delete(*it);
-	}
-
-
     mInsFlag = false;
     delete(mSingleton);
-
 }
 
 //=========================================================================================
 
-void CharSheetManager::handleDatabaseJobComplete(void* ref, swganh::database::DatabaseResult* result)
+void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 {
     CSAsyncContainer* asyncContainer = reinterpret_cast<CSAsyncContainer*>(ref);
 
@@ -143,8 +125,8 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, swganh::database::Da
     {
 
         BString name;
-        swganh::database::DataBinding* binding = mDatabase->createDataBinding(1);
-        binding->addField(swganh::database::DFT_bstring,0,255,1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
+        binding->addField(DFT_bstring,0,255,1);
 
         uint64 count = result->getRowCount();
         mvFactions.reserve((uint32)count);
@@ -154,7 +136,7 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, swganh::database::Da
             mvFactions.push_back(BString(name.getAnsi()));
         }
 
-        LOG_IF(INFO, count) << "Loaded " << count << " factions";
+        //LOG(info) << "Loaded " << count << " factions";
 
         mDatabase->destroyDataBinding(binding);
 
@@ -167,8 +149,8 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, swganh::database::Da
     case CharSheetQuery_BadgeCategories:
     {
         BString name;
-        swganh::database::DataBinding* binding = mDatabase->createDataBinding(1);
-        binding->addField(swganh::database::DFT_bstring,0,255,1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
+        binding->addField(DFT_bstring,0,255,1);
 
         uint64 count = result->getRowCount();
         mvBadgeCategories.reserve((uint32)count);
@@ -178,7 +160,7 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, swganh::database::Da
             mvBadgeCategories.push_back(BString(name.getAnsi()));
         }
 
-        LOG_IF(INFO, count) << "Loaded " << count << " badge categories";
+        //LOG(info) << "Loaded " << count << " badge categories";
 
         mDatabase->destroyDataBinding(binding);
 
@@ -193,11 +175,11 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, swganh::database::Da
     {
         Badge* badge;
 
-        swganh::database::DataBinding* binding = mDatabase->createDataBinding(4);
-        binding->addField(swganh::database::DFT_uint32,offsetof(Badge,mId),4,0);
-        binding->addField(swganh::database::DFT_bstring,offsetof(Badge,mName),255,1);
-        binding->addField(swganh::database::DFT_uint32,offsetof(Badge,mSoundId),4,2);
-        binding->addField(swganh::database::DFT_uint8,offsetof(Badge,mCategory),1,3);
+        DataBinding* binding = mDatabase->createDataBinding(4);
+        binding->addField(DFT_uint32,offsetof(Badge,mId),4,0);
+        binding->addField(DFT_bstring,offsetof(Badge,mName),255,1);
+        binding->addField(DFT_uint32,offsetof(Badge,mSoundId),4,2);
+        binding->addField(DFT_uint8,offsetof(Badge,mCategory),1,3);
 
         uint64 count = result->getRowCount();
         mvBadges.reserve((uint32)count);
@@ -208,7 +190,7 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, swganh::database::Da
             mvBadges.push_back(badge);
         }
 
-        LOG_IF(INFO, count) << "Loaded " << count << " badges";
+        //LOG(info) << "Loaded " << count << " badges";
 
         mDatabase->destroyDataBinding(binding);
         //gLogger->log(LogManager::DEBUG,"Finished Loading Badges.");
@@ -228,28 +210,20 @@ void CharSheetManager::_processFactionRequest(Message* message,DispatchClient* c
 {
     PlayerObject* player = gWorldManager->getPlayerByAccId(client->getAccountId());
 
-<<<<<<< HEAD
-    if(player == NULL)    {
-        DLOG(info) << "CharSheetManager::_processFactionRequest: could not find player " << client->getAccountId();
-=======
     if(player == NULL)
     {
-        DLOG(INFO) << "CharSheetManager::_processFactionRequest: could not find player " << client->getAccountId();
-<<<<<<< HEAD
->>>>>>> parent of 5bd772a... got rid of google log
-=======
->>>>>>> parent of 5bd772a... got rid of google log
+        DLOG(info) << "CharSheetManager::_processFactionRequest: could not find player " << client->getAccountId();
         return;
     }
 
     gMessageFactory->StartMessage();
     gMessageFactory->addUint32(opFactionResponseMessage);
-    gMessageFactory->addString(player->GetCreature()->getFaction());
-    gMessageFactory->addUint32(player->GetCreature()->getFactionPointsByFactionId(2));
-    gMessageFactory->addUint32(player->GetCreature()->getFactionPointsByFactionId(3));
+    gMessageFactory->addString(player->getFaction());
+    gMessageFactory->addUint32(player->getFactionPointsByFactionId(2));
+    gMessageFactory->addUint32(player->getFactionPointsByFactionId(3));
     gMessageFactory->addUint32(0);
 
-    FactionList* factions = player->GetCreature()->getFactionList();
+    FactionList* factions = player->getFactionList();
 
     gMessageFactory->addUint32(factions->size());
 
@@ -282,28 +256,16 @@ void CharSheetManager::_processPlayerMoneyRequest(Message* message,DispatchClien
 {
     PlayerObject* player = gWorldManager->getPlayerByAccId(client->getAccountId());
 
-<<<<<<< HEAD
-    if(player == NULL)    {
-        DLOG(info) << "CharSheetManager::_processPlayerMoneyRequest: could not find player " << client->getAccountId();
-=======
     if(player == NULL)
     {
-        DLOG(INFO) << "CharSheetManager::_processPlayerMoneyRequest: could not find player " << client->getAccountId();
-<<<<<<< HEAD
->>>>>>> parent of 5bd772a... got rid of google log
-=======
->>>>>>> parent of 5bd772a... got rid of google log
+        DLOG(info) << "CharSheetManager::_processPlayerMoneyRequest: could not find player " << client->getAccountId();
         return;
     }
 
-	auto equip_service = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService");
-	auto inventory	= dynamic_cast<Inventory*>(equip_service->GetEquippedObject(player->GetCreature(), "inventory"));
-	auto bank		= dynamic_cast<Bank*>(equip_service->GetEquippedObject(player->GetCreature(), "bank"));
-
     gMessageFactory->StartMessage();
     gMessageFactory->addUint32(opPlayerMoneyResponse);
-    gMessageFactory->addUint32(bank->getCredits());
-    gMessageFactory->addUint32(inventory->getCredits());
+    gMessageFactory->addUint32(dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->credits());
+    gMessageFactory->addUint32(dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits());
 
     Message* newMessage = gMessageFactory->EndMessage();
 

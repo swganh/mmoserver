@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -35,20 +35,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/Session.h"
 #include "NetworkManager/NetworkClient.h"
 
-// Fix for issues with glog redefining this constant
-#ifdef ERROR
-#undef ERROR
-#endif
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-#include "anh/logger.h"
-=======
-#include <glog/logging.h>
->>>>>>> parent of 5bd772a... got rid of google log
-=======
-#include <glog/logging.h>
->>>>>>> parent of 5bd772a... got rid of google log
+#include "utils/logger.h"
 
 
 //#include <stdio.h>
@@ -65,7 +53,7 @@ MessageDispatch::MessageDispatch(Service* service) :
 
 //======================================================================================================================
 
-MessageDispatch::~MessageDispatch()
+MessageDispatch::~MessageDispatch(void)
 {
 
 }
@@ -155,7 +143,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
             dispatchClient = (*iter).second;
             mAccountClientMap.erase(iter);
 
-            DLOG(INFO) << "Destroying Dispatch Client for account " << message->getAccountId();
+            DLOG(info) << "Destroying Dispatch Client for account " << message->getAccountId();
 
             // Mark it for deletion
             deleteClient = true;
@@ -163,7 +151,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
         }
         else
         {
-            LOG(INFO) << "Could not find DispatchClient for account " <<  message->getAccountId() << " to be deleted.";
+            LOG(info) << "Could not find DispatchClient for account " <<  message->getAccountId() << " to be deleted.";
 
             client->getSession()->DestroyIncomingMessage(message);
             //lk.unlock();
@@ -210,7 +198,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
     }
     else
     {
-        LOG(INFO) <<  "Unhandled opcode in MessageDispatch - " << opcode ;
+        LOG(info) <<  "Unhandled opcode in MessageDispatch - " << opcode ;
     }
 
 

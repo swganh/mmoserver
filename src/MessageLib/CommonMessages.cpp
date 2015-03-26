@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -27,23 +27,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "MessageLib.h"
 
-#include "ZoneServer\Services\equipment\equipment_service.h"
-
-#include "ZoneServer/Objects/Bank.h"
-#include "ZoneServer/GameSystemManagers/Structure Manager/CellObject.h"
+#include "ZoneServer/Bank.h"
+#include "ZoneServer/CellObject.h"
 #include "ZoneServer/CharSheetManager.h"
-#include "ZoneServer/GameSystemManagers/Conversation Manager/Conversation.h"
-#include "ZoneServer/Objects/CraftingTool.h"
-#include "ZoneServer/GameSystemManagers/Resource Manager/CurrentResource.h"
-#include "ZoneServer/GameSystemManagers/Crafting Manager/ManufacturingSchematic.h"
-#include "ZoneServer/GameSystemManagers/NPC Manager/NPCObject.h"
-#include "ZoneServer/ObjectController/ObjectControllerOpcodes.h"
-#include "ZoneServer/Objects/Object/ObjectFactory.h"
-#include "ZoneServer/Objects/Player Object/PlayerObject.h"
-#include "ZoneServer/ProfessionManagers/Artisan Manager/ArtisanManager.h"
-#include "ZoneServer/GameSystemManagers/Travel Manager/TravelTerminal.h"
-#include "ZoneServer/GameSystemManagers/UI Manager/UIOpcodes.h"
-#include "ZoneServer/Objects/Wearable.h"
+#include "ZoneServer/Conversation.h"
+#include "ZoneServer/CraftingTool.h"
+#include "ZoneServer/CurrentResource.h"
+#include "ZoneServer/ManufacturingSchematic.h"
+#include "ZoneServer/NPCObject.h"
+#include "ZoneServer/ObjectControllerOpcodes.h"
+#include "ZoneServer/ObjectFactory.h"
+#include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/ArtisanManager.h"
+#include "ZoneServer/TravelTerminal.h"
+#include "ZoneServer/UIOpcodes.h"
+#include "ZoneServer/Wearable.h"
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
 
@@ -82,17 +80,20 @@ using ::common::OutOfBand;
 //
 // create function, used for all objects
 //
-bool MessageLib::sendCreateObjectByCRC(Object* object,const PlayerObject* const targetObject) const
+bool MessageLib::sendCreateObjectByCRC(Object* object,const PlayerObject* const targetObject,bool player) const
 {
-    if(!object || !targetObject || !targetObject->isConnected())    {
+    if(!object || !targetObject || !targetObject->isConnected())
+    {
         return(false);
     }
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opSceneCreateObjectByCrc);
 
-    mMessageFactory->addUint64(object->getId());
-    
+    if(!player)
+        mMessageFactory->addUint64(object->getId());
+    else
+        mMessageFactory->addUint64(dynamic_cast<PlayerObject*>(object)->getPlayerObjId());
 
     // direction
     mMessageFactory->addFloat(object->mDirection.x);
@@ -105,10 +106,10 @@ bool MessageLib::sendCreateObjectByCRC(Object* object,const PlayerObject* const 
     mMessageFactory->addFloat(object->mPosition.y);
     mMessageFactory->addFloat(object->mPosition.z);
 
-    
-    mMessageFactory->addUint32(common::memcrc(object->GetTemplate()));
-
-    //mMessageFactory->addUint32(0x619bae21); // shared_player.iff
+    if(!player)
+        mMessageFactory->addUint32(object->getModelString().getCrc());
+    else
+        mMessageFactory->addUint32(0x619bae21); // shared_player.iff
 
     mMessageFactory->addUint8(0);
 
@@ -173,13 +174,13 @@ bool MessageLib::sendDestroyObject(uint64 objectId, CreatureObject* const owner)
     mMessageFactory->addUint64(objectId);
     mMessageFactory->addUint8(0);
 
-    _sendToInRange(mMessageFactory->EndMessage(), owner, 3);
+    _sendToInRange(mMessageFactory->EndMessage(), owner, 3, false);
 
     return(true);
 }
 
 //======================================================================================================================
-
+// What is the use of "owner"? The info is send to the know Objects....
 bool MessageLib::sendDestroyObject_InRange(uint64 objectId, PlayerObject* const owner, bool self)
 {
     if(!owner || !owner->isConnected())
@@ -192,7 +193,7 @@ bool MessageLib::sendDestroyObject_InRange(uint64 objectId, PlayerObject* const 
     mMessageFactory->addUint64(objectId);
     mMessageFactory->addUint8(0);
 
-    _sendToInRange(mMessageFactory->EndMessage(), owner, 3);
+    _sendToInRange(mMessageFactory->EndMessage(), owner, 3,self);
 
     return(true);
 }
@@ -213,7 +214,7 @@ bool MessageLib::sendDestroyObject_InRangeofObject(Object* object)
     mMessageFactory->addUint64(object->getId());
     mMessageFactory->addUint8(0);
 
-    _sendToInRange(mMessageFactory->EndMessage(), object, 3);
+    _sendToInRange(mMessageFactory->EndMessage(), object, 3,false);
 
     return(true);
 }
@@ -222,29 +223,7 @@ bool MessageLib::sendDestroyObject_InRangeofObject(Object* object)
 //
 // updates an object parent<->child relationship
 //
-bool MessageLib::sendContainmentMessage(uint64 objectId,uint64 parentId,int32 linkType,const PlayerObject* const targetObject) const
-{
-    if(!targetObject || !targetObject->isConnected())    {
-        return(false);
-    }
-
-    mMessageFactory->StartMessage();
-    mMessageFactory->addUint32(opUpdateContainmentMessage);
-
-    mMessageFactory->addUint64(objectId);
-    mMessageFactory->addUint64(parentId);
-	
-
-	mMessageFactory->addInt32(linkType);
-
-    (targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 4);
-
-    return(true);
-}
-
-//======================================================================================================================
-//same with broadcast to in Range
-bool MessageLib::sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,int32 linkType,PlayerObject* targetObject)
+bool MessageLib::sendContainmentMessage(uint64 objectId,uint64 parentId,uint32 linkType,const PlayerObject* const targetObject) const
 {
     if(!targetObject || !targetObject->isConnected())
     {
@@ -256,16 +235,37 @@ bool MessageLib::sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,
 
     mMessageFactory->addUint64(objectId);
     mMessageFactory->addUint64(parentId);
-    mMessageFactory->addInt32(linkType);
+    mMessageFactory->addUint32(linkType);
 
-	_sendToInRange(mMessageFactory->EndMessage(),targetObject->GetCreature(),5);
+    (targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 4);
+
+    return(true);
+}
+
+//======================================================================================================================
+//same with broadcast to in Range
+bool MessageLib::sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,uint32 linkType,PlayerObject* targetObject)
+{
+    if(!targetObject || !targetObject->isConnected())
+    {
+        return(false);
+    }
+
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opUpdateContainmentMessage);
+
+    mMessageFactory->addUint64(objectId);
+    mMessageFactory->addUint64(parentId);
+    mMessageFactory->addUint32(linkType);
+
+    _sendToInRange(mMessageFactory->EndMessage(),targetObject,5, false);
 
     return(true);
 }
 
 //======================================================================================================================
 
-bool MessageLib::sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,int32 linkType,CreatureObject* targetObject)
+bool MessageLib::sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,uint32 linkType,CreatureObject* targetObject)
 {
     if(!targetObject)
     {
@@ -277,7 +277,7 @@ bool MessageLib::sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,
 
     mMessageFactory->addUint64(objectId);
     mMessageFactory->addUint64(parentId);
-    mMessageFactory->addInt32(linkType);
+    mMessageFactory->addUint32(linkType);
 
     _sendToInRange(mMessageFactory->EndMessage(),targetObject,5);
 
@@ -479,7 +479,7 @@ bool MessageLib::sendStartScene(uint64 zoneId,PlayerObject* player)
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opCmdStartScene);
     mMessageFactory->addUint8(0);
-	mMessageFactory->addUint64(player->GetCreature()->getId());
+    mMessageFactory->addUint64(player->getId());
 
     BString mapName = gWorldManager->getTrnFileThis();
     mMessageFactory->addString(mapName);
@@ -488,7 +488,7 @@ bool MessageLib::sendStartScene(uint64 zoneId,PlayerObject* player)
     mMessageFactory->addFloat(player->mPosition.y);
     mMessageFactory->addFloat(player->mPosition.z);
 
-    mMessageFactory->addString(player->GetCreature()->GetTemplate());
+    mMessageFactory->addString(player->getModelString());
     mMessageFactory->addUint64(zoneId);
 
     (player->getClient())->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(), CR_Client, 9);
@@ -583,31 +583,6 @@ bool MessageLib::sendEnterTicketPurchaseModeMessage(TravelTerminal* terminal,Pla
 // system message
 //
 
-bool MessageLib::SendSystemMessage(const std::u16string& custom_message, const PlayerObject* const player, bool chatbox_only, bool send_to_inrange) {
-
-    // Use regex to check if the chat string matches the stf string format.
-    static const regex pattern("@([a-zA-Z0-9/_]+):([a-zA-Z0-9_]+)");
-    smatch result;
-
-    std::string stf_string(custom_message.begin(), custom_message.end());
-
-    // If it's an exact match (2 sub-patterns + the full string = 3 elements) it's an stf string.
-    // Reroute the call to the appropriate overload.
-    if (regex_search(stf_string, result, pattern))
-    {
-        std::string file(result[1].str());
-        std::string string(result[2].str());
-
-        // @todo: Because of dependency on other non-const functions that should be const we need to cast away the constness here.
-        // Remove this in the future as the other const correctness problems are dealt with.
-        return SendSystemMessage_(std::u16string(), OutOfBand(file, string), const_cast<PlayerObject*>(player), chatbox_only, send_to_inrange);
-    }
-
-    // @todo: Because of dependency on other non-const functions that should be const we need to cast away the constness here.
-    // Remove this in the future as the other const correctness problems are dealt with.
-    return SendSystemMessage_(custom_message, OutOfBand(), const_cast<PlayerObject*>(player), chatbox_only, send_to_inrange);
-}
-
 bool MessageLib::SendSystemMessage(const std::wstring& custom_message, const PlayerObject* const player, bool chatbox_only, bool send_to_inrange) {
 
     // Use regex to check if the chat string matches the stf string format.
@@ -625,61 +600,58 @@ bool MessageLib::SendSystemMessage(const std::wstring& custom_message, const Pla
 
         // @todo: Because of dependency on other non-const functions that should be const we need to cast away the constness here.
         // Remove this in the future as the other const correctness problems are dealt with.
-        return SendSystemMessage_(std::u16string(), OutOfBand(file, string), const_cast<PlayerObject*>(player), chatbox_only, send_to_inrange);
+        return SendSystemMessage_(L"", OutOfBand(file, string), const_cast<PlayerObject*>(player), chatbox_only, send_to_inrange);
     }
 
     // @todo: Because of dependency on other non-const functions that should be const we need to cast away the constness here.
-    // Remove this in the future as the other const correctness problems are dealt with.;
-	return SendSystemMessage_(std::u16string(custom_message.begin(), custom_message.end()), OutOfBand(), const_cast<PlayerObject*>(player), chatbox_only, send_to_inrange);
+    // Remove this in the future as the other const correctness problems are dealt with.
+    return SendSystemMessage_(custom_message, OutOfBand(), const_cast<PlayerObject*>(player), chatbox_only, send_to_inrange);
 }
 
 bool MessageLib::SendSystemMessage(const OutOfBand& prose, const PlayerObject* const player, bool chatbox_only, bool send_to_inrange) {
     // @todo: Because of dependency on other non-const functions that should be const we need to cast away the constness here.
     // Remove this in the future as the other const correctness problems are dealt with.
-	return SendSystemMessage_(std::u16string(), prose, const_cast<PlayerObject*>(player), chatbox_only, send_to_inrange);
+    return SendSystemMessage_(L"", prose, const_cast<PlayerObject*>(player), chatbox_only, send_to_inrange);
 }
 
-bool MessageLib::SendSystemMessage_(const std::u16string& custom_message, const OutOfBand& prose, PlayerObject* player, bool chatbox_only, bool send_to_inrange) {
+bool MessageLib::SendSystemMessage_(const std::wstring& custom_message, const OutOfBand& prose, PlayerObject* player, bool chatbox_only, bool send_to_inrange) {
     // If a player was passed in but not connected return false.
-    if(!_checkPlayer(player)) {
-		return false;
-	}
+    if ((!player) || (!player->isConnected())) {
+        return false;
+    }
 
-	MessageFactory* factory = getFactory_();
-
-    factory->StartMessage();
-    factory->addUint32(opChatSystemMessage);
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opChatSystemMessage);
 
     // This determines the bitmask switch for where a message is displayed.
     if (chatbox_only) {
-        factory->addUint8(2);
+        mMessageFactory->addUint8(2);
     } else {
-        factory->addUint8(0);
+        mMessageFactory->addUint8(0);
     }
 
     if (custom_message.length()) {
-        factory->addString(custom_message);
-        factory->addUint32(0);
+        mMessageFactory->addString(custom_message);
+        mMessageFactory->addUint32(0);
     } else {
-        factory->addUint32(0);
+        mMessageFactory->addUint32(0);
 
         const ByteBuffer* attachment = prose.Pack();
-        factory->addData(attachment->data(), attachment->size());
+        mMessageFactory->addData(attachment->data(), attachment->size());
     }
 
     // If a player was passed in then only send out the message to the appropriate parties.
     if (player) {
         // If the send_to_inrange flag was set then send out to everyone in-range of the player.
         if (send_to_inrange) {
-            _sendToInRange(factory->EndMessage(), player, 8);
+            _sendToInRange(mMessageFactory->EndMessage(), player, 8, true);
         } else {
-            (player->getClient())->SendChannelA(factory->EndMessage(), player->getAccountId(), CR_Client, 5);
+            (player->getClient())->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(), CR_Client, 5);
         }
     } else {
         // If no player was passed send the system message to everyone.
-        _sendToAll(factory->EndMessage(), 8, true);
+        _sendToAll(mMessageFactory->EndMessage(), 8, true);
     }
-	factory_queue_.push(factory);
 
     return true;
 }
@@ -789,7 +761,7 @@ bool MessageLib::sendPlayClientEffectObjectMessage(std::string effect, BString l
         }
         else
         {
-            _sendToInRange(mMessageFactory->EndMessage(),effectObject,5);
+            _sendToInRange(mMessageFactory->EndMessage(),effectObject,5,false);
         }
     }
 
@@ -968,7 +940,7 @@ bool MessageLib::sendPlayMusicMessage(uint32 soundId, Object* creatureObject)
     mMessageFactory->addUint32(1);
     mMessageFactory->addUint8(0);
 
-    _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
+    _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5,false);
 
     return(true);
 }
@@ -1012,16 +984,15 @@ bool MessageLib::sendCharacterSheetResponse(PlayerObject* playerObject)
     mMessageFactory->addUint32(0);
 
     // bank
-	auto bank_object = kernel_->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(playerObject, "bank");
-	Bank* bank = dynamic_cast<Bank*>(bank_object);
+    Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
 
-    if(!bank || bank->getPlanet() == -1)
+    if(!bank || bank->planet() == -1)
     {
         mMessageFactory->addString(BString("unknown"));
     }
     else
     {
-        mMessageFactory->addString(BString(gWorldManager->getPlanetNameById(bank->getPlanet())));
+        mMessageFactory->addString(BString(gWorldManager->getPlanetNameById(bank->planet())));
     }
 
     if(playerObject->getHomePlanet() == -1)
@@ -1045,10 +1016,10 @@ bool MessageLib::sendCharacterSheetResponse(PlayerObject* playerObject)
     mMessageFactory->addUint32(playerObject->getLots());
 
     // neutral
-	if(playerObject->GetCreature()->getFaction().getCrc() == 0x1fdc3051)
+    if(playerObject->getFaction().getCrc() == 0x1fdc3051)
         mMessageFactory->addUint32(0);
     else
-        mMessageFactory->addUint32(playerObject->GetCreature()->getFaction().getCrc());
+        mMessageFactory->addUint32(playerObject->getFaction().getCrc());
 
     // Faction State see wiki for details
     mMessageFactory->addUint32(0);
@@ -1299,16 +1270,16 @@ bool MessageLib::sendCreateAuctionItemResponseMessage(PlayerObject* targetPlayer
 //
 // updates an object parent<->child relationship
 //
-bool MessageLib::broadcastContainmentMessage(uint64 objectId,uint64 parentId,int32 linkType,PlayerObject* targetPlayer)
+bool MessageLib::broadcastContainmentMessage(uint64 objectId,uint64 parentId,uint32 linkType,PlayerObject* targetPlayer)
 {
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opUpdateContainmentMessage);
 
     mMessageFactory->addUint64(objectId);
     mMessageFactory->addUint64(parentId);
-    mMessageFactory->addInt32(linkType);
+    mMessageFactory->addUint32(linkType);
 
-	_sendToInRange(mMessageFactory->EndMessage(),targetPlayer->GetCreature(),4);
+    _sendToInRange(mMessageFactory->EndMessage(),targetPlayer,4,true);
 
     return(true);
 }
@@ -1318,16 +1289,16 @@ bool MessageLib::broadcastContainmentMessage(uint64 objectId,uint64 parentId,int
 // updates an object parent<->child relationship
 // Used when Creatures updates their cell positions.
 //
-bool MessageLib::broadcastContainmentMessage(Object* targetObject,uint64 parentId,int32 linkType)
+bool MessageLib::broadcastContainmentMessage(Object* targetObject,uint64 parentId,uint32 linkType)
 {
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opUpdateContainmentMessage);
 
     mMessageFactory->addUint64(targetObject->getId());
     mMessageFactory->addUint64(parentId);
-    mMessageFactory->addInt32(linkType);
+    mMessageFactory->addUint32(linkType);
 
-    _sendToInRange(mMessageFactory->EndMessage(),targetObject,4);
+    _sendToInRange(mMessageFactory->EndMessage(),targetObject,4,false);
 
     return(true);
 }

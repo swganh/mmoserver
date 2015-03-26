@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -27,36 +27,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "MessageLib.h"
 
-#include "ZoneServer/Objects/Deed.h"
-#include "ZoneServer/GameSystemManagers/Resource Manager/ResourceCategory.h"
-#include <ZoneServer/GameSystemManagers/Resource Manager/ResourceManager.h>
-#include <ZoneServer/GameSystemManagers/Resource Manager/CurrentResource.h>
-#include "ZoneServer/GameSystemManagers/Resource Manager/ResourceType.h"
+#include "ZoneServer/Deed.h"
+#include "ZoneServer/ResourceCategory.h"
+#include "ZoneServer/ResourceManager.h"
+#include "ZoneServer/ResourceType.h"
 
-#include "ZoneServer/GameSystemManagers/Structure Manager/HarvesterObject.h"
-#include "ZoneServer/GameSystemManagers/Structure Manager//FactoryObject.h"
-#include "ZoneServer/Objects/Player Object/PlayerObject.h"
-#include "ZoneServer/Objects/Object/ObjectFactory.h"
+#include "ZoneServer/HarvesterObject.h"
+#include "ZoneServer/FactoryObject.h"
+#include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/ObjectFactory.h"
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
-#include "ZoneServer/ObjectController/ObjectControllerOpcodes.h"
+#include "ZoneServer/ObjectControllerOpcodes.h"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-#include "anh/logger.h"
-=======
-=======
->>>>>>> parent of 5bd772a... got rid of google log
-// Fix for issues with glog redefining this constant
-#ifdef ERROR
-#undef ERROR
-#endif
-
-#include <glog/logging.h>
-<<<<<<< HEAD
->>>>>>> parent of 5bd772a... got rid of google log
-=======
->>>>>>> parent of 5bd772a... got rid of google log
+#include "utils/logger.h"
 
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/Message.h"
@@ -85,7 +69,11 @@ bool MessageLib::sendBaselinesHINO_3(HarvesterObject* harvester,PlayerObject* pl
     mMessageFactory->addUint32(0);
     mMessageFactory->addString(harvester->getName());
 
-    mMessageFactory->addString(harvester->getCustomName());
+    BString name;
+    name = harvester->getCustomName();
+    name.convert(BSTRType_Unicode16);
+
+    mMessageFactory->addString(name.getUnicode16());
 
     mMessageFactory->addUint32(1);//volume (in inventory)
     mMessageFactory->addUint16(0);//customization
@@ -357,7 +345,11 @@ bool MessageLib::sendBaselinesINSO_3(FactoryObject* factory,PlayerObject* player
     mMessageFactory->addUint32(0);
     mMessageFactory->addString(factory->getName());
 
-    mMessageFactory->addString(factory->getCustomName());
+    BString name;
+    name = factory->getCustomName();
+    name.convert(BSTRType_Unicode16);
+
+    mMessageFactory->addString(name.getUnicode16());
 
     mMessageFactory->addUint32(1);//volume (in inventory)
     mMessageFactory->addUint16(0);//customization
@@ -474,7 +466,11 @@ bool MessageLib::sendBaselinesINSO_3(PlayerStructure* structure,PlayerObject* pl
     mMessageFactory->addUint32(0);
     mMessageFactory->addString(structure->getName());
 
-    mMessageFactory->addString(structure->getCustomName());
+    BString name;
+    name = structure->getCustomName();
+    name.convert(BSTRType_Unicode16);
+
+    mMessageFactory->addString(name.getUnicode16());
 
     mMessageFactory->addUint32(1);//volume (in inventory)
     mMessageFactory->addUint16(0);//customization
@@ -580,12 +576,15 @@ void MessageLib::sendNewHarvesterName(PlayerStructure* harvester)
     mMessageFactory->addUint32(opHINO);
     mMessageFactory->addUint8(3);
 
-    mMessageFactory->addUint32(8 + (harvester->getCustomName().length()*2));
+    mMessageFactory->addUint32(8 + (harvester->getCustomName().getLength()*2));
     mMessageFactory->addUint16(1);
     mMessageFactory->addUint16(2);
     //Unicode
-    
-    mMessageFactory->addString(harvester->getCustomName());
+    BString name;
+    name = harvester->getCustomName();
+    name.convert(BSTRType_Unicode16);
+
+    mMessageFactory->addString(name.getUnicode16());
 
     _sendToInRange(mMessageFactory->EndMessage(),harvester,5);
 }
@@ -791,7 +790,7 @@ void MessageLib::SendHarvesterHopperUpdate(HarvesterObject* harvester, PlayerObj
     HResourceList*	hRList = harvester->getResourceList();
     harvester->setRListUpdateCounter(harvester->getRListUpdateCounter() + hRList->size());
 
-    DLOG(INFO) << "adding update Counter  ID " << harvester->getRListUpdateCounter();
+    DLOG(info) << "adding update Counter  ID " << harvester->getRListUpdateCounter();
 
     mMessageFactory->addUint32(hRList->size());
     mMessageFactory->addUint32(harvester->getRListUpdateCounter());
@@ -838,21 +837,20 @@ bool MessageLib::sendHopperList(PlayerStructure* structure, PlayerObject* player
     if(!(playerObject->isConnected()))
         return(false);
 
-    auto data = structure->getAdminData();
-
     Message* newMessage;
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opSendPermissionList);
-	mMessageFactory->addUint32(data.hopper_map_.size());
+    mMessageFactory->addUint32(structure->getStrucureHopperList().size() );
 
-	std::string name;
-
-	auto it = data.hopper_map_.begin();
-    while(it != data.hopper_map_.end())    {
-		name = (*it).second;
-		std::u16string u16_name(name.begin(), name.end());
-        mMessageFactory->addString(u16_name);
+    BString name;
+    BStringVector vector = 	structure->getStrucureHopperList();
+    BStringVector::iterator it = vector.begin();
+    while(it != vector.end())
+    {
+        name = (*it);
+        name.convert(BSTRType_Unicode16);
+        mMessageFactory->addString(name);
 
         it++;
     }
@@ -860,11 +858,16 @@ bool MessageLib::sendHopperList(PlayerStructure* structure, PlayerObject* player
     mMessageFactory->addUint32(0); // ???
     //mMessageFactory->addUint16(0);	// unknown
     name = "HOPPER";
-    std::u16string u16_name(name.begin(), name.end());
-    mMessageFactory->addString(u16_name);
+    name.convert(BSTRType_Unicode16);
+    mMessageFactory->addString(name);
     mMessageFactory->addUint32(0); // ???
 
     newMessage = mMessageFactory->EndMessage();
+
+    (playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
+
+    structure->resetStructureHopperList();
+
     return(true);
 }
 

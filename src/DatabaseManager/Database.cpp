@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -28,25 +28,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Database.h"
 
-// Fix for issues with glog redefining this constant
-#ifdef ERROR
-#undef ERROR
-#endif
-
 #include <cstdarg>
 #include <cstdlib>
 #include <cstdio>
 #include <algorithm>
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-#include "anh/logger.h"
-=======
-#include <glog/logging.h>
->>>>>>> parent of 5bd772a... got rid of google log
-=======
-#include <glog/logging.h>
->>>>>>> parent of 5bd772a... got rid of google log
+#include "utils/logger.h"
 
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DataBindingFactory.h"
@@ -58,8 +45,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DatabaseWorkerThread.h"
 #include "DatabaseManager/Transaction.h"
 
-using namespace swganh;
-using namespace database;
 
 Database::Database(DBType type, const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema, DatabaseConfig& config) 
     : database_impl_(nullptr)
@@ -105,12 +90,6 @@ Database::~Database() {
 void Database::executeAsyncSql(const std::stringstream& sql) {    
     // just pass the stringstream string
     executeAsyncSql(sql.str());
-}
-
-DatabaseResult* Database::executeSql(const std::string& sql) {
-	
-    // Run our query and return our result set.
-    return database_impl_->executeSql(sql);
 }
 
 void Database::executeAsyncSql(const std::string& sql) {    
@@ -193,7 +172,7 @@ void Database::process() {
             // result in out of sync queries, for this reason the worker thread
             // is stored with the result, otherwise it is added back to the 
             // idle pool.
-            if ((job->result) && job->result->isMultiResult()) {
+            if (job->result->isMultiResult()) {
                 job->result->setWorkerReference(worker);
             } else {
                 idle_worker_queue_.push(worker);
@@ -208,15 +187,6 @@ void Database::process() {
     for (int i = 0; i < completed; ++i) {
         // let our client handle the result, if theres a callback
         if( job_complete_queue_.try_pop(job)) {
-
-			//in case a query fails (error) there will not be a result!
-			//in this case bail out as most db code wont check for a result before checking the row count
-			if(!job->result)	{
-				LOG (error) << "Database::process()  db returned no result :( " << job->query;
-				job_pool_.ordered_free(job);
-				continue;
-			}
-
             if (job->old_callback) {
                 job->old_callback->handleDatabaseJobComplete(job->client_reference, job->result);
             }
@@ -257,19 +227,6 @@ DatabaseResult* Database::executeSql(const char* sql, ...) {
     // Run our query and return our result set.
     return database_impl_->executeSql(localSql);;
 }
-
-void Database::executeSqlAsync(DatabaseCallback* callback, void* ref, const std::string& sql) {    
-    // Setup our job.
-    DatabaseJob* job = new(job_pool_.ordered_malloc()) DatabaseJob();
-    job->old_callback = callback;
-	job->client_reference = ref;
-    job->query = sql;
-    job->multi_job = false;
-
-    // Add the job to our processList;
-    job_pending_queue_.push(job);
-}
-
 
 
 void Database::executeSqlAsync(DatabaseCallback* callback, 

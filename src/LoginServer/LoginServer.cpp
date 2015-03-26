@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -27,21 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "LoginServer.h"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-#include "anh/logger.h"
-=======
-=======
->>>>>>> parent of 5bd772a... got rid of google log
-// Fix for issues with glog redefining this constant
-#ifdef ERROR
-#undef ERROR
-#endif
-#include <glog/logging.h>
-<<<<<<< HEAD
->>>>>>> parent of 5bd772a... got rid of google log
-=======
->>>>>>> parent of 5bd772a... got rid of google log
+#include "utils/logger.h"
 
 #include <iostream>
 #include <fstream>
@@ -59,10 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/utils.h"
 
 #include <boost/thread/thread.hpp>
-#include "anh/Utils/clock.h"
-
-using namespace swganh;
-using namespace loginserver;
+#include "Utils/clock.h"
 
 //======================================================================================================================
 LoginServer* gLoginServer = 0;
@@ -74,19 +57,13 @@ LoginServer::LoginServer(int argc, char* argv[])
     , mNetworkManager(0)
 {
     Anh_Utils::Clock::Init();
-    LOG(WARNING) << "Login Server Startup";
+    LOG(warning) << "Login Server Startup";
 
 	// Load Configuration Options
 	std::list<std::string> config_files;
 	config_files.push_back("config/general.cfg");
 	config_files.push_back("config/loginserver.cfg");
 	LoadOptions_(argc, argv, config_files);
-
-
-	std::stringstream log_file_name;
-	log_file_name << "logs/LoginServer.log";
-	LOG(error) << " ";
-	LOGINIT(log_file_name.str());
 
     // Initialize our modules.
 
@@ -100,13 +77,13 @@ LoginServer::LoginServer(int argc, char* argv[])
 		configuration_variables_map_["ClientPacketWindowSize"].as<uint32_t>(),
 		configuration_variables_map_["UdpBufferSize"].as<uint32_t>()));
 
-    LOG(WARNING) << "Config port set to " << configuration_variables_map_["BindPort"].as<uint16>();
+    LOG(warning) << "Config port set to " << configuration_variables_map_["BindPort"].as<uint16>();
     mService = mNetworkManager->GenerateService((char*)configuration_variables_map_["BindAddress"].as<std::string>().c_str(), configuration_variables_map_["BindPort"].as<uint16_t>(),configuration_variables_map_["ServiceMessageHeap"].as<uint32_t>()*1024,false);
 
-	mDatabaseManager = new database::DatabaseManager(database::DatabaseConfig(configuration_variables_map_["DBMinThreads"].as<uint32_t>(), configuration_variables_map_["DBMaxThreads"].as<uint32_t>(), configuration_variables_map_["DBGlobalSchema"].as<std::string>(), configuration_variables_map_["DBGalaxySchema"].as<std::string>(), configuration_variables_map_["DBConfigSchema"].as<std::string>()));
+	mDatabaseManager = new DatabaseManager(DatabaseConfig(configuration_variables_map_["DBMinThreads"].as<uint32_t>(), configuration_variables_map_["DBMaxThreads"].as<uint32_t>(), configuration_variables_map_["DBGlobalSchema"].as<std::string>(), configuration_variables_map_["DBGalaxySchema"].as<std::string>(), configuration_variables_map_["DBConfigSchema"].as<std::string>()));
 
     // Connect to our database and pass it off to our modules.
-    mDatabase = mDatabaseManager->connect(database::DBTYPE_MYSQL,
+    mDatabase = mDatabaseManager->connect(DBTYPE_MYSQL,
                                           (char*)(configuration_variables_map_["DBServer"].as<std::string>()).c_str(),
                                           configuration_variables_map_["DBPort"].as<uint16_t>(),
                                           (char*)(configuration_variables_map_["DBUser"].as<std::string>()).c_str(),
@@ -134,12 +111,12 @@ LoginServer::LoginServer(int argc, char* argv[])
     // We're done initializing.
     mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_ServerStatusUpdate('login', %u, '%s', %u);",mDatabase->galaxy(), 2, mService->getLocalAddress(), mService->getLocalPort()); // SQL - Update Server Details
 
-    LOG(WARNING) << "Login Server startup complete";
+    LOG(warning) << "Login Server startup complete";
     //gLogger->printLogo();
     // std::string BuildString(GetBuildString());
 
-    LOG(WARNING) <<  "Login Server - Build " << GetBuildString().c_str();
-    LOG(WARNING) << "Welcome to your SWGANH Experience!";
+    LOG(warning) <<  "Login Server - Build " << GetBuildString().c_str();
+    LOG(warning) << "Welcome to your SWGANH Experience!";
 }
 
 
@@ -148,7 +125,7 @@ LoginServer::~LoginServer(void)
 {
     mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_ServerStatusUpdate('login', %u, NULL, NULL);",mDatabase->galaxy(), 2); // SQL - Update server status
     
-    LOG(WARNING) << "LoginServer shutting down...";
+    LOG(warning) << "LoginServer shutting down...";
 
     delete mLoginManager;
 
@@ -159,13 +136,12 @@ LoginServer::~LoginServer(void)
 
     delete mDatabaseManager;
 
-    LOG(WARNING) << "LoginServer Shutdown complete";
+    LOG(warning) << "LoginServer Shutdown complete";
 }
 
 //======================================================================================================================
 void LoginServer::Process(void)
 {
-	gClock->process();
     mNetworkManager->Process();
     mDatabaseManager->process();
     mLoginManager->Process();
@@ -183,18 +159,7 @@ void handleExit(void)
 //======================================================================================================================
 int main(int argc, char* argv[])
 {
-    // Initialize the google logging.
-    google::InitGoogleLogging(argv[0]);
-
-#ifndef _WIN32
-    google::InstallFailureSignalHandler();
-#endif
-
-    FLAGS_log_dir = "./logs";
-    FLAGS_stderrthreshold = 1;
-    
-    //set stdout buffers to 0 to force instant flush
-    setvbuf( stdout, NULL, _IONBF, 0);
+   
 
     bool exit = false;
 

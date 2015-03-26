@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -31,25 +31,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cstdio>
 #include <cstring>
 
-// Fix for issues with glog redefining this constant
-#ifdef ERROR
-#undef ERROR
-#endif
-
 #ifdef _WIN32
 #pragma warning(push)
 #pragma warning(disable : 4251)
 #endif
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-#include "anh/logger.h"
-=======
-#include <glog/logging.h>
->>>>>>> parent of 5bd772a... got rid of google log
-=======
-#include <glog/logging.h>
->>>>>>> parent of 5bd772a... got rid of google log
+#include "utils/logger.h"
 
 #include <mysql_connection.h>
 #include <mysql_driver.h>
@@ -63,8 +50,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
 
-using namespace swganh;
-using namespace database;
 
 DatabaseImplementationMySql::DatabaseImplementationMySql(
     const std::string& host, 
@@ -96,7 +81,7 @@ DatabaseResult* DatabaseImplementationMySql::executeSql(const std::string& sql, 
     DatabaseResult* result = nullptr;
 
     try {
-        //DLOG(INFO) << sql;
+        //DLOG(info) << sql;
 
         sql::Statement* statement = connection_->createStatement();    
         statement->execute(sql);
@@ -106,7 +91,7 @@ DatabaseResult* DatabaseImplementationMySql::executeSql(const std::string& sql, 
 
         result = new(ResultPool::ordered_malloc()) DatabaseResult(*this, statement, result_set, procedure);
     } catch(const sql::SQLException& e) {
-        LOG(FATAL) << e.what();
+        LOG(fatal) << e.what();
     }
 
     return result;
@@ -116,7 +101,8 @@ DatabaseResult* DatabaseImplementationMySql::executeSql(const std::string& sql, 
 void DatabaseImplementationMySql::destroyResult(DatabaseResult* result) {
     if (!result)
     {
-        LOG(WARNING) << "DatabaseResult is NULL";
+		LOG(error) << "DatabaseResult is NULL";
+		
         return;
     }
     // For a multi-result statement to be destroyed properly all results must
@@ -129,13 +115,6 @@ void DatabaseImplementationMySql::destroyResult(DatabaseResult* result) {
             while(res->next()) {}
         }
     }
-	sql::Statement* statement = result->getStatement().get();
-	result->getStatement().release();
-	delete(statement);
-
-	sql::ResultSet* res = result->getResultSet().get();
-	result->getResultSet().release();
-	delete(res);
 
     ResultPool::ordered_free(result);
 }
@@ -174,14 +153,14 @@ void DatabaseImplementationMySql::getNextRow(DatabaseResult* result, DataBinding
 
 void DatabaseImplementationMySql::resetRowIndex(DatabaseResult* result, uint64_t index) const {
     if(!result) {
-        LOG(ERROR) << "Bad Ptr 'DatabaseResult* result' at DatabaseImplementationMySql::ResetRowIndex.";
+        LOG(error) << "Bad Ptr 'DatabaseResult* result' at DatabaseImplementationMySql::ResetRowIndex.";
         return;
     }
 
     std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
     if (!result_set) {
-        LOG(ERROR) <<"Bad Ptr '(MYSQL_RES*)result->getResultSetReference()' at DatabaseImplementationMySql::ResetRowIndex.";
+        LOG(error) <<"Bad Ptr '(MYSQL_RES*)result->getResultSetReference()' at DatabaseImplementationMySql::ResetRowIndex.";
         return;
     }
 
@@ -191,12 +170,12 @@ void DatabaseImplementationMySql::resetRowIndex(DatabaseResult* result, uint64_t
 
 uint32_t DatabaseImplementationMySql::escapeString(char* target, const char* source, uint32_t length) {
     if (!target) {
-        LOG(ERROR) << "Bad Ptr 'int8* target' at DatabaseImplementationMySql::Escape_String.";
+        LOG(error) << "Bad Ptr 'int8* target' at DatabaseImplementationMySql::Escape_String.";
         return 0;
     }
 
     if (!source) {
-        LOG(ERROR) << "Bad Ptr 'const int8* source' at DatabaseImplementationMySql::Escape_String.";
+        LOG(error) << "Bad Ptr 'const int8* source' at DatabaseImplementationMySql::Escape_String.";
         return 0;
     }
 
@@ -281,25 +260,6 @@ void DatabaseImplementationMySql::processFieldBinding_(
             break;
         }
 
-		case DFT_stdu16string:	{
-			std::u16string* bindingString = reinterpret_cast<std::u16string*>(((char*)object) + binding->getField(field_id).offset);
-			// Now assign the string to the object
-            std::string tmp = result->getString(result_field_id);
-			std::u16string u16_tmp(tmp.begin(), tmp.end());
-			*bindingString = u16_tmp;
-			break;
-		}
-
-		case DFT_stdstring:	{
-			std::string* bindingString = reinterpret_cast<std::string*>(((char*)object) + binding->getField(field_id).offset);
-			// Now assign the string to the object
-            std::string tmp = result->getString(result_field_id);
-            *bindingString = tmp;
-			break;
-		}
-
-
-		//use with int8 arrays!!!!! not std::string !!!!!!!!!!!!!
         case DFT_string: {
             std::string tmp = result->getString(result_field_id);
             strncpy(&((char*)object)[binding->getField(field_id).offset], tmp.c_str(), tmp.length());

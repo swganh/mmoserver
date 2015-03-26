@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -29,20 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <boost/lexical_cast.hpp>
 
-// Fix for issues with glog redefining this constant
-#ifdef ERROR
-#undef ERROR
-#endif
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-#include "anh/logger.h"
-=======
-#include <glog/logging.h>
->>>>>>> parent of 5bd772a... got rid of google log
-=======
-#include <glog/logging.h>
->>>>>>> parent of 5bd772a... got rid of google log
+#include "utils/logger.h"
 
 #include "Common/atMacroString.h"
 
@@ -53,18 +41,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageOpcodes.h"
 
 #include "ZoneServer/CharSheetManager.h"
-#include "ZoneServer/GameSystemManagers/Conversation Manager/Conversation.h"
-#include "ZoneServer/Objects/CraftingTool.h"
-#include "ZoneServer/GameSystemManagers/Resource Manager/CurrentResource.h"
-#include "ZoneServer/Objects/Datapad.h"
-#include "ZoneServer/GameSystemManagers/Crafting Manager/ManufacturingSchematic.h"
-#include "ZoneServer/GameSystemManagers/NPC Manager/NPCObject.h"
-#include "ZoneServer/ObjectController/ObjectControllerOpcodes.h"
-#include "ZoneServer/Objects/Object/ObjectFactory.h"
-#include "ZoneServer/Objects/Player Object/PlayerObject.h"
-#include "ZoneServer/GameSystemManagers/UI Manager/UIOpcodes.h"
-#include "ZoneServer/Objects/waypoints/WaypointObject.h"
-#include "ZoneServer/Objects/Wearable.h"
+#include "ZoneServer/Conversation.h"
+#include "ZoneServer/CraftingTool.h"
+#include "ZoneServer/CurrentResource.h"
+#include "ZoneServer/Datapad.h"
+#include "ZoneServer/ManufacturingSchematic.h"
+#include "ZoneServer/NPCObject.h"
+#include "ZoneServer/ObjectControllerOpcodes.h"
+#include "ZoneServer/ObjectFactory.h"
+#include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/UIOpcodes.h"
+#include "ZoneServer/WaypointObject.h"
+#include "ZoneServer/Wearable.h"
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
 
@@ -82,7 +70,7 @@ bool MessageLib::sendBaselinesPLAY_3(PlayerObject* playerObject,PlayerObject* ta
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opBaselinesMessage);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->getPlayerObjId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(3);
 
@@ -137,7 +125,7 @@ bool MessageLib::sendBaselinesPLAY_6(PlayerObject* playerObject,PlayerObject* ta
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opBaselinesMessage);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->getPlayerObjId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(6);
 
@@ -160,27 +148,21 @@ bool MessageLib::sendBaselinesPLAY_6(PlayerObject* playerObject,PlayerObject* ta
 
 bool MessageLib::sendBaselinesPLAY_8(PlayerObject* playerObject,PlayerObject* targetObject)
 {
-    if(!targetObject->isConnected())	{
-		LOG (error) << "MessageLib::sendBaselinesPLAY_8 playerObject : " << playerObject->getId() << "not accessible";
+    if(!(targetObject->isConnected()))
         return(false);
-	}
 
-	Datapad* datapad							= playerObject->getDataPad();
-    
-    if(!datapad) {
-		LOG (error) << "MessageLib::sendBaselinesPLAY_8  : No Datapad for player : " << playerObject->getId();
-		return false;
-	}
+    XPList* xpList = playerObject->getXpList();
 
-	XPList* xpList				= playerObject->getXpList();
-	XPList::iterator xpIt		= xpList->begin();
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opBaselinesMessage);
+    mMessageFactory->addUint64(playerObject->getPlayerObjId());
+    mMessageFactory->addUint32(opPLAY);
+    mMessageFactory->addUint8(8);
 
-<<<<<<< HEAD
-	//start with the data
-	
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint16(7);										//Operand Count
-=======
+    // xp list size
+    uint32 xpByteCount = 0;
+    XPList::iterator xpIt = xpList->begin();
+
     uint32 xpListSize = 0;
     while(xpIt != xpList->end())
     {
@@ -201,7 +183,7 @@ bool MessageLib::sendBaselinesPLAY_8(PlayerObject* playerObject,PlayerObject* ta
         waypointList		= datapad->getWaypoints();
         waypointIt			= waypointList->begin();
     } else { //Crashbug patch: http://paste.swganh.org/viewp.php?id=20100627075254-3882bd68067f13266819ae6d0c4428e4
-        LOG(WARNING) << "MessageLib::sendBaselinesPLAY_8: Failed to find datapad for playerId: " <<  playerObject->getId() << ". Did not initialize waypList(s).";
+        LOG(warning) << "MessageLib::sendBaselinesPLAY_8: Failed to find datapad for playerId: " <<  playerObject->getId() << ". Did not initialize waypList(s).";
         gWorldManager->addDisconnectedPlayer(playerObject);
 
         Message* message = mMessageFactory->EndMessage();
@@ -217,33 +199,60 @@ bool MessageLib::sendBaselinesPLAY_8(PlayerObject* playerObject,PlayerObject* ta
 
     mMessageFactory->addUint32(76 + xpByteCount + waypointsByteCount);
     mMessageFactory->addUint16(7);
->>>>>>> parent of 5bd772a... got rid of google log
 
     // xp list
-    mMessageFactory->addUint32(xpList->size());
+    // mMessageFactory->addUint32(xpList->size());
+    mMessageFactory->addUint32(xpListSize);
     mMessageFactory->addUint32(playerObject->mXpUpdateCounter);
 
     xpIt = xpList->begin();
 
     while(xpIt != xpList->end())
     {
+        //if ((*xpIt).second > 0)	// Only add xptypes that we actually have xp from.
+        //{
         mMessageFactory->addUint8(0);
         mMessageFactory->addString(gSkillManager->getXPTypeById((*xpIt).first));
         mMessageFactory->addInt32((*xpIt).second);
+        //}
         ++xpIt;
     }
 
     // waypoint list
-	swganh::messages::BaselinesMessage message;
-    datapad->SerializeWaypoints(&message);
+    mMessageFactory->addUint32(waypointList->size());
+    mMessageFactory->addUint32(datapad->mWaypointUpdateCounter);
 
-	mMessageFactory->addData(message.data.data(),message.data.size());
+    waypointIt = waypointList->begin();
+
+
+    while(waypointIt != waypointList->end())
+    {
+        WaypointObject* waypoint = (*waypointIt);
+
+        mMessageFactory->addUint8(2);
+        mMessageFactory->addUint64(waypoint->getId());
+        mMessageFactory->addUint32(0);
+        mMessageFactory->addFloat(waypoint->getCoords().x);
+        mMessageFactory->addFloat(waypoint->getCoords().y);
+        mMessageFactory->addFloat(waypoint->getCoords().z);
+        mMessageFactory->addUint64(0);
+        mMessageFactory->addUint32(waypoint->getPlanetCRC());//planetcrc
+        mMessageFactory->addString(waypoint->getName());
+        mMessageFactory->addUint64(waypoint->getId());
+        mMessageFactory->addUint8(waypoint->getWPType());
+        if(waypoint->getActive())
+            mMessageFactory->addUint8(1);
+        else
+            mMessageFactory->addUint8(0);
+
+        ++waypointIt;
+    }
 
     // current force
-	mMessageFactory->addUint32(playerObject->GetCurrentForcePower());
+    mMessageFactory->addUint32(playerObject->getHam()->getCurrentForce());
 
     // max force
-    mMessageFactory->addUint32(playerObject->GetMaxForcePower());
+    mMessageFactory->addUint32(playerObject->getHam()->getMaxForce());
 
     // unknown
     mMessageFactory->addUint32(5);
@@ -261,22 +270,6 @@ bool MessageLib::sendBaselinesPLAY_8(PlayerObject* playerObject,PlayerObject* ta
     mMessageFactory->addUint32(0);
     mMessageFactory->addUint16(0);
 
-	Message* data = mMessageFactory->EndMessage();
-
-	//*************************************************
-    //now wrap it up
-
-    mMessageFactory->StartMessage();
-    mMessageFactory->addUint32(opBaselinesMessage);
-    mMessageFactory->addUint64(playerObject->getId());
-    mMessageFactory->addUint32(opPLAY);
-    mMessageFactory->addUint8(8);
-	mMessageFactory->addUint32(data->getSize());
-	mMessageFactory->addData(data->getData(),data->getSize());
-	
-	data->setPendingDelete(true);
-	
-	
     (targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
 
     return(true);
@@ -298,7 +291,7 @@ bool MessageLib::sendBaselinesPLAY_9(PlayerObject* playerObject,PlayerObject* ta
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opBaselinesMessage);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->getPlayerObjId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(9);
 
@@ -417,13 +410,13 @@ void MessageLib::sendFoodUpdate(PlayerObject* playerObject)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->getPlayerObjId());
     mMessageFactory->addUint32(opPLAY);
-    mMessageFactory->addUint8(9);//view
+    mMessageFactory->addUint8(9);
 
     mMessageFactory->addUint32(8);
-    mMessageFactory->addUint16(1); //1 update
-    mMessageFactory->addUint16(0x0a);//updated member # 10
+    mMessageFactory->addUint16(1);
+    mMessageFactory->addUint16(0x0a);
     mMessageFactory->addUint32(stomach->getFood());
 
     (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
@@ -442,7 +435,7 @@ void MessageLib::sendDrinkUpdate(PlayerObject* playerObject)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->getPlayerObjId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(9);
 
@@ -464,7 +457,7 @@ void MessageLib::sendTitleUpdate(PlayerObject* playerObject)
 {
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->getPlayerObjId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(3);
 
@@ -486,7 +479,7 @@ void MessageLib::sendUpdatePlayerFlags(PlayerObject* playerObject)
 {
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->getPlayerObjId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(3);
 
@@ -503,7 +496,130 @@ void MessageLib::sendUpdatePlayerFlags(PlayerObject* playerObject)
     _sendToInRange(mMessageFactory->EndMessage(),playerObject,5);
 }
 
+//======================================================================================================================
+//
+// Player Deltas Type 8
+// update: waypoints
+//
 
+bool MessageLib::sendWaypointsUpdate(PlayerObject* playerObject)
+{
+    if(!(playerObject->isConnected()))
+        return(false);
+
+    Datapad* datapad			= playerObject->getDataPad();
+
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opDeltasMessage);
+    mMessageFactory->addUint64(playerObject->getPlayerObjId());
+    mMessageFactory->addUint32(opPLAY);
+    mMessageFactory->addUint8(8);
+
+    uint32					waypointsByteCount	= 0;
+    WaypointList*			waypointList		= datapad->getWaypoints();
+    WaypointList::iterator	waypointIt			= waypointList->begin();
+
+    while(waypointIt != waypointList->end())
+    {
+        waypointsByteCount += (51 + ((*waypointIt)->getName().getLength() << 1));
+        ++waypointIt;
+    }
+
+    mMessageFactory->addUint32(12 + waypointsByteCount);
+    mMessageFactory->addUint16(1);
+    mMessageFactory->addUint16(1);
+
+    // waypoint list
+    mMessageFactory->addUint32(waypointList->size());
+
+    datapad->mWaypointUpdateCounter += waypointList->size();
+    mMessageFactory->addUint32(datapad->mWaypointUpdateCounter);
+
+    waypointIt = waypointList->begin();
+
+    while(waypointIt != waypointList->end())
+    {
+        WaypointObject* waypoint = (*waypointIt);
+
+        mMessageFactory->addUint8(0);
+        mMessageFactory->addUint64(waypoint->getId());
+        mMessageFactory->addUint32(0);
+        mMessageFactory->addFloat(waypoint->getCoords().x);
+        mMessageFactory->addFloat(waypoint->getCoords().y);
+        mMessageFactory->addFloat(waypoint->getCoords().z);
+        mMessageFactory->addUint64(0);
+        mMessageFactory->addUint32(waypoint->getModelString().getCrc());
+        mMessageFactory->addString(waypoint->getName());
+        mMessageFactory->addUint64(waypoint->getId());
+        mMessageFactory->addUint8(waypoint->getWPType());
+        mMessageFactory->addUint8((uint8)waypoint->getActive());
+
+        ++waypointIt;
+    }
+
+    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
+
+    return(true);
+}
+
+//======================================================================================================================
+//
+// Player Deltas Type 8
+// update: waypoints
+//
+
+bool MessageLib::sendUpdateWaypoint(WaypointObject* waypoint,ObjectUpdate updateType,PlayerObject* playerObject)
+{
+    if(!(playerObject->isConnected()))
+        return(false);
+
+    uint8 type = 0xFF;
+    if(updateType == ObjectUpdateAdd)
+        type = 0;
+
+    if(updateType == ObjectUpdateDelete)
+        type = 1;
+
+    if(updateType == ObjectUpdateChange)
+        type = 2;
+
+    if(type == 0xFF)
+        return false;
+
+    Datapad* datapad			= playerObject->getDataPad();
+
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opDeltasMessage);
+    mMessageFactory->addUint64(playerObject->getPlayerObjId());
+    mMessageFactory->addUint32(opPLAY);
+    mMessageFactory->addUint8(8);
+
+
+    mMessageFactory->addUint32(63 + (waypoint->getName().getLength() << 1));
+    mMessageFactory->addUint16(1);
+    mMessageFactory->addUint16(1);
+
+    // elements
+    mMessageFactory->addUint32(1);
+    mMessageFactory->addUint32(++datapad->mWaypointUpdateCounter);
+
+    mMessageFactory->addUint8(type);
+    mMessageFactory->addUint64(waypoint->getId());
+    mMessageFactory->addUint32(0);
+    mMessageFactory->addFloat(waypoint->getCoords().x);
+    mMessageFactory->addFloat(waypoint->getCoords().y);
+    mMessageFactory->addFloat(waypoint->getCoords().z);
+    mMessageFactory->addUint64(0);
+    mMessageFactory->addUint32(waypoint->getModelString().getCrc());
+    mMessageFactory->addString(waypoint->getName());
+    mMessageFactory->addUint64(waypoint->getId());
+    mMessageFactory->addUint8(waypoint->getWPType());
+    mMessageFactory->addUint8((uint8)waypoint->getActive());
+
+    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
+
+    return(true);
+}
 
 //======================================================================================================================
 //
@@ -529,7 +645,7 @@ bool MessageLib::sendSkillCmdDeltasPLAY_9(PlayerObject* playerObject)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->getPlayerObjId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(9);
 
@@ -611,7 +727,7 @@ bool MessageLib::sendSchematicDeltasPLAY_9(PlayerObject* playerObject)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->getPlayerObjId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(9);
 
@@ -644,7 +760,7 @@ bool MessageLib::sendXpUpdate(uint32 xpType,PlayerObject* playerObject)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->getPlayerObjId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(8);
 
@@ -687,7 +803,7 @@ bool MessageLib::sendUpdateXpTypes(SkillXpTypesList newXpTypes,uint8 remove,Play
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->getPlayerObjId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(8);
 
@@ -740,7 +856,7 @@ bool MessageLib::sendFriendListPlay9(PlayerObject* playerObject)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->getPlayerObjId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(9);
 
@@ -794,7 +910,7 @@ bool MessageLib::sendIgnoreListPlay9(PlayerObject* playerObject)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->getPlayerObjId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(9);
 
@@ -836,7 +952,7 @@ bool MessageLib::sendMatchPlay3(PlayerObject* playerObject)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->getPlayerObjId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(3);
 
@@ -868,7 +984,7 @@ bool MessageLib::sendUpdateCraftingStage(PlayerObject* playerObject)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->getPlayerObjId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(9);
 
@@ -895,7 +1011,7 @@ bool MessageLib::sendUpdateExperimentationFlag(PlayerObject* playerObject)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->getPlayerObjId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(9);
 
@@ -922,7 +1038,7 @@ bool MessageLib::sendUpdateExperimentationPoints(PlayerObject* playerObject)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->getPlayerObjId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(9);
 
@@ -949,7 +1065,7 @@ bool MessageLib::sendUpdateNearestCraftingStation(PlayerObject* playerObject)
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->getPlayerObjId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(9);
 
@@ -973,7 +1089,7 @@ void MessageLib::sendLanguagePlay9(PlayerObject* playerObject)
 {
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->getPlayerObjId());
     mMessageFactory->addUint32(opPLAY);
     mMessageFactory->addUint8(9);
 
@@ -985,4 +1101,61 @@ void MessageLib::sendLanguagePlay9(PlayerObject* playerObject)
 
     _sendToInRange(mMessageFactory->EndMessage(),playerObject,5);
 }
+
+//======================================================================================================================
+//
+// Player Deltas Type 8
+// update: current force
+//
+
+bool MessageLib::sendUpdateCurrentForce(PlayerObject* playerObject)
+{
+    if(!(playerObject->isConnected()))
+        return(false);
+
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opDeltasMessage);
+    mMessageFactory->addUint64(playerObject->getPlayerObjId());
+    mMessageFactory->addUint32(opPLAY);
+    mMessageFactory->addUint8(8);
+
+    mMessageFactory->addUint32(8);
+    mMessageFactory->addUint16(1);
+    mMessageFactory->addUint16(2);
+    mMessageFactory->addUint32(playerObject->getHam()->getCurrentForce());
+
+    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
+
+    return(true);
+}
+
+//======================================================================================================================
+//
+// Player Deltas Type 8
+// update: max force
+//
+
+bool MessageLib::sendUpdateMaxForce(PlayerObject* playerObject)
+{
+    if(!(playerObject->isConnected()))
+        return(false);
+
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opDeltasMessage);
+    mMessageFactory->addUint64(playerObject->getPlayerObjId());
+    mMessageFactory->addUint32(opPLAY);
+    mMessageFactory->addUint8(8);
+
+    mMessageFactory->addUint32(8);
+    mMessageFactory->addUint16(1);
+    mMessageFactory->addUint16(3);
+    mMessageFactory->addUint32(playerObject->getHam()->getMaxForce());
+
+    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
+
+    return(true);
+}
+
+//======================================================================================================================
+
 

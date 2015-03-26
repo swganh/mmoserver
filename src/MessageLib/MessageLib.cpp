@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -31,20 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <boost/lexical_cast.hpp>
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-#include "anh/logger.h"
-=======
-=======
->>>>>>> parent of 5bd772a... got rid of google log
-#ifdef _WIN32
-#undef ERROR
-#endif
-#include <glog/logging.h>
-<<<<<<< HEAD
->>>>>>> parent of 5bd772a... got rid of google log
-=======
->>>>>>> parent of 5bd772a... got rid of google log
+#include "utils/logger.h"
 
 #include "Common/atMacroString.h"
 #include "Common/Crc.h"
@@ -55,45 +42,36 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageFactory.h"
 #include "NetworkManager/MessageOpcodes.h"
 
-#include "ZoneServer\Objects\Creature Object\creature_message_builder.h"
-#include "ZoneServer\Objects\Player Object\player_message_builder.h"
-
-#include "ZoneServer/GameSystemManagers/Structure Manager/BuildingObject.h"
-#include "ZoneServer/GameSystemManagers/Structure Manager/CellObject.h"
+#include "ZoneServer/BuildingObject.h"
+#include "ZoneServer/CellObject.h"
 #include "ZoneServer/CharSheetManager.h"
-#include "ZoneServer/GameSystemManagers/Container Manager/ContainerManager.h"
-#include "ZoneServer/GameSystemManagers/Conversation Manager/Conversation.h"
-#include "ZoneServer/GameSystemManagers/Structure Manager/HouseObject.h"
-#include "ZoneServer/GameSystemManagers/Structure Manager/HarvesterObject.h"
-#include "ZoneServer/GameSystemManagers/Structure Manager/FactoryObject.h"
-#include "ZoneServer/GameSystemManagers/Structure Manager/FactoryCrate.h"
-#include "ZoneServer/GameSystemManagers/Crafting Manager/ManufacturingSchematic.h"
-#include "ZoneServer/GameSystemManagers/NPC Manager/NPCObject.h"
-#include "ZoneServer/GameSystemManagers/Resource Manager/CurrentResource.h"
-#include "ZoneServer/GameSystemManagers/Resource Manager/ResourceContainer.h"
-#include "ZoneServer/GameSystemManagers/UI Manager/UIOpcodes.h"
-#include "ZoneServer/GameSystemManagers/Spatial Index Manager/Zmap.h"
+#include "ZoneServer/ContainerManager.h"
+#include "ZoneServer/Conversation.h"
+#include "ZoneServer/CraftingTool.h"
+#include "ZoneServer/CurrentResource.h"
+#include "ZoneServer/Datapad.h"
+#include "ZoneServer/HouseObject.h"
+#include "ZoneServer/IntangibleObject.h"
+#include "ZoneServer/HarvesterObject.h"
+#include "ZoneServer/FactoryObject.h"
+#include "ZoneServer/FactoryCrate.h"
+#include "ZoneServer/Inventory.h"
+#include "ZoneServer/ManufacturingSchematic.h"
 
-#include "ZoneServer/Objects/Inventory.h"
-#include "ZoneServer/Objects/CraftingTool.h"
-#include "ZoneServer/Objects/Datapad.h"
-#include "ZoneServer/Objects/IntangibleObject.h"
-
-#include "ZoneServer/ObjectController/ObjectControllerOpcodes.h"
-#include "ZoneServer/Objects/Object/ObjectFactory.h"
-#include "ZoneServer/Objects/Player Object/PlayerObject.h"
-#include "ZoneServer\Objects\Creature Object\CreatureObject.h"
-
-#include "ZoneServer/Objects/VehicleController.h"
-#include "ZoneServer/Objects/Wearable.h"
-#include "ZoneServer/WorldConfig.h"
+#include "ZoneServer/NPCObject.h"
+#include "ZoneServer/ObjectControllerOpcodes.h"
+#include "ZoneServer/ObjectFactory.h"
+#include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/ResourceContainer.h"
 #include "ZoneServer/Tutorial.h"
+#include "ZoneServer/UIOpcodes.h"
+#include "ZoneServer/VehicleController.h"
+#include "ZoneServer/Wearable.h"
+#include "ZoneServer/WorldConfig.h"
 #include "ZoneServer/WorldManager.h"
 
 #include "ZoneServer/ZoneOpcodes.h"
-#include "ZoneServer\WorldConfig.h"
-#include "anh/app/swganh_kernel.h"
-
+#include "ZoneServer/Zmap.h"
 
 
 //======================================================================================================================
@@ -103,31 +81,18 @@ MessageLib*	MessageLib::mSingleton  = NULL;
 
 //======================================================================================================================
 
-MessageLib::MessageLib(swganh::app::SwganhKernel* kernel)	:
-event_dispatcher_(kernel->GetEventDispatcher())
+MessageLib::MessageLib()
 {
-	kernel_ = kernel;
-	
-	//singlethread messagelibrary
     mMessageFactory = gMessageFactory;
-
-	//threadsafe messagefactories
-	//factory_queue_.push(gMessageFactory);
-	factory_queue_.push(new MessageFactory(kernel_->GetAppConfig().global_message_heap *1024));
-	factory_queue_.push(new MessageFactory(kernel_->GetAppConfig().global_message_heap *1024));
-
-	creature_message_builder_	= std::make_shared<CreatureMessageBuilder>(kernel_->GetEventDispatcher());
-	player_message_builder_		= std::make_shared<PlayerMessageBuilder>(kernel_->GetEventDispatcher());
-	object_message_builder_		= std::make_shared<ObjectMessageBuilder>(kernel_->GetEventDispatcher());
 }
 
 //======================================================================================================================
 
-MessageLib*	MessageLib::Init(swganh::app::SwganhKernel* kernel)
+MessageLib*	MessageLib::Init()
 {
     if(!mInsFlag)
     {
-        mSingleton = new MessageLib(kernel);
+        mSingleton = new MessageLib();
         mInsFlag = true;
 
         return mSingleton;
@@ -155,8 +120,8 @@ bool MessageLib::_checkPlayer(const PlayerObject* const player) const
     //return((player->isConnected())&&(player->getClient()));
 
     //the idea is that this check gets useless when the SI / knownobjectscode is stable
-	
-	return((player)&&(player->getClient())&& ( player->isConnected() || player->isLinkDead() ));
+
+    return((player)&&(player->getClient()));
 }
 
 //======================================================================================================================
@@ -167,7 +132,7 @@ bool MessageLib::_checkPlayer(uint64 playerId) const
 
     if(!tested)
     {
-        LOG(WARNING) << "Invalid player id [" << playerId << "]";
+        LOG(warning) << "Invalid player id [" << playerId << "]";
         return false;
     }
 
@@ -223,11 +188,11 @@ void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object
         if(!_checkPlayer(recipient)) {
             //an invalid player at this point is like armageddon and Ultymas birthday combined at one time
             //if this happens we need to know about it
-            DLOG (error) << "MessageLib::_sendToInRangeUnreliable : Invalid Player in sendtoInrange : " << recipient->getId();
+            assert(false && "Invalid Player in sendtoInrange");
             return;
         }
 
-		if(_checkDistance(recipient->GetCreature()->mPosition, object, mMessageFactory->HeapWarningLevel())) {
+        if(_checkDistance(recipient->mPosition, object, mMessageFactory->HeapWarningLevel())) {
             // clone our message
             mMessageFactory->StartMessage();
             mMessageFactory->addData(message->getData(),message->getSize());
@@ -258,8 +223,7 @@ void MessageLib::_sendToInRangeUnreliableChat(Message* message, const CreatureOb
     Message* cloned_message;
 
     std::for_each(in_range_players.begin(), in_range_players.end(), [=, &cloned_message] (Object* object) {
-        CreatureObject* creature = static_cast<CreatureObject*>(object);
-		PlayerObject* player = creature->GetGhost();
+        PlayerObject* player = dynamic_cast<PlayerObject*>(object);
 
         if(_checkPlayer(player) && (!player->checkIgnoreList(crc))) {
             // clone our message
@@ -293,14 +257,14 @@ void MessageLib::SendSpatialToInRangeUnreliable_(Message* message, Object* const
                 return;
             }
 
-            std::string tmp = source_player->GetCreature()->getFirstName();
+            std::string tmp = source_player->getFirstName().getAnsi();
             std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::tolower);
             senders_name_crc = common::memcrc(tmp);
 
             //@todo: This check for the tutorial is a hack and shouldn't be here.
-            //if (gWorldConfig->isTutorial()) {
-                //source_player->getTutorial()->tutorialResponse("chatActive");
-            //}
+            if (gWorldConfig->isTutorial()) {
+                source_player->getTutorial()->tutorialResponse("chatActive");
+            }
         }
     }
 
@@ -356,11 +320,10 @@ void MessageLib::_sendToInRangeUnreliableChatGroup(Message* message, const Creat
     bool failed = false;
 
     std::for_each(in_range_players.begin(), in_range_players.end(), [=, &cloned_message] (Object* iter_object) {
-        CreatureObject* creature = static_cast<CreatureObject*>(iter_object);
-		PlayerObject* player = creature->GetGhost();
+        PlayerObject* player = static_cast<PlayerObject*>(iter_object);
 
         if(_checkPlayer(player) && object->getGroupId()
-                && (player->GetCreature()->getGroupId() == object->getGroupId())
+                && (player->getGroupId() == object->getGroupId())
         && !player->checkIgnoreList(crc)) {
             // clone our message
             mMessageFactory->StartMessage();
@@ -378,16 +341,15 @@ void MessageLib::_sendToInRangeUnreliableChatGroup(Message* message, const Creat
 }
 
 //======================================================================================================================
-                 
-void MessageLib::_sendToInRange(Message* message, const Object* object, unsigned char priority) const {
+
+void MessageLib::_sendToInRange(Message* message, Object* const object, unsigned char priority, bool to_self) const {
     glm::vec3 position = object->getWorldPosition();
 
     ObjectListType in_range_players;
 	mGrid->GetPlayerViewingRangeCellContents(object->getGridBucket(), &in_range_players);
 
     std::for_each(in_range_players.begin(), in_range_players.end(), [=] (Object* object) {
-        CreatureObject* creature = static_cast<CreatureObject*>(object);
-		PlayerObject* player = creature->GetGhost();
+        PlayerObject* player = static_cast<PlayerObject*>(object);
         if(_checkPlayer(player)) {
             // clone our message
             mMessageFactory->StartMessage();
@@ -397,7 +359,19 @@ void MessageLib::_sendToInRange(Message* message, const Object* object, unsigned
         }
     });
 
-    mMessageFactory->DestroyMessage(message);
+    if(to_self) {
+        const PlayerObject* const player = dynamic_cast<const PlayerObject*>(object);
+
+        if(_checkPlayer(player)) {
+            player->getClient()->SendChannelA(message, player->getAccountId(), CR_Client, priority);
+        }
+		else
+			mMessageFactory->DestroyMessage(message);
+    } else {
+        // If the message is sent to self then the process of sending destroys it
+        // otherwise we have to destroy it ourselves.
+        mMessageFactory->DestroyMessage(message);
+    }
 }
 
 //======================================================================================================================
@@ -432,10 +406,10 @@ void MessageLib::_sendToInstancedPlayers(Message* message, unsigned char priorit
 //
 // Broadcasts a message to players in group and in range of the given object, used by tutorial and other instances
 //
-void MessageLib::_sendToInstancedPlayersUnreliable(Message* message, unsigned char priority, PlayerObject* player) const {
+void MessageLib::_sendToInstancedPlayersUnreliable(Message* message, unsigned char priority, const PlayerObject* const player) const {
     // If the player is not valid or not in a group there is no point in
     // going further.
-    if (!_checkPlayer(player) || player->GetCreature()->getGroupId() == 0) {
+    if (!_checkPlayer(player) || player->getGroupId() == 0) {
         mMessageFactory->DestroyMessage(message);
         return;
     }
@@ -446,8 +420,8 @@ void MessageLib::_sendToInstancedPlayersUnreliable(Message* message, unsigned ch
     std::for_each(in_range_players.begin(), in_range_players.end(), [=] (Object* object) {
         PlayerObject* in_range_player = static_cast<PlayerObject*>(object);
 
-        if((player->GetCreature()->getGroupId() != 0) && (in_range_player->GetCreature()->getGroupId() != player->GetCreature()->getGroupId())) {
-            LOG(error) << "MessageLib::_sendToInstancedPlayersUnreliable Player has an invalid player in range in an instance";
+        if((player->getGroupId() != 0) && (in_range_player->getGroupId() != player->getGroupId())) {
+            assert(false && "Player has an invalid player in range in an instance");
             return;
         }
 
@@ -495,54 +469,23 @@ void MessageLib::_sendToAll(Message* message, unsigned char priority, bool unrel
 }
 
 
-bool MessageLib::sendCreateGhost(PlayerObject* player, PlayerObject* target) 
-{
-	if (!_checkPlayer(player) || !_checkPlayer(target)) {
-        return false;
-    }
-
-	sendCreateObjectByCRC(player, target);
-
-	sendContainmentMessage(player->getId(), player->GetCreature()->getId(), player->GetArrangementId(), target);
-
-    sendBaselinesPLAY_3(player, target);
-    sendBaselinesPLAY_6(player, target);
-
-    if (player == target) {
-        sendBaselinesPLAY_8(player, target);
-        sendBaselinesPLAY_9(player, target);
-    }
-
-    //close the yalp
-    sendEndBaselines(player->getId(), target);
-
-    //sendPostureMessage(player, target);
-
-    return true;
-
-}
-
 bool MessageLib::sendCreatePlayer(PlayerObject* player, PlayerObject* target) {
-
-	if (!_checkPlayer(player) || !_checkPlayer(target)) {
+    if (!_checkPlayer(player) || !_checkPlayer(target)) {
         return false;
     }
 
-	CreatureObject* creature = player->GetCreature();
-
-    sendCreateObjectByCRC(creature, target);
+    sendCreateObjectByCRC(player, target, false);
 
     if (player == target) {
         sendBaselinesCREO_1(player);
         sendBaselinesCREO_4(player);
     }
 
-	sendBaselinesCREO_3(creature, target);
-    sendBaselinesCREO_6(creature, target);
+    sendBaselinesCREO_3(player, target);
+    sendBaselinesCREO_6(player, target);
 
-    sendCreateObjectByCRC(player, target);
-	
-	sendContainmentMessage(player->getId(), player->GetCreature()->getId(), player->GetArrangementId(), target);
+    sendCreateObjectByCRC(player, target, true);
+    sendContainmentMessage(player->getPlayerObjId(), player->getId(), 4, target);
 
     sendBaselinesPLAY_3(player, target);
     sendBaselinesPLAY_6(player, target);
@@ -553,23 +496,28 @@ bool MessageLib::sendCreatePlayer(PlayerObject* player, PlayerObject* target) {
     }
 
     //close the yalp
-    sendEndBaselines(player->getId(), target);
+    sendEndBaselines(player->getPlayerObjId(), target);
 
-    //sendPostureMessage(player, target);
+    sendPostureMessage(player, target);
 
-    if (creature->getParentId()) {
-		sendContainmentMessage(creature->getId(), creature->getParentId(), creature->GetArrangementId(), target);
+    if (player->getParentId()) {
+        sendContainmentMessage(player->getId(), player->getParentId(), 4, target);
     }
 
-    
-    sendEndBaselines(creature->getId(), target);
+    //===================================================================================
+    // create inventory, datapad, hair, MissionBag and equipped items get created for the player only !!
+    // equipped items for other watchers are handled via the equiplists
 
-    //sendUpdatePvpStatus(creature, target);
+    //equipped items are already in the creo6 so only send them for ourselves
+
+    sendEndBaselines(player->getId(), target);
+
+    sendUpdatePvpStatus(player, target);
 
     if (player == target) {
         //request the GRUP baselines from chatserver if grouped
-        if (player->getId() != 0) {
-            //gMessageLib->sendIsmGroupBaselineRequest(player);
+        if (player->getGroupId() != 0) {
+            gMessageLib->sendIsmGroupBaselineRequest(player);
         }
     }
 
@@ -580,13 +528,12 @@ bool MessageLib::sendCreatePlayer(PlayerObject* player, PlayerObject* target) {
 //
 // create creature
 //
-
 bool MessageLib::sendCreateCreature(CreatureObject* creature, PlayerObject* target) {
     if (!_checkPlayer(target)) {
         return false;
     }
 
-    sendCreateObjectByCRC(creature, target);
+    sendCreateObjectByCRC(creature, target, false);
 
     sendBaselinesCREO_3(creature, target);
     sendBaselinesCREO_6(creature, target);
@@ -600,20 +547,19 @@ bool MessageLib::sendCreateCreature(CreatureObject* creature, PlayerObject* targ
 
     sendUpdatePvpStatus(creature, target);
 
-    //sendPostureMessage(creature, target);
+    sendPostureMessage(creature, target);
 
     return true;
 }
-
 //======================================================================================================================
 
 bool MessageLib::sendCreateStaticObject(TangibleObject* tangible, PlayerObject* target) {
     if(!_checkPlayer(target) || !tangible) {
-        DLOG(INFO) << "MessageLib::sendCreateStaticObject No valid player";
+        DLOG(info) << "MessageLib::sendCreateStaticObject No valid player";
         return(false);
     }
 
-    sendCreateObjectByCRC(tangible, target);
+    sendCreateObjectByCRC(tangible, target, false);
     sendBaselinesSTAO_3(tangible, target);
     sendBaselinesSTAO_6(tangible, target);
     sendEndBaselines(tangible->getId(), target);
@@ -625,20 +571,20 @@ bool MessageLib::sendCreateStaticObject(TangibleObject* tangible, PlayerObject* 
 //
 // create intangible
 //
-bool MessageLib::sendCreateInTangible(IntangibleObject* intangibleObject, PlayerObject* targetObject)
+bool MessageLib::sendCreateInTangible(IntangibleObject* intangibleObject,uint64 containmentId,PlayerObject* targetObject)
 {
     if(!_checkPlayer(targetObject) || !intangibleObject)
     {
-        DLOG(WARNING) << "MessageLib::sendCreateInTangible No valid player";
+        DLOG(warning) << "MessageLib::sendCreateInTangible No valid player";
         return(false);
     }
 
-    gMessageLib->sendCreateObjectByCRC(intangibleObject,targetObject);
+    gMessageLib->sendCreateObjectByCRC(intangibleObject,targetObject,false);
     gMessageLib->sendBaselinesITNO_3(intangibleObject,targetObject);
     gMessageLib->sendBaselinesITNO_6(intangibleObject,targetObject);
     gMessageLib->sendBaselinesITNO_8(intangibleObject,targetObject);
     gMessageLib->sendBaselinesITNO_9(intangibleObject,targetObject);
-	gMessageLib->sendContainmentMessage(intangibleObject->getId(), intangibleObject->getParentId(), intangibleObject->GetArrangementId(), targetObject);
+    gMessageLib->sendContainmentMessage(intangibleObject->getId(), containmentId, 0xffffffff, targetObject);
     gMessageLib->sendEndBaselines(intangibleObject->getId(),targetObject);
 
     return true;
@@ -650,15 +596,37 @@ bool MessageLib::sendCreateInTangible(IntangibleObject* intangibleObject, Player
 //
 bool MessageLib::sendCreateTano(TangibleObject* tangible, PlayerObject* target) {
     if (!_checkPlayer(target))	{
-        DLOG(INFO) << "MessageLib::sendCreateTano No valid player";
+        DLOG(info) << "MessageLib::sendCreateTano No valid player";
         return false;
     }
 
     uint64 parentId = tangible->getParentId();
 
-    sendCreateObjectByCRC(tangible, target);
-	sendContainmentMessage(tangible->getId(), tangible->getParentId(), tangible->GetArrangementId(), target);
+    sendCreateObjectByCRC(tangible, target, false);
 
+    if(parentId != 0) {
+        // its in a cell, container, inventory
+        if (parentId != target->getId()) {
+            // could be inside a crafting tool
+            Object* parent = gWorldManager->getObjectById(parentId);
+
+            if (parent && dynamic_cast<CraftingTool*>(parent)) {
+                sendContainmentMessage(tangible->getId(), parentId, 0, target);
+            }
+            // if equipped, also tie it to the object
+            else if (CreatureObject* creature = dynamic_cast<CreatureObject*>(parent)) {
+                sendContainmentMessage(tangible->getId(), creature->getId(), 4, target);
+            } else {
+                sendContainmentMessage(tangible->getId(), tangible->getParentId(), 0xffffffff, target);
+            }
+        }
+        // or tied directly to an object
+        else {
+            sendContainmentMessage(tangible->getId(), tangible->getParentId(), 4, target);
+        }
+    } else {
+        sendContainmentMessage(tangible->getId(), tangible->getParentId(), 0xffffffff, target);
+    }
 
     sendBaselinesTANO_3(tangible, target);
     sendBaselinesTANO_6(tangible, target);
@@ -677,7 +645,7 @@ bool MessageLib::sendCreateResourceContainer(ResourceContainer* resource_contain
         return false;
     }
 
-    sendCreateObjectByCRC(resource_container, target);
+    sendCreateObjectByCRC(resource_container, target, false);
 
     uint64_t parent_id = resource_container->getParentId();
 
@@ -713,7 +681,7 @@ bool MessageLib::sendCreateBuilding(BuildingObject* buildingObject,PlayerObject*
         publicBuilding = buildingObject->getPublic();
     }
 
-    sendCreateObjectByCRC(buildingObject,playerObject);
+    sendCreateObjectByCRC(buildingObject,playerObject,false);
 
     sendBaselinesBUIO_3(buildingObject,playerObject);
     sendBaselinesBUIO_6(buildingObject,playerObject);
@@ -729,7 +697,7 @@ bool MessageLib::sendCreateBuilding(BuildingObject* buildingObject,PlayerObject*
         uint64 cellId = cell->getId();
 
         uint64 count = buildingObject->getMinCellId()-1;
-        sendCreateObjectByCRC(cell,playerObject);
+        sendCreateObjectByCRC(cell,playerObject,false);
         sendContainmentMessage(cellId,buildingId,0xffffffff,playerObject);
 
         //cell ids are id based for tutorial cells!
@@ -763,7 +731,7 @@ bool MessageLib::sendCreateHarvester(HarvesterObject* harvester,PlayerObject* pl
     if(!_checkPlayer(player))
         return(false);
 
-    sendCreateObjectByCRC(harvester,player);
+    sendCreateObjectByCRC(harvester,player,false);
 
     sendBaselinesHINO_3(harvester,player);
     sendBaselinesHINO_6(harvester,player);
@@ -787,7 +755,7 @@ bool MessageLib::sendCreateFactory(FactoryObject* factory, PlayerObject* target)
     if (!_checkPlayer(target))
         return false;
 
-    sendCreateObjectByCRC(factory, target);
+    sendCreateObjectByCRC(factory, target, false);
 
     sendBaselinesINSO_3(factory, target);
     sendBaselinesINSO_6(factory, target);
@@ -826,7 +794,7 @@ bool MessageLib::sendCreateStructure(PlayerStructure* structure, PlayerObject* t
         return sendCreateInstallation(structure, target);
     }
 
-    DLOG(INFO) << "MessageLib::sendCreateStructure:ID  : couldnt cast structure" << structure->getId();
+    DLOG(info) << "MessageLib::sendCreateStructure:ID  : couldnt cast structure" << structure->getId();
 
     return false;
 }
@@ -837,7 +805,7 @@ bool MessageLib::sendCreateCamp(TangibleObject* camp, PlayerObject* target) {
         return false;
     }
 
-    sendCreateObjectByCRC(camp, target);
+    sendCreateObjectByCRC(camp, target, false);
 
     sendBaselinesBUIO_3(camp, target);
     sendBaselinesBUIO_6(camp, target);
@@ -856,7 +824,7 @@ bool MessageLib::sendCreateInstallation(PlayerStructure* structure,PlayerObject*
     if(!_checkPlayer(player))
         return(false);
 
-    sendCreateObjectByCRC(structure,player);
+    sendCreateObjectByCRC(structure,player,false);
 
     sendBaselinesINSO_3(structure,player);
     sendBaselinesINSO_6(structure,player);
@@ -878,7 +846,7 @@ bool MessageLib::sendCreateManufacturingSchematic(ManufacturingSchematic* manSch
     if(!_checkPlayer(playerObject))
         return(false);
 
-    sendCreateObjectByCRC(manSchem,playerObject);
+    sendCreateObjectByCRC(manSchem,playerObject,false);
 
     // parent should always be a crafting tool for now
     sendContainmentMessage(manSchem->getId(),manSchem->getParentId(),4,playerObject);
@@ -894,92 +862,3 @@ bool MessageLib::sendCreateManufacturingSchematic(ManufacturingSchematic* manSch
     return(true);
 }
 
-void MessageLib::broadcastDelta(swganh::messages::DeltasMessage& message, const Object* object)
-{
-	MessageFactory* factory = getFactory_();
-
-	swganh::ByteBuffer buffer;
-	message.Serialize(buffer);
-	
-	// at this time this is single threaded only
-	factory->StartMessage();
-	factory->addData(buffer.data(),buffer.size());
-	
-	_sendToInRange(factory->EndMessage(),object,1);
-
-	factory_queue_.push(factory);
-
-}
-
-MessageFactory* MessageLib::getFactory_()
-{
-	MessageFactory* factory;
-	while(!factory_queue_.pop(factory))	{}
-	
-	return factory;
-}
-
-void MessageLib::sendMessage(swganh::messages::BaseSwgMessage& message, PlayerObject* player)
-{
-	if(!_checkPlayer(player)) {
-		return;
-	}
-
-	MessageFactory* factory = getFactory_();
-
-	swganh::ByteBuffer buffer;
-	message.Serialize(buffer);
-	
-	// at this time this is single threaded only
-	factory->StartMessage();
-	factory->addData(buffer.data(),buffer.size());
-	//Message* new_message = 	factory->EndMessage();
-
-	
-	player->getClient()->SendChannelA(factory->EndMessage(), player->getAccountId(), CR_Client, 1);
-    
-	factory_queue_.push(factory);
-}
-
-void MessageLib::sendDelta(swganh::messages::DeltasMessage& message, PlayerObject* player)
-{
-	if(!_checkPlayer(player)) {
-		return;
-	}
-
-	MessageFactory* factory = getFactory_();
-
-	swganh::ByteBuffer buffer;
-	message.Serialize(buffer);
-	
-	// at this time this is single threaded only
-	factory->StartMessage();
-	factory->addData(buffer.data(),buffer.size());
-	//Message* new_message = 	factory->EndMessage();
-
-	
-	player->getClient()->SendChannelA(factory->EndMessage(), player->getAccountId(), CR_Client, 1);
-    
-	factory_queue_.push(factory);
-}
-
-void MessageLib::sendBaseline(swganh::messages::BaselinesMessage& message, PlayerObject* player)
-{
-	if(!_checkPlayer(player)) {
-		return;
-	}
-
-	MessageFactory* factory = getFactory_();
-
-	swganh::ByteBuffer buffer;
-	//message.SetObserverId(player->getId());
-	message.Serialize(buffer);
-	
-	factory->StartMessage();
-	factory->addData(buffer.data(),buffer.size());
-	
-
-	player->getClient()->SendChannelA(factory->EndMessage(), player->getAccountId(), CR_Client, 1);
-    
-	factory_queue_.push(factory);
-}

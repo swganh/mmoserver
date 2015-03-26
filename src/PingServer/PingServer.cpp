@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -29,20 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "PingServer.h"
 
-// Fix for issues with glog redefining this constant
-#ifdef ERROR
-#undef ERROR
-#endif
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-#include "anh/logger.h"
-=======
-#include <glog/logging.h>
->>>>>>> parent of 5bd772a... got rid of google log
-=======
-#include <glog/logging.h>
->>>>>>> parent of 5bd772a... got rid of google log
+#include "utils/logger.h"
 
 #include <boost/thread/thread.hpp>
 
@@ -115,7 +103,7 @@ void PingServer::HandleReceive(const boost::system::error_code& error, size_t by
 
     // Check if an error occurred.
     if (error && error != boost::asio::error::message_size) {
-        LOG(WARNING) << "Error reading from socket: " << error.message().c_str();
+        LOG(warning) << "Error reading from socket: " << error.message().c_str();
 
         // Otherwise return the ping response to the sender.
     } else {
@@ -145,25 +133,16 @@ void PingServer::HandleSend(const boost::system::error_code& error, size_t bytes
 //======================================================================================================================
 int main(int argc, char* argv[])
 {
-    // Initialize the google logging.
-    google::InitGoogleLogging(argv[0]);
-
-	#ifndef _WIN32
-		google::InstallFailureSignalHandler();
-	#endif
-
-    FLAGS_log_dir = "./logs";
-    FLAGS_stderrthreshold = 1;
 
     //set stdout buffers to 0 to force instant flush
     setvbuf( stdout, NULL, _IONBF, 0);
     
-    LOG(WARNING) <<  "PingServer - Build " << GetBuildString().c_str();
+    LOG(warning) <<  "PingServer - Build " << GetBuildString().c_str();
 
     try {
 		PingServer ping_server(argc, argv);
 
-		LOG(WARNING) << "Welcome to your SWGANH Experience!";
+		LOG(warning) << "Welcome to your SWGANH Experience!";
 
 		while (true) {
 			// Check for incoming messages and handle them.
@@ -177,7 +156,7 @@ int main(int argc, char* argv[])
 		}
 
 	} catch( std::exception& e ) {
-		LOG(ERROR) << e.what();
+		LOG(error) << e.what();
 		std::cin.get();
 		return 0;
 	}

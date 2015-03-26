@@ -1,7 +1,7 @@
 /*
  This file is part of MMOServer. For more information, visit http://swganh.com
  
- Copyright (c) 2006 - 2014 The SWG:ANH Team
+ Copyright (c) 2006 - 2010 The SWG:ANH Team
 
  MMOServer is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 
 #ifndef LIBANH_EVENT_DISPATCHER_EVENT_DISPATCHER_INTERFACE_H_
 #define LIBANH_EVENT_DISPATCHER_EVENT_DISPATCHER_INTERFACE_H_
-/*
+
 #include <cstdint>
 
 #include <deque>
@@ -36,7 +36,7 @@
 #include "anh/hash_string.h"
 #include "anh/event_dispatcher/event_interface.h"
 
-namespace swganh {
+namespace anh {
 namespace event_dispatcher {
     
 typedef std::function<bool (std::shared_ptr<EventInterface>)> EventListenerCallback;
@@ -137,6 +137,6 @@ public:
 };
 
 }  // namespace event_dispatcher
-}  // namespace swganh
-*/
+}  // namespace anh
+
 #endif  // LIBANH_EVENT_DISPATCHER_EVENT_DISPATCHER_INTERFACE_H_

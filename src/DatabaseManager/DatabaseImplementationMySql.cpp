@@ -38,8 +38,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "utils/logger.h"
 
-#include <mysql_connection.h>
-#include <mysql_driver.h>
+#include <mysql\mysql_connection.h>
+#include <mysql\mysql_driver.h>
 
 #include <cppconn/exception.h>
 #include <cppconn/statement.h>

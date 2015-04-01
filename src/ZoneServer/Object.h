@@ -34,7 +34,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <set>
 #include <list>
 
-#include <tbb/atomic.h>
+//#include <tbb/concurrent_queue.h>
+#include <tbb\include\tbb\concurrent_queue.h>
 #include <boost/lexical_cast.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>

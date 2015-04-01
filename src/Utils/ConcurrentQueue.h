@@ -28,7 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef SRC_UTILS_CONCURRENTQUEUE_H_
 #define SRC_UTILS_CONCURRENTQUEUE_H_
 
-#include <tbb/atomic.h>
+// #include <tbb/atomic.h>
+#include <tbb\include\tbb\atomic.h>
 
 // @todo Need a way to programatically determine the cache line size for a given environment
 // for now 64 will do for all environments we currently support.

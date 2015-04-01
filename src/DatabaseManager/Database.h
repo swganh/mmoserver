@@ -38,7 +38,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <boost/noncopyable.hpp>
 #include <boost/pool/pool.hpp>
 
-#include <tbb/concurrent_queue.h>
+//#include <tbb/concurrent_queue.h>
+#include <tbb\include\tbb\concurrent_queue.h>
 
 #include "DatabaseManager/DatabaseCallback.h"
 #include "DatabaseManager/DatabaseType.h"

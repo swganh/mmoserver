@@ -59,6 +59,7 @@ FUNCTION(AddMMOServerExecutable name)
     LIST(LENGTH MMOSERVERLIB_ADDITIONAL_SOURCE_DIRS _sources_list_length)
     
 <<<<<<< HEAD
+<<<<<<< HEAD
     # load up all of the source and header files for the project
     FILE(GLOB_RECURSE SOURCES *.cc *.cpp *.h)   
     FILE(GLOB_RECURSE TEST_SOURCES *_unittest.cc *_unittest.cpp mock_*.h)
@@ -91,6 +92,11 @@ FUNCTION(AddMMOServerExecutable name)
     LIST(LENGTH TEST_SOURCES _tests_list_length)    
     IF(_tests_list_length GREATER 0)        
         SET(__project_library "lib${name}")
+=======
+    # Load up all of the source and header files for the project.
+    FILE(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cc ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)   
+    FILE(GLOB HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h)       
+>>>>>>> parent of 0bc4204... Incorporated changes from experimental branches for easier integration of new files into projects, particularly those in subdirectories.
 =======
     # Load up all of the source and header files for the project.
     FILE(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cc ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)   

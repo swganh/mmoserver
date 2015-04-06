@@ -46,19 +46,19 @@
 #
 
 INCLUDE(CMakeMacroParseArguments)
-INCLUDE(MMOServerLibrary)
 
 FUNCTION(AddMMOServerExecutable name)
     PARSE_ARGUMENTS(MMOSERVERLIB "MMOSERVER_DEPS;ADDITIONAL_INCLUDE_DIRS;ADDITIONAL_SOURCE_DIRS;DEBUG_LIBRARIES;OPTIMIZED_LIBRARIES" "" ${ARGN})
     
-    # get information about the data passed in, helpful for checking if a value
-    # has been set or not
+    # Get information about the data passed in, helpful for checking if a value
+    # has been set or not.
     LIST(LENGTH MMOSERVERLIB_DEBUG_LIBRARIES _debug_list_length)
     LIST(LENGTH MMOSERVERLIB_OPTIMIZED_LIBRARIES _optimized_list_length)
     LIST(LENGTH MMOSERVERLIB_MMOSERVER_DEPS _project_deps_list_length)
     LIST(LENGTH MMOSERVERLIB_ADDITIONAL_INCLUDE_DIRS _includes_list_length)
     LIST(LENGTH MMOSERVERLIB_ADDITIONAL_SOURCE_DIRS _sources_list_length)
     
+<<<<<<< HEAD
     # load up all of the source and header files for the project
     FILE(GLOB_RECURSE SOURCES *.cc *.cpp *.h)   
     FILE(GLOB_RECURSE TEST_SOURCES *_unittest.cc *_unittest.cpp mock_*.h)
@@ -91,25 +91,24 @@ FUNCTION(AddMMOServerExecutable name)
     LIST(LENGTH TEST_SOURCES _tests_list_length)    
     IF(_tests_list_length GREATER 0)        
         SET(__project_library "lib${name}")
+=======
+    # Load up all of the source and header files for the project.
+    FILE(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cc ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)   
+    FILE(GLOB HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h)       
+>>>>>>> parent of 0bc4204... Incorporated changes from experimental branches for easier integration of new files into projects, particularly those in subdirectories.
     
-        AddMMOServerLibrary(${__project_library}
-            MMOSERVER_DEPS
-                ${MMOSERVERLIB_MMOSERVER_DEPS}
-            SOURCES
-                ${SOURCES}
-            TEST_SOURCES
-                ${TEST_SOURCES}
-            ADDITIONAL_INCLUDE_DIRS
-                ${MMOSERVERLIB_ADDITIONAL_INCLUDE_DIRS}
-            DEBUG_LIBRARIES
-                ${MMOSERVERLIB_DEBUG_LIBRARIES}
-            OPTIMIZED_LIBRARIES
-                ${MMOSERVERLIB_OPTIMIZED_LIBRARIES}
-        )
+    SOURCE_GROUP("" FILES ${SOURCES} ${HEADERS})
     
-        set(SOURCES ${MAIN_EXISTS})
+    IF(_sources_list_length GREATER 0)
+        FOREACH(_source_dir ${MMOSERVERLIB_ADDITIONAL_SOURCE_DIRS})
+            FILE(GLOB ADDITIONAL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/${_source_dir}/*.cc ${CMAKE_CURRENT_SOURCE_DIR}/${_source_dir}/*.cpp)
+            FILE(GLOB ADDITIONAL_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/${_source_dir}/*.h)
+            SOURCE_GROUP(${_source_dir} FILES ${ADDITIONAL_SOURCES} ${ADDITIONAL_HEADERS})
+            LIST(APPEND SOURCES ${ADDITIONAL_SOURCES})
+            LIST(APPEND HEADERS ${ADDITIONAL_HEADERS})
+        ENDFOREACH()
     ENDIF()
-        
+    
     IF(_includes_list_length GREATER 0)
         INCLUDE_DIRECTORIES(${MMOSERVERLIB_ADDITIONAL_INCLUDE_DIRS})
     ENDIF()
@@ -118,7 +117,7 @@ FUNCTION(AddMMOServerExecutable name)
     INCLUDE_DIRECTORIES(${MYSQL_INCLUDE_DIR} ${MysqlConnectorCpp_INCLUDES})
     
     # Create the executable
-    ADD_EXECUTABLE(${name} ${SOURCES})
+    ADD_EXECUTABLE(${name} ${SOURCES} ${HEADERS})   
     
     IF(_project_deps_list_length GREATER 0)
         TARGET_LINK_LIBRARIES(${name} ${MMOSERVERLIB_MMOSERVER_DEPS})
@@ -158,9 +157,13 @@ FUNCTION(AddMMOServerExecutable name)
         # On unix platforms put the built runtimes in the /bin directory.
         INSTALL(TARGETS ${name} RUNTIME DESTINATION bin)
     ENDIF()
-        
-    TARGET_LINK_LIBRARIES(${name}
-        ${__project_library}
+    
+    TARGET_LINK_LIBRARIES(${name}    
+        NetworkManager
+        DatabaseManager
+        Common
+        Utils
+        libanh
         ${MYSQL_LIBRARIES}
         debug ${Boost_DATE_TIME_LIBRARY_DEBUG}
         debug ${Boost_PROGRAM_OPTIONS_LIBRARY_DEBUG}

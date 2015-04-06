@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include "utils/logger.h"
+#include "Utils/logger.h"
 
 #include "ObjectFactoryCallback.h"
 #include "Resource.h"
@@ -102,7 +102,7 @@ void ResourceContainerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
             mDatabase->executeSqlAsync(this,asContainer,"SELECT attributes.name,object_attributes.value,attributes.internal"
                                        " FROM %s.object_attributes"
                                        " INNER JOIN %s.attributes ON (object_attributes.attribute_id = attributes.id)"
-                                       " WHERE object_attributes.object_id = %"PRIu64" ORDER BY object_attributes.order",
+                                       " WHERE object_attributes.object_id = %" PRIu64 " ORDER BY object_attributes.order",
                                        mDatabase->galaxy(),mDatabase->galaxy(),container->getId());
         }
     }
@@ -128,7 +128,7 @@ void ResourceContainerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
 
 void ResourceContainerFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-    mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,RCFQuery_MainData,client),"SELECT * FROM %s.resource_containers WHERE id=%"PRIu64"",mDatabase->galaxy(),id);
+    mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,RCFQuery_MainData,client),"SELECT * FROM %s.resource_containers WHERE id=%" PRIu64 "",mDatabase->galaxy(),id);
     
 }
 

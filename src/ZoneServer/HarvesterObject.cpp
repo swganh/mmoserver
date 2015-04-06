@@ -324,7 +324,7 @@ void HarvesterObject::createResourceContainer(uint64 resID, PlayerObject* player
 
                     gMessageLib->sendResourceContainerUpdateAmount(resCont,player);
 
-                    gWorldManager->getDatabase()->executeSqlAsync(NULL,NULL,"UPDATE %s.resource_containers SET amount=%u WHERE id=%"PRIu64"",gWorldManager->getDatabase()->galaxy(),newAmount,resCont->getId());
+                    gWorldManager->getDatabase()->executeSqlAsync(NULL,NULL,"UPDATE %s.resource_containers SET amount=%u WHERE id=%" PRIu64 "",gWorldManager->getDatabase()->galaxy(),newAmount,resCont->getId());
                     
                 }
             }
@@ -391,7 +391,7 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         asyncContainer->mPlayerId		= asynContainer->mPlayerId;
         asyncContainer->command			= asynContainer->command;
 
-        gWorldManager->getDatabase()->executeSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM %s.harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",gWorldManager->getDatabase()->galaxy(), harvester->getId());
+        gWorldManager->getDatabase()->executeSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM %s.harvester_resources hr WHERE hr.ID = '%" PRIu64 "' ",gWorldManager->getDatabase()->galaxy(), harvester->getId());
         
 
     }
@@ -428,7 +428,7 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         asyncContainer->mPlayerId		= asynContainer->mPlayerId;
         asyncContainer->command			= asyncContainer->command;
 
-        gWorldManager->getDatabase()->executeSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM %s.harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",gWorldManager->getDatabase()->galaxy(),harvester->getId());
+        gWorldManager->getDatabase()->executeSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM %s.harvester_resources hr WHERE hr.ID = '%" PRIu64 "' ",gWorldManager->getDatabase()->galaxy(),harvester->getId());
         
     }
     break;
@@ -542,7 +542,7 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         asyncContainer->mPlayerId		= player->getId();
 
         int8 sql[250];
-        sprintf(sql,"SELECT hr.resourceID, hr.quantity FROM %s.harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",gWorldManager->getDatabase()->galaxy(),this->getId());
+        sprintf(sql,"SELECT hr.resourceID, hr.quantity FROM %s.harvester_resources hr WHERE hr.ID = '%" PRIu64 "' ",gWorldManager->getDatabase()->galaxy(),this->getId());
 
         gWorldManager->getDatabase()->executeSqlAsync(this,asyncContainer,sql);
         

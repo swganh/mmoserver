@@ -51,7 +51,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DatabaseResult.h"
 #include "MessageLib/MessageLib.h"
 
-#include "utils/logger.h"
+#include "Utils/logger.h"
 
 #include "Utils/rand.h"
 #include <cstdio>
@@ -870,7 +870,7 @@ void MissionManager::checkSurveyMission(PlayerObject* player,CurrentResource* re
 
 
                             int8 sm[500];
-                            sprintf(sm,"That resource pocket is too close (%"PRIu32" meters) to the mission giver to be useful to them. Go find one at least %"PRIu32" meters away to complete your survey mission. ",
+                            sprintf(sm,"That resource pocket is too close (%" PRIu32 " meters) to the mission giver to be useful to them. Go find one at least %" PRIu32 " meters away to complete your survey mission. ",
                                     static_cast<uint32>(glm::distance(mission->getIssuingTerminal()->mPosition, highestDist.position)),
                                     (1024 - (int)glm::distance(mission->getIssuingTerminal()->mPosition, highestDist.position)));
 

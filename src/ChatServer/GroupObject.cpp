@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Player.h"
 
 
-#include "utils/logger.h"
+#include "Utils/logger.h"
 
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/Message.h"
@@ -323,12 +323,12 @@ void GroupObject::createChannel()
     Channel* channel = new Channel();
     channel->setId(((uint32)(mId)) + 0xf0000000);
     channel->setCreator(gSystemAvatar);
-    sprintf(channelName, "%"PRIu64".GroupChat", mId);
+    sprintf(channelName, "%" PRIu64 ".GroupChat", mId);
     channel->setName(BString(channelName));
     channel->setGalaxy(gChatManager->getGalaxyName());
 
     wchar_t temp[64];
-    swprintf(temp,64,L"%"WidePRIu64, mId);
+    swprintf(temp,64,L"%" WidePRIu64, mId);
     channel->setTitle(temp);
 
 	DLOG(info)  << "Group channel created: " << channel->getName().getAnsi() << " with id " << channel->getId();

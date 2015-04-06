@@ -42,7 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <boost/lexical_cast.hpp>
 
 
-#include "utils/logger.h"
+#include "Utils/logger.h"
 
 #include <cppconn/resultset.h>
 
@@ -227,7 +227,7 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
         characterInfo.mLastName.convert(BSTRType_ANSI);
         
         // Build our procedure call
-        sprintf(sql, "CALL %s.sp_CharacterCreate(%"PRIu32", 2,'%s','%s', '%s', '%s', %f",
+        sprintf(sql, "CALL %s.sp_CharacterCreate(%" PRIu32 ", 2,'%s','%s', '%s', '%s', %f",
                 database_->galaxy(),
                 client->getAccountId(),
                 database_->escapeString(characterInfo.mFirstName.getAnsi()).c_str(),
@@ -236,7 +236,7 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
                 characterInfo.mStartCity.getAnsi(),
                 characterInfo.mScale);
     } else {
-        sprintf(sql, "CALL %s.sp_CharacterCreate(%"PRIu32", 2, '%s', NULL , '%s', '%s', %f",
+        sprintf(sql, "CALL %s.sp_CharacterCreate(%" PRIu32 ", 2, '%s', NULL , '%s', '%s', %f",
                 database_->galaxy(),
                 client->getAccountId(),
                 database_->escapeString(characterInfo.mFirstName.getAnsi()).c_str(),

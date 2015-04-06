@@ -51,7 +51,7 @@ void BadgeRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 
 {
     // Setup our statement
     int8 sql[128];
-    sprintf(sql, "CALL %s.sp_BadgeGetByRegion(%"PRIu64");", mDatabase->galaxy(),  id);
+    sprintf(sql, "CALL %s.sp_BadgeGetByRegion(%" PRIu64 ");", mDatabase->galaxy(),  id);
 
     mDatabase->executeAsyncProcedure(sql, [=](DatabaseResult* result) {
         if(!result) {

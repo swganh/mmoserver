@@ -180,6 +180,10 @@ while tutorial:getState() == 0 do
 	print("Waiting for Tutorial to become ready...");
 end;
 
+if tutorial:getRoom() == 16 then
+	state = 3;
+end
+
 local npcDebris;
 local npcDebrisId;
 if (tutorial:getSubState() < 18) then
@@ -414,24 +418,24 @@ while state == 1 do
 		delayLeft = 0;
 
 		-- tutorial:spatialChat(itemRoomOfficerId, "@newbie_tutorial/newbie_convo:greeter1_bark1");
-		tutorial:spatialChat(itemRoomOfficerId, "Ah, I see we have another refugee from the freighter.");
+		tutorial:spatialChat(itemRoomOfficerId, "@newbie_tutorial/newbie_convo:greeter1_bark1");
 
 		while tutorial:getPlayerPosToObject(itemRoomOfficerId) > 20.0 do
-			LuaScriptEngine.WaitMSec(2000);
+			LuaScriptEngine.WaitMSec(4000);
 		end;
 
 		-- tutorial:spatialChat(itemRoomOfficerId, "@newbie_tutorial/newbie_convo:greeter1_bark2");
-		tutorial:spatialChat(itemRoomOfficerId, "Well, you're one of the lucky ones.  Most passengers didn't survive.");
+		tutorial:spatialChat(itemRoomOfficerId, "@newbie_tutorial/newbie_convo:greeter1_bark2");
 
 		while tutorial:getPlayerPosToObject(itemRoomOfficerId) > 16.0 do
-			LuaScriptEngine.WaitMSec(2000);
+			LuaScriptEngine.WaitMSec(4000);
 		end;
 
 		-- tutorial:spatialChat(itemRoomOfficerId, "@newbie_tutorial/newbie_convo:greeter1_bark3");
-		tutorial:spatialChat(itemRoomOfficerId, "You should know better than to take passage with criminals.");
+		tutorial:spatialChat(itemRoomOfficerId, "@newbie_tutorial/newbie_convo:greeter1_bark3");
 
 		while tutorial:getPlayerPosToObject(itemRoomOfficerId) > 12.0 do
-			LuaScriptEngine.WaitMSec(2000);
+			LuaScriptEngine.WaitMSec(4000);
 		end;
 	
 		tutorial:setSubState(6);
@@ -457,14 +461,14 @@ while state == 1 do
 		
 		if (tutorial:getPlayerPosToObject(itemRoomOfficerId) > 10.0) then
 			-- tutorial:spatialChat(itemRoomOfficerId, "@newbie_tutorial/newbie_convo:greeting");
-			tutorial:spatialChat(itemRoomOfficerId, "A straggler, eh?  Don't be shy, come on forward.");
+			tutorial:spatialChat(itemRoomOfficerId, "@newbie_tutorial/newbie_convo:greeting");
 		end;
 
 		
 		-- wait at least until the previous sound/music has stopped.
 		while (scriptSupport:getTarget(playerId) ~= itemRoomOfficerId) do
 			-- tutorial:spatialChat(itemRoomOfficerId, "@newbie_tutorial/newbie_convo:explain_lookat");
-			tutorial:spatialChat(itemRoomOfficerId, "Well, I have things for you, but I won't give you the time of day unless you actually converse with me.");
+			tutorial:spatialChat(itemRoomOfficerId, "@newbie_tutorial/newbie_convo:explain_lookat");
 
 			LuaScriptEngine.WaitMSec(500);
 			if delayLeft > 0 then
@@ -921,7 +925,7 @@ while state == 1 do
 			tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_28");
 			tutorial:scriptPlayMusic(3149);		-- sound/tut_28_converse.snd
 			
-			tutorial:spatialChat(bankAndBazzarRoomOfficerId, "Well hello!  Come talk to me if you need assistance with this terminal");
+			tutorial:spatialChat(bankAndBazzarRoomOfficerId, "@newbie_tutorial/newbie_convo:clone_greeting");
 			delayLeft = 5000;
 			
 			for count = 1,60 do 
@@ -1126,7 +1130,7 @@ while state == 1 do
 
 			-- Yee, we are down the ramp now.
 			-- Let the dog start barking...
-			tutorial:spatialChat(npcUserBark1Id, "There\'s a crazy criminal on the loose!  I hope you've insured your items!");
+			tutorial:spatialChat(npcUserBark1Id, "@newbie_tutorial/newbie_convo:ins_user_bark_1");
 			
 			local playerPosZ = tutorial:getPlayerPosZ();			
 					
@@ -1138,7 +1142,7 @@ while state == 1 do
 				end
 				playerPosZ = tutorial:getPlayerPosZ();					
 			end;
-			tutorial:spatialChat(npcUserBark2Id, "All my items are insured... are yours?");					
+			tutorial:spatialChat(npcUserBark2Id, "@newbie_tutorial/newbie_convo:ins_user_bark_2");					
 
 			local playerPosX = tutorial:getPlayerPosX();
 			playerPosZ = tutorial:getPlayerPosZ();			
@@ -1153,7 +1157,7 @@ while state == 1 do
 				playerPosX = tutorial:getPlayerPosX();
 				playerPosZ = tutorial:getPlayerPosZ();			
 			end;
-			tutorial:spatialChat(npcUserBark3Id, "It\'s a dangerous world.  I\'m sure glad there\'s an insurance terminal right here.");								
+			tutorial:spatialChat(npcUserBark3Id, "@newbie_tutorial/newbie_convo:ins_user_bark_3");								
 		end;
 
 		-- wait until we are in the correct room.
@@ -1175,7 +1179,7 @@ while state == 1 do
 		delayLeft = 0;
 
 		-- tutorial:spatialChat(cloningAndInsuranceDroidId, "@newbie_tutorial/newbie_convo:clone_greeting");
-		tutorial:spatialChat(cloningAndInsuranceDroidId, "Well hello!  Please allow me to answer any questions that you might have.");
+		tutorial:spatialChat(cloningAndInsuranceDroidId, "@newbie_tutorial/newbie_convo:clone_greeting");
 
 		LuaScriptEngine.WaitMSec(2000);
 		
@@ -1190,7 +1194,7 @@ while state == 1 do
 				delayLeft = delayLeft - 500
 			else
 				-- tutorial:spatialChat(cloningAndInsuranceDroidId, "@newbie_tutorial/newbie_convo:clone_prompt_convo");
-				tutorial:spatialChat(cloningAndInsuranceDroidId, "Remember, to speak to me just click-and-hold on me until you get the radial menu, then select the CONVERSE menu option.");
+				tutorial:spatialChat(cloningAndInsuranceDroidId, "@newbie_tutorial/newbie_convo:clone_prompt_convo");
 				delayLeft = 30000;				
 			end
 		end
@@ -1238,12 +1242,12 @@ while state == 1 do
 		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:declare_cloned");
 
 		-- tutorial:spatialChat(cloningAndInsuranceDroidId, "@newbie_tutorial/newbie_convo:convo_3_explain_terminal_1");
-		tutorial:spatialChat(cloningAndInsuranceDroidId, "Use terminals like this one, located in cloning facilities, to store your clone data.");
+		tutorial:spatialChat(cloningAndInsuranceDroidId, "@newbie_tutorial/newbie_convo:convo_3_explain_terminal_1");
 		
 		LuaScriptEngine.WaitMSec(5000);
 		
 		-- tutorial:spatialChat(cloningAndInsuranceDroidId, "@newbie_tutorial/newbie_convo:convo_3_explain_terminal_2");
-		tutorial:spatialChat(cloningAndInsuranceDroidId, "I also have an insurance terminal for you here, where you may insure your items to prevent loss.");
+		tutorial:spatialChat(cloningAndInsuranceDroidId, "@newbie_tutorial/newbie_convo:convo_3_explain_terminal_2");
 
 		-- send flytext "*Insurance!*"
 		scriptSupport:sendFlyText(insuranceTerminalId, playerId, "newbie_tutorial/system_messages", "insure_here", 0, 255, 0, 0);
@@ -1289,7 +1293,7 @@ while state == 1 do
 			end
 			playerPosZ = tutorial:getPlayerPosZ();					
 		end;
-		tutorial:spatialChatShout(npcShoutPanic, "Aaaaiiiiiii!  We're all gonna die!");					
+		tutorial:spatialChatShout(npcShoutPanic, "@newbie_tutorial/newbie_convo:shout_panic1");					
 		
  		tutorial:setSubState(13);
 		
@@ -1325,7 +1329,7 @@ while state == 1 do
 		 	playerPosZ = tutorial:getPlayerPosZ();					
 		end;
 		
-		tutorial:spatialChatShout(npcShoutPanic, "Mad pirate on the loose!  He's got a bomb!");					
+		tutorial:spatialChatShout(npcShoutPanic, "@newbie_tutorial/newbie_convo:shout_panic2");					
 		
 		-- Wait until we enter the next room.
 		while (tutorial:getRoom() < 6) do
@@ -1373,7 +1377,7 @@ while state == 1 do
 			end
 			playerPosX = tutorial:getPlayerPosX();					
 		end;
-		tutorial:spatialChat(npcNervousGuy, "You couldn't PAY me to go down that hallway!");	-- nervous_guy1
+		tutorial:spatialChat(npcNervousGuy, "@newbie_tutorial/newbie_convo:nervous_guy1");	-- nervous_guy1
 
 		playerPosX = tutorial:getPlayerPosX();
 		playerPosZ = tutorial:getPlayerPosZ();			
@@ -1385,7 +1389,7 @@ while state == 1 do
 			playerPosX = tutorial:getPlayerPosX();		
 			playerPosZ = tutorial:getPlayerPosZ();						
 		end;
-		tutorial:spatialChat(npcNervousGuy, "That pirate is crazy!  He blocked up the hallway and threatens anyone that goes near him!");	-- nervous_guy2
+		tutorial:spatialChat(npcNervousGuy, "@newbie_tutorial/newbie_convo:nervous_guy2");	-- nervous_guy2
 
 		playerPosX = tutorial:getPlayerPosX();
 		playerPosZ = tutorial:getPlayerPosZ();			
@@ -1397,7 +1401,7 @@ while state == 1 do
 			playerPosX = tutorial:getPlayerPosX();		
 			playerPosZ = tutorial:getPlayerPosZ();						
 		end;
-		tutorial:spatialChat(npcNervousGuy, "I bet the Empire will send him to the spice mines on Kessel");	-- nervous_guy3
+		tutorial:spatialChat(npcNervousGuy, "@newbie_tutorial/newbie_convo:nervous_guy3");	-- nervous_guy3
  		tutorial:setSubState(16);
  		LuaScriptEngine.WaitMSec(delayLeft);
 		delayLeft = 3000;
@@ -1463,7 +1467,7 @@ while state == 1 do
 			LuaScriptEngine.WaitMSec(500);
 			playerPosX = tutorial:getPlayerPosX();					
 		end;
-		tutorial:spatialChatShout(npcNervousGuy, "You can't be thinking of going down that hallway?!  Didn't you hear?  CRAZY PIRATE ON THE LOOSE!");	-- nervous_guy4
+		tutorial:spatialChatShout(npcNervousGuy, "@newbie_tutorial/newbie_convo:nervous_guy4");	-- nervous_guy4
 		
 		playerPosX = tutorial:getPlayerPosX();
 		local playerPosZ = tutorial:getPlayerPosZ();			
@@ -1565,18 +1569,13 @@ while state == 1 do
 					-- Blow the grenade.
 					tutorial:npcStopFight(npcBanditId);
 				
-					tutorial:spatialChat(npcBanditId, "Well I bet you weren't expecting.... A GRENADE!");
-					LuaScriptEngine.WaitMSec(3000);
-				
-
-					tutorial:spatialChat(npcBanditId, "What the...?  This grenade is defective!  Oh no!");
+					tutorial:spatialChat(npcBanditId, "@newbie_tutorial/newbie_convo:pirate_taunt3");
+					LuaScriptEngine.WaitMSec(2000);
+					tutorial:spatialChat(npcBanditId, "@newbie_tutorial/newbie_convo:pirate_taunt4");
 					LuaScriptEngine.WaitMSec(250);
-					scriptSupport:npcKill(npcBanditId);					
-					LuaScriptEngine.WaitMSec(3750);
+					scriptSupport:npcKill(npcBanditId);
 					scriptSupport:scriptSystemMessage(playerId, npcBanditId, "clienteffect/combat_grenade_proton.cef");
-
 					-- scriptSupport:npcKill(npcBanditId);
-					LuaScriptEngine.WaitMSec(500);
 				end;
 			else
 				-- We pulled out of combat, to bad.
@@ -1603,7 +1602,7 @@ while state == 1 do
 		-- "Congratulations!  The pirate has been destroyed.  Now you can loot his corpse by clicking and holding your mouse on him until you get the radial menu option to LOOT."
 		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:loot_pirate");
 		tutorial:scriptPlayMusic(3705);		-- sound/tut_00_congratulations.snd
-		delayLeft = 5000;
+		delayLeft = 2500;
 		
 	elseif subState == 19 then		-- Part 7
 		tutorial:enableHudElement("all");		-- Enable full UI
@@ -1691,7 +1690,7 @@ while state == 1 do
 		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:part_7");
 		LuaScriptEngine.WaitMSec(2000);
 		
-		tutorial:spatialChat(npcOfficerWithTrainerId, "Say... you're still alive!  That's amazing.");	--	off_1_greeting
+		tutorial:spatialChat(npcOfficerWithTrainerId, "@newbie_tutorial/newbie_convo:off_1_greeting");	--	off_1_greeting
 		LuaScriptEngine.WaitMSec(1000);
 		
 		while tutorial:isNpcConversationStarted(npcOfficerWithTrainerId) == false do
@@ -1721,7 +1720,7 @@ while state == 1 do
 		if tutorial:isPlayerTrained() == false then
 			tutorial:enableNpcConversationEvent(npcSkillTrainerId);
 		
-			tutorial:spatialChat(npcSkillTrainerId, "Huh?");	--	trainer_grunt
+			tutorial:spatialChat(npcSkillTrainerId, "@newbie_tutorial/newbie_convo:trainer_grunt");	--	trainer_grunt
 			LuaScriptEngine.WaitMSec(delayLeft);
 			delayLeft = 0;
 
@@ -1854,7 +1853,7 @@ while state == 1 do
 		end;
 		
 		while tutorial:isNpcConversationStarted(npcOfficerInMissionRoomId) == false do
-			tutorial:spatialChat(npcOfficerInMissionRoomId, "You there.  No time for that now.  I've got something for you to do.");	--	mission_hail
+			tutorial:spatialChat(npcOfficerInMissionRoomId, "@newbie_tutorial/newbie_convo:mission_hail");	--	mission_hail
 			-- LuaScriptEngine.WaitMSec(3000);
 			-- delayLeft = 3000;
 
@@ -1949,7 +1948,7 @@ while state == 1 do
 		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:part_9");
 		LuaScriptEngine.WaitMSec(1000);
 
-		tutorial:spatialChat(npcQuartermasterId, "Finally!  The last of the survivors, I take it?");	--	quarter_greeting
+		tutorial:spatialChat(npcQuartermasterId, "@newbie_tutorial/newbie_convo:quarter_greeting");	--	quarter_greeting
 		LuaScriptEngine.WaitMSec(1000);
 		
 		tutorial:setSubState(25);
@@ -2003,10 +2002,19 @@ while state == 1 do
 	end	
 end
 
+if state == 3 then
 
+	-- No funny business
+	tutorial:enableHudElement("all");		-- Enable full UI
 
+	-- "Welcome to Star Wars Galaxies."
+	tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:welcome");
+	tutorial:scriptPlayMusic(1267);		-- sound/tut_01_welcome.snd
+	
+	LuaScriptEngine.WaitMSec(5000);
+	
+	-- Stat Migration Sililoquy.
+	tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:stat_migration");
+	tutorial:scriptPlayMusic(1838);
 
-
-
-
-
+end

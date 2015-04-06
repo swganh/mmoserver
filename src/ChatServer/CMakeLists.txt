@@ -1,3 +1,10 @@
 include(MMOServerExecutable)
 
-AddMMOServerExecutable(ChatServer)
+AddMMOServerExecutable(ChatServer
+    MMOSERVER_DEPS 
+        DatabaseManager
+        NetworkManager 
+        Utils
+        Common
+       
+)

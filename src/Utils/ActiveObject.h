@@ -32,8 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <memory>
 
 #include <boost/thread.hpp>
-//#include <tbb/concurrent_queue.h>
-#include <tbb\include\tbb\concurrent_queue.h>
+#include <tbb/concurrent_queue.h>
 
 /// The utils namespace hosts a number of useful utility classes intended to
 /// be used and reused in domain specific classes.

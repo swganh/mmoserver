@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include "utils/logger.h"
+#include "Utils/logger.h"
 
 #include "CraftBatch.h"
 #include "DraftSchematic.h"
@@ -199,7 +199,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
             uint64 schemId = schematic->mModel.getCrc();
             schematic->setId((schemId << 32) | (schematic->mWeightsBatchId));
             //added temporary log in order to dump schematic ids for DB insertion
-            //gLogger->log(LogManager::DEBUG,"Schematic,%"PRIu64",%u",schematic->mId,schematic->mWeightsBatchId);
+            //gLogger->log(LogManager::DEBUG,"Schematic,%" PRIu64 ",%u",schematic->mId,schematic->mWeightsBatchId);
             //mSchematicList.push_back(schematic);
 
             mSchematicList.insert(std::make_pair(schematic->getWeightsBatchId(), schematic));

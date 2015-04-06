@@ -36,7 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "SpatialIndexManager.h"
 #include "MessageLib/MessageLib.h"
 
-#include "utils/logger.h"
+#include "Utils/logger.h"
 
 #include "DatabaseManager/Database.h"
 
@@ -356,7 +356,7 @@ BString EntertainerManager::commitIdColor(PlayerObject* customer, BString attrib
 
             //update hair customization db side seperately
             int8 sql[300];
-            sprintf(sql,"UPDATE %s.character_appearance set %s = %u where character_id = '%"PRIu64"'",mDatabase->galaxy(),iDContainer->Atr1Name, value,customer->getId());
+            sprintf(sql,"UPDATE %s.character_appearance set %s = %u where character_id = '%" PRIu64 "'",mDatabase->galaxy(),iDContainer->Atr1Name, value,customer->getId());
             mDatabase->executeSqlAsync(NULL,NULL,sql);
             
 
@@ -556,7 +556,7 @@ void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
 			if(!newHairString.getLength())
 			{
 				// update the db
-				sprintf(sql,"UPDATE %s.character_appearance set hair = '' where character_id = '%"PRIu64"'",mDatabase->galaxy(),customer->getId());
+				sprintf(sql,"UPDATE %s.character_appearance set hair = '' where character_id = '%" PRIu64 "'",mDatabase->galaxy(),customer->getId());
 				mDatabase->executeSqlAsync(NULL,NULL,sql);
 			}
 		}
@@ -586,7 +586,7 @@ void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
 
 
 		// update the db
-		sprintf(sql,"UPDATE %s.character_appearance set hair = '%s' where character_id = '%"PRIu64"'",mDatabase->galaxy(),newHairString.getAnsi(),customer->getId());
+		sprintf(sql,"UPDATE %s.character_appearance set hair = '%s' where character_id = '%" PRIu64 "'",mDatabase->galaxy(),newHairString.getAnsi(),customer->getId());
 		mDatabase->executeSqlAsync(NULL,NULL,sql);
 
 		// now update the modelstring in the creo6 equipped list and the corresponding tano
@@ -630,11 +630,11 @@ void EntertainerManager::applyMoney(PlayerObject* customer,PlayerObject* designe
     asyncContainer->amountbank = amountbank;
 
 
-    sprintf(sql,"UPDATE %s.inventories SET credits=credits-%i WHERE id=%"PRIu64"",mDatabase->galaxy(),amountcash, customer->getId()+1);
+    sprintf(sql,"UPDATE %s.inventories SET credits=credits-%i WHERE id=%" PRIu64 "",mDatabase->galaxy(),amountcash, customer->getId()+1);
     mTransaction->addQuery(sql);
-    sprintf(sql,"UPDATE %s.banks SET credits=credits-%i WHERE id=%"PRIu64"",mDatabase->galaxy(),amountbank, customer->getId()+4);
+    sprintf(sql,"UPDATE %s.banks SET credits=credits-%i WHERE id=%" PRIu64 "",mDatabase->galaxy(),amountbank, customer->getId()+4);
     mTransaction->addQuery(sql);
-    sprintf(sql,"UPDATE %s.banks SET credits=credits+%i WHERE id=%"PRIu64"",mDatabase->galaxy(),amount, designer->getId()+4);
+    sprintf(sql,"UPDATE %s.banks SET credits=credits+%i WHERE id=%" PRIu64 "",mDatabase->galaxy(),amount, designer->getId()+4);
     mTransaction->addQuery(sql);
 
     mTransaction->execute();
@@ -776,7 +776,7 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
     //do we have actual data or only the primer ??? "UPDATE character_appearance set "
     if(strlen(mySQL) > 33)
     {
-        sprintf(sql,"%s where character_id = '%"PRIu64"'",mySQL,customer->getId());
+        sprintf(sql,"%s where character_id = '%" PRIu64 "'",mySQL,customer->getId());
         asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
         mDatabase->executeSqlAsync(this,asyncContainer,sql);
         
@@ -802,7 +802,7 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
         asyncContainer->customer = customer;
         asyncContainer->performer = designer;
 
-        sprintf(sql,"SELECT target_health, target_strength, target_constitution, target_action, target_quickness, target_stamina, target_mind, target_focus, target_willpower FROM %s.character_stat_migration where character_id = %"PRIu64"",mDatabase->galaxy(), customer->getId());
+        sprintf(sql,"SELECT target_health, target_strength, target_constitution, target_action, target_quickness, target_stamina, target_mind, target_focus, target_willpower FROM %s.character_stat_migration where character_id = %" PRIu64 "",mDatabase->galaxy(), customer->getId());
         mDatabase->executeSqlAsync(this,asyncContainer,sql);
         
     }
@@ -875,7 +875,7 @@ void EntertainerManager::applyHoloEmote(PlayerObject* customer,BString holoEmote
     asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
     asyncContainer->customer = customer;
 
-    sprintf(sql,"call %s.sp_CharacterHoloEmoteCreate(%"PRIu64",%u,%u)",mDatabase->galaxy(), customer->getId(),myEmote->pCRC,20);
+    sprintf(sql,"call %s.sp_CharacterHoloEmoteCreate(%" PRIu64 ",%u,%u)",mDatabase->galaxy(), customer->getId(),myEmote->pCRC,20);
     mDatabase->executeProcedureAsync(this,asyncContainer,sql);
 
 

@@ -34,7 +34,6 @@ extern "C"
 {
 #include "lua\include\lua.h"
 #include "lua\include\lauxlib.h"
-//#include "lib.h"
 #include "lua\include\lualib.h"
 }
 

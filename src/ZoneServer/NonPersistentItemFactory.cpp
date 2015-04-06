@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include "utils/logger.h"
+#include "Utils/logger.h"
 
 #include "Food.h"
 #include "ItemFactory.h"
@@ -142,7 +142,7 @@ void NonPersistentItemFactory::requestObject(ObjectFactoryCallback* ofCallback,u
                                "SELECT item_family_attribute_defaults.family_id, item_family_attribute_defaults.item_type_id, item_types.object_string, item_types.stf_name, item_types.stf_file, item_types.stf_detail_file"
                                " FROM %.sitem_types"
                                " INNER JOIN %s.item_family_attribute_defaults ON (item_types.id = item_family_attribute_defaults.item_type_id AND item_family_attribute_defaults.attribute_id = 1)"
-                               " WHERE (item_types.id = %"PRIu64")",mDatabase->galaxy(),mDatabase->galaxy(),id);
+                               " WHERE (item_types.id = %" PRIu64 ")",mDatabase->galaxy(),mDatabase->galaxy(),id);
    
 }
 

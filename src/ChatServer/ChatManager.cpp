@@ -36,7 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cstring>
 #include <ctime>
 
-#include "utils/logger.h"
+#include "Utils/logger.h"
 #include <cppconn/resultset.h>
 
 #include "Utils/typedefs.h"
@@ -397,7 +397,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             asContainer->mClient = asyncContainer->mClient;
             asContainer->mReceiver	= player;
 
-            mDatabase->executeProcedureAsync(this,asContainer,"CALL %s.sp_ReturnChatFriendlist(%"PRIu64");",mDatabase->galaxy(),asContainer->mReceiver->getCharId());
+            mDatabase->executeProcedureAsync(this,asContainer,"CALL %s.sp_ReturnChatFriendlist(%" PRIu64 ");",mDatabase->galaxy(),asContainer->mReceiver->getCharId());
             
         }
         else
@@ -445,8 +445,8 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             int8 sql[20000],*sqlPointer;
             int8 footer[64];
             int8 receiverStr[64];
-            sprintf(receiverStr,"',%"PRIu64",'",receiverId);
-            sprintf(footer,",%u,%"PRIu32")",(asyncContainer->mMail->mAttachments.getLength() << 1),asyncContainer->mMail->mTime);
+            sprintf(receiverStr,"',%" PRIu64 ",'",receiverId);
+            sprintf(footer,",%u,%" PRIu32 ")",(asyncContainer->mMail->mAttachments.getLength() << 1),asyncContainer->mMail->mTime);
             sprintf(sql,"SELECT %s.sf_MailCreate('",mDatabase->galaxy());
 
             sqlPointer = sql + strlen(sql);
@@ -503,7 +503,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         asContainer->mMailCounter = asyncContainer->mMailCounter;
         asContainer->mReceiverId = asyncContainer->mReceiverId;
 
-        mDatabase->executeProcedureAsync(this,asContainer,"CALL %s.sp_ReturnChatIgnoreList(%"PRIu64");",mDatabase->galaxy(), asyncContainer->mReceiverId);
+        mDatabase->executeProcedureAsync(this,asContainer,"CALL %s.sp_ReturnChatIgnoreList(%" PRIu64 ");",mDatabase->galaxy(), asyncContainer->mReceiverId);
         
         mDatabase->destroyDataBinding(binding);
     }
@@ -665,7 +665,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         asContainer->mClient	= asyncContainer->mClient;
         asContainer->mReceiver	= asyncContainer->mReceiver;
 
-        mDatabase->executeProcedureAsync(this,asContainer,"CALL %s.sp_ReturnChatIgnorelist(%"PRIu64");",mDatabase->galaxy(),asContainer->mReceiver->getCharId());
+        mDatabase->executeProcedureAsync(this,asContainer,"CALL %s.sp_ReturnChatIgnorelist(%" PRIu64 ");",mDatabase->galaxy(),asContainer->mReceiver->getCharId());
         
     }
     break;
@@ -695,7 +695,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         Player* currentPlayer = getPlayerByAccId(asyncContainer->mClient->getAccountId());
 
-        mDatabase->executeProcedureAsync(this, asContainer,"CALL %s.sp_ReturnChatCharChannels(%"PRIu64");",mDatabase->galaxy(), currentPlayer->getCharId());
+        mDatabase->executeProcedureAsync(this, asContainer,"CALL %s.sp_ReturnChatCharChannels(%" PRIu64 ");",mDatabase->galaxy(), currentPlayer->getCharId());
         
     }
     break;
@@ -878,7 +878,7 @@ void ChatManager::_processClusterClientConnect(Message* message,DispatchClient* 
     ChatAsyncContainer* asyncContainer = new ChatAsyncContainer(ChatQuery_Player);
     asyncContainer->mClient = client;
 
-    mDatabase->executeProcedureAsync(this,asyncContainer,"CALL %s.sp_ReturnCharacterName(%"PRIu64")",mDatabase->galaxy(),charId);
+    mDatabase->executeProcedureAsync(this,asyncContainer,"CALL %s.sp_ReturnCharacterName(%" PRIu64 ")",mDatabase->galaxy(),charId);
     
 
     gMessageFactory->StartMessage();
@@ -1040,7 +1040,7 @@ void ChatManager::_processWhenLoaded(Message* message,DispatchClient* client)
                 // Update friends list
                 updateFriendsOnline(asContainer->mReceiver,true);
 
-                mDatabase->executeProcedureAsync(this,asContainer,"CALL %s.sp_ReturnChatMailHeaders(%"PRIu64");",mDatabase->galaxy(),asContainer->mReceiver->getCharId());
+                mDatabase->executeProcedureAsync(this,asContainer,"CALL %s.sp_ReturnChatMailHeaders(%" PRIu64 ");",mDatabase->galaxy(),asContainer->mReceiver->getCharId());
                 
             }
         }
@@ -1454,7 +1454,7 @@ void ChatManager::_processEnterRoomById(Message* message,DispatchClient* client)
     channel->addUser(avatar);
     gChatMessageLib->sendChatOnEnteredRoom(client, avatar, channel, requestId);
 
-    mDatabase->executeProcedureAsync(NULL, NULL, "CALL %s.sp_ChatRoomUserAdd(%"PRIu64", %u);", mDatabase->galaxy(),  player->getCharId(), channel->getId());
+    mDatabase->executeProcedureAsync(NULL, NULL, "CALL %s.sp_ChatRoomUserAdd(%" PRIu64 ", %u);", mDatabase->galaxy(),  player->getCharId(), channel->getId());
     
 }
 
@@ -1975,7 +1975,7 @@ void ChatManager::_processRemoveAvatarFromRoom(Message* message,DispatchClient* 
         }
     else
     {
-        mDatabase->executeProcedureAsync(NULL, NULL, "CALL %s.sp_ChatRoomUserRemove(%u, %"PRIu64");", mDatabase->galaxy(),  avatar->getPlayer()->getCharId(), channel->getId());
+        mDatabase->executeProcedureAsync(NULL, NULL, "CALL %s.sp_ChatRoomUserRemove(%u, %" PRIu64 ");", mDatabase->galaxy(),  avatar->getPlayer()->getCharId(), channel->getId());
         
         gChatMessageLib->sendChatOnLeaveRoom(client, avatar, channel, 0, errorCode);
     }
@@ -2073,7 +2073,7 @@ void ChatManager::_processBanAvatarFromRoom(Message* message,DispatchClient* cli
         ChatAvatarId* avatar = channel->findUser(playerName);
         if (avatar)
         {
-            mDatabase->executeProcedureAsync(NULL, NULL, "CALL %s.sp_ChatRoomUserRemove(%u, %"PRIu64");", mDatabase->galaxy(),  avatar->getPlayer()->getCharId(), channel->getId());
+            mDatabase->executeProcedureAsync(NULL, NULL, "CALL %s.sp_ChatRoomUserRemove(%u, %" PRIu64 ");", mDatabase->galaxy(),  avatar->getPlayer()->getCharId(), channel->getId());
 
             gChatMessageLib->sendChatOnLeaveRoom(client, avatar, channel, 0, errorCode);
             channel->removeUser(playerName);
@@ -2211,7 +2211,7 @@ void ChatManager::_processAvatarId(Message* message,DispatchClient* client)
 void ChatManager::sendSystemMailMessage(Mail* mail,uint64 recipient)
 {
     int8 sql[100];
-    sprintf(sql, "SELECT firstname FROM %s.characters WHERE id LIKE %"PRIu64"",mDatabase->galaxy(), recipient);
+    sprintf(sql, "SELECT firstname FROM %s.characters WHERE id LIKE %" PRIu64 "",mDatabase->galaxy(), recipient);
 
     mDatabase->executeAsyncSql(sql, [this, mail, recipient] (DatabaseResult* result) {       
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
@@ -2272,7 +2272,7 @@ void ChatManager::_processSystemMailMessage(Message* message,DispatchClient* cli
     asyncContainer->mClient = client;
 
     int8 sql[100];
-    sprintf(sql, "SELECT firstname FROM %s.characters WHERE id LIKE %"PRIu64"",mDatabase->galaxy(), ReceiverID);
+    sprintf(sql, "SELECT firstname FROM %s.characters WHERE id LIKE %" PRIu64 "",mDatabase->galaxy(), ReceiverID);
 
     mDatabase->executeSqlAsync(this,asyncContainer,sql);
 
@@ -2310,8 +2310,8 @@ void ChatManager::_PersistentMessagebySystem(Mail* mail,DispatchClient* client, 
         int8 sql[20000],*sqlPointer;
         int8 footer[64];
         int8 receiverStr[64];
-        sprintf(receiverStr,"',%"PRIu64",'",receiver->getCharId());
-        sprintf(footer,",%u,%"PRIu32")",(mail->mAttachments.getLength() << 1),mail->mTime);
+        sprintf(receiverStr,"',%" PRIu64 ",'",receiver->getCharId());
+        sprintf(footer,",%u,%" PRIu32 ")",(mail->mAttachments.getLength() << 1),mail->mTime);
         sprintf(sql,"SELECT %s.sf_MailCreate('",mDatabase->galaxy());
         sqlPointer = sql + strlen(sql);
         sqlPointer += mDatabase->escapeString(sqlPointer,mail->getSender().getAnsi(),mail->getSender().getLength());
@@ -2420,8 +2420,8 @@ void ChatManager::_processPersistentMessageToServer(Message* message,DispatchCli
         int8 sql[20000],*sqlPointer;
         int8 footer[64];
         int8 receiverStr[64];
-        sprintf(receiverStr,"',%"PRIu64",'",receiver->getCharId());
-        sprintf(footer,",%u,%"PRIu32")",(mail->mAttachments.getLength() << 1),mail->mTime);
+        sprintf(receiverStr,"',%" PRIu64 ",'",receiver->getCharId());
+        sprintf(footer,",%u,%" PRIu32 ")",(mail->mAttachments.getLength() << 1),mail->mTime);
         sprintf(sql, "SELECT %s.sf_MailCreate('%s", mDatabase->galaxy(), sender->getName().getAnsi());
         sqlPointer = sql + strlen(sql);
         sqlPointer += mDatabase->escapeString(sqlPointer,sender->getName().getAnsi(),sender->getName().getLength());
@@ -2479,7 +2479,7 @@ void ChatManager::_processRequestPersistentMessage(Message* message,DispatchClie
     asyncContainer->mRequestId = dbMailId;
 
     int8 sql[256];
-    sprintf(sql, "CALL %s.sp_ReturnChatMailById(%"PRIu32");", mDatabase->galaxy(), dbMailId);
+    sprintf(sql, "CALL %s.sp_ReturnChatMailById(%" PRIu32 ");", mDatabase->galaxy(), dbMailId);
 
     mDatabase->executeProcedureAsync(this,asyncContainer,sql);
 }

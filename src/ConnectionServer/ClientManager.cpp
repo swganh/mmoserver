@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "NetworkManager/Service.h"
 
-#include "utils/logger.h"
+#include "Utils/logger.h"
 
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/Database.h"
@@ -286,7 +286,7 @@ void ClientManager::_processSelectCharacter(ConnectionClient* client, Message* m
 {
     uint64 characterId = message->getUint64();
 
-    DatabaseResult* result = mDatabase->executeSynchSql("SELECT planet_id FROM %s.characters WHERE id=%"PRIu64";",mDatabase->galaxy(), characterId);
+    DatabaseResult* result = mDatabase->executeSynchSql("SELECT planet_id FROM %s.characters WHERE id=%" PRIu64 ";",mDatabase->galaxy(), characterId);
 
     uint32 serverId;
     DataBinding* binding = mDatabase->createDataBinding(1);

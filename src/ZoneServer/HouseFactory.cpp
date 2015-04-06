@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include "utils/logger.h"
+#include "Utils/logger.h"
 
 #include "Deed.h"
 #include "HouseObject.h"
@@ -127,7 +127,7 @@ void HouseFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         asContainer->mObject = house;
 
         int8 sql[1024];
-        sprintf(sql,"SELECT PlayerID FROM %s.structure_admin_data WHERE StructureID = %"PRIu64" AND AdminType like 'ADMIN';",mDatabase->galaxy(),house->getId());
+        sprintf(sql,"SELECT PlayerID FROM %s.structure_admin_data WHERE StructureID = %" PRIu64 " AND AdminType like 'ADMIN';",mDatabase->galaxy(),house->getId());
         mDatabase->executeSqlAsync(this,asContainer,sql);
         
 
@@ -183,7 +183,7 @@ void HouseFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,HOFQuery_CellData,asyncContainer->mClient);
         asContainer->mObject = house;
 
-        mDatabase->executeSqlAsync(this,asContainer,"SELECT id FROM %s.structure_cells WHERE parent_id = %"PRIu64" ORDER BY structure_cells.id;",mDatabase->galaxy(),house->getId());
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT id FROM %s.structure_cells WHERE parent_id = %" PRIu64 " ORDER BY structure_cells.id;",mDatabase->galaxy(),house->getId());
         
 
 
@@ -207,7 +207,7 @@ void HouseFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         mDatabase->executeSqlAsync(this,asynContainer,"SELECT attributes.name,sa.value,attributes.internal"
                                    " FROM %s.structure_attributes sa"
                                    " INNER JOIN %s.attributes ON (sa.attribute_id = attributes.id)"
-                                   " WHERE sa.structure_id = %"PRIu64" ORDER BY sa.order",
+                                   " WHERE sa.structure_id = %" PRIu64 " ORDER BY sa.order",
                                    mDatabase->galaxy(),mDatabase->galaxy(),house->getId());
         
 
@@ -252,7 +252,7 @@ void HouseFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uin
             "std.type,std.object_string,std.stf_name, std.stf_file, s.name, "
             "std.lots_used, h.private, std.maint_cost_wk, s.condition, std.max_condition, std.max_storage "
             "FROM %s.structures s INNER JOIN %s.structure_type_data std ON (s.type = std.type) INNER JOIN %s.houses h ON (s.id = h.id) "
-            "WHERE (s.id = %"PRIu64")",
+            "WHERE (s.id = %" PRIu64 ")",
             mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),id);
 
     QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,HOFQuery_MainData,client,id);

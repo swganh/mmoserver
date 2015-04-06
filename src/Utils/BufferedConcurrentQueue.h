@@ -28,8 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef SRC_UTILS_BUFFEREDCONCURRENTQUEUE_H_
 #define SRC_UTILS_BUFFEREDCONCURRENTQUEUE_H_
 
-//#include <tbb/atomic.h>
-#include <tbb\include\tbb\atomic.h>
+#include <tbb/atomic.h>
 #include "utils/ConcurrentQueue.h"
 
 namespace utils {

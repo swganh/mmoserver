@@ -352,7 +352,7 @@ void StructureManager::_HandleStructureDestruction(StructureManagerAsyncContaine
             //delete the deed in the db
             //the parent is the structure and the item family is 15
             int8 sql[100];
-            sprintf(sql,"DELETE FROM %s.items WHERE parent_id = %"PRIu64" AND item_family = 15",mDatabase->galaxy(),structure->getId());
+            sprintf(sql,"DELETE FROM %s.items WHERE parent_id = %" PRIu64 " AND item_family = 15",mDatabase->galaxy(),structure->getId());
             mDatabase->executeSqlAsync(NULL,NULL,sql);
             
             //delete harvester db side with all power and all resources
@@ -450,11 +450,11 @@ void StructureManager::_HandleStructureTransferLotsRecipient(StructureManagerAsy
     {
         //yay we were succesful
         structure->setOwner(asynContainer->mTargetId);
-        mDatabase->executeSqlAsync(0,0,"UPDATE %s.structures SET structures.owner = %"PRIu64" WHERE structures.id = %"PRIu64"",mDatabase->galaxy(),asynContainer->mTargetId,asynContainer->mStructureId);
+        mDatabase->executeSqlAsync(0,0,"UPDATE %s.structures SET structures.owner = %" PRIu64 " WHERE structures.id = %" PRIu64 "",mDatabase->galaxy(),asynContainer->mTargetId,asynContainer->mStructureId);
         
-        mDatabase->executeSqlAsync(0,0,"DELETE FROM %s.structure_admin_data where playerId = %"PRIu64" AND StructureID = %"PRIu64"",mDatabase->galaxy(),asynContainer->mPlayerId,asynContainer->mStructureId);
+        mDatabase->executeSqlAsync(0,0,"DELETE FROM %s.structure_admin_data where playerId = %" PRIu64 " AND StructureID = %" PRIu64 "",mDatabase->galaxy(),asynContainer->mPlayerId,asynContainer->mStructureId);
         
-        mDatabase->executeSqlAsync(0,0,"INSERT INTO %s.structure_admin_data VALUES (NULL,%"PRIu64",%"PRIu64",'ADMIN')",mDatabase->galaxy(),asynContainer->mStructureId, asynContainer->mTargetId);
+        mDatabase->executeSqlAsync(0,0,"INSERT INTO %s.structure_admin_data VALUES (NULL,%" PRIu64 ",%" PRIu64 ",'ADMIN')",mDatabase->galaxy(),asynContainer->mStructureId, asynContainer->mTargetId);
         
 
 
@@ -558,7 +558,7 @@ void StructureManager::_HandleRemovePermission(StructureManagerAsyncContainer* a
             StructureManagerAsyncContainer* asContainer = new StructureManagerAsyncContainer(Structure_Query_UpdateAdminPermission,NULL);
             asContainer->mStructureId = asynContainer->mStructureId;
 
-            gWorldManager->getDatabase()->executeSqlAsync(this,asContainer,"SELECT PlayerID FROM %s.structure_admin_data WHERE StructureID = %"PRIu64" AND AdminType like 'ADMIN';",mDatabase->galaxy(),asContainer->mStructureId);
+            gWorldManager->getDatabase()->executeSqlAsync(this,asContainer,"SELECT PlayerID FROM %s.structure_admin_data WHERE StructureID = %" PRIu64 " AND AdminType like 'ADMIN';",mDatabase->galaxy(),asContainer->mStructureId);
             
         }
     }
@@ -675,7 +675,7 @@ void StructureManager::_HandleAddPermission(StructureManagerAsyncContainer* asyn
             StructureManagerAsyncContainer* asContainer = new StructureManagerAsyncContainer(Structure_Query_UpdateAdminPermission,NULL);
             asContainer->mStructureId = asynContainer->mStructureId;
 
-            gWorldManager->getDatabase()->executeSqlAsync(this,asContainer,"SELECT PlayerID FROM %s.structure_admin_data WHERE StructureID = %"PRIu64" AND AdminType like 'ADMIN';",mDatabase->galaxy(),asContainer->mStructureId);
+            gWorldManager->getDatabase()->executeSqlAsync(this,asContainer,"SELECT PlayerID FROM %s.structure_admin_data WHERE StructureID = %" PRIu64 " AND AdminType like 'ADMIN';",mDatabase->galaxy(),asContainer->mStructureId);
             
         }
     }

@@ -27,9 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ContainerObjectFactory.h"
 
-#ifdef _WIN32
-#undef ERROR
-#endif
+
 #include "Utils/logger.h"
 
 #include "Container.h"
@@ -278,7 +276,7 @@ void ContainerObjectFactory::handleObjectReady(Object* object,DispatchClient* cl
 {
     InLoadingContainer* ilc	= _getObject(object->getParentId());
     if(!ilc) { //Crashbug patch: http://paste.swganh.org/viewp.php?id=20100627024455-d7efda0b4aebaa96b06438b2c42dfe6c
-        LOG(warning) << "Failed to locate InLoadingContainer for parent id [" << object->getParentId() << "]";
+        LOG(WARNING) << "Failed to locate InLoadingContainer for parent id [" << object->getParentId() << "]";
         return;
     }
     ilc->mLoadCounter--;
@@ -306,7 +304,7 @@ void ContainerObjectFactory::handleObjectReady(Object* object,DispatchClient* cl
         container->setLoadState(LoadState_Loaded);
 
         if (!(_removeFromObjectLoadMap(container->getId())))
-            LOG(warning) << "Failed removing object from loadmap";
+            LOG(WARNING) << "Failed removing object from loadmap";
 
         ilc->mOfCallback->handleObjectReady(container,ilc->mClient);
 

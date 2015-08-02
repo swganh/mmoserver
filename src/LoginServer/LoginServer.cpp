@@ -27,6 +27,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "LoginServer.h"
 
+
+#ifdef ERROR
+#undef ERROR
+#endif
 #include "Utils/logger.h"
 
 #include <iostream>
@@ -57,7 +61,7 @@ LoginServer::LoginServer(int argc, char* argv[])
     , mNetworkManager(0)
 {
     Anh_Utils::Clock::Init();
-    LOG(warning) << "Login Server Startup";
+    LOG(WARNING) << "Login Server Startup";
 
 	// Load Configuration Options
 	std::list<std::string> config_files;
@@ -77,7 +81,7 @@ LoginServer::LoginServer(int argc, char* argv[])
 		configuration_variables_map_["ClientPacketWindowSize"].as<uint32_t>(),
 		configuration_variables_map_["UdpBufferSize"].as<uint32_t>()));
 
-    LOG(warning) << "Config port set to " << configuration_variables_map_["BindPort"].as<uint16>();
+    LOG(WARNING) << "Config port set to " << configuration_variables_map_["BindPort"].as<uint16>();
     mService = mNetworkManager->GenerateService((char*)configuration_variables_map_["BindAddress"].as<std::string>().c_str(), configuration_variables_map_["BindPort"].as<uint16_t>(),configuration_variables_map_["ServiceMessageHeap"].as<uint32_t>()*1024,false);
 
 	mDatabaseManager = new DatabaseManager(DatabaseConfig(configuration_variables_map_["DBMinThreads"].as<uint32_t>(), configuration_variables_map_["DBMaxThreads"].as<uint32_t>(), configuration_variables_map_["DBGlobalSchema"].as<std::string>(), configuration_variables_map_["DBGalaxySchema"].as<std::string>(), configuration_variables_map_["DBConfigSchema"].as<std::string>()));
@@ -111,12 +115,12 @@ LoginServer::LoginServer(int argc, char* argv[])
     // We're done initializing.
     mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_ServerStatusUpdate('login', %u, '%s', %u);",mDatabase->galaxy(), 2, mService->getLocalAddress(), mService->getLocalPort()); // SQL - Update Server Details
 
-    LOG(warning) << "Login Server startup complete";
+    LOG(WARNING) << "Login Server startup complete";
     //gLogger->printLogo();
     // std::string BuildString(GetBuildString());
 
-    LOG(warning) <<  "Login Server - Build " << GetBuildString().c_str();
-    LOG(warning) << "Welcome to your SWGANH Experience!";
+    LOG(WARNING) <<  "Login Server - Build " << GetBuildString().c_str();
+    LOG(WARNING) << "Welcome to your SWGANH Experience!";
 }
 
 
@@ -125,7 +129,7 @@ LoginServer::~LoginServer(void)
 {
     mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_ServerStatusUpdate('login', %u, NULL, NULL);",mDatabase->galaxy(), 2); // SQL - Update server status
     
-    LOG(warning) << "LoginServer shutting down...";
+    LOG(WARNING) << "LoginServer shutting down...";
 
     delete mLoginManager;
 
@@ -136,7 +140,7 @@ LoginServer::~LoginServer(void)
 
     delete mDatabaseManager;
 
-    LOG(warning) << "LoginServer Shutdown complete";
+    LOG(WARNING) << "LoginServer Shutdown complete";
 }
 
 //======================================================================================================================
@@ -159,8 +163,6 @@ void handleExit(void)
 //======================================================================================================================
 int main(int argc, char* argv[])
 {
-   
-
     bool exit = false;
 
     try {

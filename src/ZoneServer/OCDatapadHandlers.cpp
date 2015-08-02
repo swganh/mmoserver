@@ -137,7 +137,7 @@ void ObjectController::_handleSetWaypointActiveStatus(uint64 targetId,Message* m
     }
     else
     {
-        DLOG(info) << "ObjController::handleSetWaypointStatus: could not find waypoint " << targetId;
+        DLOG(INFO) << "ObjController::handleSetWaypointStatus: could not find waypoint " << targetId;
     }
 }
 
@@ -212,7 +212,7 @@ void ObjectController::_handleSetWaypointName(uint64 targetId,Message* message,O
 
     if(waypoint == NULL)
     {
-        DLOG(info) << "ObjController::handlesetwaypointname: could not find waypoint "<< targetId;
+        DLOG(INFO) << "ObjController::handlesetwaypointname: could not find waypoint "<< targetId;
         return;
     }
 

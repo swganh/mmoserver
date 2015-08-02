@@ -30,6 +30,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/Session.h"
 #include "NetworkManager/Message.h"
 
+
+
+
 #include "Utils/logger.h"
 
 #include <stdio.h>
@@ -99,7 +102,7 @@ void ConnectionDispatch::handleIncomingMessage(ConnectionClient* client, Message
     }
     else
     {
-        LOG(info) << "Unhandled opcode in ConnectionDispatch - " << opcode;
+        LOG(INFO) << "Unhandled opcode in ConnectionDispatch - " << opcode;
     }
 
     // Delete our message

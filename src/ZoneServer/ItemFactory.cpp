@@ -27,9 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ItemFactory.h"
 
-#ifdef _WIN32
-#undef ERROR
-#endif
+
 #include "Utils/logger.h"
 
 #include "CraftingTool.h"
@@ -358,7 +356,7 @@ Item* ItemFactory::_createItem(DatabaseResult* result)
     default:
     {
         item = new Item();
-        LOG(info) << "ItemFactory::createItem (itemType:"<< itemIdentifier.mTypeId << ") with unknown Family " << itemIdentifier.mFamilyId;
+        LOG(INFO) << "ItemFactory::createItem (itemType:"<< itemIdentifier.mTypeId << ") with unknown Family " << itemIdentifier.mFamilyId;
     }
     break;
     }
@@ -495,8 +493,8 @@ void ItemFactory::handleObjectReady(Object* object,DispatchClient* client)
     InLoadingContainer* ilc	= _getObject(object->getParentId());
 
     if (! ilc) {
-        LOG(warning) << "Failed to locate InLoadingContainer for parent id [" << object->getParentId() << "]";
-        LOG(warning) << "ItemFactory::handleObjectReady could not locate ILC for objectParentId: " << object->getParentId();
+        LOG(WARNING) << "Failed to locate InLoadingContainer for parent id [" << object->getParentId() << "]";
+        LOG(WARNING) << "ItemFactory::handleObjectReady could not locate ILC for objectParentId: " << object->getParentId();
         return;
     }
     assert(ilc && "ItemFactory::handleObjectReady unable to find InLoadingContainer");
@@ -516,7 +514,7 @@ void ItemFactory::handleObjectReady(Object* object,DispatchClient* client)
         ilc->mOfCallback->handleObjectReady(item,ilc->mClient);
 
         if(!(_removeFromObjectLoadMap(item->getId())))
-            LOG(warning) << "Failed removing object from loadmap";
+            LOG(WARNING) << "Failed removing object from loadmap";
 
         mILCPool.free(ilc);
         return;

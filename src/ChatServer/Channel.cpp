@@ -30,6 +30,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ChatAvatarId.h"
 #include "Player.h"
 
+
+
+
 #include "Utils/logger.h"
 
 #include "NetworkManager/DispatchClient.h"
@@ -37,7 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageFactory.h"
 
 #include <cstring>
-using namespace boost::log;
+
 //======================================================================================================================
 
 Channel::Channel()
@@ -258,10 +261,10 @@ void Channel::removeUser(Player* player)
     if(mapiter != mUserMap.end())
     {
         mUserMap.erase(mapiter);
-        DLOG(info) << "Channel::remove user : removing player from channel user map : " << player->getName().getAnsi();
+        DLOG(INFO) << "Channel::remove user : removing player from channel user map : " << player->getName().getAnsi();
     }
     else
-        DLOG(info) << "Channel::remove user : Can't find player on channel user map : " <<  player->getName().getAnsi();
+        DLOG(INFO) << "Channel::remove user : Can't find player on channel user map : " <<  player->getName().getAnsi();
 }
 
 //======================================================================================================================

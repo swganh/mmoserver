@@ -37,6 +37,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/ZoneOpcodes.h"
 
 
+#ifdef ERROR
+#undef ERROR
+#endif
+
 #include "Utils/logger.h"
 
 #include "NetworkManager/DispatchClient.h"
@@ -666,7 +670,7 @@ void MessageLib::sendDefenderUpdate(CreatureObject* creatureObject,uint8 updateT
     {
         // Reset all
         // Not suported yet
-        DLOG(info) << "MessageLib::sendDefenderUpdate Invalid option = " << updateType;
+        DLOG(INFO) << "MessageLib::sendDefenderUpdate Invalid option = " << updateType;
 
         //NEVER EVER BAIL OUT WITHOUT closing the message and deleting it
         Message* message = mMessageFactory->EndMessage();
@@ -961,7 +965,7 @@ bool MessageLib::sendEquippedItemUpdate_InRange(CreatureObject* creatureObject, 
 
     if(!found)
     {
-        DLOG(info) << "MessageLib::sendEquippedItemUpdate_InRange : Item not found : " << itemId;
+        DLOG(INFO) << "MessageLib::sendEquippedItemUpdate_InRange : Item not found : " << itemId;
         return false;
     }
 
@@ -1362,7 +1366,6 @@ bool MessageLib::sendSkillModDeltasCREO_4(SkillModsList smList,uint8 remove,Crea
     mMessageFactory->addUint32(smList.size());
 
     mMessageFactory->addUint32(playerObject->getAndIncrementSkillModUpdateCounter(smList.size()));
-    //mMessageFactory->addUint8(remove);
 
     it = smList.begin();
     while(it != smList.end())

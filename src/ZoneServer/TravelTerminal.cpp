@@ -30,6 +30,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldConfig.h"
 #include "MessageLib/MessageLib.h"
 
+#ifdef WIN32
+#undef ERROR
+#endif
+
 #include "Utils/logger.h"
 
 //=============================================================================
@@ -105,7 +109,7 @@ void TravelTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 	}
 	else
 	{
-		DLOG(info) << "TravelTerminal: Unhandled MenuSelect: " << messageType;
+		DLOG(INFO) << "TravelTerminal: Unhandled MenuSelect: " << messageType;
 	}
 
 }

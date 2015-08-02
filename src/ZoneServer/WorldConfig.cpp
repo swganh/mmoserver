@@ -225,7 +225,10 @@ void WorldConfig::buildAttributeMap(DatabaseResult* result)
         }
     }
 
-    LOG(info)  << "Mapped attributes mapped: [" << count << "]";
+	if (count)
+	{
+		LOG(INFO) << "Mapped attributes mapped: [" << count << "]";
+	}
 
 }
 
@@ -237,7 +240,7 @@ void WorldConfig::setConfiguration(BString key,std::string value)
 
     if(it == mConfigurationMap.end())
     {
-    	LOG(warning) << "Could not find configuration setting with key [" << key.getAnsi() << "]";
+    	LOG(WARNING) << "Could not find configuration setting with key [" << key.getAnsi() << "]";
         return;
     }
 
@@ -270,7 +273,7 @@ void WorldConfig::removeConfiguration(BString key)
     if(it != mConfigurationMap.end())
         mConfigurationMap.erase(it);
     else
-    	LOG(warning) << "Could not find configuration setting with key [" << key.getAnsi() << "]";
+    	LOG(WARNING) << "Could not find configuration setting with key [" << key.getAnsi() << "]";
 }
 
 //=========================================================================

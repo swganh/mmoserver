@@ -31,6 +31,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cstdio>
 #include <cstring>
 
+
+#ifdef ERROR
+#undef ERROR
+#endif
+
 #ifdef _WIN32
 #pragma warning(push)
 #pragma warning(disable : 4251)
@@ -38,8 +43,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Utils/logger.h"
 
-#include <mysql\mysql_connection.h>
-#include <mysql\mysql_driver.h>
+#include <mysql_connection.h>
+#include <mysql_driver.h>
 
 #include <cppconn/exception.h>
 #include <cppconn/statement.h>
@@ -81,7 +86,7 @@ DatabaseResult* DatabaseImplementationMySql::executeSql(const std::string& sql, 
     DatabaseResult* result = nullptr;
 
     try {
-        //DLOG(info) << sql;
+        //DLOG(INFO) << sql;
 
         sql::Statement* statement = connection_->createStatement();    
         statement->execute(sql);
@@ -91,7 +96,7 @@ DatabaseResult* DatabaseImplementationMySql::executeSql(const std::string& sql, 
 
         result = new(ResultPool::ordered_malloc()) DatabaseResult(*this, statement, result_set, procedure);
     } catch(const sql::SQLException& e) {
-        LOG(fatal) << e.what();
+        LOG(FATAL) << e.what();
     }
 
     return result;
@@ -101,8 +106,7 @@ DatabaseResult* DatabaseImplementationMySql::executeSql(const std::string& sql, 
 void DatabaseImplementationMySql::destroyResult(DatabaseResult* result) {
     if (!result)
     {
-		LOG(error) << "DatabaseResult is NULL";
-		
+        LOG(WARNING) << "DatabaseResult is NULL";
         return;
     }
     // For a multi-result statement to be destroyed properly all results must
@@ -115,6 +119,16 @@ void DatabaseImplementationMySql::destroyResult(DatabaseResult* result) {
             while(res->next()) {}
         }
     }
+
+	//
+	sql::Statement* statement = result->getStatement().get();
+	result->getStatement().release();
+	delete(statement);
+	
+	sql::ResultSet* res = result->getResultSet().get();
+	result->getResultSet().release();
+	delete(res);
+	//
 
     ResultPool::ordered_free(result);
 }
@@ -153,14 +167,14 @@ void DatabaseImplementationMySql::getNextRow(DatabaseResult* result, DataBinding
 
 void DatabaseImplementationMySql::resetRowIndex(DatabaseResult* result, uint64_t index) const {
     if(!result) {
-        LOG(error) << "Bad Ptr 'DatabaseResult* result' at DatabaseImplementationMySql::ResetRowIndex.";
+        LOG(ERR) << "Bad Ptr 'DatabaseResult* result' at DatabaseImplementationMySql::ResetRowIndex.";
         return;
     }
 
     std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
     if (!result_set) {
-        LOG(error) <<"Bad Ptr '(MYSQL_RES*)result->getResultSetReference()' at DatabaseImplementationMySql::ResetRowIndex.";
+        LOG(ERR) <<"Bad Ptr '(MYSQL_RES*)result->getResultSetReference()' at DatabaseImplementationMySql::ResetRowIndex.";
         return;
     }
 
@@ -170,12 +184,12 @@ void DatabaseImplementationMySql::resetRowIndex(DatabaseResult* result, uint64_t
 
 uint32_t DatabaseImplementationMySql::escapeString(char* target, const char* source, uint32_t length) {
     if (!target) {
-        LOG(error) << "Bad Ptr 'int8* target' at DatabaseImplementationMySql::Escape_String.";
+        LOG(ERR) << "Bad Ptr 'int8* target' at DatabaseImplementationMySql::Escape_String.";
         return 0;
     }
 
     if (!source) {
-        LOG(error) << "Bad Ptr 'const int8* source' at DatabaseImplementationMySql::Escape_String.";
+        LOG(ERR) << "Bad Ptr 'const int8* source' at DatabaseImplementationMySql::Escape_String.";
         return 0;
     }
 

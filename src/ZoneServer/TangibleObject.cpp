@@ -120,7 +120,7 @@ bool TangibleObject::updateTimer(uint64 callTime)
 //build the customization string based on the rawdata
 void TangibleObject::buildTanoCustomization(uint8 len)
 {
-    uint8* theCustomization = new uint8[512];
+    uint8 theCustomization[512];
 
     uint16 byteCount = 4; // 2 byte header + 2 byte footer
     uint8 elementCount = 0;
@@ -147,7 +147,6 @@ void TangibleObject::buildTanoCustomization(uint8 len)
 
     if(!elementCount)
     {
-        theCustomization = NULL;
         setCustomizationStr(theCustomization);
         return;
     }
@@ -185,7 +184,6 @@ void TangibleObject::buildTanoCustomization(uint8 len)
     theCustomization[j+2] = '\0';
 
     setCustomizationStr(theCustomization);
-    delete [] theCustomization;
 }
 
 //=============================================================================

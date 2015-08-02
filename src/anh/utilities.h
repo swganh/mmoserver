@@ -39,32 +39,32 @@ namespace anh {
 
         template<typename T>
         T swapEndian_(T value, std::integral_constant<size_t, 2>) {
-         //  std::make_unsigned<T>::type& tmp = reinterpret_cast<std::make_unsigned<T>::type&>(value);
-         typedef typename std::make_unsigned<T>::type tmpt;
-            tmpt tmp = tmpt(value);
-
+            //std::make_unsigned<T>::type& tmp = reinterpret_cast<std::make_unsigned<T>::type&>(value);
+			typedef typename std::make_unsigned<T>::type tmpt;
+			tmpt tmp = tmpt(value);
             tmp = (tmp >> 8) | (tmp << 8);
 
-            return tmp; //value;
+			return tmp;// value;
         }
         
         template<typename T>
         T swapEndian_(T value, std::integral_constant<size_t, 4>) {
-            // std::make_unsigned<T>::type tmp = reinterpret_cast<std::make_unsigned<T>::type>(value);
-            typedef typename std::make_unsigned<T>::type tmpt;
-	    tmpt tmp = tmpt(value);
+            //std::make_unsigned<T>::type& tmp = reinterpret_cast<std::make_unsigned<T>::type&>(value);
+			typedef typename std::make_unsigned<T>::type tmpt;
+			tmpt tmp = tmpt(value);
+
             tmp = (tmp >> 24) |
                    ((tmp & 0x00FF0000) >> 8) | ((tmp & 0x0000FF00) << 8) |
                    (tmp << 24);
 
-            return tmp;
+            return tmp;//value
         }
         
         template<typename T>
         T swapEndian_(T value, std::integral_constant<size_t, 8>) {
             //std::make_unsigned<T>::type& tmp = reinterpret_cast<std::make_unsigned<T>::type&>(value);
-            typedef typename std::make_unsigned<T>::type tmpt;
-            tmpt tmp = tmpt(value);
+			typedef typename std::make_unsigned<T>::type tmpt;
+			tmpt tmp = tmpt(value);
 
             tmp = (tmp >> 56) |
                 ((tmp & 0x00FF000000000000ULL) >> 40) |
@@ -75,7 +75,7 @@ namespace anh {
                 ((tmp & 0x000000000000FF00ULL) << 40) |
                 (tmp  << 56);
 
-            return tmp;
+            return tmp;//value
         }
     }
 

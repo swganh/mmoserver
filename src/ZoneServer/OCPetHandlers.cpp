@@ -50,7 +50,7 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
     // And some parameter validation...
     if (targetId == 0)
     {
-        DLOG(info) << "ObjectController::_handleMount : Cannot find vehicle ID :(";
+        DLOG(INFO) << "ObjectController::_handleMount : Cannot find vehicle ID :(";
         return;
     }
 
@@ -79,7 +79,7 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
                 }
                 else
                 {
-                    DLOG(info) << "ObjectController::_handleMount : Cannot find vehicle";
+                    DLOG(INFO) << "ObjectController::_handleMount : Cannot find vehicle";
                 }
             }
         } else {

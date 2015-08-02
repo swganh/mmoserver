@@ -35,10 +35,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 extern "C"
 {
-#include "lua\include\lua.h"
-#include "lua\include\lualib.h"
-#include "lua\include\lauxlib.h"
+#include "lua.h"
+#include "lualib.h"
+#include "lauxlib.h"
 }
+
+#ifdef ERROR
+#undef ERROR
+#endif
 
 #include "Utils/logger.h"
 
@@ -201,8 +205,7 @@ void Script::_formatError()
     lua_pop(mThreadState,1);
 
     strcpy(mLastError,msg);
-
-	LOG(error) << "ScriptingEngine::callFunction wrong result type: " << mLastError;
+	LOG(ERR) << "ScriptingEngine::callFunction wrong result type: " << mLastError;
 }
 
 //======================================================================================================================

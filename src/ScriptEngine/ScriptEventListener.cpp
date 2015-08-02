@@ -27,9 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ScriptEventListener.h"
 
-#ifdef _WIN32
-#undef ERROR
-#endif
+
 #include "Utils/logger.h"
 
 #include "Script.h"
@@ -73,7 +71,7 @@ void ScriptEventListener::registerFunction(const int8* functionName)
 
     if(scriptList)
     {
-    	LOG(warning) << "Function already registered [" << functionName << "]";
+    	LOG(WARNING) << "Function already registered [" << functionName << "]";
         return;
     }
 
@@ -91,7 +89,7 @@ void ScriptEventListener::unregisterFunction(const int8* functionName)
 
     if(!scriptList)
     {
-    	LOG(warning) << "Could not function to unregister [" << functionName << "]";
+    	LOG(WARNING) << "Could not function to unregister [" << functionName << "]";
         return;
     }
 
@@ -120,7 +118,7 @@ void ScriptEventListener::registerScript(Script* script,const int8* functionName
 
     if(!scriptList)
     {
-    	LOG(warning) << "Function not mapped [" << functionName << "]";
+    	LOG(WARNING) << "Function not mapped [" << functionName << "]";
         return;
     }
 
@@ -142,7 +140,7 @@ void ScriptEventListener::handleScriptEvent(const int8* functionName,BString par
 
     if(!scriptList)
     {
-    	LOG(warning) << "Function not mapped [" << functionName << "]";
+    	LOG(WARNING) << "Function not mapped [" << functionName << "]";
         return;
     }
 

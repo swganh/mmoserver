@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Player.h"
 
 #include "Utils/logger.h"
-
 #include "Utils/typedefs.h"
 
 //======================================================================================================================
@@ -47,14 +46,14 @@ void ChatAvatarId::setPlayer(Player* player)
     //lcName.toLower();
     mName = player->getName();
     mName.toLower();
-    DLOG(info) << "Chatavatar:: setplayer " << mName.getAnsi();
+    DLOG(INFO) << "Chatavatar:: setplayer " << mName.getAnsi();
 }
 
 //======================================================================================================================
 
 void ChatAvatarId::setPlayer(const BString player)
 {
-	DLOG(info) << "Chatavatar:: setplayer " << mName.getAnsi() << " string only";
+	DLOG(INFO) << "Chatavatar:: setplayer " << mName.getAnsi() << " string only";
     mPlayer = gChatManager->getPlayerByName(player);
 
     mName = player;

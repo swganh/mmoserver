@@ -72,7 +72,7 @@ StructureManager*			StructureManager::mSingleton  = NULL;
 
 StructureManager::StructureManager(Database* database,MessageDispatch* dispatch)
 {
-    LOG(info) << "Beginning structure manager initialization";
+    LOG(INFO) << "Beginning structure manager initialization";
     
     mBuildingFenceInterval = gWorldConfig->getConfiguration<uint16>("Zone_BuildingFenceInterval",(uint16)10000);
     //uint32 structureCheckIntervall = gWorldConfig->getConfiguration("Zone_structureCheckIntervall",(uint32)3600);
@@ -110,7 +110,7 @@ StructureManager::StructureManager(Database* database,MessageDispatch* dispatch)
     //do so every hour if no other timeframe is set
     gWorldManager->getPlayerScheduler()->addTask(fastdelegate::MakeDelegate(this,&StructureManager::_handleStructureDBCheck),7,structureCheckIntervall*1000,NULL);
     
-    LOG(info) << "Structure Manager initialization complete";
+    LOG(INFO) << "Structure Manager initialization complete";
 }
 
 
@@ -152,7 +152,7 @@ void StructureManager::updateKownPlayerPermissions(PlayerStructure* structure)
 {
     HouseObject* house = dynamic_cast<HouseObject*>(structure);
     if(!house)    {
-        LOG(warning) << "Structure is not a HouseObject";
+        LOG(WARNING) << "Structure is not a HouseObject";
         return;
     }
 
@@ -510,7 +510,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 
 		if(!structure)
 		{
-			DLOG(info) << "StructureManager::_handleStructureObjectTimers: No structure";
+			DLOG(INFO) << "StructureManager::_handleStructureObjectTimers: No structure";
 			it = objectList->erase(it);
 			continue;
 		}
@@ -566,7 +566,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 		{
 			if(Anh_Utils::Clock::getSingleton()->getLocalTime() < structure->getTTS()->projectedTime)
 			{
-				DLOG(info) << "StructureManager::_handleStructureObjectTimers: intervall to short - delayed";
+				DLOG(INFO) << "StructureManager::_handleStructureObjectTimers: intervall to short - delayed";
 				break;
 			}
 
@@ -589,7 +589,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 
 			if(!fence)
 			{
-				DLOG(info) << "StructureManager::_handleStructureObjectTimers: No fence";
+				DLOG(INFO) << "StructureManager::_handleStructureObjectTimers: No fence";
 				it = objectList->erase(it);
 				continue;
 				return false;
@@ -722,7 +722,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
 	if(!player)
 	{
-		DLOG(info) << "StructureManager::processVerification : No Player";
+		DLOG(INFO) << "StructureManager::processVerification : No Player";
 		return;
 	}
 
@@ -743,7 +743,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(command.StructureId));
 			if(!building)
 			{
-				DLOG(info) << "StructureManager::processVerification : No building (Structure_Command_CellEnterDenial) ";
+				DLOG(INFO) << "StructureManager::processVerification : No building (Structure_Command_CellEnterDenial) ";
 				return;
 			}
 			//now send cell permission update to the player
@@ -761,7 +761,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(command.StructureId));
 			if(!building)
 			{
-				DLOG(info) << "StructureManager::processVerification : No building (Structure_Command_CellEnter) ";
+				DLOG(INFO) << "StructureManager::processVerification : No building (Structure_Command_CellEnter) ";
 				return;
 			}
 			//now send cell permission update to the player
@@ -776,7 +776,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			HouseObject* house = dynamic_cast<HouseObject*>(gWorldManager->getObjectById(command.StructureId));
 			if(!house)
 			{
-				DLOG(info) << "StructureManager::processVerification : No Player Building ";
+				DLOG(INFO) << "StructureManager::processVerification : No Player Building ";
 				return;
 			}
 			//set to private
@@ -802,7 +802,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
 			if(!factory)
 			{
-				DLOG(info) << "StructureManager::processVerification : No Factory (Structure_Command_StopFactory) ";
+				DLOG(INFO) << "StructureManager::processVerification : No Factory (Structure_Command_StopFactory) ";
 				return;
 			}
 
@@ -821,7 +821,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
 			if(!factory)
 			{
-				DLOG(info) << "StructureManager::processVerification : No Factory (Structure_Command_AccessInHopper) ";
+				DLOG(INFO) << "StructureManager::processVerification : No Factory (Structure_Command_AccessInHopper) ";
 				return;
 			}
 
@@ -829,7 +829,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			if(!factory->getManSchemID())
 			{
 				gMessageLib->SendSystemMessage(L"You need to add a schematic before you can start producing items.", player);
-				DLOG(info) << "StructureManager::processVerification : No Factory (Structure_Command_AccessInHopper) ";
+				DLOG(INFO) << "StructureManager::processVerification : No Factory (Structure_Command_AccessInHopper) ";
 				return;
 			}
 
@@ -848,14 +848,14 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 		 	FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
 			if(!factory)
 			{
-				DLOG(info) << "StructureManager::processVerification : No Factory (Structure_Command_AccessInHopper) ";
+				DLOG(INFO) << "StructureManager::processVerification : No Factory (Structure_Command_AccessInHopper) ";
 				return;
 			}
 
 			Item* outHopper = dynamic_cast<Item*>(gWorldManager->getObjectById(factory->getOutputHopper()));
 			if(!outHopper)
 			{
-				DLOG(info) << "StructureManager::processVerification : No outHopper (Structure_Command_AccessInHopper) ";
+				DLOG(INFO) << "StructureManager::processVerification : No outHopper (Structure_Command_AccessInHopper) ";
 				return;
 			}
 
@@ -877,7 +877,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
 			if(!factory)
 			{
-				DLOG(info) << "StructureManager::processVerification : No Factory (Structure_Command_AccessInHopper) ";
+				DLOG(INFO) << "StructureManager::processVerification : No Factory (Structure_Command_AccessInHopper) ";
 				return;
 			}
 
@@ -885,7 +885,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			Item* inHopper = dynamic_cast<Item*>(gWorldManager->getObjectById(factory->getIngredientHopper()));
 			if(!inHopper)
 			{
-				DLOG(info) << "StructureManager::processVerification : No inHopper (Structure_Command_AccessInHopper) ";
+				DLOG(INFO) << "StructureManager::processVerification : No inHopper (Structure_Command_AccessInHopper) ";
 				return;
 			}
 
@@ -904,7 +904,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
 			if(!factory)
 			{
-				DLOG(info) << "StructureManager::processVerification : No Factory (Structure_Command_AddSchem) ";
+				DLOG(INFO) << "StructureManager::processVerification : No Factory (Structure_Command_AddSchem) ";
 				return;
 			}
 
@@ -941,7 +941,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
 			if(!factory)	{
 				gMessageLib->SendSystemMessage(::common::OutOfBand("manf_station","schematic_not_added"),player);
-				DLOG(info) << "StructureManager::processVerification : No Factory (Structure_Command_AddSchem) ";
+				DLOG(INFO) << "StructureManager::processVerification : No Factory (Structure_Command_AddSchem) ";
 				return;
 			}
 
@@ -1408,7 +1408,7 @@ uint32 StructureManager::deductPower(PlayerObject* player, uint32 amount)
 
     if(amount>0)
     {
-        DLOG(info) << "StructureManager::deductPower() couldnt deduct the entire amount !!!!!";
+        DLOG(INFO) << "StructureManager::deductPower() couldnt deduct the entire amount !!!!!";
     }
     return (!amount);
 }
@@ -1477,7 +1477,7 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
     pVec.z = 0;
     uint64 deedId;
 
-    swscanf(dataStr.getUnicode16(),L"%" WidePRIu64 L" %f %f %f",&deedId, &pVec.x, &pVec.z, &dir);
+    swscanf(dataStr.getUnicode16(),L"%"WidePRIu64 L" %f %f %f",&deedId, &pVec.x, &pVec.z, &dir);
 
     //check the region whether were allowed to build
     if(checkNoBuildRegion(pVec) /*|| !checkCityRadius(player)*/)
@@ -1682,7 +1682,7 @@ void StructureManager::HeightmapStructureHandler(HeightmapAsyncContainer* ref)
             float hmapHighest = highest;
             highest = gHeightmap->compensateForInvalidHeightmap(highest, player->mPosition.y, (float)10.0);
             if(hmapHighest != highest) {
-                DLOG(info) << "StructureManager::HeightmapStructureHandler: PlayerID("<< player->getId() << ") placing structure...Heightmap found inconsistent, compensated height.";
+                DLOG(INFO) << "StructureManager::HeightmapStructureHandler: PlayerID("<< player->getId() << ") placing structure...Heightmap found inconsistent, compensated height.";
             }
         }//end TODO
 

@@ -36,6 +36,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "SpatialIndexManager.h"
 #include "MessageLib/MessageLib.h"
 
+
+
+
 #include "Utils/logger.h"
 
 #include "DatabaseManager/Database.h"

@@ -27,9 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "TradeManager.h"
 
-#ifdef _WIN32
-#undef ERROR
-#endif
+
 #include "Utils/logger.h"
 
 #include "Bank.h"
@@ -164,13 +162,13 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         if((!asynContainer->player1)||(!asynContainer->player2))
         {
-            DLOG(info) << "TradeManager TRMQuery_MoneyTransaction : one of the tradepartners doesnt exist";
+            DLOG(INFO) << "TradeManager TRMQuery_MoneyTransaction : one of the tradepartners doesnt exist";
             error = 1;
         }
 
         if (error )
         {
-            DLOG(info) << "TradeManager Trade transaction failed";
+            DLOG(INFO) << "TradeManager Trade transaction failed";
             // oh woe we need to rollback :(
             // (ie do nothing)
             //oh and send an error to the client!
@@ -362,7 +360,11 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             type->InsertItem(item);
 
         }
-    	LOG(info) << "Loaded " << count << " frog items";
+
+		if (count)
+		{
+			LOG(INFO) << "Loaded " << count << " frog items";
+		}
 
     }
     break;
@@ -796,7 +798,7 @@ void TradeManager::_processTradeCompleteMessage(Message* message,DispatchClient*
         }
         else
         {
-            DLOG(info) << "TradeManager Trade finished without Accept !!!!!";
+            DLOG(INFO) << "TradeManager Trade finished without Accept !!!!!";
         }
     }
 }
@@ -841,15 +843,15 @@ void TradeManager::TradeTransaction(DispatchClient* client,PlayerObject* player1
         player1->getTrade()->cancelTradeSession();
         player2->getTrade()->cancelTradeSession();
 
-        DLOG(info) << "TradeManager Trade likely to have been tampered with";
+        DLOG(INFO) << "TradeManager Trade likely to have been tampered with";
 
         if (!player1->testCash(asyncContainer->amount1) )
         {
-			DLOG(info) <<"Player : "<<player1->getFirstName().getAnsi()<< "id "<<player1->getId()<< "wanted to trade "<<asyncContainer->amount1<<" credits but had only " << dynamic_cast<Inventory*>(player1->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits();
+			DLOG(INFO) <<"Player : "<<player1->getFirstName().getAnsi()<< "id "<<player1->getId()<< "wanted to trade "<<asyncContainer->amount1<<" credits but had only " << dynamic_cast<Inventory*>(player1->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits();
         }
         if (!player2->testCash(asyncContainer->amount2) )
         {
-            DLOG(info) <<"Player : "<<player2->getFirstName().getAnsi()<< "id "<<player2->getId()<< "wanted to trade "<<asyncContainer->amount2<<" credits but had only " << dynamic_cast<Inventory*>(player2->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits();
+            DLOG(INFO) <<"Player : "<<player2->getFirstName().getAnsi()<< "id "<<player2->getId()<< "wanted to trade "<<asyncContainer->amount2<<" credits but had only " << dynamic_cast<Inventory*>(player2->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits();
         }
     }
 }

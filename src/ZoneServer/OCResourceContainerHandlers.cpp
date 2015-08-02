@@ -69,7 +69,7 @@ void ObjectController::_handleResourceContainerTransfer(uint64 targetId,Message*
 
         if(!elementCount)
         {
-            DLOG(info) << "ObjectController::_handleResourceContainerTransfer: Error in requestStr";
+            DLOG(INFO) << "ObjectController::_handleResourceContainerTransfer: Error in requestStr";
             return;
         }
 
@@ -128,7 +128,7 @@ void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* me
 
 	if(!selectedContainer)
     {
-        DLOG(info) << "ObjectController::_handleResourceContainerSplit: Container does not exist!";
+        DLOG(INFO) << "ObjectController::_handleResourceContainerSplit: Container does not exist!";
         return;
     }
 
@@ -142,7 +142,7 @@ void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* me
 
     if(!elementCount)
     {
-        DLOG(info) << "ObjectController::_handleResourceContainerSplit: Error in requestStr";
+        DLOG(INFO) << "ObjectController::_handleResourceContainerSplit: Error in requestStr";
         return;
     }
 

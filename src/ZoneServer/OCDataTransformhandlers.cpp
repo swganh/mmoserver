@@ -268,7 +268,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
                 cell->removeObject(player);
             }
             else	{
-                DLOG(info) << "Error removing  " << player->getId() << " from cell " << oldParentId;
+                DLOG(INFO) << "Error removing  " << player->getId() << " from cell " << oldParentId;
             }
         }
         else	{
@@ -277,7 +277,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
             CellObject* newCell;
             newCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId));
             if (!newCell)	{
-                DLOG(info) << "Player " << player->getId() << " error casting new cell cell " << parentId;
+                DLOG(INFO) << "Player " << player->getId() << " error casting new cell cell " << parentId;
                 assert(false);
                 return;
             }

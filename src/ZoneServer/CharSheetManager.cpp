@@ -26,9 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "CharSheetManager.h"
 
-#ifdef _WIN32
-#undef ERROR
-#endif
+
 #include "Utils/logger.h"
 
 #include "Badge.h"
@@ -136,7 +134,10 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
             mvFactions.push_back(BString(name.getAnsi()));
         }
 
-        //LOG(info) << "Loaded " << count << " factions";
+		if (count)
+		{
+			LOG(INFO) << "Loaded " << count << " factions";
+		}
 
         mDatabase->destroyDataBinding(binding);
 
@@ -160,7 +161,10 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
             mvBadgeCategories.push_back(BString(name.getAnsi()));
         }
 
-        //LOG(info) << "Loaded " << count << " badge categories";
+		if (count)
+		{
+			LOG(INFO) << "Loaded " << count << " badge categories";
+		}
 
         mDatabase->destroyDataBinding(binding);
 
@@ -190,7 +194,10 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
             mvBadges.push_back(badge);
         }
 
-        //LOG(info) << "Loaded " << count << " badges";
+		if (count)
+		{
+			LOG(INFO) << "Loaded " << count << " badges";
+		}
 
         mDatabase->destroyDataBinding(binding);
         //gLogger->log(LogManager::DEBUG,"Finished Loading Badges.");
@@ -212,7 +219,7 @@ void CharSheetManager::_processFactionRequest(Message* message,DispatchClient* c
 
     if(player == NULL)
     {
-        DLOG(info) << "CharSheetManager::_processFactionRequest: could not find player " << client->getAccountId();
+        DLOG(INFO) << "CharSheetManager::_processFactionRequest: could not find player " << client->getAccountId();
         return;
     }
 
@@ -258,7 +265,7 @@ void CharSheetManager::_processPlayerMoneyRequest(Message* message,DispatchClien
 
     if(player == NULL)
     {
-        DLOG(info) << "CharSheetManager::_processPlayerMoneyRequest: could not find player " << client->getAccountId();
+        DLOG(INFO) << "CharSheetManager::_processPlayerMoneyRequest: could not find player " << client->getAccountId();
         return;
     }
 

@@ -53,6 +53,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/atMacroString.h"
 #include "Utils/utils.h"
 
+#ifdef WIN32
+#undef ERROR
+#endif
+
 bool EntertainerManager::mInsFlag = false;
 EntertainerManager*	EntertainerManager::mSingleton = NULL;
 
@@ -493,7 +497,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
         }
         else
         {
-            LOG(error) << "Image design transaction failed";
+            LOG(ERR) << "Image design transaction failed";
             // oh woe we need to rollback :(
             // (ie do nothing)
 
@@ -526,7 +530,10 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
             holo->pCRC = emote.getCrc();
         }
 
-        //LOG(info) << "Loaded " << count << " holo emotes";
+		if (count)
+		{
+			LOG(INFO) << "Loaded " << count << " holo emotes";
+		}
 
     }
     break;
@@ -622,7 +629,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
             else
             {
                 //somebodies trying to cheat here
-                LOG(error) << "newHamCount != oldHamCount ";
+                LOG(ERR) << "newHamCount != oldHamCount ";
             }
 
 
@@ -739,7 +746,10 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
             mIDList.push_back(idData);
         }
 
-        LOG(info) << "Loaded " << count << " image designer attributes";
+		if (count)
+		{
+			LOG(INFO) << "Loaded " << count << " image designer attributes";
+		}
     }
     break;
 
@@ -770,7 +780,10 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 
         }
 
-        LOG(info) << "Loaded " << count << " performances";
+		if (count)
+		{
+			LOG(INFO) << "Loaded " << count << " performances";
+		}
     }
     break;
 
@@ -1467,7 +1480,7 @@ void EntertainerManager::CheckDistances(PlayerObject* entertainer)
 
     if(!entertainer->getAudienceList())
     {
-        DLOG(info) << "CheckDistances(PlayerObject* entertainer) getAudienceList does not exist !!!!!";
+        DLOG(INFO) << "CheckDistances(PlayerObject* entertainer) getAudienceList does not exist !!!!!";
         return;
     }
 

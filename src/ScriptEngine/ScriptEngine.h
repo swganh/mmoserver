@@ -32,9 +32,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 extern "C"
 {
-#include "lua\include\lua.h"
-#include "lua\include\lauxlib.h"
-#include "lua\include\lualib.h"
+#include "lua.h"
+#include "lauxlib.h"
+#include "lualib.h"
 }
 
 #include "Script.h"

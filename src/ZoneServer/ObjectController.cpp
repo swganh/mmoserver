@@ -47,6 +47,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "MessageLib/MessageLib.h"
 
+
+#ifdef ERROR
+#undef ERROR
+#endif
+
 #include "Utils/logger.h"
 
 #include "DatabaseManager/Database.h"
@@ -396,7 +401,7 @@ bool ObjectController::_processCommandQueue()
                             ((*it).second)(this, targetId, message, cmdProperties);
                             //(this->*((*it).second))(targetId,message,cmdProperties);
                         } else {
-                            DLOG(warning) << "ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0"<<command<<" for "<<mObject->getId();
+                            DLOG(WARNING) << "ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0"<<command<<" for "<<mObject->getId();
                             //gLogger->hexDump(message->getData(),message->getSize());
                         }
                     }
@@ -453,7 +458,7 @@ bool ObjectController::_processCommandQueue()
 
                 default:
                 {
-					DLOG(warning) << "ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0"<<cmdProperties->mCmdGroup <<" for "<<mObject->getId();
+					DLOG(WARNING) << "ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0"<<cmdProperties->mCmdGroup <<" for "<<mObject->getId();
                 }
                 break;
                 }
@@ -747,7 +752,7 @@ void ObjectController::enqueueAutoAttack(uint64 targetId)
             if (player)
             {
                 player->disableAutoAttack();
-                DLOG(info) << "ObjectController::enqueueAutoAttack() Error adding command.";
+                DLOG(INFO) << "ObjectController::enqueueAutoAttack() Error adding command.";
             }
         }
     }
@@ -806,7 +811,7 @@ void ObjectController::removeMsgFromCommandQueueBySequence(uint32 sequence)
     // sanity check
     if (!sequence)
     {
-        DLOG(info) << "ObjectController::removeMsgFromCommandQueueBySequence No sequence!!!!";
+        DLOG(INFO) << "ObjectController::removeMsgFromCommandQueueBySequence No sequence!!!!";
         return;
     }
 

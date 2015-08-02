@@ -28,6 +28,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Database.h"
 
+
+#ifdef ERROR
+#undef ERROR
+#endif
+
 #include <cstdarg>
 #include <cstdlib>
 #include <cstdio>

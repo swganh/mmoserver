@@ -90,7 +90,7 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
     default:
     {
         // Always use a default if message damaged....
-        DLOG(info) << "ObjController:: Error in trade invitation";
+        DLOG(INFO) << "ObjController:: Error in trade invitation";
         // Since receiver is default NULL, we can use the error message below
         // return;
     }

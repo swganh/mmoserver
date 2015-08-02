@@ -46,6 +46,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/ZoneOpcodes.h"
 
 
+#ifdef ERROR
+#undef ERROR
+#endif
+
 #include "Utils/logger.h"
 
 #include "Common/atMacroString.h"
@@ -137,8 +141,8 @@ bool MessageLib::sendBaselinesMSCO_3(ManufacturingSchematic* manSchem,PlayerObje
             {
                 float attributeValue = boost::lexical_cast<float,std::string>((*it).second);
                 float attributeAddValue = manSchem->getPPAttribute<float>(gWorldManager->getAttributeKey((*it).first));
-                DLOG(info) << "MessageLib::sendBaselinesMSCO_3 Attribute Add Value";
-                DLOG(info) << "MessageLib::sendBaselinesMSCO_3 we will add " << attributeAddValue << " to " << gWorldManager->getAttributeKey((*it).first).getAnsi();
+                DLOG(INFO) << "MessageLib::sendBaselinesMSCO_3 Attribute Add Value";
+                DLOG(INFO) << "MessageLib::sendBaselinesMSCO_3 we will add " << attributeAddValue << " to " << gWorldManager->getAttributeKey((*it).first).getAnsi();
                 mMessageFactory->addFloat(attributeValue+attributeAddValue);
             }
             else

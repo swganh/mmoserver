@@ -27,9 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "TravelMapHandler.h"
 
-#ifdef _WIN32
-#undef ERROR
-#endif
+
 #include "Utils/logger.h"
 
 #include "Inventory.h"
@@ -183,7 +181,10 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
             mTravelPoints[travelPoint->planetId].push_back(travelPoint);
         }
 
-        LOG(info) << "Loaded " << count << " outdoor travel points";
+		if (count)
+		{
+			LOG(INFO) << "Loaded " << count << " outdoor travel points";
+		}
 
         mPointCount += static_cast<uint32>(count);
         mWorldPointsLoaded = true;
@@ -216,7 +217,10 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
             mTravelPoints[travelPoint->planetId].push_back(travelPoint);
         }
 
-        LOG(info)  << "Loaded " << count << " in-cell travel points";
+		if (count)
+		{
+			LOG(INFO) << "Loaded " << count << " in-cell travel points";
+		}
 
         mPointCount += static_cast<uint32>(count);
         mCellPointsLoaded = true;
@@ -243,7 +247,10 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
             mTravelRoutes[route.srcId].push_back(std::make_pair(route.destId,route.price));
         }
 
-        LOG(info) << "Loaded " << count << " routes";
+		if (count)
+		{
+			LOG(INFO) << "Loaded " << count << " routes";
+		}
 
         mRouteCount = static_cast<uint32>(count);
         mRoutesLoaded = true;
@@ -304,7 +311,7 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
 
         if(terminal == NULL)
         {
-            DLOG(info) << "TravelMapHandler::_processTravelListRequest: No TravelPosition set, player "<<playerObject->getId();
+            DLOG(INFO) << "TravelMapHandler::_processTravelListRequest: No TravelPosition set, player "<<playerObject->getId();
             return;
         }
 
@@ -390,7 +397,7 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
         playerObject->getClient()->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
     }
     else
-        DLOG(info) << "TravelMapHandler::_processTravelListRequest: Couldnt find player for " << client->getAccountId();
+        DLOG(INFO) << "TravelMapHandler::_processTravelListRequest: Couldnt find player for " << client->getAccountId();
 }
 
 //=======================================================================================================================

@@ -318,7 +318,7 @@ void LairObject::makePeaceWithDefendersOutOfRange(void)
 void LairObject::spawn(void)
 {
     gLairSpawnCounter++;
-    DLOG(info) << "Spawned lair # " <<gLairSpawnCounter << "( " <<gLairSpawnCounter - gLairDeathCounter<<")";
+    DLOG(INFO) << "Spawned lair # " <<gLairSpawnCounter << "( " <<gLairSpawnCounter - gLairDeathCounter<<")";
 
     // Update the world about my presence.
     gSpatialIndexManager->createInWorld(this);

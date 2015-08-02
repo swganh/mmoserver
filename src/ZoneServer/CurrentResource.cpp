@@ -27,6 +27,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CurrentResource.h"
 #include "ResourceType.h"
 
+
+
+
 #include "Utils/logger.h"
 
 
@@ -77,7 +80,7 @@ void CurrentResource::buildDistributionMap()
     mapBuilder.SetDestSize(512,512);
     mapBuilder.SetBounds(mNoiseMapBoundsX1,mNoiseMapBoundsX2,mNoiseMapBoundsY1,mNoiseMapBoundsY2);
 
-    LOG(info) << "Building DistributionMap for " << mName.getAnsi() << " " << mType->getName().getAnsi();
+    LOG(INFO) << "Building DistributionMap for " << mName.getAnsi() << " " << mType->getName().getAnsi();
     mapBuilder.Build();
 
     if(mWriteResourceMaps)
@@ -85,7 +88,7 @@ void CurrentResource::buildDistributionMap()
         BString fileName = (int8*)(mZoneName).c_str();
         fileName << "_" << mName.getAnsi() << ".bmp";
 
-        LOG(info) << "Writing File " << fileName.getAnsi();
+        LOG(INFO) << "Writing File " << fileName.getAnsi();
 
         noise::utils::RendererImage renderer;
         noise::utils::Image image;
@@ -127,7 +130,7 @@ void CurrentResource::_verifyNoiseSettings()
         mNoiseMapBoundsX1 = 3.0;
 
     if(mNoiseMapBoundsX1 >= mNoiseMapBoundsX2 || mNoiseMapBoundsY1 >= mNoiseMapBoundsY2)
-        LOG(warning) << "NoiseMap: Invalid NoisemapBounds set!";
+        LOG(WARNING) << "NoiseMap: Invalid NoisemapBounds set!";
 
     if(mNoiseMapOctaves < 1 || mNoiseMapOctaves > 6)
         mNoiseMapOctaves = 4;

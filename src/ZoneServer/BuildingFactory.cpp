@@ -27,9 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "BuildingFactory.h"
 
-#ifdef _WIN32
-#undef ERROR
-#endif
+
 #include "Utils/logger.h"
 
 #include "BuildingObject.h"
@@ -128,7 +126,7 @@ void BuildingFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
         if(!spawnCount)
         {
-        	LOG(error) << "Cloning facility [" << building->getId() << "] has no spawn points";
+        	LOG(ERR) << "Cloning facility [" << building->getId() << "] has no spawn points";
         }
 
         for(uint64 i = 0; i < spawnCount; i++)
@@ -261,7 +259,7 @@ void BuildingFactory::handleObjectReady(Object* object,DispatchClient* client)
     InLoadingContainer* ilc = _getObject(object->getParentId());
 
     if (! ilc) {//ILC sanity check...
-    	LOG(warning) << "Could not locate InLoadingContainer for object parent [" << object->getParentId() << "]";
+    	LOG(WARNING) << "Could not locate InLoadingContainer for object parent [" << object->getParentId() << "]";
         return;
     }
 
@@ -275,7 +273,7 @@ void BuildingFactory::handleObjectReady(Object* object,DispatchClient* client)
     if(building->getLoadCount() == (building->getCellList())->size())
     {
         if(!(_removeFromObjectLoadMap(building->getId())))
-            LOG(warning) << "Failed removing object from loadmap";
+            LOG(WARNING) << "Failed removing object from loadmap";
 
         ilc->mOfCallback->handleObjectReady(building,ilc->mClient);
 

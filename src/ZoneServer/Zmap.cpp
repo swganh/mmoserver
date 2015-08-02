@@ -221,11 +221,11 @@ void zmap::RemoveObject(Object *removeObject)
 
     if(!GetCellValidFlag(cellId))
     {
-        DLOG(info) << "zmap::RemoveObject :: bucket " << cellId << " NOT valid";
+        DLOG(INFO) << "zmap::RemoveObject :: bucket " << cellId << " NOT valid";
         return;
     }
 
-    //DLOG(info) << "zmap::RemoveObject :: " << removeObject->getId() << " bucket " << cellId << " ";
+    //DLOG(INFO) << "zmap::RemoveObject :: " << removeObject->getId() << " bucket " << cellId << " ";
 
     ObjectListType *list;
 
@@ -294,11 +294,11 @@ void zmap::GetCellContents(uint32 CellID, ObjectListType* list, uint32 type)
     }
     
 	if(CellID > (GRIDWIDTH*GRIDHEIGHT))    {
-        DLOG(info) << "zmap::GetCellContents :: bucket " << CellID << " out of grid";
+        DLOG(INFO) << "zmap::GetCellContents :: bucket " << CellID << " out of grid";
         return;
     }
 
-    //DLOG(info) << "zmap::GetCellContents :: bucket " << CellID << " type : " << type;
+    //DLOG(INFO) << "zmap::GetCellContents :: bucket " << CellID << " type : " << type;
 
     ObjectListType::iterator it = list->begin();
 
@@ -569,7 +569,7 @@ uint32 zmap::AddObject(Object *newObject)
 
     uint32 finalBucket = _getCellId(newObject->getWorldPosition().x, newObject->getWorldPosition().z);
 
-    //DLOG(info) << "zmap::AddObject :: " << newObject->getId() << " bucket " << finalBucket<< " ";
+    //DLOG(INFO) << "zmap::AddObject :: " << newObject->getId() << " bucket " << finalBucket<< " ";
 
     if(!GetCellValidFlag(finalBucket))    {
         //something fishy here
@@ -579,7 +579,7 @@ uint32 zmap::AddObject(Object *newObject)
 
     //already in there
     if(newObject->getGridBucket() == finalBucket)    {
-		DLOG(info) << "zmap::AddObject :: " << newObject->getId() << " bucket " << finalBucket<< " Object was already in there";
+		DLOG(INFO) << "zmap::AddObject :: " << newObject->getId() << " bucket " << finalBucket<< " Object was already in there";
         return finalBucket;
     }
 

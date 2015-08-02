@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "HamProperty.h"
 
 
+
+
 #include "Utils/logger.h"
 
 //===============================================================
@@ -259,11 +261,11 @@ int32 HamProperty::updateWounds(int32 wounds)
 //
 void HamProperty::log()
 {
-    DLOG(info) << "mCurrentHitPoints: " << mCurrentHitPoints;
-    DLOG(info) << "mModifiedHitPoints: " << mModifiedHitPoints;
-    DLOG(info) << "mMaxHitPoints: "<< mMaxHitPoints;
-    DLOG(info) << "mEncumbrance: " << mEncumbrance;
-    DLOG(info) << "mWounds: " << mWounds;
+    DLOG(INFO) << "mCurrentHitPoints: " << mCurrentHitPoints;
+    DLOG(INFO) << "mModifiedHitPoints: " << mModifiedHitPoints;
+    DLOG(INFO) << "mMaxHitPoints: "<< mMaxHitPoints;
+    DLOG(INFO) << "mEncumbrance: " << mEncumbrance;
+    DLOG(INFO) << "mWounds: " << mWounds;
 }
 
 //===============================================================

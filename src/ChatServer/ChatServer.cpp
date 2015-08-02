@@ -75,7 +75,7 @@ ChatServer::ChatServer(int argc, char* argv[])
 	, mLastHeartbeat(0)
 {
     Anh_Utils::Clock::Init();
-    LOG(warning) << "Chat Server Startup";
+    LOG(WARNING) << "Chat Server Startup";
 
 	// Load Configuration Options
 	std::list<std::string> config_files;
@@ -142,19 +142,19 @@ ChatServer::ChatServer(int argc, char* argv[])
     // We're done initializing.
     _updateDBServerList(2);
 
-    LOG(warning) << "Chat Server startup complete";
+    LOG(WARNING) << "Chat Server startup complete";
     //gLogger->printLogo();
     // std::string BuildString(GetBuildString());
 
-    LOG(warning) << "Chat Server - Build " << GetBuildString().c_str();
-    LOG(warning) << "Welcome to your SWGANH Experience!";
+    LOG(WARNING) << "Chat Server - Build " << GetBuildString().c_str();
+    LOG(WARNING) << "Welcome to your SWGANH Experience!";
 }
 
 //======================================================================================================================
 
 ChatServer::~ChatServer()
 {
-    LOG(warning) << "ChatServer shutting down...";
+    LOG(WARNING) << "ChatServer shutting down...";
 
     // We're shutting down, so update the DB again.
     _updateDBServerList(0);
@@ -179,7 +179,7 @@ ChatServer::~ChatServer()
 
     delete mDatabaseManager;
 
-    LOG(warning) << "ChatServer Shutdown Complete";
+    LOG(WARNING) << "ChatServer Shutdown Complete";
 }
 
 //======================================================================================================================
@@ -203,7 +203,7 @@ void ChatServer::Process()
     if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastHeartbeat > 180000)//main loop every 10ms
     {
         mLastHeartbeat = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
-        DLOG(info) << "ChatServer Heartbeat.";
+        DLOG(INFO) << "ChatServer Heartbeat.";
     }
 }
 
@@ -252,7 +252,7 @@ void ChatServer::_connectToConnectionServer()
     // Now connect to the ConnectionServer
     mClient = new DispatchClient();
 
-	LOG(info) << "New connection to " << processAddress.mAddress.getAnsi() << " on port " << processAddress.mPort;
+	LOG(INFO) << "New connection to " << processAddress.mAddress.getAnsi() << " on port " << processAddress.mPort;
     mRouterService->Connect(mClient, processAddress.mAddress.getAnsi(), processAddress.mPort);
 }
 
@@ -267,8 +267,6 @@ void handleExit()
 
 int main(int argc, char* argv[])
 {
-    
-
     bool exit = false;
 	
 	try {

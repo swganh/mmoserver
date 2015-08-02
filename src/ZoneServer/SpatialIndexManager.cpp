@@ -84,10 +84,10 @@ bool SpatialIndexManager::_AddObject(Object *newObject)
 {
     uint32 finalBucket = getGrid()->AddObject(newObject);
 
-    //DLOG(info) << "SpatialIndexManager::AddObject :: Object " << newObject->getId() << " added to bucket " <<  finalBucket;
+    //DLOG(INFO) << "SpatialIndexManager::AddObject :: Object " << newObject->getId() << " added to bucket " <<  finalBucket;
 
     if(finalBucket == 0xffffffff)    {
-        DLOG(info) << "SpatialIndexManager::AddObject :: Object " << newObject->getId() << " could not be added to the bucket because the bucket was invalid " <<  finalBucket;
+        DLOG(INFO) << "SpatialIndexManager::AddObject :: Object " << newObject->getId() << " could not be added to the bucket because the bucket was invalid " <<  finalBucket;
         return false;
     }
 
@@ -119,11 +119,11 @@ bool SpatialIndexManager::_AddObject(PlayerObject *player)
 
     uint32 finalBucket = getGrid()->AddObject(player);
 
-    DLOG(info) << "SpatialIndexManager::AddObject :: Player " << player->getId() << " added to bucket " <<  finalBucket;
+    DLOG(INFO) << "SpatialIndexManager::AddObject :: Player " << player->getId() << " added to bucket " <<  finalBucket;
 
     //any errors ?
     if(finalBucket == 0xffffffff)    {
-        DLOG(info) << "SpatialIndexManager::AddObject :: Player " << player->getId() << " could not be added to the bucket because the bucket was invalid " <<  finalBucket;
+        DLOG(INFO) << "SpatialIndexManager::AddObject :: Player " << player->getId() << " could not be added to the bucket because the bucket was invalid " <<  finalBucket;
         return false;
     }
 
@@ -166,7 +166,7 @@ void SpatialIndexManager::UpdateObject(Object *updateObject)
 
     // now process the spatial index update
     if(newBucket != oldBucket)	{
-        DLOG(info) << "ContainerManager::UpdateObject :: " << updateObject->getId() <<"normal movement from bucket" << oldBucket << " to bucket" << newBucket;
+        DLOG(INFO) << "ContainerManager::UpdateObject :: " << updateObject->getId() <<"normal movement from bucket" << oldBucket << " to bucket" << newBucket;
         
         // test how much we moved if only one grid proceed normally
         if((newBucket == (oldBucket +1)) || (newBucket == (oldBucket -1)) ||
@@ -183,7 +183,7 @@ void SpatialIndexManager::UpdateObject(Object *updateObject)
             _UpdateFrontCells(updateObject,oldBucket);
         } else {
             // we teleported destroy all and create everything new
-            DLOG(info) << "ContainerManager::UpdateObject :: " << updateObject->getId() <<"teleportation from bucket" << oldBucket << " to bucket" << newBucket;
+            DLOG(INFO) << "ContainerManager::UpdateObject :: " << updateObject->getId() <<"teleportation from bucket" << oldBucket << " to bucket" << newBucket;
 
             // remove us from everything
             RemoveObjectFromWorld(updateObject);
@@ -223,7 +223,7 @@ std::shared_ptr<RegionObject> SpatialIndexManager::findRegion(uint64_t id) {
 void SpatialIndexManager::RemoveObjectFromWorld(Object *removeObject)
 {
 
-    DLOG(info) << "SpatialIndexManager::RemoveObjectFromWorld:: Object : " << removeObject->getId();
+    DLOG(INFO) << "SpatialIndexManager::RemoveObjectFromWorld:: Object : " << removeObject->getId();
 
     //were in a container - get us out
     if(removeObject->getParentId())	{
@@ -262,7 +262,7 @@ void SpatialIndexManager::RemoveObjectFromWorld(Object *removeObject)
 //a Player or creature is ALWAYS in the grid and possibly in a cell
 void SpatialIndexManager::RemoveObjectFromWorld(PlayerObject *removePlayer)
 {
-    DLOG(info) << "SpatialIndexManager::RemoveObjectFromWorld:: Player : " << removePlayer->getId();
+    DLOG(INFO) << "SpatialIndexManager::RemoveObjectFromWorld:: Player : " << removePlayer->getId();
 
     //remove us from the grid
     _RemoveObjectFromGrid(removePlayer);
@@ -282,7 +282,7 @@ void SpatialIndexManager::RemoveObjectFromWorld(PlayerObject *removePlayer)
         cell->removeObject(removePlayer);
     }
     else    {
-        DLOG(info) << "SpatialIndexManager::RemoveObjectFromWorld (player): couldn't find cell " << removePlayer->getParentId();
+        DLOG(INFO) << "SpatialIndexManager::RemoveObjectFromWorld (player): couldn't find cell " << removePlayer->getParentId();
     }
 
 
@@ -290,7 +290,7 @@ void SpatialIndexManager::RemoveObjectFromWorld(PlayerObject *removePlayer)
 
 void SpatialIndexManager::RemoveObjectFromWorld(CreatureObject *removeCreature)
 {
-    DLOG(info) << "SpatialIndexManager::RemoveObjectFromWorld:: Creature : " << removeCreature->getId();
+    DLOG(INFO) << "SpatialIndexManager::RemoveObjectFromWorld:: Creature : " << removeCreature->getId();
 
     //remove us from the grid
     _RemoveObjectFromGrid(removeCreature);
@@ -319,7 +319,7 @@ void SpatialIndexManager::_RemoveObjectFromGrid(Object *removeObject)
 
     uint32 bucket = removeObject->getGridBucket();
 
-    DLOG(info) << "SpatialIndexManager::RemoveObject:: : " << removeObject->getId() << "out of Bucket : " << bucket;
+    DLOG(INFO) << "SpatialIndexManager::RemoveObject:: : " << removeObject->getId() << "out of Bucket : " << bucket;
 
     //remove out of grid lists
     getGrid()->RemoveObject(removeObject);
@@ -415,7 +415,7 @@ void SpatialIndexManager::removePlayerFromStructure(PlayerObject* player, CellOb
 //
 void SpatialIndexManager::removeStructureItemsForPlayer(PlayerObject* player, BuildingObject* building)
 {
-    DLOG(info) << "SpatialIndexManager::removeStructureItemsForPlayer:: : " << player->getId();
+    DLOG(INFO) << "SpatialIndexManager::removeStructureItemsForPlayer:: : " << player->getId();
 
     ObjectList cellObjects		= building->getAllCellChilds();
     ObjectList::iterator objIt	= cellObjects.begin();
@@ -447,7 +447,7 @@ void SpatialIndexManager::removeStructureItemsForPlayer(PlayerObject* player, Bu
 
 void SpatialIndexManager::_CheckObjectIterationForDestruction(Object* toBeTested, Object* updatedObject)
 {
-    //DLOG(info) << "SpatialIndexManager::_CheckObjectIterationForDestruction (Player) :: check : " <<toBeTested->getId() << " to be removed from " << toBeUpdated->getId();
+    //DLOG(INFO) << "SpatialIndexManager::_CheckObjectIterationForDestruction (Player) :: check : " <<toBeTested->getId() << " to be removed from " << toBeUpdated->getId();
 
 	if(updatedObject->getType() == ObjType_Player)	{ 
 		PlayerObject* updatedPlayer = static_cast<PlayerObject*>(updatedObject);
@@ -460,7 +460,7 @@ void SpatialIndexManager::_CheckObjectIterationForDestruction(Object* toBeTested
 		
 
 		if(toBeTested->getType() == ObjType_Player)    {
-			DLOG(info) << "SpatialIndexManager::_CheckObjectIterationForDestruction (Player) :: check Player : " <<toBeTested->getId() << " to be removed from Player : " << updatedObject->getId();
+			DLOG(INFO) << "SpatialIndexManager::_CheckObjectIterationForDestruction (Player) :: check Player : " <<toBeTested->getId() << " to be removed from Player : " << updatedObject->getId();
 		}		
 	}    
 
@@ -481,7 +481,7 @@ void SpatialIndexManager::_CheckObjectIterationForDestruction(Object* toBeTested
 void SpatialIndexManager::_UpdateBackCells(Object* updateObject, uint32 oldCell)
 {
 
-	DLOG(info) << "SpatialIndexManager::_UpdateBackCells OldCell " << oldCell << " NewCell : " << updateObject->getGridBucket();
+	DLOG(INFO) << "SpatialIndexManager::_UpdateBackCells OldCell " << oldCell << " NewCell : " << updateObject->getGridBucket();
 
     uint32 newCell = updateObject->getGridBucket();
 

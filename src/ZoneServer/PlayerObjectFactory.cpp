@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "PlayerObjectFactory.h"
 
+
 #include "Utils/logger.h"
 
 #include "Bank.h"
@@ -105,7 +106,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         PlayerObject* playerObject = _createPlayer(result);
         if(!playerObject)
         {
-            DLOG(error) << "Failed to load player account [" << asyncContainer->mClient->getAccountId() << "]";
+            LOG(ERR) << "Failed to load player account [" << asyncContainer->mClient->getAccountId() << "]";
             return;
         }
 
@@ -441,7 +442,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         uint64 count = result->getRowCount();
         if(!count)
         {
-            LOG(warning) << "sf_getLotCount did not return a value";
+            LOG(WARNING) << "sf_getLotCount did not return a value";
             //now we have a problem ...
             mDatabase->destroyDataBinding(binding);
             break;
@@ -541,9 +542,9 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
     }
 
     PlayerObject*	playerObject	= new PlayerObject();
-    TangibleObject*	playerHair		= new TangibleObject();
+	TangibleObject*	playerHair = new TangibleObject();
     MissionBag*		playerMissionBag;
-    Bank*			playerBank		= new Bank(playerObject);
+	Bank*			playerBank = new Bank(playerObject);
     Weapon*			playerWeapon	= new Weapon();
 
     //check for 3 rows as we need to call GetNextRow 3 times
@@ -556,9 +557,9 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
     // get our results
     result->getNextRow(mPlayerBinding,(void*)playerObject);
     result->resetRowIndex();
-    result->getNextRow(mHairBinding,(void*)playerHair);
+	result->getNextRow(mHairBinding, (void*)playerHair);
     result->resetRowIndex();
-    result->getNextRow(mBankBinding,(void*)playerBank);
+	result->getNextRow(mBankBinding, (void*)playerBank);
 
     //male or female ?
     BStringVector				dataElements;
@@ -566,7 +567,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
     if(dataElements.size() > 1) {
         playerObject->setGender(dataElements[1].getCrc() == BString("female.iff").getCrc());
     } else { //couldn't find data, default to male. Is this acceptable? Crash bug patch: http://paste.swganh.org/viewp.php?id=20100627013612-b69ab274646815fb2a9befa4553c93f7
-        LOG(warning) << "Player [" << playerObject->getId() << "] Could not determine requested gender, defaulting to male";
+        LOG(WARNING) << "Player [" << playerObject->getId() << "] Could not determine requested gender, defaulting to male";
         playerObject->setGender(false);
     }
 
@@ -605,7 +606,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 
         playerHair->buildTanoCustomization(3);
 
-        playerObject->mEquipManager.addEquippedObject(CreatureEquipSlot_Hair,playerHair);
+		playerObject->mEquipManager.addEquippedObject(CreatureEquipSlot_Hair, playerHair);
         playerObject->setHair(playerHair);
     }
     else
@@ -630,7 +631,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
     playerBank->setTangibleType(TanType_Bank);
     playerBank->setEquipSlotMask(CreatureEquipSlot_Bank);
 
-    playerObject->mEquipManager.addEquippedObject(CreatureEquipSlot_Bank,playerBank);
+	playerObject->mEquipManager.addEquippedObject(CreatureEquipSlot_Bank, playerBank);
     gWorldManager->addObject(playerBank,true);
 
     // weapon
@@ -857,18 +858,18 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
     }
     else
     {
-        LOG(warning) << "Unable to determine the object type";
+        LOG(WARNING) << "Unable to determine the object type";
     }
 
     if((!ilc->mLoadCounter) && ((!ilc->mInventory) || (!ilc->mDPad)))
     {
-        LOG(warning) << "mIlc LoadCounter is messed up - we have a race condition";
+        LOG(WARNING) << "mIlc LoadCounter is messed up - we have a race condition";
     }
 
     if((!ilc->mLoadCounter) && (ilc->mInventory) && (ilc->mDPad))
     {
         if(!(_removeFromObjectLoadMap(playerObject->getId())))
-            LOG(warning) << "Failed removing object from loadmap";
+            LOG(WARNING) << "Failed removing object from loadmap";
 
         // if weapon slot is empty, equip the unarmed default weapon
         if(!playerObject->mEquipManager.getEquippedObject(CreatureEquipSlot_Hold_Left))

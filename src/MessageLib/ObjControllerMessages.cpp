@@ -35,6 +35,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <boost/lexical_cast.hpp>
 
+#include "Utils/logger.h"
+
 #include "Common/atMacroString.h"
 #include "Common/byte_buffer.h"
 
@@ -411,7 +413,7 @@ bool MessageLib::sendEmptyObjectMenuResponse(uint64 requestedId,PlayerObject* ta
 bool MessageLib::sendStartingLocationList(PlayerObject* player, uint8 tatooine, uint8 corellia, uint8 talus, uint8 rori, uint8 naboo)
 {
     //gLogger->log(LogManager::DEBUG,"Sending Starting Location List\n");
-    DLOG(info) << "Sending Starting Location List";
+    DLOG(INFO) << "Sending Starting Location List";
 
     if(!(player->isConnected()))
     {

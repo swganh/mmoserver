@@ -34,13 +34,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <set>
 #include <list>
 
-#include <tbb/atomic.h>
 #include <boost/lexical_cast.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
 
 #include "Utils/EventHandler.h"
 #include "Utils/typedefs.h"
+
+
+#ifdef ERROR
+#undef ERROR
+#endif
 
 #include "Utils/logger.h"
 
@@ -97,7 +101,7 @@ public:
 	//just sets a new ParentID and sends Containment to TargetObject
     virtual void				setParentIdIncDB(uint64 parentId) {
         mParentId = parentId;
-        DLOG(info) << "Object no table specified setting ID: " <<  this->getId();
+        DLOG(INFO) << "Object no table specified setting ID: " <<  this->getId();
     }
 		
 		
@@ -282,6 +286,7 @@ public:
         */
     float rotation_angle() const;
 
+
     glm::quat   mDirection;
     glm::vec3   mPosition;
 	//Anh_Math::Quaternion	mDirection;
@@ -428,11 +433,11 @@ T	Object::getAttribute(BString key) const
         }
         catch(boost::bad_lexical_cast &)
         {
-            DLOG(info) << "Object::getAttribute: cast failed " << key.getAnsi();
+            DLOG(INFO) << "Object::getAttribute: cast failed " << key.getAnsi();
         }
     }
     else
-        DLOG(info) << "Object::getAttribute: could not find " << key.getAnsi();
+        DLOG(INFO) << "Object::getAttribute: could not find " << key.getAnsi();
 
     return(T());
 }
@@ -474,11 +479,11 @@ T	Object::getAttribute(uint32 keyCrc) const
         }
         catch(boost::bad_lexical_cast &)
         {
-            DLOG(info) << "Object::getAttribute: cast failed " << keyCrc;
+            DLOG(INFO) << "Object::getAttribute: cast failed " << keyCrc;
         }
     }
     else
-        DLOG(info) << "Object::getAttribute: could not find " << keyCrc;
+        DLOG(INFO) << "Object::getAttribute: could not find " << keyCrc;
 
     return(T());
 }
@@ -499,11 +504,11 @@ T	Object::getInternalAttribute(BString key)
         }
         catch(boost::bad_lexical_cast &)
         {
-            DLOG(info) << "Object::getInternalAttribute: cast failed " << key.getAnsi();
+            DLOG(INFO) << "Object::getInternalAttribute: cast failed " << key.getAnsi();
         }
     }
     else
-        DLOG(info) << "Object::getInternalAttribute: could not find " << key.getAnsi();
+        DLOG(INFO) << "Object::getInternalAttribute: could not find " << key.getAnsi();
 
     return(T());
 }

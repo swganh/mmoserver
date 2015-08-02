@@ -291,7 +291,7 @@ PlayerObject::~PlayerObject()
         }
         else
         {
-            DLOG(warning) << "PlayerObject::destructor: couldn't find cell " << mParentId;
+            DLOG(WARNING) << "PlayerObject::destructor: couldn't find cell " << mParentId;
         }
     }
 
@@ -1230,7 +1230,7 @@ void PlayerObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
     default:
     {
-        DLOG(info) << "PlayerObject: Unhandled MenuSelect: " << messageType;
+        DLOG(INFO) << "PlayerObject: Unhandled MenuSelect: " << messageType;
     }
     break;
     }
@@ -1391,7 +1391,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,BString inputStr,UI
 
         if(!skill)
         {
-            DLOG(info) << "PlayerObject: teach skill : skill list surprisingly empty";
+            DLOG(INFO) << "PlayerObject: teach skill : skill list surprisingly empty";
             return;
         }
 
@@ -1575,7 +1575,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,BString inputStr,UI
 
     default:
     {
-        DLOG(info) << "handleUIEvent:Default: " <<action<<","<<element<<","<<inputStr.getAnsi();
+        DLOG(INFO) << "handleUIEvent:Default: " <<action<<","<<element<<","<<inputStr.getAnsi();
     }
     break;
     }
@@ -1674,7 +1674,7 @@ void PlayerObject::addToDuelList(PlayerObject* player)
     if(this->getId()!= player->getId())
         mDuelList.push_back(player);
     else
-        DLOG(info) << "PlayerObject::addToDuelList: "<<player->getId() << " wanted to add himself to his/her duel list";
+        DLOG(INFO) << "PlayerObject::addToDuelList: "<<player->getId() << " wanted to add himself to his/her duel list";
 }
 //=============================================================================
 //
@@ -2019,7 +2019,7 @@ Object* PlayerObject::getHealingTarget(PlayerObject* Player) const
         if(Player->getPvPStatus() != PlayerTarget->getPvPStatus())
         {
             //send pvp_no_help
-            DLOG(info) << "PVP Flag not right";
+            DLOG(INFO) << "PVP Flag not right";
             gMessageLib->SendSystemMessage(::common::OutOfBand("healing", "pvp_no_help"), Player);
             //return Player as the healing target
             return Player;

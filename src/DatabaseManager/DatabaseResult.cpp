@@ -35,9 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <cppconn/resultset.h>
 #include <cppconn/statement.h>
-#ifdef _WIN32
-#include <winsock2.h>
-#endif
+
 #include <mysql.h>
 #include <stdlib.h>
 #include <stdio.h>

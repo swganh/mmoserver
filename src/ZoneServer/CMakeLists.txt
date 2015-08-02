@@ -4,10 +4,10 @@ AddMMOServerExecutable(ZoneServer
     MMOSERVER_DEPS 
         libanh
         Utils
+        Common
         DatabaseManager
         NetworkManager
         MessageLib
-	Common
         SwgProtocol
         ScriptEngine
     ADDITIONAL_INCLUDE_DIRS

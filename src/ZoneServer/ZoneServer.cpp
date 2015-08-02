@@ -89,12 +89,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <boost/thread/thread.hpp>
 
-
 using anh::event_dispatcher::EventDispatcher;
 using std::make_shared;
 using std::shared_ptr;
 
 using utils::Singleton;
+
+#ifdef WIN32
+#undef ERROR
+#endif
+
 
 //======================================================================================================================
 
@@ -140,7 +144,7 @@ ZoneServer::ZoneServer(int argc, char* argv[])
     LoadOptions_(argc, argv, config_files);
 
 
-    LOG(error) << "ZoneServer startup sequence for [" << mZoneName << "]";
+    LOG(ERR) << "ZoneServer startup sequence for [" << mZoneName << "]";
 
     // Create and startup our core services.
     mDatabaseManager = new DatabaseManager(DatabaseConfig(configuration_variables_map_["DBMinThreads"].as<uint32_t>(), configuration_variables_map_["DBMaxThreads"].as<uint32_t>(), configuration_variables_map_["DBGlobalSchema"].as<std::string>(), configuration_variables_map_["DBGalaxySchema"].as<std::string>(), configuration_variables_map_["DBConfigSchema"].as<std::string>()));
@@ -176,7 +180,7 @@ ZoneServer::ZoneServer(int argc, char* argv[])
 
     if (!result->getRowCount())
     {
-        LOG(error) << "Map not found for [" << mZoneName << "]";
+        LOG(ERR) << "Map not found for [" << mZoneName << "]";
 
         abort();
     }
@@ -256,7 +260,7 @@ ZoneServer::ZoneServer(int argc, char* argv[])
 
 ZoneServer::~ZoneServer(void)
 {
-    LOG(info) << "ZoneServer shutting down";
+    LOG(INFO) << "ZoneServer shutting down";
 
     // We're shutting down, so update the DB again.
     _updateDBServerList(0);
@@ -297,7 +301,7 @@ ZoneServer::~ZoneServer(void)
     // NOW, I can feel that it should be safe to delete the data holding messages.
     gMessageFactory->destroySingleton();
 
-    LOG(info) << "ZoneServer shutdown complete";
+    LOG(INFO) << "ZoneServer shutdown complete";
 }
 
 //======================================================================================================================
@@ -305,7 +309,7 @@ ZoneServer::~ZoneServer(void)
 void ZoneServer::handleWMReady()
 {
     _updateDBServerList(2);
-    LOG(warning) << "ZoneServer startup complete";
+    LOG(WARNING) << "ZoneServer startup complete";
 
     // Connect to the ConnectionServer;
     _connectToConnectionServer();
@@ -396,8 +400,6 @@ void ZoneServer::_connectToConnectionServer(void)
 
 int main(int argc, char* argv[])
 {
-    
-
     //try {
 
     // Start things up

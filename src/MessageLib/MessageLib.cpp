@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <boost/lexical_cast.hpp>
 
+
 #include "Utils/logger.h"
 
 #include "Common/atMacroString.h"
@@ -132,7 +133,7 @@ bool MessageLib::_checkPlayer(uint64 playerId) const
 
     if(!tested)
     {
-        LOG(warning) << "Invalid player id [" << playerId << "]";
+        LOG(WARNING) << "Invalid player id [" << playerId << "]";
         return false;
     }
 
@@ -555,7 +556,7 @@ bool MessageLib::sendCreateCreature(CreatureObject* creature, PlayerObject* targ
 
 bool MessageLib::sendCreateStaticObject(TangibleObject* tangible, PlayerObject* target) {
     if(!_checkPlayer(target) || !tangible) {
-        DLOG(info) << "MessageLib::sendCreateStaticObject No valid player";
+        DLOG(INFO) << "MessageLib::sendCreateStaticObject No valid player";
         return(false);
     }
 
@@ -575,7 +576,7 @@ bool MessageLib::sendCreateInTangible(IntangibleObject* intangibleObject,uint64 
 {
     if(!_checkPlayer(targetObject) || !intangibleObject)
     {
-        DLOG(warning) << "MessageLib::sendCreateInTangible No valid player";
+        DLOG(WARNING) << "MessageLib::sendCreateInTangible No valid player";
         return(false);
     }
 
@@ -596,7 +597,7 @@ bool MessageLib::sendCreateInTangible(IntangibleObject* intangibleObject,uint64 
 //
 bool MessageLib::sendCreateTano(TangibleObject* tangible, PlayerObject* target) {
     if (!_checkPlayer(target))	{
-        DLOG(info) << "MessageLib::sendCreateTano No valid player";
+        DLOG(INFO) << "MessageLib::sendCreateTano No valid player";
         return false;
     }
 
@@ -794,7 +795,7 @@ bool MessageLib::sendCreateStructure(PlayerStructure* structure, PlayerObject* t
         return sendCreateInstallation(structure, target);
     }
 
-    DLOG(info) << "MessageLib::sendCreateStructure:ID  : couldnt cast structure" << structure->getId();
+    DLOG(INFO) << "MessageLib::sendCreateStructure:ID  : couldnt cast structure" << structure->getId();
 
     return false;
 }

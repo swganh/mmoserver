@@ -122,7 +122,7 @@ bool WorldManager::addObject(Object* object,bool manual)
     //make sure objects arnt added several times!!!!
     if(getObjectById(key))
     {
-        LOG(info) << "WorldManager::addObject Object(" << key<<") already exists added several times or ID messup ???";
+        LOG(INFO) << "WorldManager::addObject Object(" << key<<") already exists added several times or ID messup ???";
         return false;
     }
 
@@ -162,7 +162,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 
 			PlayerObject* player = dynamic_cast<PlayerObject*>(object);
 
-			LOG(info) << "New Player: " << player->getId() << ", Total Players on zone " << (getPlayerAccMap())->size() + 1;
+			LOG(INFO) << "New Player: " << player->getId() << ", Total Players on zone " << (getPlayerAccMap())->size() + 1;
 			// insert into the player map
 			mPlayerAccMap.insert(std::make_pair(player->getAccountId(),player));			
 			
@@ -239,15 +239,13 @@ bool WorldManager::addObject(Object* object,bool manual)
 		case ObjType_Intangible:
 		{
 			//they dont get added here in the firstplace ...
-			DLOG(info) << "Object of type ObjType_Intangible UNHANDLED in WorldManager::addObject:";
+			DLOG(INFO) << "Object of type ObjType_Intangible UNHANDLED in WorldManager::addObject:";
 		}
 		break;
 
 		default:
 		{
 			// Please, when adding new stufff, at least take the time to add a stub for that type.
-			// Better fail always, than have random crashes.
-			assert(false && "WorldManager::addObject Unhandled ObjectType");
 		}
 		break;
 	}
@@ -449,7 +447,7 @@ void WorldManager::destroyObject(Object* object)
 			//update the datapad
 			if(!pad || !(pad->removeWaypoint(object->getId())))
 			{
-				DLOG(warning) << "Worldmanager::destroyObject: Error removing Waypoint from datapad " << parentId;
+				DLOG(WARNING) << "Worldmanager::destroyObject: Error removing Waypoint from datapad " << parentId;
 				return;
 			}
 
@@ -474,7 +472,7 @@ void WorldManager::destroyObject(Object* object)
 			//update the datapad
 			if(!pad || !(pad->removeData(object->getId())))
 			{
-				DLOG(warning) << "WorldManager::destroyObject : Error removing Data from datapad " << object->getId();
+				DLOG(WARNING) << "WorldManager::destroyObject : Error removing Data from datapad " << object->getId();
 			}
 
 			if(VehicleController* vehicle = dynamic_cast<VehicleController*>(object))
@@ -497,7 +495,7 @@ void WorldManager::destroyObject(Object* object)
 
 		default:
 		{
-			DLOG(warning) << "Unhandled ObjectType in WorldManager::destroyObject: " << (uint32)(object->getType());
+			DLOG(WARNING) << "Unhandled ObjectType in WorldManager::destroyObject: " << (uint32)(object->getType());
 
 			// Please, when adding new stufff, at least take the time to add a stub for that type.
 			// Better fail always, than have random crashes.
@@ -517,7 +515,7 @@ void WorldManager::destroyObject(Object* object)
 	else
 	{
 		delete(object);
-		DLOG(warning) << "WorldManager::destroyObject: error removing from objectmap: " << object->getId();
+		DLOG(WARNING) << "WorldManager::destroyObject: error removing from objectmap: " << object->getId();
 	}
 }
 
@@ -564,7 +562,7 @@ void WorldManager::eraseObject(uint64 key)
     }
     else
     {
-        DLOG(info) << "WorldManager::destroyObject: error removing from objectmap: " << key;
+        DLOG(INFO) << "WorldManager::destroyObject: error removing from objectmap: " << key;
     }
 }
 

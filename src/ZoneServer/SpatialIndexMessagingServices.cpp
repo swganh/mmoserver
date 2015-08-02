@@ -60,11 +60,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //
 bool SpatialIndexManager::sendCreateObject(Object* object,PlayerObject* player, bool sendSelftoTarget)
 {
-    //DLOG(info) << "SpatialIndexManager::sendCreateObject: create :" << object->getId() << "for :" << player->getId();
+    //DLOG(INFO) << "SpatialIndexManager::sendCreateObject: create :" << object->getId() << "for :" << player->getId();
 
     if(!object)
     {
-        DLOG(info) << "Attempting sendCreateObject on an invalid object instance";
+        DLOG(INFO) << "Attempting sendCreateObject on an invalid object instance";
         return false;
     }
 
@@ -188,7 +188,7 @@ bool SpatialIndexManager::sendCreateObject(Object* object,PlayerObject* player, 
     // unknown types
     default:
     {
-        DLOG(info) << "MessageLib::createObject: Unhandled object type: " << object->getType();
+        DLOG(INFO) << "MessageLib::createObject: Unhandled object type: " << object->getType();
     }
     break;
     }
@@ -231,7 +231,7 @@ bool SpatialIndexManager::sendCreateTangible(TangibleObject* tangibleObject,Play
     	TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
     	if(!tO)
     	{
-    		DLOG(info) << "Unable to find object with ID " << (*it);
+    		DLOG(INFO) << "Unable to find object with ID " << (*it);
     		it++;
     		continue;
     	}
@@ -502,7 +502,7 @@ bool SpatialIndexManager::sendEquippedItems(PlayerObject* srcObject,PlayerObject
             }
             else
             {
-                DLOG(info) << "MessageLib send equipped objects: Its not equipped ... " << item->getId();
+                DLOG(INFO) << "MessageLib send equipped objects: Its not equipped ... " << item->getId();
             }
         }
 
@@ -541,7 +541,7 @@ bool SpatialIndexManager::sendCreateFactoryCrate(FactoryCrate* crate,PlayerObjec
         TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
         if(!tO)
         {
-            DLOG(info) << "Unable to find object with ID " <<  (*it);
+            DLOG(INFO) << "Unable to find object with ID " <<  (*it);
             continue;
         }
 

@@ -329,11 +329,11 @@ T	ManufacturingSchematic::getPPAttribute(BString key) const
         }
         catch(boost::bad_lexical_cast &)
         {
-            DLOG(info) << "ManufacturingSchematic::getPPAttribute: cast failed " << key.getAnsi();
+            DLOG(INFO) << "ManufacturingSchematic::getPPAttribute: cast failed " << key.getAnsi();
         }
     }
     else
-        DLOG(info) << "ManufacturingSchematic::getPPAttribute: could not find " << key.getAnsi();
+        DLOG(INFO) << "ManufacturingSchematic::getPPAttribute: could not find " << key.getAnsi();
 
     return(T());
 }
@@ -352,11 +352,11 @@ T	ManufacturingSchematic::getPPAttribute(uint32 keyCrc) const
         }
         catch(boost::bad_lexical_cast &)
         {
-            DLOG(info) << "ManufacturingSchematic::getPPAttribute: cast failed " << keyCrc;
+            DLOG(INFO) << "ManufacturingSchematic::getPPAttribute: cast failed " << keyCrc;
         }
     }
     else
-        DLOG(info) << "ManufacturingSchematic::getPPAttribute: could not find " << keyCrc;
+        DLOG(INFO) << "ManufacturingSchematic::getPPAttribute: could not find " << keyCrc;
 
     return(T());
 }

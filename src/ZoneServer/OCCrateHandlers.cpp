@@ -64,7 +64,7 @@ void	ObjectController::_ExtractObject(uint64 targetId,Message* message,ObjectCon
 
     if(!crate)
     {
-        DLOG(info) << "ObjectController::_ExtractObject: Crate does not exist!";
+        DLOG(INFO) << "ObjectController::_ExtractObject: Crate does not exist!";
         return;
     }
 

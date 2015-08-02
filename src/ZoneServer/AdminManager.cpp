@@ -34,6 +34,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageLib/MessageLib.h"
 
 
+
+
 #include "Utils/logger.h"
 
 #include "NetworkManager/Message.h"
@@ -201,7 +203,7 @@ void AdminManager::addAdminRequest(uint64 requestType, BString message, int32 tt
     {
         if (timeToFirstEvent > 0)
         {
-            LOG(warning) << "Admin Manager: You have to wait %d seconds until first announcement" << timeToFirstEvent;
+            LOG(WARNING) << "Admin Manager: You have to wait %d seconds until first announcement" << timeToFirstEvent;
         }
         mAdminRequests.insert(std::make_pair(requestType, requestObject));
         gWorldManager->addAdminRequest(requestType, (uint64)(timeToFirstEvent * 1000));
@@ -296,7 +298,7 @@ uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
                         }
                     }
                 }
-                sprintf(rawData,"Server shutting down in %" PRId32 " %s.", value, unit.getAnsi());
+                sprintf(rawData,"Server shutting down in %"PRId32" %s.", value, unit.getAnsi());
             }
 
             BString broadcast(rawData);
@@ -304,9 +306,9 @@ uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
 
             if (optReason.getLength())
             {
-                LOG(warning) << optReason.getAnsi();
+                LOG(WARNING) << optReason.getAnsi();
             }
-            LOG(warning) << broadcast.getAnsi();
+            LOG(WARNING) << broadcast.getAnsi();
 
             // For logging, we need ansi versions.
             BString logOptReason(optReason);

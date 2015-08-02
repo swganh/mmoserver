@@ -95,7 +95,7 @@ Object::~Object()
     std::for_each(mData.begin(), mData.end(), [] (uint64_t object_id) {
         Object* object = gWorldManager->getObjectById(object_id);
         if (!object)	{
-            DLOG(info) << "ObjectContainer::remove Object : No Object!!!!";
+            DLOG(INFO) << "ObjectContainer::remove Object : No Object!!!!";
             assert(false && "ObjectContainer::~ObjectContainer WorldManager unable to find object instance");
             return;
         }
@@ -330,7 +330,7 @@ void Object::setAttribute(BString key,std::string value)
 
     if(it == mAttributeMap.end())
     {
-        DLOG(info) << "Object::setAttribute: could not find " << key.getAnsi();
+        DLOG(INFO) << "Object::setAttribute: could not find " << key.getAnsi();
         return;
     }
 
@@ -351,7 +351,7 @@ void Object::setAttributeIncDB(BString key,std::string value)
 
     if(it == mAttributeMap.end())
     {
-        DLOG(info) << "Object::setAttribute: could not find " << key.getAnsi();
+        DLOG(INFO) << "Object::setAttribute: could not find " << key.getAnsi();
         return;
     }
 
@@ -360,7 +360,7 @@ void Object::setAttributeIncDB(BString key,std::string value)
     uint32 attributeID = gWorldManager->getAttributeId(key.getCrc());
     if(!attributeID)
     {
-        DLOG(info) << "Object::addAttribute DB: no such attribute in the attribute table :" << key.getAnsi();
+        DLOG(INFO) << "Object::addAttribute DB: no such attribute in the attribute table :" << key.getAnsi();
         return;
     }
 
@@ -404,7 +404,7 @@ void Object::addAttributeIncDB(BString key,std::string value)
     uint32 attributeID = gWorldManager->getAttributeId(key.getCrc());
     if(!attributeID)
     {
-        DLOG(info) << "Object::addAttribute DB: no such attribute in the attribute table : " << key.getAnsi();
+        DLOG(INFO) << "Object::addAttribute DB: no such attribute in the attribute table : " << key.getAnsi();
         return;
     }
     int8 sql[512],*sqlPointer,restStr[128];
@@ -438,7 +438,7 @@ void Object::removeAttribute(BString key)
     if(it != mAttributeMap.end())
         mAttributeMap.erase(it);
     else
-        DLOG(info) << "Object::removeAttribute: could not find " << key.getAnsi();
+        DLOG(INFO) << "Object::removeAttribute: could not find " << key.getAnsi();
 }
 
 //=========================================================================
@@ -457,7 +457,7 @@ void Object::setInternalAttributeIncDB(BString key,std::string value)
 
     if(it == mInternalAttributeMap.end())
     {
-        DLOG(info) << "Object::setAttribute: could not find " << key.getAnsi();
+        DLOG(INFO) << "Object::setAttribute: could not find " << key.getAnsi();
         return;
     }
 
@@ -466,7 +466,7 @@ void Object::setInternalAttributeIncDB(BString key,std::string value)
     uint32 attributeID = gWorldManager->getAttributeId(key.getCrc());
     if(!attributeID)
     {
-        DLOG(info) << "Object::addAttribute DB: no such attribute in the attribute table :" << key.getAnsi();
+        DLOG(INFO) << "Object::addAttribute DB: no such attribute in the attribute table :" << key.getAnsi();
         return;
     }
 
@@ -489,7 +489,7 @@ void	Object::setInternalAttribute(BString key,std::string value)
 
     if(it == mInternalAttributeMap.end())
     {
-        DLOG(info) << "Object::setInternalAttribute: could not find " << key.getAnsi();
+        DLOG(INFO) << "Object::setInternalAttribute: could not find " << key.getAnsi();
         return;
     }
 
@@ -512,7 +512,7 @@ void Object::addInternalAttributeIncDB(BString key,std::string value)
     uint32 attributeID = gWorldManager->getAttributeId(key.getCrc());
     if(!attributeID)
     {
-        DLOG(info) << "Object::addAttribute DB: no such attribute in the attribute table : " << key.getAnsi();
+        DLOG(INFO) << "Object::addAttribute DB: no such attribute in the attribute table : " << key.getAnsi();
         return;
     }
     int8 sql[512],*sqlPointer,restStr[128];
@@ -554,7 +554,7 @@ void Object::removeInternalAttribute(BString key)
     if(it != mInternalAttributeMap.end())
         mInternalAttributeMap.erase(it);
     else
-        DLOG(info) << "Object::removeInternalAttribute: could not find " << key.getAnsi();
+        DLOG(INFO) << "Object::removeInternalAttribute: could not find " << key.getAnsi();
 }
 
 
@@ -653,10 +653,10 @@ bool Object::unRegisterWatcher(Object* object) {
     auto it = mKnownObjects.find(object);
     if (it != mKnownObjects.end()) {
         mKnownObjects.erase(it);
-        //DLOG(info) << "Object::unRegisterWatcher :: Object" << object->getId() << " was successfully unregistered for " << getId();
+        //DLOG(INFO) << "Object::unRegisterWatcher :: Object" << object->getId() << " was successfully unregistered for " << getId();
         return true;
     }
-	DLOG(info) << "Object::unRegisterWatcher :: Object" << object->getId() << " could not be unregistered for " << getId();
+	DLOG(INFO) << "Object::unRegisterWatcher :: Object" << object->getId() << " could not be unregistered for " << getId();
     return false;
 }
 
@@ -676,11 +676,11 @@ bool Object::unRegisterWatcher(PlayerObject* object) {
         }
 
         mKnownPlayers.erase(it);
-        //DLOG(info) << "Object::unRegisterWatcher :: Player" << object->getId() << " was successfully unregistered from " << getId();
+        //DLOG(INFO) << "Object::unRegisterWatcher :: Player" << object->getId() << " was successfully unregistered from " << getId();
         return true;
     }
 
-	DLOG(info) << "Object::unRegisterWatcher :: Object" << object->getId() << " could not be unregistered for " << getId();
+	DLOG(INFO) << "Object::unRegisterWatcher :: Object" << object->getId() << " could not be unregistered for " << getId();
     return false;
 }
 
@@ -776,7 +776,7 @@ bool Object::addObjectSecure(Object* data)
     }
     else
     {
-        DLOG(info) << "Object*::addObjectSecure No Capacity!!!!";
+        DLOG(INFO) << "Object*::addObjectSecure No Capacity!!!!";
         return true;
 
     }
@@ -795,7 +795,7 @@ bool Object::addObject(Object* data)
     }
     else
     {
-        DLOG(info) << "Object*::addObject No Capacity left for container ", this->getId();
+        DLOG(INFO) << "Object*::addObject No Capacity left for container ", this->getId();
         return false;
     }
 }
@@ -833,7 +833,7 @@ bool Object::removeObject(uint64 id) {
         return true;
     }
 
-    DLOG(info) << "Object::removeDataByPointer Object : Object" << getId() <<" Data "<< id << " not found";
+    DLOG(INFO) << "Object::removeDataByPointer Object : Object" << getId() <<" Data "<< id << " not found";
 
     return false;
 }

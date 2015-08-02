@@ -67,7 +67,7 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
         // sitting on chair
         if(data.getLength())
         {
-            elementCount = swscanf(data.getUnicode16(), L"%f,%f,%f,%" WidePRIu64, &chair_position.x, &chair_position.y, &chair_position.z, &chairCell);
+            elementCount = swscanf(data.getUnicode16(), L"%f,%f,%f,%"WidePRIu64, &chair_position.x, &chair_position.y, &chair_position.z, &chairCell);
 
             if(elementCount == 4)
             {

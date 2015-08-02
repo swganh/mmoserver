@@ -51,6 +51,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DatabaseResult.h"
 #include "MessageLib/MessageLib.h"
 
+
+#ifdef ERROR
+#undef ERROR
+#endif
+
 #include "Utils/logger.h"
 
 #include "Utils/rand.h"
@@ -186,7 +191,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         // not all missions have associated names ...
         if(result->getRowCount())
-            DLOG(warning) << "Loaded mission STFs.";
+            DLOG(WARNING) << "Loaded mission STFs.";
 
     }
     break;
@@ -210,7 +215,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         }
 
         if(result->getRowCount())
-            DLOG(warning) << "Loaded mission names.";
+            DLOG(WARNING) << "Loaded mission names.";
 
 
     }
@@ -246,7 +251,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                                                                   mDatabase->galaxy(),mDatabase->galaxy());
 
         if(result->getRowCount())
-            DLOG(warning) << "Loaded mission types.";
+            DLOG(WARNING) << "Loaded mission types.";
 
     }
     break;
@@ -385,7 +390,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         }
 
         if(result->getRowCount())
-            DLOG(warning) << "Loading "<< result->getRowCount() <<" mission terminal links...";
+            DLOG(WARNING) << "Loading "<< result->getRowCount() <<" mission terminal links...";
 
 
     }
@@ -458,7 +463,7 @@ void MissionManager::listRequest(PlayerObject* player, uint64 terminal_id,uint8 
 
 void MissionManager::detailsRequest(PlayerObject* player)
 {
-    DLOG(info) << "Player id " << player->getId() << " requested mission details";
+    DLOG(INFO) << "Player id " << player->getId() << " requested mission details";
 
     // this request likely requires a MissionDetailsResponse (000000F8) packet response
 }
@@ -467,7 +472,7 @@ void MissionManager::detailsRequest(PlayerObject* player)
 
 void MissionManager::createRequest(PlayerObject* player)
 {
-    DLOG(info) << "Player id " << player->getId() << " accepted mission ";
+    DLOG(INFO) << "Player id " << player->getId() << " accepted mission ";
 }
 
 //======================================================================================================================
@@ -484,7 +489,7 @@ void MissionManager::missionRequest(PlayerObject* player, uint64 mission_id)
     MissionObject* mission =  mission_bag->getMissionById(mission_id);
     if(mission == NULL)
     {
-        DLOG(warning) << "ERROR: Failed to retrieve mission with id " << mission_id << " Unable to accept mission!";
+        DLOG(WARNING) << "ERROR: Failed to retrieve mission with id " << mission_id << " Unable to accept mission!";
         return;
     }
 
@@ -647,7 +652,7 @@ void MissionManager::missionAbort(PlayerObject* player, uint64 mission_id)
     }
     else
     {
-        DLOG(warning) << "ERROR: Attempt to abort an invalid mission, with id "<<static_cast<int>(mission_id)<< ", from the datapad.";
+        DLOG(WARNING) << "ERROR: Attempt to abort an invalid mission, with id "<<static_cast<int>(mission_id)<< ", from the datapad.";
     }
 
     return;
@@ -870,7 +875,7 @@ void MissionManager::checkSurveyMission(PlayerObject* player,CurrentResource* re
 
 
                             int8 sm[500];
-                            sprintf(sm,"That resource pocket is too close (%" PRIu32 " meters) to the mission giver to be useful to them. Go find one at least %" PRIu32 " meters away to complete your survey mission. ",
+                            sprintf(sm,"That resource pocket is too close (%"PRIu32" meters) to the mission giver to be useful to them. Go find one at least %"PRIu32" meters away to complete your survey mission. ",
                                     static_cast<uint32>(glm::distance(mission->getIssuingTerminal()->mPosition, highestDist.position)),
                                     (1024 - (int)glm::distance(mission->getIssuingTerminal()->mPosition, highestDist.position)));
 
@@ -978,7 +983,7 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
     TerminalMap::iterator terminalMapIt = mTerminalMap.find(terminal);
     if(terminalMapIt != mTerminalMap.end())
     {
-        DLOG(info) << "MissionManager : found the terminal";
+        DLOG(INFO) << "MissionManager : found the terminal";
 
         Terminal_Type* terminal = (*terminalMapIt).second;
 
@@ -986,7 +991,7 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
         uint32 amount = terminal->list.size();
         uint32 chosen = gRandom->getRand() % amount;
 
-        DLOG(info) << "MissionManager : random : " <<  chosen;
+        DLOG(INFO) << "MissionManager : random : " <<  chosen;
 
         bool found = false;
         uint32 counter = 0;
@@ -1042,7 +1047,7 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
     }
     else
     {
-        DLOG(info) << "MissionManager : No mission file associated";
+        DLOG(INFO) << "MissionManager : No mission file associated";
 
         return NULL;
 

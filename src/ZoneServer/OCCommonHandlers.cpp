@@ -204,7 +204,7 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
     }
     else
     {
-        DLOG(info) <<  "ObjectController::_handleOpenContainer: INVALID Object id " << targetId;
+        DLOG(INFO) <<  "ObjectController::_handleOpenContainer: INVALID Object id " << targetId;
     }
 }
 
@@ -366,7 +366,7 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 			targetContainer = dynamic_cast<TangibleObject*>(inventory);
 		else
 		{
-			DLOG(info) << "ObjController::_handleTransferItemMisc: TargetContainer is NULL and not an inventory :(";
+			DLOG(INFO) << "ObjController::_handleTransferItemMisc: TargetContainer is NULL and not an inventory :(";
 			return false;
 		}
 		
@@ -558,7 +558,7 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 		
 		if(!creatureInventory->removeObject(itemObject))
 		{
-			LOG(warning) << "ObjectController::removeFromContainer: Internal Error could not remove  " <<  itemObject->getId() << " from creature inventory "  << creatureInventory->getId();
+			LOG(WARNING) << "ObjectController::removeFromContainer: Internal Error could not remove  " <<  itemObject->getId() << " from creature inventory "  << creatureInventory->getId();
 			return false;
 		}
 
@@ -651,15 +651,15 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 
 
-	if(swscanf(dataStr.getUnicode16(),L"%" WidePRIu64 L" %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
+	if(swscanf(dataStr.getUnicode16(),L"%"WidePRIu64 L" %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
 	{
-		DLOG(info) << "ObjController::_handleTransferItemMisc: Error in parameters";
+		DLOG(INFO) << "ObjController::_handleTransferItemMisc: Error in parameters";
 		return;
 	}
 
 	if (!itemObject)
 	{
-		DLOG(warning) << "ObjController::_handleTransferItemMisc: No Object to transfer :(";
+		DLOG(WARNING) << "ObjController::_handleTransferItemMisc: No Object to transfer :(";
 		return;
 	}
 
@@ -667,7 +667,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	if(!tangible)
 	{
 		//no tagible - get out of here
-		DLOG(warning) << "ObjController::_handleTransferItemMisc: No tangible to transfer :(";
+		DLOG(WARNING) << "ObjController::_handleTransferItemMisc: No tangible to transfer :(";
 		return;
 	}
 
@@ -675,10 +675,10 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	Object* newContainer = gWorldManager->getObjectById(targetContainerId);
 	Object* oldContainer = gWorldManager->getObjectById(tangible->getParentId());
 	
-	DLOG(info) << "ObjController::_handleTransferItemMisc: parameters";
-	DLOG(info) << "ObjController::_handleTransferItemMisc: newcontainer : " << targetContainerId;
-	DLOG(info) << "ObjController::_handleTransferItemMisc: oldcontainer : " << tangible->getParentId();
-	DLOG(info) << "ObjController::_handleTransferItemMisc: linktype : " << linkType;
+	DLOG(INFO) << "ObjController::_handleTransferItemMisc: parameters";
+	DLOG(INFO) << "ObjController::_handleTransferItemMisc: newcontainer : " << targetContainerId;
+	DLOG(INFO) << "ObjController::_handleTransferItemMisc: oldcontainer : " << tangible->getParentId();
+	DLOG(INFO) << "ObjController::_handleTransferItemMisc: linktype : " << linkType;
 
 	// We may want to transfer other things than items...basically tangibleObjects!
 	// resourcecontainers / factory crates
@@ -712,7 +712,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 	if (!targetContainerId)
 	{
-		DLOG(info) << "ObjController::_handleTransferItemMisc:TargetContainer is 0 :(";
+		DLOG(INFO) << "ObjController::_handleTransferItemMisc:TargetContainer is 0 :(";
 		//return;
 
 	}
@@ -725,13 +725,13 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 	if(!checkTargetContainer(targetContainerId,itemObject))
 	{
-		DLOG(info) << "ObjController::_handleTransferItemMisc:TargetContainer is not valid :(";
+		DLOG(INFO) << "ObjController::_handleTransferItemMisc:TargetContainer is not valid :(";
 		return;
 	}
 
 	if(!checkContainingContainer(tangible->getParentId(), playerObject->getId()))
 	{
-		DLOG(info) << "ObjController::_handleTransferItemMisc:ContainingContainer is not allowing the transfer :(";
+		DLOG(INFO) << "ObjController::_handleTransferItemMisc:ContainingContainer is not allowing the transfer :(";
 		return;
 
 	}
@@ -739,7 +739,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	// Remove the object from whatever contains it.
 	if(!removeFromContainer(targetContainerId, targetId))
 	{
-		DLOG(info) << "ObjectController::_handleTransferItemMisc: removeFromContainer failed :( this might be caused by looting a corpse though";
+		DLOG(INFO) << "ObjectController::_handleTransferItemMisc: removeFromContainer failed :( this might be caused by looting a corpse though";
 		return;
 	}
 
@@ -802,7 +802,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 		//equip / unequip handles the db side, too
 		if(!player->getEquipManager()->EquipItem(item))
 		{
-			LOG(warning) << "ObjectController::_handleTransferItemMisc: Error equipping  " << item->getId();
+			LOG(WARNING) << "ObjectController::_handleTransferItemMisc: Error equipping  " << item->getId();
 			//panik!!!!!!
 		}
 		
@@ -1115,7 +1115,7 @@ void ObjectController::_handleSurrenderSkill(uint64 targetId,Message* message,Ob
 
     if(!(skillStr.getLength()))
     {
-        DLOG(info) << "ObjectController::handleSurrenderSkill: no skillname";
+        DLOG(INFO) << "ObjectController::handleSurrenderSkill: no skillname";
         return;
     }
 
@@ -1123,7 +1123,7 @@ void ObjectController::_handleSurrenderSkill(uint64 targetId,Message* message,Ob
 
     if(skill == NULL)
     {
-        DLOG(info)<<"ObjectController::handleSurrenderSkill: could not find skill " << skillStr.getAnsi();
+        DLOG(INFO)<<"ObjectController::handleSurrenderSkill: could not find skill " << skillStr.getAnsi();
         return;
     }
 

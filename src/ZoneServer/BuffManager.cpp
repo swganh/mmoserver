@@ -38,6 +38,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DataBinding.h"
 
 
+
+
 #include "Utils/logger.h"
 
 
@@ -334,7 +336,7 @@ void BuffManager::LoadBuffs(PlayerObject* playerObject, uint64 currenttime)
     //check we don't have ghosted buffs
     if(playerObject->GetNoOfBuffs() > 0)
     {
-        LOG(warning) << "PlayerObject has ghosted Buffs. Inform a developer";
+        LOG(WARNING) << "PlayerObject has ghosted Buffs. Inform a developer";
         gMessageLib->SendSystemMessage(L"You appear to have Ghosted Buffs (Bug #958). Please inform an SWG:ANH developer or Server Admin you saw this message", playerObject);
         return;
     }
@@ -346,7 +348,7 @@ void BuffManager::LoadBuffs(PlayerObject* playerObject, uint64 currenttime)
     envelope->player		= playerObject;
 
     int8 sql[550];
-    sprintf(sql, "SELECT buff_id,character_id,instigator_id,max_ticks,tick_length,current_tick,icon,current_global_tick,start_global_tick from character_buffs where character_id = %" PRIu64, playerObject->getId());
+    sprintf(sql, "SELECT buff_id,character_id,instigator_id,max_ticks,tick_length,current_tick,icon,current_global_tick,start_global_tick from character_buffs where character_id = %"PRIu64, playerObject->getId());
     mDatabase->executeSqlAsync(this,envelope,sql);
     
 }

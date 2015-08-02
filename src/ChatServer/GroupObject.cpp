@@ -35,6 +35,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Player.h"
 
 
+
+
 #include "Utils/logger.h"
 
 #include "NetworkManager/DispatchClient.h"
@@ -65,7 +67,7 @@ GroupObject::GroupObject(Player* leader, uint64 groupId)
 
     mMembers.push_back(leader);
 
-	DLOG(info) << "New group created by "<<leader->getName().getAnsi() << " with id " << groupId;
+	DLOG(INFO) << "New group created by "<<leader->getName().getAnsi() << " with id " << groupId;
 }
 
 
@@ -77,9 +79,9 @@ GroupObject::~GroupObject()
     {
         gChatManager->unregisterChannel(mChannel);
         delete mChannel;
-        DLOG(info) << "Group Channel destroyed.";
+        DLOG(INFO) << "Group Channel destroyed.";
     }
-    DLOG(info)<< "Group destroyed.";
+    DLOG(INFO)<< "Group destroyed.";
 }
 
 //======================================================================================================================
@@ -328,10 +330,10 @@ void GroupObject::createChannel()
     channel->setGalaxy(gChatManager->getGalaxyName());
 
     wchar_t temp[64];
-    swprintf(temp,64,L"%" WidePRIu64, mId);
+    swprintf(temp,64,L"%"WidePRIu64, mId);
     channel->setTitle(temp);
 
-	DLOG(info)  << "Group channel created: " << channel->getName().getAnsi() << " with id " << channel->getId();
+	DLOG(INFO)  << "Group channel created: " << channel->getName().getAnsi() << " with id " << channel->getId();
     channel->setOwner(gSystemAvatar);
     mChannel = channel;
     gChatManager->registerChannel(mChannel);

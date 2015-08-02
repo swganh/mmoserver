@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "PingServer.h"
 
-
 #include "Utils/logger.h"
 
 #include <boost/thread/thread.hpp>
@@ -103,7 +102,7 @@ void PingServer::HandleReceive(const boost::system::error_code& error, size_t by
 
     // Check if an error occurred.
     if (error && error != boost::asio::error::message_size) {
-        LOG(warning) << "Error reading from socket: " << error.message().c_str();
+        LOG(WARNING) << "Error reading from socket: " << error.message().c_str();
 
         // Otherwise return the ping response to the sender.
     } else {
@@ -132,17 +131,13 @@ void PingServer::HandleSend(const boost::system::error_code& error, size_t bytes
 
 //======================================================================================================================
 int main(int argc, char* argv[])
-{
-
-    //set stdout buffers to 0 to force instant flush
-    setvbuf( stdout, NULL, _IONBF, 0);
-    
-    LOG(warning) <<  "PingServer - Build " << GetBuildString().c_str();
+{  
+    LOG(WARNING) <<  "PingServer - Build " << GetBuildString().c_str();
 
     try {
 		PingServer ping_server(argc, argv);
 
-		LOG(warning) << "Welcome to your SWGANH Experience!";
+		LOG(WARNING) << "Welcome to your SWGANH Experience!";
 
 		while (true) {
 			// Check for incoming messages and handle them.
@@ -156,7 +151,7 @@ int main(int argc, char* argv[])
 		}
 
 	} catch( std::exception& e ) {
-		LOG(error) << e.what();
+		LOG(ERR) << e.what();
 		std::cin.get();
 		return 0;
 	}

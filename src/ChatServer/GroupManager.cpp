@@ -36,6 +36,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer/TangibleEnums.h"
 
+
+
+
 #include "Utils/logger.h"
 
 #include "DatabaseManager/DataBinding.h"
@@ -149,7 +152,7 @@ GroupObject* GroupManager::getGroupById(uint64 groupId)
     if(it !=  mGroups.end())
         return((*it).second);
     else
-        DLOG(info) << "GroupManager::getGroupById: Could not find group " << groupId;
+        DLOG(INFO) << "GroupManager::getGroupById: Could not find group " << groupId;
 
     return(NULL);
 }
@@ -168,7 +171,7 @@ void GroupManager::removeGroup(uint64 groupId)
     }
     else
     {
-        DLOG(info) << "GroupManager::getGroupById: Could not find group " << groupId;
+        DLOG(INFO) << "GroupManager::getGroupById: Could not find group " << groupId;
     }
 
 }
@@ -183,7 +186,7 @@ void GroupManager::_processIsmIsGroupLeaderRequest(Message* message, DispatchCli
 
     if(!group)
     {
-        DLOG(info) << "GroupManager::getGroupById: Could not find group " << groupId;
+        DLOG(INFO) << "GroupManager::getGroupById: Could not find group " << groupId;
     }
 
     gChatMessageLib->sendIsmIsGroupLeaderResponse(group->getLeader(), requestId, (group->getLeader()->getCharId() == playerId));

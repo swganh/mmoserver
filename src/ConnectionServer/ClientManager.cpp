@@ -31,6 +31,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "NetworkManager/Service.h"
 
+
+
+
 #include "Utils/logger.h"
 
 #include "DatabaseManager/DataBinding.h"
@@ -403,7 +406,7 @@ void ClientManager::_processClusterZoneTransferCharacter(ConnectionClient* clien
     else
     {
         // client may have disconnected right in the middle of the transfer
-        LOG(warning) << "Client not found during zone transfer.\n";
+        LOG(WARNING) << "Client not found during zone transfer.\n";
     }
 }
 

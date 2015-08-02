@@ -68,7 +68,7 @@ ObjectContainer::~ObjectContainer()
 	 	Object* object = gWorldManager->getObjectById((*objectIt));
 		if(!object)
 		{
-			DLOG(info) << "ObjectContainer::remove Object : No Object!!!!";
+			DLOG(INFO) << "ObjectContainer::remove Object : No Object!!!!";
 			assert(false && "ObjectContainer::~ObjectContainer WorldManager unable to find object instance");
 			objectIt = removeObject(objectIt);
 			
@@ -77,7 +77,7 @@ ObjectContainer::~ObjectContainer()
 
 		if(object->getId() == 2533274790395904)
 		{
-			DLOG(info) << "ObjectContainer::remove Object 2533274790395904";
+			DLOG(INFO) << "ObjectContainer::remove Object 2533274790395904";
 		}
 
 		//take care of a crafting tool
@@ -111,7 +111,7 @@ bool ObjectContainer::addObjectSecure(Object* data)
 	}
 	else
 	{
-		DLOG(info) << "ObjectContainer::addObjectSecure No Capacity!!!!";
+		DLOG(INFO) << "ObjectContainer::addObjectSecure No Capacity!!!!";
 		return true;
 
 	}
@@ -130,7 +130,7 @@ bool ObjectContainer::addObject(Object* data)
 	}
 	else
 	{
-		DLOG(warning) << "ObjectContainer::addObject No Capacity left for container " << this->getId();			
+		DLOG(WARNING) << "ObjectContainer::addObject No Capacity left for container " << this->getId();			
 		return false;	
 	}
 }
@@ -185,7 +185,7 @@ bool ObjectContainer::deleteObject(Object* data)
 		}
 		++it;
 	}
-	DLOG(warning) << "ObjectContainer::removeDataByPointer Data " << data->getId() << " not found";
+	DLOG(WARNING) << "ObjectContainer::removeDataByPointer Data " << data->getId() << " not found";
 	return false;
 }
 
@@ -204,7 +204,7 @@ bool ObjectContainer::removeObject(uint64 id)
 		}
 		++it;
 	}
-	DLOG(warning) << "ObjectContainer::removeDataById  " << id <<" not found";
+	DLOG(WARNING) << "ObjectContainer::removeDataById  " << id <<" not found";
 	return false;
 }
 

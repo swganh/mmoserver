@@ -42,7 +42,7 @@ std::string GetBuildNumber()
         std::ifstream version_file("VERSION");
 
         std::string build_string = GetBuildString();
-        build_num = ANH_VERSION_MAJOR "." ANH_VERSION_MINOR "." ANH_VERSION_PATCH "."+build_string.substr(0, build_string.find_first_of(" "));
+        build_num = ANH_VERSION_MAJOR"."ANH_VERSION_MINOR"."ANH_VERSION_PATCH"."+build_string.substr(0, build_string.find_first_of(" "));
     }
 
     return build_num;

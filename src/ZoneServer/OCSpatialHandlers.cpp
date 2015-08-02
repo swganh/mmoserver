@@ -65,6 +65,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <boost/lexical_cast.hpp>
 
 #ifdef WIN32
+#undef ERROR
+#endif
+
+#ifdef WIN32
 using std::wregex;
 using std::wsmatch;
 using std::regex_match;
@@ -93,7 +97,7 @@ void ObjectController::_handleSpatialChatInternal(uint64 targetId,Message* messa
     wsmatch m;
 
     if (! regex_match(tmp, m, p)) {
-        LOG(error) << "Invalid spatial chat message format";
+        LOG(ERR) << "Invalid spatial chat message format";
         return; // We suffered an unrecoverable error, bail out now.
     }
    

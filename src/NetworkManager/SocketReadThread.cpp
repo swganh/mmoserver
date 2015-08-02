@@ -39,7 +39,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Socket.h"
 #include "SocketWriteThread.h"
 
-
 #include "NetworkManager/MessageFactory.h"
 
 #include <boost/thread/thread.hpp>
@@ -53,11 +52,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #if defined(_MSC_VER)
+#ifndef _WINSOCK2API_
+#include <WINSOCK2.h>
+#endif
+
+#ifndef _INC_WINDOWS
+#include <windows.h>
+#endif
 #define socklen_t int
 #else
 #include <sys/socket.h>
-
 #include <arpa/inet.h>
+
 #define INVALID_SOCKET	-1
 #define SOCKET_ERROR	-1
 #define closesocket		close
@@ -108,7 +114,10 @@ SocketReadThread::SocketReadThread(SOCKET socket, SocketWriteThread* writeThread
     boost::thread t(std::tr1::bind(&SocketReadThread::run, this));
     mThread = boost::move(t);
 
-
+#ifdef _WIN32
+    HANDLE th =  mThread.native_handle();
+    SetPriorityClass(th,REALTIME_PRIORITY_CLASS);
+#endif
     //SetPriorityClass(th,NORMAL_PRIORITY_CLASS);
 }
 
@@ -152,7 +161,7 @@ void SocketReadThread::run(void)
         // Check to see if *WE* are about to connect to a remote server
         if(mNewConnection.mPort != 0)
         {
-            LOG(info) << "Connecting to remote server";
+            LOG(INFO) << "Connecting to remote server";
             Session* newSession = mSessionFactory->CreateSession();
             newSession->setCommand(SCOM_Connect);
             newSession->setAddress(inet_addr(mNewConnection.mAddress));
@@ -188,7 +197,7 @@ void SocketReadThread::run(void)
 
         if(count && FD_ISSET(mSocket, &socketSet))
         {
-            //LOG(info) << "Message received on port " << port;
+            //LOG(INFO) << "Message received on port " << port;
             // Read any incoming packets.
             recvLen = recvfrom(mSocket, mReceivePacket->getData(),(int) mMessageMaxSize, 0, (sockaddr*)&from, reinterpret_cast<socklen_t*>(&fromLen));
 
@@ -203,11 +212,11 @@ void SocketReadThread::run(void)
 
                 if(FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, errorNr, MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),(LPTSTR)errorMsg, (sizeof(errorMsg) / sizeof(TCHAR)) - 1, NULL))
                 {
-                    LOG(warning) << "Error(recvFrom): " << errorMsg;
+                    LOG(WARNING) << "Error(recvFrom): " << errorMsg;
                 }
                 else
                 {
-                    LOG(warning) << "Error(recvFrom): " << errorNr;
+                    LOG(WARNING) << "Error(recvFrom): " << errorNr;
                 }
 #endif
                 continue;
@@ -215,7 +224,7 @@ void SocketReadThread::run(void)
 
             if(recvLen > mMessageMaxSize)
             {
-                LOG(info) << "Socket Read Thread Received Size > mMessageMaxSize: " << recvLen;
+                LOG(INFO) << "Socket Read Thread Received Size > mMessageMaxSize: " << recvLen;
             }
 
             // Get our remote Address and port
@@ -256,12 +265,12 @@ void SocketReadThread::run(void)
                     mSocketWriteThread->NewSession(session);
                     session->mHash = hash;
 
-                    LOG(info) << "Added Service " << mSessionFactory->getService()->getId() << ": New Session(" 
+                    LOG(INFO) << "Added Service " << mSessionFactory->getService()->getId() << ": New Session(" 
                     <<inet_ntoa(from.sin_addr) << ", " << ntohs(session->getPort()) << "), AddressMap: " << mAddressSessionMap.size();
                 }
                 else
                 {
-                    LOG(warning) << "Socket Read Thread Session not found. Type:0x" << packetType;
+                    LOG(WARNING) << "Socket Read Thread Session not found. Type:0x" << packetType;
 
                     lk.unlock();
 
@@ -302,7 +311,7 @@ void SocketReadThread::run(void)
                     {
                         // CRC mismatch.  Dropping packet.
                         //gLogger->hexDump(mReceivePacket->getData(),mReceivePacket->getSize());
-                        DLOG(info) << "DIS/ACK/ORDER/PING dropped.";
+                        DLOG(INFO) << "DIS/ACK/ORDER/PING dropped.";
                         continue;
                     }
 
@@ -337,7 +346,7 @@ void SocketReadThread::run(void)
                     {
                         // CRC mismatch.  Dropping packet.
 
-                       LOG(info) << "Socket Read Thread: Reliable Packet dropped." << packetType << " CRC mismatch.";
+                       LOG(INFO) << "Socket Read Thread: Reliable Packet dropped." << packetType << " CRC mismatch.";
                         mCompCryptor->Decrypt(mReceivePacket->getData() + 2, recvLen - 4, session->getEncryptKey());  // don't hardcode the header buffer or CRC len.
                         continue;
                     }
@@ -380,7 +389,7 @@ void SocketReadThread::run(void)
 
                 default:
                 {
-                    DLOG(info) << "SocketReadThread: Dont know what todo with this packet! --tmr <3";
+                    DLOG(INFO) << "SocketReadThread: Dont know what todo with this packet! --tmr <3";
                 }
                 break;
 
@@ -397,7 +406,7 @@ void SocketReadThread::run(void)
                 if(crcLow != (uint8)packetCrc || crcHigh != (uint8)(packetCrc >> 8))
                 {
                     // CRC mismatch.  Dropping packet.
-                    LOG(info) << "Packet dropped.  CRC mismatch.";
+                    LOG(INFO) << "Packet dropped.  CRC mismatch.";
                     continue;
                 }
 
@@ -450,7 +459,7 @@ void SocketReadThread::NewOutgoingConnection(const int8* address, uint16 port)
     // queue so we can process these async.  This is NOT thread safe, and won't be.  Only should be called by the Service.
 
     // Init our NewConnection object
-    LOG(info) << "New connection to " << address << " on port " << port;
+    LOG(INFO) << "New connection to " << address << " on port " << port;
     strcpy(mNewConnection.mAddress, address);
     mNewConnection.mPort = port;
     mNewConnection.mSession = 0;
@@ -467,7 +476,7 @@ void SocketReadThread::RemoveAndDestroySession(Session* session)
     // Find and remove the session from the address map.
     uint64 hash = session->getAddress() | (((uint64)session->getPort()) << 32);
 
-    LOG(info) << "Service " << mSessionFactory->getService()->getId() << ": Removing Session("	<< inet_ntoa(*((in_addr*)(&hash))) 
+    LOG(INFO) << "Service " << mSessionFactory->getService()->getId() << ": Removing Session("	<< inet_ntoa(*((in_addr*)(&hash))) 
     <<  ", " << ntohs(session->getPort()) << "), AddressMap: " << mAddressSessionMap.size() - 1 << " hash " << hash;
 
     boost::mutex::scoped_lock lk(mSocketReadMutex);
@@ -482,7 +491,7 @@ void SocketReadThread::RemoveAndDestroySession(Session* session)
     }
     else
     {
-        LOG(info) << "Service " << mSessionFactory->getService()->getId() << ": Removing Session FAILED("	<< inet_ntoa(*((in_addr*)(&hash))) 
+        LOG(INFO) << "Service " << mSessionFactory->getService()->getId() << ": Removing Session FAILED("	<< inet_ntoa(*((in_addr*)(&hash))) 
         <<  ", " << ntohs(session->getPort()) << "), AddressMap: " << mAddressSessionMap.size() - 1 << " hash " << hash;
     }
 }

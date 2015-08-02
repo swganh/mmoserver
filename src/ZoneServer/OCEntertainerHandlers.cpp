@@ -1109,7 +1109,7 @@ void ObjectController::_handleStatMigration(uint64 targetId,Message* message,Obj
     asyncContainer = new ObjControllerAsyncContainer(OCQuery_StatRead);
     asyncContainer->playerObject = we;
 
-    sprintf(sql,"SELECT target_health, target_strength, target_constitution, target_action, target_quickness, target_stamina, target_mind, target_focus, target_willpower FROM %s.character_stat_migration where character_id = %" PRIu64,mDatabase->galaxy(), we->getId());
+    sprintf(sql,"SELECT target_health, target_strength, target_constitution, target_action, target_quickness, target_stamina, target_mind, target_focus, target_willpower FROM %s.character_stat_migration where character_id = %"PRIu64,mDatabase->galaxy(), we->getId());
     mDatabase->executeSqlAsync(this,asyncContainer,sql);
     
 }

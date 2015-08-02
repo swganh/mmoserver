@@ -590,7 +590,7 @@ void TreasuryManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
         if (error > 0)
         {
-            DLOG(info) << "TreasuryManager::Account_TipSurcharge: error " << error;
+            DLOG(INFO) << "TreasuryManager::Account_TipSurcharge: error " << error;
         }
     }
     break;

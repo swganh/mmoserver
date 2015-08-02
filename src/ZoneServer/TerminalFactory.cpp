@@ -373,7 +373,7 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
 
     default:
     {
-        DLOG(info) << "TerminalFactory::_createTerminal: unknown eType: " << tanType;
+        DLOG(INFO) << "TerminalFactory::_createTerminal: unknown eType: " << tanType;
 
         terminal = new Terminal();
         terminal->setTangibleType(tanType);

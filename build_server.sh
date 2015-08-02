@@ -4,7 +4,7 @@
 basedir=$(cd $(dirname $0) && pwd)
 
 # Configuration and options
-version=0.4.3       # mmoserver project version
+version=0.6.0       # mmoserver project version
 cflag=              # clean build - removes the build dir before building
 rflag=              # rebuild - rebuilds the dependencies and source
 tflag=              # test - runs all project tests after building
@@ -42,7 +42,7 @@ if [ ! -d $basedir/deps ]; then
     
     # Look for the dependencies source file and download if missing
     if [ ! -f $basedir/$filename ]; then
-        wget -nc --no-check-certificate https://github.com/downloads/swganh/mmoserver/$filename
+        wget -nc --no-check-certificate https://github.com/htx/mmoserver/releases/download/v0.6.0/$filename
     fi
     
     # Unpack the dependencies and build the deps

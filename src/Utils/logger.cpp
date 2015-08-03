@@ -6,7 +6,7 @@
 #include <boost/log/sinks/sync_frontend.hpp>
 #include <boost/log/sources/global_logger_storage.hpp>
 #include <boost/log/sinks/text_ostream_backend.hpp>
-#include <boost/log/utility/empty_deleter.hpp>
+#include <boost/core/null_deleter.hpp>
 
 logger::logger_type& logger::get()
 {

@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -30,22 +30,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "NetworkManager/NetworkClient.h"
 
-namespace swganh {
-namespace loginserver {
 
 //======================================================================================================================
 enum LoginClientState
 {
     LCSTATE_ClientCreated,
     LCSTATE_ServerHelloSent,
+    LCSTATE_QueryAuth,
     LCSTATE_QueryServerList,
     LCSTATE_QueryCharacterList,
     LCSTATE_DeleteCharacter,
     LCSTATE_UpdateServerStatus,
     LCSTATE_RetrieveAccountId,
     LCSTATE_RetrieveSessionKey,
-    LCSTATE_End,
-	LCSTATE_QueryAutoCreate
+    LCSTATE_End
 };
 
 
@@ -103,8 +101,6 @@ private:
 };
 
 
-}//loginserver
-}//swganh
 
 #endif // ANH_LOGINSERVER_LOGINCLIENT_H
 

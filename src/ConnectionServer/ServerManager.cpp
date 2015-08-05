@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -35,7 +35,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/Session.h"
 #include "NetworkManager/Service.h"
 
-#include "anh/logger.h"
+
+
+
+#include "Utils/logger.h"
 
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/Database.h"
@@ -47,8 +50,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <cstring>
 
-using namespace swganh;
-using namespace database;
 //======================================================================================================================
 
 ServerManager::ServerManager(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* dispatch,ClientManager* clientManager, uint32 cluster_id) :
@@ -61,7 +62,6 @@ ServerManager::ServerManager(Service* service, Database* database, MessageRouter
     mTotalConnectedServers(0),
 	mClusterId(cluster_id)
 {
-		
     memset(&mServerAddressMap, 0, sizeof(mServerAddressMap));
 
     // Set our member variables
@@ -114,7 +114,7 @@ void ServerManager::SendMessageToServer(Message* message)
     }
     else
     {
-        LOG(info) << "ServerManager: failed routing message to server : " << message->getDestinationId();
+        LOG(INFO) << "ServerManager: failed routing message to server " << message->getDestinationId();
         gMessageFactory->DestroyMessage(message);
     }
 }
@@ -128,7 +128,7 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 
     // Execute our statement
     int8 sql[500];
-    sprintf(sql,"SELECT id, address, port, status, active, name FROM %s.config_process_list WHERE address='%s' AND port=%u;",mDatabase->galaxy(), session->getAddressString(), session->getPortHost());
+    sprintf(sql,"SELECT id, address, port, status, active FROM %s.config_process_list WHERE address='%s' AND port=%u;",mDatabase->galaxy(), session->getAddressString(), session->getPortHost());
     DatabaseResult* result = mDatabase->executeSynchSql(sql);
     
 
@@ -147,8 +147,6 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
         {
             delete(oldClient);
             --mTotalConnectedServers;
-			// disconnect all connected players
-			// reset netlayer (most importantly the packet count)
         }
 
         connClient->setServerId(serverAddress.mId);
@@ -156,7 +154,7 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
         memcpy(&mServerAddressMap[serverAddress.mId], &serverAddress, sizeof(ServerAddress));
         mServerAddressMap[serverAddress.mId].mConnectionClient = connClient;
 
-		DLOG(info) << "*** Backend server connected id: " << mServerAddressMap[serverAddress.mId].mId << " : " << mServerAddressMap[serverAddress.mId].mName;
+        DLOG(INFO) << "*** Backend server connected id: " << mServerAddressMap[serverAddress.mId].mId;
 
         // If this is one of the servers we're waiting for, then update our count
         if(mServerAddressMap[serverAddress.mId].mActive)
@@ -172,7 +170,7 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
     }
     else
     {
-        LOG(warning) << "*** Backend server connect error - Server not found in DB RsultCount : " << result->getRowCount() << "" << sql;
+        LOG(WARNING) << "*** Backend server connect error - Server not found in DB" << sql;
     }
 
     // Delete our DB objects.
@@ -211,9 +209,8 @@ void ServerManager::handleSessionDisconnect(NetworkClient* client)
         
     }
 
-	LOG(info) << "Servermanager handle server down : " << mServerAddressMap[connClient->getServerId()].mName;
-    
-	mClientManager->handleServerDown(connClient->getServerId());
+    DLOG(INFO) << "Servermanager handle server down";
+    mClientManager->handleServerDown(connClient->getServerId());
 
     connClient->getSession()->setStatus(SSTAT_Destroy);
     connClient->getSession()->getService()->AddSessionToProcessQueue(connClient->getSession());
@@ -280,7 +277,7 @@ void ServerManager::_loadProcessAddressMap(void)
     ServerAddress   serverAddress;
 
     // retrieve our list of process addresses.
-    DatabaseResult* result = mDatabase->executeSynchSql("SELECT id, address, port, status, active, name FROM %s.config_process_list WHERE active=1 ORDER BY id;",mDatabase->galaxy());
+    DatabaseResult* result = mDatabase->executeSynchSql("SELECT id, address, port, status, active FROM %s.config_process_list WHERE active=1 ORDER BY id;",mDatabase->galaxy());
     
 
     mTotalActiveServers = static_cast<uint32>(result->getRowCount());
@@ -348,7 +345,7 @@ void ServerManager::_processClusterZoneTransferRequestByTicket(ConnectionClient*
 
 void ServerManager::_processClusterZoneTutorialTerminal(ConnectionClient* client, Message* message)
 {
-    DLOG(info) << "Sending Tutorial Status Reply";
+    DLOG(INFO) << "Sending Tutorial Status Reply";
 
     gMessageFactory->StartMessage();
     gMessageFactory->addUint32(opTutorialServerStatusReply);
@@ -440,13 +437,12 @@ void ServerManager::_processClusterZoneTransferRequestByPosition(ConnectionClien
 
 void ServerManager::_setupDataBindings()
 {
-    mServerBinding = mDatabase->createDataBinding(6);
+    mServerBinding = mDatabase->createDataBinding(5);
     mServerBinding->addField(DFT_uint32, offsetof(ServerAddress,mId),4);
     mServerBinding->addField(DFT_string, offsetof(ServerAddress,mAddress),16);
     mServerBinding->addField(DFT_uint16, offsetof(ServerAddress,mPort),2);
     mServerBinding->addField(DFT_uint32, offsetof(ServerAddress,mStatus),4);
     mServerBinding->addField(DFT_uint32, offsetof(ServerAddress,mActive),4);
-	mServerBinding->addField(DFT_string, offsetof(ServerAddress,mName),64);
 }
 
 //======================================================================================================================

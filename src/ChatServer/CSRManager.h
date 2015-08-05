@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -34,11 +34,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ChatMessageLib.h"
 
 #define gCSRManager CSRManager::GetSingletonPtr()
-namespace swganh	{
-namespace database	{
+
 class Database;
 class DataBinding;
-}}
 class Message;
 class MessageDispatch;
 class Category;
@@ -77,22 +75,22 @@ public:
 
 //======================================================================================================================
 
-class CSRManager : public swganh::database::DatabaseCallback
+class CSRManager : public DatabaseCallback
 {
 public:
 
     static CSRManager* GetSingletonPtr() {
         return mSingleton;
     }
-    static CSRManager* Init(swganh::database::Database* database, MessageDispatch* messagedispatch, ChatManager* chatManager);
+    static CSRManager* Init(Database* database, MessageDispatch* messagedispatch, ChatManager* chatManager);
 
     ~CSRManager();
 
     //Database callback
-    virtual void		handleDatabaseJobComplete(void* ref,swganh::database::DatabaseResult* result);
+    virtual void		handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
 private:
-    CSRManager(swganh::database::Database* database, MessageDispatch* messagedispatch, ChatManager* chatManager);
+    CSRManager(Database* database, MessageDispatch* messagedispatch, ChatManager* chatManager);
 
     static CSRManager*			mSingleton;
     static bool					mInsFlag;
@@ -103,15 +101,15 @@ private:
     void						_unregisterCallbacks();
     void						_loadCommandMap();
 
-    swganh::database::Database*					mDatabase;
+    Database*					mDatabase;
     MessageDispatch*			mMessageDispatch;
 
-    swganh::database::DataBinding*				mTicketBinding;
-    swganh::database::DataBinding*				mCommentBinding;
-    swganh::database::DataBinding*				mCategoryBinding;
-    swganh::database::DataBinding*				mSubCategoryBinding;
-    swganh::database::DataBinding*				mArticleSearchBinding;
-    swganh::database::DataBinding*				mFullArticleBinding;
+    DataBinding*				mTicketBinding;
+    DataBinding*				mCommentBinding;
+    DataBinding*				mCategoryBinding;
+    DataBinding*				mSubCategoryBinding;
+    DataBinding*				mArticleSearchBinding;
+    DataBinding*				mFullArticleBinding;
 
     CategoryList				mCategoryList;
 

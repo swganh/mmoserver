@@ -1,0 +1,74 @@
+$#include "ZoneServer/Tutorial.h"
+
+typedef char			int8;
+typedef short			int16;
+typedef long			int32;
+typedef unsigned int      	uint;
+typedef unsigned char     	uint8;
+typedef unsigned short   	uint16;
+typedef unsigned long     	uint32;
+typedef signed char      	sint8;
+typedef signed short      	sint16;
+typedef signed long       	sint32;
+
+class Tutorial
+{
+	void				ScriptRegisterEvent(void* script,std::string eventFunction);
+	void				scriptPlayMusic(uint32 soundId);
+	void				scriptSystemMessage(std::string message);
+	void				updateTutorial(std::string customMessage);
+	void				openHolocron();
+	void				spatialChat(uint64 targetId, std::string chatMsg);
+	void				spatialChatShout(uint64 targetId, std::string chatMsg);	
+	void				enableHudElement(std::string customMessage);
+	void				disableHudElement(std::string customMessage);
+	
+	bool				isZoomCamera();
+	bool				isChatBox();
+	bool				isFoodSelected();
+	bool				isFoodUsed();
+	bool				isCloneDataSaved();
+	bool				isItemsInsured();
+	bool				isCloseHolocron();
+	bool				isChangeLookAtTarget();
+	bool				isOpenInventory();
+	bool				isCloseInventory();	
+	
+	uint32				getState();
+	void				setState(uint32 state);
+	uint32				getSubState();
+	void				setSubState(uint32 subState);
+	void				enableTutorial();
+	void				disableTutorial();
+	float				getPlayerPosX();
+	float				getPlayerPosY();
+	float				getPlayerPosZ();
+	float				getPlayerPosToObject(uint64 objectId);
+	
+	void				enableNpcConversationEvent(uint64 objectId);
+	bool				isNpcConversationStarted(uint64 npcId);
+	bool				isNpcConversationEnded(uint64 npcId);
+	
+	void				enableItemContainerEvent(uint64 objectId);
+	bool				isContainerOpen(uint64 containerId);
+	bool				isContainerClosed(uint64 containerId);	
+
+	bool				isContainerEmpty(uint64 containerId);
+	bool				isItemTransferedFromContainer(uint64 containerId);
+
+	uint64				getPlayer(void);
+	// void				addItem(uint32 familyId, uint32 typeId);
+	void				addQuestWeapon(uint32 familyId, uint32 typeId);
+	void				npcStopFight(uint64 npcId);
+	bool				isLowHam(uint64 npcId, int32 hamLevel);
+	uint64				getSkillTrainerTypeId(void);	
+	bool				isPlayerTrained(void);
+	void				setTutorialRefugeeTaunts(uint64 npcId);
+	void				setTutorialCelebTaunts(uint64 npcId);
+	void				makeCreatureAttackable(uint64 npcId);
+	void				npcSendAnimation(uint64 npcId, uint32 animId, uint64 targetId);
+
+	bool				getReady();
+	uint32				getRoom();
+	
+};

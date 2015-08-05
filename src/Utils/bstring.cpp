@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -452,20 +452,6 @@ const wchar_t* BString::getUnicode16() const
     }
 }
 
-std::u16string  BString::getU16() const
-{
-
-    if (mType == BSTRType_Unicode16)
-    {
-		std::u16string s_u16(reinterpret_cast<char16_t*>(mString));
-		return s_u16;
-    } else {
-		std::string s(mString);
-		std::u16string s_u16(s.begin(), s.end());
-        return s_u16;
-    }
-}
-
 //======================================================================================================================
 
 void BString::convert(BStringType type)
@@ -559,11 +545,18 @@ void BString::convert(BStringType type)
 
 //======================================================================================================================
 
+// BS code,
+// an internal data modifier as toLower(), toUpper() etc ... should NEVER change anything else of the string.
+// In this case, the string is FORCED to BSTRType_ANSI.
+
+// Implemeting hidden side effects in a function is never good, on a STANDARD object like stings is a disaster.
+// Better halt controlled than CTD or server crash.
 
 void BString::toLower()
 {
     if(mType == BSTRType_Unicode16)
     {
+        assert(false);
         //convert(BSTRType_ANSI);
         uint16_t* data = (uint16_t*)mString;
 
@@ -590,6 +583,7 @@ void BString::toUpper()
 {
     if(mType == BSTRType_Unicode16)
     {
+        assert(false);
         convert(BSTRType_ANSI);
     }
 
@@ -640,7 +634,26 @@ void BString::toLowerFirst()
 
 //======================================================================================================================
 
+bool BString::isNumber()
+{
+    if(mType == BSTRType_Unicode16)
+    {
+        assert(false);
+        convert(BSTRType_ANSI);
+    }
 
+    char* data = mString;
+
+    while(*data)
+    {
+        if(!(isdigit(*data)))
+            return(false);
+
+        ++data;
+    }
+
+    return(true);
+}
 
 //======================================================================================================================
 
@@ -650,7 +663,7 @@ int BString::split(BStringVector& retVec,char delimiter)
 
     if(mType == BSTRType_Unicode16)
     {
-        //assert(false);
+        assert(false);
         convert(BSTRType_ANSI);
     }
 

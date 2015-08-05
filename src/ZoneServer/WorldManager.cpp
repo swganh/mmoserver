@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -25,15 +25,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "ZoneServer/WorldManager.h"
+#include "WorldManager.h"
 
 #include <cassert>
 
 #include <cppconn/resultset.h>
 
-#include "anh/logger.h"
+#ifdef WIN32
+#undef ERROR
+#endif
+#include "Utils/logger.h"
 
-#include "anh/Utils/Scheduler.h"
+#include "Utils/Scheduler.h"
 #include "Utils/VariableTimeScheduler.h"
 #include "Utils/utils.h"
 
@@ -45,53 +48,50 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "MessageLib/MessageLib.h"
 
-#include "Zoneserver/GameSystemManagers/AdminManager.h"
-#include "Zoneserver/GameSystemManagers/Buff Manager/Buff.h"
-#include "Zoneserver/GameSystemManagers/Buff Manager/BuffEvent.h"
-#include "Zoneserver/GameSystemManagers/Buff Manager/BuffManager.h"
-//#include "Zoneserver/GameSystemManagers/Structure Manager/BuildingObject.h"
-#include "ZoneServer/GameSystemManagers/Structure Manager/CellObject.h"
-#include "ZoneServer/GameSystemManagers/CharacterLoginHandler.h"
-//#include "ZoneServer/Objects/Container.h"
-#include "ZoneServer/GameSystemManagers/Conversation Manager/ConversationManager.h"
+#include "ScriptEngine/ScriptEngine.h"
+#include "ScriptEngine/ScriptSupport.h"
 
-#include "ZoneServer/Objects/CraftingTool.h"
-#include "ZoneServer/GameSystemManagers/Spawn Manager/CreatureSpawnRegion.h"
-//#include "ZoneServer/Objects/FactoryStructures/FactoryFactory.h"
-#include "ZoneServer/GameSystemManagers/Structure Manager/FactoryObject.h"
-#include "ZoneServer/GameSystemManagers/FireworkManager.h"
-#include "ZoneServer/GameSystemManagers/Forage Manager/ForageManager.h"
-#include "ZoneServer/GameSystemManagers/Group Manager/GroupManager.h"
-#include "ZoneServer/GameSystemManagers/Group Manager/GroupObject.h"
-
-
-#include "Zoneserver/Objects/Inventory.h"
-#include "ZoneServer/GameSystemManagers/Mission Manager/MissionManager.h"
-#include "ZoneServer/GameSystemManagers/Mission Manager/MissionObject.h"
-#include "Zoneserver/GameSystemManagers/NPC Manager/NpcManager.h"
-#include "ZoneServer/GameSystemManagers/NPC Manager/NPCObject.h"
-#include "ZoneServer/Objects/Object/ObjectFactory.h"
-#include "ZoneServer/Objects/Player Object/PlayerObject.h"
-
-#include "ZoneServer/GameSystemManagers/Resource Manager/ResourceManager.h"
-#include "ZoneServer/GameSystemManagers/Crafting Manager/SchematicManager.h"
-#include "ZoneServer/GameSystemManagers/Crafting Manager/CraftingSessionFactory.h"
-#include "ZoneServer/Objects/Shuttle.h"
-#include "ZoneServer/GameSystemManagers/Spatial Index Manager/SpatialIndexManager.h"
-#include "ZoneServer/GameSystemManagers/Travel Manager/TicketCollector.h"
-#include "ZoneServer/GameSystemManagers/Treasury Manager/TreasuryManager.h"
-#include "ZoneServer/WorldConfig.h"
-#include "ZoneServer/ZoneOpcodes.h"
+#include "AdminManager.h"
+#include "Buff.h"
+#include "BuffEvent.h"
+#include "BuffManager.h"
+#include "BuildingObject.h"
+#include "CellObject.h"
+#include "CharacterLoginHandler.h"
+#include "Container.h"
+#include "ConversationManager.h"
+#include "CraftingSessionFactory.h"
+#include "CraftingTool.h"
+#include "CreatureSpawnRegion.h"
+#include "FactoryFactory.h"
+#include "FactoryObject.h"
+#include "FireworkManager.h"
+#include "ForageManager.h"
+#include "GroupManager.h"
+#include "GroupObject.h"
+#include "HarvesterFactory.h"
+#include "HarvesterObject.h"
+#include "Heightmap.h"
+#include "Inventory.h"
+#include "MissionManager.h"
+#include "MissionObject.h"
+#include "NpcManager.h"
+#include "NPCObject.h"
+#include "ObjectFactory.h"
+#include "PlayerObject.h"
+#include "PlayerStructure.h"
+#include "ResourceManager.h"
+#include "SchematicManager.h"
+#include "Shuttle.h"
+#include "SpatialIndexManager.h"
+#include "TicketCollector.h"
+#include "TreasuryManager.h"
+#include "WorldConfig.h"
+#include "ZoneOpcodes.h"
 #include "ZoneServer.h"
 
-#include <anh\app\swganh_kernel.h>
-#include "anh/app/swganh_app.h"
-
-#include <ZoneServer\Services\scene_events.h>
-#include "ZoneServer\Services\equipment\equipment_service.h"
 using std::dynamic_pointer_cast;
 using std::shared_ptr;
-
 
 //======================================================================================================================
 
@@ -99,31 +99,24 @@ bool			WorldManager::mInsFlag    = false;
 WorldManager*	WorldManager::mSingleton  = NULL;
 //======================================================================================================================
 
-WorldManager::WorldManager(uint32 zoneId, ZoneServer* zoneServer,swganh::app::SwganhKernel*	kernel, std::string trn, bool writeResourceMaps)
+WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* database, uint16 heightmapResolution, bool writeResourceMaps, std::string zoneName)
     : mWM_DB_AsyncPool(sizeof(WMAsyncContainer))
-    , kernel_(kernel)
+    , mDatabase(database)
     , mZoneServer(zoneServer)
     , mState(WMState_StartUp)
     , mServerTime(0)
     , mTotalObjectCount(0)
     , mZoneId(zoneId)
-	, mTrn(trn)
+	, mHeightmapResolution(heightmapResolution)
 {
-    DLOG(info) << "WorldManager initialization zoneId : " << mZoneId << "trn : " << trn;
+    DLOG(INFO) << "WorldManager initialization";
 
-	SpatialIndexManager::Init(getKernel()->GetDatabase());
+	SpatialIndexManager::Init(mDatabase);
 
 
     // load planet names and terrain files so we can start heightmap loading
     _loadPlanetNamesAndFiles();
 
-	//todo zoneId is in realiy the scene id.
-	//in theory, a zone could have several instances (scenes)
-	//_loadPlanetNamesAndFiles query at this point eventually not yet finished
-	//plus this needs to get a vectored struct at some point
-	kernel_->GetEventDispatcher()->Dispatch(std::make_shared<swganh::simulation::NewSceneEvent>("SceneManager:NewScene",
-		zoneId, "", trn));
-	
     // create schedulers
     mSubsystemScheduler		= new Anh_Utils::Scheduler();
     mObjControllerScheduler = new Anh_Utils::Scheduler();
@@ -141,23 +134,21 @@ WorldManager::WorldManager(uint32 zoneId, ZoneServer* zoneServer,swganh::app::Sw
 
     // load up subsystems
 
-	SkillManager::Init(getKernel()->GetDatabase());
-    SchematicManager::Init(getKernel()->GetDatabase());
+    SkillManager::Init(database);
+    SchematicManager::Init(database);
 
     //the resourcemanager gets accessed by lowlevel functions to check the IDs we get send by the client
     //it will have to be initialized in the tutorial, too
-    
-	if(zoneId != 41) {
-		ResourceManager::Init(getKernel()->GetDatabase(),mZoneId, writeResourceMaps, getKernel()->GetAppConfig().zone_name);
+    if(zoneId != 41) {
+		ResourceManager::Init(database,mZoneId, writeResourceMaps, zoneName);
     } else {
         //by not assigning a db we force the resourcemanager to not load db data
-        ResourceManager::Init(NULL,mZoneId, writeResourceMaps, getKernel()->GetAppConfig().zone_name);
+        ResourceManager::Init(NULL,mZoneId, writeResourceMaps, zoneName);
     }
-    TreasuryManager::Init(getKernel()->GetDatabase());
-    ConversationManager::Init(getKernel()->GetDatabase());
-    CraftingSessionFactory::Init(getKernel()->GetDatabase());
-    
-	/*if(zoneId != 41)
+    TreasuryManager::Init(database);
+    ConversationManager::Init(database);
+    CraftingSessionFactory::Init(database);
+    /*if(zoneId != 41)
         MissionManager::Init(database,mZoneId);*/
 
     // register world script hooks
@@ -165,19 +156,16 @@ WorldManager::WorldManager(uint32 zoneId, ZoneServer* zoneServer,swganh::app::Sw
 
     // initiate loading of objects
     int8 sql[128];
-    
-	sprintf(sql, "SELECT %s.sf_getZoneObjectCount(%i);", getKernel()->GetDatabase()->galaxy(), mZoneId);
-   
-	getKernel()->GetDatabase()->executeAsyncSql(sql, [=] (swganh::database::DatabaseResult* result) {
+    sprintf(sql, "SELECT %s.sf_getZoneObjectCount(%i);", mDatabase->galaxy(), mZoneId);
+    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
         if (!result_set->next())
         {
-			 LOG(error) << "Loading Panic!!!! Nothing to Load!!!! :( ";
             return;
         }
         // we got the total objectCount we need to load
         mTotalObjectCount = result_set->getUInt(1);
-        LOG(info) << "Loading " << mTotalObjectCount << " World Manager Objects... ";
+        LOG(INFO) << "Loading " << mTotalObjectCount << " World Manager Objects... ";
 
         _loadWorldObjects();
     } ) ;
@@ -191,11 +179,11 @@ WorldManager::WorldManager(uint32 zoneId, ZoneServer* zoneServer,swganh::app::Sw
 
 //======================================================================================================================
 
-WorldManager*	WorldManager::Init(uint32 zoneId, ZoneServer* zoneServer,swganh::app::SwganhKernel*	kernel_, std::string trn, bool writeResourceMaps)
+WorldManager*	WorldManager::Init(uint32 zoneId,ZoneServer* zoneServer,Database* database, uint16 heightmapResolution, bool writeResourceMaps, std::string zoneName)
 {
     if(!mInsFlag)
     {
-        mSingleton = new WorldManager(zoneId,zoneServer,kernel_, trn, writeResourceMaps);
+        mSingleton = new WorldManager(zoneId,zoneServer,database, heightmapResolution, writeResourceMaps, zoneName);
         mInsFlag = true;
         return mSingleton;
     }
@@ -208,7 +196,14 @@ WorldManager*	WorldManager::Init(uint32 zoneId, ZoneServer* zoneServer,swganh::a
 void WorldManager::Shutdown()
 {
     // clear scripts
-    
+    ScriptList::iterator scriptIt = mWorldScripts.begin();
+
+    while(scriptIt != mWorldScripts.end())
+    {
+        gScriptEngine->removeScript(*scriptIt);
+        scriptIt = mWorldScripts.erase(scriptIt);
+    }
+
     // objects
     PlayerAccMap::iterator playerIt = mPlayerAccMap.begin();
     while(! mPlayerAccMap.empty())
@@ -260,21 +255,21 @@ void WorldManager::Shutdown()
 
     NpcManager::deleteManager();
 
+    Heightmap::deleter();
+
 	mCreatureObjectDeletionMap.clear();
 	mPlayerObjectReviveMap.clear();
 
-	/* remove all cells and factories first so we do not get a racecondition with their content 
-	* when clearing the mainObjectMap
-	*/
-	boost::lock_guard<boost::shared_mutex> lg(object_map_mutex_);
+	// remove all cells and factories first so we dont get a racecondition with their content 
+	// when clearing the mainObjectMap
 	ObjectIDList::iterator itStruct = mStructureList.begin();
 	while(itStruct != mStructureList.end())
 	{
-		auto objMapIt = object_map_.find(*itStruct);
+		ObjectMap::iterator objMapIt = mObjectMap.find(*itStruct);
 
-		if(objMapIt != object_map_.end())
+		if(objMapIt != mObjectMap.end())
 		{
-			object_map_.erase(objMapIt);
+			mObjectMap.erase(objMapIt);
 		}
 		itStruct++;
 	}
@@ -297,10 +292,8 @@ void WorldManager::handleObjectReady(Object* object,DispatchClient* client)
 {
     addObject(object);
 
-    // check if we are done loading
-	//LOG(info) << "WorldManager::handleObjectReady " << object_map_.size() << " : " << mTotalObjectCount;
-	//LOG(info) << object->GetTemplate();
-    if ((mState == WMState_StartUp) && (object_map_.size() + mCreatureSpawnRegionMap.size() >= mTotalObjectCount))
+    // check if we done loading
+    if ((mState == WMState_StartUp) && (mObjectMap.size() + mCreatureSpawnRegionMap.size() >= mTotalObjectCount))
     {
         _handleLoadComplete();
     }
@@ -308,13 +301,6 @@ void WorldManager::handleObjectReady(Object* object,DispatchClient* client)
 void WorldManager::handleObjectReady(shared_ptr<Object> object)
 {
     addObject(object);
-	//LOG(info) << "WorldManager::handleObjectReady " << object_map_.size() << " : " << mTotalObjectCount;
-	//LOG(info) << object->GetTemplate();
-	// check if we are done loading
-    if ((mState == WMState_StartUp) && (object_map_.size() + mCreatureSpawnRegionMap.size() >= mTotalObjectCount))
-    {
-        _handleLoadComplete();
-    }
 }
 
 //======================================================================================================================
@@ -328,23 +314,25 @@ uint64 WorldManager::GetCurrentGlobalTick()
     return mTick;
 }
 
-
+//======================================================================================================================
+//still synch issues to adress with other servers
+//
 
 void WorldManager::LoadCurrentGlobalTick()
 {
     uint64 Tick;
-    swganh::database::DatabaseResult* temp = getKernel()->GetDatabase()->executeSynchSql("SELECT Global_Tick_Count FROM %s.galaxy WHERE galaxy_id = '2'",getKernel()->GetDatabase()->galaxy());
+    DatabaseResult* temp = mDatabase->executeSynchSql("SELECT Global_Tick_Count FROM %s.galaxy WHERE galaxy_id = '2'",mDatabase->galaxy());
 
 
-    swganh::database::DataBinding*	tickbinding = getKernel()->GetDatabase()->createDataBinding(1);
-    tickbinding->addField(swganh::database::DFT_uint64,0,8,0);
+    DataBinding*	tickbinding = mDatabase->createDataBinding(1);
+    tickbinding->addField(DFT_uint64,0,8,0);
 
     temp->getNextRow(tickbinding,&Tick);
-    getKernel()->GetDatabase()->destroyDataBinding(tickbinding);
-    getKernel()->GetDatabase()->destroyResult(temp);
+    mDatabase->destroyDataBinding(tickbinding);
+    mDatabase->destroyResult(temp);
 
 
-    LOG(info) << "Current global tick count [" << Tick << "]";
+    LOG(INFO) << "Current global tick count [" << Tick << "]";
     mTick = Tick;
     mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleTick),7,1000,NULL);
 }
@@ -363,6 +351,17 @@ bool	WorldManager::_handleTick(uint64 callTime,void* ref)
 //
 //
 
+Object*	WorldManager::getObjectById(uint64 objId)
+{
+    ObjectMap::iterator it = mObjectMap.find(objId);
+
+    if(it != mObjectMap.end())
+    {
+        return((*it).second);
+    }
+
+    return(NULL);
+}
 
 
 
@@ -408,7 +407,7 @@ bool WorldManager::_handleDisconnectUpdate(uint64 callTime,void* ref)
             playerObject->setConnectionState(PlayerConnState_Destroying);
 
 			//remove the player out of his group - if any
-			GroupObject* group = gGroupManager->getGroupObject(playerObject->GetCreature()->getGroupId());
+			GroupObject* group = gGroupManager->getGroupObject(playerObject->getGroupId());
 			if(group)
 			{
 				group->removePlayer(playerObject->getId());
@@ -461,10 +460,10 @@ bool WorldManager::_handleShuttleUpdate(uint64 callTime,void* ref)
                 uint32 awayTime = shuttle->getAwayTime() + 1000;
                 if(awayTime >= shuttle->getAwayInterval())
                 {
-                    shuttle->SetPosture(0);
+                    shuttle->states.setPosture(0);
                     shuttle->setAwayTime(0);
                     shuttle->setShuttleState(ShuttleState_AboutBoarding);
-                 
+                    gMessageLib->sendPostureUpdate(shuttle);
                     gMessageLib->sendCombatAction(shuttle,NULL,opChange_Posture);
                 }
             }
@@ -511,7 +510,8 @@ bool WorldManager::_handleShuttleUpdate(uint64 callTime,void* ref)
                 {
                     shuttle->setInPortTime(0);
                     shuttle->setShuttleState(ShuttleState_Away);
-                    shuttle->SetPosture(2);
+                    shuttle->states.setPosture(2);
+                    gMessageLib->sendPostureUpdate(shuttle);
                     gMessageLib->sendCombatAction(shuttle,NULL,opChange_Posture);
                 }
             }
@@ -569,7 +569,7 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
         CraftingTool*	tool	=	dynamic_cast<CraftingTool*>(getObjectById((*it)));
         if(!tool)
         {
-            LOG(error) << "Missing crafting tool";
+            LOG(ERR) << "Missing crafting tool";
             it = mBusyCraftTools.erase(it);
             continue;
         }
@@ -585,11 +585,11 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
                 // add it to the world, if it holds an item
                 if(item)
                 {
-					auto inventory = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::equipment::EquipmentService>("EquipmentService")->GetEquippedObject(player, "inventory");
-                    if(!inventory) continue;
+                    Inventory* temp =  dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+                    if(!temp) continue;
 
-                    item->setParentId(inventory->getId());
-					inventory->InitializeObject(item);
+                    item->setParentId(temp->getId());
+                    dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->addObject(item);
                     gWorldManager->addObject(item,true);
 
                     gMessageLib->sendCreateTano(item,player);
@@ -604,10 +604,10 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
 
                 it = mBusyCraftTools.erase(it);
                 tool->setAttribute("craft_tool_status","@crafting:tool_status_ready");
-                getKernel()->GetDatabase()->executeSqlAsync(0,0,"UPDATE %s.item_attributes SET value='@crafting:tool_status_ready' WHERE item_id=%"PRIu64" AND attribute_id=18",getKernel()->GetDatabase()->galaxy(),tool->getId());
+                mDatabase->executeSqlAsync(0,0,"UPDATE %s.item_attributes SET value='@crafting:tool_status_ready' WHERE item_id=%" PRIu64 " AND attribute_id=18",mDatabase->galaxy(),tool->getId());
 
                 tool->setAttribute("craft_tool_time",boost::lexical_cast<std::string>(tool->getTimer()));
-                getKernel()->GetDatabase()->executeSqlAsync(0,0,"UPDATE %s.item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",getKernel()->GetDatabase()->galaxy(),tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
+                gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.item_attributes SET value='%i' WHERE item_id=%" PRIu64 " AND attribute_id=%u",mDatabase->galaxy(),tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
 
 
                 continue;
@@ -617,7 +617,7 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
 
             tool->setAttribute("craft_tool_time",boost::lexical_cast<std::string>(tool->getTimer()));
             //gLogger->log(LogManager::DEBUG,"timer : %i",tool->getTimer());
-            getKernel()->GetDatabase()->executeSqlAsync(0,0,"UPDATE %s.item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",getKernel()->GetDatabase()->galaxy(),tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
+            mDatabase->executeSqlAsync(0,0,"UPDATE %s.item_attributes SET value='%i' WHERE item_id=%" PRIu64 " AND attribute_id=%u",mDatabase->galaxy(),tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
 
         }
 
@@ -660,7 +660,7 @@ void WorldManager::addCreatureObjectForTimedDeletion(uint64 creatureId, uint64 w
 {
     uint64 expireTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
 
-    // gLogger->log(LogManager::DEBUG,"WorldManager::addCreatureObjectForTimedDeletion Adding new at %"PRIu64"", expireTime + when);
+    // gLogger->log(LogManager::DEBUG,"WorldManager::addCreatureObjectForTimedDeletion Adding new at %" PRIu64 "", expireTime + when);
 
     CreatureObjectDeletionMap::iterator it = mCreatureObjectDeletionMap.find(creatureId);
     if (it != mCreatureObjectDeletionMap.end())
@@ -668,7 +668,7 @@ void WorldManager::addCreatureObjectForTimedDeletion(uint64 creatureId, uint64 w
         // Only remove object if new expire time is earlier than old. (else people can use "lootall" to add 10 new seconds to a corpse forever).
         if (expireTime + when < (*it).second)
         {
-            // gLogger->log(LogManager::DEBUG,"Removing object with id %"PRIu64"", creatureId);
+            // gLogger->log(LogManager::DEBUG,"Removing object with id %" PRIu64 "", creatureId);
             mCreatureObjectDeletionMap.erase(it);
         }
         else
@@ -677,7 +677,7 @@ void WorldManager::addCreatureObjectForTimedDeletion(uint64 creatureId, uint64 w
         }
 
     }
-    // gLogger->log(LogManager::DEBUG,"Adding new object with id %"PRIu64"", creatureId);
+    // gLogger->log(LogManager::DEBUG,"Adding new object with id %" PRIu64 "", creatureId);
     mCreatureObjectDeletionMap.insert(std::make_pair(creatureId, expireTime + when));
 }
 
@@ -809,22 +809,26 @@ void WorldManager::handleTimer(uint32 id, void* container)
 void WorldManager::_handleLoadComplete()
 {
 	// release memory
-	getKernel()->GetDatabase()->releaseResultPoolMemory();
-	getKernel()->GetDatabase()->releaseJobPoolMemory();
-	getKernel()->GetDatabase()->releaseBindingPoolMemory();
+	mDatabase->releaseResultPoolMemory();
+	mDatabase->releaseJobPoolMemory();
+	mDatabase->releaseBindingPoolMemory();
 	mWM_DB_AsyncPool.release_memory();
 	gObjectFactory->releaseAllPoolsMemory();
-	
 	if(mZoneId != 41)
 		gResourceManager->releaseAllPoolsMemory();
-	
 	gSchematicManager->releaseAllPoolsMemory();
 	gSkillManager->releaseAllPoolsMemory();
 
 	// register script hooks
 	_startWorldScripts();
 
-	LOG(info) << "World load complete";
+	LOG(INFO) << "World load complete";
+			
+	if(mZoneId != 41)
+	{
+		while(!gHeightmap->isReady())
+			boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+	}
 
 	// switch into running state
 	mState = WMState_Running;
@@ -862,19 +866,16 @@ void WorldManager::_handleLoadComplete()
 
 //======================================================================================================================
 
-int32 WorldManager::getPlanetIdByName(std::string name)
+int32 WorldManager::getPlanetIdByName(BString name)
 {
     uint8	id = 0;
-	std::locale loc;
-	for (std::string::size_type i=0; i < name.length(); ++i)
-		name[i]= std::tolower(name[i],loc);
-	
+    name.toLower();
 
-    StringVector::iterator it = mvPlanetNames.begin();
+    BStringVector::iterator it = mvPlanetNames.begin();
 
     while(it != mvPlanetNames.end())
     {
-		if(strcmp((*it).c_str(),name.c_str()) == 0)
+        if(strcmp((*it).getAnsi(),name.getAnsi()) == 0)
             return(id);
 
         ++it;
@@ -886,20 +887,18 @@ int32 WorldManager::getPlanetIdByName(std::string name)
 
 //======================================================================================================================
 
-int32 WorldManager::getPlanetIdByNameLike(std::string name)
+int32 WorldManager::getPlanetIdByNameLike(BString name)
 {
     uint8	id = 0;
-    std::locale loc;
-	for (std::string::size_type i=0; i < name.length(); ++i)
-		std::tolower(name[i],loc);
+    name.toLower();
 
-    StringVector::iterator it = mvPlanetNames.begin();
+    BStringVector::iterator it = mvPlanetNames.begin();
 
     while(it != mvPlanetNames.end())
     {
         // gLogger->log(LogManager::DEBUG,"Comparing: %s",  name.getAnsi());
         // gLogger->log(LogManager::DEBUG,"with     : %s",  (*it).getAnsi());
-        if(Anh_Utils::cmpnistr((*it).c_str(),name.c_str(), 3) == 0)
+        if(Anh_Utils::cmpnistr((*it).getAnsi(),name.getAnsi(), 3) == 0)
         {
             // gLogger->log(LogManager::DEBUG,"Matched with planet id = %d",  id);
             return (id);
@@ -948,6 +947,35 @@ bool WorldManager::checkStomachTask(uint64 id)
 }
 //======================================================================================================================
 //
+// add a creature from the ham regeneration scheduler
+//
+uint64 WorldManager::addCreatureHamToProccess(Ham* ham)
+{
+    return((mHamRegenScheduler->addTask(fastdelegate::MakeDelegate(ham,&Ham::regenerate),1,1000,NULL)));
+}
+
+
+//======================================================================================================================
+//
+// remove a creature from the ham regeneration scheduler
+//
+
+void WorldManager::removeCreatureHamToProcess(uint64 taskId)
+{
+    mHamRegenScheduler->removeTask(taskId);
+}
+
+
+//======================================================================================================================
+
+bool WorldManager::checkTask(uint64 id)
+{
+    return mHamRegenScheduler->checkTask(id);
+}
+
+
+//======================================================================================================================
+//
 // add an object from the object controller scheduler
 //
 
@@ -963,8 +991,7 @@ uint64 WorldManager::addObjControllerToProcess(ObjectController* objController)
     //we get added automatically when the client sends a command to process
     if(objController->getObject()->getType() == ObjType_Player)
     {
-		CreatureObject* creature = dynamic_cast<CreatureObject*>(objController->getObject());
-		PlayerObject* player = creature->GetGhost();
+        PlayerObject* player = dynamic_cast<PlayerObject*>(objController->getObject());
 
         if ((player->getConnectionState() == PlayerConnState_LinkDead) || (player->getConnectionState() == PlayerConnState_Destroying))
             return 0;
@@ -1026,10 +1053,9 @@ uint64 WorldManager::addImageDesignerToProcess(CreatureObject* entertainerObject
 //
 bool WorldManager::existObject(Object* object)
 {
-    boost::lock_guard<boost::shared_mutex> lg(object_map_mutex_);
-
-	if (object)    {
-        return (object_map_.find(object->getId()) != object_map_.end());
+    if (object)
+    {
+        return (mObjectMap.find(object->getId()) != mObjectMap.end());
     }
     else
     {
@@ -1041,7 +1067,7 @@ bool WorldManager::existObject(Object* object)
 // get an attribute string value from the global attribute map
 //
 
-/*BString WorldManager::getAttributeKey(uint32 keyId)
+BString WorldManager::getAttributeKey(uint32 keyId)
 {
     AttributeKeyMap::iterator it = mObjectAttributeKeyMap.find(keyId);
 
@@ -1049,16 +1075,6 @@ bool WorldManager::existObject(Object* object)
         return((*it).second);
 
     return BString();
-}*/
-
-std::string WorldManager::getAttributeKey(uint32 keyId)
-{
-    AttributeKeyMap::iterator it = mObjectAttributeKeyMap.find(keyId);
-
-    if(it != mObjectAttributeKeyMap.end())
-		return((*it).second);
-
-    return std::string();
 }
 
 //======================================================================================================================
@@ -1082,7 +1098,6 @@ uint32 WorldManager::getAttributeId(uint32 keyId)
 
 void WorldManager::_startWorldScripts()
 {
-	/*
     ScriptList::iterator scriptIt = mWorldScripts.begin();
 
     while(scriptIt != mWorldScripts.end())
@@ -1091,8 +1106,7 @@ void WorldManager::_startWorldScripts()
 
         ++scriptIt;
     }
-    LOG(error) << "Loaded world scripts";
-	*/
+    LOG(ERR) << "Loaded world scripts";
 }
 
 //======================================================================================================================
@@ -1102,7 +1116,7 @@ void WorldManager::_startWorldScripts()
 
 void WorldManager::ScriptRegisterEvent(void* script,std::string eventFunction)
 {
-    //mWorldScriptsListener.registerScript(reinterpret_cast<Script*>(script),(int8*)eventFunction.c_str());
+    mWorldScriptsListener.registerScript(reinterpret_cast<Script*>(script),(int8*)eventFunction.c_str());
 }
 
 //======================================================================================================================
@@ -1136,8 +1150,8 @@ void WorldManager::	zoneSystemMessage(std::string message)
 
 void WorldManager::_registerScriptHooks()
 {
-    //mWorldScriptsListener.registerFunction("onPlayerEntered");
-    //mWorldScriptsListener.registerFunction("onPlayerLeft");
+    mWorldScriptsListener.registerFunction("onPlayerEntered");
+    mWorldScriptsListener.registerFunction("onPlayerLeft");
 }
 
 //======================================================================================================================
@@ -1171,14 +1185,15 @@ void WorldManager::removeBuffToProcess(uint64 taskId)
 
 uint64 WorldManager::addBuffToProcess(Buff* buff)
 {
-    
-    //Buff* DestructibleBuff = new Buff(*buff); //wtf ???
+    //Create a copy of Buff* which can be Destructed when task completes (leaving the original ptr intact)
+    //Buff** pBuff = &buff;
+    Buff* DestructibleBuff = new Buff(*buff);
 
     //Create Event
     //BuffEvent* bEvent = new BuffEvent(buff);
 
     //Create Callback
-    VariableTimeCallback callback = fastdelegate::MakeDelegate(buff,&Buff::Update);
+    VariableTimeCallback callback = fastdelegate::MakeDelegate(DestructibleBuff,&Buff::Update);
 
     //Add Callback to Scheduler
     uint64 temp = mBuffScheduler->addTask(callback,1,buff->GetTickLength(),NULL);
@@ -1316,28 +1331,22 @@ const Anh_Math::Rectangle WorldManager::getSpawnArea(uint64 spawnRegionId)
 
 void WorldManager::removePlayerfromAccountMap(uint64 playerID)
 {
-	CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(playerID));
-	if(!creature)	{
-		LOG (error) << "WorldManager::removePlayerfromAccountMap : no player";
-		return;
-	}
-
-	PlayerObject* player = creature->GetGhost();
-
-    if(player)    {
+    if(PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerID)))
+    {
         PlayerAccMap::iterator playerAccIt = mPlayerAccMap.find(player->getAccountId());
 
-        if(playerAccIt != mPlayerAccMap.end())        {
-            LOG(info) << "Player left [" << player->getId() << "] Total players on zone [" << (getPlayerAccMap()->size() -1) << "]";
+        if(playerAccIt != mPlayerAccMap.end())
+        {
+            LOG(INFO) << "Player left [" << player->getId() << "] Total players on zone [" << (getPlayerAccMap()->size() -1) << "]";
             mPlayerAccMap.erase(playerAccIt);
         }
         else
         {
-            LOG(error) << "Error removing player from account map [" << player->getAccountId() << "]";
+            LOG(ERR) << "Error removing player from account map [" << player->getAccountId() << "]";
         }
     }
     else
     {
-        LOG(error) << "Error removing player from account map [" << player->getAccountId() << "]";
+        LOG(ERR) << "Error removing player from account map [" << player->getAccountId() << "]";
     }
 }

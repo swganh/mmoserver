@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -34,9 +34,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "GroupObject.h"
 #include "Player.h"
 
-#include "ZoneServer/Objects/Tangible Object/TangibleEnums.h"
+#include "ZoneServer/TangibleEnums.h"
 
-#include "anh/logger.h"
+
+
+
+#include "Utils/logger.h"
 
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/Database.h"
@@ -149,7 +152,7 @@ GroupObject* GroupManager::getGroupById(uint64 groupId)
     if(it !=  mGroups.end())
         return((*it).second);
     else
-        DLOG(info) << "GroupManager::getGroupById: Could not find group " << groupId;
+        DLOG(INFO) << "GroupManager::getGroupById: Could not find group " << groupId;
 
     return(NULL);
 }
@@ -168,7 +171,7 @@ void GroupManager::removeGroup(uint64 groupId)
     }
     else
     {
-        DLOG(info) << "GroupManager::getGroupById: Could not find group " << groupId;
+        DLOG(INFO) << "GroupManager::getGroupById: Could not find group " << groupId;
     }
 
 }
@@ -183,7 +186,7 @@ void GroupManager::_processIsmIsGroupLeaderRequest(Message* message, DispatchCli
 
     if(!group)
     {
-        DLOG(info) << "GroupManager::getGroupById: Could not find group " << groupId;
+        DLOG(INFO) << "GroupManager::getGroupById: Could not find group " << groupId;
     }
 
     gChatMessageLib->sendIsmIsGroupLeaderResponse(group->getLeader(), requestId, (group->getLeader()->getCharId() == playerId));

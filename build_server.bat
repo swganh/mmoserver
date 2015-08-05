@@ -81,15 +81,15 @@ rem ----------------------------------------------------------------------------
 rem --- Start of SET_DEFAULTS --------------------------------------------------
 :SET_DEFAULTS
 
-set DEPENDENCIES_VERSION=0.4.3
+set DEPENDENCIES_VERSION=0.6.0
 set DEPENDENCIES_FILE=mmoserver-deps-%DEPENDENCIES_VERSION%.tar.bz2
-set DEPENDENCIES_URL=http://github.com/downloads/swganh/mmoserver/%DEPENDENCIES_FILE%
+set DEPENDENCIES_URL=https://github.com/htx/mmoserver/releases/download/v0.6.0/%DEPENDENCIES_FILE%
 set "PROJECT_BASE=%~dp0"
 set "PROJECT_DRIVE=%~d0"
 set PATH=%PROJECT_BASE%tools\windows;%PATH%
 set BUILD_TYPE=debug
 set REBUILD=build
-set MSVC_VERSION=10
+set MSVC_VERSION=12
 set ALLHEIGHTMAPS=false
 set SKIPHEIGHTMAPS=false
 set DEPENDENCIESONLY=false
@@ -189,14 +189,14 @@ rem ----------------------------------------------------------------------------
 rem --- Start of BUILD_ENVIRONMENT ---------------------------------------------
 :BUILD_ENVIRONMENT
 
-if not exist "%VS100COMNTOOLS%" (
-  set "VS100COMNTOOLS=%PROGRAMFILES(X86)%\Microsoft Visual Studio 10.0\Common7\Tools"
-  if not exist "!VS100COMNTOOLS!" (
-  	  set "VS100COMNTOOLS=%PROGRAMFILES%\Microsoft Visual Studio 10.0\Common7\Tools"
-  	  if not exist "!VS100COMNTOOLS!" (          
+if not exist "%VS120COMNTOOLS%" (
+  set "VS120COMNTOOLS=%PROGRAMFILES(X86)%\Microsoft Visual Studio 12.0\Common7\Tools"
+  if not exist "!VS120COMNTOOLS!" (
+  	  set "VS120COMNTOOLS=%PROGRAMFILES%\Microsoft Visual Studio 12.0\Common7\Tools"
+  	  if not exist "!VS120COMNTOOLS!" (          
   		    rem TODO: Allow user to enter a path to their base visual Studio directory.
          
-    	    echo ***** Microsoft Visual Studio 10.0 required *****
+    	    echo ***** Microsoft Visual Studio 12.0 required *****
     	    exit /b 1
   	  )
   )
@@ -204,7 +204,7 @@ if not exist "%VS100COMNTOOLS%" (
 
 set "MSBUILD=%WINDIR%\Microsoft.NET\Framework\v4.0.30319\msbuild.exe"
 
-call "%VS100COMNTOOLS%\vsvars32.bat" >NUL
+call "%VS120COMNTOOLS%\vsvars32.bat" >NUL
 
 set environment_built=yes
 
@@ -252,14 +252,14 @@ rem --- Downloads datafiles such as heightmaps needed to run the project.    ---
 :DOWNLOAD_HEIGHTMAP
 
 if not exist "data\heightmaps\%1.hmpw" (
-	if not exist "data\heightmaps\%1.hmpw.7z" (
+	if not exist "data\heightmaps\%1.hmpw.zip" (
 		echo ** Downloading Heightmap for %1 **
 		echo.
-		"wget" --no-check-certificate http://github.com/downloads/anhstudios/swg-heightmaps/%1.hmpw.7z -O data\heightmaps\%1.hmpw.7z
+		"wget" --no-check-certificate https://github.com/htx/mmoserver/releases/download/v0.6.0/%1.hmpw.zip -O data\heightmaps\%1.hmpw.zip
 		echo ** Downloading heightmap complete **
 	)
 
-	"7z" x -y -odata\heightmaps data\heightmaps\%1.hmpw.7z 
+	"7z" x -y -odata\heightmaps data\heightmaps\%1.hmpw.zip 
 )
 
 goto :eof
@@ -338,7 +338,7 @@ if not exist "%PROJECT_BASE%build" (
 )
 cd "%PROJECT_BASE%build"
 
-cmake -G "Visual Studio 10" -DCMAKE_INSTALL_PREFIX=%PROJECT_BASE% -DENABLE_TEST_REPORT=ON ..
+cmake -G "Visual Studio 12" -DCMAKE_INSTALL_PREFIX=%PROJECT_BASE% -DENABLE_TEST_REPORT=ON ..
 
 if exist "*.cache" del /S /Q "*.cache" >NUL
 

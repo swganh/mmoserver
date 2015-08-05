@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -89,10 +89,6 @@ public:
     uint16                      getIndex(void)                    {
         return mIndex;
     }
-	
-	/*	@brief getPriority gets the priority or opcount of a message
-	*	this might have been a subserver id with soe
-	*/
     inline uint8                getPriority(void)                 {
         return mPriority;
     }
@@ -145,21 +141,10 @@ public:
     void                        setQueueTime(uint64 time)         {
         mQueueTime = time;
     }
-	
-	/*	@brief	sets the messages fastpath flag
-	*	fastpath means that we will not need reception verification by the receiver
-	*	this means that fastpath packets that will get lost on the way will *not* be resend
-	*	As a result fastpaths use far less system resources (cpu time) compared to reliable packets
-	*/
     void                        setFastpath(bool fastpath)        {
         mFastpath = fastpath;
     }
-    
-	/*	@brief	sets the message as deleteable (true) or still in use (false). This is of greatest importance, as we do employ a 
-	*	circulare message heap that will fill up when the generated messages cannot be deleted anymore.
-	*	Please note that no messages after a message flagged as still in use (false) can be freed up
-	*/
-	void                        setPendingDelete(bool pending)    {
+    void                        setPendingDelete(bool pending)    {
         mPendingDelete = pending;
     }
 

@@ -41,11 +41,17 @@
 #     ADDITIONAL_SOURCE_DIRS
 #         ${CMAKE_CURRENT_SOURCE_DIR}/glue_files
 #     ADDITIONAL_INCLUDE_DIRS
+#         ${LUA_INCLUDE_DIR} 
 #         ${NOISE_INCLUDE_DIR} 
+#         ${TOLUAPP_INCLUDE_DIR}
 #     DEBUG_LIBRARIES
+#         ${LUA_LIBRARY_DEBUG}
 #         ${NOISE_LIBRARY_DEBUG}
+#         ${TOLUAPP_LIBRARY_DEBUG}
 #     OPTIMIZED_LIBRARIES
+#         ${LUA_LIBRARY_RELEASE}
 #         ${NOISE_LIBRARY_RELEASE}
+#         ${TOLUAPP_LIBRARY_RELEASE}
 # )
 #
 
@@ -102,12 +108,6 @@ FUNCTION(AddMMOServerLibrary name)
         ADD_DEPENDENCIES(${name} ${MMOSERVERLIB_MMOSERVER_DEPS})
     ENDIF()
 
-    # if python bindings have been specified generate a module
-    LIST(LENGTH BINDINGS _bindings_list_length)
-    IF(_bindings_list_length GREATER 0)
-        list(REMOVE_ITEM SOURCES ${BINDINGS})
-    ENDIF()
-
     IF(_tests_list_length GREATER 0)
         # Create an executable for the test and link it to gtest and anh
         INCLUDE_DIRECTORIES(${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIR})
@@ -120,14 +120,14 @@ FUNCTION(AddMMOServerLibrary name)
             debug ${Boost_REGEX_LIBRARY_DEBUG}
             debug ${Boost_SYSTEM_LIBRARY_DEBUG}
             debug ${Boost_THREAD_LIBRARY_DEBUG}
-            # debug ${GMOCK_LIBRARY_DEBUG}
+            debug ${Boost_LOG_LIBRARY_DEBUG}
             debug ${TBB_LIBRARY_DEBUG}
             debug ${TBB_MALLOC_LIBRARY_DEBUG}      
             optimized ${Boost_DATE_TIME_LIBRARY_RELEASE}
             optimized ${Boost_REGEX_LIBRARY_RELEASE}
             optimized ${Boost_SYSTEM_LIBRARY_RELEASE}
             optimized ${Boost_THREAD_LIBRARY_RELEASE}
-            # optimized ${GMOCK_LIBRARY_RELEASE}
+            optimized ${Boost_LOG_LIBRARY_RELEASE}
             optimized ${TBB_LIBRARY}
             optimized ${TBB_MALLOC_LIBRARY})
                 

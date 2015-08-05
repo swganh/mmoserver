@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -28,6 +28,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_WORLDMANAGER_H
 #define ANH_ZONESERVER_WORLDMANAGER_H
 
+#include "ObjectFactoryCallback.h"
+
+#include "Weather.h"
+#include "WorldManagerEnums.h"
+#include "SpatialIndexManager.h"
+
+
+#include "ScriptEngine/ScriptEventListener.h"
+
+#include "DatabaseManager/DatabaseCallback.h"
+
 #include <list>
 #include <map>
 #include <unordered_map>
@@ -38,34 +49,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/TimerCallback.h"
 #include "Utils/typedefs.h"
 
-#include "MathLib/Rectangle.h"
-
 #include "DatabaseManager/DatabaseCallback.h"
 
-#include "ZoneServer/WorldManagerEnums.h"
-#include "ZoneServer/GameSystemManagers/Spatial Index Manager/SpatialIndexManager.h"
+#include "MathLib/Rectangle.h"
 
-//#include "ScriptEngine/ScriptEventListener.h"
+#include "ScriptEngine/ScriptEventListener.h"
 
-#include "ZoneServer/Objects/Object/ObjectFactoryCallback.h"
-#include "ZoneServer/Objects/Tangible Object/TangibleEnums.h"
-#include "ZoneServer/WorldManagerEnums.h"
-#include "ZoneServer/Objects/RegionObject.h"
-
+#include "ZoneServer/ObjectFactoryCallback.h"
+#include "ZoneServer/TangibleEnums.h"
 #include "ZoneServer/Weather.h"
-
-#include "tbb/concurrent_unordered_map.h"
+#include "ZoneServer/WorldManagerEnums.h"
+#include "ZoneServer/RegionObject.h"
 
 //======================================================================================================================
 
 #define	 gWorldManager	WorldManager::getSingletonPtr()
 
 //======================================================================================================================
-
-namespace	swganh	{
-namespace	app	{
-class	SwganhKernel;
-}}
 
 class DispatchClient;
 class WMAsyncContainer;
@@ -80,7 +80,6 @@ class Ham;
 class Buff;
 class MissionObject;
 class Stomach;
-class Weather;
 
 //======================================================================================================================
 
@@ -94,14 +93,10 @@ class VariableTimeScheduler;
 // pwns all objects
 typedef boost::ptr_unordered_map<uint64,Object>			ObjectMap;
 
-typedef std::unordered_map<uint64, std::shared_ptr<Object>> SharedObjectMap;
-
-typedef std::vector<std::string>						StringVector;
-
 // Maps for objects in world
 typedef std::map<uint32,const PlayerObject*>	        PlayerAccMap;
 typedef std::map<uint64,std::shared_ptr<RegionObject>>	RegionMap;
-typedef std::vector<std::shared_ptr<RegionObject>>		RegionDeleteList;
+typedef std::vector<std::shared_ptr<RegionObject>> RegionDeleteList;
 
 // Lists for objects in world
 typedef std::list<PlayerObject*>				PlayerList;
@@ -129,7 +124,7 @@ typedef std::map<uint64, uint64>				NpcActiveHandlers;
 typedef std::map<uint64, uint64>				AdminRequestHandlers;
 
 // AttributeKey map
-typedef std::map<uint32,std::string>			AttributeKeyMap;
+typedef std::map<uint32,BString>				AttributeKeyMap;
 typedef std::map<uint32,uint32>					AttributeIDMap;
 
 // non-persistent id set
@@ -177,22 +172,18 @@ public:
 //
 // WorldManager
 //
-class WorldManager : public ObjectFactoryCallback, public swganh::database::DatabaseCallback, public TimerCallback
+class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, public TimerCallback
 {
 public:
 
     static WorldManager*	getSingletonPtr() {
         return mSingleton;
     }
-    static WorldManager*	Init(uint32 zoneId, ZoneServer* zoneServer,swganh::app::SwganhKernel*	kernel, std::string trn, bool writeResourceMaps);
+    static WorldManager*	Init(uint32 zoneId, ZoneServer* zoneServer,Database* database, uint16 heightmapResolution, bool writeResourceMaps, std::string zoneName);
     void					Shutdown();
 
     void					Process();
 
-	/*	@brief	gets the id of the current zone (planet) we are on
-	*	please note that this is *not* the instance id and that until instancing is properly implemented
-	*	the zoneId is used in some cases instead of the instance id
-	*/
     uint32					getZoneId() {
         return mZoneId;
     }
@@ -202,12 +193,12 @@ public:
     uint64					getServerTime() {
         return mServerTime;
     }
-    swganh::app::SwganhKernel*			getKernel() {
-        return kernel_;
+    Database*				getDatabase() {
+        return mDatabase;
     }
 
-    // swganh::database::DatabaseCallback
-    virtual void			handleDatabaseJobComplete(void* ref,swganh::database::DatabaseResult* result);
+    // DatabaseCallback
+    virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
     // ObjectFactoryCallback
     virtual void			handleObjectReady(Object* object,DispatchClient* client);
@@ -219,40 +210,18 @@ public:
 
     // add / delete an object, make sure to cleanup any other references
     bool					existObject(Object* object);	// Returns true if object does exist.
-    
-	/*@brief	addObject adds an Object to the main Object Map
-	*			AND if manual is set to true, to the Simulation
-	*			Initialization happens based on Object type
-	*			ToDo - this should (probably?) be separated
-	*/
-	bool				addObject(Object* object,bool manual = false);
-    bool				addObject(std::shared_ptr<Object> object ,bool manual = false);
-	bool				addSharedObject(std::shared_ptr<Object> &object, bool manual = false);
-
-	void				initializeObject(std::shared_ptr <Object> &object);
-	
-	/*@brief	destroyObject removes an Object given by ObjId out of the world and destroys it
-	*			If no Object with ObjId can be found in the WorldMap we LOG an error and
-	*			bail out
-	*/
-	void					destroyObject(uint64 objId);
-
-	/*@brief	destroyObject removes an Object given by its pointer out of the world and destroys it
-	*			If the Objects ID cannot be found in the World Map we log an error and
-	*			bail out
-	*/
+    bool					addObject(Object* object,bool manual = false);
+    bool					addObject(std::shared_ptr<Object> object ,bool manual = false);
 	void					destroyObject(Object* object);
 	void					destroyObject(std::shared_ptr<Object> object);
 		
 	void					createObjectForKnownPlayers(PlayerObjectSet* knownPlayers, Object* object);
 		
-	
 	Object*					getObjectById(uint64 objId);
-	
-
-	std::shared_ptr<Object>	getSharedObjectById(uint64 objId);
-
 	void					eraseObject(uint64 key);
+
+    // Find object owned by "player"
+    uint64					getObjectOwnedBy(uint64 theOwner);
 
     // adds a creatures commandqueue to the main process queue
     uint64					addObjControllerToProcess(ObjectController* objController);
@@ -263,6 +232,11 @@ public:
     uint64					addCreatureFoodToProccess(Stomach* stomach);
     void					removeCreatureStomachToProcess(uint64 taskId);
     bool					checkStomachTask(uint64 id);
+
+    // adds a creatures ham which needs regeneration
+    uint64					addCreatureHamToProccess(Ham* ham);
+    void					removeCreatureHamToProcess(uint64 taskId);
+    bool					checkTask(uint64 id);
 
     // adds a mission that needs checking
     uint64					addMissionToProcess(MissionObject* mission);
@@ -355,7 +329,10 @@ public:
 
     const					Anh_Math::Rectangle getSpawnArea(uint64 spawnRegionId);
 
-    
+    // retrieve object maps
+    ObjectMap*				getWorldObjectMap() {
+        return &mObjectMap;
+    }
     const PlayerAccMap*		getPlayerAccMap() {
         return &mPlayerAccMap;
     }
@@ -387,9 +364,7 @@ public:
         return mvMoods[moodId];
     }
     // get an attribute key
-    //BString					getAttributeKey(uint32 keyId);
-
-	std::string				getAttributeKey(uint32 keyId);
+    BString					getAttributeKey(uint32 keyId);
     // get an attribute ID
     uint32					getAttributeId(uint32 keyId);
     // get a npc animation
@@ -404,20 +379,19 @@ public:
 
     // get planet, trn file name
     const int8* getPlanetNameThis() const {
-        return mvPlanetNames[mZoneId].c_str();
+        return mvPlanetNames[mZoneId].getAnsi();
     }
     const int8* getPlanetNameById(uint8 planetId) const {
-		return mvPlanetNames[planetId].c_str();
+        return mvPlanetNames[planetId].getAnsi();
     }
-    int32					getPlanetIdByName(std::string name);
-    int32					getPlanetIdByNameLike(std::string name);
-
+    int32					getPlanetIdByName(BString name);
+    int32					getPlanetIdByNameLike(BString name);
 
     const int8* getTrnFileThis() const {
-        return mvTrnFileNames[mZoneId].c_str();
+        return mvTrnFileNames[mZoneId].getAnsi();
     }
     const int8* getTrnFileById(uint8 trnId) const {
-        return mvTrnFileNames[trnId].c_str();
+        return mvTrnFileNames[trnId].getAnsi();
     }
 
     WMState					getWMState() {
@@ -440,13 +414,6 @@ public:
     void					zoneSystemMessage(std::string message);
 
     void					ScriptRegisterEvent(void* script,std::string eventFunction);
-
-	/*	@brief returns a pointer to the subsystem scheduler
-	*
-	*
-	*/
-	Anh_Utils::Scheduler*	getSubsystemScheduler(){ return mSubsystemScheduler;}
-
 
     // non-persistent ids in use
     uint64					getRandomNpId();
@@ -474,7 +441,7 @@ public:
     AttributeIDMap				mObjectAttributeIDMap;
 private:
 
-    WorldManager(uint32 zoneId, ZoneServer* zoneServer,swganh::app::SwganhKernel*	kernel, std::string trn, bool writeResourceMaps);
+    WorldManager(uint32 zoneId, ZoneServer* zoneServer,Database* database, uint16 heightmapResolution, bool writeResourceMaps, std::string zoneName);
 
     // load the global ObjectControllerCommandMap, maps command crcs to ObjController function pointers
     void	_loadObjControllerCommandMap();
@@ -534,7 +501,7 @@ private:
     * \param logout_type The type of logout. This is somewhat ambiguously named for the time being.
     * \param clContainer Another legacy data variable. This will go away in future commit.
     */
-    void storeCharacterPosition_(PlayerObject* player_object, bool remove, WMLogOut logout_type, CharacterLoadingContainer* clContainer);
+    void storeCharacterPosition_(PlayerObject* player_object, WMLogOut logout_type, CharacterLoadingContainer* clContainer);
     
     /** Stores the characters attributes in the database asynchronously.
     *
@@ -550,7 +517,6 @@ private:
     */
     void storeCharacterAttributes_(PlayerObject* player_object, bool remove, WMLogOut logout_type, CharacterLoadingContainer* clContainer);
 
-
     static WorldManager*		mSingleton;
     static bool					mInsFlag;
 
@@ -563,11 +529,8 @@ private:
     NpcDormantHandlers			mNpcDormantHandlers;
     NpcReadyHandlers			mNpcReadyHandlers;
     ObjectIDList			    mStructureList;
-    
-	boost::shared_mutex			object_map_mutex_;
-	SharedObjectMap				object_map_;
-    
-	PlayerAccMap				mPlayerAccMap;
+    ObjectMap					mObjectMap;
+    PlayerAccMap				mPlayerAccMap;
     PlayerMovementUpdateMap		mPlayerMovementUpdateMap;
     PlayerObjectReviveMap		mPlayerObjectReviveMap;
     //RegionMap                   mRegionMap;
@@ -575,27 +538,23 @@ private:
     std::vector<std::string>	mvClientEffects;
     std::vector<std::string>    mvMoods;
     std::vector<std::string>	mvNpcConverseAnimations;
+    BStringVector				mvPlanetNames;
     std::vector<std::string>    mvSounds;
-
-	StringVector				mvPlanetNames;
-    StringVector				mvTrnFileNames;
-    
-	//todo make id lists
-	ActiveRegions				mActiveRegions;
+    BStringVector				mvTrnFileNames;
+    ActiveRegions				mActiveRegions;
     CraftTools					mBusyCraftTools;
-    
-	std::vector<std::pair<std::wstring,uint32> >	mvNpcChatter;
+    std::vector<std::pair<std::wstring,uint32> >	mvNpcChatter;
     NpcConversionTimers			mNpcConversionTimers;
     PlayerList					mPlayersToRemove;
     RegionDeleteList			mRegionDeleteList;
     ShuttleList					mShuttleList;
-    //ScriptList					mWorldScripts;
+    ScriptList					mWorldScripts;
     CreatureQueue				mObjControllersToProcess;
     Weather						mCurrentWeather;
-    //ScriptEventListener			mWorldScriptsListener;
+    ScriptEventListener			mWorldScriptsListener;
     Anh_Utils::Scheduler*		mAdminScheduler;
     Anh_Utils::VariableTimeScheduler* mBuffScheduler;
-
+    Database*								mDatabase;
     Anh_Utils::Scheduler*		mEntertainerScheduler;
     Anh_Utils::Scheduler*		mScoutScheduler;
     Anh_Utils::Scheduler*		mHamRegenScheduler;
@@ -612,20 +571,10 @@ private:
     uint64						mServerTime;
     uint64						mTick;
     uint32						mTotalObjectCount;
-
+    uint32						mZoneId;
+	uint16						mHeightmapResolution;
 
     uint64						mSaveTaskId;
-
-	/*	@brief the kernel stores the baseservices that are made accessible to the entire simulation
-	*	this includes the db, the messageservice, the terrain service and all other services that will be added in the future
-	*	like for example the resource service or structure service
-	*/	
-	swganh::app::SwganhKernel*	kernel_;
-
-	//make this a vectored struct at some point whe muli instances are in
-	uint32						mZoneId;
-	std::string					mTrn;
-	//swganh::database::Database*	mDatabase;
 };
 
 

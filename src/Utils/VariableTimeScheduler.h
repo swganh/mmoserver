@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "typedefs.h"
 #include "FastDelegate.h"
 #include "PriorityVector.h"
-#include "anh/utils/clock.h"
+#include "clock.h"
 
 typedef fastdelegate::FastDelegate2<uint64,void*,uint64> VariableTimeCallback;
 
@@ -42,8 +42,6 @@ namespace Anh_Utils
 {
 //======================================================================================================================
 
-	//why does this exist??
-	//what does it do ?
 class VariableTimeTask
 {
 public:
@@ -71,10 +69,7 @@ public:
 typedef priority_vector<VariableTimeTask> VariableTaskContainer;
 
 //======================================================================================================================
-/*@brief VariableTimeScheduler is a scheduler, which will process not more often than every throttleLimit timeunits (microseconds)
-*	and has a processing time limit of max mProcessTimeLimit time units (microseconds)
-*	this is supposed to prevent server stalling through high load
-*/
+
 class VariableTimeScheduler
 {
 public:
@@ -97,7 +92,7 @@ protected:
 
     uint32				mNextTask;
     uint64				mNextTaskId;
-   
+    // Anh_Utils::Clock*	mClock;
     uint64				mProcessTimeLimit, mThrottleLimit, mLastProcessTime;
 };
 }

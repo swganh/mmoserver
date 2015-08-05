@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -30,15 +30,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ChatManager.h"
 #include "ChatMessageLib.h"
 #include "ChatOpcodes.h"
+#include "GroupManager.h"
+#include "GroupObject.h"
 #include "Player.h"
 
 
-#include "GroupManager.h"
-#include "GroupObject.h"
 
 
-
-#include "anh/logger.h"
+#include "Utils/logger.h"
 
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/Message.h"
@@ -68,7 +67,7 @@ GroupObject::GroupObject(Player* leader, uint64 groupId)
 
     mMembers.push_back(leader);
 
-	DLOG(info) << "New group created by "<<leader->getName().getAnsi() << " with id " << groupId;
+	DLOG(INFO) << "New group created by "<<leader->getName().getAnsi() << " with id " << groupId;
 }
 
 
@@ -80,9 +79,9 @@ GroupObject::~GroupObject()
     {
         gChatManager->unregisterChannel(mChannel);
         delete mChannel;
-        DLOG(info) << "Group Channel destroyed.";
+        DLOG(INFO) << "Group Channel destroyed.";
     }
-    DLOG(info)<< "Group destroyed.";
+    DLOG(INFO)<< "Group destroyed.";
 }
 
 //======================================================================================================================
@@ -326,7 +325,7 @@ void GroupObject::createChannel()
     Channel* channel = new Channel();
     channel->setId(((uint32)(mId)) + 0xf0000000);
     channel->setCreator(gSystemAvatar);
-    sprintf(channelName, "%"PRIu64".GroupChat", mId);
+    sprintf(channelName, "%" PRIu64 ".GroupChat", mId);
     channel->setName(BString(channelName));
     channel->setGalaxy(gChatManager->getGalaxyName());
 
@@ -334,7 +333,7 @@ void GroupObject::createChannel()
     swprintf(temp,64,L"%"WidePRIu64, mId);
     channel->setTitle(temp);
 
-	DLOG(info)  << "Group channel created: " << channel->getName().getAnsi() << " with id " << channel->getId();
+	DLOG(INFO)  << "Group channel created: " << channel->getName().getAnsi() << " with id " << channel->getId();
     channel->setOwner(gSystemAvatar);
     mChannel = channel;
     gChatManager->registerChannel(mChannel);

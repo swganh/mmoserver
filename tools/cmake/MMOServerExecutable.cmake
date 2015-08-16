@@ -31,17 +31,24 @@
 #     MMOSERVER_DEPS 
 #         MessageLib
 #         SwgProtocol
+#         ScriptEngine
 #     ADDITIONAL_INCLUDE_DIRS
+#         ${LUA_INCLUDE_DIR} 
 #         ${NOISE_INCLUDE_DIR} 
 #         ${SpatialIndex_INCLUDE_DIR} 
+#         ${TOLUAPP_INCLUDE_DIR}
 #     ADDITIONAL_SOURCE_DIRS
 #         ${CMAKE_CURRENT_SOURCE_DIR}/objects
 #     DEBUG_LIBRARIES 
+#         ${LUA_LIBRARY_DEBUG}
 #         ${NOISE_LIBRARY_DEBUG}
 #         ${SpatialIndex_LIBRARY_DEBUG}
+#         ${TOLUAPP_LIBRARY_DEBUG}
 #     OPTIMIZED_LIBRARIES
+#         ${LUA_LIBRARY_RELEASE}
 #         ${NOISE_LIBRARY_RELEASE}
 #         ${SpatialIndex_LIBRARY_RELEASE}
+#         ${TOLUAPP_LIBRARY_RELEASE}
 # )
 #
 
@@ -62,9 +69,6 @@ FUNCTION(AddMMOServerExecutable name)
     # load up all of the source and header files for the project
     FILE(GLOB_RECURSE SOURCES *.cc *.cpp *.h)   
     FILE(GLOB_RECURSE TEST_SOURCES *_unittest.cc *_unittest.cpp mock_*.h)
-
-    FILE(GLOB_RECURSE BINDINGS *_binding.cc *_binding.cpp py_*.h py_*.cc)
-    list(APPEND BINDINGS ${ANHPLUGIN_BINDINGS})
         
     FOREACH(__source_file ${SOURCES})
         STRING(REGEX REPLACE "(${CMAKE_CURRENT_SOURCE_DIR}/)((.*/)*)(.*)" "\\2" __source_dir "${__source_file}")
@@ -80,12 +84,6 @@ FUNCTION(AddMMOServerExecutable name)
             SET(MAIN_EXISTS ${__source_file})
         ENDIF()        
     ENDFOREACH()
-
-    # if python bindings have been specified generate a module
-    LIST(LENGTH BINDINGS _bindings_list_length)
-    IF(_bindings_list_length GREATER 0)
-        list(REMOVE_ITEM SOURCES ${BINDINGS})
-    ENDIF()
     
     # if unit tests have been specified break out the project into a library to make it testable
     LIST(LENGTH TEST_SOURCES _tests_list_length)    
@@ -167,6 +165,7 @@ FUNCTION(AddMMOServerExecutable name)
         debug ${Boost_REGEX_LIBRARY_DEBUG}
         debug ${Boost_SYSTEM_LIBRARY_DEBUG}
         debug ${Boost_THREAD_LIBRARY_DEBUG}
+		debug ${Boost_LOG_LIBRARY_DEBUG}
         debug ${MysqlConnectorCpp_LIBRARY_DEBUG}
         debug ${TBB_LIBRARY_DEBUG}
         debug ${TBB_MALLOC_LIBRARY_DEBUG}
@@ -176,6 +175,7 @@ FUNCTION(AddMMOServerExecutable name)
         optimized ${Boost_REGEX_LIBRARY_RELEASE}
         optimized ${Boost_SYSTEM_LIBRARY_RELEASE}
         optimized ${Boost_THREAD_LIBRARY_RELEASE}
+		optimized ${Boost_LOG_LIBRARY_RELEASE}
         optimized ${MysqlConnectorCpp_LIBRARY_RELEASE}
         optimized ${TBB_LIBRARY}
         optimized ${TBB_MALLOC_LIBRARY}

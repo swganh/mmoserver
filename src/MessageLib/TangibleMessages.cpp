@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -27,11 +27,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "MessageLib.h"
 
-#include "ZoneServer/Objects/CraftingTool.h"
-#include "ZoneServer/GameSystemManagers/Crafting Manager/ManufacturingSchematic.h"
-#include "ZoneServer/Objects/Object/ObjectFactory.h"
-#include "ZoneServer/Objects/Player Object/PlayerObject.h"
-#include "ZoneServer/Objects/Wearable.h"
+#include "ZoneServer/CraftingTool.h"
+#include "ZoneServer/ManufacturingSchematic.h"
+#include "ZoneServer/ObjectFactory.h"
+#include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/Wearable.h"
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
 
@@ -49,18 +49,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 // contain: general information, name, customization, type, condition
 //
 
-bool MessageLib::sendBaselinesTANO_3( TangibleObject*  tangibleObject,const PlayerObject* const targetObject) const
+bool MessageLib::sendBaselinesTANO_3(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const
 {
     if(!(targetObject->isConnected()))
         return(false);
 
-	if(tangibleObject->getId() == 4831838212)	{
-		LOG(info) << "customization :: " << tangibleObject->getCustomizationStr().getLength() << " : " << tangibleObject->getCustomizationStr().getAnsi();
-	}
-
     Message* message;
-    //BString customName = tangibleObject->getCustomName().getAnsi();
-    //customName.convert(BSTRType_Unicode16);
+    BString customName = tangibleObject->getCustomName().getAnsi();
+    customName.convert(BSTRType_Unicode16);
 
     mMessageFactory->StartMessage();
 
@@ -68,30 +64,30 @@ bool MessageLib::sendBaselinesTANO_3( TangibleObject*  tangibleObject,const Play
     mMessageFactory->addUint64(tangibleObject->getId());
     mMessageFactory->addUint32(opTANO);
     mMessageFactory->addUint8(3);
-	
-    mMessageFactory->addUint32(49 + (tangibleObject->getCustomName().length() << 1) + tangibleObject->getName().getLength() + tangibleObject->getCustomizationStr().getLength() + tangibleObject->getNameFile().getLength());
+
+    mMessageFactory->addUint32(49 + (customName.getLength() << 1) + tangibleObject->getName().getLength() + tangibleObject->getCustomizationStr().getLength() + tangibleObject->getNameFile().getLength());
     mMessageFactory->addUint16(11);
     mMessageFactory->addFloat(0);//tangibleObject->getComplexity());
     mMessageFactory->addString(tangibleObject->getNameFile());
     mMessageFactory->addUint32(0);	// unknown
     mMessageFactory->addString(tangibleObject->getName());
-    mMessageFactory->addString(tangibleObject->getCustomName());
+    mMessageFactory->addString(customName);
     uint32 uses = 0;
 
     mMessageFactory->addUint32(1);//volume gives the volume taken up in the inventory!!!!!!!!
     mMessageFactory->addString(tangibleObject->getCustomizationStr());
-    mMessageFactory->addUint64(0);	// componentcustomization
+    mMessageFactory->addUint64(0);	// unknown list might be defender list
     mMessageFactory->addUint32(tangibleObject->getTypeOptions());
 
     if(tangibleObject->hasAttribute("counter_uses_remaining"))
     {
-        float fUses = tangibleObject->getAttribute<float>(std::string("counter_uses_remaining"));
+        float fUses = tangibleObject->getAttribute<float>("counter_uses_remaining");
         uses = (int) fUses;
     }
 
     if(tangibleObject->hasAttribute("stacksize"))
     {
-        uses = tangibleObject->getAttribute<int>(std::string("stacksize"));
+        uses = tangibleObject->getAttribute<int>("stacksize");
     }
     if(tangibleObject->getTimer() != 0)
         uses = tangibleObject->getTimer();
@@ -117,7 +113,7 @@ bool MessageLib::sendBaselinesTANO_3( TangibleObject*  tangibleObject,const Play
 // contain: unknown
 //
 
-bool MessageLib::sendBaselinesTANO_6( TangibleObject*  tangibleObject,const PlayerObject* const targetObject) const
+bool MessageLib::sendBaselinesTANO_6(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const
 {
     if(!(targetObject->isConnected()))
         return(false);
@@ -151,7 +147,7 @@ bool MessageLib::sendBaselinesTANO_6( TangibleObject*  tangibleObject,const Play
 // contain: unknown
 //
 
-bool MessageLib::sendBaselinesTANO_8( TangibleObject*  tangibleObject,const PlayerObject* const targetObject) const
+bool MessageLib::sendBaselinesTANO_8(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const
 {
     if(!(targetObject->isConnected()))
         return(false);
@@ -180,7 +176,7 @@ bool MessageLib::sendBaselinesTANO_8( TangibleObject*  tangibleObject,const Play
 // contain: unknown
 //
 
-bool MessageLib::sendBaselinesTANO_9( TangibleObject*  tangibleObject,const PlayerObject* const targetObject) const
+bool MessageLib::sendBaselinesTANO_9(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const
 {
     if(!(targetObject->isConnected()))
         return(false);
@@ -254,7 +250,7 @@ bool  MessageLib::sendUpdateCustomization_InRange(TangibleObject* tangibleObject
     mMessageFactory->addUint16(4);	   //nr 4 = customization
     mMessageFactory->addString(tangibleObject->getCustomizationStr());
 
-    _sendToInRange(mMessageFactory->EndMessage(),playerObject,8);
+    _sendToInRange(mMessageFactory->EndMessage(),playerObject,8,true);
     //(playerObject->getClient())->SendChannelA(newMessage,playerObject->getAccountId(),CR_Client,5,false);
 
     return(true);
@@ -335,7 +331,7 @@ bool MessageLib::sendUpdateUses(TangibleObject* tangibleObject,PlayerObject* pla
 
     if(tangibleObject->hasAttribute("counter_uses_remaining"))
     {
-        uses = tangibleObject->getAttribute<int>(std::string("counter_uses_remaining"));
+        uses = tangibleObject->getAttribute<int>("counter_uses_remaining");
     }
 
 

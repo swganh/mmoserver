@@ -1,7 +1,7 @@
 /*
  This file is part of MMOServer. For more information, visit http://swganh.com
  
- Copyright (c) 2006 - 2014 The SWG:ANH Team
+ Copyright (c) 2006 - 2010 The SWG:ANH Team
 
  MMOServer is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -20,16 +20,11 @@
 #include "anh/hash_string.h"
 #include "anh/crc.h"
 
-using namespace swganh;
+using namespace anh;
 
 HashString::HashString(const char* ident_string)
     : ident_(reinterpret_cast<void*>(memcrc(std::string(ident_string))))
     , ident_string_(ident_string)
-{}
-
-HashString::HashString(const std::string &std_string)
-    : ident_(reinterpret_cast<void*>(memcrc(std_string)))
-    , ident_string_(std_string)
 {}
 
 HashString::~HashString() {}
@@ -52,10 +47,6 @@ void HashString::swap(HashString& other) {
 HashString& HashString::operator=(HashString other) {
     other.swap(*this);
     return *this;
-}
-
-HashString::operator uint32_t () const {
-    return ident();
 }
 
 bool HashString::operator<(const HashString& other) const {

@@ -1,7 +1,7 @@
 /*
  This file is part of MMOServer. For more information, visit http://swganh.com
  
- Copyright (c) 2006 - 2014 The SWG:ANH Team
+ Copyright (c) 2006 - 2010 The SWG:ANH Team
 
  MMOServer is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 
 #include "anh/crc.h"
 
-using namespace swganh;
+using namespace anh;
 
 const uint32_t CRC_TABLE[256] = {
     0x0000000,
@@ -76,7 +76,7 @@ const uint32_t CRC_TABLE[256] = {
     0xA2F33668, 0xBCB4666D, 0xB8757BDA, 0xB5365D03, 0xB1F740B4,
 };
 
-uint32_t swganh::memcrc(const char* source_string, uint32_t length) {
+uint32_t anh::memcrc(const char* source_string, uint32_t length) {
     uint32_t crc = 0xffffffff;  // starting seed
     for (uint32_t i = 0; i < length; ++i) {
         crc = CRC_TABLE[source_string[i] ^ (crc >> 24)] ^ (crc << 8);
@@ -85,6 +85,6 @@ uint32_t swganh::memcrc(const char* source_string, uint32_t length) {
     return ~crc;
 }
 
-uint32_t swganh::memcrc(const std::string& source_string) {
+uint32_t anh::memcrc(const std::string& source_string) {
     return memcrc(source_string.c_str(), source_string.length());
 }

@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -39,12 +39,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class Channel;
 class ChatManager;
-
-namespace swganh	{
-namespace database	{
 class Database;
 class DataBinding;
-}}//swganh::database
 class DispatchClient;
 class Player;
 class Mail;
@@ -117,19 +113,19 @@ public:
 
 //======================================================================================================================
 
-class ChatManager: public swganh::database::DatabaseCallback
+class ChatManager: public DatabaseCallback
 {
 public:
 
     friend class ChatMessageLib;
 
     ~ChatManager();
-    static ChatManager*	Init(swganh::database::Database* database,MessageDispatch* dispatch);
+    static ChatManager*	Init(Database* database,MessageDispatch* dispatch);
     static ChatManager*	getSingletonPtr() {
         return mSingleton;
     }
 
-    virtual void		handleDatabaseJobComplete(void* ref,swganh::database::DatabaseResult* result);
+    virtual void		handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
     void				registerChannel(Channel* channel);
     void				unregisterChannel(Channel* channel);
@@ -168,11 +164,11 @@ public:
 
 private:
 
-    ChatManager(swganh::database::Database* database,MessageDispatch* dispatch);
+    ChatManager(Database* database,MessageDispatch* dispatch);
 
     void			_loadDatabindings();
     void			_destroyDatabindings();
-    void			_loadChannels(swganh::database::DatabaseResult* result);
+    void			_loadChannels(DatabaseResult* result);
     void			_registerCallbacks();
     void			_unregisterCallbacks();
     BString			_queryServerName();
@@ -236,8 +232,9 @@ private:
 
     bool					isValidName(BString name);
     bool					isValidExactName(BString name);
-    BString*				getFirstName(BString& name);
+    BString*					getFirstName(BString& name);
 
+    Database*				mDatabase;
     MessageDispatch*        mMessageDispatch;
     ChannelList				mvChannels;
     ChannelMap				mChannelMap;
@@ -252,14 +249,12 @@ private:
     PlayerIdMap				mPlayerIdMap;
     PlayerList				mPlayerList;
 
-	swganh::database::Database*				mDatabase;
-
-    swganh::database::DataBinding*			mPlayerBinding;
-    swganh::database::DataBinding*			mChannelBinding;
-    swganh::database::DataBinding*			mMailBinding;
-    swganh::database::DataBinding*			mMailHeaderBinding;
-    swganh::database::DataBinding*			mCreatorBinding;
-    swganh::database::DataBinding*			mOwnerBinding;
+    DataBinding*			mPlayerBinding;
+    DataBinding*			mChannelBinding;
+    DataBinding*			mMailBinding;
+    DataBinding*			mMailHeaderBinding;
+    DataBinding*			mCreatorBinding;
+    DataBinding*			mOwnerBinding;
 
 };
 

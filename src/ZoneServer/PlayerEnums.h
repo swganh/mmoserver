@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef		ANH_ZONESERVER_PLAYERENUMS_H
 #define 	ANH_ZONESERVER_PLAYERENUMS_H
 
-#include <glm/glm.hpp>
+
 //=============================================================================
 
 enum EMLocationType
@@ -49,11 +49,10 @@ enum EMBuff
 
 enum PlayerConnState
 {
-    PlayerConnState_Connected			= 0,
-    PlayerConnState_LinkDead			= 1,
-    PlayerConnState_Zoning				= 2,
-	PlayerConnState_PrepareDestruction	= 3,
-    PlayerConnState_Destroying			= 4
+    PlayerConnState_Connected	= 0,
+    PlayerConnState_LinkDead	= 1,
+    PlayerConnState_Zoning		= 2,
+    PlayerConnState_Destroying	= 3
 };
 
 enum IDSession
@@ -70,7 +69,6 @@ enum PlayerOffSet
     DATAPAD_OFFSET   = 3,
     BANK_OFFSET      = 4,
     WEAPON_OFFSET    = 5,
-	PLAYER_OFFSET	 = 7,
     HAIR_OFFSET      = 8
 };
 
@@ -136,33 +134,6 @@ struct BuffStruct
     float	buffValuePercent;
     uint32	buffLengthSeconds;
     bool	passive;
-};
-
-class PlayerObject;
-class SurveyTool;
-class CurrentResource;
-
-
-struct SampleNode
-{
-    glm::vec3           Position;
-    uint32				zone;
-    CurrentResource*	resource;
-    SurveyTool*			tool;
-    PlayerObject*		player;
-
-    uint64				mNextSampleTime;
-
-    bool				mPassRadioactive;
-    bool				mPendingSample;
-    bool				mPendingSurvey;
-
-
-    bool				mSampleEventFlag;
-    bool				mSampleGambleFlag;
-    bool				mSampleNodeFlag;
-    bool				mSampleNodeRecovery;
-
 };
 //=============================================================================
 

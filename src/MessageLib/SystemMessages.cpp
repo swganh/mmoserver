@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -27,10 +27,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "MessageLib.h"
 
-#include "ZoneServer/Objects/Object/ObjectFactory.h"
-#include "ZoneServer/Objects/Player Object/PlayerObject.h"
+#include "ZoneServer/ObjectFactory.h"
+#include "ZoneServer/PlayerObject.h"
 #include "ZoneServer/WorldManager.h"
-#include "ZoneServer/GameSystemManagers/Structure Manager/PlayerStructure.h"
+#include "ZoneServer/PlayerStructure.h"
 #include "ZoneServer/ZoneOpcodes.h"
 
 
@@ -49,22 +49,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 void MessageLib::sendBanktipMail(PlayerObject* playerObject, PlayerObject* targetObject, uint32 amount)
 {
 
-	CreatureObject* creature = playerObject->GetCreature();
-	CreatureObject* target_creature = targetObject->GetCreature();
-
     atMacroString* aMS = new atMacroString();
 
     aMS->addMBstf("base_player","prose_wire_mail_target");
     aMS->addDI(amount);
-    aMS->addTO(creature->getFirstName());
+    aMS->addTO(playerObject->getFirstName());
     aMS->addTextModule();
 
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opIsmSendSystemMailMessage);
-    mMessageFactory->addUint64(creature->getId());
-    mMessageFactory->addUint64(creature->getId());
-    mMessageFactory->addString(target_creature->getFirstName());
+    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addString(targetObject->getFirstName());
     mMessageFactory->addString(BString("@base_player:wire_mail_subject"));
     mMessageFactory->addUint32(0);
     mMessageFactory->addString(aMS->assemble());
@@ -80,15 +77,15 @@ void MessageLib::sendBanktipMail(PlayerObject* playerObject, PlayerObject* targe
 
     aMS->addMBstf("base_player","prose_wire_mail_self");
     aMS->addDI(amount);
-    aMS->addTO(target_creature->getFirstName());
+    aMS->addTO(targetObject->getFirstName());
     aMS->addTextModule();
 
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opIsmSendSystemMailMessage);
-    mMessageFactory->addUint64(target_creature->getId());
-    mMessageFactory->addUint64(target_creature->getId());
-    mMessageFactory->addString(creature->getFirstName());
+    mMessageFactory->addUint64(targetObject->getId());
+    mMessageFactory->addUint64(targetObject->getId());
+    mMessageFactory->addString(playerObject->getFirstName());
     mMessageFactory->addString(BString("@base_player:wire_mail_subject"));
     mMessageFactory->addUint32(0);
     mMessageFactory->addString(aMS->assemble());
@@ -128,8 +125,8 @@ void MessageLib::sendBoughtInstantMail(PlayerObject* newOwner, BString ItemName,
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opIsmSendSystemMailMessage);
-	mMessageFactory->addUint64(newOwner->GetCreature()->getId());
-    mMessageFactory->addUint64(newOwner->GetCreature()->getId());
+    mMessageFactory->addUint64(newOwner->getId());
+    mMessageFactory->addUint64(newOwner->getId());
     mMessageFactory->addString(BString("auctioner"));
     mMessageFactory->addString(BString("@auction:subject_auction_buyer"));
     mMessageFactory->addUint32(0);
@@ -153,11 +150,9 @@ void MessageLib::sendSoldInstantMail(uint64 oldOwner, PlayerObject* newOwner, BS
 
     atMacroString* aMS = new atMacroString();
 
-	
-
     aMS->addMBstf("auction","seller_success");
     aMS->addTO(ItemName);
-	aMS->addTT(newOwner->GetCreature()->getFirstName().c_str());
+    aMS->addTT(newOwner->getFirstName());
     aMS->addDI(Credits);
     aMS->addTextModule();
 
@@ -222,11 +217,14 @@ void MessageLib::sendConstructionComplete(PlayerObject* playerObject, PlayerStru
     planet.toLowerFirst();
 
     BString wText = "";
-    std::string name = std::string(structure->getCustomName().begin(), structure->getCustomName().end());
-    
-    wText << name.c_str();
+    BString name = structure->getCustomName();
+    name.convert(BSTRType_ANSI);
+    wText << name.getAnsi();
 
-    if(!structure->getCustomName().length())    {
+
+    if(!structure->getCustomName().getLength())
+    {
+        //wText = "@player_structure:structure_name_prompt ";
         wText <<"@"<<structure->getNameFile().getAnsi()<<":"<<structure->getName().getAnsi();
     }
 

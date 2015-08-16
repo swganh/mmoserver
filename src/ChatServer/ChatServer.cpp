@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <iostream>
 #include <fstream>
 
-#include "anh/logger.h"
+#include "Utils/logger.h"
 // External references
 #include "ChatManager.h"
 #include "CSRManager.h"
@@ -55,13 +55,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageFactory.h"
 
 #include "Utils/utils.h"
-#include "anh/Utils/clock.h"
+#include "Utils/clock.h"
 
 #include <boost/thread/thread.hpp>
 #include <cstring>
-
-using namespace swganh;
-using namespace database;
 
 //======================================================================================================================
 
@@ -78,11 +75,7 @@ ChatServer::ChatServer(int argc, char* argv[])
 	, mLastHeartbeat(0)
 {
     Anh_Utils::Clock::Init();
-
-	std::stringstream log_file_name;
-	log_file_name << "logs/Chatserver.log";
-	LOG(warning) << "Chat Server Startup";	
-	LOGINIT(log_file_name.str());
+    LOG(WARNING) << "Chat Server Startup";
 
 	// Load Configuration Options
 	std::list<std::string> config_files;
@@ -149,19 +142,19 @@ ChatServer::ChatServer(int argc, char* argv[])
     // We're done initializing.
     _updateDBServerList(2);
 
-    LOG(warning) << "Chat Server startup complete";
+    LOG(WARNING) << "Chat Server startup complete";
     //gLogger->printLogo();
     // std::string BuildString(GetBuildString());
 
-    LOG(warning) << "Chat Server - Build " << GetBuildString().c_str();
-    LOG(warning) << "Welcome to your SWGANH Experience!";
+    LOG(WARNING) << "Chat Server - Build " << GetBuildString().c_str();
+    LOG(WARNING) << "Welcome to your SWGANH Experience!";
 }
 
 //======================================================================================================================
 
 ChatServer::~ChatServer()
 {
-    LOG(warning) << "ChatServer shutting down...";
+    LOG(WARNING) << "ChatServer shutting down...";
 
     // We're shutting down, so update the DB again.
     _updateDBServerList(0);
@@ -186,7 +179,7 @@ ChatServer::~ChatServer()
 
     delete mDatabaseManager;
 
-    LOG(warning) << "ChatServer Shutdown Complete";
+    LOG(WARNING) << "ChatServer Shutdown Complete";
 }
 
 //======================================================================================================================
@@ -196,8 +189,6 @@ void ChatServer::Process()
     // Process our game modules
     mMessageDispatch->Process();
     gMessageFactory->Process();
-
-	gClock->process();
 
     //  Process our core services
     mDatabaseManager->process();
@@ -209,11 +200,10 @@ void ChatServer::Process()
 
 
     // Heartbeat once in awhile
-	uint64 time = Anh_Utils::Clock::getSingleton()->getLocalTime();
-    if ((time - mLastHeartbeat) > 180000)
+    if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastHeartbeat > 180000)//main loop every 10ms
     {
-        mLastHeartbeat = time;
-		DLOG(info) << "ChatServer Heartbeat : " << Anh_Utils::Clock::getSingleton()->GetCurrentDateTimeString();
+        mLastHeartbeat = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
+        DLOG(INFO) << "ChatServer Heartbeat.";
     }
 }
 
@@ -238,7 +228,7 @@ void ChatServer::_connectToConnectionServer()
     // setup our databinding parameters.
     DataBinding* binding = mDatabase->createDataBinding(5);
     binding->addField(DFT_uint32, offsetof(ProcessAddress, mType), 4);
-    binding->addField(DFT_stdstring, offsetof(ProcessAddress, mAddress), 128);
+    binding->addField(DFT_bstring, offsetof(ProcessAddress, mAddress), 16);
     binding->addField(DFT_uint16, offsetof(ProcessAddress, mPort), 2);
     binding->addField(DFT_uint32, offsetof(ProcessAddress, mStatus), 4);
     binding->addField(DFT_uint32, offsetof(ProcessAddress, mActive), 4);
@@ -254,16 +244,7 @@ void ChatServer::_connectToConnectionServer()
         // Retrieve our routes and add them to the map.
         result->getNextRow(binding, &processAddress);
     }
-	else
-	if(count > 1)	{
-		result->getNextRow(binding, &processAddress);
-		LOG (error) << "ChatServer::_connectToConnectionServer couldnt Connect because of duplicate entries !!! " << processAddress.mAddress << " Port : " << processAddress.mPort;
-	}
-	else
-	if(count == 0)	{
-	
-		LOG (error) << "ChatServer::_connectToConnectionServer Server not found";
-	}
+
     // Delete our DB objects.
     mDatabase->destroyDataBinding(binding);
     mDatabase->destroyResult(result);
@@ -271,8 +252,8 @@ void ChatServer::_connectToConnectionServer()
     // Now connect to the ConnectionServer
     mClient = new DispatchClient();
 
-	LOG(info) << "New connection to " << processAddress.mAddress << " on port " << processAddress.mPort;
-	mRouterService->Connect(mClient, processAddress.mAddress.c_str(), processAddress.mPort);
+	LOG(INFO) << "New connection to " << processAddress.mAddress.getAnsi() << " on port " << processAddress.mPort;
+    mRouterService->Connect(mClient, processAddress.mAddress.getAnsi(), processAddress.mPort);
 }
 
 //======================================================================================================================
@@ -286,8 +267,6 @@ void handleExit()
 
 int main(int argc, char* argv[])
 {
-    
-
     bool exit = false;
 	
 	try {

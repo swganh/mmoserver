@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -33,8 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class BString;
 
-typedef std::vector<std::string>		StringVector;
-typedef std::vector<BString>			BStringVector;
+typedef std::vector<BString> BStringVector;
 
 //======================================================================================================================
 
@@ -84,7 +83,6 @@ public:
     // Accessor Methods
     const char* getAnsi() const;
     const wchar_t* getUnicode16() const;
-	std::u16string BString::getU16() const;
 
     void convert(BStringType type);
     void substring(BString& dest, uint16_t start, uint16_t end);
@@ -94,6 +92,7 @@ public:
     void toUpper();
     void toUpperFirst();
     void toLowerFirst();
+    bool isNumber();
 
     void setLength(uint16_t length);
     void setType(BStringType type);

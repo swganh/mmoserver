@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -45,21 +45,17 @@ class Message;
 class ConnectionDispatch;
 class Service;
 class Session;
-namespace swganh	{
-namespace database	{
 class Database;
-}
-}
 
 typedef std::map<uint32,ConnectionClient*>    PlayerClientMap;
 
 //======================================================================================================================
 
-class ClientManager : public NetworkCallback, public ConnectionDispatchCallback, public swganh::database::DatabaseCallback
+class ClientManager : public NetworkCallback, public ConnectionDispatchCallback, public DatabaseCallback
 {
 public:
 
-    ClientManager(Service* service, swganh::database::Database* database, MessageRouter* router, ConnectionDispatch* connectionDispatch, uint32_t cluster_id);
+    ClientManager(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* connectionDispatch, uint32_t cluster_id);
     ~ClientManager(void);
 
     void                        Process(void);
@@ -75,7 +71,7 @@ public:
     virtual void                handleDispatchMessage(uint32 opcode, Message* message, ConnectionClient* client);
 
     // Inherited DatabaseCallback
-    virtual void                handleDatabaseJobComplete(void* ref, swganh::database::DatabaseResult* result);
+    virtual void                handleDatabaseJobComplete(void* ref, DatabaseResult* result);
 
     // handle server down
     void						handleServerDown(uint32 serverId);
@@ -85,11 +81,11 @@ private:
     void                        _processSelectCharacter(ConnectionClient* client, Message* message);
     void                        _processClusterZoneTransferCharacter(ConnectionClient* client, Message* message);
 
-    void                        _handleQueryAuth(ConnectionClient* client, swganh::database::DatabaseResult* result);
-    void                        _processAllowedChars(swganh::database::DatabaseCallback* callback,ConnectionClient* client);
+    void                        _handleQueryAuth(ConnectionClient* client, DatabaseResult* result);
+    void                        _processAllowedChars(DatabaseCallback* callback,ConnectionClient* client);
 
     Service*                    mClientService;
-    swganh::database::Database* mDatabase;
+    Database*                   mDatabase;
     MessageRouter*              mMessageRouter;
     ConnectionDispatch*         mConnectionDispatch;
 

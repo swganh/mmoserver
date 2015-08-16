@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -36,20 +36,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/NetworkManager.h"
 #include "NetworkManager/Service.h"
 
-#include "anh/logger.h"
+
+#ifdef _WIN32
+#ifndef _INC_WINDOWS
+#include <windows.h>
+#endif
+#undef ERROR
+#endif
+
+#include "Utils/logger.h"
 
 #include <iostream>
 #include <fstream>
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseManager.h"
-#include "DatabaseManager/DatabaseResult.h"
-//#include "DatabaseManager/DataBinding.h"
-#include <cppconn/resultset.h>
 
 #include "NetworkManager/MessageFactory.h"
 #include "Utils/utils.h"
-#include "anh/Utils/clock.h"
+#include "Utils/clock.h"
 
 //#include "stackwalker.h"
 #include <boost/thread/thread.hpp>
@@ -76,13 +81,7 @@ ConnectionServer::ConnectionServer(int argc, char* argv[]) :
     mLastHeartbeat(0)
 {
     Anh_Utils::Clock::Init();
-
-	std::stringstream log_file_name;
-	log_file_name << "logs/ConnectionServer.log";
-	LOG(error) << " ";
-	LOGINIT(log_file_name.str());
-
-    LOG(warning) << "ConnectionServer Startup";
+    LOG(WARNING) << "ConnectionServer Startup";
 
 	configuration_options_description_.add_options()
 		("ClientServiceMessageHeap", boost::program_options::value<uint32_t>()->default_value(50000), "")
@@ -115,9 +114,9 @@ ConnectionServer::ConnectionServer(int argc, char* argv[]) :
     //serverservice
     mServerService = mNetworkManager->GenerateService((char*)configuration_variables_map_["ClusterBindAddress"].as<std::string>().c_str(), configuration_variables_map_["ClusterBindPort"].as<uint16_t>(),configuration_variables_map_["ServerServiceMessageHeap"].as<uint32_t>()*1024, true);//,15);
 
-	mDatabaseManager = new swganh::database::DatabaseManager(swganh::database::DatabaseConfig(configuration_variables_map_["DBMinThreads"].as<uint32_t>(), configuration_variables_map_["DBMaxThreads"].as<uint32_t>(), configuration_variables_map_["DBGlobalSchema"].as<std::string>(), configuration_variables_map_["DBGalaxySchema"].as<std::string>(), configuration_variables_map_["DBConfigSchema"].as<std::string>()));
+	mDatabaseManager = new DatabaseManager(DatabaseConfig(configuration_variables_map_["DBMinThreads"].as<uint32_t>(), configuration_variables_map_["DBMaxThreads"].as<uint32_t>(), configuration_variables_map_["DBGlobalSchema"].as<std::string>(), configuration_variables_map_["DBGalaxySchema"].as<std::string>(), configuration_variables_map_["DBConfigSchema"].as<std::string>()));
 
-    mDatabase = mDatabaseManager->connect(swganh::database::DBTYPE_MYSQL,
+    mDatabase = mDatabaseManager->connect(DBTYPE_MYSQL,
                                           (char*)(configuration_variables_map_["DBServer"].as<std::string>()).c_str(),
                                           configuration_variables_map_["DBPort"].as<uint16_t>(),
                                           (char*)(configuration_variables_map_["DBUser"].as<std::string>()).c_str(),
@@ -147,11 +146,11 @@ ConnectionServer::ConnectionServer(int argc, char* argv[]) :
     // We're done initiailizing.
     _updateDBServerList(2);
 
-    LOG(warning) << "Connection server startup complete";
+    LOG(WARNING) << "Connection server startup complete";
 
 #ifdef _WIN32
 	//I cannot speak for *nix but under windows the main thread pauses for times, leaving the services workthreads unemployed
-	//SetPriorityClass(GetCurrentThread(),REALTIME_PRIORITY_CLASS);
+	SetPriorityClass(GetCurrentThread(),REALTIME_PRIORITY_CLASS);
 	
 #endif
 
@@ -161,7 +160,7 @@ ConnectionServer::ConnectionServer(int argc, char* argv[]) :
 
 ConnectionServer::~ConnectionServer(void)
 {
-    LOG(warning) << "ConnectionServer Shutting down...";
+    LOG(WARNING) << "ConnectionServer Shutting down...";
 
     // Update our status for the LoginServer
     mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_GalaxyStatusUpdate(%u, %u);",mDatabase->galaxy(), 0, mClusterId); // Status set to offline
@@ -185,7 +184,7 @@ ConnectionServer::~ConnectionServer(void)
 
     MessageFactory::getSingleton()->destroySingleton();	// Delete message factory and call shutdown();
 
-    LOG(warning) << "ConnectionServer Shutdown Complete";
+    LOG(WARNING) << "ConnectionServer Shutdown Complete";
 }
 
 //======================================================================================================================
@@ -195,7 +194,6 @@ void ConnectionServer::Process(void)
     // Process our core services first.
     //mNetworkManager->Process();
     mDatabaseManager->process();
-	gClock->process();
 
     //we dont want this stalled by the clients!!!
     mServerService->Process();
@@ -209,36 +207,21 @@ void ConnectionServer::Process(void)
 
 
     // Heartbeat once in awhile
-    if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastHeartbeat > 1800000)//main loop every 10ms
+    if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastHeartbeat > 180000)//main loop every 10ms
     {
-		uint32 count = _updateDBServerList(2);
-
-        mLastHeartbeat = Anh_Utils::Clock::getSingleton()->getLocalTime();
-        LOG (info) << "ConnectionServer Heartbeat. : " << Anh_Utils::Clock::getSingleton()->GetCurrentDateTimeString() << "  - Connected Servers : " << mServerManager->getConnectedServers() << " and " << count << " - connected players";
-		
+        mLastHeartbeat = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
+        //gLogger->log(LogManager::NOTICE,"ConnectionServer Heartbeat. Connected Servers:%u Active Servers:%u", mServerManager->getConnectedServers(), mServerManager->getActiveServers());
     }
 
 }
 
 //======================================================================================================================
 
-uint32 ConnectionServer::_updateDBServerList(uint32 status)
+void ConnectionServer::_updateDBServerList(uint32 status)
 {
     // Execute our query
     mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_ServerStatusUpdate('connection', %u, '%s', %u);",mDatabase->galaxy(), status, mServerService->getLocalAddress(), mServerService->getLocalPort());
-	std::stringstream sql;
-	
-	sql << "select account_id from " << mDatabase->galaxy() <<".account where account_loggedin = 1";
-	
-	swganh::database::DatabaseResult* result = mDatabase->executeSql(sql.str());
-	std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-
-	uint32 count = 0;
-    while (result_set->next()) {  
-		result_set->getUInt64(1);
-		count ++;
-    }
-    return count;
+    
 }
 
 //======================================================================================================================
@@ -251,19 +234,18 @@ void ConnectionServer::ToggleLock()
         // Update our status for the LoginServer
         mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_GalaxyStatusUpdate(%u, %u);",mDatabase->galaxy(), 3, mClusterId); // Status set to online (DEV / CSR Only)
         
-        LOG(warning) << "Locking server to normal users";
+        LOG(WARNING) << "Locking server to normal users";
     } else {
         // Update our status for the LoginServer
         mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_GalaxyStatusUpdate(%u, %u);",mDatabase->galaxy(), 2, mClusterId); // Status set to online
         
-        LOG(warning) << "unlocking server to normal users";
+        LOG(WARNING) << "unlocking server to normal users";
     }
 }
 //======================================================================================================================
 
 int main(int argc, char* argv[])
 {
-
 	try {
 		gConnectionServer = new ConnectionServer(argc, argv);
 

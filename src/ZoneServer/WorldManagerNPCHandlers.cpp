@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -25,18 +25,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "ZoneServer/WorldManager.h"
-#include "ZoneServer/WorldConfig.h"
-#include "anh/Utils/rand.h"
-#include "ZoneServer/Objects/Player Object/PlayerObject.h"
-#include "ZoneServer/GameSystemManagers/Conversation Manager/ConversationManager.h"
-#include "Zoneserver/GameSystemManagers/NPC Manager/NpcManager.h"
-#include "ZoneServer/GameSystemManagers/NPC Manager/NPCObject.h"
-#include "Zoneserver/Objects/Inventory.h"
-//#include "ScriptEngine/ScriptEngine.h"
-//#include "ScriptEngine/ScriptSupport.h"
+#include "WorldManager.h"
+#include "WorldConfig.h"
+#include "Utils/rand.h"
+#include "PlayerObject.h"
+#include "ConversationManager.h"
+#include "NpcManager.h"
+#include "NPCObject.h"
+#include "Inventory.h"
+#include "ScriptEngine/ScriptEngine.h"
+#include "ScriptEngine/ScriptSupport.h"
 #include "Utils/utils.h"
-#include "anh/Utils/clock.h"
+#include "Utils/clock.h"
 
 
 //======================================================================================================================
@@ -46,7 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void WorldManager::addDormantNpc(uint64 creature, uint64 when)
 {
-    // gLogger->log(LogManager::DEBUG,"Adding dormant NPC handler... %"PRIu64"",  creature);
+    // gLogger->log(LogManager::DEBUG,"Adding dormant NPC handler... %" PRIu64 "",  creature);
 
     uint64 expireTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
     mNpcDormantHandlers.insert(std::make_pair(creature, expireTime + when));
@@ -100,18 +100,17 @@ bool WorldManager::_handleDormantNpcs(uint64 callTime, void* ref)
             if (npc)
             {
                 // uint64 waitTime = NpcManager::Instance()->handleDormantNpc(creature, callTime - (*it).second);
-                // gLogger->log(LogManager::DEBUG,"Dormant... ID = %"PRIu64"",  (*it).first);
+                // gLogger->log(LogManager::DEBUG,"Dormant... ID = %" PRIu64 "",  (*it).first);
                 uint64 waitTime = NpcManager::Instance()->handleNpc(npc, callTime - (*it).second);
 
                 if (waitTime)
                 {
                     // Set next execution time.
                     (*it).second = callTime + waitTime;
-					it++;
                 }
                 else
                 {
-                    // gLogger->log(LogManager::DEBUG,"Removed dormant NPC handler... %"PRIu64"",  (*it).first);
+                    // gLogger->log(LogManager::DEBUG,"Removed dormant NPC handler... %" PRIu64 "",  (*it).first);
 
                     // Requested to remove the handler.
                     mNpcDormantHandlers.erase(it++);
@@ -193,7 +192,7 @@ bool WorldManager::_handleReadyNpcs(uint64 callTime, void* ref)
             {
                 // uint64 waitTime = NpcManager::Instance()->handleReadyNpc(creature, callTime - (*it).second);
                 // gLogger->log(LogManager::DEBUG,"Ready...");
-                // gLogger->log(LogManager::DEBUG,"Ready... ID = %"PRIu64"",  (*it).first);
+                // gLogger->log(LogManager::DEBUG,"Ready... ID = %" PRIu64 "",  (*it).first);
                 uint64 waitTime = NpcManager::Instance()->handleNpc(npc, callTime - (*it).second);
                 if (waitTime)
                 {
@@ -267,7 +266,7 @@ bool WorldManager::_handleActiveNpcs(uint64 callTime, void* ref)
             {
                 // uint64 waitTime = NpcManager::Instance()->handleActiveNpc(creature, callTime - (*it).second);
                 // gLogger->log(LogManager::DEBUG,"Active...");
-                // gLogger->log(LogManager::DEBUG,"Active... ID = %"PRIu64"",  (*it).first);
+                // gLogger->log(LogManager::DEBUG,"Active... ID = %" PRIu64 "",  (*it).first);
                 uint64 waitTime = NpcManager::Instance()->handleNpc(npc, callTime - (*it).second);
                 if (waitTime)
                 {
@@ -308,7 +307,7 @@ uint64 WorldManager::getRandomNpNpcIdSequence()
     while (!done)
     {
         randomNpIdPair = getRandomNpId();
-        // gLogger->log(LogManager::DEBUG,"Got %"PRIu64"",  randomNpIdPair);
+        // gLogger->log(LogManager::DEBUG,"Got %" PRIu64 "",  randomNpIdPair);
 
         // if (checkdNpId(randomNpIdPair) && checkdNpId(randomNpIdPair + 1))
         // Check if next id is free to use
@@ -424,7 +423,7 @@ void WorldManager::addNpcConversation(uint64 interval, NPCObject* npc)
     target->mGroupId = 0;
     if (PlayerObject* player = dynamic_cast<PlayerObject*>(getObjectById(npc->getLastConversationTarget())))
     {
-        target->mGroupId = player->GetCreature()->getGroupId();
+        target->mGroupId = player->getGroupId();
     }
 
     if (gWorldConfig->isInstance())
@@ -434,7 +433,7 @@ void WorldManager::addNpcConversation(uint64 interval, NPCObject* npc)
         while (it != mNpcConversionTimers.end())
         {
             // Only erase if it's same player/group that updates AND when running zone as an instance.
-            // gLogger->log(LogManager::DEBUG,"Comp NPC %"PRIu64" and %"PRIu64"", ((*it).first), npc);
+            // gLogger->log(LogManager::DEBUG,"Comp NPC %" PRIu64 " and %" PRIu64 "", ((*it).first), npc);
             if (((*it).first) == npc->getId())
             {
                 if (target->mGroupId)
@@ -442,7 +441,7 @@ void WorldManager::addNpcConversation(uint64 interval, NPCObject* npc)
                     // We belong to a group.
                     if (target->mGroupId == ((*it).second)->mGroupId)
                     {
-                        // gLogger->log(LogManager::DEBUG,"Delete (group) %"PRIu64"", ((*it).second)->mTargetId);
+                        // gLogger->log(LogManager::DEBUG,"Delete (group) %" PRIu64 "", ((*it).second)->mTargetId);
                         delete ((*it).second);
                         it = mNpcConversionTimers.erase(it);
                         continue;
@@ -475,7 +474,7 @@ void WorldManager::addNpcConversation(uint64 interval, NPCObject* npc)
         {
             if (((*it).first) == npc->getId())
             {
-                // gLogger->log(LogManager::DEBUG,"Delete %"PRIu64"", ((*it).second)->mTargetId);
+                // gLogger->log(LogManager::DEBUG,"Delete %" PRIu64 "", ((*it).second)->mTargetId);
                 delete ((*it).second);
                 mNpcConversionTimers.erase(it);
                 break;
@@ -497,7 +496,7 @@ bool WorldManager::_handleNpcConversionTimers(uint64 callTime,void* ref)
     NpcConversionTimers::iterator it = mNpcConversionTimers.begin();
     while (it != mNpcConversionTimers.end())
     {
-        // gLogger->log(LogManager::DEBUG,"WorldManager::_handleNpcConversionTimers: Checking callTime %"PRIu64" againts %"PRIu64"", callTime, (*it).second);
+        // gLogger->log(LogManager::DEBUG,"WorldManager::_handleNpcConversionTimers: Checking callTime %" PRIu64 " againts %" PRIu64 "", callTime, (*it).second);
         // Npc timer has expired?
         if (callTime >= ((*it).second)->mInterval)
         {
@@ -512,7 +511,7 @@ bool WorldManager::_handleNpcConversionTimers(uint64 callTime,void* ref)
             }
 
             // Remove npc from list.
-            // gLogger->log(LogManager::DEBUG,"\nActivated and deleted %"PRIu64"", ((*it).second)->mTargetId);
+            // gLogger->log(LogManager::DEBUG,"\nActivated and deleted %" PRIu64 "", ((*it).second)->mTargetId);
             delete ((*it).second);
             it = mNpcConversionTimers.erase(it);
             continue;

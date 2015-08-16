@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -27,16 +27,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "MessageLib.h"
 
-#include "ZoneServer/GameSystemManagers/Structure Manager/BuildingObject.h"
-#include "ZoneServer/GameSystemManagers/Structure Manager/CellObject.h"
-#include "ZoneServer/GameSystemManagers/Structure Manager/HouseObject.h"
-#include "ZoneServer/GameSystemManagers/Structure Manager/PlayerStructure.h"
-#include "ZoneServer/Objects/Player Object/PlayerObject.h"
+#include "ZoneServer/BuildingObject.h"
+#include "ZoneServer/CellObject.h"
+#include "ZoneServer/HouseObject.h"
+#include "ZoneServer/PlayerObject.h"
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
 
 
-
+#include "ZoneServer/PlayerStructure.h"
 
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/MessageFactory.h"
@@ -305,21 +304,20 @@ bool MessageLib::sendAdminList(PlayerStructure* structure, PlayerObject* playerO
     if(!(playerObject->isConnected()))
         return(false);
 
-	auto data = structure->getAdminData();
-
     Message* newMessage;
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opSendPermissionList);
-	mMessageFactory->addUint32(data.admin_map_.size());
+    mMessageFactory->addUint32(structure->getStrucureAdminList().size() );
 
-	std::string name;
-
-	auto it = data.admin_map_.begin();
-    while(it != data.admin_map_.end())    {
-		name = (*it).second;
-		std::u16string u16_name(name.begin(), name.end());
-        mMessageFactory->addString(u16_name);
+    BString name;
+    BStringVector vector = 	structure->getStrucureAdminList();
+    BStringVector::iterator it = vector.begin();
+    while(it != vector.end())
+    {
+        name = (*it);
+        name.convert(BSTRType_Unicode16);
+        mMessageFactory->addString(name);
 
         it++;
     }
@@ -327,13 +325,15 @@ bool MessageLib::sendAdminList(PlayerStructure* structure, PlayerObject* playerO
     mMessageFactory->addUint32(0); // ???
     //mMessageFactory->addUint16(0);	// unknown
     name = "ADMIN";
-    std::u16string u16_name(name.begin(), name.end());
-    mMessageFactory->addString(u16_name);
+    name.convert(BSTRType_Unicode16);
+    mMessageFactory->addString(name);
     mMessageFactory->addUint32(0); // ???
 
     newMessage = mMessageFactory->EndMessage();
 
     (playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
+
+    structure->resetStructureAdminList();
 
     return(true);
 }
@@ -348,21 +348,20 @@ bool MessageLib::sendEntryList(PlayerStructure* structure, PlayerObject* playerO
     if(!(playerObject->isConnected()))
         return(false);
 
-    auto data = structure->getAdminData();
-
     Message* newMessage;
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opSendPermissionList);
-	mMessageFactory->addUint32(data.ban_map_.size());
+    mMessageFactory->addUint32(structure->getStrucureEntryList().size() );
 
-	std::string name;
-
-	auto it = data.entry_map_.begin();
-    while(it != data.entry_map_.end())    {
-		name = (*it).second;
-		std::u16string u16_name(name.begin(), name.end());
-        mMessageFactory->addString(u16_name);
+    BString name;
+    BStringVector vector = 	structure->getStrucureEntryList();
+    BStringVector::iterator it = vector.begin();
+    while(it != vector.end())
+    {
+        name = (*it);
+        name.convert(BSTRType_Unicode16);
+        mMessageFactory->addString(name);
 
         it++;
     }
@@ -370,11 +369,15 @@ bool MessageLib::sendEntryList(PlayerStructure* structure, PlayerObject* playerO
     mMessageFactory->addUint32(0); // ???
     //mMessageFactory->addUint16(0);	// unknown
     name = "ENTRY";
-    std::u16string u16_name(name.begin(), name.end());
-    mMessageFactory->addString(u16_name);
+    name.convert(BSTRType_Unicode16);
+    mMessageFactory->addString(name);
     mMessageFactory->addUint32(0); // ???
 
     newMessage = mMessageFactory->EndMessage();
+
+    (playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
+
+    structure->resetStructureAdminList();
 
     return(true);
 }
@@ -390,21 +393,20 @@ bool MessageLib::sendBanList(PlayerStructure* structure, PlayerObject* playerObj
     if(!(playerObject->isConnected()))
         return(false);
 
-   auto data = structure->getAdminData();
-
     Message* newMessage;
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opSendPermissionList);
-	mMessageFactory->addUint32(data.ban_map_.size());
+    mMessageFactory->addUint32(structure->getStrucureBanList().size() );
 
-	std::string name;
-
-	auto it = data.ban_map_.begin();
-    while(it != data.ban_map_.end())    {
-		name = (*it).second;
-		std::u16string u16_name(name.begin(), name.end());
-        mMessageFactory->addString(u16_name);
+    BString name;
+    BStringVector vector = 	structure->getStrucureBanList();
+    BStringVector::iterator it = vector.begin();
+    while(it != vector.end())
+    {
+        name = (*it);
+        name.convert(BSTRType_Unicode16);
+        mMessageFactory->addString(name);
 
         it++;
     }
@@ -412,11 +414,15 @@ bool MessageLib::sendBanList(PlayerStructure* structure, PlayerObject* playerObj
     mMessageFactory->addUint32(0); // ???
     //mMessageFactory->addUint16(0);	// unknown
     name = "BAN";
-    std::u16string u16_name(name.begin(), name.end());
-    mMessageFactory->addString(u16_name);
+    name.convert(BSTRType_Unicode16);
+    mMessageFactory->addString(name);
     mMessageFactory->addUint32(0); // ???
 
     newMessage = mMessageFactory->EndMessage();
+
+    (playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
+
+    structure->resetStructureAdminList();
 
     return(true);
 }

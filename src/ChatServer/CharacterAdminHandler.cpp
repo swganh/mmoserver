@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -41,8 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <boost/lexical_cast.hpp>
 
-
-#include "anh/logger.h"
+#include "Utils/logger.h"
 
 #include <cppconn/resultset.h>
 
@@ -68,9 +67,6 @@ using boost::wregex;
 using boost::wsmatch;
 using boost::regex_match;
 #endif
-
-using namespace swganh;
-using namespace database;
 
 CharacterAdminHandler::CharacterAdminHandler(Database* database, MessageDispatch* dispatch) 
     : database_(database)
@@ -122,7 +118,7 @@ void CharacterAdminHandler::_processRandomNameRequest(Message* message, Dispatch
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
         
         if (!result_set->next()) {
-            LOG(warning) << "Unable to generate random name for client [" << client->getAccountId() << "]";
+            LOG(WARNING) << "Unable to generate random name for client [" << client->getAccountId() << "]";
 
 			Message* newMessage = gMessageFactory->EndMessage();
 			newMessage->setPendingDelete(true);
@@ -166,7 +162,7 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
     wsmatch m;
 
     if (! regex_match(tmp, m, p)) {
-        LOG(warning) << "Invalid character name [" << std::string(tmp.begin(), tmp.end()) << "]";
+        LOG(WARNING) << "Invalid character name [" << std::string(tmp.begin(), tmp.end()) << "]";
         _sendCreateCharacterFailed(15, client);
         return;
     }
@@ -302,7 +298,7 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
         
         if (!result_set->next()) {
-            LOG(warning) << "Unable to generate random name for client [" << client->getAccountId() << "]";
+            LOG(WARNING) << "Unable to generate random name for client [" << client->getAccountId() << "]";
             return;
         }
 
@@ -324,7 +320,7 @@ void CharacterAdminHandler::_parseHairData(Message* message, CharacterCreateInfo
 
     // Get the size of the data block
     uint16 dataSize = message->getUint16();
-    DLOG(info) << "datasize : " << dataSize;
+    DLOG(INFO) << "datasize : " << dataSize;
 
     uint8 startindex = 0;
     uint8 endindex = 0;
@@ -338,7 +334,7 @@ void CharacterAdminHandler::_parseHairData(Message* message, CharacterCreateInfo
 
             startindex = message->getUint8();
             endindex = message->getUint8();
-            DLOG(info) << "StartIndex : "<< startindex << " : EndIndex " << endindex;
+            DLOG(INFO) << "StartIndex : "<< startindex << " : EndIndex " << endindex;
             dataIndex = 2;
         }
 
@@ -372,7 +368,7 @@ void CharacterAdminHandler::_parseHairData(Message* message, CharacterCreateInfo
 
             // Set our attribute value
             info->mHairCustomization[attributeIndex] = ((uint16)valueHighByte << 8) | valueLowByte;
-            DLOG(info) << "Hair Customization Index : " << attributeIndex << "   : data " << info->mHairCustomization[attributeIndex];
+            DLOG(INFO) << "Hair Customization Index : " << attributeIndex << "   : data " << info->mHairCustomization[attributeIndex];
         }
 
         /* uint16 end2  = */message->getUint16();
@@ -577,7 +573,7 @@ void CharacterAdminHandler::_sendCreateCharacterFailed(uint32 errorCode,Dispatch
 
     default:
         errorString = "name_declined_internal_error";
-        DLOG(info) << "CharacterAdminHandler::_sendCreateCharacterFailed Unknown Errorcode in CharacterCreation: " << errorCode;
+        DLOG(INFO) << "CharacterAdminHandler::_sendCreateCharacterFailed Unknown Errorcode in CharacterCreation: " << errorCode;
         break;
     }
 

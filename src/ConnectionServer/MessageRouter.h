@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -38,13 +38,10 @@ class Service;
 class ClientManager;
 class ServerManager;
 class ConnectionClient;
-
+class Database;
 class ConnectionDispatch;
 class Message;
-namespace swganh	{
-namespace database	{
-class Database;
-}}
+
 typedef std::map<uint32,uint32>   MessageRouteMap;
 
 //======================================================================================================================
@@ -63,7 +60,7 @@ class MessageRouter
 {
 public:
 
-    MessageRouter(swganh::database::Database* database, ConnectionDispatch* dispatch);
+    MessageRouter(Database* database, ConnectionDispatch* dispatch);
     ~MessageRouter(void);
 
     void	Process(void);
@@ -81,12 +78,12 @@ private:
 
     void	_loadMessageProcessMap(void);
 
-    ConnectionDispatch*				mConnectionDispatch;
-    ClientManager*					mClientManager;
-    ServerManager*					mServerManager;
-    swganh::database::Database*		mDatabase;
+    ConnectionDispatch*	mConnectionDispatch;
+    ClientManager*		mClientManager;
+    ServerManager*		mServerManager;
+    Database*			mDatabase;
 
-    MessageRouteMap					mMessageRouteMap;
+    MessageRouteMap		mMessageRouteMap;
 };
 
 //======================================================================================================================

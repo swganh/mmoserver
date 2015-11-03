@@ -9,8 +9,8 @@
 
 #include "anh/byte_buffer.h"
 
-using namespace swganh;
-/*
+using namespace anh;
+
 namespace {
 
 TEST(ByteBufferTests, ByteBufferIsEmptyWhenCreated)
@@ -274,4 +274,3 @@ TEST(ByteBufferTests, CanSwapEndian)
 }
 
 }
-*/

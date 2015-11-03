@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -28,11 +28,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_TUTORIAL_H
 #define ANH_ZONESERVER_TUTORIAL_H
 
-//#include "ScriptEngine/ScriptEventListener.h"
+#include "ScriptEngine/ScriptEventListener.h"
 #include "DatabaseManager/DatabaseCallback.h"
 #include <map>
-#include <utils/typedefs.h>
-#include <utils/bstring.h>
+
 class PlayerObject;
 class Container;
 
@@ -47,17 +46,18 @@ enum TutorialQueryType
 //=============================================================================
 
 // class Tutorial : public ObjectFactoryCallback
-class Tutorial : public swganh::database::DatabaseCallback
+class Tutorial : public DatabaseCallback
 {
 public:
 
     Tutorial(PlayerObject* playerObject);
     ~Tutorial();
 
-    void				handleDatabaseJobComplete(void* ref,swganh::database::DatabaseResult* result);
+    void				handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
-    //ScriptEventListener* getScriptInterface() {        return &mCmdScriptListener;    }
-
+    ScriptEventListener* getScriptInterface() {
+        return &mCmdScriptListener;
+    }
     void				npcConversationHasStarted(uint64 npcId);
     void				npcConversationHasEnded(uint64 npcId);
 
@@ -68,9 +68,9 @@ public:
 
     // scripting
     void				ScriptRegisterEvent(void* script,std::string eventFunction);
-    //void				scriptPlayMusic(uint32 soundId);
+    void				scriptPlayMusic(uint32 soundId);
     void				scriptSystemMessage(std::string message);
-    //void				tutorialResponse(BString tutorialEventString);
+    void				tutorialResponse(BString tutorialEventString);
     void				updateTutorial(std::string customMessage);
     void				openHolocron();
     void				spatialChat(uint64 targetId, std::string chatMsg);
@@ -136,14 +136,14 @@ public:
     void				sendStartingMails(void);
 
 private:
-  //  void				tutorialResponseReset(BString tutorialEventString);
+    void				tutorialResponseReset(BString tutorialEventString);
     uint64				getSkillTrainerTypeId(BString startingProfession);
 
     PlayerObject*		mPlayerObject;
 
     // scripting
-    //ScriptList			mPlayerScripts;
-    //ScriptEventListener	mCmdScriptListener;
+    ScriptList			mPlayerScripts;
+    ScriptEventListener	mCmdScriptListener;
 
     // state
     uint32				mState;

@@ -1,0 +1,22 @@
+$#include "ZoneServer/ObjectControllerCommandMap.h"
+
+
+typedef char			int8;
+typedef short			int16;
+typedef long			int32;
+typedef unsigned int      	uint;
+typedef unsigned char     	uint8;
+typedef unsigned short   	uint16;
+typedef unsigned long     	uint32;
+typedef signed char      	sint8;
+typedef signed short      	sint16;
+typedef signed long       	sint32;
+
+class ObjectControllerCommandMap
+{
+	public:
+
+		static ObjectControllerCommandMap*	getSingletonPtr();
+
+		void						ScriptRegisterEvent(void* script,std::string eventFunction);
+};

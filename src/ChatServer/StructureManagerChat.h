@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -54,14 +54,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 typedef std::queue<uint32> TimerEventQueue;
 
-namespace swganh	{
-namespace	database	{
-class Database;
-}}
-
 class ChatManager;
 class StructureManagerAsyncContainer;
 class CommoditiesClass;
+class Database;
 class Message;
 class MessageDispatch;
 class Player;
@@ -103,25 +99,25 @@ struct structure
 
 //======================================================================================================================
 
-class StructureManagerChatHandler : public swganh::database::DatabaseCallback, public TimerCallback
+class StructureManagerChatHandler : public DatabaseCallback, public TimerCallback
 {
 public:
 
     static StructureManagerChatHandler*	getSingletonPtr() {
         return mSingleton;
     }
-    static StructureManagerChatHandler*	Init(swganh::database::Database* database,MessageDispatch* dispatch, ChatManager* chatManager);
+    static StructureManagerChatHandler*	Init(Database* database,MessageDispatch* dispatch, ChatManager* chatManager);
 
     ~StructureManagerChatHandler();
 
-    StructureManagerChatHandler(swganh::database::Database* database,MessageDispatch* dispatch, ChatManager* chatManager);
+    StructureManagerChatHandler(Database* database,MessageDispatch* dispatch, ChatManager* chatManager);
 
     void				Shutdown();
     void				Process();
     // TimerCallback
     virtual void		handleTimer(uint32 id, void* container);
 
-    virtual void		handleDatabaseJobComplete(void* ref,swganh::database::DatabaseResult* result);
+    virtual void		handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
 private:
 
@@ -147,18 +143,18 @@ private:
     static bool					mInsFlag;
 
 
-    swganh::database::Database*		mDatabase;
-    MessageDispatch*				mMessageDispatch;
-    PlayerAccountMap				mPlayerAccountMap;
+    Database*					mDatabase;
+    MessageDispatch*			mMessageDispatch;
+    PlayerAccountMap			mPlayerAccountMap;
 
-    ChatManager*					mChatManager;
+    ChatManager*				mChatManager;
 
-    TimerList						mTimers;
-    TimerEventQueue					mTimerEventQueue;
-    boost::mutex					mTimerMutex;
-    uint64							mTimerQueueProcessTimeLimit;
+    TimerList					mTimers;
+    TimerEventQueue				mTimerEventQueue;
+    boost::mutex                mTimerMutex;
+    uint64						mTimerQueueProcessTimeLimit;
 
-    HarvesterList					mHarvesterList;
+    HarvesterList				mHarvesterList;
 
 };
 

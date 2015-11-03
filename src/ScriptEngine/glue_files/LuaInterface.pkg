@@ -1,0 +1,14 @@
+$pfile "LuaWorldManager.pkg"
+
+$pfile "LuaScript.pkg"
+
+$pfile "LuaObject.pkg"
+
+$pfile "LuaTutorial.pkg"
+
+$pfile "LuaObjectControllerCommandMap.pkg"
+
+$pfile "LuaScriptEngine.pkg"
+
+$pfile "LuaScriptSupport.pkg"
+

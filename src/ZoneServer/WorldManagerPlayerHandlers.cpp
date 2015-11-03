@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -25,11 +25,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "ZoneServer/WorldManager.h"
+#include "WorldManager.h"
 
 #include <sstream>
 
-#include "anh/Utils/Scheduler.h"
+#include "Utils/Scheduler.h"
 #include "Utils/typedefs.h"
 #include "Utils/VariableTimeScheduler.h"
 #include "Utils/utils.h"
@@ -40,54 +40,49 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "MessageLib/MessageLib.h"
 
-//#include "ScriptEngine/ScriptEngine.h"
-//#include "ScriptEngine/ScriptSupport.h"
+#include "ScriptEngine/ScriptEngine.h"
+#include "ScriptEngine/ScriptSupport.h"
 
-#include "Zoneserver/GameSystemManagers/AdminManager.h"
-#include "Zoneserver/GameSystemManagers/Buff Manager/Buff.h"
-//#include "BuffEvent.h"
-#include "Zoneserver/GameSystemManagers/Buff Manager/BuffManager.h"
-#include "ZoneServer/GameSystemManagers/Structure Manager/BuildingObject.h"
-#include "ZoneServer/GameSystemManagers/Structure Manager/CellObject.h"
-#include "ZoneServer/GameSystemManagers/CharacterLoginHandler.h"
-#include "ZoneServer/GameSystemManagers/Conversation Manager/ConversationManager.h"
-#include "ZoneServer/GameSystemManagers/Crafting Manager/CraftingSessionFactory.h"
-#include "ZoneServer/GameSystemManagers/Crafting Manager/SchematicManager.h"
-#include "ZoneServer/Objects/CraftingTool.h"
-#include "ZoneServer/GameSystemManagers/Spawn Manager/CreatureSpawnRegion.h"
-#include "Zoneserver/Objects/Datapad.h"
-#include "ZoneServer/GameSystemManagers/Group Manager/GroupManager.h"
-#include "ZoneServer/GameSystemManagers/Group Manager/GroupObject.h"
-#include "ZoneServer/GameSystemManagers/Structure Manager/FactoryFactory.h"
-#include "ZoneServer/GameSystemManagers/Structure Manager/FactoryObject.h"
-#include "ZoneServer/GameSystemManagers/Structure Manager/HarvesterFactory.h"
-#include "ZoneServer/GameSystemManagers/Structure Manager/HarvesterObject.h"
-#include "ZoneServer/GameSystemManagers/Structure Manager/PlayerStructure.h"
-
-#include "Zoneserver/Objects/Inventory.h"
-#include "ZoneServer/GameSystemManagers/Mission Manager/MissionManager.h"
-#include "ZoneServer/GameSystemManagers/Mission Manager/MissionObject.h"
-#include "ZoneServer/Objects/MountObject.h"
-#include "Zoneserver/GameSystemManagers/NPC Manager/NpcManager.h"
-#include "ZoneServer/GameSystemManagers/NPC Manager/NPCObject.h"
-#include "ZoneServer/Objects/Object/ObjectFactory.h"
-#include "ZoneServer/Objects/Player Object/PlayerObject.h"
-
-#include "ZoneServer/GameSystemManagers/Resource Manager/ResourceManager.h"
-
-#include "ZoneServer/Objects/Shuttle.h"
-#include "ZoneServer/GameSystemManagers/Spatial Index Manager/SpatialIndexManager.h"
-#include "ZoneServer/GameSystemManagers/State Manager/StateManager.h"
-#include "ZoneServer/GameSystemManagers/Travel Manager/TicketCollector.h"
-#include "ZoneServer/GameSystemManagers/Treasury Manager/TreasuryManager.h"
-#include "ZoneServer/Objects/VehicleController.h"
-#include "ZoneServer/WorldConfig.h"
-#include "ZoneServer/ZoneOpcodes.h"
+#include "AdminManager.h"
+#include "Buff.h"
+#include "BuffEvent.h"
+#include "BuffManager.h"
+#include "BuildingObject.h"
+#include "CellObject.h"
+#include "CharacterLoginHandler.h"
+#include "Container.h"
+#include "ConversationManager.h"
+#include "CraftingSessionFactory.h"
+#include "CraftingTool.h"
+#include "CreatureSpawnRegion.h"
+#include "Datapad.h"
+#include "GroupManager.h"
+#include "GroupObject.h"
+#include "FactoryFactory.h"
+#include "FactoryObject.h"
+#include "HarvesterFactory.h"
+#include "HarvesterObject.h"
+#include "Heightmap.h"
+#include "Inventory.h"
+#include "MissionManager.h"
+#include "MissionObject.h"
+#include "MountObject.h"
+#include "NpcManager.h"
+#include "NPCObject.h"
+#include "ObjectFactory.h"
+#include "PlayerObject.h"
+#include "PlayerStructure.h"
+#include "ResourceManager.h"
+#include "SchematicManager.h"
+#include "Shuttle.h"
+#include "SpatialIndexManager.h"
+#include "StateManager.h"
+#include "TicketCollector.h"
+#include "TreasuryManager.h"
+#include "VehicleController.h"
+#include "WorldConfig.h"
+#include "ZoneOpcodes.h"
 #include "ZoneServer.h"
-
-#include "ZoneServer\Services\ham\ham_service.h"
-#include "anh/app/swganh_kernel.h"
-#include "anh\service\service_manager.h"
 
 using std::stringstream;
 
@@ -97,24 +92,20 @@ void WorldManager::savePlayer(uint32 accId, bool remove, WMLogOut logout_type, C
     // Lookup the requested player and abort if not found
     PlayerObject* player_object = getPlayerByAccId(accId);
     if(!player_object) {
-        DLOG(warning) << "WorldManager::savePlayer could not find player with AccId:" << accId << ", save aborted.";
-		SAFE_DELETE(clContainer);
+        DLOG(WARNING) << "WorldManager::savePlayer could not find player with AccId:" << accId << ", save aborted.";
         return;
     }
 
-    // @TODO These need to go into the factories
-	//async save as soon as all queries are send the char can be deleted
-    storeCharacterPosition_(player_object, remove, logout_type, clContainer);    
+    // @TODO These functions should all return future<bool> and at the end a
+    // PlayerSavedEvent created with a conditional on the completion of all
+    // the futures.
+    storeCharacterPosition_(player_object, logout_type, clContainer);
+    storeCharacterAttributes_(player_object, remove, logout_type, clContainer);
 }
 
-void WorldManager::storeCharacterPosition_(PlayerObject* player_object, bool remove, WMLogOut logout_type, CharacterLoadingContainer* clContainer) {
-	if(!player_object) {
-        DLOG(warning) << "WorldManager::storeCharacterPosition_ Trying to save character position with an invalid PlayerObject";
-        return;
-    }
-
-	if(player_object->getLoadState() == LoadState_Loading) {
-        DLOG(warning) << "WorldManager::storeCharacterPosition_ Trying to save character while loading";
+void WorldManager::storeCharacterPosition_(PlayerObject* player_object, WMLogOut logout_type, CharacterLoadingContainer* clContainer) {
+    if(!player_object) {
+        DLOG(WARNING) << "Trying to save character position with an invalid PlayerObject";
         return;
     }
 
@@ -124,133 +115,96 @@ void WorldManager::storeCharacterPosition_(PlayerObject* player_object, bool rem
 
     stringstream query_stream;
 
-	CreatureObject* body = player_object->GetCreature();
+    query_stream << "UPDATE "<<mDatabase->galaxy()<<".characters SET parent_id=" << player_object->getParentId() << ", "
+                 << "oX=" << player_object->mDirection.x << ", "
+                 << "oY=" << player_object->mDirection.y << ", "
+                 << "oZ=" << player_object->mDirection.z << ", "
+                 << "oW=" << player_object->mDirection.w << ", "
+                 << "x=" << (transfer ? clContainer->destination.x : player_object->mPosition.x) << ", "
+                 << "y=" << (transfer ? clContainer->destination.y : player_object->mPosition.y) << ", "
+                 << "z=" << (transfer ? clContainer->destination.z : player_object->mPosition.z) << ", "
+                 << "planet_id=" << (transfer ? 0 : mZoneId) << ", "
+                 << "jedistate=" << player_object->getJediState() << " "
+                 << "WHERE id=" << player_object->getId();
 
-    query_stream << "UPDATE "<<getKernel()->GetDatabase()->galaxy()<<".characters SET parent_id=" << body->getParentId() << ", "
-                 << "oX=" << body->mDirection.x << ", "
-                 << "oY=" << body->mDirection.y << ", "
-                 << "oZ=" << body->mDirection.z << ", "
-                 << "oW=" << body->mDirection.w << ", "
-                 << "x=" << (transfer ? clContainer->destination.x : body->mPosition.x) << ", "
-                 << "y=" << (transfer ? clContainer->destination.y : body->mPosition.y) << ", "
-                 << "z=" << (transfer ? clContainer->destination.z : body->mPosition.z) << ", "
-				 << "planet_id=" << (transfer ? clContainer->planet : mZoneId) << " "
-                 //<< "jedistate=" << player_object->getJediState() << " "
-				 << "WHERE id=" << body->getId();
-
-	//getKernel()->GetDatabase()->executeSqlAsync(clContainer->dbCallback,clContainer, query_stream.str());
-	getKernel()->GetDatabase()->executeAsyncSql(query_stream.str(), [=] (swganh::database::DatabaseResult* result) {
-			
-			storeCharacterAttributes_(player_object, remove, logout_type, clContainer);
-			//clContainer->dbCallback->handleDatabaseJobComplete(clContainer, nullptr);
-	});
-
+    mDatabase->executeAsyncSql(query_stream.str());
 }
 
 void WorldManager::storeCharacterAttributes_(PlayerObject* player_object, bool remove, WMLogOut logout_type, CharacterLoadingContainer* clContainer) {
-    
-	if(!player_object) {
-        DLOG(warning) << "WorldManager::storeCharacterAttributes_ Trying to save character position with an invalid PlayerObject";
-		SAFE_DELETE(clContainer);
+    if(!player_object) {
+        DLOG(WARNING) << "Trying to save character position with an invalid PlayerObject";
+        return;
+    }
+
+    Ham* ham = player_object->getHam();
+    if(!ham) {
+        DLOG(WARNING) << "Unable to retrieve Ham for player: [" << player_object->getId() << "]";
         return;
     }
 
     stringstream query_stream;
 
-	auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
-
-	CreatureObject* player_creature = player_object->GetCreature();
-
-    query_stream << "UPDATE "<<getKernel()->GetDatabase()->galaxy()<<".character_attributes SET "
-				 << "health_current=" << player_creature->GetStatCurrent(HamBar_Health) << ", "
-				 << "strength_current=" << player_creature->GetStatCurrent(HamBar_Strength) << ", "
-				 << "constitution_current=" << player_creature->GetStatCurrent(HamBar_Constitution) << ", "
-                 << "action_current=" << player_creature->GetStatCurrent(HamBar_Action) << ", "
-				 << "quickness_current=" << player_creature->GetStatCurrent(HamBar_Quickness) << ", "
-				 << "stamina_current=" << player_creature->GetStatCurrent(HamBar_Stamina) << ", "
-                 << "mind_current=" << player_creature->GetStatCurrent(HamBar_Mind) << ", "
-				 << "focus_current=" << player_creature->GetStatCurrent(HamBar_Focus) << ", "
-				 << "willpower_current=" << player_creature->GetStatCurrent(HamBar_Willpower) << ", "
-				 
-				 << "health_wounds=" << player_creature->GetStatWound(HamBar_Health) << ", "
-                 << "strength_wounds=" << player_creature->GetStatWound(HamBar_Strength) << ", "
-                 << "constitution_wounds=" << player_creature->GetStatWound(HamBar_Constitution) << ", "
-                 << "action_wounds=" << player_creature->GetStatWound(HamBar_Action) << ", "
-                 << "quickness_wounds=" << player_creature->GetStatWound(HamBar_Quickness) << ", "
-                 << "stamina_wounds=" << player_creature->GetStatWound(HamBar_Stamina) << ", "
-                 << "mind_wounds=" << player_creature->GetStatWound(HamBar_Mind) << ", "
-                 << "focus_wounds=" << player_creature->GetStatWound(HamBar_Focus) << ", "
-                 << "willpower_wounds=" << player_creature->GetStatWound(HamBar_Willpower) << ", "
-
-				 //need to rename the db fields at some time
-				 << "health_max=" << player_creature->GetStatBase(HamBar_Health) << ", "
-                 << "strength_max=" << player_creature->GetStatBase(HamBar_Strength) << ", "
-                 << "constitution_max=" << player_creature->GetStatBase(HamBar_Constitution) << ", "
-                 << "action_max=" << player_creature->GetStatBase(HamBar_Action) << ", "
-                 << "quickness_max=" << player_creature->GetStatBase(HamBar_Quickness) << ", "
-                 << "stamina_max=" << player_creature->GetStatBase(HamBar_Stamina) << ", "
-                 << "mind_max=" << player_creature->GetStatBase(HamBar_Mind) << ", "
-                 << "focus_max=" << player_creature->GetStatBase(HamBar_Focus) << ", "
-                 << "willpower_max=" << player_creature->GetStatBase(HamBar_Willpower) << ", "
-
-				 << "battlefatigue=" << player_creature->GetBattleFatigue() << ", "
-                 << "posture=" << (uint16) player_creature->GetPosture() << ", "
-                 << "moodId=" << static_cast<uint16_t>(player_creature->getMoodId()) << ", "
-                 << "title='" << getKernel()->GetDatabase()->escapeString(player_object->getTitle().getAnsi()) << "', "
+    query_stream << "UPDATE "<<mDatabase->galaxy()<<".character_attributes SET health_current=" << (ham->mHealth.getCurrentHitPoints() - ham->mHealth.getModifier()) << ", "
+                 << "action_current=" << (ham->mAction.getCurrentHitPoints() - ham->mAction.getModifier()) << ", "
+                 << "mind_current=" << (ham->mMind.getCurrentHitPoints() - ham->mMind.getModifier()) << ", "
+                 << "health_wounds=" << ham->mHealth.getWounds() << ", "
+                 << "strength_wounds=" << ham->mStrength.getWounds() << ", "
+                 << "constitution_wounds=" << ham->mConstitution.getWounds() << ", "
+                 << "action_wounds=" << ham->mAction.getWounds() << ", "
+                 << "quickness_wounds=" << ham->mQuickness.getWounds() << ", "
+                 << "stamina_wounds=" << ham->mStamina.getWounds() << ", "
+                 << "mind_wounds=" << ham->mMind.getWounds() << ", "
+                 << "focus_wounds=" << ham->mFocus.getWounds() << ", "
+                 << "willpower_wounds=" << ham->mWillpower.getWounds() << ", "
+                 << "battlefatigue=" << ham->getBattleFatigue() << ", "
+                 << "posture=" << player_object->states.getPosture() << ", "
+                 << "moodId=" << static_cast<uint16_t>(player_object->getMoodId()) << ", "
+                 << "title='" << mDatabase->escapeString(player_object->getTitle().getAnsi()) << "', "
                  << "character_flags=" << player_object->getPlayerFlags() << ", "
-                 << "states=" << player_creature->GetStateBitmask() << ", "
+                 << "states=" << player_object->states.getAction() << ", "
                  << "language=" << player_object->getLanguage() << ", "
                  << "new_player_exemptions=" <<  static_cast<uint16_t>(player_object->getNewPlayerExemptions()) << " "
-                 << "WHERE character_id=" << player_creature->getId();
+                 << "WHERE character_id=" << player_object->getId();
 
-	//LOG(error) << "query : " << query_stream.str();
+    mDatabase->executeAsyncSql(query_stream.str(), [=, &clContainer] (DatabaseResult* result) {
+        if(remove) {
+            if(!player_object) {
+                return;
+            }
 
-	if((logout_type == WMLogOut_Zone_Transfer) && clContainer) {
-		getKernel()->GetDatabase()->executeSqlAsync(clContainer->dbCallback, clContainer, query_stream.str());
-		return;
-	}
+            GroupObject* group = gGroupManager->getGroupObject(player_object->getGroupId());
+            if(group) {
+                group->removePlayer(player_object->getId());
+            }
 
-	getKernel()->GetDatabase()->executeAsyncSql(query_stream.str());
-
-	if((logout_type == WMLogOut_Char_Load) && clContainer) {
-        gObjectFactory->requestObject(ObjType_Player, 0, 0, clContainer->ofCallback, clContainer->mPlayerId, clContainer->mClient);
-
-	}
-
-	if(remove) {
-        if(!player_object) {
-			//SAFE_DELETE(clContainer);
-			return;
+            destroyObject(player_object);
         }
 
-        GroupObject* group = gGroupManager->getGroupObject(player_creature->getGroupId());
-        if(group) {
-            group->removePlayer(player_object->getId());
+        if(logout_type == WMLogOut_Char_Load && !clContainer) {
+            gObjectFactory->requestObject(ObjType_Player, 0, 0, clContainer->ofCallback, clContainer->mPlayerId, clContainer->mClient);
+            SAFE_DELETE(clContainer);
         }
-            
-		destroyObject(player_object->GetCreature());
-    }
-
+    });
 }
 //======================================================================================================================
 
 void WorldManager::savePlayerSync(uint32 accId,bool remove)
 {
     PlayerObject* playerObject = getPlayerByAccId(accId);
- /*   Ham* ham = playerObject->getHam();
+    Ham* ham = playerObject->getHam();
 
-    getKernel()->GetDatabase()->destroyResult(getKernel()->GetDatabase()->executeSynchSql("UPDATE %s.characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u WHERE id=%"PRIu64"",
-                              getKernel()->GetDatabase()->galaxy(),playerObject->getParentId()
+    mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.characters SET parent_id=%" PRIu64 ",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u WHERE id=%" PRIu64 "",
+                              mDatabase->galaxy(),playerObject->getParentId()
                              ,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
                              ,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
                              ,mZoneId,playerObject->getId()));
 
 
-    getKernel()->GetDatabase()->destroyResult(getKernel()->GetDatabase()->executeSynchSql("UPDATE %s.character_attributes SET health_current=%u,action_current=%u,mind_current=%u"
+    mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.character_attributes SET health_current=%u,action_current=%u,mind_current=%u"
                              ",health_wounds=%u,strength_wounds=%u,constitution_wounds=%u,action_wounds=%u,quickness_wounds=%u"
                              ",stamina_wounds=%u,mind_wounds=%u,focus_wounds=%u,willpower_wounds=%u,battlefatigue=%u,posture=%u,moodId=%u,title=\'%s\'"
-                             ",character_flags=%u,states=%"PRIu64",language=%u, group_id=%"PRIu64" WHERE character_id=%"PRIu64"",
-                             getKernel()->GetDatabase()->galaxy(),ham->mHealth.getCurrentHitPoints() - ham->mHealth.getModifier(), //Llloydyboy Added the -Modifier so that when buffs are reinitialised, it doesn't screw up HAM
+                             ",character_flags=%u,states=%" PRIu64 ",language=%u, group_id=%" PRIu64 " WHERE character_id=%" PRIu64 "",
+                             mDatabase->galaxy(),ham->mHealth.getCurrentHitPoints() - ham->mHealth.getModifier(), //Llloydyboy Added the -Modifier so that when buffs are reinitialised, it doesn't screw up HAM
                              ham->mAction.getCurrentHitPoints() - ham->mAction.getModifier(), //Llloydyboy Added the -Modifier so that when buffs are reinitialised, it doesn't screw up HAM
                              ham->mMind.getCurrentHitPoints() - ham->mMind.getModifier(),	 //Llloydyboy Added the -Modifier so that when buffs are reinitialised, it doesn't screw up HAM
                              ham->mHealth.getWounds(),
@@ -263,7 +217,7 @@ void WorldManager::savePlayerSync(uint32 accId,bool remove)
                              ham->mFocus.getWounds(),
                              ham->mWillpower.getWounds(),
                              ham->getBattleFatigue(),
-                             (uint16) playerObject->GetPosture(),
+                             playerObject->states.getPosture(),
                              playerObject->getMoodId(),
                              playerObject->getTitle().getAnsi(),
                              playerObject->getPlayerFlags(),
@@ -271,7 +225,7 @@ void WorldManager::savePlayerSync(uint32 accId,bool remove)
                              playerObject->getLanguage(),
                              playerObject->getGroupId(),
                              playerObject->getId()));
-*/
+
     gBuffManager->SaveBuffs(playerObject, GetCurrentGlobalTick());
     if(remove)
         destroyObject(playerObject);
@@ -282,7 +236,7 @@ void WorldManager::savePlayerSync(uint32 accId,bool remove)
 // TODO: add in server config how often they can save
 bool WorldManager::checkSavePlayer(PlayerObject* playerObject)
 {
-    return (playerObject->getSaveTimer() >= 30000);
+    return (playerObject->getSaveTimer() >= 12000);
 }
 //======================================================================================================================
 
@@ -312,13 +266,14 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 
     if(playerObject->getMount() && datapad)
     {
-		if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(this->getObjectById(playerObject->getMount()->controller())))        {
+        if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(datapad->getDataById(playerObject->getMount()->controller())))
+        {
             datapad_pet->Store();
         }
     }
 
     // Delete private owned spawned objects, like npc's in the Tutorial.
-/*    uint64 privateOwnedObjectId = ScriptSupport::Instance()->getObjectOwnedBy(playerObject->getId());
+    uint64 privateOwnedObjectId = ScriptSupport::Instance()->getObjectOwnedBy(playerObject->getId());
     while (privateOwnedObjectId != 0)
     {
         // Delete the object ref from script support.
@@ -331,24 +286,26 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
             playerObject->removeDefenderAndUpdateList(object->getId());
 
             destroyObject(object);
-            // gLogger->log(LogManager::DEBUG,"WorldManager::addDisconnectedPlayer Deleted object with id  %"PRIu64"",privateOwnedObjectId);
+            // gLogger->log(LogManager::DEBUG,"WorldManager::addDisconnectedPlayer Deleted object with id  %" PRIu64 "",privateOwnedObjectId);
         }
 
         privateOwnedObjectId = ScriptSupport::Instance()->getObjectOwnedBy(playerObject->getId());
     }
-	*/
+
     removeObjControllerToProcess(playerObject->getController()->getTaskId());
-    
-	removeEntertainerToProcess(playerObject->GetCreature()->getEntertainerTaskId());
+    removeCreatureHamToProcess(playerObject->getHam()->getTaskId());
+    removeCreatureStomachToProcess(playerObject->getStomach()->mDrinkTaskId);
+    removeCreatureStomachToProcess(playerObject->getStomach()->mFoodTaskId);
+    removeEntertainerToProcess(playerObject->getEntertainerTaskId());
 
     gCraftingSessionFactory->destroySession(playerObject->getCraftingSession());
     playerObject->setCraftingSession(NULL);
-    gStateManager.removeActionState(playerObject->GetCreature(), CreatureState_Crafting);
+    gStateManager.removeActionState(playerObject, CreatureState_Crafting);
 
     //despawn camps ??? - every reference is over id though
 
     playerObject->getController()->setTaskId(0);
-   
+    playerObject->getHam()->setTaskId(0);
     playerObject->setSurveyState(false);
     playerObject->setSamplingState(false);
     playerObject->togglePlayerFlagOn(PlayerFlag_LinkDead);
@@ -375,7 +332,7 @@ void WorldManager::addReconnectedPlayer(PlayerObject* playerObject)
     playerObject->setDisconnectTime(timeOut);
 
     // resetting move, save and tickcounters
-    playerObject->GetCreature()->setInMoveCount(0);
+    playerObject->setInMoveCount(0);
     playerObject->setClientTickCount(0);
     playerObject->setSaveTimer(0);
 
@@ -391,7 +348,7 @@ void WorldManager::removePlayerFromDisconnectedList(PlayerObject* playerObject)
     it = std::find(mPlayersToRemove.begin(),mPlayersToRemove.end(),playerObject);
     if(it == mPlayersToRemove.end())
     {
-        DLOG(info) << "WorldManager::addReconnectedPlayer: Error removing Player from Disconnected List: " << playerObject->getId();
+        DLOG(INFO) << "WorldManager::addReconnectedPlayer: Error removing Player from Disconnected List: " << playerObject->getId();
     }
     else
     {
@@ -408,7 +365,9 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 {
     // remove from cell if we are in one / SI
 	gSpatialIndexManager->RemoveObjectFromWorld(playerObject);
-
+	
+	//we've removed the taskId, now lets reset the Id
+	playerObject->getHam()->setTaskId(0);
 
     //
 // Handle update of player movements. We need to have a consistent update of the world around us,
@@ -418,9 +377,9 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 	// reset player properties
 	playerObject->resetProperties();
 
-	playerObject->GetCreature()->setParentId(parentId);
-	playerObject->GetCreature()->mPosition		= destination;
-	playerObject->GetCreature()->mDirection	= direction;
+	playerObject->setParentId(parentId);
+	playerObject->mPosition		= destination;
+	playerObject->mDirection	= direction;
 
 	// start the new scene
 	gMessageLib->sendStartScene(mZoneId,playerObject);
@@ -433,9 +392,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 	gSpatialIndexManager->sendCreatePlayer(playerObject,playerObject);
 
 	// initialize ham regeneration
-	auto ham = getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
-	ham->addToRegeneration(playerObject->GetCreature()->getId());
-
+	playerObject->getHam()->checkForRegen();
 	playerObject->getStomach()->checkForRegen();
 }
 //======================================================================================================================
@@ -469,7 +426,7 @@ bool	WorldManager::_handlePlayerSaveTimers(uint64 callTime, void* ref)
 
         ++playerIt;
     }
-    //LOG(warning) << "Periodic Save of "<< playerSaveCount <<" Players";
+    LOG(WARNING) << "Periodic Save of "<< playerSaveCount <<" Players";
     return true;
 }
 //======================================================================================================================

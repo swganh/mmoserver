@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -38,25 +38,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/OutOfBand.h"
 
 #include "ZoneServer/MoodTypes.h"
-#include "ZoneServer/ObjectController/ObjectController.h"
-#include "ZoneServer/GameSystemManagers/Skill Manager/Skill.h"   //for skillmodslist
+#include "ZoneServer/ObjectController.h"
+#include "ZoneServer/Skill.h"   //for skillmodslist
 #include "ZoneServer/SocialChatTypes.h"
-
-#include "MessageLib\messages\deltas_message.h"
-#include "MessageLib\/messages\baselines_message.h"
-#include "Utils/ConcurrentQueue.h"
 
 #define	 gMessageLib	MessageLib::getSingletonPtr()
 
-namespace	swganh	{
-namespace	event_dispatcher	{
-	class EventDispatcher;
-}
-}
-
-class CreatureMessageBuilder;
-class ObjectMessageBuilder;
-class PlayerMessageBuilder;
 class MessageFactory;
 class Item;
 class IntangibleObject;
@@ -95,8 +82,6 @@ typedef std::set<PlayerObject*>			PlayerObjectSetML;
 typedef std::list<PlayerObject*>		PlayerList;
 typedef std::list<Object*>				ObjectList;
 
-typedef utils::ConcurrentQueueLight< MessageFactory*>			ConcurrentMessageFactoryQueue;
-
 enum ObjectUpdate
 {
     ObjectUpdateRewriteAll	= 0,
@@ -105,36 +90,15 @@ enum ObjectUpdate
     ObjectUpdateChange		= 3
 };
 
-namespace swganh	{
-	namespace	app	{
-		class SwganhKernel;
-	}}
-
 //======================================================================================================================
 
 class MessageLib
 {
 public:
     static MessageLib*	getSingletonPtr() { return mSingleton; }
-    static MessageLib*	Init(swganh::app::SwganhKernel* kernel);
+    static MessageLib*	Init();
 
     void				setGrid(zmap*	grid){mGrid = grid;}
-
-	/*	@brief Broadcast a delta to all playerentities in range. This method is threadsafe
-	*
-	*/
-	void				broadcastDelta(swganh::messages::DeltasMessage& message, const Object* object);
-	
-	/*	@brief sends a delta to the given player only. This method is threadsafe
-	*	
-	*/
-	void				sendDelta(swganh::messages::DeltasMessage& message, PlayerObject* player);
-
-	void				sendMessage(swganh::messages::BaseSwgMessage& message, PlayerObject* player);
-
-	void				sendBaseline(swganh::messages::BaselinesMessage& message, PlayerObject* player);
-
-
 
     // multiple messages, messagelib.cpp
     bool				sendCreateManufacturingSchematic(ManufacturingSchematic* manSchem,PlayerObject* playerObject,bool attributes = true);
@@ -163,7 +127,7 @@ public:
     */
     bool sendCreateStaticObject(TangibleObject* tangible, PlayerObject* target);
 
-	bool				sendCreateInTangible(IntangibleObject* intangibleObject, PlayerObject* targetObject);
+	bool				sendCreateInTangible(IntangibleObject* intangibleObject, uint64 containmentId, PlayerObject* targetObject);
 
 	// structures
 	bool				sendCreateInstallation(PlayerStructure* structure,PlayerObject* player);
@@ -210,28 +174,20 @@ public:
     * \param target The target to receive the player object baselines.
     */
     bool sendCreatePlayer(PlayerObject* player, PlayerObject* target);
-
-	bool sendCreateGhost(PlayerObject* player, PlayerObject* target);
     
 
     void				sendInventory(PlayerObject* playerObject);
     bool				sendEquippedItems(PlayerObject* srcObject,PlayerObject* targetObject);
 
-	bool				sendBaselinesCREO_1(PlayerObject* player);
-
-	bool				sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject* targetObject);
-	bool				sendBaselinesCREO_4(PlayerObject* player);
-	bool				sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject* targetObject);
-
     // common messages, commonmessages.cpp
-    bool				sendCreateObjectByCRC(Object* object,const PlayerObject* const targetObject) const;
-    bool				sendContainmentMessage(uint64 objectId,uint64 parentId,int32 linkType,const PlayerObject* const targetObject) const;
-    bool				sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,int32 linkType,PlayerObject* targetObject);
-    bool				sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,int32 linkType,CreatureObject* targetObject);
-    bool				broadcastContainmentMessage(uint64 objectId,uint64 parentId,int32 linkType,PlayerObject* targetObject);
-    bool				broadcastContainmentMessage(Object* targetObject,uint64 parentId,int32 linkType);	// Used by Creatures.
+    bool				sendCreateObjectByCRC(Object* object,const PlayerObject* const targetObject,bool player) const;
+    bool				sendContainmentMessage(uint64 objectId,uint64 parentId,uint32 linkType,const PlayerObject* const targetObject) const;
+    bool				sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,uint32 linkType,PlayerObject* targetObject);
+    bool				sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,uint32 linkType,CreatureObject* targetObject);
+    bool				broadcastContainmentMessage(uint64 objectId,uint64 parentId,uint32 linkType,PlayerObject* targetObject);
+    bool				broadcastContainmentMessage(Object* targetObject,uint64 parentId,uint32 linkType);	// Used by Creatures.
     bool				sendOpenedContainer(uint64 objectId, PlayerObject* targetObject);
-    //bool				sendPostureMessage(CreatureObject* creatureObject,PlayerObject* targetObject);
+    bool				sendPostureMessage(CreatureObject* creatureObject,PlayerObject* targetObject);
     bool				sendEndBaselines(uint64 objectId,const PlayerObject* const targetObject) const;
     bool				sendDestroyObject(uint64 objectId, PlayerObject* const targetObject) const;
     bool				sendDestroyObject(uint64 objectId, CreatureObject* const owner) const;
@@ -258,8 +214,7 @@ public:
      *                     only. By default this is false meaning messages are by default displayed on screen and the chatbox.
      * @param send_to_inrange If true the message is sent to all in-range players of the target recipient.
      */
-    bool SendSystemMessage(const std::u16string& custom_message, const PlayerObject* const player = NULL, bool chatbox_only = false, bool send_to_inrange = false);
-	bool SendSystemMessage(const std::wstring& custom_message, const PlayerObject* const player = NULL, bool chatbox_only = false, bool send_to_inrange = false);
+    bool SendSystemMessage(const std::wstring& custom_message, const PlayerObject* const player = NULL, bool chatbox_only = false, bool send_to_inrange = false);
 
     /**
      * Sends a STF package as a system message.
@@ -306,7 +261,7 @@ public:
     * \param matched_players The players that fit the character match requirements.
     * \param target The target to receive the character match results.
     */
-    bool				sendCharacterMatchResults(const PlayerList* const matchedPlayers, PlayerObject*  target) const;
+    bool				sendCharacterMatchResults(const PlayerList* const matchedPlayers, const PlayerObject* const target) const;
 
     // objcontroller, objcontrollermessages.cpp
     void				sendCombatAction(CreatureObject* attacker,Object* defender,uint32 animation,uint8 trail1 = 0,uint8 trail2 = 0,uint8 hit = 0);
@@ -351,7 +306,9 @@ public:
     */
     void sendFlyText(Object* source, PlayerObject* player, const std::string& stf_file, const std::string& stf_var, unsigned char red, unsigned char green, unsigned char blue, unsigned char display);
 
-    //void				sendSetWaypointActiveStatus(WaypointObject* waypointObject, bool active, PlayerObject* targetObject);
+
+    void				sendSelfPostureUpdate(PlayerObject* playerObject);
+    void				sendSetWaypointActiveStatus(WaypointObject* waypointObject, bool active, PlayerObject* targetObject);
 
     // spatial
 
@@ -426,15 +383,35 @@ public:
     // position updates for tutorial
     void				sendDataTransform(Object* object, PlayerObject* player);
     void				sendDataTransformWithParent(Object* object, PlayerObject* player);
-    
-    
 
+
+    // creature object, creaturemessages.cpp
+    bool				sendBaselinesCREO_1(PlayerObject* player);
+    bool				sendBaselinesCREO_3(CreatureObject* srcObject,PlayerObject* targetObject);
+    bool				sendBaselinesCREO_4(PlayerObject* player);
+    bool				sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject* targetObject);
+
+    // deltas
+	void				sendDefenderUpdate(CreatureObject* creatureObject,uint8 updateType,uint16 index,uint64 defenderId);
+	void				sendNewDefenderList(CreatureObject* creatureObject);
+	bool				sendDeltasCREO_3(CreatureObject* creatureObject,PlayerObject* targetObject);
+
+    /** Sends an update of the equipped items on a creature object to a target player.
+    *
+    * \param creature The creature object to send the equipment list update about.
+    * \param target The target player to receive the list update.
+    */
+	bool				sendEquippedListUpdate(CreatureObject* creatureObject, CreatureObject* targetObject);
+	bool				sendEquippedListUpdate_InRange(CreatureObject* creatureObject);
+	bool				sendEquippedItemUpdate_InRange(CreatureObject* creatureObject, uint64 itemId);
+	void				sendPostureUpdate(CreatureObject* creatureObject);
 	void				sendMoodUpdate(CreatureObject* creatureObject);
-	
+	bool				sendBankCreditsUpdate(PlayerObject* playerObject);
+	bool				sendInventoryCreditsUpdate(PlayerObject* playerObject);
 	bool				sendUpdateMovementProperties(PlayerObject* playerObject);
-	
+	void				sendStateUpdate(CreatureObject* creatureObject);
 	void				sendSingleBarUpdate(CreatureObject* creatureObject);
-	
+	void				sendPostureAndStateUpdate(CreatureObject* creatureObject);
 	bool				sendSkillDeltasCreo1(Skill* skill,uint8 action,PlayerObject* targetObject);
 	bool				sendSkillModDeltasCREO_4(SkillModsList smList,uint8 remove,CreatureObject* creatureObject,PlayerObject* playerObject);
 	bool				sendUpdatePvpStatus(CreatureObject* creatureObject,PlayerObject* targetObject,uint32 statusMask = 0);
@@ -444,15 +421,24 @@ public:
 	void				sendListenToId(PlayerObject* playerObject);
 	void				sendTerrainNegotiation(CreatureObject* creatureObject);
 	void				sendMoodString(CreatureObject* creatureObject,BString animation);
+	void				sendWeaponIdUpdate(CreatureObject* creatureObject);
 	void				sendIncapTimerUpdate(CreatureObject* creatureObject);
 	bool				sendSkillModUpdateCreo4(PlayerObject* playerObject);
 
-    
+    // ham
+    void				sendMaxHitpointDeltasCreo6_Single(CreatureObject* creatureObject,uint8 barIndex);
+    void				sendBaseHitpointDeltasCreo1_Single(CreatureObject* creatureObject,uint8 barIndex);
+
+    void				sendCurrentHitpointDeltasCreo6_Single(CreatureObject* creatureObject,uint8 barIndex);
+    void				sendCurrentHitpointDeltasCreo6_Full(CreatureObject* creatureObject);
+    void				sendWoundUpdateCreo3(CreatureObject* creatureObject,uint8 barIndex);
+    void				sendBFUpdateCreo3(CreatureObject* playerObject);
+
     // creature owner
     void				sendOwnerUpdateCreo3(MountObject* mount);
 
     // group
-    void				sendGroupIdUpdateDeltasCreo6(uint64 groupId,  PlayerObject*  player, const PlayerObject* const target) const;
+    void				sendGroupIdUpdateDeltasCreo6(uint64 groupId, const PlayerObject* const player, const PlayerObject* const target) const;
     void				sendInviteSenderUpdateDeltasCreo6(uint64 id, PlayerObject* targetPlayer);
 
 
@@ -478,12 +464,13 @@ public:
     bool				sendBaselinesPLAY_9(PlayerObject* playerObject,PlayerObject* targetObject);
 
     	// deltas
-	
+	bool				sendUpdateCurrentForce(PlayerObject* playerObject);
+	bool				sendUpdateMaxForce(PlayerObject* playerObject);
 	bool				sendMatchPlay3(PlayerObject* playerObject);
-	
+	bool				sendWaypointsUpdate(PlayerObject* playerObject);
 	void				sendTitleUpdate(PlayerObject* playerObject);
 	void				sendUpdatePlayerFlags(PlayerObject* playerObject);
-	
+	bool				sendUpdateWaypoint(WaypointObject* waypoint,ObjectUpdate updateType,PlayerObject* playerObject);
 	bool				sendSkillCmdDeltasPLAY_9(PlayerObject* playerObject);
 	bool				sendSchematicDeltasPLAY_9(PlayerObject* playerObject);
 	bool				sendUpdateXpTypes(SkillXpTypesList newXpTypes,uint8 remove,PlayerObject* playerObject);
@@ -511,11 +498,11 @@ public:
 	bool				sendUpdateCrateContent(FactoryCrate* crate,PlayerObject* playerObject);
 
 	// tangible object, tangiblemessages.cpp
-	bool				sendBaselinesTANO_3( TangibleObject*  tangibleObject,const PlayerObject* const targetObject) const;
-	bool				sendBaselinesTANO_6( TangibleObject*  tangibleObject,const PlayerObject* const targetObject) const;
+	bool				sendBaselinesTANO_3(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
+	bool				sendBaselinesTANO_6(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
 	// bool				sendBaselinesTANO_7(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
-	bool				sendBaselinesTANO_8(TangibleObject* tangibleObject,const PlayerObject* const targetObject) const;
-	bool				sendBaselinesTANO_9(TangibleObject* tangibleObject,const PlayerObject* const targetObject) const;
+	bool				sendBaselinesTANO_8(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
+	bool				sendBaselinesTANO_9(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
 
 	//bool				sendItemChildren(TangibleObject* srcObject,PlayerObject* targetObject);
 
@@ -543,11 +530,11 @@ public:
 	bool				sendMissionComplete(PlayerObject* targetObject);
 
 	// manufacturing schematic object, manschematicmessages.cpp
-	bool				sendBaselinesMSCO_3(ManufacturingSchematic* manSchem,PlayerObject* ghost,bool sendAttributes = true);
-	bool				sendBaselinesMSCO_6(ManufacturingSchematic* manSchem,PlayerObject* ghost);
-	bool				sendBaselinesMSCO_8(ManufacturingSchematic* manSchem,PlayerObject* ghost);
-	bool				sendBaselinesMSCO_9(ManufacturingSchematic* manSchem,PlayerObject* ghost);
-	bool				sendBaselinesMSCO_7(ManufacturingSchematic* manSchem,PlayerObject* ghost);
+	bool				sendBaselinesMSCO_3(ManufacturingSchematic* manSchem,PlayerObject* playerObject,bool sendAttributes = true);
+	bool				sendBaselinesMSCO_6(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
+	bool				sendBaselinesMSCO_8(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
+	bool				sendBaselinesMSCO_9(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
+	bool				sendBaselinesMSCO_7(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
 
 	// deltas
 	bool				sendDeltasMSCO_3(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
@@ -670,32 +657,21 @@ public:
     ~MessageLib();
 
 private:
-	/*	@brief	queries the MessageFactoryQueue until a MessageFactory has been popped
-	*	@returns returns the popped MessageFactory
-	*/
-	MessageFactory*		getFactory_();
 
-    MessageLib(swganh::app::SwganhKernel* kernel);
+    MessageLib();
     
     bool				_checkDistance(const glm::vec3& mPosition1, Object* object, uint32 heapWarningLevel);
 
 	bool				_checkPlayer(const PlayerObject* const player) const;
 	bool				_checkPlayer(uint64 playerId) const;
 
-	/*	@brief sends the given unreliable Message to all players in range
-	*
-	*/
 	void				_sendToInRangeUnreliable(Message* message, Object* const object, unsigned char priority, bool to_self = true);
-	
-	/*	@brief sends the given reliable Message to all players in range
-	*
-	*/
-	void				_sendToInRange(Message* message, const Object* object, unsigned char priority) const;
+	void				_sendToInRange(Message* message, Object* const object, unsigned char priority, bool to_self = true) const;
 
 	void				_sendToInRangeUnreliableChat(Message* message, const CreatureObject* object, unsigned char priority, uint32_t crc);
 	void				_sendToInRangeUnreliableChatGroup(Message* message, const CreatureObject* object, unsigned char priority, uint32_t crc);
 	
-	void				_sendToInstancedPlayersUnreliable(Message* message, unsigned char priority, PlayerObject* player) const;
+	void				_sendToInstancedPlayersUnreliable(Message* message, unsigned char priority, const PlayerObject* const player) const;
 	void				_sendToInstancedPlayers(Message* message, unsigned char priority, PlayerObject* const player) const;
 	void				_sendToAll(Message* message, unsigned char priority, bool unreliable = false) const;
    
@@ -722,7 +698,7 @@ private:
      *                     only. By default this is false meaning messages are by default displayed on screen and the chatbox.
      * @param send_to_inrange If true the message is sent to all in-range players of the target recipient.
      */
-    bool SendSystemMessage_(const std::u16string& custom_message, const common::OutOfBand& prose, PlayerObject* player, bool chatbox_only, bool send_to_inrange);
+    bool SendSystemMessage_(const std::wstring& custom_message, const common::OutOfBand& prose, PlayerObject* player, bool chatbox_only, bool send_to_inrange);
 
     /**
      * Sends a message via spatial chat using a ProsePackage (STF string), spoken by the specified object.
@@ -745,15 +721,7 @@ private:
 
 	zmap*				mGrid;
 
-    MessageFactory*								mMessageFactory;
-
-	ConcurrentMessageFactoryQueue					factory_queue_;
-	swganh::app::SwganhKernel*						kernel_;
-	
-	swganh::event_dispatcher::EventDispatcher*		event_dispatcher_;
-	std::shared_ptr<CreatureMessageBuilder>			creature_message_builder_;
-	std::shared_ptr<PlayerMessageBuilder>			player_message_builder_;
-	std::shared_ptr<ObjectMessageBuilder>			object_message_builder_;
+    MessageFactory*		mMessageFactory;
 };
 
 //======================================================================================================================

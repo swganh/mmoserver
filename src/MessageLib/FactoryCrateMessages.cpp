@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -28,9 +28,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageLib.h"
 
 
-#include "ZoneServer/Objects/Object/ObjectFactory.h"
-#include "ZoneServer/Objects/Player Object/PlayerObject.h"
-#include "Zoneserver/GameSystemManagers/Structure Manager/FactoryCrate.h"
+#include "ZoneServer/ObjectFactory.h"
+#include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/FactoryCrate.h"
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
 
@@ -53,14 +53,14 @@ bool MessageLib::sendBaselinesTYCF_3(FactoryCrate* crate,PlayerObject* targetObj
     if(!(targetObject->isConnected()))
         return(false);
 
-    std::u16string customName;
+    BString customName;
     BString NameFile;
     BString Name;
 
     TangibleObject* tO = crate->getLinkedObject();
     if(!tO)
     {
-		customName = crate->getCustomName();
+        customName = crate->getCustomName();
         NameFile = crate->getNameFile();
         Name = crate->getName();
     }
@@ -71,6 +71,9 @@ bool MessageLib::sendBaselinesTYCF_3(FactoryCrate* crate,PlayerObject* targetObj
         Name = tO->getName();
     }
 
+
+    customName.convert(BSTRType_Unicode16);
+
     mMessageFactory->StartMessage();
 
 
@@ -79,7 +82,7 @@ bool MessageLib::sendBaselinesTYCF_3(FactoryCrate* crate,PlayerObject* targetObj
     mMessageFactory->addString(NameFile.getAnsi());
     mMessageFactory->addUint32(0);	// unknown
     mMessageFactory->addString(Name.getAnsi());
-    mMessageFactory->addString(customName);
+    mMessageFactory->addString(customName.getUnicode16());
     uint32 uses = 0;
 
     mMessageFactory->addUint32(1);//volume gives the volume taken up in the inventory!!!!!!!!
@@ -90,7 +93,7 @@ bool MessageLib::sendBaselinesTYCF_3(FactoryCrate* crate,PlayerObject* targetObj
 
     if(crate->hasAttribute("factory_count"))
     {
-        uses = crate->getAttribute<int>(std::string("factory_count"));
+        uses = crate->getAttribute<int>("factory_count");
     }
 
     mMessageFactory->addUint32(uses);//
@@ -268,7 +271,7 @@ bool MessageLib::sendUpdateCrateContent(FactoryCrate* crate,PlayerObject* player
     uint32 amount = 0;
     if(crate->hasAttribute("factory_count"))
     {
-        amount = crate->getAttribute<int>(std::string("factory_count"));
+        amount = crate->getAttribute<int>("factory_count");
     }
 
 

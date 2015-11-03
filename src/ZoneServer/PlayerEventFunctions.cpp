@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -25,30 +25,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "ZoneServer/Objects/Player Object/PlayerObject.h"
-#include "ZoneServer/Objects/Object/ObjectFactory.h"
-
-#include "ZoneServer/ProfessionManagers/Medic Manager/WoundTreatmentEvent.h"
-#include "ZoneServer/ProfessionManagers/Medic Manager/QuickHealInjuryTreatmentEvent.h"
-#include "ZoneServer/ProfessionManagers/Medic Manager/InjuryTreatmentEvent.h"
-#include "ZoneServer/GameSystemManagers/Event Manager/LogOutEvent.h"
-#include "ZoneServer/GameSystemManagers/Container Manager/ContainerManager.h"
-
-#include <ZoneServer/Objects/ItemDeleteEvent.h>
-#include <ZoneServer/Objects/Item.h>
-
-
-#include "ZoneServer/WorldManager.h"
-
-#include "anh/Utils/clock.h"
+#include "PlayerObject.h"
+#include "Datapad.h"
+#include "Inventory.h"
+#include "MissionManager.h"
+#include "ObjectFactory.h"
+#include "ResourceManager.h"
+#include "ResourceContainer.h"
+#include "ResourceType.h"
+#include "Buff.h"
+#include "UIEnums.h"
+#include "UIManager.h"
+#include "Heightmap.h"
+#include "WaypointObject.h"
+#include "WorldManager.h"
+#include "ContainerManager.h"
+#include "DatabaseManager/Database.h"
+#include "Utils/clock.h"
 #include "MessageLib/MessageLib.h"
 
-//#include "DatabaseManager/Database.h"
-
 #include "Common/OutOfBand.h"
-//#include "NetworkManager/Message.h"
-//#include "NetworkManager/MessageFactory.h"
-#include "anh/Utils/rand.h"
+#include "NetworkManager/Message.h"
+#include "NetworkManager/MessageFactory.h"
+#include "Utils/rand.h"
 
 #include <algorithm>
 

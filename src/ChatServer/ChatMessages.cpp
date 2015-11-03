@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -34,7 +34,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Mail.h"
 #include "Player.h"
 
-#include "anh/logger.h"
+
+#ifdef ERROR
+#undef ERROR
+#endif
+
+#include "Utils/logger.h"
 
 #include "Common/atMacroString.h"
 #include "NetworkManager/DispatchClient.h"
@@ -250,7 +255,7 @@ void ChatMessageLib::sendSoldAuctionMail(DispatchClient* client,uint64 Sender, u
 
     aMS->addMBstf("auction","seller_success_location");
     aMS->addTT(Region);
-    aMS->addTO(std::string(""));
+    aMS->addTO("");
     aMS->addTextModule();
 
     gMessageFactory->StartMessage();
@@ -762,7 +767,7 @@ void ChatMessageLib::sendChatOnDestroyRoom(DispatchClient* client, Channel* chan
     else
     {
         // For debugging purpose
-        LOG(warning) << "ChatMessageLib::sendChatOnDestroyRoom: ERROR: channel is NULL";
+        LOG(WARNING) << "ChatMessageLib::sendChatOnDestroyRoom: ERROR: channel is NULL";
     }
 }
 
@@ -1325,7 +1330,7 @@ void ChatMessageLib::sendChatRoomMessage(Channel* channel, BString galaxy, BStri
 
             if (client == NULL)
             {
-                LOG(warning) << "sendChatRoomMessage: Client not found for channel " <<  channel->getId();
+                LOG(WARNING) << "sendChatRoomMessage: Client not found for channel " <<  channel->getId();
             }
             else
             {

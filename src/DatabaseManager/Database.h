@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -45,9 +45,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DataBindingFactory.h"
 #include "DatabaseManager/DatabaseConfig.h"
 
-namespace swganh {
-namespace database {
-
 struct DatabaseJob;
 class DataBinding;
 class DatabaseWorkerThread;
@@ -76,13 +73,6 @@ public:
     */
     Database(DBType type, const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema, DatabaseConfig& config);
     ~Database();
-
-	/*! Executes a synchronus sql query.
-    *   with a stringstream
-    * \param sql The sql query to run.
-    * 
-    */
-	DatabaseResult* Database::executeSql(const std::string& sql);
 
     /*! Executes an asynchronus sql query.
     *   with a stringstream
@@ -149,11 +139,6 @@ public:
     * \depricated This method is being phased out for a more type-safe solution.
     */
     DatabaseResult* executeSynchSql(const char* sql, ...);
-
-	/*! Executes an sql query asynchronusly with a std::string.
-    * This method will be used for the factory call chains where lambdas are not convenient
-    */
-	void executeSqlAsync(DatabaseCallback* callback, void* ref, const std::string& sql);
 
     /*! Executes an sql query asynchronusly with an unspecified number of parameters.
     *
@@ -283,6 +268,5 @@ private:
     std::string galaxy_;
     std::string config_;
 };
-}}//namespace
 
 #endif // ANH_DATABASEMANAGER_DATABASE_H

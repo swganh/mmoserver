@@ -1,7 +1,7 @@
 /*
  This file is part of MMOServer. For more information, visit http://swganh.com
  
- Copyright (c) 2006 - 2014 The SWG:ANH Team
+ Copyright (c) 2006 - 2010 The SWG:ANH Team
 
  MMOServer is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -19,17 +19,31 @@
 
 #ifndef LIBANH_EVENT_DISPATCHER_BASIC_EVENT_H_
 #define LIBANH_EVENT_DISPATCHER_BASIC_EVENT_H_
-/*
+
 #include <cstdint>
 
 #include "anh/hash_string.h"
-#include "anh/event_dispatcher/event_interface.h"
 
-namespace swganh {
+namespace anh {
 namespace event_dispatcher {
+    
+typedef anh::HashString EventType;
+
+class IEvent {
+public:
+    virtual ~IEvent() {}
+
+    virtual const EventType& type() = 0;
+    
+    virtual uint32_t priority() const = 0;
+    virtual void priority(uint32_t priority) = 0;
+
+    virtual uint64_t timestamp() const = 0;
+    virtual void timestamp(uint64_t timestamp) = 0;
+};
 
 template<typename T>
-class BasicEvent : public T, public EventInterface {
+class BasicEvent : public T, public IEvent {
 public:
     BasicEvent()
         : type_(T::type())
@@ -78,5 +92,5 @@ typedef BasicEvent<NullEventData> SimpleEvent;
 
 }  // namespace event_dispatcher
 }  // namespace anh
-*/
+
 #endif  // LIBANH_EVENT_DISPATCHER_BASIC_EVENT_H_

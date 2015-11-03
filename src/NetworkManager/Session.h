@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/thread.hpp>
 
-#include "anh/Utils/clock.h"
+#include "Utils/clock.h"
 #include "Utils/typedefs.h"
 #include "Utils/ConcurrentQueue.h"
 
@@ -228,12 +228,8 @@ private:
 
     void						  _resendData();
 
-	/*@brief	_processDataOrderPacket handles an out of order packet. The packet gives the sequence of the packet the remote side expects
-	*			we iterate then through all our unacknowledged packets and resend them
-	*			Packet* packet is the Out of Order Packet received
-	*/
     void                        _processDataOrderPacket(Packet* packet);
-    
+    void                        _processDataOrderChannelB(Packet* packet);
     void                        _processDataChannelAck(Packet* packet);
     void                        _processFragmentedPacket(Packet* packet);
     void						  _processRoutedFragmentedPacket(Packet* packet);
@@ -259,7 +255,7 @@ private:
     void                        _addOutgoingReliablePacket(Packet* packet);
     void                        _addOutgoingUnreliablePacket(Packet* packet);
     void                        _resendOutgoingPackets(void);
-    void                        _sendPingPacket(bool request);
+    void                        _sendPingPacket(void);
 
     void						  _handleOutSequenceRollover();
 
@@ -301,12 +297,11 @@ private:
     uint64                      mConnectStartEvent;       // For SCOM_Connect commands
     uint64                      mLastConnectRequestSent;
 
-	boost::posix_time::ptime    mLastPacketReceived;      // General session timeout - we determine the time we last received a packet from a session to decide whether to disconnect it
+    uint64                      mLastPacketReceived;      // General session timeout
     uint64                      mLastPacketSent;          // General session timeout
 
 
-    boost::posix_time::ptime	mLastPingPacketSent;          // General session timeout
-	boost::posix_time::ptime	mLastPingPacketReceived;      // General session timeout
+    uint64                      mLastPingPacketSent;          // General session timeout
 
     // Netstats
     uint32				      mServerTickCount;
@@ -323,7 +318,6 @@ private:
     uint16                      mOutSequenceNext;
     uint16                      mInSequenceNext;
 
-	bool						out_of_order;
     bool						mOutSequenceRollover;
     uint16                      mNextPacketSequenceSent;
     uint64                      mLastRemotePacketAckReceived;
@@ -356,7 +350,7 @@ private:
     PacketWindowList			  mRolloverWindowPacketList;		//send packets after a rollover they await sending and / or acknowledgement by the client
     PacketWindowList			  mNewRolloverWindowPacketList;
     PacketWindowList            mNewWindowPacketList;
-    
+    PacketWindowList			  mOutOfOrderPackets;
 
     PacketQueue                 mIncomingFragmentedPacketQueue;
     PacketQueue                 mIncomingRoutedFragmentedPacketQueue;

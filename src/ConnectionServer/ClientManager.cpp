@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2014 The SWG:ANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -31,7 +31,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "NetworkManager/Service.h"
 
-#include "anh/logger.h"
+
+
+
+#include "Utils/logger.h"
 
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/Database.h"
@@ -41,12 +44,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageFactory.h"
 #include "NetworkManager/MessageOpcodes.h"
 
-using namespace swganh;
-using namespace database;
-
 //======================================================================================================================
 
-ClientManager::ClientManager(Service* service, swganh::database::Database* database, MessageRouter* router, ConnectionDispatch* dispatch, uint32_t cluster_id) :
+ClientManager::ClientManager(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* dispatch, uint32_t cluster_id) :
     mClientService(service),
     mDatabase(database),
     mMessageRouter(router),
@@ -276,10 +276,9 @@ void ClientManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 void ClientManager::_processClientIdMsg(ConnectionClient* client, Message* message)
 {
     // We only need the account data that is at the end of the message.
-	//hardcoded shit
-    uint32 a1 = message->getUint32();  // unknown.
-    uint32 dataSize = message->getUint32();//thats the session key
-    message->setIndex(message->getIndex() + (uint16)dataSize-4);//the last 4 bytes of the session key are our account id
+    message->getUint32();  // unknown.
+    uint32 dataSize = message->getUint32();
+    message->setIndex(message->getIndex() + (uint16)dataSize - 4);
     client->setAccountId(message->getUint32());
 
     _processAllowedChars(this, client);
@@ -290,7 +289,7 @@ void ClientManager::_processSelectCharacter(ConnectionClient* client, Message* m
 {
     uint64 characterId = message->getUint64();
 
-    DatabaseResult* result = mDatabase->executeSynchSql("SELECT planet_id FROM %s.characters WHERE id=%"PRIu64";",mDatabase->galaxy(), characterId);
+    DatabaseResult* result = mDatabase->executeSynchSql("SELECT planet_id FROM %s.characters WHERE id=%" PRIu64 ";",mDatabase->galaxy(), characterId);
 
     uint32 serverId;
     DataBinding* binding = mDatabase->createDataBinding(1);
@@ -407,7 +406,7 @@ void ClientManager::_processClusterZoneTransferCharacter(ConnectionClient* clien
     else
     {
         // client may have disconnected right in the middle of the transfer
-        LOG(warning) << "Client not found during zone transfer.\n";
+        LOG(WARNING) << "Client not found during zone transfer.\n";
     }
 }
 

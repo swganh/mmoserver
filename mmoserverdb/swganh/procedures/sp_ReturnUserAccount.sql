@@ -100,7 +100,7 @@ IF mStation_id IS NULL THEN
 END IF;
 
 	   
-INSERT INTO swganh.account VALUES (NULL, usrName, shaPwrd, mStation_id, 0, 0, '', NOW(), NOW(), 1, 0, 0, 1, NULL, NOW() - INTERVAL 1 DAY);
+INSERT INTO swganh.account VALUES (NULL, usrName, shaPwrd, mStation_id, 0, 0, '', NOW(), NOW(), 1, 0, 0, 1, NULL, NOW() - INTERVAL 1 DAY, NULL, NULL);
 
   END IF;
 

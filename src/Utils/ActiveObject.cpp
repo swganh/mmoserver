@@ -64,7 +64,7 @@ void ActiveObject::Run() {
         	message();
         }
     }
-    usleep(2000);
+ //  usleep(2000);
 }
 
 }  // namespace utils

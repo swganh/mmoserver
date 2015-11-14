@@ -40,6 +40,6 @@ You can use the -DCMAKE\_INSTALL\_PREFIX flag to specify a custom output directo
   [1]: http://swganh.com/
   [2]: http://starwarsgalaxies.com/
   [3]: http://cmake.org/cmake/resources/software.html
-  [4]: http://wiki2.swganh.com/
+  [4]: http://wiki2.swganh.org/
   [5]: http://wiki.swganh.org/
   [6]: http://www.swganh.com/anh_community/

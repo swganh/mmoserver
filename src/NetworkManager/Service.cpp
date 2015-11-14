@@ -333,8 +333,8 @@ void Service::Connect(NetworkClient* client, const int8* address, uint16 port)
             }
         }
 
-//        boost::this_thread::sleep(boost::posix_time::milliseconds(10));
-        usleep(2000);
+        boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+      //  usleep(2000);
     }
 
     client->setSession(mSocketReadThread->getNewConnectionInfo()->mSession);

@@ -180,8 +180,8 @@ int main(int argc, char* argv[])
 				if(std::cin.get() == 'q')
 					break;
 
-			//boost::this_thread::sleep(boost::posix_time::milliseconds(10));
-			usleep(2000);
+			boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+			//usleep(2000);
 		}
 
 		// Shutdown things

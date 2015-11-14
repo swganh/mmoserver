@@ -191,7 +191,7 @@ void SocketReadThread::run(void)
 
         // We're going to block for 250ms.
         tv.tv_sec   = 0;
-        tv.tv_usec  = 250;
+        tv.tv_usec  = 500;
 
         count = select(mSocket+1, &socketSet, 0, 0, &tv);
 
@@ -444,7 +444,8 @@ void SocketReadThread::run(void)
             }
         }
 
-        boost::this_thread::sleep(boost::posix_time::microseconds(10));
+ //       boost::this_thread::sleep(boost::posix_time::microseconds(10));
+        usleep(2000);
     }
 
     // Shutdown internally

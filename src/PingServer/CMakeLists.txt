@@ -2,8 +2,9 @@ include(MMOServerExecutable)
 
 AddMMOServerExecutable(PingServer
     MMOSERVER_DEPS 
+        NetworkManager   
+        DatabaseManager        
         Utils
         Common
-        DatabaseManager
-        NetworkManager
 )
+TARGET_LINK_LIBRARIES(PingServer "-lrt -lpthread")

@@ -11,3 +11,4 @@ AddMMOServerLibrary(NetworkManager
     OPTIMIZED_LIBRARIES
         optimized ${ZLIB_LIBRARY_RELEASE}
 )
+TARGET_LINK_LIBRARIES(NetworkManager "-lrt -lpthread")

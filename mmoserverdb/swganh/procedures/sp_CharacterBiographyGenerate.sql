@@ -51,11 +51,11 @@ DECLARE bio_template TEXT(2048);
 
 select biography into bio_template FROM swganh.biography_templates ORDER BY RAND() LIMIT 1;
 
-SET bio_template = replace(bio_template, '<PLANET>', sf_rand_planet());
-SET bio_template = replace(bio_template, '<PROFESSION>', sf_rand_profession());
-SET bio_template = replace(bio_template, '<FACTION>', sf_rand_faction());
-SET bio_template = replace(bio_template, '<SPECIES>', sf_rand_species());
-SET bio_template = replace(bio_template, '<WAR>', sf_rand_war());
+SET bio_template = replace(bio_template, '<PLANET>', f_rand_planet());
+SET bio_template = replace(bio_template, '<PROFESSION>', f_rand_profession());
+SET bio_template = replace(bio_template, '<FACTION>', f_rand_faction());
+SET bio_template = replace(bio_template, '<SPECIES>', f_rand_species());
+SET bio_template = replace(bio_template, '<WAR>', f_rand_war());
 SET bio_template = genBiography;
 
 SELECT genBiography;

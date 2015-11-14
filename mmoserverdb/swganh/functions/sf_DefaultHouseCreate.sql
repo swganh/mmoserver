@@ -2,9 +2,6 @@
 -- Routine DDL
 -- Note: comments before and after the routine body will not be stored by the server
 -- --------------------------------------------------------------------------------
-
-use swganh;
-
 DELIMITER $$
 
 CREATE DEFINER=`root`@`localhost` FUNCTION `sf_DefaultHouseCreate`(type_id INT(11), parent_id BIGINT(20), privateowner_id BIGINT(20), inPlanet INT, oX FLOAT, oY FLOAT, oZ FLOAT, oW FLOAT, inX FLOAT, inY FLOAT, inZ FLOAT, custom_name CHAR(255), deed_id BIGINT(20)) RETURNS bigint(20)

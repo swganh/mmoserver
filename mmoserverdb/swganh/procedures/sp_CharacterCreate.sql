@@ -1,4 +1,28 @@
-﻿/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+﻿/*
+---------------------------------------------------------------------------------------
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
+
+For more information, visit http://www.swganh.com
+
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+---------------------------------------------------------------------------------------
+*/
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8 */;
@@ -6,6 +30,21 @@
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+
+
+--
+-- Use schema swganh
+--
+
+USE swganh;
+
+--
+-- Definition of procedure `sp_CharacterCreate`
+--
+
+DROP PROCEDURE IF EXISTS `sp_CharacterCreate`;
+
+DELIMITER $$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_CharacterCreate`(
 	IN start_account_id INT,IN start_galaxy_id INT,IN start_firstname char(32),IN start_lastname char(32),
@@ -26,6 +65,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_CharacterCreate`(
 	IN 68FF INT, IN 69FF INT, IN 6AFF INT, IN 6BFF INT, IN 6CFF INT, IN 6DFF INT, IN 6EFF INT, IN 6FFF INT,
 	IN 70FF INT, IN ABFF INT, IN AB2FF INT,
 	IN start_hair_model CHAR(64), IN hair1 INT,IN hair2 INT, IN base_model_string CHAR(64))
+
 charCreate:BEGIN
 
   --
@@ -162,26 +202,6 @@ charCreate:BEGIN
 
   SELECT id from race where race.name like shortSpecies into race_id;
 
-SELECT id from race where race.name like shortSpecies into race_id;
-
-DECLARE language_id INT;
-  SET language_id = 1;
-
-  IF raceId =  1 THEN SET  language_id = 165; END IF; -- rodian
-  IF raceId =  2 THEN SET  language_id = 167; END IF; -- trando
-  IF raceId =  3 THEN SET  language_id = 169; END IF; -- moncal
-  IF raceId =  4 THEN SET  language_id = 171; END IF; -- wookie
-  IF raceId =  5 THEN SET  language_id = 173; END IF; -- bothan
-  IF raceId =  6 THEN SET  language_id = 175; END IF; -- twilek
-  IF raceId =  7 THEN SET  language_id = 177; END IF; -- zabrak
-  IF raceId = 33 THEN SET  language_id = 181; END IF; -- ithorian
-  IF raceId = 49 THEN SET  language_id = 183; END IF; -- sullust
-
-
-  SELECT skill_id from skills where skill_name like start_profession INTO profession_id;
-
-  -- Don't set any default skills or XP when creating player in the Tutorial.
-
   SELECT skill_id from skills where skill_name like start_profession INTO profession_id;
 
   -- Don't set any default skills or XP when creating player in the Tutorial.
@@ -201,7 +221,7 @@ DECLARE language_id INT;
   INSERT INTO inventories VALUES (inventory_id,1,1000);
   INSERT INTO banks VALUES (bank_id,1000,-1);
   INSERT INTO datapads VALUES (datapad_id,1);
-INSERT INTO character_attributes VALUES (character_id, 1, t_health, t_strength, t_constitution, t_action, t_quickness, t_stamina, t_mind, t_focus, t_willpower, t_health, t_strength, t_constitution, t_action, t_quickness, t_stamina, t_mind, t_focus, t_willpower, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, battlefatigue,0,0,NULL,0,0,language_id,0,0,0,3);
+  INSERT INTO character_attributes VALUES (character_id, 1, t_health, t_strength, t_constitution, t_action, t_quickness, t_stamina, t_mind, t_focus, t_willpower, t_health, t_strength, t_constitution, t_action, t_quickness, t_stamina, t_mind, t_focus, t_willpower, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, battlefatigue,0,0,NULL,0,0,1,0,0,0,3);
   INSERT INTO character_appearance VALUES (character_id, 00FF, 01FF, 02FF, 03FF, 04FF, 05FF, 06FF, 07FF, 08FF, 09FF, 0AFF, 0BFF, 0CFF, 0DFF, 0EFF, 0FFF, 10FF, 11FF, 12FF, 13FF, 14FF, 15FF, 16FF, 17FF, 18FF, 19FF, 1AFF, 1BFF, 1CFF, 1DFF, 1EFF, 1FFF, 20FF, 21FF, 22FF, 23FF, 24FF, 25FF, 26FF, 27FF, 28FF, 29FF, 2AFF, 2BFF, 2CFF, 2DFF, 2EFF, 2FFF, 30FF, 31FF, 32FF, 33FF, 34FF, 35FF, 36FF, 37FF, 38FF, 39FF, 3AFF, 3BFF, 3CFF, 3DFF, 3EFF, 3FFF, 40FF, 41FF, 42FF, 43FF, 44FF, 45FF, 46FF, 47FF, 48FF, 49FF, 4AFF, 4BFF, 4CFF, 4DFF, 4EFF, 4FFF, 50FF, 51FF, 52FF, 53FF, 54FF, 55FF, 56FF, 57FF, 58FF, 59FF, 5AFF, 5BFF, 5CFF, 5DFF, 5EFF, 5FFF, 60FF, 61FF, 62FF, 63FF, 64FF, 65FF, 66FF, 67FF, 68FF, 69FF, 6AFF, 6BFF, 6CFF, 6DFF, 6EFF, 6FFF, 70FF, ABFF, AB2FF, start_hair_model, hair1,hair2, base_model_string,start_scale);
   INSERT INTO character_movement VALUES(character_id,5.75,1.50,1.00,0.0125);
   INSERT INTO character_tutorial VALUES(character_id,1,1,start_profession);
@@ -264,4 +284,14 @@ INSERT INTO character_attributes VALUES (character_id, 1, t_health, t_strength, 
 	
   SELECT(character_id);
 
-END
+END $$
+
+DELIMITER ;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

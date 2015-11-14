@@ -35,7 +35,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "NetworkConfig.h"
 #include <boost/thread/thread.hpp>
-#include "Utils/pipe.h"
+// added for later use Obi
+//#include "Utils/pipe.h"
  
 #define SEND_BUFFER_SIZE 8192
 
@@ -50,7 +51,8 @@ typedef utils::ConcurrentQueue<Session*>			SessionQueue;
 typedef utils::ConcurrentQueueLight  <Session*>		SessionQueueLight;
 
 //======================================================================================================================
-using namespace utils;
+//added for later use Obi
+//using namespace utils;
 
 class SocketWriteThread
 {
@@ -116,7 +118,8 @@ private:
 
     SessionQueueLight			mSessionQueue;
 	SessionQueueLight			mAsyncSessionQueue;
-	 Pipe* sessionPipe;
+	// added for later use Obi
+	// Pipe* sessionPipe;
 
     boost::thread   			mThread;
     boost::recursive_mutex      mSocketWriteMutex;

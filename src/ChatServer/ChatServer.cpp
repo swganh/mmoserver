@@ -286,8 +286,8 @@ int main(int argc, char* argv[])
 					break;
 			}
 
-		//	boost::this_thread::sleep(boost::posix_time::milliseconds(1));
-			usleep(2000);
+			boost::this_thread::sleep(boost::posix_time::milliseconds(2));
+		//	usleep(2000);
 		}
 
 		// Shutdown things

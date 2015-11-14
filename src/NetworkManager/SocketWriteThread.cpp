@@ -172,8 +172,8 @@ void SocketWriteThread::run()
 			//DLOG(INFO) << "sending : " << packetsSend << "Packets";
 		//}
 
-       // boost::this_thread::sleep(boost::posix_time::milliseconds(1));
-        sessionPipe->wait(2000);
+        boost::this_thread::sleep(boost::posix_time::milliseconds(2));
+       // sessionPipe->wait(2000);
     }
 
     // Shutdown internally

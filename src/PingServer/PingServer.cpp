@@ -142,7 +142,8 @@ int main(int argc, char* argv[])
 		while (true) {
 			// Check for incoming messages and handle them.
 			ping_server.Process();
-			boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+		//	boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+			usleep(2000);
 
 			// Stop the ping server if a key is hit.
 			if (Anh_Utils::kbhit())

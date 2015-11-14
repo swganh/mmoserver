@@ -41,7 +41,8 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
     ENDIF()
         
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-	SET(CMAKE_EXE_LINKER_FLAGS " -pthread -o term -lm -lrt -lz -lpthread -lboost_filesystem -ldl -lboost_log")
+	  SET(CMAKE_VERBOSE_MAKEFILE ON)
+	# " -pthread -o term -lm -lrt -lz -lpthread -lboost_filesystem -ldl -lboost_log")
 
     # use, i.e. don't skip the full RPATH for the build tree
     SET(CMAKE_SKIP_BUILD_RPATH FALSE)

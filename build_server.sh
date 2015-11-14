@@ -31,7 +31,7 @@ done
 shift $(($OPTIND - 1))
 
 # Check to see if the current dependencies should be cleaned
-if [[ -d $basedir/deps && "$rflag" ]]; then
+if [ -d $basedir/deps ] && [ "$rflag" ]; then
     printf "Rebuilding deps\n"
     rm -rf $basedir/deps
 fi
@@ -42,7 +42,7 @@ if [ ! -d $basedir/deps ]; then
     
     # Look for the dependencies source file and download if missing
     if [ ! -f $basedir/$filename ]; then
-        wget -nc --no-check-certificate https://github.com/htx/mmoserver/releases/download/v0.6.0/$filename
+        wget -nc --no-check-certificate https://github.com/obi-two/Unofficial_Hope/releases/download/Downloads/$filename
     fi
     
     # Unpack the dependencies and build the deps

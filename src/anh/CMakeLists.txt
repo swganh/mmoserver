@@ -11,3 +11,4 @@ AddMMOServerLibrary(libanh
         ${MYSQL_LIB}
         ${MysqlConnectorCpp_LIBRARY_RELEASE}
 )
+TARGET_LINK_LIBRARIES(libanh "-lrt -lpthread")

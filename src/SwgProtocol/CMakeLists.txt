@@ -5,3 +5,4 @@ AddMMOServerLibrary(SwgProtocol
         Utils
         Common
 )
+TARGET_LINK_LIBRARIES(SwgProtocol "-lrt -lpthread")

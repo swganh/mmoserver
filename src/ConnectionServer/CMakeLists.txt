@@ -2,8 +2,9 @@ include(MMOServerExecutable)
 
 AddMMOServerExecutable(ConnectionServer
     MMOSERVER_DEPS 
-        Utils
-        Common
         DatabaseManager
         NetworkManager
-)
+        Common
+        Utils
+        )
+TARGET_LINK_LIBRARIES(ConnectionServer "-lrt -lpthread")

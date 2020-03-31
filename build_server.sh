@@ -4,7 +4,7 @@
 basedir=$(cd $(dirname $0) && pwd)
 
 # Configuration and options
-version=0.6.0       # mmoserver project version
+version=0.4.3       # mmoserver project version
 cflag=              # clean build - removes the build dir before building
 rflag=              # rebuild - rebuilds the dependencies and source
 tflag=              # test - runs all project tests after building
@@ -31,7 +31,7 @@ done
 shift $(($OPTIND - 1))
 
 # Check to see if the current dependencies should be cleaned
-if [ -d $basedir/deps ] && [ "$rflag" ]; then
+if [[ -d $basedir/deps && "$rflag" ]]; then
     printf "Rebuilding deps\n"
     rm -rf $basedir/deps
 fi
@@ -42,7 +42,7 @@ if [ ! -d $basedir/deps ]; then
     
     # Look for the dependencies source file and download if missing
     if [ ! -f $basedir/$filename ]; then
-        wget -nc --no-check-certificate https://github.com/obi-two/Unofficial_Hope/releases/download/Downloads/$filename
+        wget -nc --no-check-certificate https://github.com/downloads/swganh/mmoserver/$filename
     fi
     
     # Unpack the dependencies and build the deps

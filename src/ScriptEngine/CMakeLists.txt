@@ -19,4 +19,3 @@ AddMMOServerLibrary(ScriptEngine
         ${NOISE_LIBRARY_RELEASE}
         ${TOLUAPP_LIBRARY_RELEASE}
 )
-TARGET_LINK_LIBRARIES(ScriptEngine "-lrt -lpthread")

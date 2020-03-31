@@ -14,4 +14,3 @@ AddMMOServerLibrary(DatabaseManager
         ${MYSQL_LIB}
         ${MysqlConnectorCpp_LIBRARY_RELEASE}
 )
-TARGET_LINK_LIBRARIES(DatabaseManager "-lrt -lpthread")

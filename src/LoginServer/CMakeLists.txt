@@ -2,9 +2,8 @@ include(MMOServerExecutable)
 
 AddMMOServerExecutable(LoginServer
     MMOSERVER_DEPS 
-        DatabaseManager    
-        NetworkManager           
         Utils
         Common
+        DatabaseManager
+        NetworkManager        
 )
-TARGET_LINK_LIBRARIES(LoginServer "-lrt -lpthread")

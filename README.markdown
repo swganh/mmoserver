@@ -22,9 +22,9 @@ To build the server on Windows simply double-click the BuildServer.bat file in t
 
 ### Unix Builds ###
 
-To build the server on Unix platforms run the build_server.sh script in the project root. This will download and build all the dependencies and sources. Once the script has completed you can issue further builds from within the "build" directory:
+To build the server on Unix platforms run the bootstrap.sh script in the project root. This will download and build all the dependencies and sources. Once the script has completed you can issue further builds from within the "build" directory:
 
-    ./build_server.sh
+    ./bootstrap.sh
     cd build
     cmake -DCMAKE_INSTALL_PREFIX=/opt/local ..
     make install
@@ -40,6 +40,6 @@ You can use the -DCMAKE\_INSTALL\_PREFIX flag to specify a custom output directo
   [1]: http://swganh.com/
   [2]: http://starwarsgalaxies.com/
   [3]: http://cmake.org/cmake/resources/software.html
-  [4]: http://wiki2.swganh.org/
+  [4]: http://bugtracker.swganh.com/
   [5]: http://wiki.swganh.org/
   [6]: http://www.swganh.com/anh_community/

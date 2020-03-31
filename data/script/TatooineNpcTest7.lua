@@ -1,7 +1,7 @@
 -- Tatooine NPC test
 -- This script will not start until Zoneserver is ready.
 
-local MM = require 'script/TatooineNpcTest2'
+local MM = require 'Script/TatooineNpcTest2'
 
 -- Script interface.
 -- local scriptSupport

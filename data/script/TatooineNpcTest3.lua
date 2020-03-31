@@ -4,7 +4,7 @@
 print("Tatooine NPC test");
 LuaScriptEngine.WaitMSec(1000);
 
-local MM = require 'script/TatooineNpcTest2'
+local MM = require 'Script/TatooineNpcTest2'
 
 local myPos = "SL";
 local prevPos = "";

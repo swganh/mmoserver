@@ -70,7 +70,6 @@ void Timer::Run()
         }
 
         boost::this_thread::sleep(boost::posix_time::milliseconds(10));
-      //  usleep(2000);
     }
 }
 

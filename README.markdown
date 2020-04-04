@@ -13,18 +13,18 @@ The MMOServer is the flagship project for the [SWG:ANH Team][1]. It is a cross p
 
 *   C++0x Compatible Compiler
 
-    Windows: Visual Studio 2013 or higher is required
+    Windows: Visual Studio 2013 required
     Unix: GCC 4.6 or higher is required
     
 ### Windows Builds ###
 
-To build the server on Windows simply double-click the BuildServer.bat file in the project root. This will download and build all the dependencies and sources and then generate a /bin directory with the server executables.
+To build the server on Windows simply double-click the build_server.bat file in the project root. This will download and build all the dependencies and sources and then generate a /bin directory with the server executables.
 
 ### Unix Builds ###
 
 To build the server on Unix platforms run the bootstrap.sh script in the project root. This will download and build all the dependencies and sources. Once the script has completed you can issue further builds from within the "build" directory:
 
-    ./bootstrap.sh
+    ./boot_server.sh
     cd build
     cmake -DCMAKE_INSTALL_PREFIX=/opt/local ..
     make install

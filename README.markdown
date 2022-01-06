@@ -19,7 +19,7 @@ The MMOServer is the flagship project for the [SWG:ANH Team][1]. It is a cross p
 	
 	MySQL Server 5.1
 	
-	[Download] [8]
+	[Download][8]
 	
 	MySql Workbench (optional)
 	

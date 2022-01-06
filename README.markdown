@@ -5,6 +5,8 @@ The MMOServer is the flagship project for the [SWG:ANH Team][1]. It is a cross p
 
 ## Building/Installing ##
 
+Also see our [Wiki][0]
+
 **Pre-Requisits Windows**
 
 *   CMake 2.8 or higher
@@ -58,6 +60,8 @@ You can use the -DCMAKE\_INSTALL\_PREFIX flag to specify a custom output directo
 *   [Wiki][5]
 *   [Forum][6]
 
+
+  [0]: https://github.com/swganh/mmoserver/wiki
   [1]: http://swganh.com/
   [2]: http://starwarsgalaxies.com/
   [3]: http://cmake.org/cmake/resources/software.html

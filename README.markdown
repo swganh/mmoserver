@@ -5,17 +5,38 @@ The MMOServer is the flagship project for the [SWG:ANH Team][1]. It is a cross p
 
 ## Building/Installing ##
 
-**Pre-Requisits**
+**Pre-Requisits Windows**
 
 *   CMake 2.8 or higher
 
     [Download][3] the latest version of CMake for your OS.
 
-*   C++0x Compatible Compiler
+*   C++ Compatible Compiler
 
-    Windows: Visual Studio 2013 required
-    Unix: GCC 4.6 or higher is required
-    
+    Windows: Visual Studio 2013 required 
+	
+	[Download][7]
+	
+	MySQL Server 5.1
+	
+	[Download] [8]
+	
+	MySql Workbench (optional)
+	
+	[Download][9]    
+	
+	
+**Pre-Requisits Unix**
+
+*   CMake 2.8 or higher
+
+    [Download][3] the latest version of CMake for your OS.
+	
+*   C++ Compatible Compiler
+	
+	Unix: GCC 4.6 or higher is required
+	
+
 ### Windows Builds ###
 
 To build the server on Windows simply double-click the build_server.bat file in the project root. This will download and build all the dependencies and sources and then generate a /bin directory with the server executables.
@@ -43,3 +64,6 @@ You can use the -DCMAKE\_INSTALL\_PREFIX flag to specify a custom output directo
   [4]: http://bugtracker.swganh.com/
   [5]: http://wiki.swganh.org/
   [6]: http://www.swganh.com/anh_community/
+  [7]: https://my.visualstudio.com/Downloads?q=visual%20studio%202013&wt.mc_id=o~msft~vscom~older-downloads
+  [8]: https://downloads.mysql.com/archives/community/
+  [9]: https://downloads.mysql.com/archives/workbench/

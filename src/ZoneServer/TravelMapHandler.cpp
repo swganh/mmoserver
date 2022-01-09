@@ -599,12 +599,17 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,BString inputSt
                             // only delete the ticket if we are warping on this planet.
 							TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ticket->getParentId()));
 							gContainerManager->deleteObject(ticket, tO);
-
+							
 							gWorldManager->warpPlanet(playerObject,destination,0);
+
+							
                         }
                         else
                         {
-                            gMessageLib->sendClusterZoneTransferRequestByTicket(playerObject,ticket->getId(), dstPoint->planetId);
+							TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ticket->getParentId()));
+							gContainerManager->deleteObject(ticket, tO);
+
+							gMessageLib->sendClusterZoneTransferCharacter(playerObject, dstPoint->planetId);
                         }
                     }
                     else
@@ -645,7 +650,7 @@ void TravelMapHandler::useTicket(PlayerObject* playerObject, TravelTicket* ticke
         return;
     }
 
-    BString srcPoint		= (int8*)((ticket->getAttribute<std::string>("travel_departure_point")).c_str());
+    BString srcPoint	= (int8*)((ticket->getAttribute<std::string>("travel_departure_point")).c_str());
     uint16 srcPlanetId	= static_cast<uint8>(gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_departure_planet")).c_str())));
     uint16 dstPlanetId	= static_cast<uint8>(gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_arrival_planet")).c_str())));
     BString dstPointStr	= (int8*)((ticket->getAttribute<std::string>("travel_arrival_point")).c_str());
@@ -679,7 +684,10 @@ void TravelMapHandler::useTicket(PlayerObject* playerObject, TravelTicket* ticke
         }
         else
         {
-            gMessageLib->sendClusterZoneTransferRequestByTicket(playerObject,ticket->getId(), dstPoint->planetId);
+			TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ticket->getParentId()));
+			gContainerManager->deleteObject(ticket, tO);
+	
+			gMessageLib->sendClusterZoneTransferCharacter(playerObject, dstPoint->planetId);
         }
         return;
     }

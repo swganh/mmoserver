@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define MMOSERVER_LOGINSERVER_MESSAGE_H
 
 #include "Utils/typedefs.h"
+#include "Utils/bstring.h"
 
 
 //======================================================================================================================
@@ -85,16 +86,16 @@ public:
     };
 
     // Max length of a string is uint16.
-    uint16                      getStringAnsi(string& data)      {
+    uint16                      getStringAnsi(BString& data)      {
         data.initRawBSTR(&mData[mIndex], BSTRType_ANSI);
         mIndex += data.getLength();
     } ;
-    uint16                      getStringUnicode16(string& data) {
+    uint16                      getStringUnicode16(BString& data) {
         data.initRawBSTR(&mData[mIndex], BSTRType_Unicode16);
         mIndex += data.getLength() * 2;
     } ;
-    uint16                      getStringUnicode32(string& data) {
-        data.initRawBSTR(&mData[mIndex], BSTRType_Unicode32);
+    uint16                      getStringUnicode32(BString& data) {
+        data.initRawBSTR(&mData[mIndex], BSTRType_Unicode16); //changed from BSTRType_Unicode32
         mIndex += data.getLength() * 4;
     } ;
 

@@ -189,18 +189,20 @@ void TicketCollector::handleUIEvent(uint32 action,int32 element,BString inputStr
                             // only delete the ticket if we are warping on this planet.
 							TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ticket->getParentId()));
 							gContainerManager->deleteObject(ticket, tO);
-                            
                             gWorldManager->warpPlanet(playerObject,destination,0);
+                            
                         }
                         else
                         {
-                            gMessageLib->sendClusterZoneTransferRequestByTicket(playerObject, ticket->getId(), dstPoint->planetId);
+							TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ticket->getParentId()));
+							gContainerManager->deleteObject(ticket, tO);
+							
+							gMessageLib->sendClusterZoneTransferCharacter(playerObject, dstPoint->planetId);
 
                         }
                     }
                     else
                     {
-                        DLOG(INFO) << "TicketCollector: Error getting TravelPoint";
                     }
                     break;
                 }
@@ -245,17 +247,21 @@ void TicketCollector::travelRequest(TravelTicket* ticket,PlayerObject* playerObj
                     // only delete the ticket if we are warping on this planet.
 					TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ticket->getParentId()));
 					gContainerManager->deleteObject(ticket, tO);
-                    
                     gWorldManager->warpPlanet(playerObject,destination,0);
+                    
                 }
                 else
                 {
-                    gMessageLib->sendClusterZoneTransferRequestByTicket(playerObject,ticket->getId(),dstPoint->planetId);
+					TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ticket->getParentId()));
+					gContainerManager->deleteObject(ticket, tO);
+					
+					gMessageLib->sendClusterZoneTransferCharacter(playerObject, dstPoint->planetId);
+
                 }
+				
             }
             else
             {
-                DLOG(INFO) << "TicketCollector: Error getting TravelPoint";
             }
         }
     }

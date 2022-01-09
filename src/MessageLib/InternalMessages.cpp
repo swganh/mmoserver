@@ -100,7 +100,7 @@ bool MessageLib::sendClusterZoneTransferCharacter(PlayerObject* playerObject, ui
     mMessageFactory->addUint64(playerObject->getId());
     mMessageFactory->addUint32(destinationPlanet);
 
-    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Connection, 0);
+	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Connection, 0);
 
     return(true);
 }

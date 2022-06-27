@@ -81,15 +81,15 @@ rem ----------------------------------------------------------------------------
 rem --- Start of SET_DEFAULTS --------------------------------------------------
 :SET_DEFAULTS
 
-set DEPENDENCIES_VERSION=0.6.0
+set DEPENDENCIES_VERSION=0.6.1
 set DEPENDENCIES_FILE=mmoserver-deps-%DEPENDENCIES_VERSION%.tar.bz2
-set DEPENDENCIES_URL=https://github.com/swganh/mmoserver/releases/download/v0.6.0/%DEPENDENCIES_FILE%
+set DEPENDENCIES_URL=https://github.com/swganh/mmoserver/releases/download/v%DEPENDENCIES_VERSION%/%DEPENDENCIES_FILE%
 set "PROJECT_BASE=%~dp0"
 set "PROJECT_DRIVE=%~d0"
 set PATH=%PROJECT_BASE%tools\windows;%PATH%
 set BUILD_TYPE=debug
 set REBUILD=build
-set MSVC_VERSION=12
+set MSVC_VERSION=14.2
 set ALLHEIGHTMAPS=false
 set SKIPHEIGHTMAPS=false
 set DEPENDENCIESONLY=false
@@ -189,22 +189,20 @@ rem ----------------------------------------------------------------------------
 rem --- Start of BUILD_ENVIRONMENT ---------------------------------------------
 :BUILD_ENVIRONMENT
 
-if not exist "%VS120COMNTOOLS%" (
-  set "VS120COMNTOOLS=%PROGRAMFILES(X86)%\Microsoft Visual Studio 12.0\Common7\Tools"
-  if not exist "!VS120COMNTOOLS!" (
-  	  set "VS120COMNTOOLS=%PROGRAMFILES%\Microsoft Visual Studio 12.0\Common7\Tools"
-  	  if not exist "!VS120COMNTOOLS!" (          
-  		    rem TODO: Allow user to enter a path to their base visual Studio directory.
-         
-    	    echo ***** Microsoft Visual Studio 12.0 required *****
-    	    exit /b 1
-  	  )
-  )
+if not exist "%VS142COMNTOOLS%" (
+  for /f "usebackq tokens=*" %%i in (`tools\vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do (
+	set VS120COMNTOOLS=%%i\Common7\Tools
+
+rem if not exist "!VS142COMNTOOLS!" (
+rem    	echo ***** Microsoft Visual Studio 16.0 required *****
+rem    	exit /b 1
+rem		)
+  	)
 )
 
 set "MSBUILD=%WINDIR%\Microsoft.NET\Framework\v4.0.30319\msbuild.exe"
 
-call "%VS120COMNTOOLS%\vsvars32.bat" >NUL
+call "%VS142COMNTOOLS%\VsDevCmd.bat" >NUL
 
 set environment_built=yes
 
@@ -285,9 +283,9 @@ if not exist "deps\VERSION" (
 )
 
 set /p current_version=<"deps\VERSION"
-
+	
 if not %current_version% == %DEPENDENCIES_VERSION% (
-	echo ** Dependencies out of date -- Updating now **
+	echo ** Dependencies out of date -- Updating now ok**
 
 	rem Need to do a full rebuild after updating dependenceies
 	set REBUILD=rebuild
@@ -338,7 +336,8 @@ if not exist "%PROJECT_BASE%build" (
 )
 cd "%PROJECT_BASE%build"
 
-cmake -G "Visual Studio 12" -DCMAKE_INSTALL_PREFIX=%PROJECT_BASE% -DENABLE_TEST_REPORT=ON ..
+rem cmake -G "Visual Studio 12" -DCMAKE_INSTALL_PREFIX=%PROJECT_BASE% -DENABLE_TEST_REPORT=ON ..
+cmake -G "Visual Studio 16 2019" -A Win32 -DCMAKE_INSTALL_PREFIX=%PROJECT_BASE% -DENABLE_TEST_REPORT=ON ..
 
 if exist "*.cache" del /S /Q "*.cache" >NUL
 

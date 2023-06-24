@@ -226,7 +226,7 @@ void ManufacturingSchematic::sendAttributes(PlayerObject* playerObject)
 
     //attributes ....
     gMessageFactory->addString(BString("manf_attribs"));
-    aStr = "\\#"SOE_RED" --------------";
+    aStr = "\\#" SOE_RED " --------------";
     aStr.convert(BSTRType_Unicode16);
     gMessageFactory->addString(aStr);
 

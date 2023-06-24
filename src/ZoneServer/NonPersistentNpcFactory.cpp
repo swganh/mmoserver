@@ -324,7 +324,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
         QueryNonPersistentNpcFactory* asContainer = new QueryNonPersistentNpcFactory(asyncContainer->mOfCallback,NonPersistentNpcQuery_Attributes, 0, npc->getId());
 
         mDatabase->executeSqlAsync(this,asContainer,"SELECT attributes.name,lair_attributes.value,attributes.internal FROM %s.lair_attributes "
-                                                    "INNER JOIN %s.attributes ON (lair_attributes.attribute_id = attributes.id) WHERE lair_attributes.lair_id = %" PRIu64 " ORDER BY lair_attributes.order",
+                                                    "INNER JOIN %s.attributes ON (lair_attributes.attribute_id = attributes.id) WHERE lair_attributes.lair_id = %" PRIu64" ORDER BY lair_attributes.order",
                                                     mDatabase->galaxy(),mDatabase->galaxy(),asyncContainer->mTemplateId);
         
     }
@@ -357,7 +357,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
             mDatabase->executeSqlAsync(this,asContainer,"SELECT attributes.name,non_persistent_npc_attributes.value,attributes.internal"
                                        " FROM %s.non_persistent_npc_attributes"
                                        " INNER JOIN %s.attributes ON (non_persistent_npc_attributes.attribute_id = attributes.id)"
-                                       " WHERE non_persistent_npc_attributes.npc_id = %" PRIu64 " ORDER BY non_persistent_npc_attributes.order",
+                                       " WHERE non_persistent_npc_attributes.npc_id = %" PRIu64" ORDER BY non_persistent_npc_attributes.order",
                                        mDatabase->galaxy(),mDatabase->galaxy(),asyncContainer->mTemplateId);
              }
     }
@@ -678,6 +678,6 @@ void NonPersistentNpcFactory::requestNpcObject(ObjectFactoryCallback* ofCallback
                                "non_persistent_npcs.moodID, non_persistent_npcs.scale, non_persistent_npcs.family "
                                "FROM %s.non_persistent_npcs "
                                "INNER JOIN %s.faction ON (non_persistent_npcs.faction = faction.id) "
-                               "WHERE non_persistent_npcs.id=%" PRIu64 ";",mDatabase->galaxy(),mDatabase->galaxy(), creatureTemplateId);
+                               "WHERE non_persistent_npcs.id=%" PRIu64";",mDatabase->galaxy(),mDatabase->galaxy(), creatureTemplateId);
    
 }

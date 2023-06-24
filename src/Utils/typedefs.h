@@ -58,8 +58,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #if defined(_MSC_VER)
 #define ANH_COMPILER ANH_COMPILER_MSVC
 #define ANH_COMP_VER _MSC_VER
-#define snprintf _snprintf
 #define localtime_r(a, b) localtime_s(b, a)
+
+#if _MSC_VER < 1900
+#  define snprintf _snprintf
+#endif
 
 #elif defined(__GNUC__)
 #define ANH_COMPILER ANH_COMPILER_GNUC

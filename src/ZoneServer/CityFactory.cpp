@@ -62,7 +62,7 @@ void CityFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint
             "planet_regions.width,planet_regions.height"
             " FROM %s.cities"
             " INNER JOIN %s.planet_regions ON (cities.city_region = planet_regions.region_id)"
-            " WHERE (cities.id = %" PRIu64 ")",mDatabase->galaxy(),mDatabase->galaxy(),id);
+            " WHERE (cities.id = %" PRIu64")",mDatabase->galaxy(),mDatabase->galaxy(),id);
 
 
     mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {

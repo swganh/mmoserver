@@ -370,7 +370,7 @@ void Object::setAttributeIncDB(BString key,std::string value)
 
     sqlPointer = sql + strlen(sql);
     sqlPointer += gWorldManager->getDatabase()->escapeString(sqlPointer,value.c_str(),value.length());
-    sprintf(restStr,"'WHERE item_id=%" PRIu64 " AND attribute_id=%u",this->getId(),attributeID);
+    sprintf(restStr,"'WHERE item_id=%" PRIu64" AND attribute_id=%u",this->getId(),attributeID);
     strcat(sql,restStr);
 
     gWorldManager->getDatabase()->executeSqlAsync(0,0,sql);
@@ -409,7 +409,7 @@ void Object::addAttributeIncDB(BString key,std::string value)
     }
     int8 sql[512],*sqlPointer,restStr[128];
 
-    sprintf(sql,"INSERT INTO %s.item_attributes VALUES(%" PRIu64 ",%u,'",gWorldManager->getDatabase()->galaxy(),this->getId(),attributeID);
+    sprintf(sql,"INSERT INTO %s.item_attributes VALUES(%" PRIu64",%u,'",gWorldManager->getDatabase()->galaxy(),this->getId(),attributeID);
 
     sqlPointer = sql + strlen(sql);
     sqlPointer += gWorldManager->getDatabase()->escapeString(sqlPointer,value.c_str(),value.length());
@@ -476,7 +476,7 @@ void Object::setInternalAttributeIncDB(BString key,std::string value)
 
     sqlPointer = sql + strlen(sql);
     sqlPointer += gWorldManager->getDatabase()->escapeString(sqlPointer,value.c_str(),value.length());
-    sprintf(restStr,"'WHERE item_id=%" PRIu64 " AND attribute_id=%u",this->getId(),attributeID);
+    sprintf(restStr,"'WHERE item_id=%" PRIu64" AND attribute_id=%u",this->getId(),attributeID);
     strcat(sql,restStr);
 
     gWorldManager->getDatabase()->executeSqlAsync(0,0,sql);
@@ -517,7 +517,7 @@ void Object::addInternalAttributeIncDB(BString key,std::string value)
     }
     int8 sql[512],*sqlPointer,restStr[128];
 //	int8 sql[1024]
-    sprintf(sql,"INSERT INTO %s.item_attributes VALUES(%" PRIu64 ",%u,'",gWorldManager->getDatabase()->galaxy() ,this->getId(), attributeID);
+    sprintf(sql,"INSERT INTO %s.item_attributes VALUES(%" PRIu64",%u,'",gWorldManager->getDatabase()->galaxy() ,this->getId(), attributeID);
 
     sqlPointer = sql + strlen(sql);
     sqlPointer += gWorldManager->getDatabase()->escapeString(sqlPointer, value.c_str(), value.length());

@@ -193,7 +193,7 @@ void WorldManager::savePlayerSync(uint32 accId,bool remove)
     PlayerObject* playerObject = getPlayerByAccId(accId);
     Ham* ham = playerObject->getHam();
 
-    mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.characters SET parent_id=%" PRIu64 ",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u WHERE id=%" PRIu64 "",
+    mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.characters SET parent_id=%" PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u WHERE id=%" PRIu64"",
                               mDatabase->galaxy(),playerObject->getParentId()
                              ,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
                              ,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
@@ -203,7 +203,7 @@ void WorldManager::savePlayerSync(uint32 accId,bool remove)
     mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.character_attributes SET health_current=%u,action_current=%u,mind_current=%u"
                              ",health_wounds=%u,strength_wounds=%u,constitution_wounds=%u,action_wounds=%u,quickness_wounds=%u"
                              ",stamina_wounds=%u,mind_wounds=%u,focus_wounds=%u,willpower_wounds=%u,battlefatigue=%u,posture=%u,moodId=%u,title=\'%s\'"
-                             ",character_flags=%u,states=%" PRIu64 ",language=%u, group_id=%" PRIu64 " WHERE character_id=%" PRIu64 "",
+                             ",character_flags=%u,states=%" PRIu64",language=%u, group_id=%" PRIu64" WHERE character_id=%" PRIu64"",
                              mDatabase->galaxy(),ham->mHealth.getCurrentHitPoints() - ham->mHealth.getModifier(), //Llloydyboy Added the -Modifier so that when buffs are reinitialised, it doesn't screw up HAM
                              ham->mAction.getCurrentHitPoints() - ham->mAction.getModifier(), //Llloydyboy Added the -Modifier so that when buffs are reinitialised, it doesn't screw up HAM
                              ham->mMind.getCurrentHitPoints() - ham->mMind.getModifier(),	 //Llloydyboy Added the -Modifier so that when buffs are reinitialised, it doesn't screw up HAM
@@ -286,7 +286,7 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
             playerObject->removeDefenderAndUpdateList(object->getId());
 
             destroyObject(object);
-            // gLogger->log(LogManager::DEBUG,"WorldManager::addDisconnectedPlayer Deleted object with id  %" PRIu64 "",privateOwnedObjectId);
+            // gLogger->log(LogManager::DEBUG,"WorldManager::addDisconnectedPlayer Deleted object with id  %" PRIu64"",privateOwnedObjectId);
         }
 
         privateOwnedObjectId = ScriptSupport::Instance()->getObjectOwnedBy(playerObject->getId());

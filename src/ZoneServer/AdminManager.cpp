@@ -298,7 +298,7 @@ uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
                         }
                     }
                 }
-                sprintf(rawData,"Server shutting down in %"PRId32" %s.", value, unit.getAnsi());
+                sprintf(rawData,"Server shutting down in %" PRId32 " %s.", value, unit.getAnsi());
             }
 
             BString broadcast(rawData);

@@ -90,7 +90,7 @@ void ObjectController::_handleResourceContainerTransfer(uint64 targetId,Message*
 
                 gMessageLib->sendResourceContainerUpdateAmount(targetContainer,playerObject);
 
-                mDatabase->executeSqlAsync(NULL,NULL,"UPDATE %s.resource_containers SET amount=%u WHERE id=%" PRIu64 "",mDatabase->galaxy(),newAmount,targetContainer->getId());
+                mDatabase->executeSqlAsync(NULL,NULL,"UPDATE %s.resource_containers SET amount=%u WHERE id=%" PRIu64"",mDatabase->galaxy(),newAmount,targetContainer->getId());
 
                 // delete old container
 				TangibleObject* container = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(selectedContainer->getParentId()));
@@ -107,9 +107,9 @@ void ObjectController::_handleResourceContainerTransfer(uint64 targetId,Message*
                 gMessageLib->sendResourceContainerUpdateAmount(targetContainer,playerObject);
                 gMessageLib->sendResourceContainerUpdateAmount(selectedContainer,playerObject);
 
-                mDatabase->executeSqlAsync(NULL,NULL,"UPDATE %s.resource_containers SET amount=%u WHERE id=%" PRIu64 "",mDatabase->galaxy(),maxAmount,targetContainer->getId());
+                mDatabase->executeSqlAsync(NULL,NULL,"UPDATE %s.resource_containers SET amount=%u WHERE id=%" PRIu64"",mDatabase->galaxy(),maxAmount,targetContainer->getId());
                 
-                mDatabase->executeSqlAsync(NULL,NULL,"UPDATE %s.resource_containers SET amount=%u WHERE id=%" PRIu64 "",mDatabase->galaxy(),selectedNewAmount,selectedContainer->getId());
+                mDatabase->executeSqlAsync(NULL,NULL,"UPDATE %s.resource_containers SET amount=%u WHERE id=%" PRIu64"",mDatabase->galaxy(),selectedNewAmount,selectedContainer->getId());
                 
             }
         }
@@ -167,7 +167,7 @@ void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* me
     }
     // update selected container contents
     selectedContainer->setAmount(selectedContainer->getAmount() - splitOffAmount);
-    mDatabase->executeSqlAsync(NULL,NULL,"UPDATE %s.resource_containers SET amount=%u WHERE id=%" PRIu64 "",mDatabase->galaxy(),selectedContainer->getAmount(),selectedContainer->getId());
+    mDatabase->executeSqlAsync(NULL,NULL,"UPDATE %s.resource_containers SET amount=%u WHERE id=%" PRIu64"",mDatabase->galaxy(),selectedContainer->getAmount(),selectedContainer->getId());
 
     gMessageLib->sendResourceContainerUpdateAmount(selectedContainer,playerObject);
 

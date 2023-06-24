@@ -26,7 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "WorldManager.h"
 
-#include <cppconn/resultset.h>
+//#include <cppconn/resultset.h>
+#include <result.h>
+#include <cppconn\resultset.h>
 
 #include "Common/Crc.h"
 

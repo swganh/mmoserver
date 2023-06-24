@@ -97,7 +97,7 @@ void InventoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,IFQuery_ObjectCount,asyncContainer->mClient);
         asContainer->mObject = inventory;
 
-        mDatabase->executeSqlAsync(this,asContainer,"SELECT %s.sf_getInventoryObjectCount(%" PRIu64 ")",mDatabase->galaxy(),inventory->getId());
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT %s.sf_getInventoryObjectCount(%" PRIu64")",mDatabase->galaxy(),inventory->getId());
         
     }
     break;
@@ -128,9 +128,9 @@ void InventoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
             //containers are normal items like furniture, lightsabers and stuff
             mDatabase->executeSqlAsync(this,asContainer,
                                        "(SELECT \'containers\',containers.id FROM %s.containers INNER JOIN %s.container_types ON (containers.container_type = container_types.id)"
-                                       " WHERE (container_types.name NOT LIKE 'unknown') AND (containers.parent_id = %" PRIu64 "))"
-                                       " UNION (SELECT \'items\',items.id FROM %s.items WHERE (parent_id=%" PRIu64 "))"
-                                       " UNION (SELECT \'resource_containers\',resource_containers.id FROM %s.resource_containers WHERE (parent_id=%" PRIu64 "))",
+                                       " WHERE (container_types.name NOT LIKE 'unknown') AND (containers.parent_id = %" PRIu64"))"
+                                       " UNION (SELECT \'items\',items.id FROM %s.items WHERE (parent_id=%" PRIu64"))"
+                                       " UNION (SELECT \'resource_containers\',resource_containers.id FROM %s.resource_containers WHERE (parent_id=%" PRIu64"))",
                                        mDatabase->galaxy(),mDatabase->galaxy(),
                                        invId,mDatabase->galaxy(),invId,
                                        mDatabase->galaxy(),invId);
@@ -191,7 +191,7 @@ void InventoryFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id
                                "SELECT inventories.id,inventories.credits,inventory_types.object_string,inventory_types.name,inventory_types.file,"
                                "inventory_types.slots"
                                " FROM %s.inventories INNER JOIN %s.inventory_types ON (inventories.inventory_type = inventory_types.id)"
-                               " WHERE (inventories.id = %" PRIu64 ")",
+                               " WHERE (inventories.id = %" PRIu64")",
                                mDatabase->galaxy(),mDatabase->galaxy(),id);
    
 }

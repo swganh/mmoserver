@@ -28,6 +28,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/HashString.h"
 
 #include <cstring>
+#pragma once
+#include <sstream>
+#include <string>
+#include <cmath>
 
 #include "Common/Crc.h"
 

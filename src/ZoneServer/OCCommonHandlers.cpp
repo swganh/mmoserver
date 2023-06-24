@@ -651,7 +651,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 
 
-	if(swscanf(dataStr.getUnicode16(),L"%"WidePRIu64 L" %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
+	if(swscanf(dataStr.getUnicode16(),L"%" WidePRIu64 L" %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
 	{
 		DLOG(INFO) << "ObjController::_handleTransferItemMisc: Error in parameters";
 		return;

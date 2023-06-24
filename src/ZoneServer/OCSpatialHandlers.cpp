@@ -173,7 +173,7 @@ void ObjectController::_handleSetMoodInternal(uint64 targetId,Message* message,O
     gMessageLib->sendMoodUpdate(playerObject);
 
     ObjControllerAsyncContainer* asyncContainer = new(mDBAsyncContainerPool.malloc()) ObjControllerAsyncContainer(OCQuery_Nope);
-    sprintf(sql,"UPDATE %s.character_attributes SET moodId = %u where character_id = %" PRIu64 "",mDatabase->galaxy(),mood,playerObject->getId());
+    sprintf(sql,"UPDATE %s.character_attributes SET moodId = %u where character_id = %" PRIu64"",mDatabase->galaxy(),mood,playerObject->getId());
 
     mDatabase->executeSqlAsync(this,asyncContainer,sql);
 

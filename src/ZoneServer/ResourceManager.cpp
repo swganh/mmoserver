@@ -408,7 +408,7 @@ bool ResourceManager::setResourceDepletion(Resource* resource, int32 amt)
     if (it != mResourceIdMap.end() && resource->getCurrent() != 0)
     {
         asyncContainer->mCurrentResource = resource;
-        mDatabase->executeSqlAsync(this,asyncContainer,"update resources_spawn_config set unitsLeft = unitsLeft - %u where resource_id = %" PRIu64 "",amt ,resource->getId());
+        mDatabase->executeSqlAsync(this,asyncContainer,"update resources_spawn_config set unitsLeft = unitsLeft - %u where resource_id = %" PRIu64"",amt ,resource->getId());
         
     }
     else

@@ -1203,7 +1203,7 @@ void Trainer::respawn(void)
     if (this->hasInternalAttribute("creature_respawn_delay"))
     {
         uint64 respawnDelay = this->getInternalAttribute<uint64>("creature_respawn_delay");
-        // gLogger->log(LogManager::DEBUG,"creature_respawn_delay = %" PRIu64 "",  respawnDelay);
+        // gLogger->log(LogManager::DEBUG,"creature_respawn_delay = %" PRIu64"",  respawnDelay);
         // mRespawnDelay = respawnDelay;
         this->setRespawnDelay(respawnDelay);
     }

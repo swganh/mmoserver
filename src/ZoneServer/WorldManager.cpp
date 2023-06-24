@@ -29,7 +29,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <cassert>
 
+//#include <cppconn/resultset.h>
+#include <result.h>
 #include <cppconn/resultset.h>
+
 
 #ifdef WIN32
 #undef ERROR
@@ -604,10 +607,10 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
 
                 it = mBusyCraftTools.erase(it);
                 tool->setAttribute("craft_tool_status","@crafting:tool_status_ready");
-                mDatabase->executeSqlAsync(0,0,"UPDATE %s.item_attributes SET value='@crafting:tool_status_ready' WHERE item_id=%" PRIu64 " AND attribute_id=18",mDatabase->galaxy(),tool->getId());
+                mDatabase->executeSqlAsync(0,0,"UPDATE %s.item_attributes SET value='@crafting:tool_status_ready' WHERE item_id=%" PRIu64" AND attribute_id=18",mDatabase->galaxy(),tool->getId());
 
                 tool->setAttribute("craft_tool_time",boost::lexical_cast<std::string>(tool->getTimer()));
-                gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.item_attributes SET value='%i' WHERE item_id=%" PRIu64 " AND attribute_id=%u",mDatabase->galaxy(),tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
+                gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.item_attributes SET value='%i' WHERE item_id=%" PRIu64" AND attribute_id=%u",mDatabase->galaxy(),tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
 
 
                 continue;
@@ -617,7 +620,7 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
 
             tool->setAttribute("craft_tool_time",boost::lexical_cast<std::string>(tool->getTimer()));
             //gLogger->log(LogManager::DEBUG,"timer : %i",tool->getTimer());
-            mDatabase->executeSqlAsync(0,0,"UPDATE %s.item_attributes SET value='%i' WHERE item_id=%" PRIu64 " AND attribute_id=%u",mDatabase->galaxy(),tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
+            mDatabase->executeSqlAsync(0,0,"UPDATE %s.item_attributes SET value='%i' WHERE item_id=%" PRIu64" AND attribute_id=%u",mDatabase->galaxy(),tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
 
         }
 
@@ -660,7 +663,7 @@ void WorldManager::addCreatureObjectForTimedDeletion(uint64 creatureId, uint64 w
 {
     uint64 expireTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
 
-    // gLogger->log(LogManager::DEBUG,"WorldManager::addCreatureObjectForTimedDeletion Adding new at %" PRIu64 "", expireTime + when);
+    // gLogger->log(LogManager::DEBUG,"WorldManager::addCreatureObjectForTimedDeletion Adding new at %" PRIu64"", expireTime + when);
 
     CreatureObjectDeletionMap::iterator it = mCreatureObjectDeletionMap.find(creatureId);
     if (it != mCreatureObjectDeletionMap.end())
@@ -668,7 +671,7 @@ void WorldManager::addCreatureObjectForTimedDeletion(uint64 creatureId, uint64 w
         // Only remove object if new expire time is earlier than old. (else people can use "lootall" to add 10 new seconds to a corpse forever).
         if (expireTime + when < (*it).second)
         {
-            // gLogger->log(LogManager::DEBUG,"Removing object with id %" PRIu64 "", creatureId);
+            // gLogger->log(LogManager::DEBUG,"Removing object with id %" PRIu64"", creatureId);
             mCreatureObjectDeletionMap.erase(it);
         }
         else
@@ -677,7 +680,7 @@ void WorldManager::addCreatureObjectForTimedDeletion(uint64 creatureId, uint64 w
         }
 
     }
-    // gLogger->log(LogManager::DEBUG,"Adding new object with id %" PRIu64 "", creatureId);
+    // gLogger->log(LogManager::DEBUG,"Adding new object with id %" PRIu64"", creatureId);
     mCreatureObjectDeletionMap.insert(std::make_pair(creatureId, expireTime + when));
 }
 

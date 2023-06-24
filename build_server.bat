@@ -189,20 +189,27 @@ rem ----------------------------------------------------------------------------
 rem --- Start of BUILD_ENVIRONMENT ---------------------------------------------
 :BUILD_ENVIRONMENT
 
+rem find the build tools VS2019
 if not exist "%VS142COMNTOOLS%" (
-  for /f "usebackq tokens=*" %%i in (`tools\vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do (
-	set VS120COMNTOOLS=%%i\Common7\Tools
+	for /f "usebackq tokens=*" %%i in (`tools\vswhere -latest -find Common7\Tools`) do (
+		set VS142COMNTOOLS=%%i
+		
 
-rem if not exist "!VS142COMNTOOLS!" (
-rem    	echo ***** Microsoft Visual Studio 16.0 required *****
-rem    	exit /b 1
-rem		)
   	)
 )
 
-set "MSBUILD=%WINDIR%\Microsoft.NET\Framework\v4.0.30319\msbuild.exe"
+rem Find MSBUILD VS 2019
+if not exist "%MSBUILD%" (
+	for /f "usebackq tokens=*" %%i in (`tools\vswhere -latest -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe`) do (
+		set MSBUILD=%%i
+	)
+)
 
 call "%VS142COMNTOOLS%\VsDevCmd.bat" >NUL
+
+echo MSBuild file path found: %MSBUILD%
+echo 
+echo Visual Studio file path found: %VS142COMNTOOLS%
 
 set environment_built=yes
 
@@ -284,7 +291,7 @@ if not exist "deps\VERSION" (
 
 set /p current_version=<"deps\VERSION"
 	
-if not %current_version% == %DEPENDENCIES_VERSION% (
+if %current_version% NEQ %DEPENDENCIES_VERSION% (
 	echo ** Dependencies out of date -- Updating now ok**
 
 	rem Need to do a full rebuild after updating dependenceies

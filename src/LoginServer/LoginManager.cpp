@@ -501,7 +501,7 @@ void LoginManager::_processDeleteCharacter(Message* message,LoginClient* client)
     uint64 characterId = message->getUint64();
 
     client->setState(LCSTATE_DeleteCharacter);
-    mDatabase->executeSqlAsync(this,(void*)client,"SELECT %s.sf_CharacterDelete(\'%" PRIu64 "\')",mDatabase->galaxy(), characterId);
+    mDatabase->executeSqlAsync(this,(void*)client,"SELECT %s.sf_CharacterDelete(\'%" PRIu64"\')",mDatabase->galaxy(), characterId);
     
 }
 
@@ -677,7 +677,7 @@ void LoginManager::_getLauncherSessionKey(LoginClient* client, DatabaseResult* r
 
         //get the session_key made and returned
         int8 sql[512];
-        sprintf(sql,"CALL %s.sp_AccountSessionKeyGenerate(%" PRIu64 ");",mDatabase->galaxy(), data.mId);
+        sprintf(sql,"CALL %s.sp_AccountSessionKeyGenerate(%" PRIu64");",mDatabase->galaxy(), data.mId);
 
         client->setState(LCSTATE_RetrieveSessionKey);
         mDatabase->executeProcedureAsync(this, client, sql);

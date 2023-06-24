@@ -272,12 +272,12 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         Transaction* mTransaction = mDatabase->startTransaction(this,asyncContainer);
         int8 sql[200];
 
-        sprintf(sql,"UPDATE %s.inventories SET credits=credits-%i WHERE id=%" PRIu64 "",mDatabase->galaxy(),asyncContainer->amountcash, playerObject->getId()+INVENTORY_OFFSET);
+        sprintf(sql,"UPDATE %s.inventories SET credits=credits-%i WHERE id=%" PRIu64"",mDatabase->galaxy(),asyncContainer->amountcash, playerObject->getId()+INVENTORY_OFFSET);
         mTransaction->addQuery(sql);
-        sprintf(sql,"UPDATE %s.banks SET credits=credits-%i WHERE id=%" PRIu64 "",mDatabase->galaxy(),asyncContainer->amountbank, playerObject->getId()+BANK_OFFSET);
+        sprintf(sql,"UPDATE %s.banks SET credits=credits-%i WHERE id=%" PRIu64"",mDatabase->galaxy(),asyncContainer->amountbank, playerObject->getId()+BANK_OFFSET);
         mTransaction->addQuery(sql);
         int8 query[2000];
-        sprintf(query,"INSERT INTO %s.commerce_auction SET auction_id = %" PRIu64 ", owner_id = %" PRIu64 ", bazaar_id = %" PRIu64 ", type = %u, start = %u ,premium = %u, category = 0, itemtype = %u, price = %u, name = '%s', description = '%s', region_id = 0, planet_id = 0, bidder_name = '', object_string = '%s'",mDatabase->galaxy(), asynContainer->tangible->getId(),playerObject->getId(),asynContainer->BazaarID,asynContainer->auctionType,asynContainer->time,asynContainer->premium,asynContainer->itemType,asynContainer->price, asynContainer->name.getAnsi(),asynContainer->description.getAnsi(),asynContainer->tang.getAnsi());
+        sprintf(query,"INSERT INTO %s.commerce_auction SET auction_id = %" PRIu64", owner_id = %" PRIu64", bazaar_id = %" PRIu64", type = %u, start = %u ,premium = %u, category = 0, itemtype = %u, price = %u, name = '%s', description = '%s', region_id = 0, planet_id = 0, bidder_name = '', object_string = '%s'",mDatabase->galaxy(), asynContainer->tangible->getId(),playerObject->getId(),asynContainer->BazaarID,asynContainer->auctionType,asynContainer->time,asynContainer->premium,asynContainer->itemType,asynContainer->price, asynContainer->name.getAnsi(),asynContainer->description.getAnsi(),asynContainer->tang.getAnsi());
         mTransaction->addQuery(query);
         mTransaction->execute();
        
@@ -524,14 +524,14 @@ void TradeManager::_processDeductMoneyMessage(Message* message,DispatchClient* c
     //ok use transactions and see to the object in memory in the postransaction
     Transaction* mTransaction = mDatabase->startTransaction(this,asyncContainer);
     int8 sql[200];
-    sprintf(sql,"UPDATE %s.inventories SET credits=credits-%i WHERE id=%" PRIu64 "",mDatabase->galaxy(),asyncContainer->amountcash, buyerID+INVENTORY_OFFSET);
+    sprintf(sql,"UPDATE %s.inventories SET credits=credits-%i WHERE id=%" PRIu64"",mDatabase->galaxy(),asyncContainer->amountcash, buyerID+INVENTORY_OFFSET);
     mTransaction->addQuery(sql);
-    sprintf(sql,"UPDATE %s.banks SET credits=credits-%i WHERE id=%" PRIu64 "",mDatabase->galaxy(),asyncContainer->amountbank, buyerID+BANK_OFFSET);
+    sprintf(sql,"UPDATE %s.banks SET credits=credits-%i WHERE id=%" PRIu64"",mDatabase->galaxy(),asyncContainer->amountbank, buyerID+BANK_OFFSET);
     mTransaction->addQuery(sql);
-    sprintf(sql,"UPDATE %s.banks SET credits=credits+%i WHERE id=%" PRIu64 "",mDatabase->galaxy(),amount, sellerID+BANK_OFFSET);
+    sprintf(sql,"UPDATE %s.banks SET credits=credits+%i WHERE id=%" PRIu64"",mDatabase->galaxy(),amount, sellerID+BANK_OFFSET);
     mTransaction->addQuery(sql);
     //set owner id to new owner. the item will be taken out of the bazaar in the next step IF the buyer is near
-    sprintf(sql,"UPDATE %s.commerce_auction SET owner_id = %" PRIu64 ", type = %u,start = %u WHERE auction_id = %" PRIu64 "",mDatabase->galaxy(),buyerID,TRMVendor_Cancelled,time,itemID);
+    sprintf(sql,"UPDATE %s.commerce_auction SET owner_id = %" PRIu64", type = %u,start = %u WHERE auction_id = %" PRIu64"",mDatabase->galaxy(),buyerID,TRMVendor_Cancelled,time,itemID);
     mTransaction->addQuery(sql);
    
 
@@ -721,7 +721,7 @@ void TradeManager::_HandleAuctionCreateMessage(Message* message,DispatchClient* 
 
 
     int8 sql[200];
-    sprintf(sql,"Select * FROM commerce_auction WHERE owner_id = '%" PRIu64 "'", playerObject->getId());
+    sprintf(sql,"Select * FROM commerce_auction WHERE owner_id = '%" PRIu64"'", playerObject->getId());
     mDatabase->executeSqlAsync(this,asyncContainer,sql);
 
 
@@ -823,9 +823,9 @@ void TradeManager::TradeTransaction(DispatchClient* client,PlayerObject* player1
 
     if (player1->testCash(asyncContainer->amount1) && player2->testCash(asyncContainer->amount2))
     {
-        sprintf(sql,"UPDATE %s.inventories SET credits=credits+%i WHERE id=%" PRIu64 "",mDatabase->galaxy(),-asyncContainer->amount1+asyncContainer->amount2, player1->getId()+1);
+        sprintf(sql,"UPDATE %s.inventories SET credits=credits+%i WHERE id=%" PRIu64"",mDatabase->galaxy(),-asyncContainer->amount1+asyncContainer->amount2, player1->getId()+1);
         mTransaction->addQuery(sql);
-        sprintf(sql,"UPDATE %s.inventories SET credits=credits+%i WHERE id=%" PRIu64 "",mDatabase->galaxy(),-asyncContainer->amount2+asyncContainer->amount1, player2->getId()+1);
+        sprintf(sql,"UPDATE %s.inventories SET credits=credits+%i WHERE id=%" PRIu64"",mDatabase->galaxy(),-asyncContainer->amount2+asyncContainer->amount1, player2->getId()+1);
         mTransaction->addQuery(sql);
 
         //now we need to add the items

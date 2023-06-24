@@ -33,8 +33,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseResult.h"
 #include "DatabaseImplementation.h"
 
-#include <cppconn/resultset.h>
-#include <cppconn/statement.h>
+//#include <resultset.h>
+//#include <statement.h>
+
+#include <cppconn\resultset.h>
+#include <cppconn\statement.h>
 
 #include <mysql.h>
 #include <stdlib.h>

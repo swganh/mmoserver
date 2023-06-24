@@ -196,7 +196,7 @@ void TangibleObject::setCustomNameIncDB(const int8* name)
     sprintf(sql,"UPDATE %s.items SET customName='",gWorldManager->getDatabase()->galaxy());
     sqlPointer = sql + strlen(sql);
     sqlPointer += gWorldManager->getDatabase()->escapeString(sqlPointer,mCustomName.getAnsi(),mCustomName.getLength());
-    sprintf(restStr,"' WHERE id=%" PRIu64 " ",this->getId());
+    sprintf(restStr,"' WHERE id=%" PRIu64" ",this->getId());
 
     strcat(sql,restStr);
     gWorldManager->getDatabase()->executeSqlAsync(0,0,sql);
@@ -209,7 +209,7 @@ void TangibleObject::setCustomNameIncDB(const int8* name)
 void TangibleObject::setParentIdIncDB(uint64 parentId)
 {
     mParentId = parentId;
-    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.items SET parent_id=%" PRIu64 " WHERE id=%" PRIu64 "",gWorldManager->getDatabase()->galaxy(),mParentId,this->getId());
+    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.items SET parent_id=%" PRIu64" WHERE id=%" PRIu64"",gWorldManager->getDatabase()->galaxy(),mParentId,this->getId());
     
 }
 

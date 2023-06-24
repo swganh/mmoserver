@@ -244,13 +244,13 @@ void  Trade::processTradeListPreTransaction(Transaction* mTransaction)
             {
             case TanGroup_Item:
             {
-                sprintf(sql,"UPDATE items SET parent_id = %" PRIu64 " WHERE id = %" PRIu64 "",(*it)->getNewOwner()->getId()+1,(*it)->getObject()->getId());
+                sprintf(sql,"UPDATE items SET parent_id = %" PRIu64" WHERE id = %" PRIu64"",(*it)->getNewOwner()->getId()+1,(*it)->getObject()->getId());
             }
             break;
 
             case TanGroup_ResourceContainer:
             {
-                sprintf(sql,"UPDATE resource_containers SET parent_id = %" PRIu64 " WHERE id = %" PRIu64 "",(*it)->getNewOwner()->getId()+1,(*it)->getObject()->getId());
+                sprintf(sql,"UPDATE resource_containers SET parent_id = %" PRIu64" WHERE id = %" PRIu64"",(*it)->getNewOwner()->getId()+1,(*it)->getObject()->getId());
             }
             break;
 
@@ -262,7 +262,7 @@ void  Trade::processTradeListPreTransaction(Transaction* mTransaction)
 
         case ObjType_Waypoint:
         {
-            sprintf(sql,"UPDATE waypoints SET parent_id = %" PRIu64 " WHERE id = %" PRIu64 "",(*it)->getNewOwner()->getId(),(*it)->getObject()->getId());
+            sprintf(sql,"UPDATE waypoints SET parent_id = %" PRIu64" WHERE id = %" PRIu64"",(*it)->getNewOwner()->getId(),(*it)->getObject()->getId());
         }
         break;
 

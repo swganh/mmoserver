@@ -94,13 +94,13 @@ void CellFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,CellFQuery_Objects,asyncContainer->mClient);
         asContainer->mObject = cell;
 
-        mDatabase->executeSqlAsync(this,asContainer,"(SELECT \'terminals\',id FROM %s.terminals WHERE parent_id = %" PRIu64 ")"
-                                   " UNION (SELECT \'containers\',id FROM %s.containers WHERE parent_id = %" PRIu64 ")"
-                                   " UNION (SELECT \'ticket_collectors\',id FROM %s.ticket_collectors WHERE (parent_id=%" PRIu64 "))"
-                                   " UNION (SELECT \'persistent_npcs\',id FROM %s.persistent_npcs WHERE parentId=%" PRIu64 ")"
-                                   " UNION (SELECT \'shuttles\',id FROM %s.shuttles WHERE parentId=%" PRIu64 ")"
-                                   " UNION (SELECT \'items\',id FROM %s.items WHERE parent_id=%" PRIu64 ")"
-                                   " UNION (SELECT \'resource_containers\',id FROM %s.resource_containers WHERE parent_id=%" PRIu64 ")",
+        mDatabase->executeSqlAsync(this,asContainer,"(SELECT \'terminals\',id FROM %s.terminals WHERE parent_id = %" PRIu64")"
+                                   " UNION (SELECT \'containers\',id FROM %s.containers WHERE parent_id = %" PRIu64")"
+                                   " UNION (SELECT \'ticket_collectors\',id FROM %s.ticket_collectors WHERE (parent_id=%" PRIu64"))"
+                                   " UNION (SELECT \'persistent_npcs\',id FROM %s.persistent_npcs WHERE parentId=%" PRIu64")"
+                                   " UNION (SELECT \'shuttles\',id FROM %s.shuttles WHERE parentId=%" PRIu64")"
+                                   " UNION (SELECT \'items\',id FROM %s.items WHERE parent_id=%" PRIu64")"
+                                   " UNION (SELECT \'resource_containers\',id FROM %s.resource_containers WHERE parent_id=%" PRIu64")",
                                    mDatabase->galaxy(),cellId,
                                    mDatabase->galaxy(),cellId,
                                    mDatabase->galaxy(),cellId,
@@ -166,7 +166,7 @@ void CellFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 void CellFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-    mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,CellFQuery_MainData,client),"SELECT id,parent_id FROM %s.cells WHERE id = %" PRIu64 "",mDatabase->galaxy(), id);
+    mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,CellFQuery_MainData,client),"SELECT id,parent_id FROM %s.cells WHERE id = %" PRIu64"",mDatabase->galaxy(), id);
     
 }
 
@@ -174,7 +174,7 @@ void CellFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint
 
 void CellFactory::requestStructureCell(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-    mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,CellFQuery_MainData,client),"SELECT id,parent_id FROM %s.structure_cells WHERE id = %" PRIu64 "",mDatabase->galaxy(), id);
+    mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,CellFQuery_MainData,client),"SELECT id,parent_id FROM %s.structure_cells WHERE id = %" PRIu64"",mDatabase->galaxy(), id);
     
 }
 

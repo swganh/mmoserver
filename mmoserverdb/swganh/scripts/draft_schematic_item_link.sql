@@ -44,7 +44,7 @@ CREATE TABLE `draft_schematic_item_link` (
   `item_family` int(11) unsigned NOT NULL default '0',
   `item_type` int(11) unsigned NOT NULL default '0',
   PRIMARY KEY  (`schematic_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPRESSED;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `draft_schematic_item_link`

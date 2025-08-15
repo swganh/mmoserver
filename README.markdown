@@ -13,7 +13,7 @@ The MMOServer is the flagship project for the [SWG:ANH Team][1]. It is a cross p
 
 *   C++0x Compatible Compiler
 
-    Windows: Visual Studio 2013 or higher is required
+    Windows: Visual Studio 2022 or higher is required
     Unix: GCC 4.6 or higher is required
     
 ### Windows Builds ###

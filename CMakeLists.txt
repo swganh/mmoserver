@@ -68,9 +68,9 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
 ELSE()
     # If not gcc and on WIN32 we're using visual studio, perform related checks here.
     IF(WIN32) 
-        # If using visual studio's compiler make sure we're using at least version 12
-        IF(MSVC_VERSION LESS 1800)
-            MESSAGE(FATAL_ERROR "MSVC 12 or higher is required to build this library")
+        # If using visual studio's compiler make sure we're using at least version 17
+        IF(MSVC_VERSION LESS 1930)
+            MESSAGE(FATAL_ERROR "MSVC 17 or higher is required to build this library")
         ENDIF()
         
         SET(_WIN32_WINNT 0x0601 CACHE INTERNAL "Setting _WIN32_WINNT to 0x0601 for Windows 7 minimum APIs")
@@ -78,7 +78,7 @@ ELSE()
 
         # If there hasn't been a tbb platform set (probably not on a win32 platform)
         # then set the TBB_ARCH_PLATFORM environment variable manually.
-        SET(ENV{TBB_ARCH_PLATFORM} "ia32/vc12")
+        SET(ENV{TBB_ARCH_PLATFORM} "ia32/vc17")
         
         ADD_DEFINITIONS (/D _WIN32_WINNT=${_WIN32_WINNT})
         MESSAGE(STATUS "- MSVC: Set minimum Windows API version")
@@ -98,10 +98,10 @@ ELSE()
 				set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /bigobj")
 				set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /bigobj")
 			endif ()
-			if (MSVC_VERSION GREATER 1800 OR MSVC_VERSION EQUAL 1800)
-				option(ANH_BUILD_MSVC_MP "Enable build with multiple processes in Visual Studio" TRUE)
-			else()
-				set(ANH_BUILD_MSVC_MP FALSE CACHE BOOL "Compiler option /MP requires at least Visual Studio 2013 (VS12) or newer" FORCE)
+                        if (MSVC_VERSION GREATER 1930 OR MSVC_VERSION EQUAL 1930)
+                                option(ANH_BUILD_MSVC_MP "Enable build with multiple processes in Visual Studio" TRUE)
+                        else()
+                                set(ANH_BUILD_MSVC_MP FALSE CACHE BOOL "Compiler option /MP requires at least Visual Studio 2022 (VS17) or newer" FORCE)
 			endif()
 			
 			if(ANH_BUILD_MSVC_MP)

@@ -45,7 +45,7 @@ CREATE TABLE `item_families` (
   `crate_type` int(10) unsigned NOT NULL DEFAULT '2772',
   PRIMARY KEY (`id`),
   UNIQUE KEY `pk_item_family_name` (`family_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8 ROW_FORMAT=REDUNDANT;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `item_families`

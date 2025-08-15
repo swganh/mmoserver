@@ -43,7 +43,7 @@ CREATE TABLE `badge_categories` (
   `name` char(255) default NULL,
   PRIMARY KEY  (`Id`),
   UNIQUE KEY `pk_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=REDUNDANT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `badge_categories`

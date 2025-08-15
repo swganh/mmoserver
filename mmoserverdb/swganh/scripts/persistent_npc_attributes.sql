@@ -48,7 +48,7 @@ CREATE TABLE `persistent_npc_attributes` (
   KEY `fk_per_npc_att_att` (`attribute_id`),
   CONSTRAINT `fk_per_npc_att_att` FOREIGN KEY (`attribute_id`) REFERENCES `attributes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_per_npc_att_npc` FOREIGN KEY (`npc_id`) REFERENCES `persistent_npcs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPRESSED;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `persistent_npc_attributes`

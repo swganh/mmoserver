@@ -51,7 +51,7 @@ CREATE TABLE `badge_regions` (
   CONSTRAINT `fk_badgeregion_planet_planet` FOREIGN KEY (`planet_id`) REFERENCES `planet` (`planet_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_badge_regions_badge_badge` FOREIGN KEY (`badge_id`) REFERENCES `badges` (`Id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_badge_regions_region_region` FOREIGN KEY (`region_id`) REFERENCES `planet_regions` (`region_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=REDUNDANT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `badge_regions`

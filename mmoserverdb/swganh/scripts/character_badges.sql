@@ -43,7 +43,7 @@ CREATE TABLE `character_badges` (
   `badge_id` int(11) unsigned NOT NULL default '0',
   PRIMARY KEY  (`character_id`,`badge_id`),
   CONSTRAINT `fk_characterbadges_char_char` FOREIGN KEY (`character_id`) REFERENCES `characters` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=REDUNDANT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `character_badges`

@@ -52,7 +52,7 @@ CREATE TABLE `item_types` (
   `b_isSitable` int(10) unsigned NOT NULL DEFAULT '0',
   `container` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '0 for not a container, otherwise nr of items allowed',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2788 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPRESSED;
+) ENGINE=InnoDB AUTO_INCREMENT=2788 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `item_types`

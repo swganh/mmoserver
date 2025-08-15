@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_splitString`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_splitString`(IN input TEXT,IN `delimiter` VARCHAR(10))
+CREATE PROCEDURE `sp_splitString`(IN input TEXT,IN `delimiter` VARCHAR(10)) SQL SECURITY INVOKER
 BEGIN
         DECLARE cur_position INT DEFAULT 1 ;
         DECLARE remainder TEXT;

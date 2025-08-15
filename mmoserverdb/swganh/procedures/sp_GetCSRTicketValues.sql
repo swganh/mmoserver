@@ -44,7 +44,7 @@ DROP PROCEDURE IF EXISTS `sp_GetCSRTicketValues`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetCSRTicketValues`(IN mSearchIn TEXT, IN mSearchFor TEXT)
+CREATE PROCEDURE `sp_GetCSRTicketValues`(IN mSearchIn TEXT, IN mSearchFor TEXT) SQL SECURITY INVOKER
 BEGIN
 
   DECLARE mStart INT;

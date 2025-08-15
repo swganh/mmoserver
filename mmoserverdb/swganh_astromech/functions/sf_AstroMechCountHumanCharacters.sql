@@ -46,7 +46,7 @@ use swganh_astromech;
 DELIMITER $$
 
 DROP FUNCTION IF EXISTS `swganh_astromech`.`sf_AstroMechCountHumanCharacters` $$
-CREATE DEFINER=`root`@`%` FUNCTION `swganh_astromech`.`sf_AstroMechCountHumanCharacters`() RETURNS int(5)
+CREATE FUNCTION `swganh_astromech`.`sf_AstroMechCountHumanCharacters`() RETURNS int(5) SQL SECURITY INVOKER
 BEGIN
 
   DECLARE result int(5);

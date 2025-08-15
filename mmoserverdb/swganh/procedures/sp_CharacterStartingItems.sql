@@ -47,7 +47,7 @@ DROP PROCEDURE IF EXISTS `sp_CharacterStartingItems`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_CharacterStartingItems`(
+CREATE PROCEDURE `sp_CharacterStartingItems`( SQL SECURITY INVOKER
 	IN inventory_id BIGINT(20),
 	IN tutorialcontainer_id BIGINT(20),
 	IN privateowner_id BIGINT(20),

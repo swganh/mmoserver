@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_ReturnChatChannelInvite`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_ReturnChatChannelInvite`(IN channelId INT)
+CREATE PROCEDURE `sp_ReturnChatChannelInvite`(IN channelId INT) SQL SECURITY INVOKER
 BEGIN
 	
 	SELECT A.char_name FROM swganh.chat_channels_invited A WHERE A.channel_id = channelId;

@@ -46,7 +46,7 @@ DROP PROCEDURE IF EXISTS `sp_GetCityCoordinateList`;
 
 DELIMITER $$
 
-CREATE DEFINER=`root`@`%` PROCEDURE `sp_GetCityCoordinateList`(planet_id INT(2))
+CREATE PROCEDURE `sp_GetCityCoordinateList`(planet_id INT(2)) SQL SECURITY INVOKER
 BEGIN
 
   --

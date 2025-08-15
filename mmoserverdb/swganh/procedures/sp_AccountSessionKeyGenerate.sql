@@ -43,7 +43,7 @@ DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AccountSessionKeyGenerate`(IN maccount_id BIGINT)
+CREATE PROCEDURE `sp_AccountSessionKeyGenerate`(IN maccount_id BIGINT) SQL SECURITY INVOKER
 BEGIN
 
   ##

@@ -42,7 +42,7 @@ DROP FUNCTION IF EXISTS `sf_FactoryGetUnFinishedCrate`;
 DELIMITER $$
 
 DROP FUNCTION IF EXISTS `swganh`.`sf_FactoryGetUnFinishedCrate` $$
-CREATE DEFINER=`root`@`localhost` FUNCTION `sf_FactoryGetUnFinishedCrate`(hopperID BIGINT(20), schematicID BIGINT(20)) RETURNS bigint(20)
+CREATE FUNCTION `sf_FactoryGetUnFinishedCrate`(hopperID BIGINT(20), schematicID BIGINT(20)) RETURNS bigint(20) SQL SECURITY INVOKER
 BEGIN
 
 --

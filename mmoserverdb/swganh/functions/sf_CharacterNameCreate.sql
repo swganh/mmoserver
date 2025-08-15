@@ -42,7 +42,7 @@ DROP FUNCTION IF EXISTS `sf_CharacterNameCreate`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE DEFINER=`root`@`localhost` FUNCTION `sf_CharacterNameCreate`(base_model_string CHAR(64)) RETURNS char(64) CHARSET utf8
+CREATE FUNCTION `sf_CharacterNameCreate`(base_model_string CHAR(64)) RETURNS char(64) CHARSET utf8 SQL SECURITY INVOKER
 BEGIN
 	DECLARE shortSpecies CHAR(16);
 	DECLARE gender INT(11);

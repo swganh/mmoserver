@@ -41,7 +41,7 @@ DROP FUNCTION IF EXISTS `swganh`.`sf_DiscardHopper`;
 
 DELIMITER $$
 
-CREATE FUNCTION `sf_DiscardHopper`(hID BIGINT(20)) RETURNS bigint(20)
+CREATE FUNCTION `sf_DiscardHopper`(hID BIGINT(20)) RETURNS bigint(20) SQL SECURITY INVOKER
 BEGIN
 
 --

@@ -42,7 +42,7 @@ DROP FUNCTION IF EXISTS `sf_DefaultItemCreateBySchematic`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER' */ $$
-CREATE DEFINER=`root`@`localhost` FUNCTION `sf_DefaultItemCreateBySchematic`(schemCrc INT(11) UNSIGNED,parent_id BIGINT(20),inPlanet INT,inX FLOAT,inY FLOAT,inZ FLOAT,custom_name CHAR(255)) RETURNS bigint(20)
+CREATE FUNCTION `sf_DefaultItemCreateBySchematic`(schemCrc INT(11) UNSIGNED,parent_id BIGINT(20),inPlanet INT,inX FLOAT,inY FLOAT,inZ FLOAT,custom_name CHAR(255)) RETURNS bigint(20) SQL SECURITY INVOKER
 BEGIN
         DECLARE mFamily_id INT DEFAULT 9;
         DECLARE mType_id INT DEFAULT 1;

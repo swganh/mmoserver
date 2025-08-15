@@ -4,7 +4,7 @@
 
 DROP PROCEDURE IF EXISTS `sp_UpdateGalaxyStatus`;
 DELIMITER //
-CREATE PROCEDURE `sp_UpdateGalaxyStatus`(IN `in_status` TINYINT, IN `in_id` INT)
+CREATE PROCEDURE `sp_UpdateGalaxyStatus`(IN `in_status` TINYINT, IN `in_id` INT) SQL SECURITY INVOKER
 BEGIN
 update galaxy set status = in_status , updated_at = NOW() where id = in_id;
 END//

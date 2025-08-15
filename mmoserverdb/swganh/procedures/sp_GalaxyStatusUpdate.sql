@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_GalaxyStatusUpdate`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GalaxyStatusUpdate`(IN galaxy_status INT, galaxyID BIGINT)
+CREATE PROCEDURE `sp_GalaxyStatusUpdate`(IN galaxy_status INT, galaxyID BIGINT) SQL SECURITY INVOKER
 BEGIN
 
   ##

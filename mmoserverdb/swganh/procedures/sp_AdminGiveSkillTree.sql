@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_AdminGiveSkillTree`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AdminGiveSkillTree`(IN character_id BIGINT, IN skill CHAR(16))
+CREATE PROCEDURE `sp_AdminGiveSkillTree`(IN character_id BIGINT, IN skill CHAR(16)) SQL SECURITY INVOKER
 BEGIN
 	
 	DECLARE prof_id int;

@@ -42,7 +42,7 @@ DROP FUNCTION IF EXISTS `swganh`.`sf_CreateChannel`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER' */ $$
-CREATE DEFINER=`root`@`localhost` FUNCTION `sf_CreateChannel`(name CHAR(64), private TINYINT(1), moderated TINYINT(1), creator CHAR(32), title CHAR(255)) RETURNS int(11)
+CREATE FUNCTION `sf_CreateChannel`(name CHAR(64), private TINYINT(1), moderated TINYINT(1), creator CHAR(32), title CHAR(255)) RETURNS int(11) SQL SECURITY INVOKER
 BEGIN
   INSERT INTO chat_channels VALUES (NULL, name, private, moderated, creator, creator, title);
   INSERT INTO chat_channels_moderators VALUES (LAST_INSERT_ID(), creator);

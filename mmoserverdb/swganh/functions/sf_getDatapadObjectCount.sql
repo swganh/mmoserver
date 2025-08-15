@@ -41,7 +41,7 @@ DROP FUNCTION IF EXISTS `swganh`.`sf_getDatapadObjectCount`;
 
 DELIMITER $$
 
-CREATE DEFINER=`root`@`localhost` FUNCTION `sf_getDatapadObjectCount`(dtpId BIGINT) RETURNS int(11)
+CREATE FUNCTION `sf_getDatapadObjectCount`(dtpId BIGINT) RETURNS int(11) SQL SECURITY INVOKER
 BEGIN
         DECLARE waypointCount INT;
         DECLARE manSchemCount INT;

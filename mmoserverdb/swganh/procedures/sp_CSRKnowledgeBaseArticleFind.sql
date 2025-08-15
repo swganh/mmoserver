@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_CSRKnowledgeBaseArticleFind`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_CSRKnowledgeBaseArticleFind`(IN result TEXT)
+CREATE PROCEDURE `sp_CSRKnowledgeBaseArticleFind`(IN result TEXT) SQL SECURITY INVOKER
 BEGIN
 
   ##

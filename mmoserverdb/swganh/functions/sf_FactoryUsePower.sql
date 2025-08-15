@@ -42,7 +42,7 @@ DROP FUNCTION IF EXISTS `sf_FactoryUsePower`;
 DELIMITER $$
 
 DROP FUNCTION IF EXISTS `swganh`.`sf_FactoryUsePower` $$
-CREATE DEFINER=`root`@`localhost` FUNCTION `sf_FactoryUsePower`(fID BIGINT(20)) RETURNS int(11)
+CREATE FUNCTION `sf_FactoryUsePower`(fID BIGINT(20)) RETURNS int(11) SQL SECURITY INVOKER
 BEGIN
 
 --

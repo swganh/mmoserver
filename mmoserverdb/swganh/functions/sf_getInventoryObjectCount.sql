@@ -42,7 +42,7 @@ DROP FUNCTION IF EXISTS `sf_getInventoryObjectCount`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER' */ $$
-CREATE DEFINER=`root`@`localhost` FUNCTION `sf_getInventoryObjectCount`(invId BIGINT) RETURNS int(11)
+CREATE FUNCTION `sf_getInventoryObjectCount`(invId BIGINT) RETURNS int(11) SQL SECURITY INVOKER
 BEGIN
         DECLARE containerCount INT;
         DECLARE itemCount INT;

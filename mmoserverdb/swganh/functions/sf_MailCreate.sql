@@ -42,7 +42,7 @@ DROP FUNCTION IF EXISTS `sf_MailCreate`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER' */ $$
-CREATE FUNCTION `sf_MailCreate`(fromName CHAR(255),toId BIGINT(20),subjectStr char(255),msgText TEXT,attachments TEXT,attDataSize INT,sendTime INT) RETURNS int(11)
+CREATE FUNCTION `sf_MailCreate`(fromName CHAR(255),toId BIGINT(20),subjectStr char(255),msgText TEXT,attachments TEXT,attDataSize INT,sendTime INT) RETURNS int(11) SQL SECURITY INVOKER
 BEGIN
         
         INSERT INTO chat_mail VALUES (NULL,fromName,toId,subjectStr,msgText,0,sendTime,attachments,attDataSize);

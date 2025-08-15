@@ -54,7 +54,7 @@ CREATE TABLE `resources` (
   `ut` smallint(4) unsigned NOT NULL default '0',
   `pe` smallint(4) unsigned NOT NULL default '0',
   `spawn_date` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
-  `spawn_end` timestamp NULL default '0000-00-00 00:00:00',
+  `spawn_end` timestamp NULL DEFAULT NULL,
   `active` tinyint(3) unsigned NOT NULL default '1',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `pk_resource_name` (`name`)

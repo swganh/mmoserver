@@ -18,7 +18,7 @@ The MMOServer is the flagship project for the [SWG:ANH Team][1]. It is a cross p
     
 ### Windows Builds ###
 
-To build the server on Windows simply double-click the BuildServer.bat file in the project root. This will download and build all the dependencies and sources and then generate a /bin directory with the server executables.
+To build the server on Windows simply double-click the build_server.bat file in the project root. This will download and build all the dependencies and sources and then generate a /bin directory with the server executables.
 
 ### Unix Builds ###
 

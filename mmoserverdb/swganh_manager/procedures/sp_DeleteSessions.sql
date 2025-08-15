@@ -4,7 +4,7 @@
 
 DROP PROCEDURE IF EXISTS `sp_DeleteSessions`;
 DELIMITER //
-CREATE PROCEDURE `sp_DeleteSessions`()
+CREATE PROCEDURE `sp_DeleteSessions`() SQL SECURITY INVOKER
 BEGIN
 truncate account_session;
 END//

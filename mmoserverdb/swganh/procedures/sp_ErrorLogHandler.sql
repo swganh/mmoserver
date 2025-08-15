@@ -41,7 +41,7 @@ DROP PROCEDURE IF EXISTS `swganh`.`sp_ErrorLogHandler`;
 
 DELIMITER $$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_ErrorLogHandler`(
+CREATE PROCEDURE `sp_ErrorLogHandler`( SQL SECURITY INVOKER
 	IN zone char(64),
 	IN system char(64),
 	IN message char(255))

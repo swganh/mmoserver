@@ -4,7 +4,7 @@
 
 DROP PROCEDURE IF EXISTS `sp_CreateAccountSession`;
 DELIMITER //
-CREATE PROCEDURE `sp_CreateAccountSession`(IN `in_account` BIGINT, IN `in_session_key` VARCHAR(255))
+CREATE PROCEDURE `sp_CreateAccountSession`(IN `in_account` BIGINT, IN `in_session_key` VARCHAR(255)) SQL SECURITY INVOKER
 BEGIN
 	INSERT INTO account_session(account, session_key) VALUES(in_account,in_session_key);
 END//

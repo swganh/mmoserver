@@ -4,7 +4,7 @@
 
 DROP PROCEDURE IF EXISTS `sp_FindGalaxyById`;
 DELIMITER //
-CREATE PROCEDURE `sp_FindGalaxyById`(IN `in_id` INT)
+CREATE PROCEDURE `sp_FindGalaxyById`(IN `in_id` INT) SQL SECURITY INVOKER
 BEGIN
 SELECT * FROM galaxy where id = in_id LIMIT 1;
 END//

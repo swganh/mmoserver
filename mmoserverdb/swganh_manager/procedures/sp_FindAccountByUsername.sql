@@ -4,7 +4,7 @@
 
 DROP PROCEDURE IF EXISTS `sp_FindAccountByUsername`;
 DELIMITER //
-CREATE PROCEDURE `sp_FindAccountByUsername`(IN `in_username` VARCHAR(50))
+CREATE PROCEDURE `sp_FindAccountByUsername`(IN `in_username` VARCHAR(50)) SQL SECURITY INVOKER
 BEGIN
 select id, username, password, salt, enabled from account where username = in_username;
 END//

@@ -4,7 +4,7 @@
 -- --------------------------------------------------------------------------------
 DELIMITER $$
 
-CREATE DEFINER=`root`@`localhost` FUNCTION `sf_DefaultHarvesterUpdateDeed`(parent_id BIGINT(20), owner_id BIGINT(20)) RETURNS bigint(20)
+CREATE FUNCTION `sf_DefaultHarvesterUpdateDeed`(parent_id BIGINT(20), owner_id BIGINT(20)) RETURNS bigint(20) SQL SECURITY INVOKER
 BEGIN
 
         DECLARE deed_id BIGINT(20);

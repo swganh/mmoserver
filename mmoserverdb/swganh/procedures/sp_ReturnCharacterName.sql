@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_ReturnCharacterName`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_ReturnCharacterName`(IN charId BIGINT)
+CREATE PROCEDURE `sp_ReturnCharacterName`(IN charId BIGINT) SQL SECURITY INVOKER
 BEGIN
 	
 	SELECT A.firstname,A.lastname

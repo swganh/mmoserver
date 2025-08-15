@@ -41,7 +41,7 @@ DROP PROCEDURE IF EXISTS `sp_CreateSWGANHBots`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_CreateSWGANHBots`(IN bots int, IN firstId int, IN start_city char(32))
+CREATE PROCEDURE `sp_CreateSWGANHBots`(IN bots int, IN firstId int, IN start_city char(32)) SQL SECURITY INVOKER
 BEGIN
 	DECLARE new_account_id BIGINT(20);
 	DECLARE new_username CHAR(16);

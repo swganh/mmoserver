@@ -42,7 +42,7 @@ DROP FUNCTION IF EXISTS `swganh`.`sf_TravelTicketCreate`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER' */ $$
-CREATE DEFINER=`root`@`localhost` FUNCTION `sf_TravelTicketCreate`(srcPlanet char(32),srcPort char(64),dstPlanet char(32),dstPort char(64),parentId BIGINT(20),inX FLOAT,inY FLOAT,inZ FLOAT,inPlanetId INT) RETURNS bigint(20)
+CREATE FUNCTION `sf_TravelTicketCreate`(srcPlanet char(32),srcPort char(64),dstPlanet char(32),dstPort char(64),parentId BIGINT(20),inX FLOAT,inY FLOAT,inZ FLOAT,inPlanetId INT) RETURNS bigint(20) SQL SECURITY INVOKER
 BEGIN
 
         DECLARE tmpId BIGINT(20);

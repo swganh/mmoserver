@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_ReturnServerList`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_ReturnServerList`()
+CREATE PROCEDURE `sp_ReturnServerList`() SQL SECURITY INVOKER
 BEGIN
 	
 	SELECT galaxy_id, name, address, port, pingport, population, status FROM galaxy;

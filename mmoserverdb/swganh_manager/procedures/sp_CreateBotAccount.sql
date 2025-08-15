@@ -5,7 +5,7 @@
 
 DROP PROCEDURE IF EXISTS `sp_CreateBotAccount`;
 DELIMITER //
-CREATE PROCEDURE `sp_CreateBotAccount`(
+CREATE PROCEDURE `sp_CreateBotAccount`( SQL SECURITY INVOKER
 IN username char(32),
     IN password_ char(32))
 BEGIN

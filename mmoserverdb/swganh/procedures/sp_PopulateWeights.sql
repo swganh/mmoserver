@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_PopulateWeights`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_PopulateWeights`()
+CREATE PROCEDURE `sp_PopulateWeights`() SQL SECURITY INVOKER
 BEGIN
 
 

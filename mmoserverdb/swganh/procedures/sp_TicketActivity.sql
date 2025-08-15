@@ -43,7 +43,7 @@ DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='' */ $$
 DROP PROCEDURE IF EXISTS `swganh`.`sp_TicketActivity`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE  `swganh`.`sp_TicketActivity`(IN ticketid INT)
+CREATE PROCEDURE  `swganh`.`sp_TicketActivity`(IN ticketid INT) SQL SECURITY INVOKER
 BEGIN
   UPDATE csr_tickets SET lastmodified = UNIX_TIMESTAMP() WHERE ticket_id = ticketid;
 END $$

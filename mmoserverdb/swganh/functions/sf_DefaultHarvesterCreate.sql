@@ -42,7 +42,7 @@ DROP FUNCTION IF EXISTS `sf_DefaultHarvesterCreate`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ $$
-CREATE DEFINER=`root`@`localhost` FUNCTION `sf_DefaultHarvesterCreate`(type_id INT(11),parent_id BIGINT(20),privateowner_id BIGINT(20),inPlanet INT,oX FLOAT,oY FLOAT,oZ FLOAT, oW FLOAT,inX FLOAT,inY FLOAT,inZ FLOAT,custom_name CHAR(255),deed_id BIGINT(20)) RETURNS bigint(20)
+CREATE FUNCTION `sf_DefaultHarvesterCreate`(type_id INT(11),parent_id BIGINT(20),privateowner_id BIGINT(20),inPlanet INT,oX FLOAT,oY FLOAT,oZ FLOAT, oW FLOAT,inX FLOAT,inY FLOAT,inZ FLOAT,custom_name CHAR(255),deed_id BIGINT(20)) RETURNS bigint(20) SQL SECURITY INVOKER
 BEGIN
         DECLARE tmpId BIGINT(20);
         DECLARE att_id,att_order INT;

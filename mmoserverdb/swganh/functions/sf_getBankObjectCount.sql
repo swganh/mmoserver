@@ -43,7 +43,7 @@ DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
 
-CREATE DEFINER=`root`@`localhost` FUNCTION `sf_getBankObjectCount`(bankId BIGINT, mplanetID INT(2)) RETURNS int(11)
+CREATE FUNCTION `sf_getBankObjectCount`(bankId BIGINT, mplanetID INT(2)) RETURNS int(11) SQL SECURITY INVOKER
 BEGIN
   DECLARE containerCount INT;
   DECLARE itemCount INT;

@@ -4,7 +4,7 @@
 
 DROP PROCEDURE IF EXISTS `sp_EncodePassword`;
 DELIMITER //
-CREATE PROCEDURE `sp_EncodePassword`(IN `raw` VARCHAR(255), IN `salt` VARCHAR(255))
+CREATE PROCEDURE `sp_EncodePassword`(IN `raw` VARCHAR(255), IN `salt` VARCHAR(255)) SQL SECURITY INVOKER
 BEGIN
 SELECT SHA1(CONCAT(raw,'{',salt,'}'));
 END//

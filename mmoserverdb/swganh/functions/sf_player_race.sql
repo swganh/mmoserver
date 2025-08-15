@@ -42,7 +42,7 @@ DROP FUNCTION IF EXISTS `f_player_race`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE DEFINER=`root`@`localhost` FUNCTION `f_player_race`(player_id INT) RETURNS char(64) CHARSET utf8
+CREATE FUNCTION `f_player_race`(player_id INT) RETURNS char(64) CHARSET utf8 SQL SECURITY INVOKER
 BEGIN
    	DECLARE player_race CHAR(64);
    	DECLARE player_race_id int(8);

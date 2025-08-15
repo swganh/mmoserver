@@ -42,7 +42,7 @@ DROP FUNCTION IF EXISTS `sfsf_FactoryCreateItem`;
 DELIMITER $$
 
 DROP FUNCTION IF EXISTS `swganh`.`sf_FactoryCreateItem` $$
-CREATE DEFINER=`root`@`localhost` FUNCTION `sf_FactoryCreateItem`(fID BIGINT(20)) RETURNS int(11)
+CREATE FUNCTION `sf_FactoryCreateItem`(fID BIGINT(20)) RETURNS int(11) SQL SECURITY INVOKER
 BEGIN
 
 --

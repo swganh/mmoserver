@@ -40,7 +40,7 @@ DROP FUNCTION IF EXISTS `swganh`.`sf_DiscardResource`;
 
 DELIMITER $$
 
-CREATE FUNCTION `sf_DiscardResource`(structure_id BIGINT(20), resource_id BIGINT(20), amount FLOAT) RETURNS int(11)
+CREATE FUNCTION `sf_DiscardResource`(structure_id BIGINT(20), resource_id BIGINT(20), amount FLOAT) RETURNS int(11) SQL SECURITY INVOKER
 BEGIN
         DECLARE RAmount FLOAT;
         DECLARE Rres BIGINT(20);

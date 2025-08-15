@@ -4,7 +4,7 @@
 
 DROP PROCEDURE IF EXISTS `sp_GetServiceList`;
 DELIMITER //
-CREATE PROCEDURE `sp_GetServiceList`(IN `in_galaxy_id` INT)
+CREATE PROCEDURE `sp_GetServiceList`(IN `in_galaxy_id` INT) SQL SECURITY INVOKER
 BEGIN
 SELECT id, galaxy_id, name, type, version, address, tcp_port, udp_port, ping_port, status, TIMESTAMP(last_pulse) as last_pulse_timestamp 
 FROM service WHERE galaxy_id = in_galaxy_id ORDER BY service.type;

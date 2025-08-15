@@ -42,7 +42,7 @@ DROP FUNCTION IF EXISTS `sf_CharacterDelete`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE DEFINER=`root`@`localhost` FUNCTION `sf_CharacterDelete` (character_id BIGINT) RETURNS int(11)
+CREATE FUNCTION `sf_CharacterDelete` (character_id BIGINT) RETURNS int(11) SQL SECURITY INVOKER
 BEGIN
 
 	--

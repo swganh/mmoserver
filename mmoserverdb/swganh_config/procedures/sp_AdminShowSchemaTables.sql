@@ -45,7 +45,7 @@ DROP PROCEDURE IF EXISTS `sp_AdminShowSchemaTables` $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='' */ $$
 
-CREATE DEFINER=`root`@`%` PROCEDURE `sp_AdminShowSchemaTables`( IN dbname CHAR(64) )
+CREATE PROCEDURE `sp_AdminShowSchemaTables`( IN dbname CHAR(64) ) SQL SECURITY INVOKER
 BEGIN
   SELECT
     table_name,

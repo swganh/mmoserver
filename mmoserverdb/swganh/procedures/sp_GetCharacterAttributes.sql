@@ -46,7 +46,7 @@ DROP PROCEDURE IF EXISTS `sp_GetCharacterAttributes`;
 
 DELIMITER $$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetCharacterAttributes`(IN character_id BIGINT(20))
+CREATE PROCEDURE `sp_GetCharacterAttributes`(IN character_id BIGINT(20)) SQL SECURITY INVOKER
 BEGIN
 	SELECT
 		characters.id,							-- Character ID

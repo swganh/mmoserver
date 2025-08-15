@@ -189,14 +189,14 @@ rem ----------------------------------------------------------------------------
 rem --- Start of BUILD_ENVIRONMENT ---------------------------------------------
 :BUILD_ENVIRONMENT
 
-if not exist "%VS120COMNTOOLS%" (
-  set "VS120COMNTOOLS=%PROGRAMFILES(X86)%\Microsoft Visual Studio 12.0\Common7\Tools"
-  if not exist "!VS120COMNTOOLS!" (
-  	  set "VS120COMNTOOLS=%PROGRAMFILES%\Microsoft Visual Studio 12.0\Common7\Tools"
-  	  if not exist "!VS120COMNTOOLS!" (          
+if not exist "%VS170COMNTOOLS%" (
+  set "VS170COMNTOOLS=%PROGRAMFILES(X86)%\Microsoft Visual Studio\2022\Community\Common7\Tools"
+  if not exist "!VS170COMNTOOLS!" (
+  	  set "VS170COMNTOOLS=%PROGRAMFILES%\Microsoft Visual Studio\2022\Community\Common7\Tools"
+  	  if not exist "!VS170COMNTOOLS!" (          
   		    rem TODO: Allow user to enter a path to their base visual Studio directory.
          
-    	    echo ***** Microsoft Visual Studio 12.0 required *****
+    	    echo ***** Microsoft Visual Studio 2022 required *****
     	    exit /b 1
   	  )
   )
@@ -204,7 +204,7 @@ if not exist "%VS120COMNTOOLS%" (
 
 set "MSBUILD=%WINDIR%\Microsoft.NET\Framework\v4.0.30319\msbuild.exe"
 
-call "%VS120COMNTOOLS%\vsvars32.bat" >NUL
+call "%VS170COMNTOOLS%\vsvars32.bat" >NUL
 
 set environment_built=yes
 
@@ -338,7 +338,7 @@ if not exist "%PROJECT_BASE%build" (
 )
 cd "%PROJECT_BASE%build"
 
-cmake -G "Visual Studio 12" -DCMAKE_INSTALL_PREFIX=%PROJECT_BASE% -DENABLE_TEST_REPORT=ON ..
+cmake -G "Visual Studio 17 2022" -DCMAKE_INSTALL_PREFIX=%PROJECT_BASE% -DENABLE_TEST_REPORT=ON ..
 
 if exist "*.cache" del /S /Q "*.cache" >NUL
 

@@ -45,7 +45,7 @@ CREATE TABLE `draft_weights` (
   `experiment_batch_id` int(11) unsigned NOT NULL default '0',
   `craft_batch_id` int(11) unsigned NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=REDUNDANT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `draft_weights`

@@ -46,7 +46,7 @@ CREATE TABLE `draft_schematic_manufacture_defaults` (
   PRIMARY KEY  (`schematic_id`,`attribute_id`),
   KEY `draft_man_defaults_att` (`attribute_id`),
   CONSTRAINT `draft_man_defaults_att` FOREIGN KEY (`attribute_id`) REFERENCES `attributes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=REDUNDANT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `draft_schematic_manufacture_defaults`

@@ -47,7 +47,7 @@ CREATE TABLE `npc_chatter` (
   `npc_reaction_type` varchar(45) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_npc_chatter_planet` (`planetId`)
-) ENGINE=InnoDB AUTO_INCREMENT=1496 DEFAULT CHARSET=utf8 ROW_FORMAT=REDUNDANT;
+) ENGINE=InnoDB AUTO_INCREMENT=1496 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `npc_chatter`

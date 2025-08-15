@@ -48,7 +48,7 @@ CREATE TABLE `starting_item_requirements` (
   KEY `fk_start_items_req_profession` (`profession`),
   CONSTRAINT `fk_start_items_req_profession` FOREIGN KEY (`profession`) REFERENCES `skills` (`skill_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_start_items_req_species` FOREIGN KEY (`species`) REFERENCES `race` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=REDUNDANT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `starting_item_requirements`

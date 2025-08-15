@@ -42,7 +42,7 @@ CREATE TABLE `persistent_npc_families` (
   `id` int(11) unsigned NOT NULL auto_increment,
   `name` char(255) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 ROW_FORMAT=REDUNDANT;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `persistent_npc_families`

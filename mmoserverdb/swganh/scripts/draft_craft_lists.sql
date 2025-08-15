@@ -41,7 +41,7 @@ DROP TABLE IF EXISTS `draft_craft_lists`;
 CREATE TABLE `draft_craft_lists` (
   `id` int(11) unsigned NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=REDUNDANT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

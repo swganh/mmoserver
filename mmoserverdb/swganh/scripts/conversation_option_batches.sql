@@ -42,7 +42,7 @@ CREATE TABLE `conversation_option_batches` (
   `id` int(11) unsigned NOT NULL default '0',
   `option_id` int(11) unsigned NOT NULL default '1',
   PRIMARY KEY  (`id`,`option_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=REDUNDANT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `conversation_option_batches`

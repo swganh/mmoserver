@@ -1738,7 +1738,7 @@ CREATE TABLE `draft_schematic_manufacture_defaults` (
   `attribute_order` int(11) unsigned NOT NULL default '0',
   PRIMARY KEY  (`schematic_id`,`attribute_id`),
   KEY `draft_man_defaults_att` (`attribute_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=REDUNDANT;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `draft_schematic_manufacture_defaults`

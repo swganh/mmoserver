@@ -42,7 +42,7 @@ if [ ! -d $basedir/deps ]; then
     
     # Look for the dependencies source file and download if missing
     if [ ! -f $basedir/$filename ]; then
-        wget -nc --no-check-certificate https://github.com/obi-two/Unofficial_Hope/releases/download/Downloads/$filename
+        wget -nc --no-check-certificate https://github.com/swganh/mmoserver/releases/download/v$version/$filename
     fi
     
     # Unpack the dependencies and build the deps

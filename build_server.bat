@@ -255,7 +255,7 @@ if not exist "data\heightmaps\%1.hmpw" (
 	if not exist "data\heightmaps\%1.hmpw.zip" (
 		echo ** Downloading Heightmap for %1 **
 		echo.
-                "wget" --no-check-certificate https://github.com/swganh/mmoserver/releases/download/Downloads/%1.hmpw.zip -O data\heightmaps\%1.hmpw.zip
+                curl -L -o data\heightmaps\%1.hmpw.zip "https://github.com/swganh/mmoserver/releases/download/Downloads/%1.hmpw.zip"
 		echo ** Downloading heightmap complete **
 	)
 
@@ -312,7 +312,7 @@ rem --- Downloads the dependency package for the current version of the source -
 :DOWNLOAD_DEPENDENCIES
 
 if not exist "%DEPENDENCIES_FILE%" (
-	"wget" --no-check-certificate !DEPENDENCIES_URL! -O "%DEPENDENCIES_FILE%"
+        curl -L -o "%DEPENDENCIES_FILE%" "!DEPENDENCIES_URL!"
 )
 
 if exist "%DEPENDENCIES_FILE%" (

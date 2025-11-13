@@ -338,36 +338,36 @@ if not exist "%PROJECT_BASE%build" (
 )
 cd "%PROJECT_BASE%build"
 
-cmake -G "Visual Studio 17 2022" -DCMAKE_INSTALL_PREFIX=%PROJECT_BASE% -DENABLE_TEST_REPORT=ON ..
+cmake -G "Visual Studio 17 2022" -A x64 -DCMAKE_INSTALL_PREFIX=%PROJECT_BASE% -DENABLE_TEST_REPORT=ON ..
 
 if exist "*.cache" del /S /Q "*.cache" >NUL
 
 if "%BUILD_TYPE%" == "debug" (
-	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=x64,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
 	if errorlevel 1 exit /b 1
-	"%MSBUILD%" "RUN_TESTS.vcxproj" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+	"%MSBUILD%" "RUN_TESTS.vcxproj" /t:%REBUILD% /p:Platform=x64,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
 	if errorlevel 1 exit /b 1
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
-	if errorlevel 1 exit /b 1	
-	"%MSBUILD%" "RUN_TESTS.vcxproj" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=x64,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+	if errorlevel 1 exit /b 1
+	"%MSBUILD%" "RUN_TESTS.vcxproj" /t:%REBUILD% /p:Platform=x64,Configuration=Release,VCBuildAdditionalOptions="/useenv"
 	if errorlevel 1 exit /b 1
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
-	if errorlevel 1 exit /b 1	
-	"%MSBUILD%" "RUN_TESTS.vcxproj" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=x64,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+	if errorlevel 1 exit /b 1
+	"%MSBUILD%" "RUN_TESTS.vcxproj" /t:%REBUILD% /p:Platform=x64,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
 	if errorlevel 1 exit /b 1
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 
-	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
-	if errorlevel 1 exit /b 1	
-	"%MSBUILD%" "RUN_TESTS.vcxproj" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=x64,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+	if errorlevel 1 exit /b 1
+	"%MSBUILD%" "RUN_TESTS.vcxproj" /t:%REBUILD% /p:Platform=x64,Configuration=Release,VCBuildAdditionalOptions="/useenv"
 	if errorlevel 1 exit /b 1
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 )

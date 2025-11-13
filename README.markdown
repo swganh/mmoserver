@@ -7,18 +7,28 @@ The MMOServer is the flagship project for the [SWG:ANH Team][1]. It is a cross p
 
 **Pre-Requisits**
 
-*   CMake 2.8 or higher
+*   CMake 3.2 or higher
 
     [Download][3] the latest version of CMake for your OS.
 
-*   C++0x Compatible Compiler
+*   C++17 Compatible Compiler
 
-    Windows: Visual Studio 2022 or higher is required
-    Unix: GCC 4.6 or higher is required
-    
+    Windows: Visual Studio 2022 or higher is required (64-bit builds)
+    Unix: GCC 7.0 or higher is required (for full C++17 support)
+
+*   Boost 1.70.0 or higher
+
+    Required components: date_time, regex, thread, system, program_options, log
+
+*   Windows 10 or higher (for Windows builds)
+
+    The project now targets Windows 10 APIs for better performance and security features.
+
 ### Windows Builds ###
 
 To build the server on Windows simply double-click the build_server.bat file in the project root. This will download and build all the dependencies and sources and then generate a /bin directory with the server executables.
+
+**Note:** As of 2025, the project builds as 64-bit (x64) by default for better performance and memory management.
 
 ### Unix Builds ###
 

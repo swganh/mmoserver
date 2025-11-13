@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_ReturnGalaxyStatus`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_ReturnGalaxyStatus`()
+CREATE PROCEDURE `sp_ReturnGalaxyStatus`() SQL SECURITY INVOKER
 BEGIN
 	
 	SELECT galaxy_id, name, address, port, pingport, population, status, UNIX_TIMESTAMP(last_update) FROM galaxy;

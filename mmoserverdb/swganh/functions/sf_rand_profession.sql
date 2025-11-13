@@ -42,7 +42,7 @@ DROP FUNCTION IF EXISTS `f_rand_profession`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE DEFINER=`root`@`localhost` FUNCTION `f_rand_profession`() RETURNS char(64) CHARSET utf8
+CREATE FUNCTION `f_rand_profession`() RETURNS char(64) CHARSET utf8 SQL SECURITY INVOKER
 BEGIN
    	DECLARE random_profession CHAR(64);
 	SELECT profession FROM biography_profession ORDER BY RAND() LIMIT 1 INTO random_profession;

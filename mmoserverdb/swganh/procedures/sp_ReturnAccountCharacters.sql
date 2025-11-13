@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_ReturnAccountCharacters`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_ReturnAccountCharacters`(IN account_id INT)
+CREATE PROCEDURE `sp_ReturnAccountCharacters`(IN account_id INT) SQL SECURITY INVOKER
 BEGIN
 	
 	SELECT A.id, A.firstname, A.lastname, A.galaxy_id, B.base_model_string   

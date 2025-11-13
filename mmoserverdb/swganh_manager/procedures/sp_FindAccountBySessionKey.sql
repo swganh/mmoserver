@@ -4,7 +4,7 @@
 
 DROP PROCEDURE IF EXISTS `sp_FindAccountBySessionKey`;
 DELIMITER //
-CREATE PROCEDURE `sp_FindAccountBySessionKey`(IN `in_session_key` VARCHAR(255))
+CREATE PROCEDURE `sp_FindAccountBySessionKey`(IN `in_session_key` VARCHAR(255)) SQL SECURITY INVOKER
 BEGIN
 select account from account_session where session_key = in_session_key;
 END//

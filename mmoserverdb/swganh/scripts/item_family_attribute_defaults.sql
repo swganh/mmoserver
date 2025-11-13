@@ -52,7 +52,7 @@ CREATE TABLE `item_family_attribute_defaults` (
   CONSTRAINT `fk_item_att_family_def_attribute` FOREIGN KEY (`attribute_id`) REFERENCES `attributes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_item_att_family_def_family` FOREIGN KEY (`family_id`) REFERENCES `item_families` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_item_att_family_def_item_type` FOREIGN KEY (`item_type_id`) REFERENCES `item_types` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=REDUNDANT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `item_family_attribute_defaults`

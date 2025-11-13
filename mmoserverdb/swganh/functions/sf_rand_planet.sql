@@ -42,7 +42,7 @@ DROP FUNCTION IF EXISTS `f_rand_planet`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE DEFINER=`root`@`localhost` FUNCTION `f_rand_planet`() RETURNS char(64) CHARSET utf8
+CREATE FUNCTION `f_rand_planet`() RETURNS char(64) CHARSET utf8 SQL SECURITY INVOKER
 BEGIN
    	DECLARE random_planet CHAR(64);
 	SELECT planet FROM biography_planet ORDER BY RAND() LIMIT 1 INTO random_planet;

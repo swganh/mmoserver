@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_GalaxyAccountFill`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GalaxyAccountFill`(IN galaxy_id INT, credits BIGINT)
+CREATE PROCEDURE `sp_GalaxyAccountFill`(IN galaxy_id INT, credits BIGINT) SQL SECURITY INVOKER
 BEGIN
 
   ##

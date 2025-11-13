@@ -168,7 +168,7 @@ CREATE TABLE `character_appearance` (
   `scale` float NOT NULL DEFAULT '1',
   PRIMARY KEY (`character_id`),
   CONSTRAINT `character_appearance_ibfk_1` FOREIGN KEY (`character_id`) REFERENCES `characters` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPRESSED;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `character_appearance`

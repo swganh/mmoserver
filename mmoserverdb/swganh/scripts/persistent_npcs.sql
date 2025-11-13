@@ -62,7 +62,7 @@ CREATE TABLE `persistent_npcs` (
   `stf_file_id` char(255) NOT NULL default '0',
   `scale` float NOT NULL default '1',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=REDUNDANT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `persistent_npcs`

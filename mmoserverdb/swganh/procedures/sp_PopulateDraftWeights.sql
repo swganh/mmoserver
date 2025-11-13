@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_PopulateDraftWeights`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_PopulateDraftWeights`()
+CREATE PROCEDURE `sp_PopulateDraftWeights`() SQL SECURITY INVOKER
 BEGIN
 
 	DECLARE slot_id int;

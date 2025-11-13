@@ -40,7 +40,7 @@ use swganh_astromech;
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS `swganh_astromech`.`sp_AstroMechBazaarDailyPrices` $$
-CREATE DEFINER=`root`@`%` PROCEDURE `sp_AstroMechBazaarDailyPrices`()
+CREATE PROCEDURE `sp_AstroMechBazaarDailyPrices`() SQL SECURITY INVOKER
 BEGIN
   DECLARE item_id INT;
   DECLARE item_min INT;

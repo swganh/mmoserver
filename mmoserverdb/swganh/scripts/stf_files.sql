@@ -43,7 +43,7 @@ CREATE TABLE `stf_files` (
   `file` char(255) NOT NULL default '',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `pk_stffiles_name` (`file`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=REDUNDANT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `stf_files`

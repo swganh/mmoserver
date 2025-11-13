@@ -46,7 +46,7 @@ CREATE TABLE `object_attributes` (
   PRIMARY KEY  (`object_id`,`attribute_id`),
   KEY `fk_object_attributes_attribute` (`attribute_id`),
   CONSTRAINT `fk_object_attributes_attribute` FOREIGN KEY (`attribute_id`) REFERENCES `attributes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPRESSED;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `object_attributes`

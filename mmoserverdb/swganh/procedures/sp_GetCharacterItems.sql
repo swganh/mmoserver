@@ -43,7 +43,7 @@ DROP PROCEDURE IF EXISTS `sp_GetCharacterItems` $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='' */ $$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetCharacterItems`(IN inventory_id BIGINT(20))
+CREATE PROCEDURE `sp_GetCharacterItems`(IN inventory_id BIGINT(20)) SQL SECURITY INVOKER
 BEGIN
   SELECT DISTINCT 'item', t1.id FROM items AS t1
     LEFT JOIN items AS t2 ON t2.parent_id = t1.id

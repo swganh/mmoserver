@@ -50,7 +50,7 @@ CREATE TABLE `badges` (
   KEY `fk_badges_sound_sound` (`sound`),
   CONSTRAINT `fk_badges_cat_cat` FOREIGN KEY (`category`) REFERENCES `badge_categories` (`Id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_badges_sound_sound` FOREIGN KEY (`sound`) REFERENCES `sounds` (`Id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPRESSED;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `badges`

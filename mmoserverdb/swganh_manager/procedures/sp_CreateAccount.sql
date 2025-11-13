@@ -7,7 +7,7 @@
 DROP PROCEDURE IF EXISTS `sp_CreateAccount`;
 
 DELIMITER //
-CREATE PROCEDURE `sp_CreateAccount`(
+CREATE PROCEDURE `sp_CreateAccount`( SQL SECURITY INVOKER
     IN username char(32),
     IN password_ char(32), 
     IN email varchar(50) )

@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_ReturnChatMailHeaders`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_ReturnChatMailHeaders`(IN charId BIGINT)
+CREATE PROCEDURE `sp_ReturnChatMailHeaders`(IN charId BIGINT) SQL SECURITY INVOKER
 BEGIN
 	
 	SELECT A.id,A.from,A.subject,A.status,A.time

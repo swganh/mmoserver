@@ -55,7 +55,7 @@ CREATE TABLE `config_zones` (
   `player_base_incap_time` int(11) unsigned NOT NULL default '30' COMMENT 'seconds spend per incap',
   `player_base_incap_reset` int(11) unsigned NOT NULL default '300' COMMENT 'seconds until incap counter resets',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPRESSED;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `config_zones`

@@ -17,8 +17,8 @@ if not exist %2\bin\%3\mysqlcppconn.dll (
 
 if %3 == "Debug" (
     if not exist %2\bin\%3\tbb_debug.dll (
-        xcopy %1\deps\src\tbb\build\vc12\ia32\%3\tbb_debug.dll %2\bin\%3\ /I /Y /s
-        xcopy %1\deps\src\tbb\build\vc12\ia32\%3\tbbmalloc_debug.dll %2\bin\%3\ /I /Y /s
+        xcopy %1\deps\src\tbb\build\vc17\ia32\%3\tbb_debug.dll %2\bin\%3\ /I /Y /s
+        xcopy %1\deps\src\tbb\build\vc17\ia32\%3\tbbmalloc_debug.dll %2\bin\%3\ /I /Y /s
     )
 
     if not exist %2\bin\%3\zlibd.dll (
@@ -28,8 +28,8 @@ if %3 == "Debug" (
 
 if %3 == "Release" (
     if not exist %2\bin\%3\tbb.dll (
-        xcopy %1\deps\src\tbb\build\vc12\ia32\%3\tbb.dll %2\bin\%3\ /I /Y /s
-        xcopy %1\deps\src\tbb\build\vc12\ia32\%3\tbbmalloc.dll %2\bin\%3\ /I /Y /s
+        xcopy %1\deps\src\tbb\build\vc17\ia32\%3\tbb.dll %2\bin\%3\ /I /Y /s
+        xcopy %1\deps\src\tbb\build\vc17\ia32\%3\tbbmalloc.dll %2\bin\%3\ /I /Y /s
     )
 
     if not exist %2\bin\%3\zlib.dll (

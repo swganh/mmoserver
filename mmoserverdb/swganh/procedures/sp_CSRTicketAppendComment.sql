@@ -43,7 +43,7 @@ DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_CSRTicketAppendComment`(IN mticket_id BIGINT, mcomment CHAR, mposter CHAR)
+CREATE PROCEDURE `sp_CSRTicketAppendComment`(IN mticket_id BIGINT, mcomment CHAR, mposter CHAR) SQL SECURITY INVOKER
 BEGIN
 
   ##

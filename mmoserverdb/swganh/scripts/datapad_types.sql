@@ -45,7 +45,7 @@ CREATE TABLE `datapad_types` (
   `file` char(255) NOT NULL default 'item_n',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `pk_datapadtypes_objstr` (`object_string`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 ROW_FORMAT=REDUNDANT;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `datapad_types`

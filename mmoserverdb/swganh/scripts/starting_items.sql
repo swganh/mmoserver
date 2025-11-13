@@ -51,7 +51,7 @@ CREATE TABLE `starting_items` (
   CONSTRAINT `fk_start_items_family` FOREIGN KEY (`family_id`) REFERENCES `item_families` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_start_items_type` FOREIGN KEY (`type_id`) REFERENCES `item_types` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_start_items_req` FOREIGN KEY (`req_id`) REFERENCES `starting_item_requirements` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=REDUNDANT COMMENT='Starting Items';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Starting Items';
 
 --
 -- Dumping data for table `starting_items`

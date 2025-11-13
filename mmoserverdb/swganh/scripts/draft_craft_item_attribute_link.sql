@@ -51,7 +51,7 @@ CREATE TABLE `draft_craft_item_attribute_link` (
   `attribute_type` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `id` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`list_id`,`item_attribute`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPRESSED;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `draft_craft_item_attribute_link`

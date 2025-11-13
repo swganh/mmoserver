@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_BazaarAuctionDelete`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_BazaarAuctionDelete`(IN itemID BIGINT)
+CREATE PROCEDURE `sp_BazaarAuctionDelete`(IN itemID BIGINT) SQL SECURITY INVOKER
 BEGIN
 
   ##

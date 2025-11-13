@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_CSRTicketAdd`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_CSRTicketAdd`(IN playerName TEXT, category INT, subCategory INT, ticketcomment TEXT, info TEXT, harrassing TEXT, lang CHAR(2), bugreport TINYINT(1))
+CREATE PROCEDURE `sp_CSRTicketAdd`(IN playerName TEXT, category INT, subCategory INT, ticketcomment TEXT, info TEXT, harrassing TEXT, lang CHAR(2), bugreport TINYINT(1)) SQL SECURITY INVOKER
 BEGIN
 
   ##

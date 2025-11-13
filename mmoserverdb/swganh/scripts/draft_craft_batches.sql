@@ -52,7 +52,7 @@ CREATE TABLE `draft_craft_batches` (
   KEY `fk_draft_craft_batches_expGroup` (`expGroup`),
   KEY `Index_3` (`list_id`),
   CONSTRAINT `fk_draft_craft_batches_expGroup` FOREIGN KEY (`expGroup`) REFERENCES `draft_experiment_groups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPRESSED;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `draft_craft_batches`

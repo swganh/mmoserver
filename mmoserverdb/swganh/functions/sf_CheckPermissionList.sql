@@ -42,7 +42,7 @@ DROP FUNCTION IF EXISTS `sf_CheckPermissionList`;
 DELIMITER $$
 
 DROP FUNCTION IF EXISTS `swganh`.`sf_CheckPermissionList` $$
-CREATE DEFINER=`root`@`localhost` FUNCTION `sf_CheckPermissionList`(structure_id BIGINT(20), name CHAR(255), listname CHAR(255)) RETURNS int(11)
+CREATE FUNCTION `sf_CheckPermissionList`(structure_id BIGINT(20), name CHAR(255), listname CHAR(255)) RETURNS int(11) SQL SECURITY INVOKER
 BEGIN
         DECLARE tmpId BIGINT(20);
         DECLARE nameId BIGINT(20);

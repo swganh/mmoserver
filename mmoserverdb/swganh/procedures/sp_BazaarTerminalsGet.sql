@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_BazaarTerminalsGet`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_BazaarTerminalsGet`()
+CREATE PROCEDURE `sp_BazaarTerminalsGet`() SQL SECURITY INVOKER
 BEGIN
 
   ##

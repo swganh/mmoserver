@@ -43,7 +43,7 @@ DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
 
-CREATE PROCEDURE `sp_CreateForagedItem` (family_id INT(11),type_id INT(11),parent_id BIGINT(20),private_owner_id BIGINT(20),inPlanet INT,inX FLOAT,inY FLOAT,inZ FLOAT,custom_name CHAR(255), usecount INT)
+CREATE PROCEDURE `sp_CreateForagedItem` (family_id INT(11),type_id INT(11),parent_id BIGINT(20),private_owner_id BIGINT(20),inPlanet INT,inX FLOAT,inY FLOAT,inZ FLOAT,custom_name CHAR(255), usecount INT) SQL SECURITY INVOKER
 BEGIN
 
   DECLARE temp_id BIGINT(20);

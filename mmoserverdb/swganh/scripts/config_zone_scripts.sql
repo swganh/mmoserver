@@ -46,7 +46,7 @@ CREATE TABLE `config_zone_scripts` (
   PRIMARY KEY  (`id`),
   KEY `FK_config_zone_scripts_planet` (`planet_id`),
   CONSTRAINT `FK_config_zone_scripts_planet` FOREIGN KEY (`planet_id`) REFERENCES `planet` (`planet_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8 ROW_FORMAT=REDUNDANT;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `config_zone_scripts`

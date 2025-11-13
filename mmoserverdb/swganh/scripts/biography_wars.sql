@@ -41,7 +41,7 @@ DROP TABLE IF EXISTS `biography_wars`;
 CREATE TABLE `biography_wars` (
   `war` char(64) NOT NULL default '',
   PRIMARY KEY  (`war`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPRESSED;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `biography_wars`

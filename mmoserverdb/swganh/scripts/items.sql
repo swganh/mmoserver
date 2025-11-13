@@ -62,7 +62,7 @@ CREATE TABLE `items` (
   KEY `fk_items_item_type` (`item_type`),
   CONSTRAINT `fk_items_family` FOREIGN KEY (`item_family`) REFERENCES `item_families` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_items_item_type` FOREIGN KEY (`item_type`) REFERENCES `item_types` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=281474976710665 DEFAULT CHARSET=utf8 ROW_FORMAT=REDUNDANT;
+) ENGINE=InnoDB AUTO_INCREMENT=281474976710665 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `items`

@@ -42,7 +42,7 @@ DROP FUNCTION IF EXISTS `sf_ResourceContainerCreate`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER' */ $$
-CREATE DEFINER=`root`@`localhost` FUNCTION `sf_ResourceContainerCreate`(resourceId BIGINT(20),parentId BIGINT(20),inX FLOAT,inY FLOAT,inZ FLOAT,planetId INT,inAmount INT) RETURNS bigint(20)
+CREATE FUNCTION `sf_ResourceContainerCreate`(resourceId BIGINT(20),parentId BIGINT(20),inX FLOAT,inY FLOAT,inZ FLOAT,planetId INT,inAmount INT) RETURNS bigint(20) SQL SECURITY INVOKER
 BEGIN
         
         DECLARE tmpId BIGINT(20);

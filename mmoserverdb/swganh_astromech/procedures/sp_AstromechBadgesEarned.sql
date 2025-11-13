@@ -43,7 +43,7 @@ DROP PROCEDURE IF EXISTS `sp_AstromechBadgesEarned` $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='' */ $$
 
-CREATE DEFINER=`root`@`%` PROCEDURE `sp_AstromechBadgesEarned`()
+CREATE PROCEDURE `sp_AstromechBadgesEarned`() SQL SECURITY INVOKER
 BEGIN
 
   DECLARE mbadge_count INT DEFAULT 0;

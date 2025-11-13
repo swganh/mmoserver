@@ -42,7 +42,7 @@ DROP FUNCTION IF EXISTS `sf_StatisticLoggedInAccounts`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER' */ $$
-CREATE DEFINER=`root`@`localhost` FUNCTION `sf_StatisticLoggedInAccounts`() RETURNS int(5)
+CREATE FUNCTION `sf_StatisticLoggedInAccounts`() RETURNS int(5) SQL SECURITY INVOKER
 BEGIN
 	DECLARE stat int(5);
 	

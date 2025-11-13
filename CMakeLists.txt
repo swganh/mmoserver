@@ -2,6 +2,11 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.2)
 PROJECT(mmoserver CXX)
 
+# Set C++ Standard to C++17
+SET(CMAKE_CXX_STANDARD 17)
+SET(CMAKE_CXX_STANDARD_REQUIRED ON)
+SET(CMAKE_CXX_EXTENSIONS OFF)
+
 # Variables
 SET(MMOSERVER_VERSION_MAJOR 3)
 SET(MMOSERVER_VERSION_MINOR 0)
@@ -28,20 +33,21 @@ else ()
   set(ANH_PLATFORM_X64 FALSE)
 endif ()
 
-# On gcc platforms the c++0x flag is needed to enable features used by this project.
+# On gcc platforms verify the compiler version is adequate.
 IF(CMAKE_COMPILER_IS_GNUCXX)
     # First make sure the version of gnu is new enough
-    TRY_COMPILE(HAS_MININUM_GNUCXX_VERSION 
-        ${CMAKE_CURRENT_BINARY_DIR} 
+    TRY_COMPILE(HAS_MININUM_GNUCXX_VERSION
+        ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/tools/cmake/require_gcc_46.cc
         )
-        
+
     IF(NOT HAS_MININUM_GNUCXX_VERSION)
         MESSAGE(FATAL_ERROR "GNU GCC 4.6 or higher is required to build this library")
     ENDIF()
         
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-	SET(CMAKE_EXE_LINKER_FLAGS "-lm -lrt -lpthread -lboost_filesystem -ldl -lboost_log")
+	  SET(CMAKE_VERBOSE_MAKEFILE ON)
+	# " -pthread -o term -lm -lrt -lz -lpthread -lboost_filesystem -ldl -lboost_log")
 
     # use, i.e. don't skip the full RPATH for the build tree
     SET(CMAKE_SKIP_BUILD_RPATH FALSE)
@@ -67,27 +73,41 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
 ELSE()
     # If not gcc and on WIN32 we're using visual studio, perform related checks here.
     IF(WIN32) 
-        # If using visual studio's compiler make sure we're using at least version 12
-        IF(MSVC_VERSION LESS 1800)
-            MESSAGE(FATAL_ERROR "MSVC 12 or higher is required to build this library")
+        # If using visual studio's compiler make sure we're using at least version 17
+        IF(MSVC_VERSION LESS 1930)
+            MESSAGE(FATAL_ERROR "MSVC 17 or higher is required to build this library")
         ENDIF()
-        
-        SET(_WIN32_WINNT 0x0601 CACHE INTERNAL "Setting _WIN32_WINNT to 0x0601 for Windows 7 minimum APIs")
-        SET(WINVER 0x0601 CACHE INTERNAL "Setting WINVER to 0x0601 for Windows 7 minimum APIs")
+
+        SET(_WIN32_WINNT 0x0A00 CACHE INTERNAL "Setting _WIN32_WINNT to 0x0A00 for Windows 10 minimum APIs")
+        SET(WINVER 0x0A00 CACHE INTERNAL "Setting WINVER to 0x0A00 for Windows 10 minimum APIs")
 
         # If there hasn't been a tbb platform set (probably not on a win32 platform)
         # then set the TBB_ARCH_PLATFORM environment variable manually.
-        SET(ENV{TBB_ARCH_PLATFORM} "ia32/vc12")
+        SET(ENV{TBB_ARCH_PLATFORM} "intel64/vc17")
         
         ADD_DEFINITIONS (/D _WIN32_WINNT=${_WIN32_WINNT})
         MESSAGE(STATUS "- MSVC: Set minimum Windows API version")
         
         ADD_DEFINITIONS (/D _CRT_SECURE_NO_WARNINGS /D _SCL_SECURE_NO_WARNINGS)
         MESSAGE(STATUS "- MSVC: Disabled NON-SECURE warnings")
-        
+
         IF(MSVC)
+          # Disable specific MSVC warnings for legacy code compatibility
+          # Consider addressing these warnings in future refactoring:
+          # /wd4244 - conversion warnings (e.g., double to float, int64 to int32)
+          # /wd4251 - class needs to have dll-interface (STL in DLL boundaries)
+          # /wd4786 - identifier truncated in debug info (legacy, not relevant in modern MSVC)
+          # /wd4503 - decorated name length exceeded (template-heavy code)
+          # /wd4275 - non dll-interface base class (DLL export issues)
+          # /wd4290 - C++ exception specification ignored (deprecated in C++17)
+          # /wd4661 - no suitable definition for explicit template instantiation
+          # /wd4996 - deprecated function warnings (e.g., strcpy vs strcpy_s)
+          # /wd4127 - conditional expression is constant (common in templates)
+          # /wd4100 - unreferenced formal parameter
+          # /wd4005 - macro redefinition
+          # /wd4075 - initializers put in unrecognized initialization area
           set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244 /wd4251 /wd4786 /wd4503 /wd4275 /wd4290 /wd4661 /wd4996 /wd4127 /wd4100 /wd4005 /wd4075")
-          MESSAGE(STATUS "- MSVC: Disabled generic compiletime warnings")
+          MESSAGE(STATUS "- MSVC: Disabled legacy compiler warnings (see CMakeLists.txt for details)")
         ENDIF()
 		
 		if(MSVC)
@@ -97,10 +117,10 @@ ELSE()
 				set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /bigobj")
 				set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /bigobj")
 			endif ()
-			if (MSVC_VERSION GREATER 1800 OR MSVC_VERSION EQUAL 1800)
-				option(ANH_BUILD_MSVC_MP "Enable build with multiple processes in Visual Studio" TRUE)
-			else()
-				set(ANH_BUILD_MSVC_MP FALSE CACHE BOOL "Compiler option /MP requires at least Visual Studio 2013 (VS12) or newer" FORCE)
+                        if (MSVC_VERSION GREATER 1930 OR MSVC_VERSION EQUAL 1930)
+                                option(ANH_BUILD_MSVC_MP "Enable build with multiple processes in Visual Studio" TRUE)
+                        else()
+                                set(ANH_BUILD_MSVC_MP FALSE CACHE BOOL "Compiler option /MP requires at least Visual Studio 2022 (VS17) or newer" FORCE)
 			endif()
 			
 			if(ANH_BUILD_MSVC_MP)
@@ -167,7 +187,7 @@ IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps")
     SET(ZLIB_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/${__deps_dir}/zlib")
 ENDIF()
 
-FIND_PACKAGE(Boost 1.58.0 COMPONENTS date_time regex thread system program_options log REQUIRED)
+FIND_PACKAGE(Boost 1.70.0 COMPONENTS date_time regex thread system program_options log REQUIRED)
 FIND_PACKAGE(GLM REQUIRED)
 FIND_PACKAGE(GTest REQUIRED)
 FIND_PACKAGE(Lua REQUIRED)

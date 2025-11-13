@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_CharacterXpCreate`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_CharacterXpCreate`(IN character_id BIGINT,IN profession_id INT)
+CREATE PROCEDURE `sp_CharacterXpCreate`(IN character_id BIGINT,IN profession_id INT) SQL SECURITY INVOKER
 BEGIN
 
   declare loopEnd INT default 0;

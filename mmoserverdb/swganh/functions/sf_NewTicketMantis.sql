@@ -44,7 +44,7 @@ DROP FUNCTION IF EXISTS `sf_NewTicketMantis`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='' */ $$
-CREATE FUNCTION `sf_NewTicketMantis`(playerName TEXT, category INT, subCategory INT, ticketcomment TEXT, info TEXT, harrassing TEXT, lang CHAR(2), bugreport TINYINT(1)) RETURNS int(11)
+CREATE FUNCTION `sf_NewTicketMantis`(playerName TEXT, category INT, subCategory INT, ticketcomment TEXT, info TEXT, harrassing TEXT, lang CHAR(2), bugreport TINYINT(1)) RETURNS int(11) SQL SECURITY INVOKER
 BEGIN
 
   DECLARE character_id BIGINT(20);

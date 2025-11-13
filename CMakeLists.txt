@@ -44,9 +44,8 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
     IF(NOT HAS_MININUM_GNUCXX_VERSION)
         MESSAGE(FATAL_ERROR "GNU GCC 4.6 or higher is required to build this library")
     ENDIF()
-
-    # C++ standard is set via CMAKE_CXX_STANDARD above, but we can add additional flags if needed
-    # SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+        
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 	  SET(CMAKE_VERBOSE_MAKEFILE ON)
 	# " -pthread -o term -lm -lrt -lz -lpthread -lboost_filesystem -ldl -lboost_log")
 

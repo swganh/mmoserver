@@ -43,6 +43,9 @@ if (WIN32)
     if (MSVC10)
         set(_TBB_COMPILER "vc10")
     endif(MSVC10)
+	if (MSVC12)
+        set(_TBB_COMPILER "vc12")
+    endif(MSVC12)
     if (NOT _TBB_COMPILER)
         message("ERROR: TBB 3.0 supports only VC 8, 9 and 10 compilers on Windows platforms.")
     endif (NOT _TBB_COMPILER)
@@ -137,6 +140,7 @@ macro(TBB_CORRECT_LIB_DIR var_name)
     string(REPLACE vc8 "${_TBB_COMPILER}" ${var_name} ${${var_name}})
     string(REPLACE vc9 "${_TBB_COMPILER}" ${var_name} ${${var_name}})
     string(REPLACE vc10 "${_TBB_COMPILER}" ${var_name} ${${var_name}})
+	string(REPLACE vc12 "${_TBB_COMPILER}" ${var_name} ${${var_name}})
 endmacro(TBB_CORRECT_LIB_DIR var_content)
 
 
@@ -153,18 +157,9 @@ mark_as_advanced(TBB_INCLUDE_DIR)
 #-- Look for libraries
 # GvdB: $ENV{TBB_ARCH_PLATFORM} is set by the build script tbbvars[.bat|.sh|.csh]
 if (NOT $ENV{TBB_ARCH_PLATFORM} STREQUAL "")
-    set (_TBB_LIBRARY_DIR 
-         ${_TBB_INSTALL_DIR}/lib/$ENV{TBB_ARCH_PLATFORM}
-         ${_TBB_INSTALL_DIR}/$ENV{TBB_ARCH_PLATFORM}/lib
-        ${_TBB_INSTALL_DIR}/build/vsproject/ia32/Debug
-        ${_TBB_INSTALL_DIR}/build/vsproject/ia32/Release
-        )
-else (NOT $ENV{TBB_ARCH_PLATFORM} STREQUAL "")
-    # HH: deprecated
-    set (_TBB_LIBRARY_DIR 
-        "${_TBB_INSTALL_DIR}/lib"        
-        ${_TBB_INSTALL_DIR}/build/vsproject/ia32/Debug
-        ${_TBB_INSTALL_DIR}/build/vsproject/ia32/Release
+    set (_TBB_LIBRARY_DIR       
+        ${_TBB_INSTALL_DIR}/build/vc12/ia32/Debug
+        ${_TBB_INSTALL_DIR}/build/vc12/ia32/Release
     )
 endif (NOT $ENV{TBB_ARCH_PLATFORM} STREQUAL "")
 

@@ -1,7 +1,7 @@
 -- Tatooine NPC test
 -- This script will not start until Zoneserver is ready.
 
-local MM = require 'script/TatooineNpcTest2'
+local MM = require 'Script/TatooineNpcTest2'
 
 local routeX = { -1445, -1457, -1458, -1422, -1371, -1345, -1333, -1276, -1244, -1236, -1250, -1269, -1286, -1318, -1312, -1321, -1347, -1371, -1401, -1401, -1396, -1385, -1381, -1367, -1364, -1356, -1350, -1342, -1343, -1339, -1340, -1370}
 local routeY = {    10,    10,    10,    10,    12,    12,    12,    12,    12,    12,    12,    12,    12,    12,    12,    12,    12,    12,    10,    10,    10,    10,    10,    17,    26,    26,    26,    26,    26,    26,    26,    27}

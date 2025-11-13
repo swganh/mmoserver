@@ -1,11 +1,9 @@
 include(MMOServerExecutable)
 
-
 AddMMOServerExecutable(ChatServer
-MMOSERVER_DEPS
-DatabaseManager
-NetworkManager
-Utils
-Common
+    MMOSERVER_DEPS 
+        Utils
+        Common
+        DatabaseManager
+        NetworkManager        
 )
-TARGET_LINK_LIBRARIES(ChatServer "-lrt -lpthread")

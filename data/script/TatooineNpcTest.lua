@@ -3,7 +3,7 @@
 
 -- math.pi
 
-local MM = require 'script/TatooineNpcTest2'
+local MM = require 'Script/TatooineNpcTest2'
 
 local baseUpdateTime = 750
 

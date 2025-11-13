@@ -83,7 +83,7 @@ rem --- Start of SET_DEFAULTS --------------------------------------------------
 
 set DEPENDENCIES_VERSION=0.6.0
 set DEPENDENCIES_FILE=mmoserver-deps-%DEPENDENCIES_VERSION%.tar.bz2
-set DEPENDENCIES_URL=https://github.com/swganh/mmoserver/releases/download/v%DEPENDENCIES_VERSION%/%DEPENDENCIES_FILE%
+set DEPENDENCIES_URL=https://github.com/obi-two/Unofficial_Hope/releases/download/Downloads/%DEPENDENCIES_FILE%
 set "PROJECT_BASE=%~dp0"
 set "PROJECT_DRIVE=%~d0"
 set PATH=%PROJECT_BASE%tools\windows;%PATH%
@@ -255,7 +255,7 @@ if not exist "data\heightmaps\%1.hmpw" (
 	if not exist "data\heightmaps\%1.hmpw.zip" (
 		echo ** Downloading Heightmap for %1 **
 		echo.
-                curl -L -o data\heightmaps\%1.hmpw.zip "https://github.com/swganh/mmoserver/releases/download/Downloads/%1.hmpw.zip"
+		"wget" --no-check-certificate https://github.com/obi-two/Unofficial_Hope/releases/download/Downloads/%1.hmpw.zip -O data\heightmaps\%1.hmpw.zip
 		echo ** Downloading heightmap complete **
 	)
 

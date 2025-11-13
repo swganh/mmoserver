@@ -5,36 +5,28 @@ The MMOServer is the flagship project for the [SWG:ANH Team][1]. It is a cross p
 
 ## Building/Installing ##
 
-**Pre-Requisits**
+Also see our [Wiki][0]
+
+**Pre-Requisits Windows**
 
 *   CMake 3.2 or higher
 
     [Download][3] the latest version of CMake for your OS.
 
-*   C++17 Compatible Compiler
+*   C++0x Compatible Compiler
 
-    Windows: Visual Studio 2022 or higher is required (64-bit builds)
-    Unix: GCC 7.0 or higher is required (for full C++17 support)
-
-*   Boost 1.70.0 or higher
-
-    Required components: date_time, regex, thread, system, program_options, log
-
-*   Windows 10 or higher (for Windows builds)
-
-    The project now targets Windows 10 APIs for better performance and security features.
-
+    Windows: Visual Studio 2013 or higher is required
+    Unix: GCC 4.6 or higher is required
+    
 ### Windows Builds ###
 
-To build the server on Windows simply double-click the build_server.bat file in the project root. This will download and build all the dependencies and sources and then generate a /bin directory with the server executables.
-
-**Note:** As of 2025, the project builds as 64-bit (x64) by default for better performance and memory management.
+To build the server on Windows simply double-click the BuildServer.bat file in the project root. This will download and build all the dependencies and sources and then generate a /bin directory with the server executables.
 
 ### Unix Builds ###
 
-To build the server on Unix platforms run the build_server.sh script in the project root. This will download and build all the dependencies and sources. Once the script has completed you can issue further builds from within the "build" directory:
+To build the server on Unix platforms run the bootstrap.sh script in the project root. This will download and build all the dependencies and sources. Once the script has completed you can issue further builds from within the "build" directory:
 
-    ./build_server.sh
+    ./boot_server.sh
     cd build
     cmake -DCMAKE_INSTALL_PREFIX=/opt/local ..
     make install
@@ -47,9 +39,14 @@ You can use the -DCMAKE\_INSTALL\_PREFIX flag to specify a custom output directo
 *   [Wiki][5]
 *   [Forum][6]
 
+
+  [0]: https://github.com/swganh/mmoserver/wiki
   [1]: http://swganh.com/
   [2]: http://starwarsgalaxies.com/
   [3]: http://cmake.org/cmake/resources/software.html
-  [4]: http://wiki2.swganh.org/
+  [4]: http://bugtracker.swganh.com/
   [5]: http://wiki.swganh.org/
   [6]: http://www.swganh.com/anh_community/
+  [7]: https://my.visualstudio.com/Downloads?q=visual%20studio%202013&wt.mc_id=o~msft~vscom~older-downloads
+  [8]: https://downloads.mysql.com/archives/community/
+  [9]: https://downloads.mysql.com/archives/workbench/

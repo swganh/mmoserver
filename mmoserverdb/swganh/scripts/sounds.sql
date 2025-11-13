@@ -43,7 +43,7 @@ CREATE TABLE `sounds` (
   `name` char(255) default NULL,
   PRIMARY KEY  (`Id`),
   UNIQUE KEY `pk_sounds_bname` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=4723 DEFAULT CHARSET=utf8 ROW_FORMAT=REDUNDANT;
+) ENGINE=InnoDB AUTO_INCREMENT=4723 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `sounds`

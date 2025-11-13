@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_WaypointUpdate`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='' */ $$
-CREATE PROCEDURE `sp_WaypointUpdate`(IN wp_name CHAR(255), wp_id BIGINT(20), wp_x FLOAT, wp_y FLOAT, wp_z FLOAT, wp_planet INT(3), wp_state TINYINT(1))
+CREATE PROCEDURE `sp_WaypointUpdate`(IN wp_name CHAR(255), wp_id BIGINT(20), wp_x FLOAT, wp_y FLOAT, wp_z FLOAT, wp_planet INT(3), wp_state TINYINT(1)) SQL SECURITY INVOKER
 BEGIN
 
 	##

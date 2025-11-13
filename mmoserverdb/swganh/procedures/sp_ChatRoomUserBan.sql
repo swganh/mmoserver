@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_ChatRoomUserBan`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_ChatRoomUserBan`(IN roomID BIGINT, characterName CHAR)
+CREATE PROCEDURE `sp_ChatRoomUserBan`(IN roomID BIGINT, characterName CHAR) SQL SECURITY INVOKER
 BEGIN
 
   ##

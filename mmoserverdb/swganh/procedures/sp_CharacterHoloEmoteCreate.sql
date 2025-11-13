@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_CharacterHoloEmoteCreate`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_CharacterHoloEmoteCreate`(
+CREATE PROCEDURE `sp_CharacterHoloEmoteCreate`( SQL SECURITY INVOKER
   IN char_id BIGINT(20),
   IN new_emote_id INT(20),
   IN new_charges INT(10))

@@ -42,10 +42,10 @@ DROP PROCEDURE IF EXISTS `sp_ReturnChatChannels`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE DEFINER = 'root'@'localhost' PROCEDURE `sp_ReturnChatChannels`()
+CREATE PROCEDURE `sp_ReturnChatChannels`()
     DETERMINISTIC
     CONTAINS SQL
-    SQL SECURITY DEFINER
+    SQL SECURITY INVOKER
     COMMENT ''
 BEGIN
 	SELECT A.id,A.name,A.private,A.moderated,

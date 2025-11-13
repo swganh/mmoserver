@@ -43,7 +43,7 @@ DROP PROCEDURE IF EXISTS `sp_GetObjectChildren`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetObjectChildren`(
+CREATE PROCEDURE `sp_GetObjectChildren`( SQL SECURITY INVOKER
 	IN object_id BIGINT(20))
 BEGIN
 

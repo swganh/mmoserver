@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_MultiTransaction`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_MultiTransaction`(IN input TEXT)
+CREATE PROCEDURE `sp_MultiTransaction`(IN input TEXT) SQL SECURITY INVOKER
 BEGIN
         DECLARE loopEnd INT default 0;
         DECLARE error INT default 0;

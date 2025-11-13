@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_ReturnChatPlanetNames`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_ReturnChatPlanetNames`()
+CREATE PROCEDURE `sp_ReturnChatPlanetNames`() SQL SECURITY INVOKER
 BEGIN
 	
 	SELECT planet.name FROM planet ORDER BY planet.planet_id;

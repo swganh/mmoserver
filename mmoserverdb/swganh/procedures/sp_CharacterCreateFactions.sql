@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_CharacterCreateFactions`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_CharacterCreateFactions`(IN character_id BIGINT)
+CREATE PROCEDURE `sp_CharacterCreateFactions`(IN character_id BIGINT) SQL SECURITY INVOKER
 BEGIN
 
   declare loopEnd INT default 0;

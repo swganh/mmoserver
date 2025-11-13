@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_CharacterArchive`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_CharacterArchive`(
+CREATE PROCEDURE `sp_CharacterArchive`( SQL SECURITY INVOKER
 	IN start_firstname CHAR(32)
 	)
 BEGIN

@@ -9,39 +9,18 @@ Also see our [Wiki][0]
 
 **Pre-Requisits Windows**
 
-*   CMake 2.8 or higher
+*   CMake 3.2 or higher
 
     [Download][3] the latest version of CMake for your OS.
 
-*   C++ Compatible Compiler
+*   C++0x Compatible Compiler
 
-    Windows: Visual Studio 2013 required 
-	
-	[Download][7]
-	
-	MySQL Server 5.1
-	
-	[Download][8]
-	
-	MySql Workbench (optional)
-	
-	[Download][9]    
-	
-	
-**Pre-Requisits Unix**
-
-*   CMake 2.8 or higher
-
-    [Download][3] the latest version of CMake for your OS.
-	
-*   C++ Compatible Compiler
-	
-	Unix: GCC 4.6 or higher is required
-	
-
+    Windows: Visual Studio 2013 or higher is required
+    Unix: GCC 4.6 or higher is required
+    
 ### Windows Builds ###
 
-To build the server on Windows simply double-click the build_server.bat file in the project root. This will download and build all the dependencies and sources and then generate a /bin directory with the server executables.
+To build the server on Windows simply double-click the BuildServer.bat file in the project root. This will download and build all the dependencies and sources and then generate a /bin directory with the server executables.
 
 ### Unix Builds ###
 

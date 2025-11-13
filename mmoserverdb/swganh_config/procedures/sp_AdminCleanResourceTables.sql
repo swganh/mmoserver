@@ -45,7 +45,7 @@ DROP PROCEDURE IF EXISTS `sp_AdminCleanResourceTables` $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='' */ $$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AdminCleanResourceTables`()
+CREATE PROCEDURE `sp_AdminCleanResourceTables`() SQL SECURITY INVOKER
 BEGIN
 
   TRUNCATE swganh.resources;

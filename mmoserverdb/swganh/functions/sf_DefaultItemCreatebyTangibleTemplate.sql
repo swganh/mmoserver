@@ -42,7 +42,7 @@ DROP FUNCTION IF EXISTS `sf_DefaultItemCreatebyTangibleTemplate`;
 DELIMITER $$
 
 DROP FUNCTION IF EXISTS `swganh`.`sf_DefaultItemCreatebyTangibleTemplate` $$
-CREATE DEFINER=`root`@`localhost` FUNCTION `sf_DefaultItemCreatebyTangibleTemplate`(parent_id BIGINT(20),template_id BIGINT(20)) RETURNS bigint(20)
+CREATE FUNCTION `sf_DefaultItemCreatebyTangibleTemplate`(parent_id BIGINT(20),template_id BIGINT(20)) RETURNS bigint(20) SQL SECURITY INVOKER
 BEGIN
         DECLARE tmpId BIGINT(20);
         DECLARE att_id,att_order INT;

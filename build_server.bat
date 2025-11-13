@@ -83,7 +83,7 @@ rem --- Start of SET_DEFAULTS --------------------------------------------------
 
 set DEPENDENCIES_VERSION=0.6.0
 set DEPENDENCIES_FILE=mmoserver-deps-%DEPENDENCIES_VERSION%.tar.bz2
-set DEPENDENCIES_URL=https://github.com/swganh/mmoserver/releases/download/v0.6.0/%DEPENDENCIES_FILE%
+set DEPENDENCIES_URL=https://github.com/obi-two/Unofficial_Hope/releases/download/Downloads/%DEPENDENCIES_FILE%
 set "PROJECT_BASE=%~dp0"
 set "PROJECT_DRIVE=%~d0"
 set PATH=%PROJECT_BASE%tools\windows;%PATH%
@@ -189,14 +189,14 @@ rem ----------------------------------------------------------------------------
 rem --- Start of BUILD_ENVIRONMENT ---------------------------------------------
 :BUILD_ENVIRONMENT
 
-if not exist "%VS120COMNTOOLS%" (
-  set "VS120COMNTOOLS=%PROGRAMFILES(X86)%\Microsoft Visual Studio 12.0\Common7\Tools"
-  if not exist "!VS120COMNTOOLS!" (
-  	  set "VS120COMNTOOLS=%PROGRAMFILES%\Microsoft Visual Studio 12.0\Common7\Tools"
-  	  if not exist "!VS120COMNTOOLS!" (          
+if not exist "%VS170COMNTOOLS%" (
+  set "VS170COMNTOOLS=%PROGRAMFILES(X86)%\Microsoft Visual Studio\2022\Community\Common7\Tools"
+  if not exist "!VS170COMNTOOLS!" (
+  	  set "VS170COMNTOOLS=%PROGRAMFILES%\Microsoft Visual Studio\2022\Community\Common7\Tools"
+  	  if not exist "!VS170COMNTOOLS!" (          
   		    rem TODO: Allow user to enter a path to their base visual Studio directory.
          
-    	    echo ***** Microsoft Visual Studio 12.0 required *****
+    	    echo ***** Microsoft Visual Studio 2022 required *****
     	    exit /b 1
   	  )
   )
@@ -204,7 +204,7 @@ if not exist "%VS120COMNTOOLS%" (
 
 set "MSBUILD=%WINDIR%\Microsoft.NET\Framework\v4.0.30319\msbuild.exe"
 
-call "%VS120COMNTOOLS%\vsvars32.bat" >NUL
+call "%VS170COMNTOOLS%\vsvars32.bat" >NUL
 
 set environment_built=yes
 
@@ -255,7 +255,7 @@ if not exist "data\heightmaps\%1.hmpw" (
 	if not exist "data\heightmaps\%1.hmpw.zip" (
 		echo ** Downloading Heightmap for %1 **
 		echo.
-		"wget" --no-check-certificate https://github.com/swganh/mmoserver/releases/download/v0.6.0/%1.hmpw.zip -O data\heightmaps\%1.hmpw.zip
+		"wget" --no-check-certificate https://github.com/obi-two/Unofficial_Hope/releases/download/Downloads/%1.hmpw.zip -O data\heightmaps\%1.hmpw.zip
 		echo ** Downloading heightmap complete **
 	)
 
@@ -312,7 +312,7 @@ rem --- Downloads the dependency package for the current version of the source -
 :DOWNLOAD_DEPENDENCIES
 
 if not exist "%DEPENDENCIES_FILE%" (
-	"wget" --no-check-certificate !DEPENDENCIES_URL! -O "%DEPENDENCIES_FILE%"
+        curl -L -o "%DEPENDENCIES_FILE%" "!DEPENDENCIES_URL!"
 )
 
 if exist "%DEPENDENCIES_FILE%" (
@@ -338,36 +338,36 @@ if not exist "%PROJECT_BASE%build" (
 )
 cd "%PROJECT_BASE%build"
 
-cmake -G "Visual Studio 12" -DCMAKE_INSTALL_PREFIX=%PROJECT_BASE% -DENABLE_TEST_REPORT=ON ..
+cmake -G "Visual Studio 17 2022" -A x64 -DCMAKE_INSTALL_PREFIX=%PROJECT_BASE% -DENABLE_TEST_REPORT=ON ..
 
 if exist "*.cache" del /S /Q "*.cache" >NUL
 
 if "%BUILD_TYPE%" == "debug" (
-	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=x64,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
 	if errorlevel 1 exit /b 1
-	"%MSBUILD%" "RUN_TESTS.vcxproj" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+	"%MSBUILD%" "RUN_TESTS.vcxproj" /t:%REBUILD% /p:Platform=x64,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
 	if errorlevel 1 exit /b 1
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
-	if errorlevel 1 exit /b 1	
-	"%MSBUILD%" "RUN_TESTS.vcxproj" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=x64,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+	if errorlevel 1 exit /b 1
+	"%MSBUILD%" "RUN_TESTS.vcxproj" /t:%REBUILD% /p:Platform=x64,Configuration=Release,VCBuildAdditionalOptions="/useenv"
 	if errorlevel 1 exit /b 1
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
-	if errorlevel 1 exit /b 1	
-	"%MSBUILD%" "RUN_TESTS.vcxproj" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=x64,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+	if errorlevel 1 exit /b 1
+	"%MSBUILD%" "RUN_TESTS.vcxproj" /t:%REBUILD% /p:Platform=x64,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
 	if errorlevel 1 exit /b 1
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 
-	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
-	if errorlevel 1 exit /b 1	
-	"%MSBUILD%" "RUN_TESTS.vcxproj" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=x64,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+	if errorlevel 1 exit /b 1
+	"%MSBUILD%" "RUN_TESTS.vcxproj" /t:%REBUILD% /p:Platform=x64,Configuration=Release,VCBuildAdditionalOptions="/useenv"
 	if errorlevel 1 exit /b 1
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 )

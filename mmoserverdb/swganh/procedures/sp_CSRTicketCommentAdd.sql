@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_CSRTicketCommentAdd`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_CSRTicketCommentAdd`(IN ticket BIGINT, new_comment CHAR, poster CHAR)
+CREATE PROCEDURE `sp_CSRTicketCommentAdd`(IN ticket BIGINT, new_comment CHAR, poster CHAR) SQL SECURITY INVOKER
 BEGIN
 
   ##

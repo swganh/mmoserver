@@ -4,7 +4,7 @@
 
 DROP PROCEDURE IF EXISTS `sp_CreateService`;
 DELIMITER //
-CREATE PROCEDURE `sp_CreateService`(IN `in_galaxy_id` INT, IN `in_name` VARCHAR(50), IN `in_type` VARCHAR(50), IN `in_version` INT, IN `in_address` VARCHAR(50), IN `in_tcp_port` INT, IN `in_udp_port` INT, IN `in_ping_port` INT, IN `in_status` INT)
+CREATE PROCEDURE `sp_CreateService`(IN `in_galaxy_id` INT, IN `in_name` VARCHAR(50), IN `in_type` VARCHAR(50), IN `in_version` INT, IN `in_address` VARCHAR(50), IN `in_tcp_port` INT, IN `in_udp_port` INT, IN `in_ping_port` INT, IN `in_status` INT) SQL SECURITY INVOKER
 BEGIN
 INSERT INTO service (galaxy_id, name,type,version,address,tcp_port,udp_port,ping_port,status,last_pulse,created_at,updated_at)
 VALUES(in_galaxy_id, in_name, in_type, in_version, INET_ATON(in_address), in_tcp_port, in_udp_port, in_ping_port, in_status, NOW(), NOW(), NOW());

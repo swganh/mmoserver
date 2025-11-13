@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_ServerGlobalTickUpdate`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_ServerGlobalTickUpdate`(IN galaxyID BIGINT, currentTick BIGINT)
+CREATE PROCEDURE `sp_ServerGlobalTickUpdate`(IN galaxyID BIGINT, currentTick BIGINT) SQL SECURITY INVOKER
 BEGIN
 
   ##

@@ -1,6 +1,8 @@
 # These files should be ignored
 bin/
-deps/
+deps/*
+!deps/build_deps.bat
+!deps/README.md
 build/
 Debug/
 Release/

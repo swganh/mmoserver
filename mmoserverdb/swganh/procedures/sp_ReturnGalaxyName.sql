@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_ReturnGalaxyName`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_ReturnGalaxyName`(IN galaxyId INT)
+CREATE PROCEDURE `sp_ReturnGalaxyName`(IN galaxyId INT) SQL SECURITY INVOKER
 BEGIN
 	SELECT name FROM swganh.galaxy WHERE galaxy_id = galaxyId;	
 

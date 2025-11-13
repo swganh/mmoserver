@@ -42,7 +42,7 @@ DROP FUNCTION IF EXISTS `sf_WaypointCreate`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER' */ $$
-CREATE DEFINER=`root`@`localhost` FUNCTION `sf_WaypointCreate`(name CHAR(255),ownerId BIGINT(20),inX FLOAT,inY FLOAT,inZ FLOAT,planetId INT,wpType INT) RETURNS bigint(20)
+CREATE FUNCTION `sf_WaypointCreate`(name CHAR(255),ownerId BIGINT(20),inX FLOAT,inY FLOAT,inZ FLOAT,planetId INT,wpType INT) RETURNS bigint(20) SQL SECURITY INVOKER
 BEGIN
         
         INSERT INTO waypoints VALUES (NULL,ownerId,name,inX,inY,inZ,planetId,1,wpType);

@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_ServerStatusUpdate`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_ServerStatusUpdate`(IN serverName CHAR(64), serverStatus INT, serverAddress CHAR(64), serverPort INT)
+CREATE PROCEDURE `sp_ServerStatusUpdate`(IN serverName CHAR(64), serverStatus INT, serverAddress CHAR(64), serverPort INT) SQL SECURITY INVOKER
 BEGIN
 
   ##

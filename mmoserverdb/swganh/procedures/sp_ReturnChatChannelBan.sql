@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_ReturnChatChannelBan`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_ReturnChatChannelBan`(IN channelId INT)
+CREATE PROCEDURE `sp_ReturnChatChannelBan`(IN channelId INT) SQL SECURITY INVOKER
 BEGIN
 	SELECT A.char_name FROM swganh.chat_channels_banned A WHERE A.channel_id = channelId;
 	

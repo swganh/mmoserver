@@ -41,7 +41,7 @@ DROP TABLE IF EXISTS `biography_planet`;
 CREATE TABLE `biography_planet` (
   `planet` char(255) NOT NULL default '',
   PRIMARY KEY  (`planet`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=REDUNDANT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `biography_planet`

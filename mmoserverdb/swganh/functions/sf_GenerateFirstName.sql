@@ -41,7 +41,7 @@ DROP FUNCTION IF EXISTS `sf_GenerateFirstName`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER' */ $$
-CREATE DEFINER=`root`@`localhost` FUNCTION `sf_GenerateFirstName`(start_species CHAR(16), start_gender INT(11)) RETURNS char(16) CHARSET utf8
+CREATE FUNCTION `sf_GenerateFirstName`(start_species CHAR(16), start_gender INT(11)) RETURNS char(16) CHARSET utf8 SQL SECURITY INVOKER
 BEGIN
 
   

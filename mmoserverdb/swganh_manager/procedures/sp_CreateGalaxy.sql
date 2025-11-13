@@ -4,7 +4,7 @@
 
 DROP PROCEDURE IF EXISTS `sp_CreateGalaxy`;
 DELIMITER //
-CREATE PROCEDURE `sp_CreateGalaxy`(IN `in_name` VARCHAR(50), IN `in_version` VARCHAR(25), IN `in_status` TINYINT)
+CREATE PROCEDURE `sp_CreateGalaxy`(IN `in_name` VARCHAR(50), IN `in_version` VARCHAR(25), IN `in_status` TINYINT) SQL SECURITY INVOKER
 BEGIN
 INSERT INTO galaxy(name, version, status, created_at, updated_at) VALUES(in_name, in_version, in_status, NOW(), NOW());
 SELECT * FROM galaxy where id = LAST_INSERT_ID();

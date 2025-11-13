@@ -4,7 +4,7 @@
 
 DROP PROCEDURE IF EXISTS `sp_DeleteService`;
 DELIMITER //
-CREATE PROCEDURE `sp_DeleteService`(IN `in_id` INT)
+CREATE PROCEDURE `sp_DeleteService`(IN `in_id` INT) SQL SECURITY INVOKER
 BEGIN
 DELETE FROM service WHERE id = in_id;
 END//

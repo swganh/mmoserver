@@ -42,7 +42,7 @@ DROP FUNCTION IF EXISTS `sf_DefaultVehicleCreate`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='' */ $$
-CREATE FUNCTION `sf_DefaultVehicleCreate`(type_id INT(11),parent_id BIGINT(20)) RETURNS bigint(20)
+CREATE FUNCTION `sf_DefaultVehicleCreate`(type_id INT(11),parent_id BIGINT(20)) RETURNS bigint(20) SQL SECURITY INVOKER
 BEGIN
 
   --

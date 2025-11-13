@@ -42,7 +42,7 @@ DROP FUNCTION IF EXISTS `sf_DefaultManufactureSchematicCreate`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER' */ $$
-CREATE DEFINER=`root`@`localhost` FUNCTION `sf_DefaultManufactureSchematicCreate`(schematicCrc INT(11) UNSIGNED,parent_id BIGINT(20)) RETURNS bigint(20)
+CREATE FUNCTION `sf_DefaultManufactureSchematicCreate`(schematicCrc INT(11) UNSIGNED,parent_id BIGINT(20)) RETURNS bigint(20) SQL SECURITY INVOKER
 BEGIN
         DECLARE tmpId BIGINT(20);
         DECLARE att_id INT;

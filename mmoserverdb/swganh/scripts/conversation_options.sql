@@ -47,7 +47,7 @@ CREATE TABLE `conversation_options` (
   `pageLink` int(11) unsigned NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `fk_conv_items_event` (`event`)
-) ENGINE=InnoDB AUTO_INCREMENT=601 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPRESSED;
+) ENGINE=InnoDB AUTO_INCREMENT=601 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `conversation_options`

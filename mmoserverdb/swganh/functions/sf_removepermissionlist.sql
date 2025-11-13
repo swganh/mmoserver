@@ -48,7 +48,7 @@ DROP FUNCTION IF EXISTS `sf_RemovePermissionList`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ $$
-CREATE DEFINER=`root`@`localhost` FUNCTION `sf_RemovePermissionList`(structure_id BIGINT(20), name CHAR(255), listname CHAR(255)) RETURNS int(11)
+CREATE FUNCTION `sf_RemovePermissionList`(structure_id BIGINT(20), name CHAR(255), listname CHAR(255)) RETURNS int(11) SQL SECURITY INVOKER
 BEGIN
         DECLARE tmpId BIGINT(20);
         DECLARE nameId BIGINT(20);

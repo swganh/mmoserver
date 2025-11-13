@@ -45,7 +45,7 @@ CREATE TABLE `stf_variable` (
   `stf_file_id_2` int(11) unsigned default NULL COMMENT 'details',
   PRIMARY KEY  (`id`),
   KEY `pk_stfvars_name_file` (`name`,`stf_file_id_1`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=REDUNDANT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `stf_variable`

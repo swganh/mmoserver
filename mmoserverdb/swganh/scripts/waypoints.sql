@@ -53,7 +53,7 @@ CREATE TABLE `waypoints` (
   KEY `fk_waypoints_planet_planetid` (`planet_id`),
   CONSTRAINT `fk_waypoints_owner_ownerid` FOREIGN KEY (`owner_id`) REFERENCES `characters` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_waypoints_planet_planetid` FOREIGN KEY (`planet_id`) REFERENCES `planet` (`planet_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=137438953472 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPRESSED;
+) ENGINE=InnoDB AUTO_INCREMENT=137438953472 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `waypoints`

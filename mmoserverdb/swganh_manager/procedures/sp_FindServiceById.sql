@@ -5,7 +5,7 @@
 
 DROP PROCEDURE IF EXISTS `sp_FindServiceById`;
 DELIMITER //
-CREATE PROCEDURE `sp_FindServiceById`(IN `in_service_id` INT)
+CREATE PROCEDURE `sp_FindServiceById`(IN `in_service_id` INT) SQL SECURITY INVOKER
 BEGIN
 SELECT * FROM service WHERE id = in_service_id LIMIT 1;
 END//

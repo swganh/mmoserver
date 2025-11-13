@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `sp_GalaxyAccountWithdrawCredits`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='' */ $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GalaxyAccountWithdrawCredits`(IN galaxy_id INT, withdraw_account_type BIGINT, character_id BIGINT, credits BIGINT)
+CREATE PROCEDURE `sp_GalaxyAccountWithdrawCredits`(IN galaxy_id INT, withdraw_account_type BIGINT, character_id BIGINT, credits BIGINT) SQL SECURITY INVOKER
 BEGIN
 
   ##

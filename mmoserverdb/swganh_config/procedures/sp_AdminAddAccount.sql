@@ -39,7 +39,7 @@ DROP PROCEDURE IF EXISTS `sp_AdminAddAccount` $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='' */ $$
 
-CREATE PROCEDURE `sp_AdminAddAccount`(IN musername CHAR(32), userpass CHAR(64), email CHAR(64))
+CREATE PROCEDURE `sp_AdminAddAccount`(IN musername CHAR(32), userpass CHAR(64), email CHAR(64)) SQL SECURITY INVOKER
 BEGIN
 
   ##

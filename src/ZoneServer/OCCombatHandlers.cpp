@@ -413,36 +413,41 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
                 int32 lootedCredits = inventory->getCredits();
                 inventory->setCredits(0);
 
-                // Get all items from creature inventory.
-                ObjectIDList*			invObjList	= inventory->getObjects();
-                ObjectIDList::iterator	invObjectIt = invObjList->begin();
+                // Take every item from the creature inventory. Loop over a copy
+                // of the ids: taking an item changes the inventory. (The loop
+                // used to stay on the first item, which nothing removed,
+                // queueing new items without end: the zone stopped answering
+                // and ran out of memory.)
+                ObjectIDList itemIds = *inventory->getObjects();
                 int32 lootedItems = 0;
 
-                while (invObjectIt != invObjList->end())
+                for (ObjectIDList::iterator invObjectIt = itemIds.begin(); invObjectIt != itemIds.end(); ++invObjectIt)
                 {
-                    Object* object = gWorldManager->getObjectById((*invObjectIt));
-
-                    // Move the object to player inventory.
-                    Item* item = dynamic_cast<Item*>(object);
-                    if (item)
+                    Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(*invObjectIt));
+                    if (!item)
                     {
-                        // TODO: Check for player inventory full, and handle containers and resource containers etc...
-                        // TODO: add the destroy objects to the remove Object interface at one point
-                        //assume size is 1 slot
-                        if(playerInventory->checkSlots(1))
-                        {
-                            gObjectFactory->requestNewDefaultItem(playerInventory, item->getItemFamily(), item->getItemType(), playerInventory->getId(), 99, glm::vec3(), "");
+                        continue;
+                    }
 
-                            //remove from container - destroy for watching players
-							gContainerManager->destroyObjectToRegisteredPlayers(inventory,(*invObjectIt), true);
-				
-                        }
-                        lootedItems++;
-                    }
-                    else
+                    // TODO: handle containers and resource containers etc...
+                    // Assume size is 1 slot. When the player's inventory is
+                    // full, the rest stays on the corpse.
+                    if (!playerInventory->checkSlots(1))
                     {
-                        invObjectIt++;
+                        break;
                     }
+
+                    // The loot is a non-persistent item; the player gets a
+                    // new one of the same kind.
+                    gObjectFactory->requestNewDefaultItem(playerInventory, item->getItemFamily(), item->getItemType(), playerInventory->getId(), 99, glm::vec3(), "");
+
+                    // Remove it from the corpse: for the watching players, from
+                    // the inventory, and from the world.
+                    gContainerManager->destroyObjectToRegisteredPlayers(inventory, item->getId(), true);
+                    inventory->removeObject(item->getId());
+                    gWorldManager->destroyObject(item);
+
+                    lootedItems++;
                 }
 
                 // This is used as "have we lotted anything?"

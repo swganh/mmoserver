@@ -585,6 +585,9 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 		//bail out here and request the item over the db - as the item in the NPC has a temporary id and we dont want that in the db
 		// This ensure that we do not use/store any of the temp id's in the database.
         gObjectFactory->requestNewDefaultItem(inventory, item->getItemFamily(), item->getItemType(), inventory->getId(), 99, glm::vec3(), "");
+
+		// The temporary item is out of the corpse's inventory; free it.
+		gWorldManager->destroyObject(itemObject);
 		return false;
 
 	}		   

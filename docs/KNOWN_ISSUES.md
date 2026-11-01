@@ -281,31 +281,29 @@ easier to match against protocol documentation.
 
 ## Memory
 
-### 10. A tutorial ZoneServer grew to 6.2 GB — open
+### 10. A tutorial ZoneServer grew to 6.2 GB — fix needs testing
 
-On 31 October the kernel killed the tutorial ZoneServer for using too much
-memory (`anon-rss:6264796kB`; fresh zones use 100-280 MB). Before that the
-VM swapped, the zone stalled past the 60 s link timeout (both the zone and
-the ConnectionServer dropped the link, and `Garbage Collection found a new
-stuck message! : 60` was logged), and the player in it was disconnected;
-issue #1 may be the same thing.
+Looting all from a corpse (the tutorial bandit) put the zone in an endless
+loop: `ObjectController::lootAll` advanced its iterator only for objects
+that were not items, and nothing removed the item from the corpse's
+inventory, so it requested a new copy of the first item for the player
+again and again. Every request queued a database job: the zone grew by
+about 400 MB a minute, stopped answering the player (still in combat, no
+chat, loot window gone, back to character selection), the VM swapped,
+links timed out after 60 s (issue #1 may be the same) and the kernel
+killed the zone. Caught with heaptrack on the VM: 1.74 GB from
+`Database::executeAsyncSql` via `requestNewDefaultItem` from `lootAll`.
 
-Not reproduced so far: a whole tutorial playthrough under heaptrack ended at
-118 MB, and 22 hours idle with no client left every server at its fresh
-size, with heaptrack showing only startup allocations. A dead link with no
-player does not grow memory either (tested by freezing the
-ConnectionServer). That session differed by: running under gdb
-(`debug -g`), the login tests with the client killed mid-creation, and a
-character left idle in the tutorial after the bandit.
+Fixed: loot all loops over a copy of the corpse's items, takes each one out
+of the corpse's inventory and frees it, and stops when the player's
+inventory is full. Taking a single item by dragging it now frees the
+temporary item too.
 
-To catch it, keep a memory log running during testing:
+Keep the memory log running during testing to catch anything else:
 
 ```bash
 nohup bash -c 'while true; do echo "$(date +%T) $(ps -o rss=,args= -C ZoneServer | tr "\n" " ")"; sleep 60; done' >> ~/zone-mem.log 2>&1 &
 ```
-
-and run the tutorial zone under heaptrack when repeating that session
-(`docs/TEST_PLAN.md` T12).
 
 ## Cosmetic
 

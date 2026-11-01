@@ -235,7 +235,7 @@ death. The same kind of missing state machine as `AttackableCreature`
 (5f). For the combat and creature AI review; spawning up to 50 lairs and
 their creature waves needs the creature AI to work.
 
-### 5k. Travel tickets to points with an apostrophe were never created — fix needs testing
+### 5k. Travel tickets to points with an apostrophe were never created — fixed
 
 Buying a ticket from Tatooine to Lok's "Nym's Stronghold" took the credits
 but no ticket appeared: `ObjectFactory::requestNewTravelTicket` put the
@@ -245,7 +245,7 @@ query (Tatooine logged the syntax error). Point names are escaped now.
 Still open: the ticket is paid for before it is created, so any failure
 keeps the credits. Charge on success instead.
 
-### 5l. Travel to another planet by ticket never happened — fix needs testing
+### 5l. Travel to another planet by ticket never happened — fixed
 
 At the ticket collector the destination window opened, but OK did nothing.
 The ConnectionServer approved the transfer, then the zone saved the

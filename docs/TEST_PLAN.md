@@ -63,6 +63,7 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 | Text | Client text garbled on Linux [2a] (T9) | Chat with punctuation and numbers |
 | Stability | Early disconnect in the tutorial [1] (T10) | Idle in the tutorial, still connected and loaded |
 | Stability | Out-of-memory kill of the tutorial zone [10] | Reproduced with heaptrack: Loot all on the bandit's corpse; fixed, see T5 |
+| Travel | Tickets to "Nym's Stronghold" never created [5k]; boarding a cross-planet shuttle did nothing [5l] | Bought a Bestine Starport to Nym's Stronghold ticket and landed on Lok |
 | Stability | Idle memory | 22 hours with no client: every server at its fresh size (tutorial 116 MB, Tatooine 274 MB, ConnectionServer 137 MB), heaptrack peaks only startup allocations |
 
 ## Not implemented yet

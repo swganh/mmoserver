@@ -42,8 +42,9 @@ DROP PROCEDURE IF EXISTS `sp_CharacterBiographyGenerate`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE PROCEDURE `sp_CharacterBiographyGenerate`(IN character_id int, OUT genBiography TEXT(2048) SQL SECURITY INVOKER
+CREATE PROCEDURE `sp_CharacterBiographyGenerate`(IN character_id int, OUT genBiography TEXT(2048)
 )
+SQL SECURITY INVOKER
 BEGIN
 
 DECLARE character_id int;

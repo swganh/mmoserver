@@ -1,88 +1,185 @@
-#!/bin/bash
+#!/usr/bin/env bash
+#
+# Builds the MMOServer on Linux using the CMake presets in CMakePresets.json.
+# Run with -h for options.
 
-# Get the directory this file is in (the project base)
-basedir=$(cd $(dirname $0) && pwd)
+set -euo pipefail
 
-# Configuration and options
-version=0.4.3       # mmoserver project version
-cflag=              # clean build - removes the build dir before building
-rflag=              # rebuild - rebuilds the dependencies and source
-tflag=              # test - runs all project tests after building
+basedir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
-# parse the command line parameters
-while getopts 'crt' OPTION 
-do case "$OPTION" in
-    c)  cflag=1
-        ;;
-    r)  rflag=1
-        ;;
-    t)  tflag=1
-        ;;
-    ?)  printf "Builds the MMOServer project and dependencies from source\n"
-        printf ""
-        printf "\nUsage: %s [-r] [-t]\n" $(basename $0) >&2
-        printf "\n"
-        printf "    -r  Rebuild dependencies and source\n"
-        printf "    -t  Run the project test suite\n\n"
-        exit 2
-        ;;
-esac
+# Ubuntu 24.04 / Debian packages for the default (system packages) build.
+apt_build_tools=(build-essential cmake ninja-build)
+apt_libraries=(libboost-all-dev libtbb-dev libmysqlcppconn-dev liblua5.1-0-dev
+    libtolua++5.1-dev libnoise-dev libglm-dev libgtest-dev libmysqlclient-dev zlib1g-dev)
+# Tools vcpkg needs to build the dependencies itself (libtirpc-dev is for libmysql).
+apt_vcpkg_tools=(build-essential cmake ninja-build git curl zip unzip tar pkg-config libtirpc-dev)
+
+usage() {
+    cat <<EOF
+Usage: $(basename "$0") [options]
+
+Configures and builds the servers with CMake presets, then stages config/,
+script/ and heightmaps/ next to the binaries in build/<preset>/bin.
+
+Options:
+  -c                 Clean: delete the preset's build directory first
+  -r                 Release build (RelWithDebInfo) instead of Debug
+  -t                 Run the unit tests after building
+  --vcpkg            Build the dependencies with vcpkg instead of using system
+                     packages. Uses \$VCPKG_ROOT, or clones vcpkg into build/vcpkg
+  --heightmaps LIST  Download heightmaps first: a comma-separated list of planets
+                     or "all" (~1.8 GB download, ~4.7 GB unpacked)
+  -h, --help         Show this help and exit
+EOF
+}
+
+clean=
+release=
+run_tests=
+use_vcpkg=
+heightmaps=
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -c) clean=1 ;;
+        -r) release=1 ;;
+        -t) run_tests=1 ;;
+        --vcpkg) use_vcpkg=1 ;;
+        --heightmaps)
+            [[ $# -ge 2 ]] || { echo "error: --heightmaps needs a value" >&2; exit 2; }
+            heightmaps=$2
+            shift
+            ;;
+        -h|--help) usage; exit 0 ;;
+        -[crt]?*)
+            # Allow combined short flags such as -ct.
+            flags=${1#-}
+            shift
+            set -- $(printf -- '-%s ' $(echo "$flags" | fold -w1)) "$@"
+            continue
+            ;;
+        *) echo "error: unknown option '$1'" >&2; usage >&2; exit 2 ;;
+    esac
+    shift
 done
-shift $(($OPTIND - 1))
 
-# Check to see if the current dependencies should be cleaned
-if [[ -d $basedir/deps && "$rflag" ]]; then
-    printf "Rebuilding deps\n"
-    rm -rf $basedir/deps
-fi
+# --- Prerequisites ----------------------------------------------------------------
 
-# If there are no dependencies attempt to build them
-if [ ! -d $basedir/deps ]; then
-    filename=mmoserver-deps-$version.tar.bz2
-    
-    # Look for the dependencies source file and download if missing
-    if [ ! -f $basedir/$filename ]; then
-        wget -nc --no-check-certificate https://github.com/obi-two/Unofficial_Hope/releases/download/Downloads/$filename
+missing_tools=()
+for tool in cmake ninja c++; do
+    command -v "$tool" >/dev/null || missing_tools+=("$tool")
+done
+
+missing_packages=()
+if command -v dpkg-query >/dev/null; then
+    if [[ $use_vcpkg ]]; then
+        wanted=("${apt_vcpkg_tools[@]}")
+    else
+        wanted=("${apt_build_tools[@]}" "${apt_libraries[@]}")
     fi
-    
-    # Unpack the dependencies and build the deps
-    tar -xvjf $basedir/$filename    
-    $basedir/deps/build_deps.sh
+    [[ $heightmaps ]] && wanted+=(curl unzip)
+    for package in "${wanted[@]}"; do
+        if ! dpkg-query -W -f='${Status}' "$package" 2>/dev/null | grep -q "install ok installed"; then
+            # Ubuntu 26.04+ dropped tolua++; CMake then builds it from source.
+            if [[ $package == libtolua++5.1-dev ]] &&
+                ! apt-cache policy "$package" 2>/dev/null | grep -q 'Candidate: [0-9]'; then
+                continue
+            fi
+            missing_packages+=("$package")
+        fi
+    done
 fi
 
-if [ -d $basedir/build ]; then
-    # Remove any tests from a previous run
-    rm -f $basedir/build/*Tests.xml
-    
-    # Check to see if the build directory should be cleaned
-    if [[ "$rflag" || "$cflag" ]]; then        
-        printf "Rebuilding source\n"
-        rm -rf $basedir/build
+if [[ ${#missing_packages[@]} -gt 0 ]]; then
+    echo "Missing packages. Install them with:" >&2
+    echo >&2
+    echo "    sudo apt install ${missing_packages[*]}" >&2
+    echo >&2
+    exit 1
+elif [[ ${#missing_tools[@]} -gt 0 ]]; then
+    echo "error: required tools not found: ${missing_tools[*]}" >&2
+    echo "On Debian/Ubuntu: sudo apt install ${apt_build_tools[*]} ${apt_libraries[*]}" >&2
+    exit 1
+fi
+
+cmake_version=$(cmake --version | awk 'NR == 1 { print $3 }')
+if ! printf '3.25\n%s\n' "$cmake_version" | sort -V -C; then
+    echo "error: CMake 3.25 or newer is required for the presets (found $cmake_version)" >&2
+    exit 1
+fi
+
+# --- vcpkg ------------------------------------------------------------------------
+
+if [[ $use_vcpkg ]]; then
+    if [[ -z ${VCPKG_ROOT:-} ]]; then
+        export VCPKG_ROOT="$basedir/build/vcpkg"
+        if [[ ! -d $VCPKG_ROOT ]]; then
+            echo "Cloning vcpkg into $VCPKG_ROOT"
+            git clone https://github.com/microsoft/vcpkg.git "$VCPKG_ROOT"
+        fi
+    fi
+    if [[ ! -x $VCPKG_ROOT/vcpkg ]]; then
+        "$VCPKG_ROOT/bootstrap-vcpkg.sh" -disableMetrics
+    fi
+    preset_prefix=linux-vcpkg
+else
+    preset_prefix=linux
+fi
+
+if [[ $release ]]; then
+    preset=$preset_prefix-release
+else
+    preset=$preset_prefix-debug
+fi
+build_dir="$basedir/build/$preset"
+
+# --- Heightmaps -------------------------------------------------------------------
+
+if [[ $heightmaps ]]; then
+    if [[ $heightmaps == all ]]; then
+        "$basedir/tools/heightmaps/download.sh"
+    else
+        IFS=',' read -r -a planets <<< "$heightmaps"
+        "$basedir/tools/heightmaps/download.sh" "${planets[@]}"
     fi
 fi
 
-# If no build directory exists create it
-if [ ! -d $basedir/build ]; then
-    mkdir $basedir/build
+# --- Configure, build, test -------------------------------------------------------
+
+cd "$basedir"
+
+if [[ $clean && -d $build_dir ]]; then
+    echo "Removing $build_dir"
+    rm -rf "$build_dir"
 fi
 
-# Run cmake from the build dir to ensure the build environment is up-to-date
-cd $basedir/build
-cmake -DCMAKE_INSTALL_PREFIX=$basedir -DENABLE_TEST_REPORT=ON ..
+cmake --preset "$preset"
+cmake --build --preset "$preset"
 
-# If we're on the darwin platform set the DYLD_LIBRARY_PATH before running
-# TODO: Libraries should be installed with the exe to prevent this from being
-#   necessary.
-os=`uname`
-
-if [ "Darwin" == "$os" ]; then
-    export DYLD_LIBRARY_PATH=$basedir/deps/mysql/lib:$basedir/deps/mysql-connector-cpp/lib:$basedir/deps/tbb/lib:$PATH
+if [[ $run_tests ]]; then
+    ctest --preset "$preset"
 fi
 
-# Build the project
-make
+# --- Stage runtime data next to the binaries ---------------------------------------
 
-# If tests are enabled run them
-if [ "$tflag" ]; then
-    make test
+bin_dir="$build_dir/bin"
+mkdir -p "$bin_dir/config" "$bin_dir/logs"
+
+# Keep existing configs: they hold local settings such as database passwords.
+for cfg in "$basedir"/data/config/*.cfg; do
+    [[ -e $bin_dir/config/$(basename "$cfg") ]] || cp "$cfg" "$bin_dir/config/"
+done
+# Database settings written by mmoserverdb/setup.sh install.
+if [[ -f $basedir/mmoserverdb/local.cfg ]]; then
+    "$basedir/mmoserverdb/setup.sh" apply-config "$bin_dir/config"
 fi
+# Scripts are code; always refresh them.
+rm -rf "$bin_dir/script"
+cp -r "$basedir/data/script" "$bin_dir/script"
+# Heightmaps are large; link to them instead of copying.
+if [[ -d $basedir/data/heightmaps ]]; then
+    ln -sfn "$basedir/data/heightmaps" "$bin_dir/heightmaps"
+fi
+
+echo
+echo "Build complete: $bin_dir"

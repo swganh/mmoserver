@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Utils/typedefs.h"
 #include <map>
+#include <string>
 #include <boost/pool/pool.hpp>
 #include "DatabaseManager/DatabaseCallback.h"
 

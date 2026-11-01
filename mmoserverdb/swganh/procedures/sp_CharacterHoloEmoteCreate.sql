@@ -42,10 +42,11 @@ DROP PROCEDURE IF EXISTS `sp_CharacterHoloEmoteCreate`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='' */ $$
-CREATE PROCEDURE `sp_CharacterHoloEmoteCreate`( SQL SECURITY INVOKER
+CREATE PROCEDURE `sp_CharacterHoloEmoteCreate`(
   IN char_id BIGINT(20),
   IN new_emote_id INT(20),
   IN new_charges INT(10))
+SQL SECURITY INVOKER
 BEGIN
   DECLARE test INT(1);
   SELECT COUNT(*) FROM character_holoemotes WHERE character_id = char_id INTO test;

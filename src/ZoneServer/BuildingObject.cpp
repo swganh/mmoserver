@@ -153,8 +153,11 @@ ObjectList BuildingObject::getAllCellChilds()
 
         while(childIt != tmpList->end())
         {
-            Object* childObject = gWorldManager->getObjectById((*childIt));
-            resultList.push_back(childObject);
+            // Skip ids of objects that no longer exist.
+            if(Object* childObject = gWorldManager->getObjectById((*childIt)))
+            {
+                resultList.push_back(childObject);
+            }
             ++childIt;
         }
         ++cellIt;

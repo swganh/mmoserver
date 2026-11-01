@@ -1,7 +1,7 @@
 include(MMOServerLibrary)
 
 AddMMOServerLibrary(SwgProtocol
-    MMOSERVER_DEPS 
+    MMOSERVER_DEPS
         Utils
         Common
 )

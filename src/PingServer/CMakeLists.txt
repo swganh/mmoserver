@@ -1,7 +1,7 @@
 include(MMOServerExecutable)
 
 AddMMOServerExecutable(PingServer
-    MMOSERVER_DEPS 
+    MMOSERVER_DEPS
         Utils
         Common
         DatabaseManager

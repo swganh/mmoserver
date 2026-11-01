@@ -59,12 +59,27 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/logger.h"
 
 #include "Utils/rand.h"
+#include <cmath>
 #include <cstdio>
-#include <glm/gtx/random.hpp>
 
 using ::common::OutOfBand;
 
 //======================================================================================================================
+
+namespace {
+
+// Returns a horizontal (y = 0) offset in a random direction whose length is
+// between min_distance and max_distance.
+glm::vec3 randomGroundOffset(float min_distance, float max_distance)
+{
+    const float two_pi = 6.2831853f;
+    float angle = two_pi * (gRandom->getRand() / 32768.0f);
+    float distance = min_distance + (max_distance - min_distance) * (gRandom->getRand() / 32767.0f);
+
+    return glm::vec3(std::cos(angle) * distance, 0.0f, std::sin(angle) * distance);
+}
+
+}
 
 bool MissionManager::mInsFlag = false;
 MissionManager* MissionManager::mSingleton = NULL;
@@ -1072,8 +1087,7 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
     //int radius = 500; //500m radius
     Location destination;
 
-    glm::vec3 new_vector = glm::gtx::random::vecRand3(50.0f, 500.0f);
-    new_vector.y = 0;
+    glm::vec3 new_vector = randomGroundOffset(50.0f, 500.0f);
 
     destination.Coordinates = mission->getOwner()->mPosition + new_vector;
     destination.CellID = 0;
@@ -1489,8 +1503,7 @@ MissionObject* MissionManager::generateReconMission(MissionObject* mission)
     //int radius = 500; //500m radius
     Location destination;
 
-    glm::vec3 new_vector = glm::gtx::random::vecRand3(50.0f, 500.0f);
-    new_vector.y = 0;
+    glm::vec3 new_vector = randomGroundOffset(50.0f, 500.0f);
 
     destination.Coordinates = mission->getOwner()->mPosition + new_vector;
     destination.CellID = 0;

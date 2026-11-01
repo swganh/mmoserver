@@ -934,14 +934,14 @@ void SpatialIndexManager::initObjectsInRange(PlayerObject* player) {
     }
 
     Object* tmp = gWorldManager->getObjectById(player_id);
-    if (tmp->getType() != ObjType_Cell) {
+    if (!tmp || tmp->getType() != ObjType_Cell) {
         return;
     }
 
     CellObject* cell = static_cast<CellObject*>(tmp);
 
     tmp = gWorldManager->getObjectById(cell->getParentId());
-    if (tmp->getType() != ObjType_Building) {
+    if (!tmp || tmp->getType() != ObjType_Building) {
         return;
     }
 

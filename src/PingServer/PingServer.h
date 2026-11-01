@@ -80,7 +80,7 @@ private:
     void HandleSend(const boost::system::error_code& error, size_t bytesSent);
 
     boost::asio::ip::udp::endpoint		remote_endpoint_;   //Storage for Current Client End Point (Thread Safe)
-    boost::asio::io_service             io_service_;        //Boost IO Service
+    boost::asio::io_context             io_service_;        //Boost IO Service
     boost::asio::ip::udp::socket        socket_;            //Server Socket
 	uint16								server_port_;
 

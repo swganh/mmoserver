@@ -362,6 +362,11 @@ bool ObjectController::_processCommandQueue()
 
                 bool cmdExecutedOk = true;
 
+                // Handlers parse client-supplied text (e.g. with lexical_cast);
+                // malformed input must fail the command, not crash the zone.
+                try
+                {
+
                 // call the proper handler
                 switch(cmdProperties->mCmdGroup)
                 {
@@ -461,6 +466,14 @@ bool ObjectController::_processCommandQueue()
 					DLOG(WARNING) << "ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0"<<cmdProperties->mCmdGroup <<" for "<<mObject->getId();
                 }
                 break;
+                }
+
+                }
+                catch(const std::exception& e)
+                {
+                    LOG(WARNING) << "ObjectController::processCommandQueue: command 0x" << std::hex << command << std::dec
+                                 << " from " << mObject->getId() << " failed: " << e.what();
+                    cmdExecutedOk = false;
                 }
 
                 // Do not mess with cooldowns for non combat commands...

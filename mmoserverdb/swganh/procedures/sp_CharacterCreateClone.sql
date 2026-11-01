@@ -42,10 +42,11 @@ DROP PROCEDURE IF EXISTS `sp_CharacterCreateClone`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='' */ $$
-CREATE PROCEDURE `sp_CharacterCreateClone`( SQL SECURITY INVOKER
+CREATE PROCEDURE `sp_CharacterCreateClone`(
 	IN mcharacter_id BIGINT(22),
 	IN CloneFacility_ID BIGINT(11)
 	)
+SQL SECURITY INVOKER
 BEGIN
 
 

@@ -45,14 +45,15 @@ DROP PROCEDURE IF EXISTS `sp_AdminShowSchemaTables` $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='' */ $$
 
-CREATE PROCEDURE `sp_AdminShowSchemaTables`( IN dbname CHAR(64) ) SQL SECURITY INVOKER
+CREATE PROCEDURE `sp_AdminShowSchemaTables`( IN dbname CHAR(64) )
+SQL SECURITY INVOKER
 BEGIN
   SELECT
     table_name,
     engine,
     version,
     table_collation AS collation,
-    table_rows AS rows
+    table_rows AS `rows`
   FROM information_schema.tables
   WHERE table_schema=dbname;
 

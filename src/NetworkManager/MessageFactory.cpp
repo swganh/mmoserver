@@ -434,7 +434,7 @@ void MessageFactory::addString(const BString& data)
         *((uint32*)mCurrentMessageEnd) = data.getLength();
         mCurrentMessageEnd += 4;
 
-        memcpy(mCurrentMessageEnd, data.getUnicode16(), data.getLength() * 2);
+        memcpy(mCurrentMessageEnd, data.getRawData(), data.getLength() * 2);
         mCurrentMessageEnd += data.getLength() * 2;
     }
     break;

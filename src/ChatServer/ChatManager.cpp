@@ -2819,7 +2819,7 @@ void ChatManager::_processFindFriendGotPosition(Message* message,DispatchClient*
     friendObject->setPositionZ(z);
 
     //now create a waypoint for the querying player
-    gChatMessageLib->sendSystemMessageProper(playerObject, false, "", "ui_cmnty","friend_location", "", "", "", 0, "", "", "", 0, 0, 0, "", "", unicodeName.getUnicode16());
+    gChatMessageLib->sendSystemMessageProper(playerObject, false, "", "ui_cmnty","friend_location", "", "", "", 0, "", "", "", 0, 0, 0, "", "", unicodeName.getUnicode16().c_str());
     gChatMessageLib->sendFindFriendCreateWaypoint(playerObject->getClient(), playerObject, friendObject);
 
 }
@@ -2881,14 +2881,14 @@ void ChatManager::_handleFindFriendDBReply(Player* player,uint64 retCode,BString
     //name not existent
     if(retCode == 0)
     {
-        gChatMessageLib->sendSystemMessageProper(player,true,"","ui_cmnty","friend_location_failed_noname","","","",0,"","","",0,0,0,"","",friendName.getUnicode16());
+        gChatMessageLib->sendSystemMessageProper(player,true,"","ui_cmnty","friend_location_failed_noname","","","",0,"","","",0,0,0,"","",friendName.getUnicode16().c_str());
         return;
     }
 
     // check if he's our friend
     if(!player->checkFriend(loweredNameCrc))
     {
-        gChatMessageLib->sendSystemMessageProper(player,false,"","ui_cmnty","friend_location_failed","","","",0,"","","",0,0,0,"","",friendName.getUnicode16());
+        gChatMessageLib->sendSystemMessageProper(player,false,"","ui_cmnty","friend_location_failed","","","",0,"","","",0,0,0,"","",friendName.getUnicode16().c_str());
         return;
     }
 
@@ -2897,7 +2897,7 @@ void ChatManager::_handleFindFriendDBReply(Player* player,uint64 retCode,BString
     //check whether he/she is online
     if(!searchObject)
     {
-        gChatMessageLib->sendSystemMessageProper(player,true,"","ui_cmnty","friend_location_failed","","","",0,"","","",0,0,0,"","",friendName.getUnicode16());
+        gChatMessageLib->sendSystemMessageProper(player,true,"","ui_cmnty","friend_location_failed","","","",0,"","","",0,0,0,"","",friendName.getUnicode16().c_str());
         return;
     }
 
@@ -2909,7 +2909,7 @@ void ChatManager::_handleFindFriendDBReply(Player* player,uint64 retCode,BString
     //are we on our targets friendlist???
     if(!searchObject->checkFriend(loweredNameCrc))
     {
-        gChatMessageLib->sendSystemMessageProper(player,true,"","ui_cmnty","friend_location_failed","","","",0,"","","",0,0,0,"","",friendName.getUnicode16());
+        gChatMessageLib->sendSystemMessageProper(player,true,"","ui_cmnty","friend_location_failed","","","",0,"","","",0,0,0,"","",friendName.getUnicode16().c_str());
         return;
     }
 
@@ -3084,7 +3084,7 @@ void ChatManager::_processBroadcastGalaxy(Message* message,DispatchClient* clien
         if (/*(planetId == -1) ||*/ // planetId is an unsigned int which means it can't be negative.
             (planetId == player->getPlanetId()))
         {
-            gChatMessageLib->sendSystemMessage((*listIt), msg.getUnicode16());
+            gChatMessageLib->sendSystemMessage((*listIt), msg.getUnicode16().c_str());
         }
         ++listIt;
     }

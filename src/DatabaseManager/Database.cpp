@@ -177,7 +177,8 @@ void Database::process() {
             // result in out of sync queries, for this reason the worker thread
             // is stored with the result, otherwise it is added back to the 
             // idle pool.
-            if (job->result->isMultiResult()) {
+            // A failed query (SQL error) has no result.
+            if (job->result && job->result->isMultiResult()) {
                 job->result->setWorkerReference(worker);
             } else {
                 idle_worker_queue_.push(worker);

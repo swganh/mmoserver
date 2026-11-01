@@ -1,0 +1,33 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "mmoserver",
+  "version": "3.0.0",
+  "description": "Star Wars Galaxies pre-CU server emulator",
+  "dependencies": [
+    "boost-asio",
+    "boost-date-time",
+    "boost-lexical-cast",
+    "boost-log",
+    "boost-optional",
+    "boost-pool",
+    "boost-program-options",
+    "boost-ptr-container",
+    "boost-regex",
+    "boost-thread",
+    "boost-unordered",
+    "glm",
+    "gtest",
+    "libnoise",
+    "lua51",
+    {
+      "name": "mysql-connector-cpp",
+      "default-features": false,
+      "features": [
+        "jdbc"
+      ]
+    },
+    "tbb",
+    "toluapp",
+    "zlib"
+  ]
+}

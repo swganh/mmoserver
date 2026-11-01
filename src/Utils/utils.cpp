@@ -165,6 +165,13 @@ int Anh_Utils::kbhit(void)
 #if defined(_MSC_VER)
     return _kbhit();
 #else
+    // Without a terminal there is no console input. Changing terminal
+    // settings from a background process would also get it stopped (SIGTTOU).
+    if (!isatty(STDIN_FILENO) || tcgetpgrp(STDIN_FILENO) != getpgrp())
+    {
+        return 0;
+    }
+
     struct termios oldt, newt;
     int ch;
     int oldf;

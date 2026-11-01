@@ -308,7 +308,7 @@ bool CraftingManager::HandleSelectDraftSchematic(Object* object,Object* target,M
 
     if(session)
     {
-        if(swscanf(dataStr.getUnicode16(),L"%u",&schematicIndex) != 1 || !session->selectDraftSchematic(schematicIndex))
+        if(swscanf(dataStr.getUnicode16().c_str(),L"%u",&schematicIndex) != 1 || !session->selectDraftSchematic(schematicIndex))
         {
             gCraftingSessionFactory->destroySession(session);
         }
@@ -482,7 +482,7 @@ bool CraftingManager::HandleNextCraftingStage(Object* object, Object* target,Mes
     }
     else
     {
-        uint32 resultCount = swscanf(dataStr.getUnicode16(),L"%u",&counter);
+        uint32 resultCount = swscanf(dataStr.getUnicode16().c_str(),L"%u",&counter);
         if(resultCount != 1)
         {
             gCraftingSessionFactory->destroySession(session);
@@ -549,7 +549,7 @@ bool CraftingManager::HandleCreatePrototype(Object* object, Object* target,Messa
 
     message->getStringUnicode16(dataStr);
 
-    if(swscanf(dataStr.getUnicode16(),L"%u %u",&counter,&mode) != 2)
+    if(swscanf(dataStr.getUnicode16().c_str(),L"%u %u",&counter,&mode) != 2)
     {
         gCraftingSessionFactory->destroySession(player->getCraftingSession());
         return false;
@@ -576,7 +576,7 @@ bool CraftingManager::HandleCreateManufactureSchematic(Object* object, Object* t
 
     message->getStringUnicode16(dataStr);
 
-    if(swscanf(dataStr.getUnicode16(),L"%u",&counter) != 1)
+    if(swscanf(dataStr.getUnicode16().c_str(),L"%u",&counter) != 1)
     {
         gCraftingSessionFactory->destroySession(player->getCraftingSession());
         return false;

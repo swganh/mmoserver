@@ -50,18 +50,29 @@ ActiveObject::~ActiveObject() {
 }
 
 void ActiveObject::Send(Message message) {
-    message_queue_.push(message);
+    {
+        // Push under the lock so the worker can't miss the notification between
+        // checking the queue and going to sleep.
+        boost::lock_guard<boost::mutex> lock(mutex_);
+        message_queue_.push(std::move(message));
+    }
     condition_.notify_one();
 }
 
 void ActiveObject::Run() {
     Message message;
 
-    boost::unique_lock<boost::mutex> lock(mutex_);
     while (! done_) {
-        if (condition_.timed_wait(lock, boost::get_system_time() + boost::posix_time::milliseconds(1),
-        		[this, &message] { return message_queue_.try_pop(message); })) {
-        	message();
+        {
+            // The wait predicate must be free of side effects: it can be evaluated
+            // more than once per wakeup, and popping inside it silently drops messages.
+            boost::unique_lock<boost::mutex> lock(mutex_);
+            condition_.wait(lock, [this] { return ! message_queue_.empty(); });
+        }
+
+        // Run the message without holding the lock so it may call Send() itself.
+        if (message_queue_.try_pop(message)) {
+            message();
         }
     }
 }

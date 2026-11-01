@@ -1,0 +1,113 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 25,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "linux-base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "vcpkg-base",
+      "hidden": true,
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+      "cacheVariables": {
+        "VCPKG_INSTALLED_DIR": "${sourceDir}/build/vcpkg_installed"
+      }
+    },
+    {
+      "name": "linux-debug",
+      "displayName": "Linux Debug (system packages)",
+      "inherits": "linux-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "linux-release",
+      "displayName": "Linux Release (system packages)",
+      "inherits": "linux-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "linux-vcpkg-debug",
+      "displayName": "Linux Debug (vcpkg, needs VCPKG_ROOT)",
+      "inherits": [ "linux-base", "vcpkg-base" ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "linux-vcpkg-release",
+      "displayName": "Linux Release (vcpkg, needs VCPKG_ROOT)",
+      "inherits": [ "linux-base", "vcpkg-base" ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "linux-debug", "configurePreset": "linux-debug" },
+    { "name": "linux-release", "configurePreset": "linux-release" },
+    { "name": "linux-vcpkg-debug", "configurePreset": "linux-vcpkg-debug" },
+    { "name": "linux-vcpkg-release", "configurePreset": "linux-vcpkg-release" }
+  ],
+  "testPresets": [
+    {
+      "name": "test-base",
+      "hidden": true,
+      "output": { "outputOnFailure": true },
+      "execution": { "noTestsAction": "error", "timeout": 120 }
+    },
+    { "name": "linux-debug", "inherits": "test-base", "configurePreset": "linux-debug" },
+    { "name": "linux-release", "inherits": "test-base", "configurePreset": "linux-release" },
+    { "name": "linux-vcpkg-debug", "inherits": "test-base", "configurePreset": "linux-vcpkg-debug" },
+    { "name": "linux-vcpkg-release", "inherits": "test-base", "configurePreset": "linux-vcpkg-release" }
+  ],
+  "workflowPresets": [
+    {
+      "name": "linux-debug",
+      "steps": [
+        { "type": "configure", "name": "linux-debug" },
+        { "type": "build", "name": "linux-debug" },
+        { "type": "test", "name": "linux-debug" }
+      ]
+    },
+    {
+      "name": "linux-release",
+      "steps": [
+        { "type": "configure", "name": "linux-release" },
+        { "type": "build", "name": "linux-release" },
+        { "type": "test", "name": "linux-release" }
+      ]
+    },
+    {
+      "name": "linux-vcpkg-debug",
+      "steps": [
+        { "type": "configure", "name": "linux-vcpkg-debug" },
+        { "type": "build", "name": "linux-vcpkg-debug" },
+        { "type": "test", "name": "linux-vcpkg-debug" }
+      ]
+    },
+    {
+      "name": "linux-vcpkg-release",
+      "steps": [
+        { "type": "configure", "name": "linux-vcpkg-release" },
+        { "type": "build", "name": "linux-vcpkg-release" },
+        { "type": "test", "name": "linux-vcpkg-release" }
+      ]
+    }
+  ]
+}

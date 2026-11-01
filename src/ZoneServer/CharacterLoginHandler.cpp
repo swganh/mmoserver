@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 
+#include "Utils/clock.h"
 #include "Utils/logger.h"
 
 #include "Common/BuildInfo.h"
@@ -158,12 +159,20 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
     PlayerObject*	playerObject;
     uint64			playerId = message->getUint64();
 
-	ObjectIDSet::iterator it = playerZoneList.find(playerId);
+	// Ignore repeats while this character's login is in progress. A login that
+	// failed part way (e.g. the character could not be loaded) never clears its
+	// entry, so after a while a new attempt is allowed instead of being
+	// ignored forever.
+	const uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
+	std::map<uint64, uint64>::iterator it = playerZoneList.find(playerId);
 	if(it != playerZoneList.end())	{
-		return;
+		if(now - it->second < 30000)	{
+			return;
+		}
+		LOG(WARNING) << "CharacterLoginHandler: retrying login of character " << playerId << " after an earlier attempt did not finish";
 	}
 
-	playerZoneList.insert(playerId);
+	playerZoneList[playerId] = now;
 
     // player already exists and is in logged state
 
@@ -206,7 +215,7 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
         playerObject->getHam()->checkForRegen();
         playerObject->getStomach()->checkForRegen();
 
-		ObjectIDSet::iterator it = playerZoneList.find(playerId);
+		std::map<uint64, uint64>::iterator it = playerZoneList.find(playerId);
 		if(it != playerZoneList.end())	{
 			it = playerZoneList.erase(it);
 		}
@@ -222,7 +231,7 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
         // Remove old client, if any.
         delete playerObject->getClient();
 
-		ObjectIDSet::iterator it = playerZoneList.find(playerId);
+		std::map<uint64, uint64>::iterator it = playerZoneList.find(playerId);
 		if(it != playerZoneList.end())	{
 			it = playerZoneList.erase(it);
 		}
@@ -361,7 +370,7 @@ void CharacterLoginHandler::handleObjectReady(Object* object,DispatchClient* cli
         gSpatialIndexManager->sendCreatePlayer(player,player);
 
 		//remove us from the loaders list
-		ObjectIDSet::iterator it = playerZoneList.find(player->getId());
+		std::map<uint64, uint64>::iterator it = playerZoneList.find(player->getId());
 		if(it != playerZoneList.end())	{
 			it = playerZoneList.erase(it);
 		}

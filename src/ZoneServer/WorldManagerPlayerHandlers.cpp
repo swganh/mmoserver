@@ -166,7 +166,8 @@ void WorldManager::storeCharacterAttributes_(PlayerObject* player_object, bool r
                  << "new_player_exemptions=" <<  static_cast<uint16_t>(player_object->getNewPlayerExemptions()) << " "
                  << "WHERE character_id=" << player_object->getId();
 
-    mDatabase->executeAsyncSql(query_stream.str(), [=, &clContainer] (DatabaseResult* result) {
+    // Capture by value: this runs after the function has returned.
+    mDatabase->executeAsyncSql(query_stream.str(), [=] (DatabaseResult* result) {
         if(remove) {
             if(!player_object) {
                 return;
@@ -180,9 +181,10 @@ void WorldManager::storeCharacterAttributes_(PlayerObject* player_object, bool r
             destroyObject(player_object);
         }
 
-        if(logout_type == WMLogOut_Char_Load && !clContainer) {
+        // The account's previous character is saved; now load the one it selected.
+        if(logout_type == WMLogOut_Char_Load && clContainer) {
             gObjectFactory->requestObject(ObjType_Player, 0, 0, clContainer->ofCallback, clContainer->mPlayerId, clContainer->mClient);
-            SAFE_DELETE(clContainer);
+            delete clContainer;
         }
     });
 }

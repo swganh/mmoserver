@@ -169,7 +169,9 @@ void Tutorial::warpToStartingLocation(BString startingLocation)
     asContainer->mQueryType = TutorialQuery_PlanetLocation;
     asContainer->mId = mPlayerObject->getId();
 
-    (gWorldManager->getDatabase())->executeSqlAsync(this,asContainer,"SELECT planet_id, x, y, z FROM %s.starting_location WHERE location LIKE '%s'",gWorldManager->getDatabase()->galaxy(), startingLocation.getAnsi());
+    // The name comes from the client: escape it and match exactly.
+    std::string location = gWorldManager->getDatabase()->escapeString(startingLocation.getAnsi());
+    (gWorldManager->getDatabase())->executeSqlAsync(this,asContainer,"SELECT planet_id, x, y, z FROM %s.starting_location WHERE location = '%s'",gWorldManager->getDatabase()->galaxy(), location.c_str());
     
 }
 
@@ -212,6 +214,13 @@ void Tutorial::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
     case TutorialQuery_PlanetLocation:
     {
         PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->mId));
+        // An unknown starting location returns no row; reading it anyway sent
+        // the player to a garbage planet id.
+        if (!result || !result->getRowCount())
+        {
+            LOG(WARNING) << "Tutorial: unknown starting location for player " << asyncContainer->mId;
+            break;
+        }
         if (player)
         {
             DataBinding* binding = gWorldManager->getDatabase()->createDataBinding(4);

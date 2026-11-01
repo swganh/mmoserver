@@ -224,7 +224,7 @@ void ObjectController::_handleNPCConversationSelect(uint64 targetId,Message* mes
 
     message->getStringUnicode16(dataStr);
 
-    if(swscanf(dataStr.getUnicode16(),L"%u",&selectId) != 1)
+    if(swscanf(dataStr.getUnicode16().c_str(),L"%u",&selectId) != 1)
     {
         DLOG(INFO) << "ObjController::handleNPCConversationSelect: Error in parameters";
         return;

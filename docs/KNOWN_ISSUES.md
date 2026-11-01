@@ -245,6 +245,20 @@ query (Tatooine logged the syntax error). Point names are escaped now.
 Still open: the ticket is paid for before it is created, so any failure
 keeps the credits. Charge on success instead.
 
+### 5l. Travel to another planet by ticket never happened — fix needs testing
+
+At the ticket collector the destination window opened, but OK did nothing.
+The ConnectionServer approved the transfer, then the zone saved the
+character and stopped: `WorldManager::savePlayer` (rewritten in an earlier
+refactor) no longer called back for a zone transfer, so the player was never
+handed to the destination zone, and it stored `planet_id=0` instead of the
+destination planet. The transfer now stores the position (destination
+planet, outside any building), then the attributes, then hands over. The
+ticket window's failure paths (surveying or sampling, no matching ticket,
+unknown travel point) now log the reason and tell the player instead of
+doing nothing. The tutorial's travel uses a different, synchronous path and
+was not affected.
+
 ### 5h. "Too many commands queued. A command was dropped." — open
 
 Seen repeatedly while fighting the tutorial bandit. The player's command

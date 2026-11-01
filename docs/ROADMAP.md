@@ -119,6 +119,9 @@ Remaining:
   (default 2), changed by hand in SQL today. `setup.sh` options for the
   default limit of new accounts and for one account's limit, so test servers
   can be generous; later the same in the management portal.
+- **Test-only terminals**: a configuration switch that removes the
+  character builder terminals on live servers and keeps them on test
+  centres.
 - **Docker Compose** stack (MariaDB plus servers) as an alternative to the
   manual install.
 - **Operations**: database backup and restore commands in `setup.sh`, log
@@ -193,6 +196,9 @@ from trusted networks or behind a login, never open by default.
   existing cluster protocol relayed by a portal backend.
 - **QA helpers**: issue reports from in game (with position and
   character), test-character presets, and server metrics (below).
+- **Terminal configuration**: a page to choose which terminals are placed
+  and what they offer (for example the character builder terminals, with
+  options added as features are tested).
 - Existing in-game admin and CSR commands should be inventoried first; the
   portal can reuse what they already do.
 

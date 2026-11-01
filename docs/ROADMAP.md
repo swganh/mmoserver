@@ -145,6 +145,13 @@ platforms (tolua++ built as part of the build, or sol2), Lua staying 5.1.
   `ZoneServer.cpp`, which the test layout expects in `main.cpp`), tests for
   the mechanics fixed during testing (health and death, posture, spawning,
   visibility), and a fuzz harness for `Message` parsing.
+- **Combat and creature AI review**: the creature state machines are
+  largely stripped (`AttackableCreature`, `LairObject`): lairs never spawn,
+  creatures barely react, and players stay in combat after their opponent
+  dies (`KNOWN_ISSUES.md` 5f, 5i, 5j).
+- **Memory**: a loop in Loot all ran a zone out of memory (#10). Keep memory
+  monitoring as standard: LeakSanitizer in CI, the memory log during client
+  tests, and memory per zone in the server metrics.
 - **Refactoring where the bugs were**: object creation and destruction
   sent to clients, the spatial grid (its bucket maths has negative-coordinate
   and size quirks; positions inside buildings are mirrored), the database

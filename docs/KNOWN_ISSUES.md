@@ -12,7 +12,7 @@ with a client), or **fixed**.
 
 ## Connection and stability
 
-### 1. Client disconnects 20-30 seconds after entering the tutorial — open
+### 1. Client disconnects 20-30 seconds after entering the tutorial — not seen since #10 was fixed
 
 After loading into the tutorial and standing idle, the client is
 disconnected. The zone keeps running with the player link-dead.
@@ -213,6 +213,27 @@ first time.
 
 Confirmed with a client: the tutorial bandit appears, fights, and the
 script continues after his grenade.
+
+### 5i. Still in combat after the opponent dies — open (workaround: `/peace`)
+
+After killing the tutorial bandit the player stays in combat, which blocks
+leaving the tutorial. When a creature dies, `die()` makes peace with its
+defenders (clears the defender lists, sets the Peace state) but, unlike the
+`/peace` command (`ObjectController::_handlePeace`), does not switch off the
+attacker's auto-attack, clear the combat target or resend the player's
+state. `/peace` or the Peace button gets the player out of combat. For the
+combat and creature AI review.
+
+### 5j. Lairs never spawn — open
+
+Tatooine has lairs in the database (two with a count of 25, spawning
+anywhere in the region from about -2200,-4700 to -1500,-3950), and they are
+loaded and queued, but none ever appears: `LairObject::handleState` only
+counts down the initial spawn delay in `State_LairUnspawned` and nothing
+then calls `spawn()` or moves the lair on; `handleEvents` only handles
+death. The same kind of missing state machine as `AttackableCreature`
+(5f). For the combat and creature AI review; spawning up to 50 lairs and
+their creature waves needs the creature AI to work.
 
 ### 5h. "Too many commands queued. A command was dropped." — open
 

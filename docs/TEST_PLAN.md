@@ -27,11 +27,6 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 | # | Area | What was wrong | How to test | Expect |
 |---|---|---|---|---|
 | T3 | Login | Refusals were silent [6] | If anything is refused at the galaxy screen | `connection.out` has a `Refusing account N: <reason>` line; send it to me |
-| T5 | Tutorial | Corpse looting; **Loot all** locked up the zone and ran it out of memory [10] | Kill the bandit, then on the corpse: (a) Loot, drag the melon to your inventory; (b) on another run, Loot all. Watch `tail ~/zone-mem.log` | Items arrive in your inventory; the corpse is empty; you leave combat; chat works; the tutorial zone stays near 120 MB |
-| T7 | World | Combat creatures never spawned (lairs) [5f] | On Tatooine, go to the lair area around **x −2200, z −4700** (about 1.4 km south-west of Bestine; `/waypoint -2200 -4700`) | Creatures from the lairs appear; attack one, it fights back a little and dies lying down |
-| T8 | Resources | A sample continued after its resource expired | Start sampling a resource, then expire it: `sudo mariadb swganh -e "UPDATE resources SET spawn_end=NOW() WHERE name='<name>'"`. Keep sampling for up to 10 minutes | Sampling stops with "no resource here" once the rotation runs |
-| T9 | Text | Client text garbled on Linux [2a] | Say something in spatial chat with punctuation and numbers; use an emote; examine an item | Text appears as typed; emote plays; attributes show |
-| T10 | Stability | Early disconnect in the tutorial [1] | Stand idle in the tutorial for 5 minutes | Still connected (not seen recently; may be fixed by the reconnect work) |
 | T11 | Stability | Overnight run with players | Leave a character logged in (not idle-kicked) on Tatooine overnight | All servers still running in the morning (`./server.sh status`) |
 
 ## Confirmed
@@ -63,8 +58,18 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 | Resources | Resources never rotated [5b] | Expired resource replaced while running (`Replaced 1 expired resources`) |
 | World | Tatooine NPCs | Patrol NPCs around Bestine |
 | World | Killed creatures stayed on screen (T6) | The bandit's corpse disappeared after a few minutes |
+| Tutorial | Looting the bandit; Loot all locked up the zone [10] (T5) | Loot shows the corpse's items and they can be taken; the zone stays responsive and near 120 MB. Still in combat afterwards: see KNOWN_ISSUES 5i (`/peace` works around it) |
+| Resources | A sample continued after its resource expired (T8) | Expired by hand while sampling: gone from the survey list, sampling stopped |
+| Text | Client text garbled on Linux [2a] (T9) | Chat with punctuation and numbers |
+| Stability | Early disconnect in the tutorial [1] (T10) | Idle in the tutorial, still connected and loaded |
 | Stability | Out-of-memory kill of the tutorial zone [10] | Reproduced with heaptrack: Loot all on the bandit's corpse; fixed, see T5 |
 | Stability | Idle memory | 22 hours with no client: every server at its fresh size (tutorial 116 MB, Tatooine 274 MB, ConnectionServer 137 MB), heaptrack peaks only startup allocations |
+
+## Not implemented yet
+
+| Test | Why |
+|---|---|
+| T7, lair creatures on Tatooine | No lair ever spawns: their state machine is stripped (KNOWN_ISSUES 5j). Deferred to the combat and creature AI review |
 
 ## Known open issues (not tested)
 

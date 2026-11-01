@@ -279,6 +279,34 @@ easier to match against protocol documentation.
   `getUInt(9)`, but column 9 of its SELECT is `parent_id` (`mission` is
   column 10). Looks like an off-by-one.
 
+## Memory
+
+### 10. A tutorial ZoneServer grew to 6.2 GB — open
+
+On 31 October the kernel killed the tutorial ZoneServer for using too much
+memory (`anon-rss:6264796kB`; fresh zones use 100-280 MB). Before that the
+VM swapped, the zone stalled past the 60 s link timeout (both the zone and
+the ConnectionServer dropped the link, and `Garbage Collection found a new
+stuck message! : 60` was logged), and the player in it was disconnected;
+issue #1 may be the same thing.
+
+Not reproduced so far: a whole tutorial playthrough under heaptrack ended at
+118 MB, and 22 hours idle with no client left every server at its fresh
+size, with heaptrack showing only startup allocations. A dead link with no
+player does not grow memory either (tested by freezing the
+ConnectionServer). That session differed by: running under gdb
+(`debug -g`), the login tests with the client killed mid-creation, and a
+character left idle in the tutorial after the bandit.
+
+To catch it, keep a memory log running during testing:
+
+```bash
+nohup bash -c 'while true; do echo "$(date +%T) $(ps -o rss=,args= -C ZoneServer | tr "\n" " ")"; sleep 60; done' >> ~/zone-mem.log 2>&1 &
+```
+
+and run the tutorial zone under heaptrack when repeating that session
+(`docs/TEST_PLAN.md` T12).
+
 ## Cosmetic
 
 ### 9. `MessageFactory Heap at <garbage>` log lines — open

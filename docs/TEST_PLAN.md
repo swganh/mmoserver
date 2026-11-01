@@ -26,16 +26,14 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 
 | # | Area | What was wrong | How to test | Expect |
 |---|---|---|---|---|
-| T2 | Login | A quick reconnect was refused for up to a minute [6]: first at login ("The Login Server is currently not available"), then at the galaxy ("not allowed to create any more characters") | Log in, go to character selection or creation, then **kill the client** without logging out. Start it again at once, log in, and create or select a character | Login works first time (`login.out`: no `Login failed`), and `connection.out` shows `Account N connected again; replacing its previous connection` |
 | T3 | Login | Refusals were silent [6] | If anything is refused at the galaxy screen | `connection.out` has a `Refusing account N: <reason>` line; send it to me |
-| T4 | Login | Characters with a surname couldn't be deleted | Delete a character with a surname by typing `delete First Last` | Deleted, no hidden space needed (the earlier test needed a trailing space; this checks the fixed build) |
-| T5 | Tutorial | Corpse looting | Kill the bandit, then radial menu on the corpse → Loot | A melon and blue milk |
-| T6 | World | Killed creatures stayed on screen | After killing the bandit, wait 3 to 5 minutes near the corpse (loot it or not) | The corpse disappears |
+| T5 | Tutorial | Corpse looting | Kill the bandit, then radial menu on the corpse → Loot | A melon and blue milk (first try: could not loot; retry and note what the radial menu shows) |
 | T7 | World | Combat creatures never spawned (lairs) [5f] | On Tatooine, go to the lair area around **x −2200, z −4700** (about 1.4 km south-west of Bestine; `/waypoint -2200 -4700`) | Creatures from the lairs appear; attack one, it fights back a little and dies lying down |
 | T8 | Resources | A sample continued after its resource expired | Start sampling a resource, then expire it: `sudo mariadb swganh -e "UPDATE resources SET spawn_end=NOW() WHERE name='<name>'"`. Keep sampling for up to 10 minutes | Sampling stops with "no resource here" once the rotation runs |
 | T9 | Text | Client text garbled on Linux [2a] | Say something in spatial chat with punctuation and numbers; use an emote; examine an item | Text appears as typed; emote plays; attributes show |
 | T10 | Stability | Early disconnect in the tutorial [1] | Stand idle in the tutorial for 5 minutes | Still connected (not seen recently; may be fixed by the reconnect work) |
 | T11 | Stability | Overnight run with players | Leave a character logged in (not idle-kicked) on Tatooine overnight | All servers still running in the morning (`./server.sh status`) |
+| T12 | Stability | A tutorial ZoneServer grew to 6.2 GB and was killed for using too much memory [10] | Keep the memory log running during testing (see [10] in KNOWN_ISSUES); repeat that session: login tests with the client killed mid-creation, a tutorial run to the bandit, then idle in the tutorial with the character still there | The zones stay near their fresh size (tutorial ~100-120 MB, Tatooine ~240-280 MB) |
 
 ## Confirmed
 
@@ -47,6 +45,8 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 | Launcher | `server.sh debug -g` stopped at gdb's debuginfod prompt | Servers run under gdb in tmux |
 | Galaxy | Galaxy stuck on "Loading..." (ChatServer race) | Galaxy online |
 | Login | LoginServer crashed after a character was deleted | Deletes work |
+| Login | Quick reconnect after killing the client refused, at login and at the galaxy [6] (T2) | Killed the client at profession selection, logged straight back in and created a character; `connection.out`: `Account 31 connected again; replacing its previous connection`; no `Login failed` |
+| Login | Characters with a surname couldn't be deleted (T4) | `delete First Last` on the fixed build |
 | Login | No character creation after a delete until logging in again [6] (T1) | Deleted and created twice without logging out; both loaded into Tatooine |
 | Login | Characters with a surname couldn't be deleted | Typing the hidden trailing space deleted one (diagnosis); see T4 for the fixed build |
 | Stability | Zone crash on reconnect [2] | Disconnect and reconnect, no crash |
@@ -63,6 +63,8 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 | Resources | Survey and sample | Resources found, samples taken at good concentrations |
 | Resources | Resources never rotated [5b] | Expired resource replaced while running (`Replaced 1 expired resources`) |
 | World | Tatooine NPCs | Patrol NPCs around Bestine |
+| World | Killed creatures stayed on screen (T6) | The bandit's corpse disappeared after a few minutes |
+| Stability | Idle memory | 22 hours with no client: every server at its fresh size (tutorial 116 MB, Tatooine 274 MB, ConnectionServer 137 MB), heaptrack peaks only startup allocations |
 
 ## Known open issues (not tested)
 

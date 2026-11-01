@@ -235,6 +235,16 @@ death. The same kind of missing state machine as `AttackableCreature`
 (5f). For the combat and creature AI review; spawning up to 50 lairs and
 their creature waves needs the creature AI to work.
 
+### 5k. Travel tickets to points with an apostrophe were never created — fix needs testing
+
+Buying a ticket from Tatooine to Lok's "Nym's Stronghold" took the credits
+but no ticket appeared: `ObjectFactory::requestNewTravelTicket` put the
+travel point names into the SQL unescaped, and the apostrophe broke the
+query (Tatooine logged the syntax error). Point names are escaped now.
+
+Still open: the ticket is paid for before it is created, so any failure
+keeps the credits. Charge on success instead.
+
 ### 5h. "Too many commands queued. A command was dropped." — open
 
 Seen repeatedly while fighting the tutorial bandit. The player's command

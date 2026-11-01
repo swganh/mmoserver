@@ -168,6 +168,17 @@ NPCs and quests from the sources above and write them as scripts and data;
 generating object data from the client's files (as swganh did for its
 templates).
 
+**Client data extraction tool.** Reads the client's `.tre` archives once
+(IFF templates, datatables, string files, terrain) and fills or checks the
+database tables, so servers don't need the client files at runtime and the
+data can be traced to the client. Each row records which client files and
+version it came from. This also lets communities add content from the
+expansions (Jump to Lightspeed, Rage of the Wookiees, Trials of Obi-Wan),
+with one limit: the server can only use what the players' installed client
+has, since the client draws everything itself. Content from a later client
+than the one the server supports also needs that client's protocol changes,
+so it is a per-server choice, not a default.
+
 ## Phase 5: pre-CU gameplay
 
 From the code review: combat first (the heart of pre-CU and thin today),

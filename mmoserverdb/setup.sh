@@ -350,8 +350,11 @@ allow_host() {
     echo "Remaining steps on this machine:"
     if [[ -z $bind || $bind == 127.0.0.1 || $bind == localhost || $bind == ::1 ]]; then
         echo "  - MariaDB only listens on this machine (bind-address = ${bind:-127.0.0.1})."
-        echo "    Set bind-address to this machine's LAN address (or 0.0.0.0) in"
-        echo "    /etc/mysql/mariadb.conf.d/50-server.cnf, then: sudo systemctl restart mariadb"
+        echo "    Add this machine's LAN address, keeping 127.0.0.1 for the local servers"
+        echo "    (MariaDB 10.11 and later take a list), in"
+        echo "    /etc/mysql/mariadb.conf.d/50-server.cnf:"
+        echo "      bind-address = 127.0.0.1,<this machine's LAN address>"
+        echo "    then: sudo systemctl restart mariadb"
     else
         echo "  - MariaDB listens on $bind: nothing to change."
     fi

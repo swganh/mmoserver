@@ -56,8 +56,10 @@ sudo ./mmoserverdb/setup.sh allow-host 192.168.1.128
 
 This lets the `swganh` database user connect from that address only, with the
 same password as the local servers, and prints the rest: MariaDB listens only
-on the Linux machine by default (`bind-address`), and with `ufw` enabled the
-port has to be opened to the PC. `deny-host` undoes it. Never open port 3306
+on the Linux machine by default, so add its LAN address to `bind-address`
+while keeping `127.0.0.1` for the local servers
+(`bind-address = 127.0.0.1,192.168.1.239`), and with `ufw` enabled the port
+has to be opened to the PC. `deny-host` undoes it. Never open port 3306
 to the internet.
 
 ### Anywhere else: an SSH tunnel

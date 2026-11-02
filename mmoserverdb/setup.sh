@@ -32,6 +32,10 @@ Commands:
   set-address ADDR        Change the address game clients use to reach this
                           server (same as --public-address at install)
   apply-config DIR        Copy the settings in local.cfg into DIR/general.cfg
+  allow-host ADDR         Let the '$db_user' database user connect from another
+                          machine, such as a Windows development PC
+                          (docs/WINDOWS.md); prints the remaining steps
+  deny-host ADDR          Undo allow-host
   update-procedures       Reload the stored procedures and functions into an
                           existing database (after pulling SQL fixes); data is
                           not touched
@@ -305,6 +309,74 @@ add_account() {
     echo "Account '$name' created."
 }
 
+# --- allow-host / deny-host ---------------------------------------------------
+
+local_cfg_value() {
+    [[ -f $local_cfg ]] || die "$local_cfg not found; run '$(basename "$0") install' first"
+    sed -n "s/^[[:space:]]*$1[[:space:]]*=[[:space:]]*//p" "$local_cfg" | tail -n 1
+}
+
+check_host() {
+    # An address, a host name, or a MariaDB pattern such as 192.168.1.%.
+    [[ $1 =~ ^[A-Za-z0-9.:%_-]+$ ]] || die "invalid host '$1'"
+    [[ $1 == % ]] && die "refusing to allow every host; name the development machine"
+    case $1 in localhost|127.0.0.1) die "'$1' is set up by install already" ;; esac
+    return 0
+}
+
+allow_host() {
+    [[ $# -eq 1 ]] || die "usage: $(basename "$0") allow-host ADDR"
+    local host=$1
+    check_host "$host"
+    check_connection
+    local password
+    password=$(local_cfg_value DBPass)
+    [[ $password ]] || die "no DBPass in $local_cfg"
+
+    # Same user and password as the local servers, so the development
+    # machine uses the same general.cfg settings apart from DBServer.
+    local grants="CREATE USER IF NOT EXISTS '$db_user'@'$host';"
+    grants+="ALTER USER '$db_user'@'$host' IDENTIFIED BY '$password';"
+    local db
+    for db in "${databases[@]}"; do
+        grants+="GRANT ALL PRIVILEGES ON \`$db\`.* TO '$db_user'@'$host';"
+    done
+    sql -e "$grants FLUSH PRIVILEGES;"
+    echo "Database user '$db_user' may now connect from $host."
+
+    local bind
+    bind=$(sql -N -e "SELECT @@GLOBAL.bind_address" 2>/dev/null || true)
+    echo
+    echo "Remaining steps on this machine:"
+    if [[ -z $bind || $bind == 127.0.0.1 || $bind == localhost || $bind == ::1 ]]; then
+        echo "  - MariaDB only listens on this machine (bind-address = ${bind:-127.0.0.1})."
+        echo "    Set bind-address to this machine's LAN address (or 0.0.0.0) in"
+        echo "    /etc/mysql/mariadb.conf.d/50-server.cnf, then: sudo systemctl restart mariadb"
+    else
+        echo "  - MariaDB listens on $bind: nothing to change."
+    fi
+    if command -v ufw >/dev/null && LC_ALL=C ufw status 2>/dev/null | grep -q '^Status: active'; then
+        echo "  - Open the port to $host only:"
+        echo "      sudo ufw allow from ${host//%/0/24} to any port 3306 proto tcp"
+    fi
+    echo "  Never open port 3306 to the internet. Over an untrusted network, use an"
+    echo "  SSH tunnel instead (docs/WINDOWS.md)."
+    echo
+    echo "On the development machine, set in build\\<preset>\\bin\\config\\general.cfg:"
+    echo "  DBServer = <this machine's address>"
+    echo "  DBPort = $(local_cfg_value DBPort)"
+    echo "  DBUser = $(local_cfg_value DBUser)"
+    echo "  DBPass = (the DBPass in mmoserverdb/local.cfg on this machine)"
+}
+
+deny_host() {
+    [[ $# -eq 1 ]] || die "usage: $(basename "$0") deny-host ADDR"
+    check_host "$1"
+    check_connection
+    sql -e "DROP USER IF EXISTS '$db_user'@'$1'; FLUSH PRIVILEGES;"
+    echo "Database user '$db_user' may no longer connect from $1."
+}
+
 # --- update-procedures --------------------------------------------------------
 
 # Prints "FUNCTION name" or "PROCEDURE name" for the routine a file creates.
@@ -384,6 +456,8 @@ case "$command" in
         echo "Stored procedures and functions updated."
         ;;
     spawn-resources) spawn_resources "$@" ;;
+    allow-host) allow_host "$@" ;;
+    deny-host) deny_host "$@" ;;
     -h|--help|help) usage ;;
     *) echo "error: unknown command '$command'" >&2; usage >&2; exit 2 ;;
 esac

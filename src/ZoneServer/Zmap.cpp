@@ -125,8 +125,9 @@ bool zmap::isObjectInRegionBoundary_(Object* object, shared_ptr<RegionObject> re
 
 
 void zmap::addRegion(std::shared_ptr<RegionObject> region) {
-    uint32_t low_x = region->mPosition.x;
-    uint32_t low_z = region->mPosition.z;
+    // float, not uint32: regions can start at negative coordinates.
+    float low_x = region->mPosition.x;
+    float low_z = region->mPosition.z;
     uint32_t width = region->getWidth();
     uint32_t height = region->getHeight();
 
@@ -211,7 +212,16 @@ void zmap::RemoveRegion(uint64 regionId) {
 
 uint32 zmap::_getCellId(float x, float z)
 {
-    return zmap_lookup[( ( ((uint32)z) + (MAPWIDTH/2) )/GRIDWIDTH)][((((uint32)x) + (MAPHEIGHT/2))/GRIDHEIGHT)];
+    // Convert through a signed integer: a negative float converted straight
+    // to an unsigned one is undefined. GCC happened to wrap it (and adding
+    // half the map size wrapped it back); MSVC does not, and the index left
+    // the table (an access violation as soon as an NPC moved at negative
+    // coordinates). Positions off the map use the edge cells.
+    int32 row = (static_cast<int32>(z) + (MAPWIDTH/2)) / GRIDWIDTH;
+    int32 column = (static_cast<int32>(x) + (MAPHEIGHT/2)) / GRIDHEIGHT;
+    row = std::max(0, std::min(row, GRIDWIDTH));
+    column = std::max(0, std::min(column, GRIDHEIGHT));
+    return zmap_lookup[row][column];
 }
 
 

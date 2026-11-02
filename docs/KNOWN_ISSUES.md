@@ -388,3 +388,15 @@ For reference; details are in the commit messages on `phase2-db-installer`.
   over the drum: fly text cast its source to a creature (null for a
   container). Fly text in instances also only reached grouped players.
 - Missing `sp_DeleteMail`; SQL procedures broken by earlier bulk edits.
+
+### 11. Zones crashed on Windows as soon as an NPC moved at negative coordinates — fixed
+
+`zmap::_getCellId` converted a negative float position straight to an
+unsigned integer, which C++ leaves undefined. GCC happened to wrap it, and
+adding half the map size wrapped it back to the right grid cell, so Linux
+worked; MSVC did not, the index left the lookup table and the Tatooine zone
+died with an access violation right after startup. It now converts through a
+signed integer and clamps to the grid (the same cells as before for every
+position on the map). `zmap::addRegion` stored region positions in unsigned
+integers too, which put regions starting at negative coordinates in the
+wrong cells on Linux as well.

@@ -240,15 +240,22 @@ jobs:
           key: vcpkg-windows-2025-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'tools/vcpkg/ports/**') }}-${{ github.run_id }}
           restore-keys: vcpkg-windows-2025-
 
-      # The presets use Ninja and cl from the Visual Studio developer
-      # environment, as Visual Studio itself does.
-      - name: Set up the MSVC developer environment
-        uses: ilammy/msvc-dev-cmd@v1
-        with:
-          arch: x64
+      - name: Check the PowerShell scripts parse
+        shell: pwsh
+        run: |
+          $failed = $false
+          foreach ($f in git ls-files '*.ps1') {
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $f).Path, [ref]$null, [ref]$errors) | Out-Null
+            foreach ($e in $errors) { Write-Host "${f}:$($e.Extent.StartLineNumber): $($e.Message)"; $failed = $true }
+          }
+          if ($failed) { exit 1 }
 
+      # build_server.ps1 finds Visual Studio and enters its developer
+      # environment itself, as on a developer's machine.
       - name: Build and test
-        run: cmake --workflow --preset windows-debug
+        shell: pwsh
+        run: .\build_server.ps1 -Test
 
       - name: Check the runtime data was staged
         shell: pwsh

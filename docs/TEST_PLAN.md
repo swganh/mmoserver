@@ -27,7 +27,6 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 | # | Area | What was wrong | How to test | Expect |
 |---|---|---|---|---|
 | T3 | Login | Refusals were silent [6] | If anything is refused at the galaxy screen | `connection.out` has a `Refusing account N: <reason>` line; send it to me |
-| T11 | Stability | Overnight run with players | Leave a character logged in (not idle-kicked) on Tatooine overnight | All servers still running in the morning (`./server.sh status`) |
 
 ## Confirmed
 
@@ -64,6 +63,7 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 | Stability | Early disconnect in the tutorial [1] (T10) | Idle in the tutorial, still connected and loaded |
 | Stability | Out-of-memory kill of the tutorial zone [10] | Reproduced with heaptrack: Loot all on the bandit's corpse; fixed, see T5 |
 | Travel | Tickets to "Nym's Stronghold" never created [5k]; boarding a cross-planet shuttle did nothing [5l] | Bought a Bestine Starport to Nym's Stronghold ticket and landed on Lok |
+| Stability | Overnight run with a player (T11) | Character logged in on Lok overnight with tutorial, Tatooine and Lok zones under gdb: all seven servers running in the morning, the player still in Lok's saves, no crash, zone memory flat at its fresh size (tutorial 106 MB, Tatooine 274 MB, Lok 239 MB) |
 | Stability | Idle memory | 22 hours with no client: every server at its fresh size (tutorial 116 MB, Tatooine 274 MB, ConnectionServer 137 MB), heaptrack peaks only startup allocations |
 
 ## Not implemented yet

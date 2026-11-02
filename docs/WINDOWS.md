@@ -169,3 +169,10 @@ versions side by side, and a developer prompt may be set to an older one.
 reconfigures a build directory made with another; run it again (with
 `-Clean` if in doubt). When building from Visual Studio itself, make sure the
 newest "MSVC v143 build tools (Latest)" component is the default toolset.
+
+**`-Solution` fails to link with the same errors** when an older MSVC is
+installed side by side and is Visual Studio's default toolset: MSBuild uses
+the default rather than the newest. Not solved yet; use the Ninja build
+(`build_server.ps1` without `-Solution`), or remove the older "MSVC v143
+build tools (v14.xx)" component in the Visual Studio Installer if nothing
+else needs it.

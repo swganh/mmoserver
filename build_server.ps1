@@ -69,6 +69,14 @@ if (-not (Get-Command cl.exe -ErrorAction SilentlyContinue)) {
     Enter-VsDevShell -VsInstallPath $vsPath -SkipAutomaticLocation -DevCmdArguments '-arch=x64 -host_arch=x64' | Out-Null
     if ($chosenVcpkg) { $env:VCPKG_ROOT = $chosenVcpkg }
 }
+# vcpkg picks a Visual Studio by itself, which can be a different (newer)
+# one than this environment's when several are installed; libraries built
+# by a newer compiler then fail to link with "unresolved external symbol
+# __std_...". Make vcpkg use this environment's Visual Studio.
+if ($env:VSINSTALLDIR) {
+    $env:VCPKG_VISUAL_STUDIO_PATH = $env:VSINSTALLDIR.TrimEnd('\')
+}
+if ($env:VCToolsVersion) { Write-Host "Using MSVC $env:VCToolsVersion" }
 foreach ($tool in 'cl.exe', 'cmake.exe', 'ninja.exe') {
     if (-not (Get-Command $tool -ErrorAction SilentlyContinue)) {
         throw "$tool not found in the Visual Studio developer environment. Install the `"C++ CMake tools for Windows`" component."

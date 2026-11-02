@@ -138,3 +138,12 @@ arguments:
 
 Press F5. Visual Studio keeps this in `.vs\launch.vs.json`, which is not in
 version control.
+
+## Troubleshooting
+
+**`unresolved external symbol __std_search_1`** (or `__std_find_end_1`,
+`_Thrd_sleep_for`) when linking: the vcpkg libraries were built by a newer
+MSVC than the one compiling the servers, which happens when more than one
+Visual Studio (or Build Tools) is installed. `build_server.ps1` makes vcpkg
+use the same Visual Studio as the build; update Visual Studio to its latest
+version in the Visual Studio Installer, then build again with `-Clean`.

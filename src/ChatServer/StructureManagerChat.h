@@ -40,13 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <queue>
 #include <vector>
 
-#if defined(__GNUC__)
-// GCC implements tr1 in the <tr1/*> headers. This does not conform to the TR1
-// spec, which requires the header without the tr1/ prefix.
-#include <tr1/memory>
-#else
 #include <memory>
-#endif
 
 #define	gStructureManager	StructureManager::getSingletonPtr()
 
@@ -70,7 +64,7 @@ struct HarvesterItem;
 //typedef std::vector<Bazaar*>		BazaarList;
 
 typedef std::vector<HarvesterItem*>					HarvesterList;
-typedef std::vector<std::tr1::shared_ptr<Timer> >	TimerList;
+typedef std::vector<std::shared_ptr<Timer> >	TimerList;
 //typedef std::vector<HarvesterHopperItem*>			HopperResourceList;
 
 

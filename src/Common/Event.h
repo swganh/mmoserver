@@ -206,7 +206,7 @@ private:
  */
 bool CompareEventWeightLessThan(const IEvent& lhs, const IEvent& rhs);
 
-struct CompareEventWeightLessThanPredicate : public std::binary_function<std::shared_ptr<IEvent>, std::shared_ptr<IEvent>, bool> {
+struct CompareEventWeightLessThanPredicate {
     bool operator() (const std::shared_ptr<const IEvent>& lhs, const std::shared_ptr<const IEvent>& rhs) {
         return CompareEventWeightLessThan(*lhs, *rhs);
     }
@@ -224,7 +224,7 @@ struct CompareEventWeightLessThanPredicate : public std::binary_function<std::sh
  */
 bool CompareEventWeightGreaterThan(const IEvent& lhs, const IEvent& rhs);
 
-struct CompareEventWeightGreaterThanPredicate : public std::binary_function<std::shared_ptr<IEvent>, std::shared_ptr<IEvent>, bool> {
+struct CompareEventWeightGreaterThanPredicate {
     bool operator() (const std::shared_ptr<const IEvent>& lhs, const std::shared_ptr<const IEvent>& rhs) {
         return CompareEventWeightGreaterThan(*lhs, *rhs);
     }

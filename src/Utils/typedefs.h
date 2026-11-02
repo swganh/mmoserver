@@ -90,21 +90,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_SERVER_PACKET_SIZE  1400  //
 #define MAX_UNRELIABLE_PACKET_SIZE  300  //
 
-#if defined(__WIN32__) || defined(_WIN32)
-
-typedef __int8            int8;
-typedef __int16           int16;
-typedef __int32           int32;
-typedef __int64           int64;
-typedef unsigned __int32  uint;
-typedef unsigned __int8   uint8;
-typedef unsigned __int16  uint16;
-typedef unsigned __int32  uint32;
-typedef unsigned __int64  uint64;
-
-#else
+// Fixed-width types and their printf formats, the same on every platform:
+// MSVC has had <cstdint>, <cinttypes> and a standard printf since 2015.
+#if !defined(__STDC_FORMAT_MACROS)
+#define __STDC_FORMAT_MACROS
+#endif
 
 #include <cstdint>
+#include <cinttypes>
 
 typedef char		int8;
 typedef int16_t		int16;
@@ -122,70 +115,22 @@ typedef int32_t		sint32;
 typedef int64_t		int64;
 typedef uint64_t  	uint64;
 typedef int64_t		sint64;
-#endif
 
-typedef unsigned SOCKET;
-
-// Windows and unix handle their long long specifiers differently since windows doesn't
-// fully support C99. To make everything play nicely across platforms we define our own
-// constants.
-#if defined(_MSC_VER) || defined(__MINGW32__) || defined(__MINGW64__)
-
-#if !defined(PRId32)
-#define PRId32 "I32d"
-#endif
-
-#if !defined(PRIu32)
-#define PRIu32 "I32u"
-#endif
-
-#if !defined(PRIx32)
-#define PRIx32 "I32x"
-#endif
-
-#if !defined(PRId64)
-#define PRId64 "I64d"
-#endif
-
-#if !defined(PRIu64)
-#define PRIu64 "I64u"
-#endif
-
-#if !defined(PRIx64)
-#define PRIx64 "I64x"
-#endif
-
-#define WidePRId32 L"I32d"
-#define WidePRIu32 L"I32u"
-#define WidePRIx32 L"I32x"
-#define WidePRId64 L"I64d"
-#define WidePRIu64 L"I64u"
-#define WidePRIx64 L"I64x"
-
-// Else we're on a platform that handles this stuff correctly.
+// Winsock's SOCKET is pointer-sized; elsewhere a socket is an int.
+#if defined(_WIN32)
+typedef uintptr_t SOCKET;
 #else
-
-#if (defined(_INTTYPES_H) || defined(_INTTYPES_H_)) && !defined(PRId64)
-#error "inttypes.h has already been included before this header file, but "
-#error "without __STDC_FORMAT_MACROS defined."
+typedef unsigned SOCKET;
 #endif
 
-#if !defined(__STDC_FORMAT_MACROS)
-#define __STDC_FORMAT_MACROS
-#endif
-
-#include <inttypes.h>
-
-// GCC will concatenate wide and narrow strings correctly, so nothing needs to
-// be done here.
+// A wide string literal followed by a narrow one is wide (C++11), so the
+// standard formats work in wide strings too.
 #define WidePRId32 PRId32
 #define WidePRIu32 PRIu32
 #define WidePRIx32 PRIx32
 #define WidePRId64 PRId64
 #define WidePRIu64 PRIu64
 #define WidePRIx64 PRIx64
-
-#endif
 
 //
 // Common macros

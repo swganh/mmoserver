@@ -32,11 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <functional>
 #include <map>
 
-#ifdef _MSC_VER
-#include <functional>  // NOLINT
-#else
-#include <tr1/functional>  // NOLINT
-#endif
+#include <functional>
 
 #include "Utils/typedefs.h"
 #include "ScriptEngine/ScriptEventListener.h"

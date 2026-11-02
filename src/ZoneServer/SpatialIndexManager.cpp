@@ -75,6 +75,23 @@ SpatialIndexManager::SpatialIndexManager()
 
 }
 
+//======================================================================================================================
+//
+// The grid lists creatures and players before other objects, but a creature
+// in a building's cell can only be placed by the client once it has the
+// building and its cells; otherwise it is left outside, invisible from inside.
+// Order a list of objects to create so buildings and other objects come first.
+//
+
+static void putParentsFirst(ObjectListType* list)
+{
+    std::stable_partition(list->begin(), list->end(), [] (Object* object) {
+        return object->getType() != ObjType_Creature
+            && object->getType() != ObjType_NPC
+            && object->getType() != ObjType_Player;
+    });
+}
+
 //=================================================
 //adds a new object to the grid
 //creates the object for all players in range
@@ -131,6 +148,7 @@ bool SpatialIndexManager::_AddObject(PlayerObject *player)
 
     ObjectListType playerList;
     getGrid()->GetViewingRangeCellContents(finalBucket, &playerList,(Bucket_Creatures|Bucket_Objects|Bucket_Players));
+    putParentsFirst(&playerList);
 
     for(ObjectListType::iterator i = playerList.begin(); i != playerList.end(); i++)    {
         //we just added ourselves to the grid - dont send a create to ourselves
@@ -768,6 +786,7 @@ void SpatialIndexManager::_UpdateFrontCells(Object* updateObject, uint32 oldCell
 // iterate through all Objects and create them and register them as necessary
 void SpatialIndexManager::_ObjectCreationIteration(std::list<Object*>* FinalList, Object* updateObject)
 {
+    putParentsFirst(FinalList);
 
     for(std::list<Object*>::iterator i = FinalList->begin(); i != FinalList->end(); i++)	{
         _CheckObjectIterationForCreation((*i),updateObject);
@@ -837,6 +856,30 @@ void SpatialIndexManager::createInWorld(CreatureObject* creature)
     cell->addObjectSecure(creature);
 }
 
+
+//======================================================================================================================
+//
+// Creatures loaded with a building (persistent NPCs in its cells) are added to
+// their cells by the cell factory, but not to the grid: their world position
+// depends on the building, which isn't in the world yet at that point. Call
+// this once it is, or players never get them.
+//
+
+void SpatialIndexManager::addCellCreaturesToGrid(BuildingObject* building)
+{
+    CellObjectList* cell_list = building->getCellList();
+
+    std::for_each(cell_list->begin(), cell_list->end(), [this] (CellObject* cell) {
+        ObjectIDList* content_list = cell->getObjects();
+
+        std::for_each(content_list->begin(), content_list->end(), [this] (uint64_t object_id) {
+            Object* object = gWorldManager->getObjectById(object_id);
+            if(object && (object->getType() == ObjType_NPC || object->getType() == ObjType_Creature)) {
+                _AddObject(object);
+            }
+        });
+    });
+}
 
 void SpatialIndexManager::createInWorld(PlayerObject* player)
 {
@@ -1134,6 +1177,7 @@ bool SpatialIndexManager::InitializeObject(PlayerObject *player) {
 
     ObjectListType player_list;
     getGrid()->GetViewingRangeCellContents(player->getGridBucket(), &player_list, (Bucket_Creatures|Bucket_Objects|Bucket_Players));
+    putParentsFirst(&player_list);
 
     std::for_each(player_list.begin(), player_list.end(), [this, player] (Object* object) {
         if (object->getId() == player->getId()) {

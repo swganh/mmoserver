@@ -82,6 +82,9 @@ private:
     void                        _processClusterZoneTransferCharacter(ConnectionClient* client, Message* message);
 
     void                        _handleQueryAuth(ConnectionClient* client, DatabaseResult* result);
+
+
+    void                        _notifyClientDisconnected(ConnectionClient* client);
     void                        _processAllowedChars(DatabaseCallback* callback,ConnectionClient* client);
 
     Service*                    mClientService;

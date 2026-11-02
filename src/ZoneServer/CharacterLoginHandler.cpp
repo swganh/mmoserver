@@ -420,10 +420,21 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket(Message*
     {
         // remove the ticket from the DB so they can't use it again.
         TravelTicket* ticket	= dynamic_cast<TravelTicket*>(dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjectById(ticketId));
+        if(!ticket)
+        {
+            LOG(WARNING) << "Transfer approved but ticket " << ticketId << " is not in the inventory of " << playerObject->getId();
+            return;
+        }
         BString dstPointStr		= (int8*)((ticket->getAttribute<std::string>("travel_arrival_point")).c_str());
         uint16 dstPlanetId		= static_cast<uint16>(gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_arrival_planet")).c_str())));
 
         TravelPoint* dstPoint = gTravelMapHandler->getTravelPoint(dstPlanetId,dstPointStr);
+        if(!dstPoint)
+        {
+            LOG(WARNING) << "Transfer approved but travel point " << dstPointStr.getAnsi() << " on planet " << dstPlanetId << " is unknown";
+            return;
+        }
+        LOG(INFO) << "Transfer approved: player " << playerObject->getId() << " to " << dstPointStr.getAnsi() << " on planet " << dstPlanetId;
 
 //		uint64 playerId = playerObject->getId();
 
@@ -490,6 +501,7 @@ void CharacterLoginHandler::_processClusterZoneTransferDenied(Message* message, 
     // put it to the disconnected list
     if((playerObject = gWorldManager->getPlayerByAccId(message->getAccountId())) != NULL)
     {
+        LOG(WARNING) << "Transfer denied for player " << playerObject->getId() << ": destination zone not running";
         gMessageLib->SendSystemMessage(L"The Emperor has restricted travel to this planet at this time.", playerObject);
     }
 }

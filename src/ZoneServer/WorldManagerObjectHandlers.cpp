@@ -203,6 +203,10 @@ bool WorldManager::addObject(Object* object,bool manual)
 			
 			//create the building in the world
 			gSpatialIndexManager->createInWorld(object);
+
+			// and the NPCs that were loaded in its cells
+			if(building)
+				gSpatialIndexManager->addCellCreaturesToGrid(building);
 		}
 		break;
 
@@ -367,15 +371,11 @@ void WorldManager::destroyObject(Object* object)
 			// remove any timers we got running
 			removeCreatureHamToProcess(creature->getHam()->getTaskId());
 
-			// Take the creature out of the cell it stands in; cells keep ids of
-			// their contents, and stale ids end up in building content lists.
-			if(creature->getParentId())
-			{
-				if(CellObject* cell = dynamic_cast<CellObject*>(getObjectById(creature->getParentId())))
-				{
-					cell->removeObject(creature);
-				}
-			}
+			// Take the creature out of the world: off the grid, out of its cell
+			// (cells keep ids of their contents, and stale ids end up in
+			// building content lists), and gone from the clients that see it.
+			// Without this, killed creatures stayed on screen.
+			gSpatialIndexManager->RemoveObjectFromWorld(creature);
 
 			// if its a shuttle, remove it from the shuttle list
 			if(creature->getCreoGroup() == CreoGroup_Shuttle)

@@ -155,8 +155,56 @@ NetworkClient* ClientManager::handleSessionConnect(Session* session, Service* se
 
 void ClientManager::handleSessionDisconnect(NetworkClient* client)
 {
-    Message* message;
     ConnectionClient* connClient = reinterpret_cast<ConnectionClient*>(client);
+
+    // Taken over by a newer connection of the same account, which already
+    // told the other servers; just free it.
+    if (connClient->isReplaced())
+    {
+        delete connClient;
+        return;
+    }
+
+    // Only the account's current connection speaks for it. A connection that
+    // was refused (or never finished logging in) must not log the account
+    // out or disconnect its real session on the other servers.
+    boost::recursive_mutex::scoped_lock lk(mServiceMutex);
+    PlayerClientMap::iterator iter = mPlayerClientMap.find(connClient->getAccountId());
+
+    if(iter == mPlayerClientMap.end() || (*iter).second != connClient)
+    {
+        // Refused (ended): nothing refers to it any more. Otherwise its login
+        // query is still running; mark it ended so the result frees it.
+        if (connClient->getState() == CCState_End)
+        {
+            delete connClient;
+        }
+        else
+        {
+            connClient->setState(CCState_End);
+        }
+        return;
+    }
+
+    mPlayerClientMap.erase(iter);
+    lk.unlock();
+
+    _notifyClientDisconnected(connClient);
+
+    // Update the account record that the account is logged out.
+    mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_AccountStatusUpdate(%u, %u);",mDatabase->galaxy(), 0, connClient->getAccountId());
+
+    delete connClient;
+}
+
+//======================================================================================================================
+//
+// Tell the chat server and the client's zone that the account disconnected.
+//
+
+void ClientManager::_notifyClientDisconnected(ConnectionClient* connClient)
+{
+    Message* message;
 
     // Create a ClusterClientDisconnect message and send it to the servers
     gMessageFactory->StartMessage();
@@ -179,20 +227,6 @@ void ClientManager::handleSessionDisconnect(NetworkClient* client)
     message->setDestinationId(static_cast<uint8>(connClient->getServerId()));  // zone server
     message->setRouted(true);
     mMessageRouter->RouteMessage(message, connClient);
-
-    // Update the account record that the account is logged out.
-    mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_AccountStatusUpdate(%u, %u);",mDatabase->galaxy(), 0, connClient->getAccountId());
-
-    // Client has disconnected.
-
-    boost::recursive_mutex::scoped_lock lk(mServiceMutex);
-    PlayerClientMap::iterator iter = mPlayerClientMap.find(connClient->getAccountId());
-
-    if(iter != mPlayerClientMap.end())
-    {
-        delete ((*iter).second);
-        mPlayerClientMap.erase(iter);
-    }
 }
 
 
@@ -240,30 +274,18 @@ void ClientManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
     // This assumes only authentication calls are async right now.  Will change as needed.
     ConnectionClient* client = reinterpret_cast<ConnectionClient*>(ref);
 
+    // The client disconnected while its query ran; its session is gone.
+    if (client->getState() == CCState_End)
+    {
+        delete client;
+        return;
+    }
+
     switch (client->getState())
     {
     case CCSTATE_QueryAuth:
     {
         _handleQueryAuth(client, result);
-        break;
-    }
-    case CCSTATE_AllowedChars:
-    {
-        struct charsCurrentAllowed {
-            uint32  currentChars;
-            uint32	charsAllowed;
-        } charsStruct;
-
-        DataBinding* binding = mDatabase->createDataBinding(2);
-        binding->addField(DFT_int32,offsetof(charsCurrentAllowed, currentChars), 4, 0);
-        binding->addField(DFT_int32,offsetof(charsCurrentAllowed, charsAllowed), 4, 1);
-
-        result->getNextRow(binding,&charsStruct);
-        client->setCharsAllowed(charsStruct.charsAllowed);
-        client->setCurrentChars(charsStruct.currentChars);
-
-        client->setState(CCSTATE_QueryAuth);
-        mDatabase->destroyDataBinding(binding);
         break;
     }
     default:
@@ -414,8 +436,70 @@ void ClientManager::_processClusterZoneTransferCharacter(ConnectionClient* clien
 //======================================================================================================================
 void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* result)
 {
-    // If there are any results, this account is properly authenticated.
-    if (result->getRowCount())
+    struct AccountState {
+        uint32 authenticated;
+        uint32 loggedIn;
+        uint32 charsAllowed;
+        uint32 currentChars;
+    } account = {0, 0, 0, 0};
+
+    if (result && result->getRowCount())
+    {
+        DataBinding* binding = mDatabase->createDataBinding(4);
+        binding->addField(DFT_uint32, offsetof(AccountState, authenticated), 4, 0);
+        binding->addField(DFT_uint32, offsetof(AccountState, loggedIn), 4, 1);
+        binding->addField(DFT_uint32, offsetof(AccountState, charsAllowed), 4, 2);
+        binding->addField(DFT_uint32, offsetof(AccountState, currentChars), 4, 3);
+        result->getNextRow(binding, &account);
+        mDatabase->destroyDataBinding(binding);
+    }
+    else
+    {
+        LOG(WARNING) << "Refusing account " << client->getAccountId() << ": account not found";
+        client->setState(CCState_End);
+        client->Disconnect(10);
+        return;
+    }
+
+    if (!account.authenticated)
+    {
+        LOG(WARNING) << "Refusing account " << client->getAccountId() << ": not logged in to the LoginServer";
+        client->setState(CCState_End);
+        client->Disconnect(10);
+        return;
+    }
+
+    if (account.loggedIn && account.loggedIn != mClusterId)
+    {
+        LOG(WARNING) << "Refusing account " << client->getAccountId() << ": logged in on galaxy " << account.loggedIn;
+        client->setState(CCState_End);
+        client->Disconnect(10);
+        return;
+    }
+
+    client->setCharsAllowed(account.charsAllowed);
+    client->setCurrentChars(account.currentChars);
+
+    // Still connected here, usually a client that went away without the
+    // server noticing yet (up to the session timeout). The new connection
+    // takes over: the old one is logged out on the other servers (its
+    // character goes link-dead, as on any disconnect) and dropped.
+    {
+        boost::recursive_mutex::scoped_lock lk(mServiceMutex);
+        PlayerClientMap::iterator iter = mPlayerClientMap.find(client->getAccountId());
+        if (iter != mPlayerClientMap.end() && (*iter).second != client)
+        {
+            ConnectionClient* previous = (*iter).second;
+            mPlayerClientMap.erase(iter);
+            lk.unlock();
+
+            LOG(INFO) << "Account " << client->getAccountId() << " connected again; replacing its previous connection";
+            _notifyClientDisconnected(previous);
+            previous->setReplaced();
+            previous->Disconnect(10);
+        }
+    }
+
     {
         // Update the account record that it is now logged in and last login date.
         mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_AccountStatusUpdate(%u, %u);", mDatabase->galaxy(), mClusterId, client->getAccountId());
@@ -463,21 +547,22 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
         // Send our message to the client.
         client->SendChannelA(message, 4, false);
     }
-    // They are not authenticated to the login server, so disconnect them.
-    else
-    {
-        client->Disconnect(10);  // no idea if 10 is even a valid reason, just testing.
-    }
-
 }
+
+//======================================================================================================================
 void ClientManager::_processAllowedChars(DatabaseCallback* callback,ConnectionClient* client)
 {
-    client->setState(CCSTATE_AllowedChars);
-    mDatabase->executeSqlAsync(this, client,"SELECT COUNT(characters.id) AS account_current_characters, account_characters_allowed FROM %s.account INNER JOIN %s.characters ON characters.account_id = account.account_id where characters.archived = '0' AND account.account_id = '%u'",mDatabase->galaxy(),mDatabase->galaxy(),client->getAccountId());
-    
-
-    mDatabase->executeSqlAsync(this,client, "SELECT * FROM %s.account WHERE account_id=%u AND account_authenticated=1 AND account_loggedin=0;",mDatabase->galaxy(), client->getAccountId());
-    
+    // One query for everything the login check needs, so the answers can't
+    // arrive out of order. Characters are counted as the character list
+    // shows them (with an appearance), so hidden half-created characters
+    // don't use up a slot.
+    client->setState(CCSTATE_QueryAuth);
+    mDatabase->executeSqlAsync(this, client,
+        "SELECT a.account_authenticated, a.account_loggedin, a.account_characters_allowed,"
+        " (SELECT COUNT(*) FROM %s.characters c INNER JOIN %s.character_appearance ap ON (ap.character_id = c.id)"
+        "   WHERE c.account_id = a.account_id AND c.archived = 0)"
+        " FROM %s.account a WHERE a.account_id = %u;",
+        mDatabase->galaxy(), mDatabase->galaxy(), mDatabase->galaxy(), client->getAccountId());
 }
 
 

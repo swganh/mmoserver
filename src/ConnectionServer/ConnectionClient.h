@@ -47,7 +47,7 @@ class ConnectionClient : public NetworkClient
 {
 public:
 
-    ConnectionClient(void) : mAccountId(0), mServerId(0) {};
+    ConnectionClient(void) : mState(CCSTATE_QueryAuth), mCharsAllowed(0), mCurrentChars(0), mAccountId(0), mServerId(0), mReplaced(false) {};
     ~ConnectionClient(void) {};
 
     ConnectionClientState         getState(void)                            {
@@ -82,6 +82,14 @@ public:
         mCurrentChars = currentChars;
     }
 
+    // A newer connection of the same account took over this one.
+    bool                          isReplaced(void)                          {
+        return mReplaced;
+    }
+    void                          setReplaced(void)                         {
+        mReplaced = true;
+    }
+
 private:
 
     ConnectionClientState	mState;
@@ -89,6 +97,7 @@ private:
     uint32					mCurrentChars;
     uint32                  mAccountId;
     uint32                  mServerId;
+    bool                    mReplaced;
 };
 
 //======================================================================================================================

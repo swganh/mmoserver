@@ -1630,7 +1630,17 @@ void MessageLib::sendFlyText(Object* source, PlayerObject* playerObject, const s
     mMessageFactory->addUint8(blue);
     mMessageFactory->addUint8(display);
 
-    _sendToInRangeUnreliableChatGroup(mMessageFactory->EndMessage(), dynamic_cast<CreatureObject*>(source), 5, 0);
+    Message* message = mMessageFactory->EndMessage();
+
+    // The source can be any object (the tutorial uses a drum), so send by
+    // the player: to their group if they are in one, otherwise to them.
+    if(playerObject->getGroupId()) {
+        _sendToInRangeUnreliableChatGroup(message, playerObject, 5, 0);
+    } else if(_checkPlayer(playerObject)) {
+        playerObject->getClient()->SendChannelAUnreliable(message, playerObject->getAccountId(), CR_Client, 5);
+    } else {
+        mMessageFactory->DestroyMessage(message);
+    }
 }
 
 //======================================================================================================================

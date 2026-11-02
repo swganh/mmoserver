@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_DATABASEMANAGER_DATABASEIMPLEMENTATIONMYSQL_H
 #define ANH_DATABASEMANAGER_DATABASEIMPLEMENTATIONMYSQL_H
 
+#include <chrono>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -62,6 +63,15 @@ public:
 
 private:
     void processFieldBinding_(std::unique_ptr<sql::ResultSet>& result, DataBinding* binding, uint32_t field_id, void* object) const;
+
+    void connect_();
+    void reconnectIfIdleTooLong_();
+
+    std::string host_;
+    std::string user_;
+    std::string pass_;
+    std::string schema_;
+    std::chrono::steady_clock::time_point last_used_;
 
     std::unique_ptr<sql::Connection> connection_;
     std::unique_ptr<sql::Statement> statement_;

@@ -110,6 +110,7 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 		void					createInWorld(Object* object);
 		void					createInWorld(PlayerObject* player);
 		void					createInWorld(CreatureObject* creature);
+		void					addCellCreaturesToGrid(BuildingObject* building);
 		
 		
 		void					removePlayerFromStructure(PlayerObject* player, CellObject* cell);

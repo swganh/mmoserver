@@ -99,11 +99,21 @@ void WorldManager::savePlayer(uint32 accId, bool remove, WMLogOut logout_type, C
     // @TODO These functions should all return future<bool> and at the end a
     // PlayerSavedEvent created with a conditional on the completion of all
     // the futures.
+    if(logout_type == WMLogOut_Zone_Transfer && clContainer) {
+        // The destination zone loads the character from the database, so the
+        // new position has to be stored before the transfer goes ahead.
+        storeCharacterPosition_(player_object, logout_type, clContainer, [=] () {
+            storeCharacterAttributes_(player_object, remove, logout_type, clContainer);
+        });
+        return;
+    }
+
     storeCharacterPosition_(player_object, logout_type, clContainer);
     storeCharacterAttributes_(player_object, remove, logout_type, clContainer);
 }
 
-void WorldManager::storeCharacterPosition_(PlayerObject* player_object, WMLogOut logout_type, CharacterLoadingContainer* clContainer) {
+void WorldManager::storeCharacterPosition_(PlayerObject* player_object, WMLogOut logout_type, CharacterLoadingContainer* clContainer,
+                                           std::function<void ()> stored) {
     if(!player_object) {
         DLOG(WARNING) << "Trying to save character position with an invalid PlayerObject";
         return;
@@ -111,11 +121,11 @@ void WorldManager::storeCharacterPosition_(PlayerObject* player_object, WMLogOut
 
     // Determine whether this is a save for a zone transfer, if so the location
     // we save will change.
-    bool transfer = (logout_type == WMLogOut_Zone_Transfer);
+    bool transfer = (logout_type == WMLogOut_Zone_Transfer) && clContainer;
 
     stringstream query_stream;
 
-    query_stream << "UPDATE "<<mDatabase->galaxy()<<".characters SET parent_id=" << player_object->getParentId() << ", "
+    query_stream << "UPDATE "<<mDatabase->galaxy()<<".characters SET parent_id=" << (transfer ? 0 : player_object->getParentId()) << ", "
                  << "oX=" << player_object->mDirection.x << ", "
                  << "oY=" << player_object->mDirection.y << ", "
                  << "oZ=" << player_object->mDirection.z << ", "
@@ -123,11 +133,15 @@ void WorldManager::storeCharacterPosition_(PlayerObject* player_object, WMLogOut
                  << "x=" << (transfer ? clContainer->destination.x : player_object->mPosition.x) << ", "
                  << "y=" << (transfer ? clContainer->destination.y : player_object->mPosition.y) << ", "
                  << "z=" << (transfer ? clContainer->destination.z : player_object->mPosition.z) << ", "
-                 << "planet_id=" << (transfer ? 0 : mZoneId) << ", "
+                 << "planet_id=" << (transfer ? clContainer->planet : mZoneId) << ", "
                  << "jedistate=" << player_object->getJediState() << " "
                  << "WHERE id=" << player_object->getId();
 
-    mDatabase->executeAsyncSql(query_stream.str());
+    if(stored) {
+        mDatabase->executeAsyncSql(query_stream.str(), [=] (DatabaseResult*) { stored(); });
+    } else {
+        mDatabase->executeAsyncSql(query_stream.str());
+    }
 }
 
 void WorldManager::storeCharacterAttributes_(PlayerObject* player_object, bool remove, WMLogOut logout_type, CharacterLoadingContainer* clContainer) {
@@ -184,6 +198,15 @@ void WorldManager::storeCharacterAttributes_(PlayerObject* player_object, bool r
         // The account's previous character is saved; now load the one it selected.
         if(logout_type == WMLogOut_Char_Load && clContainer) {
             gObjectFactory->requestObject(ObjType_Player, 0, 0, clContainer->ofCallback, clContainer->mPlayerId, clContainer->mClient);
+            delete clContainer;
+        }
+
+        // Saved for a zone transfer: hand back to the caller (the travel
+        // ticket handler), which moves the player to the new zone.
+        if(logout_type == WMLogOut_Zone_Transfer && clContainer) {
+            if(clContainer->dbCallback) {
+                clContainer->dbCallback->handleDatabaseJobComplete(clContainer, result);
+            }
             delete clContainer;
         }
     });

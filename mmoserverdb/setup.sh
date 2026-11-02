@@ -32,6 +32,14 @@ Commands:
   set-address ADDR        Change the address game clients use to reach this
                           server (same as --public-address at install)
   apply-config DIR        Copy the settings in local.cfg into DIR/general.cfg
+  update-procedures       Reload the stored procedures and functions into an
+                          existing database (after pulling SQL fixes); data is
+                          not touched
+  spawn-resources [--replace]
+                          Spawn the harvestable resources (install does this).
+                          With --replace, retire the current set and spawn a
+                          new one; resources already harvested are kept.
+                          Restart the zones to load them
 
 Options for install:
   --force                 Drop and recreate existing MMOServer databases
@@ -210,6 +218,9 @@ install() {
         done
     done
 
+    echo "Spawning resources"
+    sql -e "CALL swganh.sp_ResourceInitialSpawn()" > /dev/null
+
     if [[ ! $keep_test_accounts ]]; then
         echo "Removing the sample accounts swganh0-9"
         sql -e "DELETE FROM swganh.account WHERE account_username REGEXP '^swganh[0-9]\$'"
@@ -294,6 +305,59 @@ add_account() {
     echo "Account '$name' created."
 }
 
+# --- update-procedures --------------------------------------------------------
+
+# Prints "FUNCTION name" or "PROCEDURE name" for the routine a file creates.
+# File names don't always match, and some names are database-qualified.
+routine_in() {
+    perl -0ne 'while (/^\s*CREATE\b[^(;]*?\b(FUNCTION|PROCEDURE)\s+(?:`?\w+`?\s*\.\s*)?`?(\w+)/gim) { print uc($1), " $2\n" }' "$1"
+}
+
+update_procedures() {
+    local db kind file routine_kind routine_name
+    for db in "${databases[@]}"; do
+        for kind in functions procedures; do
+            [[ -d $script_dir/$db/$kind ]] || continue
+            while IFS= read -r file; do
+                # Not every file drops its routine before creating it.
+                while read -r routine_kind routine_name; do
+                    sql --database="$db" -e "DROP $routine_kind IF EXISTS \`$routine_name\`"
+                done < <(routine_in "$file")
+                import_file "$db" "$file"
+            done < <(find "$script_dir/$db/$kind" -maxdepth 1 -name '*.sql' | LC_ALL=C sort)
+        done
+    done
+}
+
+# --- spawn-resources ----------------------------------------------------------
+
+spawn_resources() {
+    local replace=
+    case "${1:-}" in
+        "") ;;
+        --replace) replace=1 ;;
+        *) die "usage: $(basename "$0") spawn-resources [--replace]" ;;
+    esac
+    check_connection
+
+    # Databases installed before the spawn procedures were fixed have the
+    # old versions.
+    update_procedures
+
+    local active
+    active=$(sql -N -e "SELECT COUNT(*) FROM swganh.resources WHERE active = 1")
+    if [[ $replace ]]; then
+        sql -e "CALL swganh.sp_ResourceSpawn()" > /dev/null
+    elif [[ $active -gt 0 ]]; then
+        die "$active resources are already spawned. Use --replace to retire them and spawn a new set."
+    else
+        sql -e "CALL swganh.sp_ResourceInitialSpawn()" > /dev/null
+    fi
+
+    active=$(sql -N -e "SELECT COUNT(*) FROM swganh.resources WHERE active = 1")
+    echo "$active resources spawned. Restart the zones to load them."
+}
+
 # --- main ---------------------------------------------------------------------
 
 [[ $# -ge 1 ]] || { usage >&2; exit 2; }
@@ -313,6 +377,13 @@ case "$command" in
         [[ $# -eq 1 ]] || die "usage: $(basename "$0") apply-config DIR"
         apply_config "$1"
         ;;
+    update-procedures)
+        [[ $# -eq 0 ]] || die "usage: $(basename "$0") update-procedures"
+        check_connection
+        update_procedures
+        echo "Stored procedures and functions updated."
+        ;;
+    spawn-resources) spawn_resources "$@" ;;
     -h|--help|help) usage ;;
     *) echo "error: unknown command '$command'" >&2; usage >&2; exit 2 ;;
 esac

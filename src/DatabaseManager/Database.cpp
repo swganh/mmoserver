@@ -319,6 +319,11 @@ void Database::executeProcedureAsync(DatabaseCallback* callback,
 
 
 void Database::destroyResult(DatabaseResult* result) {
+    // A failed query has no result; the error was logged when it ran.
+    if (!result) {
+        return;
+    }
+
     DatabaseWorkerThread* worker = result->getWorkerReference();
     
     database_impl_->destroyResult(result);

@@ -278,11 +278,15 @@ void ObjectFactory::requestNewTravelTicket(ObjectFactoryCallback* ofCallback,Tic
     std::string dstPlanet(gWorldManager->getPlanetNameById(static_cast<uint8>(ticketProperties.dstPlanetId)));
     srcPlanet = mDatabase->escapeString(srcPlanet);
     dstPlanet = mDatabase->escapeString(dstPlanet);
+    // Point names too: "Nym's Stronghold" broke the query, so the ticket was
+    // paid for but never created.
+    std::string srcPoint = mDatabase->escapeString(ticketProperties.srcPoint->descriptor);
+    std::string dstPoint = mDatabase->escapeString(ticketProperties.dstPoint->descriptor);
 
     stringstream query_stream;
     query_stream << "SELECT "<<mDatabase->galaxy() << ".sf_TravelTicketCreate("
-                 << "'" << srcPlanet << "', '" << ticketProperties.srcPoint->descriptor << "', "
-                 << "'" << dstPlanet << "', '" << ticketProperties.dstPoint->descriptor << "', "
+                 << "'" << srcPlanet << "', '" << srcPoint << "', "
+                 << "'" << dstPlanet << "', '" << dstPoint << "', "
                  << parentId << "," << 0.0f << "," << 0.0f << ","
                  << 0.0f << "," << planetId << ")";
 

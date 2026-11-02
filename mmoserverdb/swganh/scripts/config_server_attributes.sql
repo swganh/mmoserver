@@ -85,7 +85,8 @@ INSERT INTO `config_server_attributes` (`id`,`attribute`,`attribute_description`
  (27,'Player_Action_RegenDivider',NULL),
  (28,'Player_Mind_RegenDivider',NULL),
  (29,'Player_Incap_Time','time a player stays incapped'),
- (30,'Player_Incap_Reset','time after which the player incap counter resets');
+ (30,'Player_Incap_Reset','time after which the player incap counter resets'),
+ (31,'Zone_Resource_Rotation_Interval','seconds between checks for expired resources (default 600)');
 /*!40000 ALTER TABLE `config_server_attributes` ENABLE KEYS */;
 
 

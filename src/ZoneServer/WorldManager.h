@@ -40,6 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DatabaseCallback.h"
 
 #include <list>
+#include <functional>
 #include <map>
 #include <unordered_map>
 #include <vector>
@@ -454,6 +455,7 @@ private:
     // timed subsystems
     bool	_handleServerTimeUpdate(uint64 callTime,void* ref);
     bool	_handleShuttleUpdate(uint64 callTime,void* ref);
+    bool	_handleResourceRotation(uint64 callTime,void* ref);
     bool	_handleDisconnectUpdate(uint64 callTime,void* ref);
     bool	_handleCraftToolTimers(uint64 callTime,void* ref);
     bool	_handleNpcConversionTimers(uint64 callTime,void* ref);
@@ -501,7 +503,8 @@ private:
     * \param logout_type The type of logout. This is somewhat ambiguously named for the time being.
     * \param clContainer Another legacy data variable. This will go away in future commit.
     */
-    void storeCharacterPosition_(PlayerObject* player_object, WMLogOut logout_type, CharacterLoadingContainer* clContainer);
+    void storeCharacterPosition_(PlayerObject* player_object, WMLogOut logout_type, CharacterLoadingContainer* clContainer,
+                                 std::function<void ()> stored = std::function<void ()>());
     
     /** Stores the characters attributes in the database asynchronously.
     *

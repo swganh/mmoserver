@@ -52,8 +52,10 @@ function Invoke-Checked {
 
 # --- Visual Studio developer environment ----------------------------------------
 # Visual Studio's own CMake support and its developer prompts already provide
-# it; otherwise find the newest install with the C++ tools via vswhere.
-if (-not (Get-Command cl.exe -ErrorAction SilentlyContinue)) {
+# it (they set VSINSTALLDIR); otherwise find the newest install with the C++
+# tools via vswhere. A cl.exe that is merely on PATH is not enough: it may be
+# an older MSVC than the one vcpkg builds the libraries with.
+if (-not $env:VSINSTALLDIR -or -not (Get-Command cl.exe -ErrorAction SilentlyContinue)) {
     $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
     if (-not (Test-Path $vswhere)) { throw 'Visual Studio 2022 or later is required (vswhere.exe not found)' }
     $vsPath = & $vswhere -latest -products * -version '[17.0,)' `

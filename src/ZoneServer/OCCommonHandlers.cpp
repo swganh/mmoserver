@@ -425,7 +425,7 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 			if(building->checkCapacity(objectSize))
 			{
 				//*****************************
-				//if it is the House wé dont need to check a containers capacity further down
+				//if it is the House wÃ© dont need to check a containers capacity further down
 				if(!tangibleContainer)   //mainly as the container might not exist if its placed in the house directly
 					return true;
 

@@ -281,7 +281,7 @@ void HarvesterObject::prepareCustomRadialMenu(CreatureObject* creatureObject, ui
 
 
 //=============================================================================
-// creates resource containers ín our inventory
+// creates resource containers Ã­n our inventory
 void HarvesterObject::createResourceContainer(uint64 resID, PlayerObject* player, uint32 amount)
 {
     //now create the resource container

@@ -62,8 +62,12 @@ if (-not (Get-Command cl.exe -ErrorAction SilentlyContinue)) {
         throw 'No Visual Studio 2022 or later with the C++ x64 tools found. Install the "Desktop development with C++" workload.'
     }
     Write-Host "Using Visual Studio at $vsPath"
+    # The developer environment points VCPKG_ROOT at Visual Studio's own
+    # vcpkg; keep one that was chosen before.
+    $chosenVcpkg = $env:VCPKG_ROOT
     Import-Module (Join-Path $vsPath 'Common7\Tools\Microsoft.VisualStudio.DevShell.dll')
     Enter-VsDevShell -VsInstallPath $vsPath -SkipAutomaticLocation -DevCmdArguments '-arch=x64 -host_arch=x64' | Out-Null
+    if ($chosenVcpkg) { $env:VCPKG_ROOT = $chosenVcpkg }
 }
 foreach ($tool in 'cl.exe', 'cmake.exe', 'ninja.exe') {
     if (-not (Get-Command $tool -ErrorAction SilentlyContinue)) {

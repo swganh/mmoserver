@@ -44,7 +44,10 @@ if(MSVC)
     add_compile_options(/wd4244 /wd4251 /wd4786 /wd4503 /wd4275 /wd4290
         /wd4661 /wd4996 /wd4127 /wd4100 /wd4005 /wd4075 /bigobj /MP
         # oneTBB's headers need the conforming lambda processor.
-        /Zc:lambda)
+        /Zc:lambda
+        # Sources are UTF-8, as GCC assumes; MSVC otherwise reads them in the
+        # system code page.
+        /utf-8)
 else()
     add_compile_options(-Wno-invalid-offsetof -Wno-write-strings)
 endif()

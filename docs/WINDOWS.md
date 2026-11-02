@@ -48,8 +48,8 @@ configure runs vcpkg, which takes as long as above.
 .\build_server.ps1 -Solution
 ```
 
-generates `build\windows-vs\mmoserver.sln` (one project per server and
-library) and builds its Debug configuration; open the solution in Visual
+generates `build\windows-vs\mmoserver.sln` (`.slnx` with Visual Studio
+2026; one project per server and library) and builds its Debug configuration; open the solution in Visual
 Studio afterwards. The servers and their `config\`, `script\` and `logs\`
 are in `build\windows-vs\bin\Debug`. ZoneServer is the startup project and
 F5 starts the tutorial zone there; change the zone in the project's

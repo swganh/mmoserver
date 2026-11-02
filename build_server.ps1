@@ -28,7 +28,8 @@ Keep compiling after errors, to see all of them at once.
 Download heightmaps first: planet names, or 'all'. Example: -Heightmaps tatooine,lok
 
 .PARAMETER Solution
-Generate a Visual Studio solution (build\windows-vs\mmoserver.sln) instead of
+Generate a Visual Studio solution (build\windows-vs\mmoserver.sln, or .slnx
+for Visual Studio 2026) instead of
 building with Ninja, then build its Debug (or -Release) configuration. Open
 the solution in Visual Studio to build, run and debug from there.
 
@@ -158,5 +159,9 @@ finally {
 $binDir = if ($Solution) { "$buildDir\bin\$config" } else { "$buildDir\bin" }
 Write-Host ''
 Write-Host "Build complete: $binDir"
-if ($Solution) { Write-Host "Solution: $buildDir\mmoserver.sln" }
+if ($Solution) {
+    # Visual Studio 2026 solutions are .slnx, 2022 ones .sln.
+    $sln = Get-ChildItem $buildDir -Filter 'mmoserver.sln*' | Select-Object -First 1
+    Write-Host "Solution: $($sln.FullName)"
+}
 Write-Host "Database settings are in $binDir\config\*.cfg (see docs\WINDOWS.md)."

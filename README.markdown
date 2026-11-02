@@ -4,8 +4,14 @@ MMOServer is a server emulator for [Star Wars Galaxies][1], aiming at the
 Pre-Combat Upgrade (pre-CU) experience. It was originally developed by the
 SWG:ANH team. The servers are written in C++ with Lua scripting.
 
-The project is being revived. See [docs/CODE_REVIEW_2026.md](docs/CODE_REVIEW_2026.md)
-for the current state of the code and the roadmap.
+The project is being revived:
+
+- [docs/ROADMAP.md](docs/ROADMAP.md): where it stands and where it is going
+- [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md): open bugs and what has been fixed
+- [docs/TEST_PLAN.md](docs/TEST_PLAN.md): client tests, done and to do
+- [docs/SCRIPTING.md](docs/SCRIPTING.md): the plan for scripts and content
+- [docs/CODE_REVIEW_2026.md](docs/CODE_REVIEW_2026.md): the code review the
+  revival started from
 
 ## Building on Linux ##
 
@@ -99,8 +105,8 @@ yet). Install it and create the databases:
     sudo apt install mariadb-server
     sudo ./mmoserverdb/setup.sh install
 
-This imports the schema and game data, removes the sample accounts, and
-creates a `swganh` database user with a random password. The connection
+This imports the schema and game data, spawns the first set of harvestable
+resources, removes the sample accounts, and creates a `swganh` database user with a random password. The connection
 settings go into `mmoserverdb/local.cfg` (not in git) and into
 `bin/config/general.cfg` of every build; later builds pick them up
 automatically.
@@ -110,6 +116,15 @@ use: `--public-address 192.168.1.10`. To change it later without
 reinstalling, run `sudo ./mmoserverdb/setup.sh set-address 192.168.1.10` and
 restart the servers. To start over, add `--force` to `install`. That drops
 the databases, including all accounts and characters.
+
+After pulling changes to the stored procedures, load them into an existing
+database with `sudo ./mmoserverdb/setup.sh update-procedures` (game data is
+not touched). Databases installed before resources were spawned by `install`
+have none; run `sudo ./mmoserverdb/setup.sh spawn-resources` and restart the
+zones.
+
+Resources expire after 1 to 22 days. The zones replace expired ones with new
+resources of the same type, at startup and every 10 minutes.
 
 Create an account to log in with:
 

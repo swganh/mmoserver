@@ -115,7 +115,7 @@ SELECT
 		account_characters_allowed, 
 		account_csr 
   FROM swganh.account 
-  WHERE account_banned=0 AND account_authenticated = 0 AND account_loggedin = 0 AND account_username= usrName AND account_password = shaPwrd;
+  WHERE account_banned=0 AND account_username= usrName AND account_password = shaPwrd;
 
 END $$
 /*!50003 SET SESSION SQL_MODE=@TEMP_SQL_MODE */  $$

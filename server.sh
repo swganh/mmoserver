@@ -134,8 +134,11 @@ debug() {
     command -v tmux > /dev/null || { echo "error: tmux is not installed (sudo apt install tmux)" >&2; exit 1; }
     if [[ $use_gdb ]]; then
         command -v gdb > /dev/null || { echo "error: gdb is not installed (sudo apt install gdb)" >&2; exit 1; }
-        # Stop only at crashes, then print where it happened.
-        runner="gdb -q -ex 'set pagination off' -ex 'set print thread-events off'"
+        # Stop only at crashes, then print where it happened. debuginfod
+        # (enabled on Ubuntu) would otherwise pause each server at startup to
+        # ask about downloading symbols for system libraries.
+        runner="gdb -q -iex 'set debuginfod enabled off'"
+        runner+=" -ex 'set pagination off' -ex 'set print thread-events off'"
         runner+=" -ex 'handle SIGPIPE nostop noprint pass' -ex 'handle SIGTERM nostop noprint pass'"
         runner+=" -ex run -ex bt --args"
     fi
@@ -250,7 +253,16 @@ status() {
     fi
 
     local others
-    others=$(pgrep -a -f '^([^ ]*/)?(Connection|Login|Ping|Chat|Zone)Server( |$)' | grep -v -F -f <(cat "$run_dir"/*.pid 2>/dev/null) || true)
+    # Ours are the pids in the pid files and, under gdb (debug -g), their
+    # children.
+    local ours=() pid_file_pid
+    for pid_file in "$run_dir"/*.pid; do
+        [[ -e $pid_file ]] || continue
+        pid_file_pid=$(<"$pid_file")
+        ours+=("$pid_file_pid" $(pgrep -P "$pid_file_pid" || true))
+    done
+    others=$(pgrep -a -f '^([^ ]*/)?(Connection|Login|Ping|Chat|Zone)Server( |$)' \
+        | awk -v ours=" ${ours[*]} " 'index(ours, " " $1 " ") == 0' || true)
     if [[ $others ]]; then
         echo
         echo "Also running, not started by this script (stop them to avoid port clashes):"

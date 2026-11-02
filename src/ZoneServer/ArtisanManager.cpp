@@ -75,6 +75,21 @@ using std::stringstream;
 using common::SimpleEvent;
 using common::EventType;
 
+//======================================================================================================================
+//
+// The current resource on this planet with the name the client sent, or NULL.
+// The name can also be a resource that is not (or no longer) current here,
+// which is not a CurrentResource.
+//
+static CurrentResource* getCurrentResourceByName(const BString& name)
+{
+    Resource* resource = gResourceManager->getResourceByNameCRC(name.getCrc());
+    if(!resource || !resource->getCurrent())
+        return NULL;
+
+    return static_cast<CurrentResource*>(resource);
+}
+
 ArtisanManager::ArtisanManager(): mSurveyMindCost(0),mSampleActionCost(0) {}
 ArtisanManager::~ArtisanManager() {}
 
@@ -126,7 +141,7 @@ bool ArtisanManager::handleRequestSurvey(Object* playerObject,Object* target,Mes
     message->getStringUnicode16(resourceName);
     resourceName.convert(BSTRType_ANSI);
 
-    resource = reinterpret_cast<CurrentResource*>(gResourceManager->getResourceByNameCRC(resourceName.getCrc()));
+    resource = getCurrentResourceByName(resourceName);
 
     if(tool && resource)
     {
@@ -246,7 +261,7 @@ bool ArtisanManager::handleRequestCoreSample(Object* player,Object* target, Mess
     message->getStringUnicode16(resourceName);
     resourceName.convert(BSTRType_ANSI);
 
-    resource = reinterpret_cast<CurrentResource*>(gResourceManager->getResourceByNameCRC(resourceName.getCrc()));
+    resource = getCurrentResourceByName(resourceName);
 
     if(resource == NULL || tool == NULL)
     {
@@ -708,6 +723,15 @@ bool	ArtisanManager::stopSampling(PlayerObject* player, CurrentResource* resourc
     if(!resource || !tool || !player->isConnected() || !player->getSamplingState()||player->getSurveyState())
     {
         stop = true;
+    }
+    // the resource expired while sampling; stop now, before the combat
+    // check below, which would otherwise keep the sample going
+    else if(!resource->getCurrent())
+    {
+        gMessageLib->SendSystemMessage(::common::OutOfBand("ui","survey_noresource"), player);
+        player->setSamplingState(false);
+        gStateManager.setCurrentPostureState(player, CreaturePosture_Upright);
+        return true;
     }
     // you can't take sample while under attack!
     if(player->states.checkState(CreatureState_Combat))

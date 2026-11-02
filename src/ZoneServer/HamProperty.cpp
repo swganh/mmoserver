@@ -155,7 +155,9 @@ uint8 HamProperty::updateCurrentHitpoints(int32 hp,bool damage)
     {
         mCurrentHitPoints = mModifiedHitPoints;
     }
-    else if(mCurrentHitPoints < 0)
+    // Damage that brings the pool to exactly 0 counts too; otherwise a
+    // target can be left at 0 without being incapacitated or killed.
+    else if(mCurrentHitPoints <= 0)
     {
         mCurrentHitPoints = 0;
 

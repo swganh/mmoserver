@@ -110,6 +110,26 @@ jobs:
             "SELECT COUNT(*) FROM swganh.account WHERE account_username='ci_pilot' AND account_password=SHA1('ci-password-123')" |
             grep -qx 1
 
+      - name: Spawn and rotate resources
+        run: |
+          q() { mariadb -h "$DB_HOST" -u root -N swganh -e "$1"; }
+          active=$(q "SELECT COUNT(*) FROM resources WHERE active = 1")
+          [ "$active" -gt 400 ] || { echo "only $active resources spawned" >&2; exit 1; }
+          q "CALL sp_ResourceRotate()" > /dev/null
+          q "UPDATE resources SET spawn_end = NOW() - INTERVAL 1 MINUTE WHERE active = 1 ORDER BY id LIMIT 5"
+          rotated=$(q "CALL sp_ResourceRotate()")
+          [ "$rotated" -eq 5 ] || { echo "rotated $rotated resources, expected 5" >&2; exit 1; }
+          [ "$(q "SELECT COUNT(*) FROM resources WHERE active = 1")" -eq "$active" ]
+          [ "$(q "SELECT COUNT(*) FROM resources WHERE active = 1 AND spawn_end <= NOW()")" -eq 0 ]
+
+      - name: Reload the stored procedures
+        run: |
+          count() { mariadb -h "$DB_HOST" -u root -N -e "SELECT COUNT(*) FROM information_schema.routines WHERE routine_schema LIKE 'swganh%'"; }
+          before=$(count)
+          ./mmoserverdb/setup.sh update-procedures
+          ./mmoserverdb/setup.sh update-procedures
+          [ "$(count)" -eq "$before" ]
+
       # Mixed collations make routines fail at runtime with
       # "Illegal mix of collations".
       - name: Check collations are consistent

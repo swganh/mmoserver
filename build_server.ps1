@@ -120,6 +120,14 @@ if ($Clean -and (Test-Path $buildDir)) {
     Write-Host "Removing $buildDir"
     Remove-Item -Recurse -Force $buildDir
 }
+# Windows cannot replace a running executable ("LNK1168: cannot open ...
+# for writing"): say so before building rather than failing at the link.
+$running = Get-Process ZoneServer, ConnectionServer, LoginServer, ChatServer, PingServer -ErrorAction SilentlyContinue |
+    Where-Object { $_.Path -and $_.Path.StartsWith("$buildDir\", [System.StringComparison]::OrdinalIgnoreCase) }
+if ($running) {
+    throw "Servers from this build are still running ($(($running | ForEach-Object { "$($_.ProcessName) $($_.Id)" }) -join ', ')). Stop them first: .\server.ps1 stop (and stop any debugging session in Visual Studio)."
+}
+
 # A cache made with another compiler keeps using it: start that one again.
 $cache = Join-Path $buildDir 'CMakeCache.txt'
 if ((Test-Path $cache) -and -not (Select-String -Path $cache -SimpleMatch @("MSVC/$msvcVersion/", "version=$msvcVersion") -Quiet)) {

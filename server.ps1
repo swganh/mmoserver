@@ -17,6 +17,9 @@ With -Console each server runs in its own console window instead, showing its
 output live (nothing is written to logs\). To debug a server, start the others
 with this script and run that one from Visual Studio (see docs\WINDOWS.md).
 
+With -Solution, use the servers built by the Visual Studio solution
+(build\windows-vs\bin\Debug, or RelWithDebInfo with -Release).
+
 Zones other than tutorial need their heightmap: .\build_server.ps1 -Heightmaps <zone>
 
 .EXAMPLE
@@ -29,12 +32,18 @@ param(
     [Parameter(Position = 0)][ValidateSet('start', 'stop', 'status', 'restart')][string]$Command = 'status',
     [Parameter(Position = 1, ValueFromRemainingArguments = $true)][string[]]$Zones,
     [switch]$Release,
-    [switch]$Console
+    [switch]$Console,
+    [switch]$Solution
 )
 
 $ErrorActionPreference = 'Stop'
 $preset = if ($Release) { 'windows-release' } else { 'windows-debug' }
-$binDir = Join-Path $PSScriptRoot "build\$preset\bin"
+$binDir = if ($Solution) {
+    Join-Path $PSScriptRoot ("build\windows-vs\bin\" + $(if ($Release) { 'RelWithDebInfo' } else { 'Debug' }))
+}
+else {
+    Join-Path $PSScriptRoot "build\$preset\bin"
+}
 $runDir = Join-Path $binDir 'run'
 $logDir = Join-Path $binDir 'logs'
 

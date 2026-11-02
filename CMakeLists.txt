@@ -63,12 +63,18 @@ add_subdirectory(src)
 # heightmaps/ next to the binaries after every build, so a build from Visual
 # Studio can be run straight away.
 if(WIN32)
+    # The servers' directory: bin/ with Ninja, bin/<config>/ with a Visual
+    # Studio solution.
     add_custom_target(stage_runtime_data ALL
         COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${PROJECT_SOURCE_DIR}
-            -DBIN_DIR=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+            -DBIN_DIR=$<TARGET_FILE_DIR:ConnectionServer>
             -P ${PROJECT_SOURCE_DIR}/tools/cmake/StageRuntimeData.cmake
-        COMMENT "Staging config, scripts and heightmaps in ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+        COMMENT "Staging config, scripts and heightmaps next to the servers"
         VERBATIM)
+
+    # In a generated Visual Studio solution, F5 starts a zone in the
+    # directory that holds its config.
+    set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT ZoneServer)
 endif()
 
 # `cmake --install` lays out a runnable server: binaries plus the data they

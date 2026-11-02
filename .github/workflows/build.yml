@@ -257,6 +257,14 @@ jobs:
         shell: pwsh
         run: .\build_server.ps1 -Test -KeepGoing
 
+      # The same sources as a Visual Studio solution, built with MSBuild.
+      - name: Build the Visual Studio solution
+        shell: pwsh
+        run: |
+          .\build_server.ps1 -Solution -Test
+          if (-not (Test-Path build\windows-vs\mmoserver.sln)) { throw 'no solution generated' }
+          if (-not (Test-Path build\windows-vs\bin\Debug\config\tatooine.cfg)) { throw 'runtime data not staged for the solution' }
+
       - name: Check the runtime data was staged
         shell: pwsh
         run: |

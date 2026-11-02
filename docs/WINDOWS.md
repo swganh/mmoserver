@@ -42,6 +42,26 @@ reads `CMakePresets.json`; pick **Windows Debug (MSVC, vcpkg)** in the
 configuration list on the toolbar, then *Build > Build All*. The first
 configure runs vcpkg, which takes as long as above.
 
+**A Visual Studio solution:** to work with a `.sln` and projects instead,
+
+```powershell
+.\build_server.ps1 -Solution
+```
+
+generates `build\windows-vs\mmoserver.sln` (one project per server and
+library) and builds its Debug configuration; open the solution in Visual
+Studio afterwards. The servers and their `config\`, `script\` and `logs\`
+are in `build\windows-vs\bin\Debug`. ZoneServer is the startup project and
+F5 starts the tutorial zone there; change the zone in the project's
+*Properties > Debugging > Command Arguments*. Use `.\server.ps1 -Solution
+...` to start the other servers from this build. Regenerate after pulling
+changes that add or remove source files.
+
+**Visual Studio picks the compiler:** `build_server.ps1` builds with the
+newest MSVC in the newest Visual Studio, the one vcpkg builds the libraries
+with, even when a developer prompt is set to an older one. Mixing them fails
+to link (see Troubleshooting).
+
 ## Connect to the database
 
 The servers need the MariaDB database on the Linux machine. Two ways:
@@ -143,7 +163,9 @@ version control.
 
 **`unresolved external symbol __std_search_1`** (or `__std_find_end_1`,
 `_Thrd_sleep_for`) when linking: the vcpkg libraries were built by a newer
-MSVC than the one compiling the servers, which happens when more than one
-Visual Studio (or Build Tools) is installed. `build_server.ps1` makes vcpkg
-use the same Visual Studio as the build; update Visual Studio to its latest
-version in the Visual Studio Installer, then build again with `-Clean`.
+MSVC than the one compiling the servers. Visual Studio can hold several MSVC
+versions side by side, and a developer prompt may be set to an older one.
+`build_server.ps1` now always builds with the newest one, as vcpkg does, and
+reconfigures a build directory made with another; run it again (with
+`-Clean` if in doubt). When building from Visual Studio itself, make sure the
+newest "MSVC v143 build tools (Latest)" component is the default toolset.

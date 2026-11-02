@@ -21,6 +21,9 @@ Delete the preset's build directory first.
 .PARAMETER Test
 Run the unit tests after building.
 
+.PARAMETER KeepGoing
+Keep compiling after errors, to see all of them at once.
+
 .PARAMETER Heightmaps
 Download heightmaps first: planet names, or 'all'. Example: -Heightmaps tatooine,lok
 
@@ -32,6 +35,7 @@ param(
     [switch]$Release,
     [switch]$Clean,
     [switch]$Test,
+    [switch]$KeepGoing,
     [string[]]$Heightmaps
 )
 
@@ -96,7 +100,9 @@ if ($Clean -and (Test-Path $buildDir)) {
 Push-Location $basedir
 try {
     Invoke-Checked cmake @('--preset', $preset)
-    Invoke-Checked cmake @('--build', '--preset', $preset)
+    $buildArguments = @('--build', '--preset', $preset)
+    if ($KeepGoing) { $buildArguments += @('--', '-k', '0') }
+    Invoke-Checked cmake $buildArguments
     if ($Test) { Invoke-Checked ctest @('--preset', $preset) }
 }
 finally {

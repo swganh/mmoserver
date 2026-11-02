@@ -255,7 +255,7 @@ jobs:
       # environment itself, as on a developer's machine.
       - name: Build and test
         shell: pwsh
-        run: .\build_server.ps1 -Test
+        run: .\build_server.ps1 -Test -KeepGoing
 
       - name: Check the runtime data was staged
         shell: pwsh

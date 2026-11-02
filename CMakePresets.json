@@ -56,13 +56,52 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithDebInfo"
       }
+    },
+    {
+      "name": "windows-base",
+      "hidden": true,
+      "inherits": "vcpkg-base",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "architecture": { "value": "x64", "strategy": "external" },
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "cl",
+        "CMAKE_CXX_COMPILER": "cl",
+        "VCPKG_TARGET_TRIPLET": "x64-windows"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": { "hostOS": [ "Windows" ] }
+      }
+    },
+    {
+      "name": "windows-debug",
+      "displayName": "Windows Debug (MSVC, vcpkg)",
+      "inherits": "windows-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "windows-release",
+      "displayName": "Windows Release (MSVC, vcpkg)",
+      "inherits": "windows-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
     }
   ],
   "buildPresets": [
     { "name": "linux-debug", "configurePreset": "linux-debug" },
     { "name": "linux-release", "configurePreset": "linux-release" },
     { "name": "linux-vcpkg-debug", "configurePreset": "linux-vcpkg-debug" },
-    { "name": "linux-vcpkg-release", "configurePreset": "linux-vcpkg-release" }
+    { "name": "linux-vcpkg-release", "configurePreset": "linux-vcpkg-release" },
+    { "name": "windows-debug", "configurePreset": "windows-debug" },
+    { "name": "windows-release", "configurePreset": "windows-release" }
   ],
   "testPresets": [
     {
@@ -74,7 +113,9 @@
     { "name": "linux-debug", "inherits": "test-base", "configurePreset": "linux-debug" },
     { "name": "linux-release", "inherits": "test-base", "configurePreset": "linux-release" },
     { "name": "linux-vcpkg-debug", "inherits": "test-base", "configurePreset": "linux-vcpkg-debug" },
-    { "name": "linux-vcpkg-release", "inherits": "test-base", "configurePreset": "linux-vcpkg-release" }
+    { "name": "linux-vcpkg-release", "inherits": "test-base", "configurePreset": "linux-vcpkg-release" },
+    { "name": "windows-debug", "inherits": "test-base", "configurePreset": "windows-debug" },
+    { "name": "windows-release", "inherits": "test-base", "configurePreset": "windows-release" }
   ],
   "workflowPresets": [
     {
@@ -107,6 +148,22 @@
         { "type": "configure", "name": "linux-vcpkg-release" },
         { "type": "build", "name": "linux-vcpkg-release" },
         { "type": "test", "name": "linux-vcpkg-release" }
+      ]
+    },
+    {
+      "name": "windows-debug",
+      "steps": [
+        { "type": "configure", "name": "windows-debug" },
+        { "type": "build", "name": "windows-debug" },
+        { "type": "test", "name": "windows-debug" }
+      ]
+    },
+    {
+      "name": "windows-release",
+      "steps": [
+        { "type": "configure", "name": "windows-release" },
+        { "type": "build", "name": "windows-release" },
+        { "type": "test", "name": "windows-release" }
       ]
     }
   ]

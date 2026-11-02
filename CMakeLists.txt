@@ -52,6 +52,18 @@ include(GoogleTest)
 
 add_subdirectory(src)
 
+# On Windows there is no build_server.sh: stage config/, script/, logs/ and
+# heightmaps/ next to the binaries after every build, so a build from Visual
+# Studio can be run straight away.
+if(WIN32)
+    add_custom_target(stage_runtime_data ALL
+        COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${PROJECT_SOURCE_DIR}
+            -DBIN_DIR=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+            -P ${PROJECT_SOURCE_DIR}/tools/cmake/StageRuntimeData.cmake
+        COMMENT "Staging config, scripts and heightmaps in ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+        VERBATIM)
+endif()
+
 # `cmake --install` lays out a runnable server: binaries plus the data they
 # load relative to the working directory.
 install(DIRECTORY data/config data/script DESTINATION bin)

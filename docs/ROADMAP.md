@@ -91,7 +91,11 @@ downloads, CI on Ubuntu 24.04 and 26.04 plus the vcpkg route.
 (finds Visual Studio, builds, tests, downloads heightmaps with SHA-256
 checks), `server.ps1` to start and stop the servers, data staged by the
 build, a Windows CI job; the old Windows tooling and bundled executables are
-removed. Remaining: a client test of servers running on Windows.
+removed. Confirmed with a client: servers built
+and run on Windows against the Linux VM's database. Remaining: a local
+MariaDB on the Windows PC (`setup.sh` runs under Git Bash, or a
+`setup.ps1`), so development needs no second machine; `-Solution` builds
+with a side-by-side older MSVC (docs/WINDOWS.md).
 
 ## Phase 2: runnable server for a community
 

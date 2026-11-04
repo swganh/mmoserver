@@ -1,8 +1,17 @@
 # Windows development environment
 
 Build, run and debug the servers on Windows with Visual Studio, against the
-database on your Linux server (or VM). Running a community server is done on
-Linux (README); Windows is for development.
+MariaDB database on your Linux server (or VM). Running a community server is
+done on Linux (README); Windows is for development.
+
+Confirmed with a client: Windows 11, Visual Studio 2022, servers on the PC
+and the database on an Ubuntu VM. A local MariaDB on the PC, so no second
+machine is needed, is planned (`docs/ROADMAP.md`).
+
+The examples use `192.168.1.10` for the Linux machine and `192.168.1.20`
+for the Windows PC; use your own addresses. Give both fixed addresses
+(a static IP or a DHCP reservation): the database settings and the
+firewall rule name them.
 
 ## What you need
 
@@ -64,21 +73,22 @@ to link (see Troubleshooting).
 
 ## Connect to the database
 
-The servers need the MariaDB database on the Linux machine. Two ways:
+The servers need the MariaDB database on the Linux machine (MySQL is not
+supported). Two ways:
 
 ### On a trusted home network: allow the Windows PC
 
 On the Linux machine, with your Windows PC's address:
 
 ```bash
-sudo ./mmoserverdb/setup.sh allow-host 192.168.1.128
+sudo ./mmoserverdb/setup.sh allow-host 192.168.1.20
 ```
 
 This lets the `swganh` database user connect from that address only, with the
 same password as the local servers, and prints the rest: MariaDB listens only
 on the Linux machine by default, so add its LAN address to `bind-address`
 while keeping `127.0.0.1` for the local servers
-(`bind-address = 127.0.0.1,192.168.1.239`), and with `ufw` enabled the port
+(`bind-address = 127.0.0.1,192.168.1.10`), and with `ufw` enabled the port
 has to be opened to the PC. `deny-host` undoes it. Never open port 3306
 to the internet.
 
@@ -88,7 +98,7 @@ Nothing changes on the Linux machine. On Windows (OpenSSH is built in), keep
 this running while you work:
 
 ```powershell
-ssh -N -L 3307:127.0.0.1:3306 swganh@192.168.1.239
+ssh -N -L 3307:127.0.0.1:3306 swganh@192.168.1.10
 ```
 
 The database then appears on the Windows PC at `127.0.0.1` port `3307`, and
@@ -99,7 +109,7 @@ the Linux machine sees the connections as local ones.
 Edit `build\windows-debug\bin\config\general.cfg`:
 
 ```ini
-DBServer = 192.168.1.239    # or 127.0.0.1 with the tunnel
+DBServer = 192.168.1.10    # or 127.0.0.1 with the tunnel
 DBPort = 3306               # or 3307 with the tunnel
 DBUser = swganh
 DBPass = <DBPass from mmoserverdb/local.cfg on the Linux machine>
@@ -112,7 +122,7 @@ it. Before starting the servers on Windows:
 
 1. Stop the servers on the Linux machine: `./server.sh stop`.
 2. Point the galaxy at the Windows PC, so the login server sends clients
-   there: `sudo ./mmoserverdb/setup.sh set-address 192.168.1.128` (or
+   there: `sudo ./mmoserverdb/setup.sh set-address 192.168.1.20` (or
    `127.0.0.1` when the game client runs on the same PC). Set it back to the
    Linux machine's address before starting its servers again.
 
@@ -130,7 +140,20 @@ time, Windows Defender Firewall asks whether to allow the servers: allow
 them on private networks (game clients use UDP 44990-44992).
 
 `stop` ends the processes immediately; zones save players periodically, so
-the last minutes of play may not be saved.
+the last minutes of play may not be saved. `status` shows the last line of
+each log; with `-Console` nothing is written to the logs, so those lines are
+from an earlier run.
+
+If you dismissed the firewall prompt, allow the ports from an
+Administrator PowerShell:
+
+```powershell
+New-NetFirewallRule -DisplayName "MMOServer" -Direction Inbound -Protocol UDP -LocalPort 44990-44992 -Action Allow -Profile Private
+```
+
+`build_server.ps1` refuses to build while servers from that build are
+running (Windows cannot replace a running program): `.\server.ps1 stop`
+first, and stop any debugging session.
 
 ## Debug a server
 
@@ -160,6 +183,24 @@ Press F5. Visual Studio keeps this in `.vs\launch.vs.json`, which is not in
 version control.
 
 ## Troubleshooting
+
+**The servers cannot reach the database** (`Database connection to
+swganh@<host>:<port> failed: ... (MySQL error N ...)` in the ConnectionServer's
+log or window; zones then abort right after "startup sequence"). First
+`Test-NetConnection <Linux address> -Port 3306` on the PC, then by error:
+
+| Error | Meaning | Fix |
+|---|---|---|
+| 2003 | Nothing reachable on that address and port | MariaDB's `bind-address` must include the Linux machine's current LAN address (`sudo ss -tlnp \| grep 3306`); the `ufw` rule must allow the PC's address. Both need updating if either address changes |
+| 1045 | Wrong user or password | `DBUser`/`DBPass` in `general.cfg` must match `mmoserverdb/local.cfg` on the Linux machine |
+| 1130 | The user may not connect from this PC | `sudo ./mmoserverdb/setup.sh allow-host <PC address>` |
+| 1129 | MariaDB blocked the PC after repeated failed connections | `sudo mariadb -e "FLUSH HOSTS"` on the Linux machine |
+
+**A zone dies with an access violation** (exit code `-1073741819`): run it
+under the debugger (`devenv /debugexe .\ZoneServer.exe --ZoneName <zone>` in
+the bin directory, then F5) and note the call stack. Code that only worked
+by accident with GCC shows up this way on Windows (`docs/KNOWN_ISSUES.md`
+#11).
 
 **`unresolved external symbol __std_search_1`** (or `__std_find_end_1`,
 `_Thrd_sleep_for`) when linking: the vcpkg libraries were built by a newer

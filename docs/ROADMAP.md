@@ -80,6 +80,17 @@ and what still needs a client test is in `docs/TEST_PLAN.md`.
    hooks instead of polling; then dependency upgrades and the rest of the
    modernisation.
 
+## Database
+
+**MariaDB is the supported database**, on Linux and on Windows: it is what
+Ubuntu and Debian install, what CI tests (10.11 and 11.8) and what the
+installer, procedures and collation fixes are written for. MySQL is not
+supported. Its stricter defaults (`NO_ZERO_DATE`, `ONLY_FULL_GROUP_BY`), new
+reserved words, deprecated `utf8mb3` and `caching_sha2_password` would mean
+schema-wide changes with no gameplay benefit, and MySQL 8.0 is end of life.
+Optional later: a CI job installing on MySQL 8.4 LTS to measure the gap,
+best combined with the move to prepared statements in phase 3.
+
 ## Phase 1: reproducible build
 
 Done for Linux: CMake with imported targets, presets, vcpkg manifest with

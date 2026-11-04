@@ -100,8 +100,10 @@ The archives come from the [v0.6.0 release][3] and are checked against
 
 ### 1. Set up the database ###
 
-The servers use MariaDB (tested with 10.11 and 11.8; MySQL 8 is not supported
-yet). Install it and create the databases:
+The servers use **MariaDB**, the supported database on Linux and Windows
+(tested with 10.11 and 11.8). MySQL is not supported: the schema and
+stored procedures rely on MariaDB's defaults (see `docs/ROADMAP.md`,
+"Database"). Install it and create the databases:
 
     sudo apt install mariadb-server
     sudo ./mmoserverdb/setup.sh install

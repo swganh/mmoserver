@@ -1,7 +1,8 @@
 # Known issues
 
-Problems found while running the servers on Linux with a real client
-(pre-CU SWGANH client, Ubuntu 26.04 server VM, MariaDB 11.8). Kept here
+Problems found while running the servers with a real client (pre-CU SWGANH
+client; servers on an Ubuntu 26.04 VM with MariaDB 11.8, and on Windows 11
+built with Visual Studio 2022). Kept here
 because Issues are disabled on this fork; move them to GitHub Issues when
 they are enabled.
 
@@ -359,6 +360,50 @@ the value being printed is not initialised or not a heap figure.
 
 ---
 
+## Windows
+
+### 11. Zones crashed on Windows as soon as an NPC moved at negative coordinates — fixed
+
+`zmap::_getCellId` converted a negative float position straight to an
+unsigned integer, which C++ leaves undefined. GCC happened to wrap it, and
+adding half the map size wrapped it back to the right grid cell, so Linux
+worked; MSVC did not, the index left the lookup table and the Tatooine zone
+died with an access violation right after startup. It now converts through a
+signed integer and clamps to the grid (the same cells as before for every
+position on the map). `zmap::addRegion` stored region positions in unsigned
+integers too, which put regions starting at negative coordinates in the
+wrong cells on Linux as well.
+
+### 12. Bugs found by MSVC warnings — open
+
+The first Windows build warns about code that is wrong on every platform
+(GCC does not warn at the project's warning level):
+
+- `CloningTerminal.cpp:183` passes the `Database` object where the SQL
+  expects the schema name (`%s`), so choosing a cloning facility runs broken
+  SQL.
+- `TradeManagerChat.cpp:1383` passes the galaxy name twice, so the auction id
+  in the query is the wrong argument (bazaar auction lookup).
+- `StateManager.cpp:47-49`, `GroupObject.cpp:263` call `empty()` (a test)
+  where `clear()` was meant.
+- `AttackableCreature.cpp:999`, `MissionManager.cpp:1189-1446` use
+  uninitialised variables (`destination`, `mission_start`, `mission_dest`).
+- `OCAdminHandlers.cpp:85`, `OCCharacterSheethandlers.cpp:293`,
+  `OCStructureHandlers.cpp:300`: scanf formats that do not match their
+  arguments (narrow strings read with wide formats).
+- `HashString.cc:45`, `anh/hash_string.cc:26` store a 32-bit hash in a
+  pointer.
+
+To fix with the warning cleanup in phase 3, or sooner for cloning and the
+bazaar when those are tested.
+
+### 13. `build_server.ps1 -Solution` with a side-by-side older MSVC — open
+
+A generated Visual Studio solution builds with Visual Studio's default MSVC,
+which can be an older one installed side by side, while vcpkg's libraries
+use the newest; linking then fails. The Ninja build is not affected.
+Workaround in `docs/WINDOWS.md`.
+
 ## Fixed while getting the servers running
 
 For reference; details are in the commit messages on `phase2-db-installer`.
@@ -388,15 +433,3 @@ For reference; details are in the commit messages on `phase2-db-installer`.
   over the drum: fly text cast its source to a creature (null for a
   container). Fly text in instances also only reached grouped players.
 - Missing `sp_DeleteMail`; SQL procedures broken by earlier bulk edits.
-
-### 11. Zones crashed on Windows as soon as an NPC moved at negative coordinates — fixed
-
-`zmap::_getCellId` converted a negative float position straight to an
-unsigned integer, which C++ leaves undefined. GCC happened to wrap it, and
-adding half the map size wrapped it back to the right grid cell, so Linux
-worked; MSVC did not, the index left the lookup table and the Tatooine zone
-died with an access violation right after startup. It now converts through a
-signed integer and clamps to the grid (the same cells as before for every
-position on the map). `zmap::addRegion` stored region positions in unsigned
-integers too, which put regions starting at negative coordinates in the
-wrong cells on Linux as well.

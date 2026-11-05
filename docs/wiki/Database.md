@@ -88,6 +88,19 @@ sudo mariadb < mmoserver-backup.sql                     # restore
 
 Stop the servers first for a consistent copy.
 
+## Letting another machine use the database
+
+For developing on a Windows PC against the database on the Linux machine
+([[Windows Development]]):
+
+```bash
+sudo ./mmoserverdb/setup.sh allow-host 192.168.1.20    # the PC's address
+```
+
+This lets the `swganh` user connect from that one address and prints the
+remaining steps (MariaDB's `bind-address`, the firewall). `deny-host` undoes
+it. Never open port 3306 to the internet.
+
 ## Where things are
 
 Almost everything is in the `swganh` database: `account`, `characters`,

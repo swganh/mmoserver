@@ -14,7 +14,7 @@ planets).
 | Set up or manage the database | [[Database]] |
 | Connect a game client | [[Game Client]] |
 | Fix something that does not work | [[Troubleshooting on Linux]] |
-| Develop on Windows | [[Windows Development]] (in progress) |
+| Develop on Windows | [[Windows Development]] |
 | Help with the code | [[Contributing]] |
 
 ## Platforms
@@ -22,7 +22,7 @@ planets).
 - **Linux** is the platform for running servers: Ubuntu 24.04 and 26.04 LTS,
   tested in CI and with a client.
 - **Windows** is for development: building and debugging the servers in
-  Visual Studio. It is being finished; see [[Windows Development]].
+  Visual Studio; see [[Windows Development]].
 - Everything else (the database, the game client, the architecture) is the
   same on both, under **Shared** in the sidebar.
 

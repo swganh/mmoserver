@@ -19,6 +19,13 @@ src=$(cd "$(dirname "${BASH_SOURCE[0]}")/../../docs/wiki" && pwd)
 
 git -C "$wiki" rev-parse --git-dir >/dev/null 2>&1 || { echo "error: $wiki is not a git clone" >&2; exit 1; }
 
+# A clone whose checkout failed (Windows cannot create files with ':' in
+# their names) has an empty index; committing from it would delete pages.
+if ! git -C "$wiki" diff --quiet HEAD -- 2>/dev/null || [[ -n $(git -C "$wiki" diff --cached --name-only --diff-filter=D) ]]; then
+    echo "error: $wiki has changes or missing files; use a fresh, complete clone" >&2
+    exit 1
+fi
+
 # The old home page is Textile; two Home pages would conflict.
 if [[ -e $wiki/Home.textile ]]; then
     git -C "$wiki" rm -q Home.textile

@@ -75,7 +75,7 @@ void UIListBox::handleEvent(Message* message)
         message->getUint32(); // item count again
         message->getStringUnicode16(selectedDataItemStr);
 
-        if(swscanf(selectedDataItemStr.getUnicode16(),L"%i",&selectedItem) != 1)
+        if(swscanf(selectedDataItemStr.getUnicode16().c_str(),L"%i",&selectedItem) != 1)
             DLOG(INFO) << "UIListBox::handleEvent: item mismatch";
 
         if(items >= 2)

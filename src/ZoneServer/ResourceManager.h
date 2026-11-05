@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Utils/typedefs.h"
 #include <map>
+#include <string>
 #include <boost/pool/pool.hpp>
 #include "DatabaseManager/DatabaseCallback.h"
 
@@ -54,7 +55,8 @@ enum RMQueryType
     RMQuery_OldResources		= 2,
     RMQuery_CurrentResources	= 3,
     RMQuery_Categories			= 4,
-    RMQuery_DepleteResources	= 5
+    RMQuery_DepleteResources	= 5,
+    RMQuery_Rotate				= 6
 };
 
 //======================================================================================================================
@@ -99,6 +101,9 @@ public:
     ResourceCategory*			getResourceCategoryById(uint32 id);
 
     bool						setResourceDepletion(Resource* resource, int32 amt);
+
+    // Replaces expired resources in the database, then loads the changes.
+    void						rotateResources();
     // get map references
     ResourceIdMap*				getResourceIdMap();
     ResourceCRCNameMap*			getResourceCRCNameMap();
@@ -114,6 +119,10 @@ private:
     void						_setupDatabindings();
     void						_destroyDatabindings();
 
+    void						_requestCurrentResources();
+    void						_loadCurrentResources(DatabaseResult* result);
+    void						_loadOldResources(DatabaseResult* result);
+
     static bool					mInsFlag;
     static ResourceManager*		mSingleton;
 
@@ -127,6 +136,10 @@ private:
     uint32						mZoneId;
 	std::string					mZoneName;
 	bool						mWriteResourceMaps;
+	// false until the first full load has been requested
+	bool						mLoadStarted;
+	// true once every resource has been loaded; later loads fetch only changes
+	bool						mAllResourcesLoaded;
 
     boost::pool<boost::default_user_allocator_malloc_free>				mDBAsyncPool;
 

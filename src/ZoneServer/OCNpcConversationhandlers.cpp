@@ -101,17 +101,19 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 	//get building Ids if they are in buildings
 	if(playerParentId)
 	{
-		playerBuildingId = gWorldManager->getObjectById(playerParentId)->getParentId();
+		if(Object* cell = gWorldManager->getObjectById(playerParentId))
+			playerBuildingId = cell->getParentId();
 	}
 		
 	if(npcParentId)
 	{
-		npcBuildingId	= gWorldManager->getObjectById(npcParentId)->getParentId();
+		if(Object* cell = gWorldManager->getObjectById(npcParentId))
+			npcBuildingId	= cell->getParentId();
 	}
 
-	// not inside same parent, or out of range
+	// not inside the same building, or out of range
 	float distance = glm::distance(player->getWorldPosition(), npc->getWorldPosition());
-	if ((npcBuildingId != playerParentId) || distance > 10.0f)
+	if ((npcBuildingId != playerBuildingId) || distance > 10.0f)
 	{
 		inRange = false;
 	}
@@ -224,7 +226,7 @@ void ObjectController::_handleNPCConversationSelect(uint64 targetId,Message* mes
 
     message->getStringUnicode16(dataStr);
 
-    if(swscanf(dataStr.getUnicode16(),L"%u",&selectId) != 1)
+    if(swscanf(dataStr.getUnicode16().c_str(),L"%u",&selectId) != 1)
     {
         DLOG(INFO) << "ObjController::handleNPCConversationSelect: Error in parameters";
         return;

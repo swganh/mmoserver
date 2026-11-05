@@ -42,7 +42,7 @@ DROP PROCEDURE IF EXISTS `swganh`.`sp_CharacterStatMigrationCreate`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE PROCEDURE `sp_CharacterStatMigrationCreate`( SQL SECURITY INVOKER
+CREATE PROCEDURE `sp_CharacterStatMigrationCreate`(
   IN char_id BIGINT(20),
   IN health INT(10),
   IN strength INT(10),
@@ -54,6 +54,7 @@ CREATE PROCEDURE `sp_CharacterStatMigrationCreate`( SQL SECURITY INVOKER
   IN focus INT(10),
   IN willpower INT(10),
   IN points INT(10))
+SQL SECURITY INVOKER
 BEGIN
 
   DECLARE test INT(1);

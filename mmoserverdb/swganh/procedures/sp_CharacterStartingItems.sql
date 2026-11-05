@@ -47,13 +47,14 @@ DROP PROCEDURE IF EXISTS `sp_CharacterStartingItems`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER' */ $$
-CREATE PROCEDURE `sp_CharacterStartingItems`( SQL SECURITY INVOKER
+CREATE PROCEDURE `sp_CharacterStartingItems`(
 	IN inventory_id BIGINT(20),
 	IN tutorialcontainer_id BIGINT(20),
 	IN privateowner_id BIGINT(20),
 	IN race_id INT(8),
 	IN profession_id INT(8),
 	IN gender_id INT(3))
+SQL SECURITY INVOKER
 BEGIN
 
 	DECLARE tmpId BIGINT(20);

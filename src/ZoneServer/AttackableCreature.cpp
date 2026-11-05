@@ -617,7 +617,16 @@ void AttackableCreature::unequipWeapon(void)
 }
 
 
-void AttackableCreature::handleEvents() {}
+void AttackableCreature::handleEvents()
+{
+    // Creatures are created unspawned and queued as dormant (respawn), and
+    // nothing else puts them in the world: spawn on the first handling.
+    if (mCombatState == State_Unspawned && !isSpawned() && !isDead())
+    {
+        spawn();
+        mCombatState = State_Idle;
+    }
+}
 
 uint64 AttackableCreature::handleState(uint64 timeOverdue)
 {

@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 
+#include "Utils/clock.h"
 #include "Utils/logger.h"
 
 #include "Common/BuildInfo.h"
@@ -158,12 +159,20 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
     PlayerObject*	playerObject;
     uint64			playerId = message->getUint64();
 
-	ObjectIDSet::iterator it = playerZoneList.find(playerId);
+	// Ignore repeats while this character's login is in progress. A login that
+	// failed part way (e.g. the character could not be loaded) never clears its
+	// entry, so after a while a new attempt is allowed instead of being
+	// ignored forever.
+	const uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
+	std::map<uint64, uint64>::iterator it = playerZoneList.find(playerId);
 	if(it != playerZoneList.end())	{
-		return;
+		if(now - it->second < 30000)	{
+			return;
+		}
+		LOG(WARNING) << "CharacterLoginHandler: retrying login of character " << playerId << " after an earlier attempt did not finish";
 	}
 
-	playerZoneList.insert(playerId);
+	playerZoneList[playerId] = now;
 
     // player already exists and is in logged state
 
@@ -206,7 +215,7 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
         playerObject->getHam()->checkForRegen();
         playerObject->getStomach()->checkForRegen();
 
-		ObjectIDSet::iterator it = playerZoneList.find(playerId);
+		std::map<uint64, uint64>::iterator it = playerZoneList.find(playerId);
 		if(it != playerZoneList.end())	{
 			it = playerZoneList.erase(it);
 		}
@@ -222,7 +231,7 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
         // Remove old client, if any.
         delete playerObject->getClient();
 
-		ObjectIDSet::iterator it = playerZoneList.find(playerId);
+		std::map<uint64, uint64>::iterator it = playerZoneList.find(playerId);
 		if(it != playerZoneList.end())	{
 			it = playerZoneList.erase(it);
 		}
@@ -361,7 +370,7 @@ void CharacterLoginHandler::handleObjectReady(Object* object,DispatchClient* cli
         gSpatialIndexManager->sendCreatePlayer(player,player);
 
 		//remove us from the loaders list
-		ObjectIDSet::iterator it = playerZoneList.find(player->getId());
+		std::map<uint64, uint64>::iterator it = playerZoneList.find(player->getId());
 		if(it != playerZoneList.end())	{
 			it = playerZoneList.erase(it);
 		}
@@ -411,10 +420,21 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket(Message*
     {
         // remove the ticket from the DB so they can't use it again.
         TravelTicket* ticket	= dynamic_cast<TravelTicket*>(dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjectById(ticketId));
+        if(!ticket)
+        {
+            LOG(WARNING) << "Transfer approved but ticket " << ticketId << " is not in the inventory of " << playerObject->getId();
+            return;
+        }
         BString dstPointStr		= (int8*)((ticket->getAttribute<std::string>("travel_arrival_point")).c_str());
         uint16 dstPlanetId		= static_cast<uint16>(gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_arrival_planet")).c_str())));
 
         TravelPoint* dstPoint = gTravelMapHandler->getTravelPoint(dstPlanetId,dstPointStr);
+        if(!dstPoint)
+        {
+            LOG(WARNING) << "Transfer approved but travel point " << dstPointStr.getAnsi() << " on planet " << dstPlanetId << " is unknown";
+            return;
+        }
+        LOG(INFO) << "Transfer approved: player " << playerObject->getId() << " to " << dstPointStr.getAnsi() << " on planet " << dstPlanetId;
 
 //		uint64 playerId = playerObject->getId();
 
@@ -481,6 +501,7 @@ void CharacterLoginHandler::_processClusterZoneTransferDenied(Message* message, 
     // put it to the disconnected list
     if((playerObject = gWorldManager->getPlayerByAccId(message->getAccountId())) != NULL)
     {
+        LOG(WARNING) << "Transfer denied for player " << playerObject->getId() << ": destination zone not running";
         gMessageLib->SendSystemMessage(L"The Emperor has restricted travel to this planet at this time.", playerObject);
     }
 }

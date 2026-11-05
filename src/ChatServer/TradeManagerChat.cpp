@@ -1921,7 +1921,7 @@ void TradeManagerChatHandler::ProcessBankTip(Message* message,DispatchClient* cl
     }
     receiverName.convert(BSTRType_Unicode16);
 
-    gChatMessageLib->sendSystemMessageProper(player,0,L"","base_player","prose_tip_pass_self","","","",amount,"","",receiverName.getUnicode16(),0,0,0,"","","");
+    gChatMessageLib->sendSystemMessageProper(player,0,L"","base_player","prose_tip_pass_self","","","",amount,"","",receiverName.getUnicode16().c_str(),0,0,0,"","","");
 
     //send the respective sys messages
 

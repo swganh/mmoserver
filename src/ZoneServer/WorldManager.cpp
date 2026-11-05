@@ -428,6 +428,19 @@ bool WorldManager::_handleDisconnectUpdate(uint64 callTime,void* ref)
 
 //======================================================================================================================
 
+//======================================================================================================================
+//
+// Replace expired resources and load the changes.
+//
+
+bool WorldManager::_handleResourceRotation(uint64 callTime,void* ref)
+{
+    gResourceManager->rotateResources();
+    return true;
+}
+
+//======================================================================================================================
+
 bool WorldManager::_handleShuttleUpdate(uint64 callTime,void* ref)
 {
     ShuttleList::iterator shuttleIt = mShuttleList.begin();
@@ -849,6 +862,8 @@ void WorldManager::_handleLoadComplete()
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleGeneralObjectTimers),5,2000,NULL);
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleGroupObjectTimers),5,gWorldConfig->getGroupMissionUpdateTime(),NULL);
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleVariousUpdates),7,1000, NULL);
+	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleResourceRotation),9,
+		gWorldConfig->getConfiguration<uint32>("Zone_Resource_Rotation_Interval",600)*1000,NULL);
 
 	// Init NPC Manager, will load lairs from the DB.
 	(void)NpcManager::Instance();

@@ -41,11 +41,12 @@ DROP PROCEDURE IF EXISTS `swganh`.`sp_ErrorLogHandler`;
 
 DELIMITER $$
 
-CREATE PROCEDURE `sp_ErrorLogHandler`( SQL SECURITY INVOKER
+CREATE PROCEDURE `sp_ErrorLogHandler`(
 	IN zone char(64),
 	IN system char(64),
 	IN message char(255))
 	
+SQL SECURITY INVOKER
 BEGIN
 
    DECLARE startindex INT;

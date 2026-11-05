@@ -215,7 +215,7 @@ void ObjectController::_handleflourish(uint64 targetId,Message* message,ObjectCo
     BString dataStr;
     message->getStringUnicode16(dataStr);
     uint32 mFlourishId;
-    swscanf(dataStr.getUnicode16(),L"%u",&mFlourishId);
+    swscanf(dataStr.getUnicode16().c_str(),L"%u",&mFlourishId);
 
     if((mFlourishId < 1)||(mFlourishId > flourishMax))
     {
@@ -692,7 +692,7 @@ void ObjectController::_handleBandFlourish(uint64 targetId,Message* message,Obje
     //printf(" flourish : %s",dataStr.getAnsi());
     wchar_t temp[64];
 
-    swscanf(dataStr.getUnicode16(),L"%s",&temp);
+    swscanf(dataStr.getUnicode16().c_str(),L"%s",&temp);
 
     if(wcsncmp(temp, L"on", sizeof(temp)) == 0)
     {
@@ -725,7 +725,7 @@ void ObjectController::_handleBandFlourish(uint64 targetId,Message* message,Obje
     else
     {
         uint32 FlourishId;
-        swscanf(dataStr.getUnicode16(), L"%d", &FlourishId);
+        swscanf(dataStr.getUnicode16().c_str(), L"%d", &FlourishId);
 
         if((FlourishId < 1)||(FlourishId > flourishMax))
         {
@@ -1008,7 +1008,7 @@ void ObjectController::_handleRequestStatMigrationData(uint64 targetId,Message* 
 
     uint32 value1,value2,value3,value4,value5,value6,value7,value8,value9;
 
-    swscanf(dataStr.getUnicode16(),L"%u %u %u %u %u %u %u %u %u",&value1,&value2,&value3,&value4,&value5,&value6,&value7,&value8,&value9);
+    swscanf(dataStr.getUnicode16().c_str(),L"%u %u %u %u %u %u %u %u %u",&value1,&value2,&value3,&value4,&value5,&value6,&value7,&value8,&value9);
 
     we->getHam()->setTargetStatValue(HamBar_Health,value1);
     we->getHam()->setTargetStatValue(HamBar_Strength,value2);

@@ -1,9 +1,9 @@
 include(MMOServerExecutable)
 
 AddMMOServerExecutable(ChatServer
-    MMOSERVER_DEPS 
+    MMOSERVER_DEPS
         Utils
         Common
         DatabaseManager
-        NetworkManager        
+        NetworkManager
 )

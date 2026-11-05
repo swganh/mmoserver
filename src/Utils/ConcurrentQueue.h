@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef SRC_UTILS_CONCURRENTQUEUE_H_
 #define SRC_UTILS_CONCURRENTQUEUE_H_
 
-#include <tbb/atomic.h>
+#include <atomic>
 
 // @todo Need a way to programatically determine the cache line size for a given environment
 // for now 64 will do for all environments we currently support.
@@ -77,7 +77,7 @@ public:
 	bool filled()	{
 	
 		// Spin-lock until exclusivity is acquired
-		while (consumer_lock_.fetch_and_store(true)) {}
+		while (consumer_lock_.exchange(true)) {}
 
         if (first_->next != nullptr) {
 			consumer_lock_ = false;
@@ -111,12 +111,12 @@ public:
         Node* tmp = new Node(new T(t));
 
         // Spin-lock until exclusivity is acquired
-        while (producer_lock_.fetch_and_store(true)) {}
+        while (producer_lock_.exchange(true)) {}
 
         last_->next = tmp;
         last_ = tmp;
 
-		while (consumer_lock_.fetch_and_store(true)) {}
+		while (consumer_lock_.exchange(true)) {}
 		queuesize++;
 		consumer_lock_ = false;
         producer_lock_ = false;
@@ -131,7 +131,7 @@ public:
      * \returns Returns true if an item was successfully popped, false if not or the queue was empty.
      */
     bool pop(T& t) {
-        while (consumer_lock_.fetch_and_store(true)) {}
+        while (consumer_lock_.exchange(true)) {}
 
         if (first_->next != nullptr) {
             Node* old_first = first_;
@@ -146,7 +146,7 @@ public:
             t = *value;
             delete value;
             delete old_first;
-			while (producer_lock_.fetch_and_store(true)) {}
+			while (producer_lock_.exchange(true)) {}
 			queuesize--;
 			producer_lock_ = false;
             return true;
@@ -164,7 +164,7 @@ public:
      * \returns Returns pointer to the first container on the queue
      */
     bool front(T& t) {
-        while (consumer_lock_.fetch_and_store(true)) {}
+        while (consumer_lock_.exchange(true)) {}
 
         if (first_->next != nullptr) {
             
@@ -192,8 +192,8 @@ private:
 
         T* value;
 
-        tbb::atomic<Node*> next;
-        char pad[CACHE_LINE_SIZE - sizeof(T*) - sizeof(tbb::atomic<Node*>)];
+        std::atomic<Node*> next;
+        char pad[CACHE_LINE_SIZE - sizeof(T*) - sizeof(std::atomic<Node*>)];
     };
 
     // @note: All these pad* variables are here to prevent hidden contention caused by
@@ -206,16 +206,16 @@ private:
     char pad1[CACHE_LINE_SIZE - sizeof(Node*)];
 
     // Shared among consumers.
-    tbb::atomic<bool> consumer_lock_;
-    char pad2[CACHE_LINE_SIZE - sizeof(tbb::atomic<bool>)];
+    std::atomic<bool> consumer_lock_;
+    char pad2[CACHE_LINE_SIZE - sizeof(std::atomic<bool>)];
 
     // Accessed by one producer at a time.
     Node* last_;
     char pad3[CACHE_LINE_SIZE - sizeof(Node*)];
 
     // Shared among producers.
-    tbb::atomic<bool> producer_lock_;
-    char pad4[CACHE_LINE_SIZE - sizeof(tbb::atomic<bool>)];
+    std::atomic<bool> producer_lock_;
+    char pad4[CACHE_LINE_SIZE - sizeof(std::atomic<bool>)];
 
 	int queuesize;
 
@@ -251,7 +251,7 @@ public:
 	bool filled()	{
 	
 		// Spin-lock until exclusivity is acquired
-		while (consumer_lock_.fetch_and_store(true)) {}
+		while (consumer_lock_.exchange(true)) {}
 
         if (first_->next != nullptr) {
 			consumer_lock_ = false;
@@ -274,7 +274,7 @@ public:
         Node* tmp = new Node(new T(t));
 
         // Spin-lock until exclusivity is acquired
-        while (producer_lock_.fetch_and_store(true)) {}
+        while (producer_lock_.exchange(true)) {}
 
         last_->next = tmp;
         last_ = tmp;
@@ -291,7 +291,7 @@ public:
      * \returns Returns true if an item was successfully popped, false if not or the queue was empty.
      */
     bool pop(T& t) {
-        while (consumer_lock_.fetch_and_store(true)) {}
+        while (consumer_lock_.exchange(true)) {}
 
         if (first_->next != nullptr) {
             Node* old_first = first_;
@@ -322,7 +322,7 @@ public:
      * \returns Returns pointer to the first container on the queue
      */
     bool front(T& t) {
-        while (consumer_lock_.fetch_and_store(true)) {}
+        while (consumer_lock_.exchange(true)) {}
 
         if (first_->next != nullptr) {
             
@@ -350,8 +350,8 @@ private:
 
         T* value;
 
-        tbb::atomic<Node*> next;
-        char pad[CACHE_LINE_SIZE - sizeof(T*) - sizeof(tbb::atomic<Node*>)];
+        std::atomic<Node*> next;
+        char pad[CACHE_LINE_SIZE - sizeof(T*) - sizeof(std::atomic<Node*>)];
     };
 
     // @note: All these pad* variables are here to prevent hidden contention caused by
@@ -364,16 +364,16 @@ private:
     char pad1[CACHE_LINE_SIZE - sizeof(Node*)];
 
     // Shared among consumers.
-    tbb::atomic<bool> consumer_lock_;
-    char pad2[CACHE_LINE_SIZE - sizeof(tbb::atomic<bool>)];
+    std::atomic<bool> consumer_lock_;
+    char pad2[CACHE_LINE_SIZE - sizeof(std::atomic<bool>)];
 
     // Accessed by one producer at a time.
     Node* last_;
     char pad3[CACHE_LINE_SIZE - sizeof(Node*)];
 
     // Shared among producers.
-    tbb::atomic<bool> producer_lock_;
-    char pad4[CACHE_LINE_SIZE - sizeof(tbb::atomic<bool>)];
+    std::atomic<bool> producer_lock_;
+    char pad4[CACHE_LINE_SIZE - sizeof(std::atomic<bool>)];
 
 };
 

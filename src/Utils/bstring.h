@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_UTILS_BSTRING_H
 
 #include <cstdint>
+#include <string>
 #include <vector>
 
 class BString;
@@ -82,7 +83,9 @@ public:
 
     // Accessor Methods
     const char* getAnsi() const;
-    const wchar_t* getUnicode16() const;
+    // A copy as wchar_t text. Unicode16 strings hold 16-bit units, while
+    // wchar_t is 32 bits on Linux, so the raw buffer cannot be used as one.
+    std::wstring getUnicode16() const;
 
     void convert(BStringType type);
     void substring(BString& dest, uint16_t start, uint16_t end);

@@ -1,0 +1,216 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    name: Linux ${{ matrix.config }} (system packages)
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [debug, release]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential cmake ninja-build \
+            libboost-all-dev libtbb-dev libmysqlcppconn-dev liblua5.1-0-dev \
+            libtolua++5.1-dev libnoise-dev libglm-dev libgtest-dev \
+            libmysqlclient-dev zlib1g-dev
+
+      # The plain, preset-less configure must work without any -D flags.
+      - name: Configure without presets
+        if: matrix.config == 'debug'
+        run: cmake -S . -B build/plain
+
+      - name: Build and test
+        run: ./build_server.sh -t ${{ matrix.config == 'release' && '-r' || '' }}
+
+  # Ubuntu 26.04 dropped libtolua++5.1-dev, so this also covers building
+  # tolua++ from source, and the newer GCC 15 / Boost 1.90 / GLM 1.0.
+  linux-2604:
+    name: Linux ${{ matrix.config }} (Ubuntu 26.04 packages)
+    runs-on: ubuntu-24.04
+    container: ubuntu:26.04
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [debug, release]
+    steps:
+      - name: Install dependencies
+        run: |
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            build-essential cmake ninja-build git ca-certificates \
+            libboost-all-dev libtbb-dev libmysqlcppconn-dev liblua5.1-0-dev \
+            libnoise-dev libglm-dev libgtest-dev libmysqlclient-dev zlib1g-dev
+
+      - uses: actions/checkout@v4
+
+      - name: Build and test
+        run: ./build_server.sh -t ${{ matrix.config == 'release' && '-r' || '' }}
+
+  database:
+    name: Database install (MariaDB ${{ matrix.mariadb }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        # The versions Ubuntu 24.04 and 26.04 ship. 11.5+ changed the default
+        # utf8 collation, which the installer has to override.
+        mariadb: ['10.11', '11.8']
+    services:
+      mariadb:
+        image: mariadb:${{ matrix.mariadb }}
+        env:
+          MARIADB_ROOT_PASSWORD: ci-root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "healthcheck.sh --connect --innodb_initialized"
+          --health-interval 5s --health-retries 20
+    env:
+      DB_HOST: 127.0.0.1
+      DB_ADMIN_USER: root
+      MYSQL_PWD: ci-root
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install the MariaDB client
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends mariadb-client
+
+      - name: Install the databases
+        run: ./mmoserverdb/setup.sh install
+
+      - name: Refuse to overwrite without --force
+        run: |
+          if ./mmoserverdb/setup.sh install; then
+            echo "install should refuse to overwrite existing databases" >&2
+            exit 1
+          fi
+
+      - name: Create an account
+        run: |
+          printf 'ci-password-123\n' | ./mmoserverdb/setup.sh add-account ci_pilot
+          mariadb -h "$DB_HOST" -u root -N -e \
+            "SELECT COUNT(*) FROM swganh.account WHERE account_username='ci_pilot' AND account_password=SHA1('ci-password-123')" |
+            grep -qx 1
+
+      - name: Spawn and rotate resources
+        run: |
+          q() { mariadb -h "$DB_HOST" -u root -N swganh -e "$1"; }
+          active=$(q "SELECT COUNT(*) FROM resources WHERE active = 1")
+          [ "$active" -gt 400 ] || { echo "only $active resources spawned" >&2; exit 1; }
+          q "CALL sp_ResourceRotate()" > /dev/null
+          q "UPDATE resources SET spawn_end = NOW() - INTERVAL 1 MINUTE WHERE active = 1 ORDER BY id LIMIT 5"
+          rotated=$(q "CALL sp_ResourceRotate()")
+          [ "$rotated" -eq 5 ] || { echo "rotated $rotated resources, expected 5" >&2; exit 1; }
+          [ "$(q "SELECT COUNT(*) FROM resources WHERE active = 1")" -eq "$active" ]
+          [ "$(q "SELECT COUNT(*) FROM resources WHERE active = 1 AND spawn_end <= NOW()")" -eq 0 ]
+
+      - name: Reload the stored procedures
+        run: |
+          count() { mariadb -h "$DB_HOST" -u root -N -e "SELECT COUNT(*) FROM information_schema.routines WHERE routine_schema LIKE 'swganh%'"; }
+          before=$(count)
+          ./mmoserverdb/setup.sh update-procedures
+          ./mmoserverdb/setup.sh update-procedures
+          [ "$(count)" -eq "$before" ]
+
+      # Mixed collations make routines fail at runtime with
+      # "Illegal mix of collations".
+      - name: Check collations are consistent
+        run: |
+          mixed=$(mariadb -h "$DB_HOST" -u root -N -e "
+            SELECT CONCAT('table ', table_name, ': ', table_collation) FROM information_schema.tables
+             WHERE table_schema='swganh' AND table_collation NOT IN ('utf8mb3_general_ci', 'utf8mb3_bin')
+            UNION ALL
+            SELECT CONCAT('routine ', routine_name, ': ', database_collation) FROM information_schema.routines
+             WHERE routine_schema='swganh' AND database_collation <> 'utf8mb3_general_ci'")
+          if [ -n "$mixed" ]; then
+            echo "Objects with an unexpected collation:" >&2
+            echo "$mixed" >&2
+            exit 1
+          fi
+
+      # Every swganh.<table/routine> the servers query must exist.
+      - name: Check the schema covers the code
+        run: |
+          grep -rhoE '%s\.[A-Za-z_][A-Za-z_0-9]*' src --include=*.cpp --include=*.h |
+            sed 's/^%s\.//' | tr 'A-Z' 'a-z' | grep -vx join | sort -u > referenced.txt
+          mariadb -h "$DB_HOST" -u root -N -e "
+            SELECT LOWER(table_name) FROM information_schema.tables WHERE table_schema='swganh'
+            UNION SELECT LOWER(routine_name) FROM information_schema.routines WHERE routine_schema='swganh'" |
+            sort -u > available.txt
+          missing=$(comm -23 referenced.txt available.txt)
+          if [ -n "$missing" ]; then
+            echo "Referenced by the code but missing from the database:" >&2
+            echo "$missing" >&2
+            exit 1
+          fi
+          echo "All $(wc -l < referenced.txt) referenced tables and routines exist."
+
+  linux-vcpkg:
+    name: Linux debug (vcpkg)
+    runs-on: ubuntu-24.04
+    env:
+      VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg-binary-cache
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential cmake ninja-build git curl zip unzip tar pkg-config libtirpc-dev
+
+      # Use the vcpkg release matching the baseline in vcpkg-configuration.json.
+      - name: Set up vcpkg
+        run: |
+          git clone --depth 1 --branch 2026.10.16 https://github.com/microsoft/vcpkg.git "$VCPKG_ROOT"
+          "$VCPKG_ROOT/bootstrap-vcpkg.sh" -disableMetrics
+          mkdir -p "$VCPKG_DEFAULT_BINARY_CACHE"
+
+      - name: Restore vcpkg binary cache
+        id: vcpkg-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          key: vcpkg-ubuntu-24.04-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'tools/vcpkg/ports/**') }}-${{ github.run_id }}
+          restore-keys: vcpkg-ubuntu-24.04-
+
+      - name: Build and test
+        run: ./build_server.sh --vcpkg -t
+
+      # Saved even when the build fails, so the next run does not rebuild the
+      # packages that did succeed. vcpkg only uses entries whose ABI matches.
+      - name: Save vcpkg binary cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          key: ${{ steps.vcpkg-cache.outputs.cache-primary-key }}
+
+      - name: Upload vcpkg logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vcpkg-logs
+          path: |
+            build/**/vcpkg-manifest-install.log
+            vcpkg/buildtrees/**/*.log
+          if-no-files-found: ignore

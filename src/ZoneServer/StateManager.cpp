@@ -146,6 +146,14 @@ void StateManager::setCurrentPostureState(CreatureObject* object, CreaturePostur
 
             // ENTER NEW STATE
             mPostureStateMap[newPosture]->Enter(object);
+
+            // Players update their clients from the posture event; nothing
+            // does that for NPCs and creatures, so tell the players around
+            // (a killed creature would otherwise stay standing).
+            if (object->getType() != ObjType_Player)
+            {
+                gMessageLib->sendPostureAndStateUpdate(object);
+            }
         }
         else
         {

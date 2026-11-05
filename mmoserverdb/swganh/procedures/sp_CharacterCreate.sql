@@ -46,7 +46,7 @@ DROP PROCEDURE IF EXISTS `sp_CharacterCreate`;
 
 DELIMITER $$
 
-CREATE PROCEDURE `sp_CharacterCreate`( SQL SECURITY INVOKER
+CREATE PROCEDURE `sp_CharacterCreate`(
 	IN start_account_id INT,IN start_galaxy_id INT,IN start_firstname char(32),IN start_lastname char(32),
 	IN start_profession char(64),IN start_city char(32),IN start_scale FLOAT,IN start_biography text(2048),
 	IN 00FF INT, IN 01FF INT, IN 02FF INT, IN 03FF INT, IN 04FF INT, IN 05FF INT, IN 06FF INT, IN 07FF INT,
@@ -66,6 +66,7 @@ CREATE PROCEDURE `sp_CharacterCreate`( SQL SECURITY INVOKER
 	IN 70FF INT, IN ABFF INT, IN AB2FF INT,
 	IN start_hair_model CHAR(64), IN hair1 INT,IN hair2 INT, IN base_model_string CHAR(64))
 
+SQL SECURITY INVOKER
 charCreate:BEGIN
 
   --

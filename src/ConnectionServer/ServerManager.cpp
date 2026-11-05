@@ -313,7 +313,13 @@ void ServerManager::_processClusterZoneTransferRequestByTicket(ConnectionClient*
     uint64 ticketId = message->getUint64();
 
     // see if that zone is available or not.
-    if (mServerAddressMap[destinationZone].mConnectionClient)
+    // The zone id comes from the message (planet id + 8); ids outside the zone
+    // range, including ones that wrapped around, are not available.
+    bool available = destinationZone >= 8 && destinationZone < 256 && mServerAddressMap[destinationZone].mConnectionClient;
+    LOG(INFO) << "Ticket transfer for account " << message->getAccountId() << " to zone " << destinationZone
+              << (available ? ": approved" : ": denied, that zone is not connected");
+
+    if (available)
     {
         // Send back a opClusterZoneTransferApproved
         gMessageFactory->StartMessage();
@@ -398,7 +404,9 @@ void ServerManager::_processClusterZoneTransferRequestByPosition(ConnectionClien
     float	z				= message->getFloat();
 
     // see if that zone is available or not.
-    if(mServerAddressMap[destinationZone].mConnectionClient)
+    // The zone id comes from the message (planet id + 8); ids outside the zone
+    // range, including ones that wrapped around, are not available.
+    if(destinationZone >= 8 && destinationZone < 256 && mServerAddressMap[destinationZone].mConnectionClient)
     {
         // Send back a opClusterZoneTransferApproved
         gMessageFactory->StartMessage();

@@ -39,6 +39,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <wchar.h>
 #include <wctype.h>
 
+// BSTRType_Unicode16 strings hold UTF-16 code units (as sent by the client).
+// wchar_t is 16 bits on Windows but 32 bits on Linux, so the wcs* functions
+// cannot be used on them.
+namespace {
+
+size_t u16len(const uint16_t* data)
+{
+    size_t length = 0;
+    while (data[length])
+        ++length;
+    return length;
+}
+
+}
+
 //======================================================================================================================
 
 BString::BString()
@@ -252,7 +267,7 @@ BString& BString::operator =(const uint16_t* data)
     {
         mType = BSTRType_Unicode16;
         mCharacterWidth = 2;
-        mLength = static_cast<uint16_t>(wcslen(reinterpret_cast<const wchar_t*>(data)));
+        mLength = static_cast<uint16_t>(u16len(data));
 
         // If we don't have enough room in our buffer, re-allocate a new one
         _allocate();
@@ -261,7 +276,7 @@ BString& BString::operator =(const uint16_t* data)
         if (mAllocated)
         {
             memcpy(mString, data, mLength*2);
-            memset(&mString[mLength*2], 0, 1);
+            memset(&mString[mLength*2], 0, 2);
         }
     }
     return *this;
@@ -280,11 +295,15 @@ BString& BString::operator =(const wchar_t* data)
         // If we don't have enough room in our buffer, re-allocate a new one
         _allocate();
 
-        // Cpoy our string into the new buffer.
+        // Copy one character at a time: wchar_t may be wider than 16 bits.
         if (mAllocated)
         {
-            memcpy(mString, data, mLength*2);
-            memset(&mString[mLength*2], 0, 1);
+            uint16_t* dest = reinterpret_cast<uint16_t*>(mString);
+            for (uint16_t i = 0; i < mLength; ++i)
+            {
+                dest[i] = data[i] > 0xFFFF ? uint16_t('?') : static_cast<uint16_t>(data[i]);
+            }
+            dest[mLength] = 0;
         }
     }
     return *this;
@@ -347,7 +366,7 @@ BString& BString::operator <<(const uint16_t* data)
     if(data != NULL)
     {
         // Get our source string length
-        uint16_t dataLength  = static_cast<uint16_t>(wcslen(reinterpret_cast<const wchar_t*>(data)));
+        uint16_t dataLength  = static_cast<uint16_t>(u16len(data));
         //uint16_t dataLength = (uint16_t)strlen(data);
 
         // Set our new length and allocate
@@ -372,7 +391,7 @@ BString& BString::operator <<(uint16_t* data)
     if(data != NULL)
     {
         // Get our source string length
-        uint16_t dataLength  = static_cast<uint16_t>(wcslen(reinterpret_cast<const wchar_t*>(data)));
+        uint16_t dataLength  = static_cast<uint16_t>(u16len(data));
         //uint16_t dataLength = (uint16_t)strlen(data);
 
         // Set our new length and allocate
@@ -442,14 +461,15 @@ const char* BString::getAnsi() const
 
 //======================================================================================================================
 
-const wchar_t* BString::getUnicode16() const
+std::wstring BString::getUnicode16() const
 {
+    std::wstring result;
     if (mType == BSTRType_Unicode16)
     {
-        return reinterpret_cast<wchar_t*>(mString);
-    } else {
-        return 0;
+        const uint16_t* data = reinterpret_cast<const uint16_t*>(mString);
+        result.assign(data, data + mLength);
     }
+    return result;
 }
 
 //======================================================================================================================
@@ -481,7 +501,12 @@ void BString::convert(BStringType type)
         // Convert the string if needed.
         if(mType == BSTRType_Unicode16)
         {
-            wcstombs(newBuffer, reinterpret_cast<wchar_t*>(mString), std::min(allocated, mAllocated));
+            // Latin-1 range as is; anything else cannot be represented.
+            const uint16_t* source = reinterpret_cast<const uint16_t*>(mString);
+            for (uint16_t i = 0; i < mLength && i + 1 < allocated; ++i)
+            {
+                newBuffer[i] = source[i] < 0x100 ? static_cast<char>(source[i]) : '?';
+            }
         }
         else if(mType == BSTRType_UTF8)
         {
@@ -528,7 +553,14 @@ void BString::convert(BStringType type)
         }
         else if(mType == BSTRType_Unicode16)
         {
-            wcstombs((char*)newBuffer, reinterpret_cast<wchar_t*>(mString), mLength+1);
+            // ASCII only, so the result is valid UTF-8 and fits the buffer.
+            const uint16_t* source = reinterpret_cast<const uint16_t*>(mString);
+            uint16_t i = 0;
+            for (; i < mLength && i + 1 < allocated; ++i)
+            {
+                newBuffer[i] = source[i] < 0x80 ? static_cast<char>(source[i]) : '?';
+            }
+            newBuffer[i] = 0;
         }
     }
     break;
@@ -725,7 +757,14 @@ void BString::substring(BString& dest, uint16_t start, uint16_t end)
     case BSTRType_Unicode16:
     {
         uint16_t* destBuffer = (uint16_t*)dest.getRawData();
-        wcsncpy(reinterpret_cast<wchar_t*>(destBuffer), reinterpret_cast<wchar_t*>(mString) + start, end - start);
+        const uint16_t* source = reinterpret_cast<const uint16_t*>(mString) + start;
+        uint16_t count = 0;
+        while (count < end - start && source[count])
+        {
+            destBuffer[count] = source[count];
+            ++count;
+        }
+        destBuffer[count] = 0;
         break;
     }
     }

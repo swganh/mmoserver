@@ -166,7 +166,7 @@ void ObjectController::_handleWaypoint(uint64 targetId, Message* message, Object
     // Check and see if any parameters were passed to the /waypoint command. For
     // immediate purposes the length can be used to tell if anything or nothing was passed.
     if (waypoint_data.getLength()) {
-        int count = swscanf(waypoint_data.getUnicode16(), L"%f %f %f", &waypoint_position.x, &waypoint_position.y, &waypoint_position.z);
+        int count = swscanf(waypoint_data.getUnicode16().c_str(), L"%f %f %f", &waypoint_position.x, &waypoint_position.y, &waypoint_position.z);
 
         // If there are an invalid number of items then disregard and notify the player of the correct
         // format for the /waypoint command.

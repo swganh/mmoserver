@@ -542,13 +542,26 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,BString inputSt
         PlayerObject*			playerObject	= window->getOwner();
         UITicketSelectListBox*	listBox			= dynamic_cast<UITicketSelectListBox*>(window);
 
-        if(playerObject->getSurveyState() || playerObject->getSamplingState() || !listBox)
+        if(!listBox)
+        {
+            LOG(WARNING) << "Ticket selection: window " << window->getId() << " is not a ticket list";
             return;
+        }
+
+        // Every way this can fail is logged and told to the player, rather
+        // than the OK button silently doing nothing.
+        if(playerObject->getSurveyState() || playerObject->getSamplingState())
+        {
+            LOG(WARNING) << "Ticket selection: player " << playerObject->getId() << " is surveying or sampling";
+            gMessageLib->SendSystemMessage(L"You cannot board while surveying or sampling.", playerObject);
+            return;
+        }
 
         Shuttle* shuttle = listBox->getShuttle();
 
         if(!shuttle)
         {
+            LOG(WARNING) << "Ticket selection: no shuttle for port " << listBox->getPort().getAnsi();
             return;
         }
 
@@ -565,8 +578,18 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,BString inputSt
             return;
         }
 
+        BStringVector* items = listBox->getDataItems();
+        if(static_cast<size_t>(element) >= items->size())
+        {
+            LOG(WARNING) << "Ticket selection: item " << element << " out of " << items->size();
+            return;
+        }
+        BString selectedDst = items->at(element);
+        selectedDst.convert(BSTRType_ANSI);
+
         ObjectIDList*			invObjects		= dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
         ObjectIDList::iterator	it				= invObjects->begin();
+        bool					ticketFound		= false;
 
         while(it != invObjects->end())
         {
@@ -578,12 +601,13 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,BString inputSt
                 uint16 srcPlanetId	= static_cast<uint8>(gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_departure_planet")).c_str())));
                 uint16 dstPlanetId	= static_cast<uint8>(gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_arrival_planet")).c_str())));
 
-                BStringVector* items = (dynamic_cast<UIListBox*>(window))->getDataItems();
-                BString selectedDst = items->at(element);
-                selectedDst.convert(BSTRType_ANSI);
+                LOG(INFO) << "Ticket selection: ticket " << ticket->getId() << " " << srcPoint.getAnsi() << " (planet " << srcPlanetId
+                          << ") to " << dstPointStr.getAnsi() << " (planet " << dstPlanetId << "); port " << listBox->getPort().getAnsi()
+                          << " on " << zoneId << ", selected " << selectedDst.getAnsi();
 
                 if(srcPlanetId == zoneId && (strcmp(dstPointStr.getAnsi(),selectedDst.getAnsi()) == 0)&&(strcmp(srcPoint.getAnsi(),listBox->getPort().getAnsi()) == 0))
                 {
+                    ticketFound = true;
                     TravelPoint* dstPoint = gTravelMapHandler->getTravelPoint(dstPlanetId,dstPointStr);
 
                     if(dstPoint != NULL)
@@ -604,17 +628,35 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,BString inputSt
                         }
                         else
                         {
-                            gMessageLib->sendClusterZoneTransferRequestByTicket(playerObject,ticket->getId(), dstPoint->planetId);
+                            LOG(INFO) << "Ticket selection: player " << playerObject->getId() << " requests transfer to planet "
+                                      << dstPoint->planetId << " with ticket " << ticket->getId();
+                            if(!gMessageLib->sendClusterZoneTransferRequestByTicket(playerObject,ticket->getId(), dstPoint->planetId))
+                            {
+                                LOG(WARNING) << "Ticket selection: player " << playerObject->getId() << " is not connected";
+                            }
                         }
                     }
                     else
                     {
+                        LOG(WARNING) << "Ticket selection: unknown travel point " << dstPointStr.getAnsi() << " on planet " << dstPlanetId;
+                        gMessageLib->SendSystemMessage(L"That destination is not available.", playerObject);
                     }
                     break;
                 }
             }
             ++it;
         }
+
+        if(!ticketFound)
+        {
+            LOG(WARNING) << "Ticket selection: player " << playerObject->getId() << " has no ticket from "
+                         << listBox->getPort().getAnsi() << " to " << selectedDst.getAnsi();
+            gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "no_ticket"), playerObject);
+        }
+    }
+    else
+    {
+        LOG(INFO) << "Ticket selection: closed (action " << action << ", item " << element << ")";
     }
 }
 

@@ -1477,7 +1477,7 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
     pVec.z = 0;
     uint64 deedId;
 
-    swscanf(dataStr.getUnicode16(),L"%"WidePRIu64 L" %f %f %f",&deedId, &pVec.x, &pVec.z, &dir);
+    swscanf(dataStr.getUnicode16().c_str(),L"%"WidePRIu64 L" %f %f %f",&deedId, &pVec.x, &pVec.z, &dir);
 
     //check the region whether were allowed to build
     if(checkNoBuildRegion(pVec) /*|| !checkCityRadius(player)*/)

@@ -416,7 +416,9 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         }
 
         result->getNextRow(binding,&error);
-        if(result > 0)
+        gWorldManager->getDatabase()->destroyDataBinding(binding);
+
+        if(error > 0)
         {
             //mmh there was something fishy ... no changes db side
             gMessageLib->sendResourceEmptyHopperResponse(harvester,player,error, asynContainer->command.b1, asynContainer->command.b2);
@@ -426,7 +428,7 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_ResourceDiscardUpdateHopper,player->getClient());
         asyncContainer->mStructureId	= asynContainer->mStructureId;
         asyncContainer->mPlayerId		= asynContainer->mPlayerId;
-        asyncContainer->command			= asyncContainer->command;
+        asyncContainer->command			= asynContainer->command;
 
         gWorldManager->getDatabase()->executeSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM %s.harvester_resources hr WHERE hr.ID = '%" PRIu64 "' ",gWorldManager->getDatabase()->galaxy(),harvester->getId());
         

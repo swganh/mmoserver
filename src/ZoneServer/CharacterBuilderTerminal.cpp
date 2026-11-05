@@ -900,7 +900,7 @@ void CharacterBuilderTerminal::_handleCreditMenu(PlayerObject* player, uint32 ac
         }
     } else {
         // parse the input value
-        if(swscanf(inputStr.getUnicode16(),L"%i",&mInputBoxAmount) != 1)
+        if(swscanf(inputStr.getUnicode16().c_str(),L"%i",&mInputBoxAmount) != 1)
         {
             mInputBoxAmount = -1;
         }
@@ -2553,7 +2553,7 @@ void CharacterBuilderTerminal::_handleCSRItemSelect(PlayerObject* playerObject, 
 {
     uint32 inputId = 0;
 
-    if(swscanf(inputStr.getUnicode16(),L"%u",&inputId) == 1)
+    if(swscanf(inputStr.getUnicode16().c_str(),L"%u",&inputId) == 1)
     {
         GiveItem(playerObject,inputId);
     }

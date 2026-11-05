@@ -290,7 +290,7 @@ void ObjectController::_handleRequestCharacterMatch(uint64 targetId,Message* mes
     message->getStringUnicode16(dataStr);
 
     if(dataStr.getLength())
-        elementCount = swscanf(dataStr.getUnicode16(),L"%u %u %u %u %u %u %i %s %s",&masksCount,&playerFlags,&mask2,&mask3,&mask4,&factionCrc,&raceId,titleStr,unknown);
+        elementCount = swscanf(dataStr.getUnicode16().c_str(),L"%u %u %u %u %u %u %i %s %s",&masksCount,&playerFlags,&mask2,&mask3,&mask4,&factionCrc,&raceId,titleStr,unknown);
 
     if(elementCount != 9)
     {
@@ -353,7 +353,7 @@ void ObjectController::_handleMatch(uint64 targetId,Message* message,ObjectContr
 
     message->getStringUnicode16(matchfield);
 
-    swscanf(matchfield.getUnicode16(),L"%u %u %u %u %u",&i1,&i2,&i3,&i4,&i5);
+    swscanf(matchfield.getUnicode16().c_str(),L"%u %u %u %u %u",&i1,&i2,&i3,&i4,&i5);
 
     mDatabase->executeSqlAsync(this,new(mDBAsyncContainerPool.malloc()) ObjControllerAsyncContainer(OCQuery_Nope), "UPDATE %s.character_matchmaking set match_1 = %u, match_2 = %u, match_3 = %u, match_4 = %u where character_id = %" PRIu64 "",mDatabase->galaxy(), i2, i3, i4, i5, matchObject->getId());
     

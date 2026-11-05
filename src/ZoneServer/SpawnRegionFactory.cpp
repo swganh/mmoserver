@@ -52,8 +52,8 @@ void SpawnRegionFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 void SpawnRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
     // setup our statement
-    int8 sql[128];
-    sprintf(sql,"SELECT spawn_regions.id,spawn_regions.spawn_type,planet_regions.region_name,planet_regions.region_file,planet_regions.x,planet_regions.z,"
+    int8 sql[1024];
+    snprintf(sql, sizeof(sql), "SELECT spawn_regions.id,spawn_regions.spawn_type,planet_regions.region_name,planet_regions.region_file,planet_regions.x,planet_regions.z,"
             "planet_regions.width,planet_regions.height,spawn_regions.parent_id,spawn_regions.mission"
             " FROM %s.spawn_regions"
             " INNER JOIN %s.planet_regions ON (spawn_regions.region_id = planet_regions.region_id)"

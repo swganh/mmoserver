@@ -1,0 +1,17 @@
+{
+  "name": "lua51",
+  "version": "5.1.5",
+  "description": "Lua 5.1, the version the MMOServer script engine is written against (vcpkg's lua port is 5.4+).",
+  "homepage": "https://www.lua.org",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "vcpkg-cmake",
+      "host": true
+    },
+    {
+      "name": "vcpkg-cmake-config",
+      "host": true
+    }
+  ]
+}

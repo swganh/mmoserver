@@ -76,6 +76,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "SwgProtocol/ObjectControllerEvents.h"
 
 #include <cassert>
+#include <cerrno>
+#include <cstdlib>
 
 using ::common::IEventPtr;
 using ::common::OutOfBand;
@@ -583,6 +585,9 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 		//bail out here and request the item over the db - as the item in the NPC has a temporary id and we dont want that in the db
 		// This ensure that we do not use/store any of the temp id's in the database.
         gObjectFactory->requestNewDefaultItem(inventory, item->getItemFamily(), item->getItemType(), inventory->getId(), 99, glm::vec3(), "");
+
+		// The temporary item is out of the corpse's inventory; free it.
+		gWorldManager->destroyObject(itemObject);
 		return false;
 
 	}		   
@@ -651,7 +656,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 
 
-	if(swscanf(dataStr.getUnicode16(),L"%"WidePRIu64 L" %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
+	if(swscanf(dataStr.getUnicode16().c_str(),L"%"WidePRIu64 L" %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
 	{
 		DLOG(INFO) << "ObjController::_handleTransferItemMisc: Error in parameters";
 		return;
@@ -976,8 +981,16 @@ void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* messag
 
     for(uint16 i = 0; i < elementCount; i++)
     {
+        // Skip tokens that aren't object ids instead of failing the batch.
+        const char* token = dataElements[i].getAnsi();
+        char* end = nullptr;
+        errno = 0;
+        uint64 itemId = strtoull(token, &end, 10);
+        if (end == token || *end != '\0' || errno == ERANGE || itemId == 0)
+        {
+            continue;
+        }
 
-        uint64 itemId	= boost::lexical_cast<uint64>(dataElements[i].getAnsi());
         Object* object	= gWorldManager->getObjectById(itemId);
 
         if(object == NULL)

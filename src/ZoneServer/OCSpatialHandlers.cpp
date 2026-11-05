@@ -129,6 +129,11 @@ void ObjectController::_handleSocialInternal(uint64 targetId,Message* message,Ob
     emoteData.convert(BSTRType_ANSI);
     emoteData.split(emoteElement,' ');
 
+    // Expected: "<target> <emote id> <unused> <show text>".
+    if (emoteElement.size() < 4) {
+        return;
+    }
+
     uint64_t emoteTarget = boost::lexical_cast<uint64>(emoteElement[0].getAnsi());
     uint32_t emoteId     = atoi(emoteElement[1].getAnsi());
 

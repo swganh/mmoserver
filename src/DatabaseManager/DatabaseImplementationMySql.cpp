@@ -62,18 +62,50 @@ DatabaseImplementationMySql::DatabaseImplementationMySql(
     const std::string& user, 
     const std::string& pass, 
     const std::string& schema)
+    : host_(host)
+    , user_(user)
+    , pass_(pass)
+    , schema_(schema)
 {
+    connect_();
+
+    connection_->getDriver()->threadInit();
+}
+
+
+void DatabaseImplementationMySql::connect_() {
     sql::Driver* driver = sql::mysql::get_driver_instance();
     
     sql::ConnectOptionsMap connection_options;
-    connection_options["hostName"] = host;
-    connection_options["userName"] = user;
-    connection_options["password"] = pass;
-    connection_options["schema"] = schema;
+    connection_options["hostName"] = host_;
+    connection_options["userName"] = user_;
+    connection_options["password"] = pass_;
+    connection_options["schema"] = schema_;
 
     connection_.reset(driver->connect(connection_options));
+    last_used_ = std::chrono::steady_clock::now();
+}
 
-    connection_->getDriver()->threadInit();
+
+// The database server closes connections left idle longer than its
+// wait_timeout (8 hours by default), after which every query fails. Before
+// using a connection that has been idle for a while, check it is still open
+// and replace it if not.
+void DatabaseImplementationMySql::reconnectIfIdleTooLong_() {
+    const auto now = std::chrono::steady_clock::now();
+    const bool idle = now - last_used_ > std::chrono::seconds(30);
+    last_used_ = now;
+
+    if (!idle || connection_->isValid()) {
+        return;
+    }
+
+    LOG(WARNING) << "Database connection was closed by the server, reconnecting";
+    try {
+        connect_();
+    } catch(const sql::SQLException& e) {
+        LOG(ERR) << "Database reconnect failed: " << e.what();
+    }
 }
 
 
@@ -84,6 +116,8 @@ DatabaseImplementationMySql::~DatabaseImplementationMySql() {
 
 DatabaseResult* DatabaseImplementationMySql::executeSql(const std::string& sql, bool procedure) {
     DatabaseResult* result = nullptr;
+
+    reconnectIfIdleTooLong_();
 
     try {
         //DLOG(INFO) << sql;

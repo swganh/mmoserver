@@ -1,22 +1,16 @@
-option(DISABLE_LEGACY "disables legacy projects" FALSE)
-
 # libraries
-
 add_subdirectory(anh)
+add_subdirectory(Utils)
+add_subdirectory(Common)
+add_subdirectory(NetworkManager)
+add_subdirectory(DatabaseManager)
+add_subdirectory(MessageLib)
+add_subdirectory(SwgProtocol)
+add_subdirectory(ScriptEngine)
 
 # executables
-
-if (NOT DISABLE_LEGACY)
-    ADD_SUBDIRECTORY(Utils)
-    ADD_SUBDIRECTORY(Common)
-    ADD_SUBDIRECTORY(NetworkManager)
-    ADD_SUBDIRECTORY(DatabaseManager)
-    ADD_SUBDIRECTORY(MessageLib)
-    ADD_SUBDIRECTORY(SwgProtocol)
-    ADD_SUBDIRECTORY(ScriptEngine)
-    ADD_SUBDIRECTORY(ChatServer)
-    ADD_SUBDIRECTORY(ConnectionServer)
-    ADD_SUBDIRECTORY(LoginServer)
-    ADD_SUBDIRECTORY(PingServer)
-    ADD_SUBDIRECTORY(ZoneServer)
-endif()
+add_subdirectory(ChatServer)
+add_subdirectory(ConnectionServer)
+add_subdirectory(LoginServer)
+add_subdirectory(PingServer)
+add_subdirectory(ZoneServer)

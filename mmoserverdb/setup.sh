@@ -344,8 +344,10 @@ allow_host() {
     sql -e "$grants FLUSH PRIVILEGES;"
     echo "Database user '$db_user' may now connect from $host."
 
-    local bind
+    local bind port
     bind=$(sql -N -e "SELECT @@GLOBAL.bind_address" 2>/dev/null || true)
+    port=$(local_cfg_value DBPort)
+    port=${port:-3306}
     echo
     echo "Remaining steps on this machine:"
     if [[ -z $bind || $bind == 127.0.0.1 || $bind == localhost || $bind == ::1 ]]; then
@@ -360,14 +362,14 @@ allow_host() {
     fi
     if command -v ufw >/dev/null && LC_ALL=C ufw status 2>/dev/null | grep -q '^Status: active'; then
         echo "  - Open the port to $host only:"
-        echo "      sudo ufw allow from ${host//%/0/24} to any port 3306 proto tcp"
+        echo "      sudo ufw allow from ${host//%/0/24} to any port $port proto tcp"
     fi
-    echo "  Never open port 3306 to the internet. Over an untrusted network, use an"
+    echo "  Never open port $port to the internet. Over an untrusted network, use an"
     echo "  SSH tunnel instead (docs/WINDOWS.md)."
     echo
     echo "On the development machine, set in build\\<preset>\\bin\\config\\general.cfg:"
     echo "  DBServer = <this machine's address>"
-    echo "  DBPort = $(local_cfg_value DBPort)"
+    echo "  DBPort = $port"
     echo "  DBUser = $(local_cfg_value DBUser)"
     echo "  DBPass = (the DBPass in mmoserverdb/local.cfg on this machine)"
 }

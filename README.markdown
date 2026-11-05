@@ -4,7 +4,9 @@ MMOServer is a server emulator for [Star Wars Galaxies][1], aiming at the
 Pre-Combat Upgrade (pre-CU) experience. It was originally developed by the
 SWG:ANH team. The servers are written in C++ with Lua scripting.
 
-The project is being revived:
+The project is being revived. Guides for running a server and getting
+started are on the [wiki](https://github.com/swganh/mmoserver/wiki) (kept in
+`docs/wiki`; `tools/wiki/publish.sh` publishes them). Reference:
 
 - [docs/ROADMAP.md](docs/ROADMAP.md): where it stands and where it is going
 - [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md): open bugs and what has been fixed

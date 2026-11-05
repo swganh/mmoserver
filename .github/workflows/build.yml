@@ -130,6 +130,27 @@ jobs:
           ./mmoserverdb/setup.sh update-procedures
           [ "$(count)" -eq "$before" ]
 
+      # install applies every migration; running them again must apply none.
+      - name: Migrations
+        run: |
+          applied=$(mariadb -h "$DB_HOST" -u root -N -e "SELECT COUNT(*) FROM swganh_config.swganh_db_version")
+          available=$(ls mmoserverdb/migrations/*.sql | wc -l)
+          [ "$applied" -eq "$available" ] || { echo "install applied $applied of $available migrations" >&2; exit 1; }
+          ./mmoserverdb/setup.sh migrate | tee migrate.out
+          grep -qx "0 migration(s) applied." migrate.out
+          ./mmoserverdb/setup.sh update
+
+      # Every script the database tells the zones to load must exist.
+      - name: Check the script paths in the database exist
+        run: |
+          missing=0
+          for f in $(mariadb -h "$DB_HOST" -u root -N -e "
+              SELECT file FROM swganh.config_zone_scripts
+              UNION SELECT scripthook FROM swganh.command_table WHERE scripthook <> ''"); do
+            [ -f "data/$f" ] || { echo "missing: data/$f" >&2; missing=1; }
+          done
+          exit $missing
+
       # Mixed collations make routines fail at runtime with
       # "Illegal mix of collations".
       - name: Check collations are consistent

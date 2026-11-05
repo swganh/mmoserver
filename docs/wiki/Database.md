@@ -52,16 +52,18 @@ sudo ./mmoserverdb/setup.sh set-address 192.168.1.10
 ./server.sh restart
 ```
 
-## Updating the stored procedures
-
-After a `git pull` that changed the procedures:
+## Updating after a `git pull`
 
 ```bash
-sudo ./mmoserverdb/setup.sh update-procedures
+sudo ./mmoserverdb/setup.sh update
 ```
 
-Only the procedures and functions are reloaded; game data, accounts and
-characters are not touched.
+This reloads the stored procedures and applies the data changes in
+`mmoserverdb/migrations` that this database does not have yet (for example
+when scripts move). Accounts and characters are kept. The two parts can also
+run on their own: `update-procedures` and `migrate`. Each applied migration
+is recorded in `swganh_config.swganh_db_version`; a fresh `install` applies
+all of them.
 
 ## Resources
 

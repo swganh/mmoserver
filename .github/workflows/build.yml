@@ -214,3 +214,77 @@ jobs:
             build/**/vcpkg-manifest-install.log
             vcpkg/buildtrees/**/*.log
           if-no-files-found: ignore
+
+  windows:
+    name: Windows debug (MSVC, vcpkg)
+    runs-on: windows-2025
+    env:
+      VCPKG_ROOT: ${{ github.workspace }}\vcpkg
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}\vcpkg-binary-cache
+    steps:
+      - uses: actions/checkout@v4
+
+      # Use the vcpkg release matching the baseline in vcpkg-configuration.json.
+      - name: Set up vcpkg
+        shell: pwsh
+        run: |
+          git clone --depth 1 --branch 2026.10.16 https://github.com/microsoft/vcpkg.git "$env:VCPKG_ROOT"
+          & "$env:VCPKG_ROOT\bootstrap-vcpkg.bat" -disableMetrics
+          New-Item -ItemType Directory -Force "$env:VCPKG_DEFAULT_BINARY_CACHE" | Out-Null
+
+      - name: Restore vcpkg binary cache
+        id: vcpkg-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          key: vcpkg-windows-2025-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'tools/vcpkg/ports/**') }}-${{ github.run_id }}
+          restore-keys: vcpkg-windows-2025-
+
+      - name: Check the PowerShell scripts parse
+        shell: pwsh
+        run: |
+          $failed = $false
+          foreach ($f in git ls-files '*.ps1') {
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $f).Path, [ref]$null, [ref]$errors) | Out-Null
+            foreach ($e in $errors) { Write-Host "${f}:$($e.Extent.StartLineNumber): $($e.Message)"; $failed = $true }
+          }
+          if ($failed) { exit 1 }
+
+      # build_server.ps1 finds Visual Studio and enters its developer
+      # environment itself, as on a developer's machine.
+      - name: Build and test
+        shell: pwsh
+        run: .\build_server.ps1 -Test -KeepGoing
+
+      # The same sources as a Visual Studio solution, built with MSBuild.
+      - name: Build the Visual Studio solution
+        shell: pwsh
+        run: |
+          .\build_server.ps1 -Solution -Test
+          if (-not (Test-Path build\windows-vs\mmoserver.sln*)) { throw 'no solution generated' }
+          if (-not (Test-Path build\windows-vs\bin\Debug\config\tatooine.cfg)) { throw 'runtime data not staged for the solution' }
+
+      - name: Check the runtime data was staged
+        shell: pwsh
+        run: |
+          foreach ($p in 'config\tatooine.cfg', 'script', 'logs', 'ZoneServer.exe') {
+            if (-not (Test-Path "build\windows-debug\bin\$p")) { throw "missing bin\$p" }
+          }
+
+      - name: Save vcpkg binary cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          key: ${{ steps.vcpkg-cache.outputs.cache-primary-key }}
+
+      - name: Upload vcpkg logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vcpkg-logs-windows
+          path: |
+            build/**/vcpkg-manifest-install.log
+            vcpkg/buildtrees/**/*.log
+          if-no-files-found: ignore

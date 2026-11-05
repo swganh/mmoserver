@@ -4,11 +4,14 @@ MMOServer is a server emulator for [Star Wars Galaxies][1], aiming at the
 Pre-Combat Upgrade (pre-CU) experience. It was originally developed by the
 SWG:ANH team. The servers are written in C++ with Lua scripting.
 
-The project is being revived:
+The project is being revived. Guides for running a server and getting
+started are on the [wiki](https://github.com/swganh/mmoserver/wiki) (kept in
+`docs/wiki`; `tools/wiki/publish.sh` publishes them). Reference:
 
 - [docs/ROADMAP.md](docs/ROADMAP.md): where it stands and where it is going
 - [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md): open bugs and what has been fixed
 - [docs/TEST_PLAN.md](docs/TEST_PLAN.md): client tests, done and to do
+- [docs/WINDOWS.md](docs/WINDOWS.md): the Windows development environment
 - [docs/SCRIPTING.md](docs/SCRIPTING.md): the plan for scripts and content
 - [docs/CODE_REVIEW_2026.md](docs/CODE_REVIEW_2026.md): the code review the
   revival started from
@@ -99,8 +102,10 @@ The archives come from the [v0.6.0 release][3] and are checked against
 
 ### 1. Set up the database ###
 
-The servers use MariaDB (tested with 10.11 and 11.8; MySQL 8 is not supported
-yet). Install it and create the databases:
+The servers use **MariaDB**, the supported database on Linux and Windows
+(tested with 10.11 and 11.8). MySQL is not supported: the schema and
+stored procedures rely on MariaDB's defaults (see `docs/ROADMAP.md`,
+"Database"). Install it and create the databases:
 
     sudo apt install mariadb-server
     sudo ./mmoserverdb/setup.sh install
@@ -180,9 +185,15 @@ the machines; packets arriving with no reply usually means the firewall.
 
 ## Windows ##
 
-Windows support will move to the same CMake presets and vcpkg manifest. Until
-then, `build_server.bat` is known to be broken (see section 2 of the code
-review).
+Windows is supported for development: build, run and debug the servers with
+Visual Studio 2022 or later against the database on a Linux machine. The
+same vcpkg manifest builds the dependencies:
+
+    .\build_server.ps1 -Test -Heightmaps tatooine
+    .\server.ps1 start tutorial tatooine
+
+Setting it up, connecting to the database and debugging:
+[docs/WINDOWS.md](docs/WINDOWS.md).
 
   [1]: https://en.wikipedia.org/wiki/Star_Wars_Galaxies
   [2]: https://vcpkg.io

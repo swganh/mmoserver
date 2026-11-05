@@ -63,6 +63,7 @@ DatabaseImplementationMySql::DatabaseImplementationMySql(
     const std::string& pass, 
     const std::string& schema)
     : host_(host)
+    , port_(port)
     , user_(user)
     , pass_(pass)
     , schema_(schema)
@@ -78,11 +79,22 @@ void DatabaseImplementationMySql::connect_() {
     
     sql::ConnectOptionsMap connection_options;
     connection_options["hostName"] = host_;
+    connection_options["port"] = static_cast<int>(port_);
     connection_options["userName"] = user_;
     connection_options["password"] = pass_;
     connection_options["schema"] = schema_;
 
-    connection_.reset(driver->connect(connection_options));
+    try {
+        connection_.reset(driver->connect(connection_options));
+    } catch(const sql::SQLException& e) {
+        // The exception text alone ("Unable to connect to host:port") does
+        // not say why; the MySQL error code does (2003: nothing listening or
+        // a firewall, 1045: user or password, 1130: host not allowed).
+        LOG(ERR) << "Database connection to " << user_ << "@" << host_ << ":" << port_
+                 << " failed: " << e.what() << " (MySQL error " << e.getErrorCode()
+                 << ", SQLSTATE " << e.getSQLState() << ")";
+        throw;
+    }
     last_used_ = std::chrono::steady_clock::now();
 }
 

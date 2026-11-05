@@ -94,12 +94,12 @@ StructureManagerChatHandler::StructureManagerChatHandler(Database* database, Mes
 
     //implement configmanager in the chatserver
 
-    std::tr1::shared_ptr<Timer> factory_timer(new Timer(SRMTimer_CheckFactory,this,8000,NULL));
-    std::tr1::shared_ptr<Timer> hopper_timer(new Timer(SRMTimer_CheckHarvesterHopper,this,60000,NULL));
-    std::tr1::shared_ptr<Timer> maintenance_timer(new Timer(SRMTimer_CheckHarvesterMaintenance,this,3600*1000,NULL));
-    std::tr1::shared_ptr<Timer> power_timer(new Timer(SRMTimer_CheckHarvesterPower,this,3600*1000,NULL));
-    //std::tr1::shared_ptr<Timer> tick_preserve_timer(new Timer(CMTimer_TickPreserve,this,ServerTimeInterval*10000,NULL));
-    //std::tr1::shared_ptr<Timer> check_auctions_timer(new Timer(CMTimer_CheckAuctions,this,ServerTimeInterval*10000,NULL));
+    std::shared_ptr<Timer> factory_timer(new Timer(SRMTimer_CheckFactory,this,8000,NULL));
+    std::shared_ptr<Timer> hopper_timer(new Timer(SRMTimer_CheckHarvesterHopper,this,60000,NULL));
+    std::shared_ptr<Timer> maintenance_timer(new Timer(SRMTimer_CheckHarvesterMaintenance,this,3600*1000,NULL));
+    std::shared_ptr<Timer> power_timer(new Timer(SRMTimer_CheckHarvesterPower,this,3600*1000,NULL));
+    //std::shared_ptr<Timer> tick_preserve_timer(new Timer(CMTimer_TickPreserve,this,ServerTimeInterval*10000,NULL));
+    //std::shared_ptr<Timer> check_auctions_timer(new Timer(CMTimer_CheckAuctions,this,ServerTimeInterval*10000,NULL));
 
     mTimers.push_back(factory_timer);
     mTimers.push_back(hopper_timer);

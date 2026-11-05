@@ -330,7 +330,7 @@ void GroupObject::createChannel()
     channel->setGalaxy(gChatManager->getGalaxyName());
 
     wchar_t temp[64];
-    swprintf(temp,64,L"%"WidePRIu64, mId);
+    swprintf(temp,64,L"%" WidePRIu64, mId);
     channel->setTitle(temp);
 
 	DLOG(INFO)  << "Group channel created: " << channel->getName().getAnsi() << " with id " << channel->getId();

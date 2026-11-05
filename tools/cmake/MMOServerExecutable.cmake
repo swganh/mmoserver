@@ -48,5 +48,10 @@ function(AddMMOServerExecutable name)
         target_link_libraries(${name} PRIVATE winmm ws2_32)
     endif()
 
+    # Visual Studio solutions: run and debug in the directory the servers
+    # load config/ and script/ from.
+    set_target_properties(${name} PROPERTIES
+        VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:${name}>")
+
     install(TARGETS ${name} RUNTIME DESTINATION bin)
 endfunction()

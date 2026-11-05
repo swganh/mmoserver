@@ -96,7 +96,7 @@ void Shuttle::useShuttle(PlayerObject* playerObject)
     if(!collector)
     {
         int8 errmsg[128];
-        sprintf(errmsg, "No ticket collector on duty error : %"PRIu64, mTicketCollectorId);
+        sprintf(errmsg, "No ticket collector on duty error : %" PRIu64, mTicketCollectorId);
         BString u = BString(errmsg);
         u.convert(BSTRType_Unicode16);
 

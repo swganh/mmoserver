@@ -64,6 +64,9 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 | Stability | Out-of-memory kill of the tutorial zone [10] | Reproduced with heaptrack: Loot all on the bandit's corpse; fixed, see T5 |
 | Travel | Tickets to "Nym's Stronghold" never created [5k]; boarding a cross-planet shuttle did nothing [5l] | Bought a Bestine Starport to Nym's Stronghold ticket and landed on Lok |
 | Stability | Overnight run with a player (T11) | Character logged in on Lok overnight with tutorial, Tatooine and Lok zones under gdb: all seven servers running in the morning, the player still in Lok's saves, no crash, zone memory flat at its fresh size (tutorial 106 MB, Tatooine 274 MB, Lok 239 MB) |
+| Windows | Native build | Windows 11, Visual Studio 2022 (MSVC 14.44): `build_server.ps1 -Test` built everything with vcpkg, 134/134 tests pass |
+| Windows | Servers on Windows | All servers started with `server.ps1` against the database on the Linux VM; logged in and played in Bestine on Tatooine (after fixing the grid crash, KNOWN_ISSUES #11) |
+| Linux | No regression from the Windows changes | `windows-dev-env` built and played on the Ubuntu VM |
 | Stability | Idle memory | 22 hours with no client: every server at its fresh size (tutorial 116 MB, Tatooine 274 MB, ConnectionServer 137 MB), heaptrack peaks only startup allocations |
 
 ## Not implemented yet

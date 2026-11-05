@@ -51,16 +51,65 @@ it would put the project and everyone who hosts it at legal risk.
 
 | Script | Runs on | Notes |
 |---|---|---|
-| `TutorialPart_1_9.lua` (2019 lines) | tutorial, one per player | started from `Tutorial.cpp:590` |
-| `TutorialPart_2_9.lua` (51 lines) | - | stub |
-| `WeatherController.lua` | every planet | via `config_zone_scripts` |
-| `PlayerLoginReporter.lua` | every planet | via `config_zone_scripts` |
-| `TatooineNpcTest*.lua` (7) | Tatooine | development tests that spawn NPCs; still enabled in `config_zone_scripts` |
-| `CorelliaInstanceTest.lua` | Corellia | development test, enabled |
-| `command/burstrun.lua` | command hook | |
+| `tutorial/part1.lua` (2019 lines) | tutorial, one per player | started from `Tutorial.cpp:590` |
+| `tutorial/part2.lua` (51 lines) | - | stub |
+| `world/common/weather.lua` | every planet | via `config_zone_scripts` |
+| `world/common/login_reporter.lua` | every planet | via `config_zone_scripts` |
+| `dev/tatooine_npc_test1-7.lua` | Tatooine | development tests that spawn NPCs (formations, random lairs); `test2` is a module the others `require`; still enabled in `config_zone_scripts` |
+| `dev/corellia_instance_test.lua` | Corellia | development test, enabled |
+| `commands/burstrun.lua` | command hook | via `command_table.scripthook` |
 
 Zone scripts are configured in the `config_zone_scripts` table (planet id
-and file).
+and file), command hooks in `command_table.scripthook`, and the tutorial's
+path is in `Tutorial.cpp`.
+
+## Layout
+
+Agreed November 2026; `data/script/README.md` has the folder table and the
+conventions. In short:
+
+```
+data/script/
+  lib/              shared modules (require 'script/lib/...')
+  world/common/     every planet: weather, login messages
+  world/<planet>/   one planet's world scripts
+  tutorial/         the new-player tutorial
+  commands/         command hooks
+  ai/               behaviours: patrol, formation, wander, lair defence
+  spawns/<planet>/  static NPCs, patrols, spawn regions
+  conversations/    dialogue trees for quest givers and named NPCs
+  quests/<planet>/  quest chains
+  themeparks/       Jabba, Imperial, Rebel, Nym
+  missions/         mission terminal templates
+  dev/              tests and experiments, not for live servers
+```
+
+The split: **C++ is the engine** (network, object model, spatial grid,
+database, movement, combat maths, crafting mechanics, persistence), **Lua is
+behaviour** (what NPCs, quests, the tutorial and events do), and **the
+database is data** (loot tables, trainers, item stats, spawn tables): content
+that only needs a table does not need a script.
+
+What moves out of C++, roughly in this order:
+
+| Content | In C++ today | Moves to |
+|---|---|---|
+| Tutorial | `Tutorial.cpp`, 38 `isTutorial()` checks in 20 files, hard-coded NPC and terminal ids | `tutorial/` on event hooks |
+| Quest givers | `QuestGiver.cpp` checks NPC ids per conversation outcome | `conversations/`, `quests/` |
+| NPC spawns and patrols | `NpcManager`, spawn regions, the `dev/` tests | `spawns/`, `ai/` |
+| Creature behaviour, lairs | `AttackableCreature`, `LairObject` (largely stripped) | `ai/`, with C++ keeping the primitives (move, attack, aggro events) |
+| Theme parks | not implemented | `themeparks/`, on the quest API |
+| Mission targets | `MissionManager` | `missions/` templates; the terminal stays C++ |
+| Badges by region | `BadgeRegion` | `world/` or an event hook |
+| Trainers, loot | C++ and tables | stay data in the database |
+
+The `dev/` scripts' useful parts (formation movement, NPC spawning) become
+`ai/` and `lib/` modules; the tests themselves stay in `dev/` and are to be
+disabled on Tatooine once something real replaces what they show.
+
+Moving a script that the database names needs a migration
+(`mmoserverdb/migrations`, applied by `setup.sh install`, `migrate` and
+`update`); CI checks that every script path in the database exists.
 
 ## What is wrong with it
 
@@ -113,8 +162,9 @@ after each.
 - Compare with what [swganh](https://github.com/anhstudios/swganh) put in
   scripts (commands, radials, attributes, buffs, spawns, weather, character
   creation); see "Prior work" in `docs/ROADMAP.md` for how to use it.
-- Decide what to do with the `TatooineNpcTest*` and `CorelliaInstanceTest`
-  scripts (disable in `config_zone_scripts`, or keep as examples).
+- The `dev/` test scripts: their useful parts become `ai/` and `lib/`
+  modules (see Layout); then disable them in `config_zone_scripts` with a
+  migration.
 
 ### 2. Event hooks
 
@@ -142,7 +192,7 @@ calls the script instead of `QuestGiver.cpp` checking NPC ids.
 
 ### 4. Move the tutorial onto it
 
-Rewrite `TutorialPart_1_9.lua` against the new API and events, step by
+Rewrite `tutorial/part1.lua` against the new API and events, step by
 step, and delete the tutorial branches from C++ as each moves. Ids come
 from the database or named lookups. Then the same for quests and spawns.
 

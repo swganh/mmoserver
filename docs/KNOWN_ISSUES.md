@@ -197,7 +197,7 @@ never retired when it runs out.
 
 The script plays each voice-over and waits for it, and some prompts wait
 for the player to reach a spot, but the debris is made attackable at the
-start of its step (the later call in `TutorialPart_1_9.lua` is commented
+start of its step (the later call in `tutorial/part1.lua` is commented
 out). A quick player is ahead of the prompts. Pacing, not an engine delay.
 
 ### 5f. Combat creatures never appeared (tutorial bandit) — fix needs testing

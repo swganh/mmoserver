@@ -262,7 +262,8 @@ class CreatureObject : public MovingObject
 
         // incapacitation
         void				incap();
-        void				die();
+        // killerId: who dealt the killing blow, when known (0 otherwise).
+        void				die(uint64 killerId = 0);
         bool				isIncapacitated(){ return(states.posture == CreaturePosture_Incapacitated); }
         bool				isDead(){ return(states.posture == CreaturePosture_Dead); }
 

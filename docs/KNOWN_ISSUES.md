@@ -404,6 +404,24 @@ which can be an older one installed side by side, while vcpkg's libraries
 use the newest; linking then fails. The Ninja build is not affected.
 Workaround in `docs/WINDOWS.md`.
 
+## Zones and scripts
+
+### 14. Tatooine crashed once while a character loaded in — fix needs testing
+
+Seen once on the Linux VM; the log ended without a reason and it did not
+happen again under `./server.sh debug -g`. One candidate, found while adding
+script events: when an object left the world, `zmap::RemoveObject` erased a
+region that no longer existed from the object's region list and then called
+`onObjectLeave` on it anyway, through a null pointer. It now skips that
+region. If a zone crashes again, run it under `debug -g` and keep the log.
+
+### 15. Scripts' `print` output never reached the logs — fixed
+
+Lua's `print` wrote to stdout, which the servers buffer into the log file;
+the buffer was never written before the server stopped, so script messages
+(`WeatherController v.0.2` and the like) were lost. `print` now goes through
+the server's logger and appears in the zone log as `[script] ...`.
+
 ## Fixed while getting the servers running
 
 For reference; details are in the commit messages on `phase2-db-installer`.

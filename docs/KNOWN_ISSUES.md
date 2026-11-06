@@ -445,12 +445,33 @@ no-build rows are unchanged. Still to do: the other planets (their client
 files are needed), and the second circle the client draws for Mos Eisley
 and Mos Entha (the server has one area per city).
 
-### 17. The tutorial bandit could not be looted — open
+### 17. Corpse loot can't be moved from the opened container — open
 
-Seen in a tutorial run on the `event-hooks` branch; the rest of the
-tutorial went smoothly. Rill corpses on Tatooine loot fine. May be related to
-the loot all changes in #10. Next time: note whether the radial menu shows
-Loot, what happens on Loot / Loot all, and send `tutorial.out` from then.
+Seen on the tutorial bandit. Loot all works; opening the corpse's
+container shows the items, but they can't be moved to the inventory. The
+single-item path changed with #10 (dragging an item frees the temporary
+copy); check that path first, with `tutorial.out` from a drag attempt.
+
+### 18. Tutorial combat is slow (debris, bandit) — open
+
+Destroying the debris and killing the bandit take much longer than in the
+original. Probably their HAM against a new character's damage with the
+limited combat we have; check the debris and bandit stats in the data
+against the client and recordings before changing them.
+
+### 19. The bandit survives his own grenade — open
+
+The pirate's lines (`newbie_convo` `pirate_taunt3`, "A GRENADE!", then
+`pirate_taunt4`, "This grenade is defective! Oh no!") set up his death by
+his own grenade; here he keeps fighting. A scripted beat to add when the
+tutorial moves onto events.
+
+### 20. A line of stormtroopers in the tutorial's first room — to check
+
+The database places 36 stormtroopers in the first cell of the tutorial
+station (`persistent_npcs`, parentId 2203318222960). The original
+project's data put them there, not the script. Check against recordings
+of the live tutorial and remove or thin them with a migration.
 
 ## Fixed while getting the servers running
 

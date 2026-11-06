@@ -193,16 +193,32 @@ void ScriptEngine::deliverEvents()
             }
         }
 
-        // A copy: a handler may add or remove handlers.
+        // A copy: a handler may add or remove handlers. One removed by an
+        // earlier handler is skipped (its function reference is gone).
         std::vector<EventHandler> handlers = mEventHandlers;
         for(const EventHandler& handler : handlers)
         {
-            if(handler.eventName == event.name && (handler.subject == 0 || handler.subject == event.subject))
+            if(handler.eventName == event.name && (handler.subject == 0 || handler.subject == event.subject)
+                    && _hasEventHandler(handler.id))
             {
                 _callHandler(handler, event);
             }
         }
     }
+}
+
+//======================================================================================================================
+
+bool ScriptEngine::_hasEventHandler(uint32 id) const
+{
+    for(const EventHandler& handler : mEventHandlers)
+    {
+        if(handler.id == id)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 //======================================================================================================================

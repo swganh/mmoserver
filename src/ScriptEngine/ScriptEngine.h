@@ -119,6 +119,7 @@ private:
     };
 
     void					_callHandler(const EventHandler& handler, const ScriptEvent& event);
+    bool					_hasEventHandler(uint32 id) const;
 
     boost::mutex			mEventMutex;
     std::vector<ScriptEvent> mPendingEvents;

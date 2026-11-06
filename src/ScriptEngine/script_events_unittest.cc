@@ -182,6 +182,22 @@ TEST_F(ScriptEventsTest, OnEventCanFilterOnSubject) {
     EXPECT_EQ("1", global("count6"));
 }
 
+TEST_F(ScriptEventsTest, HandlerRemovedByAnEarlierHandlerIsNotCalled) {
+    run("calls10 = ''\n"
+        "local second\n"
+        "LuaScriptEngine.OnEvent('ping10', function(e)\n"
+        "  calls10 = calls10 .. 'first;'\n"
+        "  LuaScriptEngine.RemoveEventHandler(second)\n"
+        "  -- Lua reuses the freed reference for this one.\n"
+        "  LuaScriptEngine.OnEvent('other10', function(e) calls10 = calls10 .. 'wrong;' end)\n"
+        "end)\n"
+        "second = LuaScriptEngine.OnEvent('ping10', function(e) calls10 = calls10 .. 'second;' end)\n");
+
+    gScriptEngine->raiseEvent(ScriptEvent("ping10", 0));
+    gScriptEngine->deliverEvents();
+    EXPECT_EQ("first;", global("calls10"));
+}
+
 TEST_F(ScriptEventsTest, WaitingInAHandlerIsAnErrorNotACrash) {
     run("after7 = 'no'\n"
         "LuaScriptEngine.OnEvent('conversation_ended', function(e)\n"

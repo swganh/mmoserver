@@ -13,6 +13,7 @@ original game used. `tools/client/` reads them:
 | Tool | What |
 |---|---|
 | `datatable.py <file.iff>` | prints a datatable as CSV |
+| `stf.py <file.stf>` | prints a string file as `name<TAB>text` lines |
 | `city_regions_sql.py <planet> <clientregion/planet.iff>` | writes a migration with the client's city areas (as `003_tatooine_city_areas.sql`) |
 
 The extracted files themselves are not committed: keep them with your

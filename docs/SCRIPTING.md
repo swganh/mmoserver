@@ -61,7 +61,7 @@ it would put the project and everyone who hosts it at legal risk.
 | `world/common/login_reporter.lua` | every planet | via `config_zone_scripts` |
 | `dev/tatooine_npc_test1-7.lua` | Tatooine | development tests that spawn NPCs (formations, random lairs); `test2` is a module the others `require`; still enabled in `config_zone_scripts` |
 | `dev/corellia_instance_test.lua` | Corellia | development test, enabled |
-| `dev/event_logger.lua` | Tatooine | logs every script event (`grep 'event:'` in the zone log) |
+| `dev/event_logger.lua` | Tatooine, tutorial | logs every script event (`grep 'event:'` in the zone log) |
 | `commands/burstrun.lua` | command hook | via `command_table.scripthook` |
 
 Zone scripts are configured in the `config_zone_scripts` table (planet id
@@ -222,8 +222,16 @@ Lua numbers, exact up to 2^53.
 | `region_entered` | region | player | `region_name`, `region_type` |
 | `region_left` | region | player | `region_name`, `region_type` |
 | `object_used` | object | player | `menu_id` (the radial menu item) |
+| `cell_entered` | the cell (room) entered | player | `building`, `previous_cell` (0 when coming in from outside) |
+| `building_left` | the building | player | `previous_cell` |
+| `client_report` | player | 0 | `action`: what the client reports, e.g. `zoomCamera`, `chatActive`, `openInventory`, `closeInventory`, `foodSelected`, `foodUsed`, `cloneDataSaved`, `insureItemsDone`, `closeHolocron`, `changeLookAtTarget`; `clientReady` at login |
 
-Region events are raised for players only.
+Region and cell events are raised for players only. A player placed in a
+cell without walking there (login, a warp) raises no `cell_entered`.
+
+The client sends `client_report` for the actions the tutorial asks it to
+watch; the list above is what the old tutorial code handles. Others may
+exist: run the event logger in the tutorial to see every report.
 
 ### Waiting for an event
 

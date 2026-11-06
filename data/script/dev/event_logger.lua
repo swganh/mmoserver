@@ -8,6 +8,8 @@ local events = {
   "conversation_started", "conversation_option_selected", "conversation_ended",
   "region_entered", "region_left",
   "object_used",
+  "cell_entered", "building_left",
+  "client_report",
 }
 
 local function describe(e)

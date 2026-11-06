@@ -38,11 +38,15 @@ extern "C"
 }
 
 #include "Script.h"
+#include "ScriptEvent.h"
 #include "Utils/typedefs.h"
 
 #include <boost/pool/pool.hpp>
 #include <boost/thread/mutex.hpp>
 #include <list>
+#include <map>
+#include <string>
+#include <vector>
 
 #define	 gScriptEngine	ScriptEngine::getSingletonPtr()
 
@@ -71,6 +75,23 @@ public:
     void 					shutdown();
     void 					process();
 
+    // Queue an event for the scripts; delivered by the next process().
+    // Safe to call from anywhere in the zone, including from a script.
+    void					raiseEvent(const ScriptEvent& event);
+
+    // Deliver the queued events: resume the scripts waiting for them
+    // (WaitEvent) and call the handlers listening to them (OnEvent).
+    // process() calls it; public for the tests.
+    void					deliverEvents();
+
+    // LuaScriptEngine.OnEvent: handlerRef is a function in the Lua registry.
+    // Returns an id for removeEventHandler.
+    uint32					addEventHandler(const std::string& eventName, uint64 subject, int handlerRef);
+    void					removeEventHandler(uint32 id);
+
+    // Pushes the event onto a Lua stack as a table.
+    static void				pushEvent(lua_State* l, const ScriptEvent& event);
+
     ~ScriptEngine();
     Tutorial*				getTutorial(void* script);
 
@@ -88,6 +109,22 @@ private:
     boost::mutex			mScriptMutex;
 
     ScriptList				mScripts;
+
+    struct EventHandler
+    {
+        uint32		id;
+        std::string	eventName;
+        uint64		subject;
+        int			ref;
+    };
+
+    void					_callHandler(const EventHandler& handler, const ScriptEvent& event);
+    bool					_hasEventHandler(uint32 id) const;
+
+    boost::mutex			mEventMutex;
+    std::vector<ScriptEvent> mPendingEvents;
+    std::vector<EventHandler> mEventHandlers;
+    uint32					mNextHandlerId;
     boost::pool<boost::default_user_allocator_malloc_free>	mScriptPool;
 };
 

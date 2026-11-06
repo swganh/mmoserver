@@ -42,10 +42,14 @@ it would put the project and everyone who hosts it at legal risk.
   | `LuaWorldManager.pkg` | 6 | world queries |
   | `LuaObject.pkg`, `LuaCommonMessages.pkg` | 4 | misc |
 
-- **Events** are thin: world scripts get `onPlayerEntered` and
-  `onPlayerLeft`; command scripts can hook object controller commands
-  (`ObjectControllerCommandMap`); the tutorial registers its own listener.
-  Everything else is polled (see below).
+- **Events**: scripts can wait for or listen to what players do
+  (`LuaScriptEngine.WaitEvent`, `OnEvent`; see [Events](#events)). The
+  older hooks remain: world scripts get `onPlayerEntered` and
+  `onPlayerLeft` as strings, command scripts can hook object controller
+  commands (`ObjectControllerCommandMap`), and the tutorial registers its
+  own listener. The tutorial still polls (see below) until it moves onto
+  events.
+- **`print`** writes to the zone's log, as `[script] ...`.
 
 ### Scripts (`data/script/`)
 
@@ -57,6 +61,7 @@ it would put the project and everyone who hosts it at legal risk.
 | `world/common/login_reporter.lua` | every planet | via `config_zone_scripts` |
 | `dev/tatooine_npc_test1-7.lua` | Tatooine | development tests that spawn NPCs (formations, random lairs); `test2` is a module the others `require`; still enabled in `config_zone_scripts` |
 | `dev/corellia_instance_test.lua` | Corellia | development test, enabled |
+| `dev/event_logger.lua` | Tatooine | logs every script event (`grep 'event:'` in the zone log) |
 | `commands/burstrun.lua` | command hook | via `command_table.scripthook` |
 
 Zone scripts are configured in the `config_zone_scripts` table (planet id
@@ -166,20 +171,12 @@ after each.
   modules (see Layout); then disable them in `config_zone_scripts` with a
   migration.
 
-### 2. Event hooks
+### 2. Event hooks — done
 
-Add events that scripts can wait on instead of polling, raised from the C++
-places that already know: creature died, conversation started/ended (with
-the option chosen), player entered cell or region, item looted, object used
-(radial menu), skill trained. In Lua this is a wait that yields until the
-event or a timeout:
-
-```lua
-local event = LuaScriptEngine.WaitEvent("creature_died", npcDebrisId, 60000)
-```
-
-The coroutine model makes this a small change to `Script`: a new wait state
-resumed by the event instead of the clock.
+See [Events](#events). Still to add when content needs them: item looted,
+skill trained, player entered a cell (buildings, for the tutorial rooms),
+and the killer of a creature killed in combat (today only a death blow
+names one).
 
 ### 3. A small, documented script API
 
@@ -204,6 +201,80 @@ tolua++ as part of the build and regenerate `LuaInterface.cpp` from the
 (sol2 supports Lua 5.1) when the API in step 3 is written, binding only
 that API.
 
+## Events
+
+The zone raises an event where the C++ already knows something happened.
+Events are queued and delivered at the start of the next script tick, never
+in the middle of the game code that raised them.
+
+An event is a table with `name`, `subject` (what it is about), `source` (who
+caused it, usually the player; 0 when unknown) and the fields below. Ids are
+Lua numbers, exact up to 2^53.
+
+| Event | subject | source | Fields |
+|---|---|---|---|
+| `player_entered_zone` | player | 0 | `player_name`, `planet`, `players` (count in the zone) |
+| `player_left_zone` | player | 0 | `player_name`, `planet`, `players` |
+| `creature_died` | the creature or player that died | the killer, for a death blow; otherwise 0 | `is_player` (1 or 0) |
+| `conversation_started` | NPC | player | `conversation` (its id) |
+| `conversation_option_selected` | NPC | player | `option` (index chosen), `page` (page it was chosen on) |
+| `conversation_ended` | NPC | player | |
+| `region_entered` | region | player | `region_name`, `region_type` |
+| `region_left` | region | player | `region_name`, `region_type` |
+| `object_used` | object | player | `menu_id` (the radial menu item) |
+
+Region events are raised for players only.
+
+### Waiting for an event
+
+`LuaScriptEngine.WaitEvent(name [, subject [, timeoutMs]])` pauses the
+script until the event is raised about `subject` (any subject when it is 0
+or left out) and returns it, or returns `nil` after `timeoutMs` (no limit
+when it is 0 or left out). It is a wait like `WaitMSec`, for a script's own
+flow:
+
+```lua
+-- A quest step: kill the creature, within ten minutes.
+local event = LuaScriptEngine.WaitEvent("creature_died", targetId, 600000)
+if event == nil then
+  -- timed out
+elseif event.source == playerId then
+  -- the player killed it
+end
+```
+
+### Listening to an event
+
+`LuaScriptEngine.OnEvent(name, handler [, subject])` calls `handler(event)`
+every time the event is raised, and returns an id;
+`LuaScriptEngine.RemoveEventHandler(id)` stops it. For world scripts that
+react to everyone:
+
+```lua
+LuaScriptEngine.OnEvent("region_entered", function(e)
+  print("player " .. e.source .. " entered " .. e.region_name)
+end)
+```
+
+A handler runs to completion and cannot wait (`WaitMSec`, `WaitEvent`... in
+a handler are an error, logged). To do something that takes time, wait in a
+script instead, e.g. a loop around `WaitEvent`.
+
+### Adding an event
+
+In the C++ where it happens:
+
+```cpp
+#include "ScriptEngine/ScriptEngine.h"
+
+gScriptEngine->raiseEvent(ScriptEvent("item_looted", itemId, playerId)
+    .set("count", 1.0)
+    .set("template", std::string("object/tangible/...")));
+```
+
+Then add it to the table above. The engine is covered by
+`src/ScriptEngine/script_events_unittest.cc`.
+
 ## Fits with the wider plan
 
 - **Windows build first.** Bindings (step 5) and the script engine have to
@@ -213,8 +284,9 @@ that API.
   script API wraps is where most of the bugs found in testing were (NPC
   visibility, death, posture, spawning), so stabilising those mechanics
   comes before moving content onto them.
-- **Tests.** The script engine and an event-driven API can be unit tested
-  (a script waiting on an event, resumed by it) without a client; the
+- **Tests.** The script engine is unit tested with a real Lua (events in
+  `script_events_unittest.cc`); the game bindings are opened by the
+  ZoneServer, not the engine, so the tests need no zone. The
   ZoneServer has no unit test target yet (its `main` is in
   `ZoneServer.cpp`, which the test layout in `MMOServerExecutable.cmake`
   expects in `main.cpp`).

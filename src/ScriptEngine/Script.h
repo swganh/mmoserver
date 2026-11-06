@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/typedefs.h"
 
 #include <cstring>
+#include <string>
 
 //======================================================================================================================
 
@@ -40,6 +41,7 @@ enum ScriptState
 {
     SS_Wait_Frame,
     SS_Wait_Time,
+    SS_Wait_Event,
     SS_Running,
     SS_Not_Loaded,
     SS_Done
@@ -47,6 +49,7 @@ enum ScriptState
 
 class ScriptEngine;
 class Tutorial;
+struct ScriptEvent;
 
 typedef struct lua_State lua_State;
 
@@ -71,6 +74,14 @@ public:
     void			callFunction(const char *func,const char *sig,...);
     void			abortWait();
 
+    // LuaScriptEngine.WaitEvent: wait for an event called eventName about
+    // subject (0: any), for at most timeoutMs (0: no limit).
+    void			waitForEvent(const std::string& eventName, uint64 subject, uint32 timeoutMs);
+    bool			isWaitingFor(const ScriptEvent& event) const;
+    // Resumes a script waiting for an event: WaitEvent returns the event as a
+    // table, or nil for a timeout (event == NULL).
+    void			resumeWithEvent(const ScriptEvent* event);
+
     uint32			getPriority() {
         return mPriority;
     }
@@ -83,6 +94,9 @@ public:
     }
     const int8*		getFileName() {
         return mFile;
+    }
+    const int8*		getLastError() const {
+        return mLastError;
     }
 
     // refs to other classes, dirty as hell but right now I'm learning LUA, not lua-interfaces... (Eru)
@@ -99,6 +113,9 @@ public:
     uint32			mWaitTimeStamp;
     uint32			mTime;
     int32			mWaitFrame;
+    std::string		mWaitEventName;
+    uint64			mWaitEventSubject;
+    bool			mWaitEventHasTimeout;
 
 private:
 

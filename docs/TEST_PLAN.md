@@ -27,6 +27,8 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 | # | Area | What was wrong | How to test | Expect |
 |---|---|---|---|---|
 | T3 | Login | Refusals were silent [6] | If anything is refused at the galaxy screen | `connection.out` has a `Refusing account N: <reason>` line; send it to me |
+| T4 | Script events | New | `sudo ./mmoserverdb/setup.sh update`, then on Tatooine: log in, walk into Mos Eisley, talk to an NPC and pick an option, use a radial menu item, kill a creature, log out. Watch `tail -f tatooine.out \| grep 'event:'` | one `event:` line per action, with the player's id as `source` |
+| T5 | Scripts | `print` output was lost [15] | Start Tatooine | `tatooine.out` has `[script] WeatherController v.0.2` and `[script] event_logger: listening to 9 events` |
 
 ## Confirmed
 

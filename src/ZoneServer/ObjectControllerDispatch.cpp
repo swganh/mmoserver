@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectControllerOpcodes.h"
 #include "ObjectFactory.h"
 #include "PlayerObject.h"
+#include "ScriptEngine/ScriptEngine.h"
 #include "WorldManager.h"
 #include "CraftingManager.h"
 #include "ZoneOpcodes.h"
@@ -258,7 +259,15 @@ void ObjectControllerDispatch::_dispatchObjectMenuSelect(Message* message,Dispat
     Object* object = gWorldManager->getObjectById(objectId);
 
     if(object != NULL)
-        object->handleObjectMenuSelect(message->getUint8(),gWorldManager->getPlayerByAccId(client->getAccountId()));
+    {
+        uint8 menuId = message->getUint8();
+        PlayerObject* player = gWorldManager->getPlayerByAccId(client->getAccountId());
+
+        gScriptEngine->raiseEvent(ScriptEvent("object_used", objectId, player ? player->getId() : 0)
+            .set("menu_id", static_cast<double>(menuId)));
+
+        object->handleObjectMenuSelect(menuId,player);
+    }
     else
         DLOG(INFO) << "ObjectControllerDispatch: Couldn't find Object " << objectId;
 

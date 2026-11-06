@@ -69,6 +69,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageLib/MessageLib.h"
 #include "ScriptEngine/ScriptEngine.h"
 #include "ScriptEngine/ScriptSupport.h"
+#include "ScriptEngine/glue_files/tolua++.h"
+#include "ScriptEngine/glue_files/LuaInterface.h"
 #include "NetworkManager/NetworkManager.h"
 #include "NetworkManager/Service.h"
 #include "DatabaseManager/Database.h"
@@ -250,6 +252,8 @@ ZoneServer::ZoneServer(int argc, char* argv[])
     ham_service_ = std::unique_ptr<zone::HamService>(new zone::HamService(Singleton<common::EventDispatcher>::Instance(), gObjControllerCmdPropertyMap));
 
     ScriptEngine::Init();
+    // The game's classes and functions for scripts (tolua++ bindings).
+    tolua_LuaInterface_open(gScriptEngine->getMasterState());
 
     mCharacterLoginHandler = new CharacterLoginHandler(mDatabase, mMessageDispatch);
 

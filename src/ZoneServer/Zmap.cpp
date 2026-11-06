@@ -5,6 +5,20 @@
 
 #include "Object.h"
 #include "RegionObject.h"
+
+#include "ScriptEngine/ScriptEngine.h"
+
+namespace {
+// Region events are raised for players only: creatures cross regions all the time.
+void raiseRegionEvent(const char* name, RegionObject* region, Object* object) {
+    if (object->getType() != ObjType_Player) {
+        return;
+    }
+    gScriptEngine->raiseEvent(ScriptEvent(name, region->getId(), object->getId())
+        .set("region_name", region->getRegionName())
+        .set("region_type", static_cast<double>(region->getRegionType())));
+}
+}
 //#include "PlayerObject.h"
 
 using std::find_if;
@@ -83,6 +97,7 @@ void zmap::updateRegions(Object* object) {
 
         if (! isObjectInRegionBoundary_(object, region)) {
             region->onObjectLeave(object);
+            raiseRegionEvent("region_left", region.get(), object);
             region_set.erase(region_set_it++);
             continue;
         }
@@ -106,6 +121,7 @@ void zmap::updateRegions(Object* object) {
         if (region_set.find(region->getId()) == region_set.end() && isObjectInRegionBoundary_(object, region)) {
             object->zmapSubCells.insert(region->getId());
             region->onObjectEnter(object);
+            raiseRegionEvent("region_entered", region.get(), object);
         }
     });
 }
@@ -287,10 +303,12 @@ void zmap::RemoveObject(Object *removeObject)
         auto region = findRegion(*set_it);
 
         if (!region) {
-		    region_set->erase(set_it++);		
+		    region_set->erase(set_it++);
+		    continue;
         }
 
 		region->onObjectLeave(removeObject);
+		raiseRegionEvent("region_left", region.get(), removeObject);
 		region_set->erase(set_it++);	
     }
 

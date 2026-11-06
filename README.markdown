@@ -122,9 +122,10 @@ reinstalling, run `sudo ./mmoserverdb/setup.sh set-address 192.168.1.10` and
 restart the servers. To start over, add `--force` to `install`. That drops
 the databases, including all accounts and characters.
 
-After pulling changes to the stored procedures, load them into an existing
-database with `sudo ./mmoserverdb/setup.sh update-procedures` (game data is
-not touched). Databases installed before resources were spawned by `install`
+After a `git pull`, bring an existing database up to date with
+`sudo ./mmoserverdb/setup.sh update`: it reloads the stored procedures and
+applies any new data changes from `mmoserverdb/migrations` (accounts and
+characters are kept). Databases installed before resources were spawned by `install`
 have none; run `sudo ./mmoserverdb/setup.sh spawn-resources` and restart the
 zones.
 

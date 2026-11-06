@@ -36,9 +36,14 @@ Commands:
                           machine, such as a Windows development PC
                           (docs/WINDOWS.md); prints the remaining steps
   deny-host ADDR          Undo allow-host
+  update                  Bring an existing database up to date after a git
+                          pull: update-procedures, then migrate
   update-procedures       Reload the stored procedures and functions into an
                           existing database (after pulling SQL fixes); data is
                           not touched
+  migrate                 Apply the data changes in mmoserverdb/migrations that
+                          this database does not have yet (install applies
+                          them all)
   spawn-resources [--replace]
                           Spawn the harvestable resources (install does this).
                           With --replace, retire the current set and spawn a
@@ -222,6 +227,9 @@ install() {
         done
     done
 
+    echo "Applying migrations"
+    migrate
+
     echo "Spawning resources"
     sql -e "CALL swganh.sp_ResourceInitialSpawn()" > /dev/null
 
@@ -382,6 +390,30 @@ deny_host() {
     echo "Database user '$db_user' may no longer connect from $1."
 }
 
+# --- migrate --------------------------------------------------------------------
+
+# Migrations are numbered SQL files, mmoserverdb/migrations/NNN_name.sql, run
+# once each in number order with swganh as the default database. Each one
+# applied is recorded in swganh_config.swganh_db_version. A migration must be
+# safe to run on a database that already has its change (fresh installs import
+# the original data first, then every migration).
+migrate() {
+    local dir=$script_dir/migrations file name applied count=0
+    [[ -d $dir ]] || return 0
+    while IFS= read -r file; do
+        name=$(basename "$file")
+        [[ $name =~ ^[0-9]{3}_[a-z0-9_]+\.sql$ ]] || die "bad migration name '$name' (NNN_lowercase_name.sql)"
+        applied=$(sql -N -e "SELECT COUNT(*) FROM swganh_config.swganh_db_version WHERE scriptName = '$name'")
+        [[ $applied -eq 0 ]] || continue
+        echo "Applying migration $name"
+        import_file swganh "$file"
+        sql -e "INSERT INTO swganh_config.swganh_db_version (revisionMajor, revisionMinor, scriptName, dateApplied)
+                VALUES ('${name%%_*}', '0', '$name', NOW())"
+        count=$((count + 1))
+    done < <(find "$dir" -maxdepth 1 -name '*.sql' | LC_ALL=C sort)
+    echo "$count migration(s) applied."
+}
+
 # --- update-procedures --------------------------------------------------------
 
 # Prints "FUNCTION name" or "PROCEDURE name" for the routine a file creates.
@@ -461,6 +493,18 @@ case "$command" in
         echo "Stored procedures and functions updated."
         ;;
     spawn-resources) spawn_resources "$@" ;;
+    migrate)
+        [[ $# -eq 0 ]] || die "usage: $(basename "$0") migrate"
+        check_connection
+        migrate
+        ;;
+    update)
+        [[ $# -eq 0 ]] || die "usage: $(basename "$0") update"
+        check_connection
+        update_procedures
+        echo "Stored procedures and functions updated."
+        migrate
+        ;;
     allow-host) allow_host "$@" ;;
     deny-host) deny_host "$@" ;;
     -h|--help|help) usage ;;

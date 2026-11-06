@@ -28,7 +28,6 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 |---|---|---|---|---|
 | T3 | Login | Refusals were silent [6] | If anything is refused at the galaxy screen | `connection.out` has a `Refusing account N: <reason>` line; send it to me |
 | T4 | Script events | New | `sudo ./mmoserverdb/setup.sh update`, then on Tatooine: log in, walk into Mos Eisley, talk to an NPC and pick an option, use a radial menu item, kill a creature, log out. Watch `tail -f tatooine.out \| grep 'event:'` | one `event:` line per action, with the player's id as `source` |
-| T6 | Regions | Badge areas never matched [16] | On Tatooine walk to a badge spot (Lars homestead, -2579 -5500) | `event: region_entered` there and the badge awarded |
 | T5 | Scripts | `print` output was lost [15] | Start Tatooine | `tatooine.out` has `[script] WeatherController v.0.2` and `[script] event_logger: listening to 9 events` |
 
 ## Confirmed
@@ -36,6 +35,7 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 | Area | What was wrong | Confirmed by |
 |---|---|---|
 | Regions | Cities never matched on the server [16] | Walked in and out of Bestine on the VM: `region_entered` / `region_left` logged with the client's "You have entered/left Bestine" (Nov 2026) |
+| Regions | Badge areas never matched [16] | Walked to the Lars homestead on the VM: badge "Location: Lars Homestead" awarded (Nov 2026) |
 | Install | Database install, collation errors on MariaDB 11.5+ | Installed on the Ubuntu 26.04 VM with MariaDB 11.8 |
 | Install | No resources on a fresh install [5a] | Survey found resources after `spawn-resources` |
 | Install | Stored procedures could not be reloaded | `update-procedures` installed the rotation procedure on the VM |

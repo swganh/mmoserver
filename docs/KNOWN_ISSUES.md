@@ -422,7 +422,7 @@ the buffer was never written before the server stopped, so script messages
 (`WeatherController v.0.2` and the like) were lost. `print` now goes through
 the server's logger and appears in the zone log as `[script] ...`.
 
-### 16. Server-side regions never matched (cities, badges) — fix needs testing
+### 16. Server-side regions never matched (cities, badges) — fixed
 
 Found when `region_entered` did not fire in Bestine. The region map
 (`zmap`) treated every region as a rectangle with its corner at
@@ -441,8 +441,9 @@ City areas: the cities' rows were the larger no-build areas (Bestine 750 m
 radius), not the areas the client names. Migration 003 gives Tatooine's
 cities the client's own circles from `datatables/clientregion/tatooine.iff`
 (Bestine 375 m), generated with `tools/client/city_regions_sql.py`; the
-no-build rows are unchanged. Still to do: the other planets (their client
-files are needed), and the second circle the client draws for Mos Eisley
+no-build rows are unchanged. Confirmed on the VM: Bestine's entry and exit
+match the client's messages, and the Lars homestead badge is awarded.
+Still to do: the other planets (their client files are needed), and the second circle the client draws for Mos Eisley
 and Mos Entha (the server has one area per city).
 
 ### 17. The tutorial bandit could not be looted — open

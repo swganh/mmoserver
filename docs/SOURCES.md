@@ -4,6 +4,20 @@ Content (creatures, places, quests, the tutorial) is recreated from the
 client's own files and from material published at the time. The leaked SOE
 server source is never a source (`docs/SCRIPTING.md`, "Content sources").
 
+## The client's files
+
+Datatables and string files extracted from a pre-CU client (with an IFF/TRE
+tool such as Sytner's IFF Editor) are the first source: they are what the
+original game used. `tools/client/` reads them:
+
+| Tool | What |
+|---|---|
+| `datatable.py <file.iff>` | prints a datatable as CSV |
+| `city_regions_sql.py <planet> <clientregion/planet.iff>` | writes a migration with the client's city areas (as `003_tatooine_city_areas.sql`) |
+
+The extracted files themselves are not committed: keep them with your
+client. Generated data says which client file it came from.
+
 ## The guides
 
 Printed strategy guides are the main reference for numbers and places. They

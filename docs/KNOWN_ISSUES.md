@@ -422,18 +422,28 @@ the buffer was never written before the server stopped, so script messages
 (`WeatherController v.0.2` and the like) were lost. `print` now goes through
 the server's logger and appears in the zone log as `[script] ...`.
 
-### 16. Server-side regions never match (cities, badges) — open
+### 16. Server-side regions never matched (cities, badges) — fix needs testing
 
-Found when `region_entered` did not fire in Bestine. `zmap::isObjectInRegionBoundary_`
-treats every region as a rectangle with its corner at `planet_regions.x/z`,
-and swaps width and height. In the data, x/z is the centre, and cities and
-other round areas are circles: `width` 0, size in `height` (Bestine 1500).
-So nobody is ever inside a city, and badge squares are shifted by half
-their size. The client's "You have entered Bestine" comes from its own
-files. Fix: circles for `width = 0`, centred rectangles; first check in the
-client's region table (`datatables/clientregion/<planet>.iff`) whether
-`height` is a radius or a diameter, since the client's Bestine is smaller
-than either reading.
+Found when `region_entered` did not fire in Bestine. The region map
+(`zmap`) treated every region as a rectangle with its corner at
+`planet_regions.x/z`, with width and height swapped, so nobody was ever
+inside a city and badge squares were shifted by half their size. It also
+stepped grid rows by 410 cells where a row has 411, and `RemoveRegion`
+(camps) never removed anything.
+
+Fixed: regions follow the convention the no-build check already used:
+x/z is the centre, `width` 0 makes a circle with `height` as its diameter,
+otherwise a width x height rectangle around the centre
+(`IsPointInRegion`, `GetRegionBounds` in `Utils/MathFunctions`, unit
+tested).
+
+City areas: the cities' rows were the larger no-build areas (Bestine 750 m
+radius), not the areas the client names. Migration 003 gives Tatooine's
+cities the client's own circles from `datatables/clientregion/tatooine.iff`
+(Bestine 375 m), generated with `tools/client/city_regions_sql.py`; the
+no-build rows are unchanged. Still to do: the other planets (their client
+files are needed), and the second circle the client draws for Mos Eisley
+and Mos Entha (the server has one area per city).
 
 ### 17. The tutorial bandit could not be looted — open
 

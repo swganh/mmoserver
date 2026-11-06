@@ -42,3 +42,23 @@ bool IsPointInRectangle(const glm::vec2& check_point, const glm::vec2& rectangle
 
     return false;
 }
+
+bool IsPointInCircle(const glm::vec2& check_point, const glm::vec2& circle_center, float radius) {
+    glm::vec2 offset = check_point - circle_center;
+    return glm::dot(offset, offset) <= radius * radius;
+}
+
+bool IsPointInRegion(const glm::vec2& check_point, const glm::vec2& region_center, float width, float height) {
+    if (width == 0) {
+        return IsPointInCircle(check_point, region_center, height / 2);
+    }
+    return IsPointInRectangle(check_point, region_center, width, height);
+}
+
+void GetRegionBounds(const glm::vec2& region_center, float width, float height,
+                     glm::vec2& lower_left, glm::vec2& upper_right) {
+    // A circle's bounding square has its diameter (the height) as its side.
+    float size_x = (width == 0) ? height : width;
+    lower_left = glm::vec2(region_center.x - size_x / 2, region_center.y - height / 2);
+    upper_right = glm::vec2(region_center.x + size_x / 2, region_center.y + height / 2);
+}

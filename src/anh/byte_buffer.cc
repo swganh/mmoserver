@@ -200,13 +200,7 @@ ByteBuffer& ByteBuffer::write<std::wstring>(std::wstring data) {
         data_.resize(write_position_ + length * 2);
     }
 
-#ifdef _WIN32
-    // On win32 wrap in stdext::stdext::make_unchecked_array_iterator to disable
-    // secure warning.
-    std::copy(data.begin(), data.end(), stdext::make_unchecked_array_iterator(reinterpret_cast<uint16_t*>(&data_[write_position_])));
-#else
     std::copy(data.begin(), data.end(), reinterpret_cast<uint16_t*>(&data_[write_position_]));
-#endif
 
     write_position_ += length * 2;
 

@@ -36,9 +36,10 @@ See [[Database]] for installing and managing it.
 
 ```
 data/config/        server settings (one .cfg per server, general.cfg for all)
-data/script/        Lua scripts (tutorial, world scripts)
+data/script/        Lua scripts, by system: world/, tutorial/, commands/, ai/, quests/...
+                    (data/script/README.md)
 data/heightmaps/    planet terrain, downloaded on demand
-mmoserverdb/        database schema, data, procedures and setup.sh
+mmoserverdb/        database schema, data, procedures, migrations and setup.sh
 src/                the C++ source, one folder per server or library
 tools/              build helpers, heightmap checksums, vcpkg ports
 ```

@@ -27,6 +27,8 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 | # | Area | What was wrong | How to test | Expect |
 |---|---|---|---|---|
 | T3 | Login | Refusals were silent [6] | If anything is refused at the galaxy screen | `connection.out` has a `Refusing account N: <reason>` line; send it to me |
+| T4 | Script events | New | `sudo ./mmoserverdb/setup.sh update`, then on Tatooine: log in, walk into Mos Eisley, talk to an NPC and pick an option, use a radial menu item, kill a creature, log out. Watch `tail -f tatooine.out \| grep 'event:'` | one `event:` line per action, with the player's id as `source` |
+| T5 | Scripts | `print` output was lost [15] | Start Tatooine | `tatooine.out` has `[script] WeatherController v.0.2` and `[script] event_logger: listening to 9 events` |
 
 ## Confirmed
 
@@ -64,6 +66,9 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 | Stability | Out-of-memory kill of the tutorial zone [10] | Reproduced with heaptrack: Loot all on the bandit's corpse; fixed, see T5 |
 | Travel | Tickets to "Nym's Stronghold" never created [5k]; boarding a cross-planet shuttle did nothing [5l] | Bought a Bestine Starport to Nym's Stronghold ticket and landed on Lok |
 | Stability | Overnight run with a player (T11) | Character logged in on Lok overnight with tutorial, Tatooine and Lok zones under gdb: all seven servers running in the morning, the player still in Lok's saves, no crash, zone memory flat at its fresh size (tutorial 106 MB, Tatooine 274 MB, Lok 239 MB) |
+| Windows | Native build | Windows 11, Visual Studio 2022 (MSVC 14.44): `build_server.ps1 -Test` built everything with vcpkg, 134/134 tests pass |
+| Windows | Servers on Windows | All servers started with `server.ps1` against the database on the Linux VM; logged in and played in Bestine on Tatooine (after fixing the grid crash, KNOWN_ISSUES #11) |
+| Linux | No regression from the Windows changes | `windows-dev-env` built and played on the Ubuntu VM |
 | Stability | Idle memory | 22 hours with no client: every server at its fresh size (tutorial 116 MB, Tatooine 274 MB, ConnectionServer 137 MB), heaptrack peaks only startup allocations |
 
 ## Not implemented yet

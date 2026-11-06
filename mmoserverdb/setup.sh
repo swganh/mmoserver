@@ -32,9 +32,18 @@ Commands:
   set-address ADDR        Change the address game clients use to reach this
                           server (same as --public-address at install)
   apply-config DIR        Copy the settings in local.cfg into DIR/general.cfg
+  allow-host ADDR         Let the '$db_user' database user connect from another
+                          machine, such as a Windows development PC
+                          (docs/WINDOWS.md); prints the remaining steps
+  deny-host ADDR          Undo allow-host
+  update                  Bring an existing database up to date after a git
+                          pull: update-procedures, then migrate
   update-procedures       Reload the stored procedures and functions into an
                           existing database (after pulling SQL fixes); data is
                           not touched
+  migrate                 Apply the data changes in mmoserverdb/migrations that
+                          this database does not have yet (install applies
+                          them all)
   spawn-resources [--replace]
                           Spawn the harvestable resources (install does this).
                           With --replace, retire the current set and spawn a
@@ -218,6 +227,9 @@ install() {
         done
     done
 
+    echo "Applying migrations"
+    migrate
+
     echo "Spawning resources"
     sql -e "CALL swganh.sp_ResourceInitialSpawn()" > /dev/null
 
@@ -305,6 +317,103 @@ add_account() {
     echo "Account '$name' created."
 }
 
+# --- allow-host / deny-host ---------------------------------------------------
+
+local_cfg_value() {
+    [[ -f $local_cfg ]] || die "$local_cfg not found; run '$(basename "$0") install' first"
+    sed -n "s/^[[:space:]]*$1[[:space:]]*=[[:space:]]*//p" "$local_cfg" | tail -n 1
+}
+
+check_host() {
+    # An address, a host name, or a MariaDB pattern such as 192.168.1.%.
+    [[ $1 =~ ^[A-Za-z0-9.:%_-]+$ ]] || die "invalid host '$1'"
+    [[ $1 == % ]] && die "refusing to allow every host; name the development machine"
+    case $1 in localhost|127.0.0.1) die "'$1' is set up by install already" ;; esac
+    return 0
+}
+
+allow_host() {
+    [[ $# -eq 1 ]] || die "usage: $(basename "$0") allow-host ADDR"
+    local host=$1
+    check_host "$host"
+    check_connection
+    local password
+    password=$(local_cfg_value DBPass)
+    [[ $password ]] || die "no DBPass in $local_cfg"
+
+    # Same user and password as the local servers, so the development
+    # machine uses the same general.cfg settings apart from DBServer.
+    local grants="CREATE USER IF NOT EXISTS '$db_user'@'$host';"
+    grants+="ALTER USER '$db_user'@'$host' IDENTIFIED BY '$password';"
+    local db
+    for db in "${databases[@]}"; do
+        grants+="GRANT ALL PRIVILEGES ON \`$db\`.* TO '$db_user'@'$host';"
+    done
+    sql -e "$grants FLUSH PRIVILEGES;"
+    echo "Database user '$db_user' may now connect from $host."
+
+    local bind port
+    bind=$(sql -N -e "SELECT @@GLOBAL.bind_address" 2>/dev/null || true)
+    port=$(local_cfg_value DBPort)
+    port=${port:-3306}
+    echo
+    echo "Remaining steps on this machine:"
+    if [[ -z $bind || $bind == 127.0.0.1 || $bind == localhost || $bind == ::1 ]]; then
+        echo "  - MariaDB only listens on this machine (bind-address = ${bind:-127.0.0.1})."
+        echo "    Add this machine's LAN address, keeping 127.0.0.1 for the local servers"
+        echo "    (MariaDB 10.11 and later take a list), in"
+        echo "    /etc/mysql/mariadb.conf.d/50-server.cnf:"
+        echo "      bind-address = 127.0.0.1,<this machine's LAN address>"
+        echo "    then: sudo systemctl restart mariadb"
+    else
+        echo "  - MariaDB listens on $bind: nothing to change."
+    fi
+    if command -v ufw >/dev/null && LC_ALL=C ufw status 2>/dev/null | grep -q '^Status: active'; then
+        echo "  - Open the port to $host only:"
+        echo "      sudo ufw allow from ${host//%/0/24} to any port $port proto tcp"
+    fi
+    echo "  Never open port $port to the internet. Over an untrusted network, use an"
+    echo "  SSH tunnel instead (docs/WINDOWS.md)."
+    echo
+    echo "On the development machine, set in build\\<preset>\\bin\\config\\general.cfg:"
+    echo "  DBServer = <this machine's address>"
+    echo "  DBPort = $port"
+    echo "  DBUser = $(local_cfg_value DBUser)"
+    echo "  DBPass = (the DBPass in mmoserverdb/local.cfg on this machine)"
+}
+
+deny_host() {
+    [[ $# -eq 1 ]] || die "usage: $(basename "$0") deny-host ADDR"
+    check_host "$1"
+    check_connection
+    sql -e "DROP USER IF EXISTS '$db_user'@'$1'; FLUSH PRIVILEGES;"
+    echo "Database user '$db_user' may no longer connect from $1."
+}
+
+# --- migrate --------------------------------------------------------------------
+
+# Migrations are numbered SQL files, mmoserverdb/migrations/NNN_name.sql, run
+# once each in number order with swganh as the default database. Each one
+# applied is recorded in swganh_config.swganh_db_version. A migration must be
+# safe to run on a database that already has its change (fresh installs import
+# the original data first, then every migration).
+migrate() {
+    local dir=$script_dir/migrations file name applied count=0
+    [[ -d $dir ]] || return 0
+    while IFS= read -r file; do
+        name=$(basename "$file")
+        [[ $name =~ ^[0-9]{3}_[a-z0-9_]+\.sql$ ]] || die "bad migration name '$name' (NNN_lowercase_name.sql)"
+        applied=$(sql -N -e "SELECT COUNT(*) FROM swganh_config.swganh_db_version WHERE scriptName = '$name'")
+        [[ $applied -eq 0 ]] || continue
+        echo "Applying migration $name"
+        import_file swganh "$file"
+        sql -e "INSERT INTO swganh_config.swganh_db_version (revisionMajor, revisionMinor, scriptName, dateApplied)
+                VALUES ('${name%%_*}', '0', '$name', NOW())"
+        count=$((count + 1))
+    done < <(find "$dir" -maxdepth 1 -name '*.sql' | LC_ALL=C sort)
+    echo "$count migration(s) applied."
+}
+
 # --- update-procedures --------------------------------------------------------
 
 # Prints "FUNCTION name" or "PROCEDURE name" for the routine a file creates.
@@ -384,6 +493,20 @@ case "$command" in
         echo "Stored procedures and functions updated."
         ;;
     spawn-resources) spawn_resources "$@" ;;
+    migrate)
+        [[ $# -eq 0 ]] || die "usage: $(basename "$0") migrate"
+        check_connection
+        migrate
+        ;;
+    update)
+        [[ $# -eq 0 ]] || die "usage: $(basename "$0") update"
+        check_connection
+        update_procedures
+        echo "Stored procedures and functions updated."
+        migrate
+        ;;
+    allow-host) allow_host "$@" ;;
+    deny-host) deny_host "$@" ;;
     -h|--help|help) usage ;;
     *) echo "error: unknown command '$command'" >&2; usage >&2; exit 2 ;;
 esac

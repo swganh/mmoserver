@@ -24,7 +24,8 @@ first: the problem may be known, with a workaround.
 5. Push the branch and open a pull request against `master`.
 
 Every push runs CI: builds on Ubuntu 24.04 and 26.04 (system packages and
-vcpkg) and a database install on MariaDB 10.11 and 11.8. CI must pass,
+vcpkg), Windows (MSVC with vcpkg, and the Visual Studio solution), and a
+database install on MariaDB 10.11 and 11.8. CI must pass,
 and pull requests are reviewed before they are merged.
 
 Keep changes focused: one fix or feature per pull request, and explain the

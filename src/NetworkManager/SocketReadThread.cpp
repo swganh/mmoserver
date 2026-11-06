@@ -43,13 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <boost/thread/thread.hpp>
 
-#if defined(__GNUC__)
-// GCC implements tr1 in the <tr1/*> headers. This does not conform to the TR1
-// spec, which requires the header without the tr1/ prefix.
-#include <tr1/functional>
-#else
 #include <functional>
-#endif
 
 #if defined(_MSC_VER)
 #ifndef _WINSOCK2API_
@@ -111,7 +105,7 @@ SocketReadThread::SocketReadThread(SOCKET socket, SocketWriteThread* writeThread
     mDecompressPacket = mPacketFactory->CreatePacket();
 
     // start our thread
-    boost::thread t(std::tr1::bind(&SocketReadThread::run, this));
+    boost::thread t(std::bind(&SocketReadThread::run, this));
     mThread = boost::move(t);
 
 #ifdef _WIN32

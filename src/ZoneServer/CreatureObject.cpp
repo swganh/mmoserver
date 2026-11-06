@@ -49,6 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/EventDispatcher.h"
 
 #include "Utils/clock.h"
+#include "ScriptEngine/ScriptEngine.h"
 
 #include "Utils/rand.h"
 #include <cfloat>
@@ -792,8 +793,11 @@ void CreatureObject::incap()
 
 //=============================================================================
 
-void CreatureObject::die()
+void CreatureObject::die(uint64 killerId)
 {
+    gScriptEngine->raiseEvent(ScriptEvent("creature_died", getId(), killerId)
+        .set("is_player", (dynamic_cast<PlayerObject*>(this) != NULL) ? 1.0 : 0.0));
+
     mIncapCount			= 0;
     mCurrentIncapTime	= 0;
     mFirstIncapTime		= 0;

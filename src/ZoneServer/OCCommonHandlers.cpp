@@ -425,7 +425,7 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 			if(building->checkCapacity(objectSize))
 			{
 				//*****************************
-				//if it is the House wé dont need to check a containers capacity further down
+				//if it is the House wÃ© dont need to check a containers capacity further down
 				if(!tangibleContainer)   //mainly as the container might not exist if its placed in the house directly
 					return true;
 
@@ -656,7 +656,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 
 
-	if(swscanf(dataStr.getUnicode16().c_str(),L"%"WidePRIu64 L" %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
+	if(swscanf(dataStr.getUnicode16().c_str(),L"%" WidePRIu64 L" %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
 	{
 		DLOG(INFO) << "ObjController::_handleTransferItemMisc: Error in parameters";
 		return;

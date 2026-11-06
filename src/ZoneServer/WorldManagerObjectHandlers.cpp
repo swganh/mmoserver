@@ -182,6 +182,11 @@ bool WorldManager::addObject(Object* object,bool manual)
 
 			mWorldScriptsListener.handleScriptEvent("onPlayerEntered",params.str().c_str());
 
+			gScriptEngine->raiseEvent(ScriptEvent("player_entered_zone", player->getId())
+				.set("player_name", std::string(player->getFirstName().getAnsi()))
+				.set("planet", std::string(getPlanetNameThis()))
+				.set("players", static_cast<double>(mPlayerAccMap.size())));
+
 		}
 		break;
 
@@ -353,6 +358,11 @@ void WorldManager::destroyObject(Object* object)
                     << " " << static_cast<uint32>(mPlayerAccMap.size());
 
 			mWorldScriptsListener.handleScriptEvent("onPlayerLeft",params.str().c_str());
+
+			gScriptEngine->raiseEvent(ScriptEvent("player_left_zone", player->getId())
+				.set("player_name", std::string(player->getFirstName().getAnsi()))
+				.set("planet", std::string(getPlanetNameThis()))
+				.set("players", static_cast<double>(mPlayerAccMap.size())));
 			
 			delete player->getClient();
 			

@@ -587,7 +587,7 @@ void Tutorial::startScript(void)
     Script* script = ScriptEngine::Init()->createScript();
     script->setPriority(0);
 
-    script->setFileName("script/TutorialPart_1_9.lua");
+    script->setFileName("script/tutorial/part1.lua");
     script->setTutorial(this);	// Dirty... I know..(eru)
 
     mPlayerScripts.push_back(script);

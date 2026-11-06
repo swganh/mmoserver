@@ -1,7 +1,8 @@
 # Known issues
 
-Problems found while running the servers on Linux with a real client
-(pre-CU SWGANH client, Ubuntu 26.04 server VM, MariaDB 11.8). Kept here
+Problems found while running the servers with a real client (pre-CU SWGANH
+client; servers on an Ubuntu 26.04 VM with MariaDB 11.8, and on Windows 11
+built with Visual Studio 2022). Kept here
 because Issues are disabled on this fork; move them to GitHub Issues when
 they are enabled.
 
@@ -196,7 +197,7 @@ never retired when it runs out.
 
 The script plays each voice-over and waits for it, and some prompts wait
 for the player to reach a spot, but the debris is made attackable at the
-start of its step (the later call in `TutorialPart_1_9.lua` is commented
+start of its step (the later call in `tutorial/part1.lua` is commented
 out). A quick player is ahead of the prompts. Pacing, not an engine delay.
 
 ### 5f. Combat creatures never appeared (tutorial bandit) — fix needs testing
@@ -358,6 +359,88 @@ Every server prints this with a meaningless number (e.g. `7.27059e+31`);
 the value being printed is not initialised or not a heap figure.
 
 ---
+
+## Windows
+
+### 11. Zones crashed on Windows as soon as an NPC moved at negative coordinates — fixed
+
+`zmap::_getCellId` converted a negative float position straight to an
+unsigned integer, which C++ leaves undefined. GCC happened to wrap it, and
+adding half the map size wrapped it back to the right grid cell, so Linux
+worked; MSVC did not, the index left the lookup table and the Tatooine zone
+died with an access violation right after startup. It now converts through a
+signed integer and clamps to the grid (the same cells as before for every
+position on the map). `zmap::addRegion` stored region positions in unsigned
+integers too, which put regions starting at negative coordinates in the
+wrong cells on Linux as well.
+
+### 12. Bugs found by MSVC warnings — open
+
+The first Windows build warns about code that is wrong on every platform
+(GCC does not warn at the project's warning level):
+
+- `CloningTerminal.cpp:183` passes the `Database` object where the SQL
+  expects the schema name (`%s`), so choosing a cloning facility runs broken
+  SQL.
+- `TradeManagerChat.cpp:1383` passes the galaxy name twice, so the auction id
+  in the query is the wrong argument (bazaar auction lookup).
+- `StateManager.cpp:47-49`, `GroupObject.cpp:263` call `empty()` (a test)
+  where `clear()` was meant.
+- `AttackableCreature.cpp:999`, `MissionManager.cpp:1189-1446` use
+  uninitialised variables (`destination`, `mission_start`, `mission_dest`).
+- `OCAdminHandlers.cpp:85`, `OCCharacterSheethandlers.cpp:293`,
+  `OCStructureHandlers.cpp:300`: scanf formats that do not match their
+  arguments (narrow strings read with wide formats).
+- `HashString.cc:45`, `anh/hash_string.cc:26` store a 32-bit hash in a
+  pointer.
+
+To fix with the warning cleanup in phase 3, or sooner for cloning and the
+bazaar when those are tested.
+
+### 13. `build_server.ps1 -Solution` with a side-by-side older MSVC — open
+
+A generated Visual Studio solution builds with Visual Studio's default MSVC,
+which can be an older one installed side by side, while vcpkg's libraries
+use the newest; linking then fails. The Ninja build is not affected.
+Workaround in `docs/WINDOWS.md`.
+
+## Zones and scripts
+
+### 14. Tatooine crashed once while a character loaded in — fix needs testing
+
+Seen once on the Linux VM; the log ended without a reason and it did not
+happen again under `./server.sh debug -g`. One candidate, found while adding
+script events: when an object left the world, `zmap::RemoveObject` erased a
+region that no longer existed from the object's region list and then called
+`onObjectLeave` on it anyway, through a null pointer. It now skips that
+region. If a zone crashes again, run it under `debug -g` and keep the log.
+
+### 15. Scripts' `print` output never reached the logs — fixed
+
+Lua's `print` wrote to stdout, which the servers buffer into the log file;
+the buffer was never written before the server stopped, so script messages
+(`WeatherController v.0.2` and the like) were lost. `print` now goes through
+the server's logger and appears in the zone log as `[script] ...`.
+
+### 16. Server-side regions never match (cities, badges) — open
+
+Found when `region_entered` did not fire in Bestine. `zmap::isObjectInRegionBoundary_`
+treats every region as a rectangle with its corner at `planet_regions.x/z`,
+and swaps width and height. In the data, x/z is the centre, and cities and
+other round areas are circles: `width` 0, size in `height` (Bestine 1500).
+So nobody is ever inside a city, and badge squares are shifted by half
+their size. The client's "You have entered Bestine" comes from its own
+files. Fix: circles for `width = 0`, centred rectangles; first check in the
+client's region table (`datatables/clientregion/<planet>.iff`) whether
+`height` is a radius or a diameter, since the client's Bestine is smaller
+than either reading.
+
+### 17. The tutorial bandit could not be looted — open
+
+Seen in a tutorial run on the `event-hooks` branch; the rest of the
+tutorial went smoothly. Rill corpses on Tatooine loot fine. May be related to
+the loot all changes in #10. Next time: note whether the radial menu shows
+Loot, what happens on Loot / Loot all, and send `tutorial.out` from then.
 
 ## Fixed while getting the servers running
 

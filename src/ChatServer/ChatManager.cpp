@@ -445,7 +445,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             int8 footer[64];
             int8 receiverStr[64];
             sprintf(receiverStr,"',%" PRIu64 ",'",receiverId);
-            sprintf(footer,",%u,%"PRIu32")",(asyncContainer->mMail->mAttachments.getLength() << 1),asyncContainer->mMail->mTime);
+            sprintf(footer,",%u,%" PRIu32")",(asyncContainer->mMail->mAttachments.getLength() << 1),asyncContainer->mMail->mTime);
             sprintf(sql,"SELECT %s.sf_MailCreate('",mDatabase->galaxy());
 
             sqlPointer = sql + strlen(sql);
@@ -2310,7 +2310,7 @@ void ChatManager::_PersistentMessagebySystem(Mail* mail,DispatchClient* client, 
         int8 footer[64];
         int8 receiverStr[64];
         sprintf(receiverStr,"',%" PRIu64 ",'",receiver->getCharId());
-        sprintf(footer,",%u,%"PRIu32")",(mail->mAttachments.getLength() << 1),mail->mTime);
+        sprintf(footer,",%u,%" PRIu32")",(mail->mAttachments.getLength() << 1),mail->mTime);
         sprintf(sql,"SELECT %s.sf_MailCreate('",mDatabase->galaxy());
         sqlPointer = sql + strlen(sql);
         sqlPointer += mDatabase->escapeString(sqlPointer,mail->getSender().getAnsi(),mail->getSender().getLength());
@@ -2420,7 +2420,7 @@ void ChatManager::_processPersistentMessageToServer(Message* message,DispatchCli
         int8 footer[64];
         int8 receiverStr[64];
         sprintf(receiverStr,"',%" PRIu64 ",'",receiver->getCharId());
-        sprintf(footer,",%u,%"PRIu32")",(mail->mAttachments.getLength() << 1),mail->mTime);
+        sprintf(footer,",%u,%" PRIu32")",(mail->mAttachments.getLength() << 1),mail->mTime);
         sprintf(sql, "SELECT %s.sf_MailCreate('%s", mDatabase->galaxy(), sender->getName().getAnsi());
         sqlPointer = sql + strlen(sql);
         sqlPointer += mDatabase->escapeString(sqlPointer,sender->getName().getAnsi(),sender->getName().getLength());
@@ -2478,7 +2478,7 @@ void ChatManager::_processRequestPersistentMessage(Message* message,DispatchClie
     asyncContainer->mRequestId = dbMailId;
 
     int8 sql[256];
-    sprintf(sql, "CALL %s.sp_ReturnChatMailById(%"PRIu32");", mDatabase->galaxy(), dbMailId);
+    sprintf(sql, "CALL %s.sp_ReturnChatMailById(%" PRIu32");", mDatabase->galaxy(), dbMailId);
 
     mDatabase->executeProcedureAsync(this,asyncContainer,sql);
 }

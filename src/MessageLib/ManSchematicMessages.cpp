@@ -1269,7 +1269,7 @@ bool MessageLib::sendAttributeDeltasMSCO_7(ManufacturingSchematic* manSchem,Play
         manSchem->mUpdateCounter[9] += 1;//(craftAtts->size());
 
 
-        // ´send the *unique* exp properties
+        // Â´send the *unique* exp properties
         // we send the values of the first of the propertie(s) that comes our way - so the experiment code needs to sort that
         // the reason we do this is that we might have exp properties with attributes affected by differing resource weights
 

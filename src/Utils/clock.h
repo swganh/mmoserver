@@ -61,7 +61,7 @@ public:
 
     void	setGlobalDrift(int64 drift);
 
-    //timegettime uses 8µs to execute
+    //timegettime uses 8Âµs to execute
     //by stamping our timestamp every second and using it instead
     //we have a much lower resolution but save a lot of processing time
     uint64	getStoredTime() {

@@ -348,7 +348,7 @@ void BuffManager::LoadBuffs(PlayerObject* playerObject, uint64 currenttime)
     envelope->player		= playerObject;
 
     int8 sql[550];
-    sprintf(sql, "SELECT buff_id,character_id,instigator_id,max_ticks,tick_length,current_tick,icon,current_global_tick,start_global_tick from character_buffs where character_id = %"PRIu64, playerObject->getId());
+    sprintf(sql, "SELECT buff_id,character_id,instigator_id,max_ticks,tick_length,current_tick,icon,current_global_tick,start_global_tick from character_buffs where character_id = %" PRIu64, playerObject->getId());
     mDatabase->executeSqlAsync(this,envelope,sql);
     
 }

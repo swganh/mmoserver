@@ -68,6 +68,7 @@ private:
     void reconnectIfIdleTooLong_();
 
     std::string host_;
+    uint16_t port_;
     std::string user_;
     std::string pass_;
     std::string schema_;

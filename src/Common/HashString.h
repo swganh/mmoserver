@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define SRC_COMMON_HASHSTRING_H_
 
 #include <cstdint>
+#include <ostream>
 #include <string>
 
 /*! \brief Common is a catch-all library containing primarily base classes and

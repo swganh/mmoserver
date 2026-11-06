@@ -422,6 +422,26 @@ the buffer was never written before the server stopped, so script messages
 (`WeatherController v.0.2` and the like) were lost. `print` now goes through
 the server's logger and appears in the zone log as `[script] ...`.
 
+### 16. Server-side regions never match (cities, badges) — open
+
+Found when `region_entered` did not fire in Bestine. `zmap::isObjectInRegionBoundary_`
+treats every region as a rectangle with its corner at `planet_regions.x/z`,
+and swaps width and height. In the data, x/z is the centre, and cities and
+other round areas are circles: `width` 0, size in `height` (Bestine 1500).
+So nobody is ever inside a city, and badge squares are shifted by half
+their size. The client's "You have entered Bestine" comes from its own
+files. Fix: circles for `width = 0`, centred rectangles; first check in the
+client's region table (`datatables/clientregion/<planet>.iff`) whether
+`height` is a radius or a diameter, since the client's Bestine is smaller
+than either reading.
+
+### 17. The tutorial bandit could not be looted — open
+
+Seen in a tutorial run on the `event-hooks` branch; the rest of the
+tutorial went smoothly. Rill corpses on Tatooine loot fine. May be related to
+the loot all changes in #10. Next time: note whether the radial menu shows
+Loot, what happens on Loot / Loot all, and send `tutorial.out` from then.
+
 ## Fixed while getting the servers running
 
 For reference; details are in the commit messages on `phase2-db-installer`.

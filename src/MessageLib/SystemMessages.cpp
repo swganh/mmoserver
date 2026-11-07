@@ -36,6 +36,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 #include "Common/atMacroString.h"
+#include "Common/OutOfBand.h"
+#include "Common/byte_buffer.h"
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageDispatch.h"
@@ -48,14 +50,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void MessageLib::sendBanktipMail(PlayerObject* playerObject, PlayerObject* targetObject, uint32 amount)
 {
+    // Bodies as out-of-band prose packages (see sendNewbieMail).
+    std::wstring playerName(playerObject->getFirstName().getAnsi(), playerObject->getFirstName().getAnsi() + playerObject->getFirstName().getLength());
+    std::wstring targetName(targetObject->getFirstName().getAnsi(), targetObject->getFirstName().getAnsi() + targetObject->getFirstName().getLength());
 
-    atMacroString* aMS = new atMacroString();
-
-    aMS->addMBstf("base_player","prose_wire_mail_target");
-    aMS->addDI(amount);
-    aMS->addTO(playerObject->getFirstName());
-    aMS->addTextModule();
-
+    // To the receiver: "%TO has wired you %DI credits" (prose_wire_mail_target).
+    common::OutOfBand targetBody("base_player", "prose_wire_mail_target",
+                                 0, "", "", L"", 0, "", "", L"", 0, "", "", playerName,
+                                 static_cast<int32_t>(amount));
+    const common::ByteBuffer* attachment = targetBody.Pack();
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opIsmSendSystemMailMessage);
@@ -64,22 +67,16 @@ void MessageLib::sendBanktipMail(PlayerObject* playerObject, PlayerObject* targe
     mMessageFactory->addString(targetObject->getFirstName());
     mMessageFactory->addString(BString("@base_player:wire_mail_subject"));
     mMessageFactory->addUint32(0);
-    mMessageFactory->addString(aMS->assemble());
-    delete aMS;
-
+    mMessageFactory->addData(attachment->data(), attachment->size());
 
     Message* newMessage = mMessageFactory->EndMessage();
     playerObject->getClient()->SendChannelA(newMessage, playerObject->getAccountId(), CR_Chat, 6);
 
-
-
-    aMS = new atMacroString();
-
-    aMS->addMBstf("base_player","prose_wire_mail_self");
-    aMS->addDI(amount);
-    aMS->addTO(targetObject->getFirstName());
-    aMS->addTextModule();
-
+    // To the sender: "You have wired %DI credits to %TO" (prose_wire_mail_self).
+    common::OutOfBand selfBody("base_player", "prose_wire_mail_self",
+                               0, "", "", L"", 0, "", "", L"", 0, "", "", targetName,
+                               static_cast<int32_t>(amount));
+    attachment = selfBody.Pack();
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opIsmSendSystemMailMessage);
@@ -88,13 +85,10 @@ void MessageLib::sendBanktipMail(PlayerObject* playerObject, PlayerObject* targe
     mMessageFactory->addString(playerObject->getFirstName());
     mMessageFactory->addString(BString("@base_player:wire_mail_subject"));
     mMessageFactory->addUint32(0);
-    mMessageFactory->addString(aMS->assemble());
-    delete aMS;
-
+    mMessageFactory->addData(attachment->data(), attachment->size());
 
     newMessage = mMessageFactory->EndMessage();
     playerObject->getClient()->SendChannelA(newMessage, playerObject->getAccountId(), CR_Chat, 6);
-
 }
 
 
@@ -179,12 +173,12 @@ void MessageLib::sendSoldInstantMail(uint64 oldOwner, PlayerObject* newOwner, BS
 
 void MessageLib::sendNewbieMail(PlayerObject* playerObject, BString subject, BString bodyDir, BString bodyStr)
 {
-    atMacroString* aMS = new atMacroString();
-
-    aMS->addMBstf(bodyDir, bodyStr);
-    aMS->addTextModule();
-    //needed this extra one for some reason
-    //aMS->addTextModule();
+    // The body is a reference to the client's string file, as an
+    // out-of-band prose package after an empty text (like system messages).
+    // atMacroString wrote a package count of 0 here, so the client showed
+    // an empty body (KNOWN_ISSUES #22).
+    common::OutOfBand body(bodyDir.getAnsi(), bodyStr.getAnsi());
+    const common::ByteBuffer* attachment = body.Pack();
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opIsmSendSystemMailMessage);
@@ -193,8 +187,7 @@ void MessageLib::sendNewbieMail(PlayerObject* playerObject, BString subject, BSt
     mMessageFactory->addString("Star Wars Galaxies");
     mMessageFactory->addString(subject);
     mMessageFactory->addUint32(0);
-    mMessageFactory->addString(aMS->assemble());
-    delete aMS;
+    mMessageFactory->addData(attachment->data(), attachment->size());
 
     Message* newMessage = mMessageFactory->EndMessage();
     playerObject->getClient()->SendChannelA(newMessage, playerObject->getAccountId(), CR_Chat, 6);

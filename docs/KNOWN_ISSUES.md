@@ -531,7 +531,16 @@ data in the mail's attachments, and those were stored in a `utf8mb3`
 are not valid UTF-8 (`FF FF` in the header) are refused or mangled.
 Attachments are now a `BLOB` (migration 005, the function, the schema),
 and the ChatServer sends them as `_binary` literals. Player mail with
-attachments (waypoints) went through the same column. Mails stored
+attachments (waypoints) went through the same column.
+
+Still empty after that: the body itself was built wrong. `atMacroString`
+writes the out-of-band package count as its internal counter, 0 for the
+first package (bytes `00 00` where the client needs `01 00`), plus 8 stray
+bytes at the end, so the client found no package to show. The newbie mails
+and the bank wire mails now use `common::OutOfBand`, the builder system
+messages use (and they display). Still on `atMacroString`: the bazaar
+mails, which carry a waypoint `common::OutOfBand` can't add yet; they need
+the same count fix or waypoint support in `common::OutOfBand`. Mails stored
 before the fix stay empty; new ones are whole.
 
 Still to add: the client's prompt for it, `system_messages:newbie_mail`

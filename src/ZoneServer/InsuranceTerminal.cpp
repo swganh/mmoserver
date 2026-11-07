@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
 #include "DatabaseManager/Database.h"
+#include "ScriptEngine/ScriptEngine.h"
 
 
 
@@ -156,6 +157,8 @@ void InsuranceTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObje
 
                 // Insurance transaction successfully completed.
                 gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "insure_success"), playerObject);
+
+                gScriptEngine->raiseEvent(ScriptEvent("items_insured", getId(), playerObject->getId()));
 
                 // Inform Tutorial about the insurance.
                 playerObject->getTutorial()->tutorialResponse("insureItemsDone");

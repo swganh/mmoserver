@@ -218,685 +218,239 @@ end;
 
 
 
-local delayLeft = 3000;
+-- Parts one and two (sub-states 1 to 9), on events: each step first checks
+-- whether the player has already done it, so a player who is ahead gets no
+-- prompt for it, and a player who is slow gets reminders. Prompts never
+-- talk over each other. Sub-states are saved as before, so a reconnect
+-- resumes at the step it left.
+local Progress = require 'script/tutorial/progress'
+local progress = Progress.new(tutorial, playerId)
+
+-- isContainerEmpty only answers for the container named here.
+tutorial:enableItemContainerEvent(containerId);
+
+local function room()
+	return tutorial:getRoom();
+end
+
+local function distanceTo(objectId)
+	return tutorial:getPlayerPosToObject(objectId);
+end
+
+local function partsOneAndTwo(fromSubState)
+	local function at(n)
+		if fromSubState <= n then
+			tutorial:setSubState(n);
+			return true;
+		end
+		return false;
+	end
+
+	if at(1) then
+		progress:sleep(3000);
+		-- "PART ONE OF NINE (movement and chat)", "Welcome to Star Wars Galaxies."
+		progress:say("part_1", nil, 1000);
+		progress:say("welcome", 1267, 5000);			-- sound/tut_01_welcome.snd
+	end
+
+	if at(2) then
+		if room() < 2 then
+			-- "Use the arrow keys to move." / mouse / look around
+			progress:say("movement_keyboard", 3426, 0);	-- sound/tut_02_movement.snd
+			progress:say("movement_mouse", nil, 0);
+			progress:say("lookaround", nil, 15000);
+		end
+		if not progress:reported("zoomCamera") then
+			-- "Using the mouse-wheel, scroll forward to zoom into your character..."
+			progress:say("mousewheel", 1174, 25000);		-- sound/tut_00_camera.snd
+			progress:waitFor(function() return progress:reported("zoomCamera") end,
+				function() progress:say("mousewheel_repeat", 141, 5000) end,	-- sound/tut_03_scroll_out.snd
+				30000, 30000);
+		end
+	end
+
+	if at(3) then
+		tutorial:enableHudElement("chatbox");
+		if not progress.chatted then
+			-- "This is your chat window..." / "Go ahead and try it..."
+			progress:say("chatwindow", 3379, 0);			-- sound/tut_04_chat.snd
+			progress:say("chatprompt", nil, 10000);
+			progress:waitFor(function() return progress.chatted end,
+				function() progress:say("repeatchatprompt", 1294, 5000) end,	-- sound/tut_05_remind_chat.snd
+				25000, 30000);
+		end
+	end
+
+	if at(4) then
+		tutorial:enableHudElement("chatbox");
+		progress:quiet();
+		progress:forget("closeHolocron");
+		tutorial:openHolocron();
+		-- "This is your Holocron..."
+		progress:say("holocube", 1385, 17000);			-- sound/tut_00_holocron.snd
+		progress:waitFor(function() return progress:reported("closeHolocron") end);
+	end
+
+	if at(5) then
+		tutorial:enableHudElement("chatbox");
+		if room() < 2 then
+			-- "Excellent!  Come through the door and down the hallway there."
+			progress:say("move_to_item_room", 1691, 5000);	-- sound/tut_06_excellent.snd
+			progress:waitFor(function() return room() >= 2 end,
+				function() progress:say("repeat_item_room_prompt", 1363, 5000) end,	-- sound/tut_07_comeon.snd
+				30000, 30000);
+		end
+		-- The officer calls the player over, unless already there.
+		local barks = { {20.0, "greeter1_bark1"}, {16.0, "greeter1_bark2"}, {12.0, "greeter1_bark3"} };
+		for _, bark in ipairs(barks) do
+			if progress.talking[itemRoomOfficerId] or distanceTo(itemRoomOfficerId) <= 12.0 then
+				break;
+			end
+			tutorial:spatialChat(itemRoomOfficerId, "@newbie_tutorial/newbie_convo:" .. bark[2]);
+			progress:waitFor(function()
+				return progress.talking[itemRoomOfficerId] or distanceTo(itemRoomOfficerId) <= bark[1];
+			end);
+		end
+	end
+
+	if at(6) then
+		tutorial:enableHudElement("chatbox");
+		tutorial:enableNpcConversationEvent(itemRoomOfficerId);
+		-- "PART TWO OF NINE (conversing with npcs and inventory)"
+		progress:say("part_2", nil, 1000);
+		if not progress.talking[itemRoomOfficerId] then
+			-- "Move forward and click-and-hold your mouse on the Imperial Officer..."
+			progress:say("tut_08", 1550, 8000);			-- sound/tut_08_imperialofficer.snd
+			if distanceTo(itemRoomOfficerId) > 10.0 then
+				tutorial:spatialChat(itemRoomOfficerId, "@newbie_tutorial/newbie_convo:greeting");
+			end
+			local function targeted()
+				return progress.talking[itemRoomOfficerId] or scriptSupport:getTarget(playerId) == itemRoomOfficerId;
+			end
+			progress:waitFor(targeted,
+				function() tutorial:spatialChat(itemRoomOfficerId, "@newbie_tutorial/newbie_convo:explain_lookat") end,
+				15000, 15000);
+		end
+		if not progress.talking[itemRoomOfficerId] then
+			-- look-at target, radial menu, converse
+			progress:say("tut_09", 1330, 5000);			-- sound/tut_09_lookat.snd
+			progress:say("tut_10", 2726, 5000);			-- sound/tut_10_radialmenu.snd
+			progress:say("tut_11", 3436, 10000);			-- sound/tut_11_converse.snd
+			progress:waitFor(function() return progress.talking[itemRoomOfficerId] end);
+		end
+		if not progress.talked[itemRoomOfficerId] then
+			-- "Now you're in a conversation..." / "...select the STOP CONVERSING option."
+			progress:say("tut_12", 716, 12000);			-- sound/tut_12_conversation.snd
+			progress:say("tut_13", 3009, 14000);			-- sound/tut_13_justtype.snd
+			progress:waitFor(function() return progress.talked[itemRoomOfficerId] end);
+		end
+	end
+
+	if at(7) then
+		tutorial:enableHudElement("chatbox");
+		local function emptied()
+			return tutorial:isContainerEmpty(containerId) or progress.closed[containerId];
+		end
+		local function opened()
+			return progress.opened[containerId] or (progress.taken[containerId] or 0) > 0 or emptied();
+		end
+		if not opened() then
+			scriptSupport:sendFlyText(containerId, playerId, "newbie_tutorial/system_messages", "open_me", 0, 255, 0, 0);
+			-- "To open the box just click and hold until you see the radial menu appear."
+			progress:say("prompt_open_box", 2008, 5000);		-- sound/tut_14_openbox.snd
+			progress:waitFor(function() return opened() or scriptSupport:getTarget(playerId) == containerId end,
+				function()
+					scriptSupport:sendFlyText(containerId, playerId, "newbie_tutorial/system_messages", "open_me", 0, 255, 0, 1);
+					-- "You might find something in the box you need..."
+					progress:say("repeat_open_box", 1799, 10000);	-- sound/tut_16_intheboxyouneed.snd
+				end, 30000, 30000);
+		end
+		if not opened() then
+			-- "Great!  Now select the Open option to access the contents of the container."
+			progress:say("prompt_choose_open", 1332, 8000);	-- sound/tut_15_opencontainer.snd
+			progress:waitFor(opened);
+		end
+		if not emptied() then
+			if (progress.taken[containerId] or 0) == 0 then
+				-- "You can take these items..." / "Now choose the Pick Up option..."
+				progress:say("prompt_take_items", 778, 15000);	-- sound/tut_16_a_youcantake.snd
+				if not emptied() and (progress.taken[containerId] or 0) == 0 then
+					progress:say("prompt_select_pickup", 3041, 4000);	-- sound/tut_17_pickup.snd
+				end
+				progress:waitFor(function() return emptied() or (progress.taken[containerId] or 0) > 0 end);
+			end
+			-- "You've put the item in your inventory."
+			progress:say("pickup_complete", 58, 2000);		-- sound/tut_18_inventory.snd
+			progress:waitFor(emptied);
+		end
+	end
+
+	if at(8) then
+		tutorial:enableHudElement("chatbox");
+		if not progress.ate then
+			-- free mouse, ALT, CTRL-I
+			progress:say("explain_freemouse", 3416, 0);		-- sound/tut_19_inventory.snd
+			progress:say("explain_freemouse_toggle", nil, 0);
+			progress:say("explain_inventory", nil, 15000);
+		end
+		-- Open the inventory, find the food, use it: each prompt only while needed.
+		local nudged = nil;
+		progress:waitFor(function() return progress.ate end, function()
+			local nudge;
+			if not progress.inventoryOpen then
+				-- "Press CTRL-I to open your inventory, and select one of the food items..."
+				nudge = { "repeat_open_inventory", 1664, 8000 };	-- sound/tut_25_openinventory.snd
+			elseif not progress.foodExamined then
+				-- "Scroll through your inventory until you locate one of the food items..."
+				nudge = { "prompt_find_food", 2910, 8000 };		-- sound/tut_20_selectfooditem.snd
+			else
+				-- "Select the Use option to use this item."
+				nudge = { "prompt_use_item", 934, 5000 };		-- sound/tut_21_usefood.snd
+			end
+			progress:say(nudge[1], nudge[2], nudge[3]);
+			nudged = nudge[1];
+		end, 1, 20000);
+		-- "You used the item on yourself.  Food will help increase your attributes..."
+		progress:say("explain_item_used", 2571, 10000);		-- sound/tut_22_attributes.snd
+
+		tutorial:enableHudElement("toolbar");
+		if room() < 3 then
+			-- "This is your toolbar..." / "You can drag items into your toolbar..."
+			progress:say("show_toolbar", 2439, 8000);		-- sound/tut_23_toolbar.snd
+			progress:say("tut_00_toolbardrag", 1092, 16000);	-- sound/tut_00_toolbardrag.snd
+		end
+		if progress.inventoryOpen and room() < 3 then
+			-- "Press CTRL-I again to close your inventory window."
+			progress:say("close_inventory", 1603, 2000);		-- sound/tut_26_closeinventory.snd
+			progress:waitFor(function() return not progress.inventoryOpen or room() >= 3 end);
+		end
+	end
+
+	if at(9) then
+		tutorial:enableHudElement("chatbox");
+		tutorial:enableHudElement("toolbar");
+		if room() < 3 then
+			-- "Proceed to the next room."
+			progress:say("visit_commerce_room", 2202, 8000);	-- sound/tut_27_proceed.snd
+			progress:waitFor(function() return room() >= 3 end,
+				function() progress:say("visit_commerce_room", 2202, 8000) end, 30000, 30000);
+		end
+	end
+
+	progress:quiet();
+	tutorial:setSubState(10);
+end
+
+local delayLeft = 0;
 local count;
 
 while state == 1 do
 	local subState = tutorial:getSubState();
 		
-	if subState == 1 then
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-							
-		-- "PART ONE OF NINE (movement and chat)"
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:part_1");
-
-		LuaScriptEngine.WaitMSec(1000);
-
-		-- "Welcome to Star Wars Galaxies."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:welcome");
-
-		tutorial:scriptPlayMusic(1267);		-- sound/tut_01_welcome.snd
-
-		tutorial:setSubState(2);
-		delayLeft = 5000;
-		
-	elseif subState == 2 then	-- Scroll / zoom to third person...	
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-		
-		-- "Use the arrow keys to move."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:movement_keyboard");		
-
-		tutorial:scriptPlayMusic(3426);		-- sound/tut_02_movement.snd
-
-		-- "Or hold down the right mouse-button to move forward."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:movement_mouse");
-		
-		-- "You can look around by moving your mouse."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:lookaround");
-		
-		LuaScriptEngine.WaitMSec(15000);
-		
-		-- "Using the mouse-wheel, scroll forward to zoom into your character. Notice that if you zoom in all the way, you'll be in first-person mode. Scroll backwards to zoom-out of your character, and into third-person mode. You can also zoom your camera in and out by pressing the keypad plus and minus keys. Try zooming between 1st and 3rd person."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:mousewheel");
-
-		tutorial:scriptPlayMusic(1174);		-- sound/tut_00_camera.snd
-		
-		tutorial:updateTutorial("zoomCamera");		-- Wait for user to use the zoom
-		local hasZoomed = false;		
-		LuaScriptEngine.WaitMSec(25000);	-- wait for sound to finish
-
-		hasZoomed = tutorial:isZoomCamera();
-
-		-- wait max 30 seconds before we continue
-		for count = 1,30 do 
-			if hasZoomed == true then
-				break;
-			end; 
-			LuaScriptEngine.WaitMSec(1000);
-			hasZoomed = tutorial:isZoomCamera();
-		end
-
-		delayLeft = 0;
-		while hasZoomed == false do
-			-- "Give it a try.  Scroll out to 3rd-person and take a look at yourself."
-			tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:mousewheel_repeat");
-			tutorial:scriptPlayMusic(141);		-- sound/tut_03_scroll_out.snd
-			
-			delayLeft = 5000;	
-			
-			for count = 1,30 do 
-				hasZoomed = tutorial:isZoomCamera();
-				if hasZoomed == true then
-					break
-				end 
-				LuaScriptEngine.WaitMSec(1000);
-				if delayLeft > 0 then
-					delayLeft = delayLeft - 1000
-				end
-			end
-		end
-		
-		tutorial:setSubState(3);
-
-	elseif subState == 3 then	-- Use chat window
-		tutorial:enableHudElement("chatbox");
-
-		LuaScriptEngine.WaitMSec(delayLeft);
+	if subState <= 9 then
+		partsOneAndTwo(subState);
 		delayLeft = 0;
 
-		tutorial:updateTutorial("chatActive");
-		
-		-- "This is your chat window. Type here to speak to your fellow players."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:chatwindow");
-		tutorial:scriptPlayMusic(3379);		-- sound/tut_04_chat.snd
-		
-		-- "Go ahead and try it.  Just type what you want to say and then press ENTER."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:chatprompt");
-		
-		LuaScriptEngine.WaitMSec(10000);	-- wait for sound to finish	
-		
-		local hasChat = false;
-		hasChat = tutorial:isChatBox();
-
-		for count = 1,25 do 
-			if hasChat == true then
-				break
-			end 
-			LuaScriptEngine.WaitMSec(1000);
-			hasChat = tutorial:isChatBox();
-		end
-
-		delayLeft = 0;
-		while hasChat == false do
-			-- "Don't be shy.  Type something in your chatwindow and press Enter"
-			tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:repeatchatprompt");
-			tutorial:scriptPlayMusic(1294);		-- sound/tut_05_remind_chat.snd
-			
-			delayLeft = 5000;	
-			
-			for count = 1,30 do 
-				hasChat = tutorial:isChatBox();
-				if hasChat == true then
-					break
-				end 
-				LuaScriptEngine.WaitMSec(1000);
-				if delayLeft > 0 then
-					delayLeft = delayLeft - 1000
-				end
-			end
-		end
-
-		tutorial:setSubState(4);
-		
-	elseif subState == 4 then		-- Use Holocron
-		tutorial:enableHudElement("chatbox");
-
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-		
-		tutorial:openHolocron();
-		tutorial:updateTutorial("closeHolocron");
-		
-		-- "This is your Holocron. You can access it by pressing CTRL-H. Whenever you need information about something in Star Wars Galaxies, press CTRL-H to find it in your Holocron. To close this screen, press CTRL-H again."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:holocube");
-		tutorial:scriptPlayMusic(1385);		-- sound/tut_00_holocron.snd
-
-		-- wait at least until the previous sound/music has stopped.
-		delayLeft = 17000;
-		while tutorial:isCloseHolocron() == false do
-			LuaScriptEngine.WaitMSec(1000);
-			if delayLeft > 0 then
-				delayLeft = delayLeft - 1000
-			end
-		end
-	
-		tutorial:setSubState(5);
-		
-	elseif subState == 5 then		-- Approach Imperial Officer.
-		tutorial:enableHudElement("chatbox");
-		
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-		
-		-- "Excellent! Come through the door and down the hallway there."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:move_to_item_room");
-		tutorial:scriptPlayMusic(1691);		-- sound/tut_06_excellent.snd
-
-		delayLeft = 5000;
-		for count = 1,30 do 
-			if tutorial:getRoom() == 2 then
-				break
-			end 
-			LuaScriptEngine.WaitMSec(1000);
-			if delayLeft > 0 then
-				delayLeft = delayLeft - 1000
-			end
-		end
-		
-		while tutorial:getRoom() ~= 2 do
-			-- "Come on.  Don't keep me waiting all day."
-			tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:repeat_item_room_prompt");
-			tutorial:scriptPlayMusic(1363);		-- sound/tut_07_comeon.snd
-			
-			delayLeft = 5000;	
-			
-			for count = 1,30 do 
-				if tutorial:getRoom() == 2 then
-					break
-				end 
-				LuaScriptEngine.WaitMSec(1000);
-				if delayLeft > 0 then
-					delayLeft = delayLeft - 1000
-				end
-			end
-		end
-
-		-- wait until sound has stopped.
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-
-		-- tutorial:spatialChat(itemRoomOfficerId, "@newbie_tutorial/newbie_convo:greeter1_bark1");
-		tutorial:spatialChat(itemRoomOfficerId, "@newbie_tutorial/newbie_convo:greeter1_bark1");
-
-		while tutorial:getPlayerPosToObject(itemRoomOfficerId) > 20.0 do
-			LuaScriptEngine.WaitMSec(4000);
-		end;
-
-		-- tutorial:spatialChat(itemRoomOfficerId, "@newbie_tutorial/newbie_convo:greeter1_bark2");
-		tutorial:spatialChat(itemRoomOfficerId, "@newbie_tutorial/newbie_convo:greeter1_bark2");
-
-		while tutorial:getPlayerPosToObject(itemRoomOfficerId) > 16.0 do
-			LuaScriptEngine.WaitMSec(4000);
-		end;
-
-		-- tutorial:spatialChat(itemRoomOfficerId, "@newbie_tutorial/newbie_convo:greeter1_bark3");
-		tutorial:spatialChat(itemRoomOfficerId, "@newbie_tutorial/newbie_convo:greeter1_bark3");
-
-		while tutorial:getPlayerPosToObject(itemRoomOfficerId) > 12.0 do
-			LuaScriptEngine.WaitMSec(4000);
-		end;
-	
-		tutorial:setSubState(6);
-		delayLeft = 3000;
-		
-	elseif subState == 6 then		-- Imperial Officer Conversation
-		tutorial:enableHudElement("chatbox");
-		tutorial:updateTutorial("changeLookAtTarget");
-		
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-
-		-- "PART TWO OF NINE (conversing with npcs and inventory) "
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:part_2");
-		LuaScriptEngine.WaitMSec(1000);
-
-		-- "Move forward and click-and-hold your mouse on the Imperial Officer until the radial menu appears. "
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_08");
-		tutorial:scriptPlayMusic(1550);		-- sound/tut_08_imperialofficer.snd
-				
-		tutorial:enableNpcConversationEvent(itemRoomOfficerId);
-		delayLeft = 8000;
-		
-		if (tutorial:getPlayerPosToObject(itemRoomOfficerId) > 10.0) then
-			-- tutorial:spatialChat(itemRoomOfficerId, "@newbie_tutorial/newbie_convo:greeting");
-			tutorial:spatialChat(itemRoomOfficerId, "@newbie_tutorial/newbie_convo:greeting");
-		end;
-
-		
-		-- wait at least until the previous sound/music has stopped.
-		while (scriptSupport:getTarget(playerId) ~= itemRoomOfficerId) do
-			-- tutorial:spatialChat(itemRoomOfficerId, "@newbie_tutorial/newbie_convo:explain_lookat");
-			tutorial:spatialChat(itemRoomOfficerId, "@newbie_tutorial/newbie_convo:explain_lookat");
-
-			LuaScriptEngine.WaitMSec(500);
-			if delayLeft > 0 then
-				delayLeft = delayLeft - 500
-			end
-
-			delayLeft = 5000;	
-			for count = 1,30 do 
-				if (scriptSupport:getTarget(playerId) == itemRoomOfficerId) then
-					break
-				end 
-				LuaScriptEngine.WaitMSec(500);
-				if delayLeft > 0 then
-					delayLeft = delayLeft - 500
-				end
-			end
-		end;
-		
-		-- wait until sound has stopped.
-		LuaScriptEngine.WaitMSec(delayLeft);
-
-		-- "He is now your look-at target.  His name appears over his head."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_09");
-		tutorial:scriptPlayMusic(1330);		-- sound/tut_09_lookat.snd
-		
-		LuaScriptEngine.WaitMSec(5000);
-			
-
-		-- "Click and hold the mouse button to get  a radial menu on the Imperial Officer."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_10");
-		tutorial:scriptPlayMusic(2726);		-- sound/tut_10_radialmenu.snd
-		
-		LuaScriptEngine.WaitMSec(5000);
-
-
-		-- "Do you see the option to converse?  While holding your mouse button, move to the converse option and let go of the mouse button to select it."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_11");
-		tutorial:scriptPlayMusic(3436);		-- sound/tut_11_converse.snd
-		
-		-- wait at least until the previous sound/music has stopped.
-		delayLeft = 10000;
-		while tutorial:isNpcConversationStarted(itemRoomOfficerId) == false do
-			LuaScriptEngine.WaitMSec(1000);
-			if delayLeft > 0 then
-				delayLeft = delayLeft - 1000
-			end
-		end
-
-		-- wait until sound has stopped.
-		LuaScriptEngine.WaitMSec(delayLeft);
-
-		-- "Now you're in a conversation.  You can choose one of the responses to the right with your mouse."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_12");
-		tutorial:scriptPlayMusic(716);		-- sound/tut_12_conversation.snd
-
-		LuaScriptEngine.WaitMSec(12000);
-		
-		-- "Remember, you don't speak to other players this way.  Just type to talk to other players.  When you are finished conversing with the Imperial Officer, select the STOP CONVERSING option."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_13");
-		tutorial:scriptPlayMusic(3009);		-- sound/tut_13_justtype.snd
-
-
-		-- wait at least until the previous sound/music has stopped.
-		delayLeft = 14000;
-		while tutorial:isNpcConversationEnded(itemRoomOfficerId) == false do
-			LuaScriptEngine.WaitMSec(1000);
-			if delayLeft > 0 then
-				delayLeft = delayLeft - 1000
-			end
-		end
-		tutorial:updateTutorial("changeLookAtTarget");
-
-		tutorial:setSubState(7);
-		
-	elseif subState == 7 then		-- Loot the Drum.
-		tutorial:updateTutorial("changeLookAtTarget");
-		tutorial:enableItemContainerEvent(containerId);
-		tutorial:enableHudElement("chatbox");
-
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-
-		-- send flytext "Open Me!"
-		scriptSupport:sendFlyText(containerId, playerId, "newbie_tutorial/system_messages", "open_me", 0, 255, 0, 0);
-		
-		-- "To open the box just click and hold until you see the radial menu appear."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:prompt_open_box");
-		tutorial:scriptPlayMusic(2008);		-- sound/tut_14_openbox.snd
-
-		-- wait at least until the previous sound/music has stopped.
-		delayLeft = 5000;
-		local targetSelected = false;
-		
-		-- wait max 30 seconds before we continue
-		-- while (targetSelected == false) do
-		for count = 1,60 do 
-			if (targetSelected == true) then
-				break;
-			end;
-		
-			if (count % 10) == 0 then
-				-- send flytext "Open Me!"
-				scriptSupport:sendFlyText(containerId, playerId, "newbie_tutorial/system_messages", "open_me", 0, 255, 0, 1);	
-			end;
-			
-			if (tutorial:isChangeLookAtTarget() == false) then
-				LuaScriptEngine.WaitMSec(500);
-				if delayLeft > 0 then
-					delayLeft = delayLeft - 500
-				end
-			else
-				-- Is it the correct target?
-				if (scriptSupport:getTarget(playerId) == containerId)  then
-					targetSelected = true;
-				else
-					-- print("Wrong target selected");
-					tutorial:updateTutorial("changeLookAtTarget");
-				end
-			end;
-		end;
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-		
-		while (targetSelected == false) do
-			-- send flytext "Open Me!"
-			-- scriptSupport:sendFlyText(containerId, playerId, "newbie_tutorial/system_messages", "open_me", 0, 255, 0, 5);
-
-			-- "You might find something in the box you need.  Click and hold your mouse-button down on the box until you see the radial menu."
-			tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:repeat_open_box");
-			tutorial:scriptPlayMusic(1799);		-- sound/tut_16_intheboxyouneed.snd
-			
-			delayLeft = 10000;
-
-			for count = 1,60 do 
-				if (targetSelected == true) then
-					break;
-				end;
-		
-				if (count % 10) == 0 then
-					-- send flytext "Open Me!"
-					scriptSupport:sendFlyText(containerId, playerId, "newbie_tutorial/system_messages", "open_me", 0, 255, 0, 1);	
-				end;
-
-				if (tutorial:isChangeLookAtTarget() == false) then
-					LuaScriptEngine.WaitMSec(500);
-					if delayLeft > 0 then
-						delayLeft = delayLeft - 500
-					end
-				else
-					-- Is it the correct target?
-					if (scriptSupport:getTarget(playerId) == containerId)  then
-						targetSelected = true;
-					else
-						-- print("Wrong target selected");
-						tutorial:updateTutorial("changeLookAtTarget");
-					end
-				end;
-			end;
-		end;
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-
-		-- tutorial:enableItemContainerEvent(containerId);
-		
-		-- "Great!  Now select the Open option to access the contents of the container."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:prompt_choose_open");
-		tutorial:scriptPlayMusic(1332);		-- sound/tut_15_opencontainer.snd
-
-		delayLeft = 8000;
-
-		
-		targetOpened = false;
-		while (targetOpened == false and not tutorial:isContainerEmpty(containerId)) do
-			if (tutorial:isContainerOpen(containerId) == false) then
-				LuaScriptEngine.WaitMSec(500);
-				if delayLeft > 0 then
-					print("STUCK LINE 644.");
-					delayLeft = delayLeft - 500
-				end
-			else
-				targetOpened = true;
-				break;
-			end;
-		end;
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-
--- Player has openend the container.
-		-- "You can take these items by clicking-and-holding until you get the radial menu option on each item.  Pick up all of the items, and then click the X in the upper-right-hand corner of the container to close the box."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:prompt_take_items");
-		tutorial:scriptPlayMusic(778);		-- sound/tut_16_a_youcantake.snd
-		LuaScriptEngine.WaitMSec(15000);
-		
--- A possible fix... wait until the user actually selected an item before asking for the "chosoe Pick Up...".
-
-		if (tutorial:isContainerClosed(containerId) == false) then
--- Pick up an item
-			-- "Now choose the Pick Up option to move the item to your inventory."
-			tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:prompt_select_pickup");
-			tutorial:scriptPlayMusic(3041);		-- sound/tut_17_pickup.snd
-			delayLeft = 4000;
-		end;
-
--- Wait for player to pick up the items and close the container.
-		while (tutorial:isContainerClosed(containerId) == false) do
-		
-			print("Container is NOT closed.");
-			
-			if (tutorial:isContainerEmpty(containerId) == true) then
-				print("Container is EMPTY.");
-				break;
-			end;
-		
-			LuaScriptEngine.WaitMSec(delayLeft);
-			delayLeft = 0;
-		
-			while tutorial:isItemTransferedFromContainer(containerId) == false do
-				LuaScriptEngine.WaitMSec(500);
-				if (tutorial:isContainerClosed(containerId) == true) then
-					break;
-				end; 
-				
-				if delayLeft > 0 then
-					delayLeft = delayLeft - 500
-				end
-			end;
-			
-			-- wait until sound has stopped.
-			LuaScriptEngine.WaitMSec(delayLeft);
-
-			if (tutorial:isContainerClosed(containerId) == true) then
-				break;
-			end; 
-
--- Picked up an item
-			-- "You've put the item in your inventory."
-			tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:pickup_complete");
-			tutorial:scriptPlayMusic(58);		-- sound/tut_18_inventory.snd
-			
-			delayLeft = 2000;
-			
-		end;
-		
-		-- wait until sound has stopped.
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-
--- We HAVE to close the container
---The code to show a closed container was never being called. This means we need to comment this out for now for the sake of allowing the rest of the tutorial to work.
-		--while (tutorial:isContainerClosed(containerId) == false) do
-			--print("STUCK LINE 715.");
- 			--LuaScriptEngine.WaitMSec(500);
- 		--end;
- 		
- 		tutorial:updateTutorial("openInventory");
- 		tutorial:setSubState(8);
-		
-	elseif subState == 8 then		-- The container is closed, consume the food from inventory.
-		tutorial:updateTutorial("openInventory");
-		tutorial:enableHudElement("chatbox");
-		
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-		
-		-- "Notice that your mouse mode changed when you opened that container."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:explain_freemouse");
-		tutorial:scriptPlayMusic(3416);		-- sound/tut_19_inventory.snd
-		
-		-- "You can toggle the mouse mode yourself with the ALT key."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:explain_freemouse_toggle");
-		-- LuaScriptEngine.WaitMSec(1000);
-
-		-- "You can examine your inventory by pressing CTRL-I."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:explain_inventory");
-		-- LuaScriptEngine.WaitMSec(1000);
-		
-		-- tutorial:scriptPlayMusic(3416);		-- sound/tut_19_inventory.snd
-		
-		LuaScriptEngine.WaitMSec(15000);
-		
-		-- "Press CTRL-I to open your inventory, and select one of the food items you found in the crate."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:repeat_open_inventory");
-		tutorial:scriptPlayMusic(1664);		-- sound/tut_25_openinventory.snd
-		delayLeft = 8000;	
-		
-		-- LuaScriptEngine.WaitMSec(1000);
-		
-		while tutorial:isOpenInventory() == false do
-			LuaScriptEngine.WaitMSec(1000);
-			if delayLeft > 0 then
-				delayLeft = delayLeft - 1000
-			end
-		end
-		
-		-- Wait for the close of the inventory or user consumed the food.
-		-- This construction is NOT an error, since we use different mechanichs internally. (but it's dirty).
-		tutorial:updateTutorial("foodSelected");
-		tutorial:updateTutorial("foodUsed");
-		tutorial:updateTutorial("closeInventory");
-
-		-- wait until sound has stopped.
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-
-		if (tutorial:isCloseInventory() == false) then
-			-- "Scroll through your inventory until you locate one of the food items that you've just picked-up."
-			tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:prompt_find_food");
-			tutorial:scriptPlayMusic(2910);		-- sound/tut_20_selectfooditem.snd
-			delayLeft = 8000;	
-		end;
-
-		local stateOfFood = 1;
-		-- local done = false;
-		local done = tutorial:isCloseInventory();
-		
-		while (done == false) do
-			if (tutorial:isCloseInventory() == true) then
-				done = true;
-			end;
-			LuaScriptEngine.WaitMSec(500);
-
-			if delayLeft > 0 then
-				delayLeft = delayLeft - 500;
-			elseif (stateOfFood == 1) then
-				if (tutorial:isFoodSelected() == true) then 
-					
-					-- "Select the Use option to use this item."
-					tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:prompt_use_item");
-					tutorial:scriptPlayMusic(934);		-- sound/tut_21_usefood.snd
-					delayLeft = 5000;	
-					-- print("found the food!");
-					stateOfFood = 2;
-				end;
-			elseif (stateOfFood == 2) then
-				if (tutorial:isFoodUsed() == true) then 
-					-- "You used the item on yourself.  Food will help increase your attributes.  Medicine will help you recover damage to your attributes."
-					tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:explain_item_used");
-					tutorial:scriptPlayMusic(2571);		-- sound/tut_22_attributes.snd
-					delayLeft = 10000;	
-					
-					-- Dev debug message
-					-- tutorial:scriptSystemMessage("Dev message: 'Use' with food items are not implemented yet, no need to report it as a bug.");
-					
-					-- print("Eat the food!");
-					done = true;
-				end;
-			end;
-		end
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-		
-		tutorial:enableHudElement("toolbar");	-- Enable toolbar
-		
-		-- "This is your toolbar.  You can put things on it for instant access."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:show_toolbar");
-		tutorial:scriptPlayMusic(2439);		-- sound/tut_23_toolbar.snd
-		LuaScriptEngine.WaitMSec(8000);
-		
-		-- "You can drag items into your toolbar for easy access.  Simply click on the item and then drag it to an open slot on your toolbar.  Press the corresponding function key to use the item."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_00_toolbardrag");
-		tutorial:scriptPlayMusic(1092);		-- sound/tut_00_toolbardrag.snd
-		LuaScriptEngine.WaitMSec(16000);
-		
-		-- delayLeft = 0;	
-		if (tutorial:isCloseInventory() == false) then
-			-- "Press CTRL-I again to close your inventory window."
-			tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:close_inventory");
-			tutorial:scriptPlayMusic(1603);		-- sound/tut_26_closeinventory.snd
-			delayLeft = 2000;	
-		end;
-
-		while (tutorial:isCloseInventory() == false) do
-			LuaScriptEngine.WaitMSec(500);
-			if delayLeft > 0 then
-				delayLeft = delayLeft - 500;
-			end;
-		end;
-	
- 		tutorial:setSubState(9);
-		
-	elseif subState == 9 then		-- The inventory is closed, proceed to next room.
-		tutorial:enableHudElement("chatbox");
-		tutorial:enableHudElement("toolbar");	-- Enable toolbar
-
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-		
-		-- "Proceed to the next room."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:visit_commerce_room");
-		tutorial:scriptPlayMusic(2202);		-- sound/tut_27_proceed.snd
-		
-		delayLeft = 8000;			
-		
-		for count = 1,30 do 
-			if tutorial:getRoom() == 3 then
-				break
-			end 
-			LuaScriptEngine.WaitMSec(1000);
-			if delayLeft > 0 then
-				delayLeft = delayLeft - 1000
-			end
-		end
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-		
-		while tutorial:getRoom() ~= 3 do
-			-- "No need to stick around here all day.  Walk down the corridor to the next area."
-			-- tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:repeat_visit_commerce");
-			-- MISSING THE CORRECT SOUND HERE
-			
-			-- "Proceed to the next room."
-			tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:visit_commerce_room");
-			tutorial:scriptPlayMusic(2202);		-- sound/tut_27_proceed.snd
-
-			delayLeft = 3000;	
-			
-			for count = 1,30 do 
-				if tutorial:getRoom() == 3 then
-					break
-				end 
-				LuaScriptEngine.WaitMSec(1000);
-				if delayLeft > 0 then
-					delayLeft = delayLeft - 1000
-				end
-			end
-		end
- 		tutorial:setSubState(10);
-		
 	elseif subState == 10 then		-- Part 3
 		tutorial:updateTutorial("changeLookAtTarget");
 		tutorial:enableNpcConversationEvent(bankAndBazzarRoomOfficerId);
@@ -2018,3 +1572,5 @@ if state == 3 then
 	tutorial:scriptPlayMusic(1838);
 
 end
+
+progress:stop();

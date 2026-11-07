@@ -224,6 +224,14 @@ Lua numbers, exact up to 2^53.
 | `object_used` | object | player | `menu_id` (the radial menu item) |
 | `cell_entered` | the cell (room) entered | player | `building`, `previous_cell` (0 when coming in from outside) |
 | `building_left` | the building | player | `previous_cell` |
+| `player_chat` | player | 0 | `text` (non-ASCII characters as `?`) |
+| `container_opened` | container | player | |
+| `container_closed` | container | player | |
+| `item_transferred` | item | player | `from_container`; `corpse` when looted |
+| `inventory_item_examined` | item | player | `food` (1 for food) |
+| `food_eaten` | food item | player | |
+| `clone_saved` | cloning terminal | player | |
+| `items_insured` | insurance terminal | player | |
 | `client_report` | player | 0 | `action`: what the client reports, e.g. `zoomCamera`, `chatActive`, `openInventory`, `closeInventory`, `foodSelected`, `foodUsed`, `cloneDataSaved`, `insureItemsDone`, `closeHolocron`, `changeLookAtTarget`; `clientReady` at login |
 
 Region and cell events are raised for players only. A player placed in a

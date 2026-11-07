@@ -9,7 +9,9 @@ local events = {
   "region_entered", "region_left",
   "object_used",
   "cell_entered", "building_left",
-  "client_report",
+  "client_report", "player_chat",
+  "container_opened", "container_closed", "item_transferred",
+  "inventory_item_examined", "food_eaten", "clone_saved", "items_insured",
 }
 
 local function describe(e)

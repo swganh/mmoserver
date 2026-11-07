@@ -42,6 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageLib/MessageLib.h"
 
 #include "Utils/clock.h"
+#include "ScriptEngine/ScriptEngine.h"
 
 using ::common::OutOfBand;
 
@@ -112,6 +113,8 @@ void Food::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
         {
         case radId_itemUse:
         {
+            gScriptEngine->raiseEvent(ScriptEvent("food_eaten", getId(), playerObject->getId()));
+
             if (gWorldConfig->isTutorial())
             {
                 if (playerObject->isConnected())

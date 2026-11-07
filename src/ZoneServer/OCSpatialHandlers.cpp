@@ -63,6 +63,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageFactory.h"
 
 #include <boost/lexical_cast.hpp>
+#include "ScriptEngine/ScriptEngine.h"
 
 #ifdef WIN32
 #undef ERROR
@@ -101,6 +102,14 @@ void ObjectController::_handleSpatialChatInternal(uint64 targetId,Message* messa
         return; // We suffered an unrecoverable error, bail out now.
     }
    
+    // What the player said, for scripts (ASCII: other characters become '?').
+    std::wstring said = m[6].str().substr(0, 256);
+    std::string said_ascii;
+    for (wchar_t c : said) {
+        said_ascii += (c > 0 && c < 128) ? static_cast<char>(c) : '?';
+    }
+    gScriptEngine->raiseEvent(ScriptEvent("player_chat", player->getId()).set("text", said_ascii));
+
     gMessageLib->SendSpatialChat(player, 
         m[6].str().substr(0, 256), // This is the text message
         (gWorldConfig->isInstance()) ? player : nullptr, // If it's an instance we send the player object

@@ -215,15 +215,19 @@ first time.
 Confirmed with a client: the tutorial bandit appears, fights, and the
 script continues after his grenade.
 
-### 5i. Still in combat after the opponent dies — open (workaround: `/peace`)
+### 5i. Still in combat after the opponent dies — fix needs testing
 
 After killing the tutorial bandit the player stays in combat, which blocks
 leaving the tutorial. When a creature dies, `die()` makes peace with its
 defenders (clears the defender lists, sets the Peace state) but, unlike the
 `/peace` command (`ObjectController::_handlePeace`), does not switch off the
 attacker's auto-attack, clear the combat target or resend the player's
-state. `/peace` or the Peace button gets the player out of combat. For the
-combat and creature AI review.
+state. `/peace` or the Peace button gets the player out of combat.
+
+Seen again in the tutorial after the debris and the bandit (combat music
+until it timed out). Fixed: when a creature dies, each player who fought
+it and has nobody else to fight leaves combat as with `/peace` (combat
+target cleared, auto-attack off, Peace state, state resent).
 
 ### 5j. Lairs never spawn — open
 
@@ -491,7 +495,11 @@ run on events and check what the player has already done
 (`docs/TUTORIAL.md`); confirmed on the VM, racing through rooms 1-2 to the
 end of the tutorial. Parts 3-9 now run on events too, setting the
 sub-states C++ checks (the weapon, the release documents, the
-Quartermaster) as soon as the player arrives.
+Quartermaster) as soon as the player arrives. A first run on the VM went
+through, but the mission officer refused the first time: the gate waited
+for the trainer room's narration. Gates are now set on every tick from the
+room the player is in, whatever the script is doing, and a step the player
+has gone past stops waiting (`docs/TUTORIAL.md`).
 
 ## Fixed while getting the servers running
 

@@ -240,14 +240,30 @@ local function distanceTo(objectId)
 	return tutorial:getPlayerPosToObject(objectId);
 end
 
-local function partsOneAndTwo(fromSubState)
-	local function at(n)
-		if fromSubState <= n then
-			tutorial:setSubState(n);
-			return true;
-		end
-		return false;
+-- The step being run. When the sub-state moves past it (a gate, or C++),
+-- its waits end and its prompts are skipped.
+local currentStep = nil;
+progress.cancel = function()
+	return currentStep ~= nil and tutorial:getSubState() > currentStep;
+end
+
+-- Moves the tutorial to sub-state n unless C++ or the player already went
+-- further (it never goes back); true when step n still has to be done.
+local function todo(n)
+	local current = tutorial:getSubState();
+	if current < n then
+		tutorial:setSubState(n);
+		current = n;
 	end
+	if current == n then
+		currentStep = n;
+		return true;
+	end
+	return false;
+end
+
+local function partsOneAndTwo()
+	local at = todo;
 
 	if at(1) then
 		progress:sleep(3000);
@@ -441,7 +457,7 @@ local function partsOneAndTwo(fromSubState)
 	end
 
 	progress:quiet();
-	tutorial:setSubState(10);
+	todo(10);
 end
 
 -- Parts three to nine (sub-states 10 to 27), on events like parts one and
@@ -461,20 +477,30 @@ local function stage()
 	return STAGE[room()] or 0;
 end
 
+-- The sub-states C++ checks, set the moment the player walks into the room
+-- where they matter, whatever the script is still saying elsewhere:
+-- the soldier's weapon (16), the release documents (22), and the
+-- Quartermaster (25, only once the player has the documents: 23).
+local GATES = {
+	{ stage = 7, substate = 16, needs = 0 },
+	{ stage = 11, substate = 22, needs = 0 },
+	{ stage = 12, substate = 25, needs = 23 },
+};
+
+progress.onTick = function()
+	local current = tutorial:getSubState();
+	local here = stage();
+	for _, gate in ipairs(GATES) do
+		if here == gate.stage and current < gate.substate and current >= gate.needs then
+			tutorial:setSubState(gate.substate);
+			return;
+		end
+	end
+end
+
 local function posX() return tutorial:getPlayerPosX(); end
 local function posY() return tutorial:getPlayerPosY(); end
 local function posZ() return tutorial:getPlayerPosZ(); end
-
--- Moves the tutorial to sub-state n unless C++ or the player already went
--- further; true when step n still has to be done.
-local function todo(n)
-	local current = tutorial:getSubState();
-	if current < n then
-		tutorial:setSubState(n);
-		current = n;
-	end
-	return current == n;
-end
 
 local function flyText(objectId, key)
 	scriptSupport:sendFlyText(objectId, playerId, "newbie_tutorial/system_messages", key, 0, 255, 0, 0);
@@ -970,7 +996,7 @@ while state == 1 do
 	local subState = tutorial:getSubState();
 		
 	if subState <= 9 then
-		partsOneAndTwo(subState);
+		partsOneAndTwo();
 		delayLeft = 0;
 
 	else

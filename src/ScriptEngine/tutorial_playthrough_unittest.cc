@@ -61,10 +61,11 @@ protected:
     }
 
     // Plays the tutorial; returns the simulated milliseconds it took, or -1.
-    int play(bool slow) {
+    int play(bool slow, bool skipOptional = false) {
         exec("package.path = '" + kSource + "/data/?.lua;' .. package.path");
         exec("dofile('" + kSource + "/src/ScriptEngine/testdata/tutorial_world.lua')");
-        exec(std::string("SLOW = ") + (slow ? "true" : "false") + "; playerDone = false");
+        exec(std::string("SLOW = ") + (slow ? "true" : "false") +
+             "; SKIP_OPTIONAL = " + (skipOptional ? "true" : "false") + "; playerDone = false");
 
         Script* tutorial = start(kSource + "/data/script/tutorial/part1.lua");
         Script* player = start(kSource + "/src/ScriptEngine/testdata/tutorial_player.lua");
@@ -98,7 +99,18 @@ TEST_F(TutorialPlaythroughTest, APlayerRacingAheadIsNeverKeptWaiting) {
                                   "repeat_open_box", "swear_reminder" }) {
         EXPECT_EQ("false", eval(std::string("world.heardKey('") + reminder + "')")) << reminder;
     }
+    // The soldier, the mission officer and the Quartermaster do their part
+    // the first time, however fast the player got to them.
+    EXPECT_EQ("0", eval("refusals"));
     std::cout << "racing player finished in " << ms / 1000 << " s" << std::endl;
+}
+
+TEST_F(TutorialPlaythroughTest, APlayerSkippingCloningAndTrainingStillFinishes) {
+    int ms = play(false, true);
+    ASSERT_GE(ms, 0) << "stuck at sub-state " << eval("world.substate") << ", room " << eval("world.room")
+                     << ", last heard " << eval("world.heard[#world.heard]") << "; " << lastError_;
+    EXPECT_EQ("27", eval("world.substate"));
+    EXPECT_EQ("0", eval("refusals"));
 }
 
 TEST_F(TutorialPlaythroughTest, APlayerFollowingThePromptsFinishes) {

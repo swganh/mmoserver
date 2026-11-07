@@ -939,6 +939,16 @@ void CreatureObject::die(uint64 killerId)
         // this->prepareCustomRadialMenu(this,0);
 
         //
+        // The players who fought me.
+        std::vector<uint64> opponents;
+        for (uint64 defenderId : mDefenders)
+        {
+            if (dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(defenderId)))
+            {
+                opponents.push_back(defenderId);
+            }
+        }
+
         // update defender lists
         ObjectIDList::iterator defenderIt = mDefenders.begin();
 
@@ -947,6 +957,25 @@ void CreatureObject::die(uint64 killerId)
             // This may be optimized, but rigth now THIS code does the job.
             this->makePeaceWithDefender(*defenderIt);
             defenderIt = mDefenders.begin();
+        }
+
+        // A player with nobody left to fight leaves combat as with /peace:
+        // without this, auto-attack and the combat target stayed and the
+        // client stayed in combat mode (KNOWN_ISSUES #5i).
+        for (uint64 opponentId : opponents)
+        {
+            PlayerObject* opponent = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(opponentId));
+            if (opponent && opponent->getDefenders()->empty())
+            {
+                opponent->setCombatTargetId(0);
+                opponent->disableAutoAttack();
+                gStateManager.setCurrentActionState(opponent, CreatureState_Peace);
+                if (opponent->isConnected())
+                {
+                    gMessageLib->sendBaselinesCREO_6(opponent, opponent);
+                    gMessageLib->sendEndBaselines(opponent->getPlayerObjId(), opponent);
+                }
+            }
         }
 
         // I'm dead. De-spawn after "loot-timer" has expired, if any.

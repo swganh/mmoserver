@@ -125,6 +125,8 @@ function Progress:rearm()
 end
 
 -- Sleep in ticks, so reports that arrive meanwhile are asked for again.
+-- progress.onTick, if set, runs after every tick, whatever the script is
+-- waiting for (the tutorial sets its gates there).
 function Progress:sleep(ms)
   while ms > 0 do
     local step = math.min(ms, TICK)
@@ -132,8 +134,17 @@ function Progress:sleep(ms)
     LuaScriptEngine.WaitMSec(step)
     self.now = self.now + step
     ms = ms - step
+    if self.onTick then
+      self.onTick()
+    end
   end
   self:rearm()
+end
+
+-- progress.cancel, if set, says when the current step no longer matters
+-- (the player is past it): its waits end and its prompts are skipped.
+function Progress:cancelled()
+  return self.cancel ~= nil and self.cancel()
 end
 
 -- Wait until the current narration (a prompt's sound) has finished.
@@ -146,6 +157,9 @@ end
 -- A system message from newbie_tutorial/system_messages, its sound (or nil)
 -- and how long the sound plays. Never talks over the previous one.
 function Progress:say(message, sound, ms)
+  if self:cancelled() then
+    return
+  end
   self:quiet()
   self.tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:" .. message)
   if sound then
@@ -159,7 +173,7 @@ end
 function Progress:waitFor(done, remind, firstMs, everyMs)
   local idle = 0
   local nextReminder = firstMs
-  while not done() do
+  while not done() and not self:cancelled() do
     self:sleep(TICK)
     -- Count only ticks that were wholly after the narration.
     if self.now - TICK >= self.busyUntil then

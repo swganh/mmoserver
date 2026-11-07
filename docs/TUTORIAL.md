@@ -49,16 +49,19 @@ The prompts call it "PART ONE OF NINE" etc. (`part_1` … `part_9`).
 All parts run on events (`tutorial/progress.lua`): each step checks first
 whether the player has already done it, so a player who is ahead gets no
 prompt for it; reminders only come after a pause; prompts never talk over
-each other. The sub-states that C++ checks are set as soon as the player
-reaches the place they matter, never held back by narration: the soldier
-hands over the weapon at 16, the mission officer the documents at 22, the
-Quartermaster takes them at 25, and the travel terminal works from 27 (after
-the oath). Sub-states are saved at every step, so a reconnect resumes there.
+each other. The sub-states that C++ checks are gates: on every tick,
+whatever the script is saying, walking into the soldier's room sets 16 (he
+hands over the weapon), the mission room 22 (the release documents), and
+the Quartermaster's room 25 (only with the documents, 23). The travel
+terminal works from 27, after the oath. A step the player has gone past
+stops waiting and skips its prompts, and the sub-state never goes back.
+Sub-states are saved at every step, so a reconnect resumes there.
 
 `src/ScriptEngine/tutorial_playthrough_unittest.cc` plays the whole script
 on a fake station (`testdata/`) with a player who races ahead (no
-reminders, no waiting; about 2 simulated minutes, most of it narration that
-always plays) and one who waits for every prompt.
+reminders, no waiting, no NPC refusing; under 1.5 simulated minutes), one
+who skips cloning, insurance and training, and one who waits for every
+prompt.
 
 ## Missing beats (from the client's files)
 

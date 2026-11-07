@@ -17,8 +17,16 @@ local function talk(npc)
   world.conversationEffect(npc)
   raise("conversation_ended", npc, PLAYER); wait()
 end
+-- Talks until the NPC does his part; each conversation that doesn't counts
+-- as a refusal.
+refusals = 0
 local function talkUntil(npc, substate)
-  while world.substate < substate do talk(npc); wait(1000) end
+  talk(npc)
+  while world.substate < substate do
+    refusals = refusals + 1
+    wait(1000)
+    talk(npc)
+  end
 end
 local function enter(room)
   world.room = room
@@ -60,9 +68,11 @@ after("bank_info_4"); world.target = IDS.bazaar; wait(1000)
 after("bazaar_info_3"); world.target = 0
 -- Part 4
 enter(4); enter(5)
-after("clone_greeting"); talk(IDS.droid)
-after("tut_37"); raise("clone_saved", IDS.cloning, PLAYER); wait()
-after("tut_38"); raise("items_insured", IDS.insurance, PLAYER); wait()
+if not SKIP_OPTIONAL then
+  after("clone_greeting"); talk(IDS.droid)
+  after("tut_37"); raise("clone_saved", IDS.cloning, PLAYER); wait()
+  after("tut_38"); raise("items_insured", IDS.insurance, PLAYER); wait()
+end
 enter(6)
 -- Part 5
 enter(7)
@@ -72,9 +82,11 @@ enter(14); kill(4)
 enter(8); kill(5)
 -- Part 7
 after("loot_pirate"); enter(9)
-after("tut_40"); talk(IDS.trainerOfficer)
-world.trained = true
-talk(world.spawned[77] or 0)
+if not SKIP_OPTIONAL then
+  after("tut_40"); talk(IDS.trainerOfficer)
+  world.trained = true
+  talk(world.spawned[77] or 0)
+end
 -- Part 8
 enter(10); talkUntil(IDS.missionOfficer, 23)
 -- Part 9

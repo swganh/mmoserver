@@ -33,6 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "EVWeapon.h"
 #include "EVPosture.h"
 #include "ObjectController.h"
+
+#include <algorithm>
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
 #include "objcontrollercommandmessage.h"
@@ -307,14 +309,25 @@ bool ObjectController::_processCommandQueue()
         {
         }
 
-        // see if we got something to execute yet
-        ObjControllerCommandMessage* cmdMsg = mCommandQueue.front();
-
-        // we might need to execute the command directly if it is part of the combat queue
-        // and our queue execution timer permits it
-        // or it is not part of the combat queue and can be executed directly in any case
-        if ((mNextCommandExecution <= currentTime) || !cmdMsg->getCmdProperties()->mAddToCombatQueue)
+        // The next command to run: the front one, unless it is a combat
+        // command still cooling down; then the first non-combat command
+        // behind it. Non-combat commands (look-ats, attribute requests...)
+        // waited behind combat cooldowns before, and in a long fight the
+        // queue overflowed ("Too many commands queued", KNOWN_ISSUES #5h).
+        auto isCombat = [] (ObjControllerCommandMessage* msg) {
+            return msg->getCmdProperties() && msg->getCmdProperties()->mAddToCombatQueue;
+        };
+        CommandQueue::iterator cmdIt = mCommandQueue.begin();
+        if (isCombat(*cmdIt) && mNextCommandExecution > currentTime)
         {
+            cmdIt = std::find_if(mCommandQueue.begin(), mCommandQueue.end(),
+                                 [&isCombat] (ObjControllerCommandMessage* msg) { return !isCombat(msg); });
+        }
+
+        if (cmdIt != mCommandQueue.end())
+        {
+            ObjControllerCommandMessage* cmdMsg = *cmdIt;
+
             if (cmdMsg->getCmdProperties()->mAddToCombatQueue)
             {
                 // Compensate combat command for any lag, i.e. command arriving late.
@@ -514,15 +527,15 @@ bool ObjectController::_processCommandQueue()
             {
                 message->setPendingDelete(true);
             }
-            // Remove the command from queue. Note: pop() invokes object destructor.
-            mCommandQueue.pop_front();
+            // Remove the command from queue.
+            mCommandQueue.erase(cmdIt);
 
             // cmdMsg->~ObjControllerCommandMessage();
             mCmdMsgPool.free(cmdMsg);
         }
         else
         {
-            // Make it simple, the time was not up yet, just leave, let other instances have the cpu, and handle it the next cycle.
+            // Only combat commands waiting for their cooldown: handle them next cycle.
             break;
         }
 

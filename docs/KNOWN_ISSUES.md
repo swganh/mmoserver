@@ -280,10 +280,16 @@ unknown travel point) now log the reason and tell the player instead of
 doing nothing. The tutorial's travel uses a different, synchronous path and
 was not affected.
 
-### 5h. "Too many commands queued. A command was dropped." — open
+### 5h. "Too many commands queued. A command was dropped." — fix needs testing
 
-Seen repeatedly while fighting the tutorial bandit. The player's command
-queue overflows during auto-attack; check its limit and what fills it.
+Seen repeatedly while fighting the tutorial bandit and a rill on Tatooine.
+The command queue (30 entries) was strictly first in, first out: a combat
+command waiting for its cooldown at the front held up every command
+behind it, including the non-combat ones the client sends all the time in
+a fight, which should run at once. In a long fight they piled up past 30
+and were dropped. Now, while the front combat command cools down, the
+first non-combat command behind it runs; combat commands keep their order
+and cooldowns.
 
 ### 5g. No explosion when the tutorial debris is destroyed — fix needs testing
 

@@ -129,6 +129,8 @@ private:
 	uint32		_getCellId(float x, float z);
 	
 	bool		isObjectInRegionBoundary_(Object* object, std::shared_ptr<RegionObject> region);
+	std::vector<uint32> _regionCells(RegionObject* region);
+	void		_getRowColumn(float x, float z, int32& row, int32& column);
 
 	//This is the actual Hashtable that stores the data
 	typedef std::map<uint32, ObjectListType>		MapHandler;

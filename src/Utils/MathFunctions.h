@@ -41,4 +41,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 bool IsPointInRectangle(const glm::vec2& check_point, const glm::vec2& rectangle_center, float width, float height);
 
+/**
+ * Checks whether a point is within a circle.
+ */
+bool IsPointInCircle(const glm::vec2& check_point, const glm::vec2& circle_center, float radius);
+
+/**
+ * Regions as the database stores them (planet_regions): x/z is the centre;
+ * a width of 0 makes a circle whose diameter is the height, otherwise it is
+ * a rectangle of width (x) by height (z) around the centre.
+ */
+bool IsPointInRegion(const glm::vec2& check_point, const glm::vec2& region_center, float width, float height);
+
+/**
+ * The rectangle that bounds such a region.
+ */
+void GetRegionBounds(const glm::vec2& region_center, float width, float height,
+                     glm::vec2& lower_left, glm::vec2& upper_right);
+
 #endif  // SRC_UTILS_MATHFUNCTIONS_H_

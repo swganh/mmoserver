@@ -45,3 +45,4 @@ mmoserverdb/local.cfg
 # Visual Studio (open folder)
 .vs/
 CMakeUserPresets.json
+__pycache__/

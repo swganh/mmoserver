@@ -50,21 +50,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void MessageLib::sendBanktipMail(PlayerObject* playerObject, PlayerObject* targetObject, uint32 amount)
 {
-    // Bodies as out-of-band prose packages (see sendNewbieMail).
+    // playerObject wired amount credits to targetObject. Each gets a mail
+    // naming the other, as the ChatServer's own sendBanktipMail does. The
+    // bodies are out-of-band prose packages (see sendNewbieMail).
     std::wstring playerName(playerObject->getFirstName().getAnsi(), playerObject->getFirstName().getAnsi() + playerObject->getFirstName().getLength());
     std::wstring targetName(targetObject->getFirstName().getAnsi(), targetObject->getFirstName().getAnsi() + targetObject->getFirstName().getLength());
 
-    // To the receiver: "%TO has wired you %DI credits" (prose_wire_mail_target).
-    common::OutOfBand targetBody("base_player", "prose_wire_mail_target",
-                                 0, "", "", L"", 0, "", "", L"", 0, "", "", playerName,
-                                 static_cast<int32_t>(amount));
+    // To the receiver, from the sender: prose_wire_mail_target, %TO the sender.
+    common::OutOfBand targetBody("base_player", "prose_wire_mail_target", L"", L"", playerName, static_cast<int32_t>(amount));
     const common::ByteBuffer* attachment = targetBody.Pack();
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opIsmSendSystemMailMessage);
     mMessageFactory->addUint64(playerObject->getId());
-    mMessageFactory->addUint64(playerObject->getId());
-    mMessageFactory->addString(targetObject->getFirstName());
+    mMessageFactory->addUint64(targetObject->getId());
+    mMessageFactory->addString(playerObject->getFirstName());
     mMessageFactory->addString(BString("@base_player:wire_mail_subject"));
     mMessageFactory->addUint32(0);
     mMessageFactory->addData(attachment->data(), attachment->size());
@@ -72,17 +72,15 @@ void MessageLib::sendBanktipMail(PlayerObject* playerObject, PlayerObject* targe
     Message* newMessage = mMessageFactory->EndMessage();
     playerObject->getClient()->SendChannelA(newMessage, playerObject->getAccountId(), CR_Chat, 6);
 
-    // To the sender: "You have wired %DI credits to %TO" (prose_wire_mail_self).
-    common::OutOfBand selfBody("base_player", "prose_wire_mail_self",
-                               0, "", "", L"", 0, "", "", L"", 0, "", "", targetName,
-                               static_cast<int32_t>(amount));
+    // To the sender, as from the receiver: prose_wire_mail_self, %TO the receiver.
+    common::OutOfBand selfBody("base_player", "prose_wire_mail_self", L"", L"", targetName, static_cast<int32_t>(amount));
     attachment = selfBody.Pack();
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opIsmSendSystemMailMessage);
-    mMessageFactory->addUint64(targetObject->getId());
-    mMessageFactory->addUint64(targetObject->getId());
-    mMessageFactory->addString(playerObject->getFirstName());
+    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addString(targetObject->getFirstName());
     mMessageFactory->addString(BString("@base_player:wire_mail_subject"));
     mMessageFactory->addUint32(0);
     mMessageFactory->addData(attachment->data(), attachment->size());

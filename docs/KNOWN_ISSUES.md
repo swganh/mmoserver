@@ -509,7 +509,7 @@ for the trainer room's narration. Gates are now set on every tick from the
 room the player is in, whatever the script is doing, and a step the player
 has gone past stops waiting (`docs/TUTORIAL.md`).
 
-### 22. No welcome mail after the tutorial (and no mail from zones) — fix needs testing
+### 22. No welcome mail after the tutorial (and no mail from zones) — fixed
 
 The original sent new players a welcome letter and a letter for their
 starting profession (`newbie_tutorial/newbie_mail`). None arrived here.
@@ -556,6 +556,11 @@ byte. Shown with the database layer and MariaDB: the welcome mail's body
 the mail attachments pass bytes with zeros; for every other caller (names,
 text) the result is the same as before. Mails stored before this fix stay
 empty; new ones open whole.
+
+Confirmed on the VM: a new character's welcome and profession mails show
+their full text, and a player's mail with a waypoint attached arrives with
+it. Still open: the bazaar mails (on `atMacroString`, see above) and the
+`newbie_mail` prompt on arrival.
 
 Still to add: the client's prompt for it, `system_messages:newbie_mail`
 ("You've received a message.  Press the letter-icon..."), on arrival.

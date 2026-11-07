@@ -196,6 +196,11 @@ probably the bodies' radii). The window adds the client's own modifiers
 edge is +50 whatever they are, so the display seems capped at +50 with
 the client's own base putting it over.
 
+Uniform values, max range 20: `-20 20 -20 -20 -20`, `-40 ...`, `-60 ...`
+showed "--" even at 1 m; `20 20 20 20 20` showed +50 from 1 m to about
+21 m. Nothing in between: the client may read the modifiers as fractions
+(0.30 for +30), so 20 is far over the cap and -20 far under the floor.
+
 ## What is not
 
 - **To-hit:** no block, dodge or counterattack (the skill mods exist),

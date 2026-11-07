@@ -28,13 +28,13 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 |---|---|---|---|---|
 | T3 | Login | Refusals were silent [6] | If anything is refused at the galaxy screen | `connection.out` has a `Refusing account N: <reason>` line; send it to me |
 | T4 | Script events | New | `sudo ./mmoserverdb/setup.sh update`, then on Tatooine: log in, walk into Mos Eisley, talk to an NPC and pick an option, use a radial menu item, kill a creature, log out. Watch `tail -f tatooine.out \| grep 'event:'` | one `event:` line per action, with the player's id as `source` |
-| T8 | Tutorial parts 3-9 | Racing ahead could leave the soldier, the mission officer or the Quartermaster refusing; no oath; no explosions | New character: race through (talk to each NPC as soon as you reach them). Then one at a normal pace. Let the bandit fight until the grenade | No refusals; the debris explodes; the grenade goes off and the bandit falls; the oath (type I PROMISE) before the travel terminal works |
 | T5 | Scripts | `print` output was lost [15] | Start Tatooine | `tatooine.out` has `[script] WeatherController v.0.2` and `[script] event_logger: listening to 9 events` |
 
 ## Confirmed
 
 | Area | What was wrong | Confirmed by |
 |---|---|---|
+| Tutorial | Parts 3-9: refusals, the oath, the grenade [19, 21] | Raced through on the VM: weapon, documents and Quartermaster first time, the oath, the bandit killed by his own grenade (Nov 2026). Still in combat after his death [5i] |
 | Tutorial | Racing ahead got parts 1-2 stuck [21] | New character raced through rooms 1-2 (chat, zoom, drum, food before the prompts) and on to the end of the tutorial, Nov 2026 |
 | Regions | Cities never matched on the server [16] | Walked in and out of Bestine on the VM: `region_entered` / `region_left` logged with the client's "You have entered/left Bestine" (Nov 2026) |
 | Regions | Badge areas never matched [16] | Walked to the Lars homestead on the VM: badge "Location: Lars Homestead" awarded (Nov 2026) |

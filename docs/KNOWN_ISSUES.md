@@ -215,7 +215,7 @@ first time.
 Confirmed with a client: the tutorial bandit appears, fights, and the
 script continues after his grenade.
 
-### 5i. Still in combat after the opponent dies — fix needs testing
+### 5i. Still in combat after the opponent dies — open (workaround: `/peace`)
 
 After killing the tutorial bandit the player stays in combat, which blocks
 leaving the tutorial. When a creature dies, `die()` makes peace with its
@@ -228,6 +228,14 @@ Seen again in the tutorial after the debris and the bandit (combat music
 until it timed out). Fixed: when a creature dies, each player who fought
 it and has nobody else to fight leaves combat as with `/peace` (combat
 target cleared, auto-attack off, Peace state, state resent).
+
+Not enough: on the VM the combat music still started as the bandit died
+(to his own grenade) and the player had to press Peace. The music starting
+*at* the death suggests something puts the player back into combat after
+`die()` (auto-attack firing again, the bandit's AI, or the grenade path,
+where `npcStopFight` does nothing), or the player was not in the bandit's
+defender list. For the combat review: log the player's states and defender
+list around a creature's death.
 
 ### 5j. Lairs never spawn — open
 
@@ -468,15 +476,15 @@ original. Probably their HAM against a new character's damage with the
 limited combat we have; check the debris and bandit stats in the data
 against the client and recordings before changing them.
 
-### 19. The bandit survives his own grenade — needs testing
+### 19. The bandit survives his own grenade — fixed
 
 The pirate's lines (`newbie_convo` `pirate_taunt3`, "A GRENADE!", then
 `pirate_taunt4`, "This grenade is defective! Oh no!") set up his death by
 his own grenade; here he keeps fighting. The script throws it when either
 side runs low (200 HAM) or after five minutes of fighting: the lines, the
 explosion, then `die()`, which is also how he dies in normal combat. Next
-test: does the grenade go off, and does he fall? `tutorial.out` has
-`creature_died` for him when he does.
+test: does the grenade go off, and does he fall? Confirmed on the VM: the
+lines, the explosion, and his corpse.
 
 ### 20. A line of stormtroopers in the tutorial's first room — to check
 

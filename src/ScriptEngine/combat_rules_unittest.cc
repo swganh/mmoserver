@@ -253,6 +253,9 @@ TEST_F(CombatRulesTest, InRangeFromCpp) {
 TEST_F(CombatRulesTest, ClientRangesFromCpp) {
     std::string layout;
     std::vector<double> values;
+    // The weapon's own values, not the probe in use while the message is
+    // worked out.
+    ASSERT_EQ(0, luaL_dostring(rules_.state(), "rules.CLIENT_RANGES_PROBE = nil"));
     ASSERT_TRUE(rules_.clientRanges(noobCdef(), layout, values));
     ASSERT_EQ(5u, layout.size());
     ASSERT_EQ(5u, values.size());

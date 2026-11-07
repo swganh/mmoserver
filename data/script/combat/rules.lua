@@ -302,9 +302,19 @@ end
 -- against the target window. Return nothing to send no message.
 --
 -- The first value is the layout: one letter per field, "i" a 4-byte
--- integer, "f" a 4-byte float (at most 8 fields). Try 1 was "iiiii": no
--- change in the target window.
+-- integer, "f" a 4-byte float (at most 8 fields). Tries so far
+-- (docs/COMBAT.md): "iiiii" no change; "fffff" read by the client.
+--
+-- Try 3, a probe: the same values for every weapon, all different and
+-- within +-50 (the display may stop at +50), to see which field the
+-- client takes for what. Back to the weapon's own values once known.
+rules.CLIENT_RANGES_PROBE = { -21, 12, 33, 24, -45 }
+
 function rules.clientRanges(weapon)
+  local probe = rules.CLIENT_RANGES_PROBE
+  if probe then
+    return "fffff", probe[1], probe[2], probe[3], probe[4], probe[5]
+  end
   local midRange, maxRange = rules.ranges(weapon)
   return "fffff", weapon.zero_mod or 0, midRange, weapon.mid_mod or 0, maxRange, weapon.max_mod or 0
 end

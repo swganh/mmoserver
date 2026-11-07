@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_ZONESERVER_MESSAGELIB_H
 
 #include <cstdint>
+#include <string>
 #include <vector>
 #include <list>
 #include <glm/glm.hpp>
@@ -379,10 +380,10 @@ public:
     void				sendSitOnObject(CreatureObject* creatureObject);
 
     // WeaponRanges (ObjController 0x140): the weapon's range data, for the
-    // client's accuracy display. Five numbers whose meaning is not
-    // documented (SWGANH wiki: LONG, then five INTs); data/script/combat/
-    // rules.lua (rules.clientRanges) decides what goes in them.
-    void				sendWeaponRanges(PlayerObject* player, uint64 weaponId, const int32 values[5]);
+    // client's accuracy display. Fields not documented (SWGANH wiki: LONG,
+    // then five INTs); data/script/combat/rules.lua (rules.clientRanges)
+    // decides them: layout "i" int32 or "f" float per value.
+    void				sendWeaponRanges(PlayerObject* player, uint64 weaponId, const std::string& layout, const std::vector<double>& values);
     void				sendDataTransformWithParent0B(Object* object);
     void				sendDataTransform0B(Object* object);
 

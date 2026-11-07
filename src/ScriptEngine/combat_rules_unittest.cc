@@ -15,6 +15,7 @@ in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 // C++ side that passes an attack in and reads the outcome.
 
 #include <string>
+#include <vector>
 
 #include <gtest/gtest.h>
 
@@ -250,26 +251,40 @@ TEST_F(CombatRulesTest, InRangeFromCpp) {
 }
 
 TEST_F(CombatRulesTest, ClientRangesFromCpp) {
-    int values[5] = { 0, 0, 0, 0, 0 };
-    ASSERT_TRUE(rules_.clientRanges(noobCdef(), values));
-    EXPECT_EQ(-10, values[0]);
-    EXPECT_EQ(15, values[1]);
-    EXPECT_EQ(30, values[2]);
-    EXPECT_EQ(64, values[3]);
-    EXPECT_EQ(-90, values[4]);
+    std::string layout;
+    std::vector<double> values;
+    ASSERT_TRUE(rules_.clientRanges(noobCdef(), layout, values));
+    ASSERT_EQ(5u, layout.size());
+    ASSERT_EQ(5u, values.size());
+    EXPECT_DOUBLE_EQ(-10, values[0]);
+    EXPECT_DOUBLE_EQ(15, values[1]);
+    EXPECT_DOUBLE_EQ(30, values[2]);
+    EXPECT_DOUBLE_EQ(64, values[3]);
+    EXPECT_DOUBLE_EQ(-90, values[4]);
 
     // A weapon without ranges in metres gets its group's.
     CombatWeapon old = noobCdef();
     old.midRange = 0;
     old.maxRange = 0;
-    ASSERT_TRUE(rules_.clientRanges(old, values));
-    EXPECT_EQ(15, values[1]);
-    EXPECT_EQ(64, values[3]);
+    ASSERT_TRUE(rules_.clientRanges(old, layout, values));
+    EXPECT_DOUBLE_EQ(15, values[1]);
+    EXPECT_DOUBLE_EQ(64, values[3]);
 
-    // A script that returns nothing turns the message off.
     lua_State* l = rules_.state();
+    // Any layout of i and f, as long as it matches the values.
+    ASSERT_EQ(0, luaL_dostring(l, "rules.clientRanges = function() return 'ifi', 1, 2.5, 3 end"));
+    ASSERT_TRUE(rules_.clientRanges(noobCdef(), layout, values));
+    EXPECT_EQ("ifi", layout);
+    EXPECT_DOUBLE_EQ(2.5, values[1]);
+    // A layout that does not match, or other letters: nothing sent.
+    ASSERT_EQ(0, luaL_dostring(l, "rules.clientRanges = function() return 'ii', 1 end"));
+    EXPECT_FALSE(rules_.clientRanges(noobCdef(), layout, values));
+    ASSERT_EQ(0, luaL_dostring(l, "rules.clientRanges = function() return 'iq', 1, 2 end"));
+    EXPECT_FALSE(rules_.clientRanges(noobCdef(), layout, values));
+    // A script that returns nothing turns the message off.
     ASSERT_EQ(0, luaL_dostring(l, "rules.clientRanges = function() end"));
-    EXPECT_FALSE(rules_.clientRanges(noobCdef(), values));
+    EXPECT_FALSE(rules_.clientRanges(noobCdef(), layout, values));
+    EXPECT_EQ(0, lua_gettop(l));
 }
 
 TEST(CombatRulesLoadTest, MissingScriptFallsBack) {
@@ -282,8 +297,9 @@ TEST(CombatRulesLoadTest, MissingScriptFallsBack) {
     pistol.group = "pistol";
     EXPECT_TRUE(rules.inRange(pistol, 30));
     EXPECT_FALSE(rules.inRange(pistol, 40));
-    int values[5];
-    EXPECT_FALSE(rules.clientRanges(pistol, values));
+    std::string layout;
+    std::vector<double> values;
+    EXPECT_FALSE(rules.clientRanges(pistol, layout, values));
 }
 
 } // namespace

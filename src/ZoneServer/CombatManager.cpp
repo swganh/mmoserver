@@ -48,6 +48,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <algorithm>
 #include <cstdlib>
+#include <sstream>
+#include <vector>
 //=========================================================================================
 
 bool			CombatManager::mInsFlag		= false;
@@ -533,17 +535,21 @@ void CombatManager::sendWeaponRanges(PlayerObject* player)
     {
         return;
     }
-    int32 values[5];
-    int ranges[5];
-    if (!mRules.clientRanges(buildWeapon(weapon), ranges))
+    std::string layout;
+    std::vector<double> values;
+    if (!mRules.clientRanges(buildWeapon(weapon), layout, values))
     {
         return;
     }
-    for (int i = 0; i < 5; ++i)
+    gMessageLib->sendWeaponRanges(player, weapon->getId(), layout, values);
+
+    // While the message is being worked out (docs/COMBAT.md).
+    std::ostringstream sent;
+    for (size_t i = 0; i < values.size(); ++i)
     {
-        values[i] = ranges[i];
+        sent << " " << layout[i] << ":" << values[i];
     }
-    gMessageLib->sendWeaponRanges(player, weapon->getId(), values);
+    LOG(INFO) << "WeaponRanges sent to " << player->getId() << " for weapon " << weapon->getId() << ":" << sent.str();
 }
 
 void CombatManager::applyDamage(CreatureObject* defender, const std::string& pool, int32 damage)

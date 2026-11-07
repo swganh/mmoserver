@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <map>
 #include <string>
+#include <vector>
 
 struct lua_State;
 
@@ -106,9 +107,10 @@ public:
 
     CombatOutcome   attack(const CombatAttack& attack);
     bool            inRange(const CombatWeapon& weapon, float distance);
-    // The five numbers of the WeaponRanges message; false if no rules or
-    // the script returns nothing (send nothing then).
-    bool            clientRanges(const CombatWeapon& weapon, int values[5]);
+    // The fields of the WeaponRanges message: layout ("i" int32, "f" float
+    // per field) and values. False if no rules, the script returns nothing
+    // (send nothing then) or the layout is not valid.
+    bool            clientRanges(const CombatWeapon& weapon, std::string& layout, std::vector<double>& values);
 
     // For the tests: the Lua state, with the rules table in global "rules".
     lua_State*      state() { return mState; }

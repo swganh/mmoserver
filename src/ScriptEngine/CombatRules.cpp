@@ -260,19 +260,44 @@ bool CombatRules::inRange(const CombatWeapon& weapon, float distance)
     return result;
 }
 
-bool CombatRules::clientRanges(const CombatWeapon& weapon, int values[5])
+bool CombatRules::clientRanges(const CombatWeapon& weapon, std::string& layout, std::vector<double>& values)
 {
+    static const int kMaxFields = 8;
+
+    layout.clear();
+    values.clear();
+
+    int top = lua_gettop(mState);
     pushWeapon(mState, weapon);
-    if (!_call("clientRanges", 1, 5))
+    if (!_call("clientRanges", 1, LUA_MULTRET))
     {
+        lua_settop(mState, top);
         return false;
     }
-    // Nothing returned: send nothing.
-    bool ok = lua_isnumber(mState, -5) != 0;
-    for (int i = 0; i < 5; ++i)
+    int results = lua_gettop(mState) - top;
+    bool ok = false;
+    if (results >= 1 && lua_type(mState, top + 1) == LUA_TSTRING)
     {
-        values[i] = static_cast<int>(lua_tonumber(mState, i - 5));
+        layout = lua_tostring(mState, top + 1);
+        ok = !layout.empty() && static_cast<int>(layout.size()) <= kMaxFields
+            && static_cast<int>(layout.size()) == results - 1
+            && layout.find_first_not_of("if") == std::string::npos;
+        for (int i = 2; ok && i <= results; ++i)
+        {
+            ok = lua_isnumber(mState, top + i) != 0;
+            values.push_back(lua_tonumber(mState, top + i));
+        }
+        if (!ok)
+        {
+            LOG(WARNING) << "Combat rules: rules.clientRanges returned a bad layout \"" << layout
+                         << "\" or values (" << results - 1 << " values)";
+        }
     }
-    lua_pop(mState, 5);
+    lua_settop(mState, top);
+    if (!ok)
+    {
+        layout.clear();
+        values.clear();
+    }
     return ok;
 }

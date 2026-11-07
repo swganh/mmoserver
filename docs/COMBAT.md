@@ -145,7 +145,15 @@ sends it to the player on every target change: the weapon's id, then
 ideal modifier, max range, max modifier. To be checked in game against the
 noob CDEF (-10 at 0 m, +30 at 15 m, -90 at 64 m); if the window shows
 something else, change the order in the script and restart the zone. If
-`rules.clientRanges` returns nothing, no message is sent.
+`rules.clientRanges` returns nothing, no message is sent. The script also
+picks each field's type (`"i"` int32, `"f"` float); each send is logged
+(`WeaponRanges sent to ...` in the zone log).
+
+Tries, marksman with the noob CDEF against a womp rat:
+
+| Layout | Target window |
+|---|---|
+| `iiiii` | no change: -5 on top of the target armed, -15 unarmed |
 
 ## What is not
 

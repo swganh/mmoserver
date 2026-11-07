@@ -28,6 +28,7 @@ in the data and scripts, with a citation so others can check them.
 
 | Guide | Era | Use it for | Don't use it for |
 |---|---|---|---|
+| Prima's Official Strategy Guide: *An Empire Divided* (2003, launch) | pre-CU, as the game shipped | combat rules, professions and skills, weapons, armour, creatures, the tutorial | later changes (publishes, the CU) |
 | Prima Official Game Guide (2004, the original) | pre-CU, the era this server recreates | creatures, mechanics, skills, planets | post-2004 content |
 | The Total Experience (Prima) | post-CU, includes Jump to Lightspeed | places, quests, theme parks, space | mechanics and numbers (changed by the CU and NGE) |
 
@@ -39,7 +40,13 @@ Sections of the 2004 guide (guide page numbers):
 | 118-159 | Planets and cities |
 | 170-208 | Creatures |
 
-In the PDF of the 2004 guide, the PDF page is the guide page + 1.
+In the PDF of the 2004 guide, the PDF page is the guide page + 1. In the PDF of
+*An Empire Divided* (498 pages), the PDF page is the guide page + 3.
+
+Sections of *An Empire Divided* (guide page numbers): New Player
+Introduction 5-16, Combat 65-86, Professions 105-320 (Brawler 123,
+Marksman 140), Planets 321-376 (Tatooine 324), PvP 377-386, Weapons table
+388, Armor table 394, Creature tables 396-483.
 
 ## Citing
 

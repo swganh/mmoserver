@@ -241,9 +241,12 @@ uint32_t DatabaseImplementationMySql::escapeString(char* target, const char* sou
     }
 
     sql::mysql::MySQL_Connection* mysql_conn = dynamic_cast<sql::mysql::MySQL_Connection*>(connection_.get()); 
-    std::string tmp = mysql_conn->escapeString(source);
-        
-    strncpy(target, tmp.c_str(), tmp.length());
+    // Escape all `length` bytes: binary data (mail attachments, UTF-16)
+    // contains zero bytes, and passing `source` as a C string cut it at the
+    // first one, so attachments were stored as a byte or two.
+    std::string tmp = mysql_conn->escapeString(std::string(source, length));
+
+    memcpy(target, tmp.data(), tmp.length());
     target[tmp.length()] = 0;
 
     return tmp.length();

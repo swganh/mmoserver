@@ -547,9 +547,15 @@ the mail's attachments) with `strncpy`, which stops at the first zero
 byte, and UTF-16 has one in nearly every other byte. No attachment ever
 came back: not the system mails' bodies, not a waypoint a player attached
 (seen on the VM: plain player mail worked, the reply's attachment was
-missing). Raw fields are now copied whole, up to the field's size. Mails
-stored before migration 005 stay empty; those stored since should open
-whole.
+missing). Raw fields are now copied whole, up to the field's size.
+
+And storing them: `escapeString` ignored its length and passed the bytes
+to the connector as a C string, so an attachment was stored as its first
+byte. Shown with the database layer and MariaDB: the welcome mail's body
+(124 bytes) came back as `01` and zeros; it now comes back identical. Only
+the mail attachments pass bytes with zeros; for every other caller (names,
+text) the result is the same as before. Mails stored before this fix stay
+empty; new ones open whole.
 
 Still to add: the client's prompt for it, `system_messages:newbie_mail`
 ("You've received a message.  Press the letter-icon..."), on arrival.

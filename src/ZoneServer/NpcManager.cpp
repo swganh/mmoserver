@@ -575,105 +575,50 @@ bool NpcManager::handleAttack(CreatureObject *attacker, uint64 targetId) // , Ob
 // uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,Weapon* weapon)
 uint8 NpcManager::_executeAttack(CreatureObject* attacker,CreatureObject* defender,Weapon* weapon)
 {
-    uint8	randomHitPool			= 100;
-    //uint8	randomPoolHitChance		= 100;
-    //uint8	stateApplied			= 0;
     int32	multipliedDamage		= 0;
     BString	combatSpam				= "melee";
 
-    // first see if we actually hit our target
-    // uint8 attackResult = _hitCheck(attacker,defender,cmdProperties,weapon);
-    uint8 attackResult = _hitCheck(attacker,defender,weapon);
+    AttackableCreature* attackerNpc = dynamic_cast<AttackableCreature*>(attacker);
+    if (!attackerNpc)
+    {
+        return 0;
+    }
+
+    // The combat rules (data/script/combat/rules.lua) decide the outcome.
+    // A creature's damage is its own, not its weapon's.
+    CombatAttack attack;
+    attack.attacker = gCombatManager->buildSide(attacker);
+    attack.defender = gCombatManager->buildSide(defender);
+    attack.weapon.group = "unarmed";
+    if (weapon)
+    {
+        attack.weapon = gCombatManager->buildWeapon(weapon);
+        attack.weapon.zeroMod = attack.weapon.midMod = attack.weapon.maxMod = 0;
+    }
+    attack.weapon.damageType = "kinetic";
+    attack.weapon.minDamage = static_cast<float>(attackerNpc->getMinDamage());
+    attack.weapon.maxDamage = static_cast<float>(attackerNpc->getMaxDamage());
+    attack.distance = glm::distance(attacker->mPosition, defender->mPosition);
+
+    CombatOutcome outcome = gCombatManager->rules().attack(attack);
+    if (!outcome.ok)
+    {
+        // No rules: the old ones, two hits in three, a random pool.
+        outcome.hit = (gRandom->getRand() % 3) != 0;
+        int32 range = attackerNpc->getMaxDamage() - attackerNpc->getMinDamage() + 1;
+        outcome.damage = attackerNpc->getMinDamage() + gRandom->getRand() % (range > 0 ? range : 1);
+        static const char* kPools[] = { "health", "action", "mind" };
+        outcome.pool = kPools[gRandom->getRand() % 3];
+    }
+
+    // 0 hit, 1 miss: what the fly text and the combat spam below expect.
+    uint8 attackResult = outcome.hit ? 0 : 1;
 
     // only proceed, if so
     if (!attackResult)
     {
-        // TODO: retrieve from weapon
-        AttackableCreature* attackerNpc = dynamic_cast<AttackableCreature*>(attacker);
-        if (!attackerNpc)
-        {
-            return 0;
-        }
-
-        int32 baseMinDamage	= attackerNpc->getMinDamage();
-        int32 baseMaxDamage	= attackerNpc->getMaxDamage();
-
-        int32 baseDamage	= -((gRandom->getRand()%(baseMaxDamage - baseMinDamage)) + baseMinDamage);
-
-        // apply damage multiplier
-        /*
-        if(cmdProperties->mDamageMultiplier)
-        {
-        	multipliedDamage = baseDamage * cmdProperties->mDamageMultiplier;
-        }
-        else
-        {
-        	multipliedDamage = baseDamage;
-        }
-        */
-        multipliedDamage = baseDamage;
-
-        // mitigation
-        // multipliedDamage = _mitigateDamage(attacker,defender,cmdProperties,multipliedDamage,weapon);
-
-        // state effects
-        // stateApplied = _tryStateEffects(attacker,defender,cmdProperties,weapon);
-
-        // ham damage
-        // if no target pool set, pick a random one
-        // if (!cmdProperties->mHealthHitChance && !cmdProperties->mActionHitChance && !cmdProperties->mMindHitChance)
-        {
-            switch(gRandom->getRand()%3)
-            {
-            case 0:
-                randomHitPool = HamBar_Health;
-                break;
-            case 1:
-                randomHitPool = HamBar_Action;
-                break;
-            case 2:
-                randomHitPool = HamBar_Mind;
-                break;
-
-            default:
-                randomHitPool = 0;
-                break;
-            }
-        }
-
-        if (defender->getCreoGroup() != CreoGroup_AttackableObject)
-        {
-            // random pool attack
-            if(randomHitPool != 100)
-            {
-                defender->getHam()->updatePropertyValue(randomHitPool,HamProperty_CurrentHitpoints,multipliedDamage,true);
-            }
-            // direct pool attack
-            /*
-            else
-            {
-            	// health hit
-            	if(cmdProperties->mHealthHitChance)
-            	{
-            		defender->getHam()->updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints,multipliedDamage,true);
-            	}
-            	// action hit
-            	else if(cmdProperties->mActionHitChance)
-            	{
-            		defender->getHam()->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,multipliedDamage,true);
-            	}
-            	// mind hit
-            	else if(cmdProperties->mMindHitChance)
-            	{
-            		defender->getHam()->updatePropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints,multipliedDamage,true);
-            	}
-            }
-            */
-        }
-        else
-        {
-            defender->getHam()->updateSingleHam(multipliedDamage, true);
-        }
+        multipliedDamage = -outcome.damage;
+        gCombatManager->applyDamage(defender, outcome.pool, outcome.damage);
         /*
         if (defender->isIncapacitated())
         {
@@ -879,45 +824,3 @@ uint8 NpcManager::_executeAttack(CreatureObject* attacker,CreatureObject* defend
 
     return(0);
 }
-
-
-
-//======================================================================================================================
-//
-// see if the attack hits, misses, is blocked or evaded
-//
-
-// uint8 NpcManager::_hitCheck(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,Weapon* weapon)
-uint8 NpcManager::_hitCheck(CreatureObject* attacker,CreatureObject* defender,Weapon* weapon)
-{
-    // TODO
-    // If the defender is a static object, like lair or debis, it can't counterattack, block or evade.
-    uint8 hit = 0;
-    if (defender->getCreoGroup() == CreoGroup_AttackableObject)
-    {
-        // Note that a return of 0 is a hit, return of 1 is a miss.
-        hit = gRandom->getRand()%4;	// 75% chance for a hit, 25% chance for a miss. That sounds fair when hittin a static object,
-        if (hit > 1)
-        {
-            // This is a "hit".
-            hit = 0;
-        }
-    }
-    else
-    {
-        // It's a "normal" npc or player
-
-        // return(gRandom->getRand()%5);
-        // Adjusting the hit chance, when testing.
-        // hit = gRandom->getRand()%9;	// 66% chance for a hit, 33% chance for the rest (miss, block, counterattck and evade)
-        hit = gRandom->getRand()%12;	// 75% chance for a hit, 25% chance for the rest (miss, block, counterattck and evade)
-        if (hit > 4)
-        {
-            // This is a "hit".
-            hit = 0;
-        }
-    }
-    return(hit);
-}
-
-

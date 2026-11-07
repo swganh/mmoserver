@@ -508,6 +508,14 @@ fight for a novice. Still to do: the other creatures as their pages come
 (greater desert and variegated womp rats are not in the pages at hand),
 and the tutorial's debris and bandit.
 
+The combat rules (`data/script/combat/rules.lua`, `docs/COMBAT.md`) replace
+the fixed 67% hit, the random pool and the 2 s attack: hit chance from the
+weapon's range modifiers, skill mods and postures; damage on one pool,
+mostly health; the weapon's own attack speed. Migration 007 gives the
+weapons their ranges in metres and new characters the noob CDEF (50-80,
+p. 392). Next test: a novice with the noob CDEF against a lesser desert womp
+rat and a womp rat, and the bandit.
+
 ### 19. The bandit survives his own grenade — fixed
 
 The pirate's lines (`newbie_convo` `pirate_taunt3`, "A GRENADE!", then

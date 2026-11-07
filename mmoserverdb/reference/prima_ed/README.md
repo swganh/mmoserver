@@ -16,6 +16,9 @@ Reference data: migrations take their values from here and cite the page.
   per damage type: a number replaces the generic value, `0` means no
   protection against that type, `+` means the generic value (p. 395).
 
+Used by: migration 007 (`tools/reference/weapons_sql.py` writes it from
+`weapons.csv`) and the combat rules (`data/script/combat/rules.lua`).
+
 Not transcribed yet: the crafting ranges (pp. 391, 393; the range of each
 stat a crafted weapon can have) and the armour's per-piece HAM costs
 (pp. 394-395).

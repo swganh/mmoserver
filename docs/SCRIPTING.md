@@ -90,8 +90,9 @@ data/script/
 ```
 
 The split: **C++ is the engine** (network, object model, spatial grid,
-database, movement, combat maths, crafting mechanics, persistence), **Lua is
-behaviour** (what NPCs, quests, the tutorial and events do), and **the
+database, movement, the combat loop, crafting mechanics, persistence), **Lua is
+behaviour** (what NPCs, quests, the tutorial and events do, and the combat
+rules in `combat/rules.lua`, so communities can rebalance), and **the
 database is data** (loot tables, trainers, item stats, spawn tables): content
 that only needs a table does not need a script.
 

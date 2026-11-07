@@ -350,21 +350,9 @@ bool ObjectController::_processCommandQueue()
                 // Do not mess with cooldowns for non combat commands, those timer values are for preventing spam of the same message,
                 // and spam preventing is not implemented yet.
                 uint64 timeToNextCommand = 0;
-                if (cmdMsg->getCmdProperties()->mAddToCombatQueue)
-                {
-                    // Set up the cooldown time.
-                    if (mUnderrunTime < cmdProperties->mDefaultTime)
-                    {
-                        timeToNextCommand = (cmdProperties->mDefaultTime - mUnderrunTime);
-                        mUnderrunTime = 0;
-                    }
-                    else
-                    {
-                        // Compensate as much as we can.
-                        timeToNextCommand = cmdProperties->mDefaultTime / 2;
-                        mUnderrunTime -= timeToNextCommand;
-                    }
-                }
+                // An attack's cooldown comes from the combat rules (the
+                // weapon's speed); other combat commands use their own.
+                uint64 attackDelay = 0;
 
                 // keep a pointer to the start
                 uint16	paramsIndex = 0;
@@ -435,7 +423,7 @@ bool ObjectController::_processCommandQueue()
                     // CreatureObject* creature = NULL;
                     if (targetId != 0)
                     {
-                        cmdExecutedOk = gCombatManager->handleAttack(player, targetId, cmdProperties);
+                        cmdExecutedOk = gCombatManager->handleAttack(player, targetId, cmdProperties, &attackDelay);
                         if (!cmdExecutedOk)
                         {
                             // We have lost our target.
@@ -492,6 +480,20 @@ bool ObjectController::_processCommandQueue()
                 // Do not mess with cooldowns for non combat commands...
                 if (cmdMsg->getCmdProperties()->mAddToCombatQueue)
                 {
+                    // Set up the cooldown time.
+                    uint64 cooldown = attackDelay ? attackDelay : cmdProperties->mDefaultTime;
+                    if (mUnderrunTime < cooldown)
+                    {
+                        timeToNextCommand = (cooldown - mUnderrunTime);
+                        mUnderrunTime = 0;
+                    }
+                    else
+                    {
+                        // Compensate as much as we can.
+                        timeToNextCommand = cooldown / 2;
+                        mUnderrunTime -= timeToNextCommand;
+                    }
+
                     if (cmdExecutedOk)
                     {
                         mNextCommandExecution = currentTime + timeToNextCommand;

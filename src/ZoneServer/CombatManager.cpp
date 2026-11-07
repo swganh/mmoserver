@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CMWeaponGroup.h"
 #include "ObjectControllerCommandMap.h"
 #include "PlayerObject.h"
+#include "SkillManager.h"
 #include "StateManager.h"
 #include "Weapon.h"
 #include "VehicleController.h"
@@ -44,6 +45,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DataBinding.h"
 
 #include "Utils/rand.h"
+
+#include <algorithm>
+#include <cstdlib>
 //=========================================================================================
 
 bool			CombatManager::mInsFlag		= false;
@@ -57,7 +61,9 @@ CombatManager::CombatManager(Database* database) :
     //gLogger->log(LogManager::INFORMATION,"Start loading weapon groups.");
     // load default attack animations
     mDatabase->executeSqlAsync(this, 0, "SELECT id,defaultAttackAnimationCrc,defaultCombatSpam FROM %s.weapon_groups ORDER BY id",mDatabase->galaxy());
-    
+
+    // Without the script, attacks fall back to the old fixed rules.
+    mRules.load("script/combat/rules.lua");
 }
 
 //=========================================================================================
@@ -329,7 +335,7 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 
 //======================================================================================================================
 
-bool CombatManager::handleAttack(CreatureObject *attacker, uint64 targetId, ObjectControllerCmdProperties *cmdProperties)
+bool CombatManager::handleAttack(CreatureObject *attacker, uint64 targetId, ObjectControllerCmdProperties *cmdProperties, uint64* delayMs)
 {
     CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
 
@@ -345,34 +351,8 @@ bool CombatManager::handleAttack(CreatureObject *attacker, uint64 targetId, Obje
         return(false);
     }
 
-    // NOTE: Some weapon data just for tesing and to give the npc a fair chance...
-    uint32 weaponGroup = weapon->getGroup();
-    float weaponRange = 6.0;
-
-    //if (weaponGroup <= WeaponGroup_Polearm)
-    //{
-    //	weaponRange = 6.0;
-    //}
-    // else
-    if (weaponGroup == WeaponGroup_Rifle)
-    {
-        weaponRange = 64.0;
-    }
-    else if (weaponGroup == WeaponGroup_Pistol)
-    {
-        weaponRange = 35.0;
-    }
-    else if (weaponGroup == WeaponGroup_Carbine)
-    {
-        weaponRange = 50.0;
-    }
-    //else
-    //{
-    //	weaponRange = 6.0;
-    //}
-
     // if we are out of range, skip this attack.
-    if (glm::distance(attacker->mPosition, defender->mPosition) > weaponRange)
+    if (!mRules.inRange(buildWeapon(weapon), glm::distance(attacker->mPosition, defender->mPosition)))
     {
         // Target out of range.
         PlayerObject* playerAttacker = dynamic_cast<PlayerObject*>(attacker);
@@ -389,7 +369,7 @@ bool CombatManager::handleAttack(CreatureObject *attacker, uint64 targetId, Obje
     {
 
         // Execute the attack
-        /*uint8 attackResult = */_executeAttack(attacker,defender,cmdProperties,weapon);
+        /*uint8 attackResult = */_executeAttack(attacker,defender,cmdProperties,weapon,delayMs);
 
         return(true);
     }
@@ -399,62 +379,230 @@ bool CombatManager::handleAttack(CreatureObject *attacker, uint64 targetId, Obje
 
 //======================================================================================================================
 
-uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,Weapon* weapon)
+namespace {
+
+std::string lowerCase(std::string text)
 {
-	uint8	randomHitPool			= 100;
-	//uint8	randomPoolHitChance		= 100;
+    std::transform(text.begin(), text.end(), text.begin(), ::tolower);
+    return text;
+}
+
+// "None", "Light", "Medium", "Heavy" (or a number) as 0-3.
+int armorLevel(const std::string& rating)
+{
+    std::string level = lowerCase(rating);
+    if (level == "light") return 1;
+    if (level == "medium") return 2;
+    if (level == "heavy") return 3;
+    return atoi(level.c_str());
+}
+
+float numberAttribute(Object* object, const char* key, float fallback)
+{
+    if (!object->hasAttribute(key))
+    {
+        return fallback;
+    }
+    std::string value = object->getAttribute<std::string>(key);
+    if (value.empty())
+    {
+        return fallback;
+    }
+    return static_cast<float>(atof(value.c_str()));
+}
+
+float internalNumberAttribute(Object* object, const char* key, float fallback)
+{
+    if (!object->hasInternalAttribute(key))
+    {
+        return fallback;
+    }
+    std::string value = object->getInternalAttribute<std::string>(key);
+    if (value.empty())
+    {
+        return fallback;
+    }
+    return static_cast<float>(atof(value.c_str()));
+}
+
+const char* weaponGroupName(uint32 group)
+{
+    switch (group)
+    {
+    case WeaponGroup_Unarmed:		return "unarmed";
+    case WeaponGroup_1h:			return "onehandmelee";
+    case WeaponGroup_2h:			return "twohandmelee";
+    case WeaponGroup_Polearm:		return "polearm";
+    case WeaponGroup_Rifle:			return "rifle";
+    case WeaponGroup_Pistol:		return "pistol";
+    case WeaponGroup_Carbine:		return "carbine";
+    case WeaponGroup_Flamethrower:	return "flamethrower";
+    case WeaponGroup_Saber:			return "saber";
+    case WeaponGroup_Launcher:		return "launcher";
+    default:						return "unarmed";
+    }
+}
+
+const char* postureName(uint64 posture)
+{
+    switch (posture)
+    {
+    case CreaturePosture_Upright:	return "standing";
+    case CreaturePosture_Crouched:	return "kneeling";
+    case CreaturePosture_Prone:		return "prone";
+    default:						return "other";
+    }
+}
+
+} // namespace
+
+CombatSide CombatManager::buildSide(CreatureObject* creature)
+{
+    CombatSide side;
+
+    if (dynamic_cast<PlayerObject*>(creature))
+    {
+        side.kind = "player";
+    }
+    else if (creature->getCreoGroup() == CreoGroup_AttackableObject)
+    {
+        side.kind = "object";
+    }
+    else
+    {
+        side.kind = "creature";
+    }
+    side.posture = postureName(creature->states.getPosture());
+
+    SkillModsList* mods = creature->getSkillMods();
+    for (SkillModsList::iterator it = mods->begin(); it != mods->end(); ++it)
+    {
+        side.skillMods[gSkillManager->getSkillModById(it->first).getAnsi()] = it->second;
+    }
+
+    // Creatures carry their armour as attributes; worn armour is not read yet.
+    if (creature->hasAttribute("armor_rating"))
+    {
+        side.armorRating = armorLevel(creature->getAttribute<std::string>("armor_rating"));
+    }
+    static const char* kDamageTypes[] = {
+        "kinetic", "energy", "blast", "stun", "elemental_heat", "elemental_cold",
+        "elemental_acid", "elemental_electrical", "restraint"
+    };
+    for (size_t i = 0; i < sizeof(kDamageTypes) / sizeof(kDamageTypes[0]); ++i)
+    {
+        std::string key = std::string("cat_armor_effectiveness.armor_eff_") + kDamageTypes[i];
+        float effectiveness = numberAttribute(creature, key.c_str(), 0);
+        if (effectiveness != 0)
+        {
+            side.armor[kDamageTypes[i]] = effectiveness;
+        }
+    }
+
+    return side;
+}
+
+CombatWeapon CombatManager::buildWeapon(Weapon* weapon)
+{
+    CombatWeapon w;
+    w.group = weaponGroupName(weapon->getGroup());
+    w.minDamage = numberAttribute(weapon, "cat_wpn_damage.wpn_damage_min", 50);
+    w.maxDamage = numberAttribute(weapon, "cat_wpn_damage.wpn_damage_max", 100);
+    if (weapon->hasAttribute("cat_wpn_damage.wpn_damage_type"))
+    {
+        w.damageType = lowerCase(weapon->getAttribute<std::string>("cat_wpn_damage.wpn_damage_type"));
+    }
+    w.speed = numberAttribute(weapon, "wpn_attack_speed", 0);
+    w.zeroMod = numberAttribute(weapon, "cat_wpn_rangemods.wpn_range_zero", 0);
+    w.midMod = numberAttribute(weapon, "cat_wpn_rangemods.wpn_range_mid", 0);
+    w.maxMod = numberAttribute(weapon, "cat_wpn_rangemods.wpn_range_max", 0);
+    // Ranges in metres: internal attributes, migration 007.
+    w.midRange = internalNumberAttribute(weapon, "combat_range_mid", 0);
+    w.maxRange = internalNumberAttribute(weapon, "combat_range_max", 0);
+    if (weapon->hasAttribute("wpn_armor_pierce_rating"))
+    {
+        w.armorPiercing = armorLevel(weapon->getAttribute<std::string>("wpn_armor_pierce_rating"));
+    }
+    return w;
+}
+
+void CombatManager::applyDamage(CreatureObject* defender, const std::string& pool, int32 damage)
+{
+    if (defender->getCreoGroup() == CreoGroup_AttackableObject)
+    {
+        defender->getHam()->updateSingleHam(-damage, true);
+        return;
+    }
+
+    uint8 bar = HamBar_Health;
+    if (pool == "action")
+    {
+        bar = HamBar_Action;
+    }
+    else if (pool == "mind")
+    {
+        bar = HamBar_Mind;
+    }
+    defender->getHam()->updatePropertyValue(bar, HamProperty_CurrentHitpoints, -damage, true);
+}
+
+//======================================================================================================================
+
+uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,Weapon* weapon, uint64* delayMs)
+{
 	uint8	stateApplied			= 0;
 	int32	multipliedDamage		= 0;
 	BString	combatSpam				= "melee";
 
-	// first see if we actually hit our target
-	uint8 attackResult = _hitCheck(attacker,defender,cmdProperties,weapon);
+	// The combat rules (data/script/combat/rules.lua) decide the outcome.
+	CombatAttack attack;
+	attack.attacker = buildSide(attacker);
+	attack.defender = buildSide(defender);
+	attack.weapon = buildWeapon(weapon);
+	attack.distance = glm::distance(attacker->mPosition, defender->mPosition);
+	if (cmdProperties->mDamageMultiplier)
+	{
+		attack.damageMultiplier = cmdProperties->mDamageMultiplier;
+	}
+	if (cmdProperties->mDelayMultiplier)
+	{
+		attack.delayMultiplier = cmdProperties->mDelayMultiplier;
+	}
+	if (cmdProperties->mHealthHitChance)
+	{
+		attack.pool = "health";
+	}
+	else if (cmdProperties->mActionHitChance)
+	{
+		attack.pool = "action";
+	}
+	else if (cmdProperties->mMindHitChance)
+	{
+		attack.pool = "mind";
+	}
+
+	CombatOutcome outcome = mRules.attack(attack);
+	if (!outcome.ok)
+	{
+		// No rules: the old ones, two hits in three for the weapon's damage.
+		outcome.hit = (gRandom->getRand() % 3) != 0;
+		int32 range = static_cast<int32>(attack.weapon.maxDamage - attack.weapon.minDamage) + 1;
+		outcome.damage = static_cast<int32>(attack.weapon.minDamage) + gRandom->getRand() % (range > 0 ? range : 1);
+		outcome.pool = attack.pool.empty() ? "health" : attack.pool;
+		outcome.delay = cmdProperties->mDefaultTime / 1000.0f;
+	}
+	if (delayMs)
+	{
+		*delayMs = static_cast<uint64>(outcome.delay * 1000.0f);
+	}
+
+	// 0 hit, 1 miss: what the fly text and the combat spam below expect.
+	uint8 attackResult = outcome.hit ? 0 : 1;
 
 	// only proceed, if so
 	if(!attackResult)
 	{
-		// TODO: retrieve from weapon
-		int32 baseMinDamage	= 50;
-		int32 baseMaxDamage	= 100;
-
-		// NOTE: Some weapon data just for tesing and to give the npc a fair chance...
-
-		if (weapon->hasAttribute("cat_wpn_damage.wpn_damage_min"))
-		{
-			baseMinDamage = weapon->getAttribute<int32>("cat_wpn_damage.wpn_damage_min");
-		}
-		if (weapon->hasAttribute("cat_wpn_damage.wpn_damage_max"))
-		{
-			baseMaxDamage = weapon->getAttribute<int32>("cat_wpn_damage.wpn_damage_max");
-		}
-
-
-		//Sanity checks of db data
-		if (baseMinDamage < 1)
-			baseMinDamage = 1;
-
-		if (baseMaxDamage < 1)
-			baseMaxDamage = 1;
-
-		if(baseMaxDamage <= baseMinDamage)
-		{
-			baseMaxDamage = baseMinDamage +1;
-		}
-
-		int32 baseDamage	= -((gRandom->getRand()%(baseMaxDamage - baseMinDamage)) + baseMinDamage);
-
-		// apply damage multiplier
-		if(cmdProperties->mDamageMultiplier)
-		{
-			multipliedDamage = static_cast<uint32>(static_cast<float>(baseDamage) * cmdProperties->mDamageMultiplier);
-		}
-		else
-		{
-			multipliedDamage = baseDamage;
-		}
-
-		// mitigation
-		multipliedDamage = _mitigateDamage(attacker,defender,cmdProperties,multipliedDamage,weapon);
+		multipliedDamage = -outcome.damage;
 
 		// state effects
 		stateApplied = _tryStateEffects(attacker,defender,cmdProperties,weapon);
@@ -471,51 +619,7 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 			}
 		}
 
-		// ham damage
-		// if no target pool set, pick a random one
-		if(!cmdProperties->mHealthHitChance && !cmdProperties->mActionHitChance && !cmdProperties->mMindHitChance)
-		{
-			switch(gRandom->getRand()%3)
-			{
-				case 0: randomHitPool = HamBar_Health;	break;
-				case 1: randomHitPool = HamBar_Action;	break;
-				case 2: randomHitPool = HamBar_Mind;	break;
-
-				default: randomHitPool = 0;				break;
-			}
-		}
-
-		if (defender->getCreoGroup() != CreoGroup_AttackableObject)
-		{
-			// random pool attack
-			if(randomHitPool != 100)
-			{
-				defender->getHam()->updatePropertyValue(randomHitPool,HamProperty_CurrentHitpoints,multipliedDamage,true);
-			}
-			// direct pool attack
-			else
-			{
-				// health hit
-				if(cmdProperties->mHealthHitChance)
-				{
-					defender->getHam()->updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints,multipliedDamage,true);
-				}
-				// action hit
-				else if(cmdProperties->mActionHitChance)
-				{
-					defender->getHam()->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,multipliedDamage,true);
-				}
-				// mind hit
-				else if(cmdProperties->mMindHitChance)
-				{
-					defender->getHam()->updatePropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints,multipliedDamage,true);
-				}
-			}
-		}
-		else
-		{
-			defender->getHam()->updateSingleHam(multipliedDamage, true);
-		}
+		applyDamage(defender, outcome.pool, outcome.damage);
 		if (defender->isIncapacitated())
 		{
 			PlayerObject* playerAttacker = dynamic_cast<PlayerObject*>(attacker);
@@ -661,51 +765,6 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 
 
     return(0);
-}
-
-//======================================================================================================================
-//
-// see if the attack hits, misses, is blocked or evaded
-//
-
-uint8 CombatManager::_hitCheck(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,Weapon* weapon)
-{
-    // TODO
-    // If the defender is a static object, like lair or debis, it can't counterattack, block or evade.
-    uint8 hit = 0;
-    if (defender->getCreoGroup() == CreoGroup_AttackableObject)
-    {
-        // Note that a return of 0 is a hit, return of 1 is a miss.
-        hit = gRandom->getRand()%4;	// 75% chance for a hit, 25% chance for a miss. That sounds fair when hittin a static object,
-        if (hit > 1)
-        {
-            // This is a "hit".
-            hit = 0;
-        }
-    }
-    else
-    {
-        // It's a "normal" npc or player
-
-        // return(gRandom->getRand()%5);
-        // Adjusting the hit chance, when testing.
-        // hit = gRandom->getRand()%9;	// 66% chance for a hit, 33% chance for the rest (miss, block, counterattck and evade)
-        hit = gRandom->getRand()%12;	// 75% chance for a hit, 25% chance for the rest (miss, block, counterattck and evade)
-        if (hit > 4)
-        {
-            // This is a "hit".
-            hit = 0;
-        }
-    }
-    return(hit);
-}
-
-//======================================================================================================================
-
-int32 CombatManager::_mitigateDamage(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,int32 oldDamage,Weapon* weapon)
-{
-    // TODO
-    return(oldDamage);
 }
 
 //======================================================================================================================

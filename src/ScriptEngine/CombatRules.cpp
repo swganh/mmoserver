@@ -1,0 +1,261 @@
+/*
+---------------------------------------------------------------------------------------
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
+
+For more information, visit http://www.swganh.com
+
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+---------------------------------------------------------------------------------------
+*/
+
+#include "CombatRules.h"
+
+extern "C"
+{
+#include "lua.h"
+#include "lauxlib.h"
+#include "lualib.h"
+}
+
+#include "Utils/logger.h"
+
+#include <ctime>
+
+namespace {
+
+void setString(lua_State* l, const char* key, const std::string& value)
+{
+    lua_pushstring(l, value.c_str());
+    lua_setfield(l, -2, key);
+}
+
+void setNumber(lua_State* l, const char* key, double value)
+{
+    lua_pushnumber(l, value);
+    lua_setfield(l, -2, key);
+}
+
+void pushSide(lua_State* l, const CombatSide& side)
+{
+    lua_newtable(l);
+    setString(l, "kind", side.kind);
+    setString(l, "posture", side.posture);
+    setNumber(l, "armor_rating", side.armorRating);
+    if (side.toHit >= 0)
+    {
+        setNumber(l, "to_hit", side.toHit);
+    }
+
+    lua_newtable(l);
+    for (std::map<std::string, int>::const_iterator it = side.skillMods.begin(); it != side.skillMods.end(); ++it)
+    {
+        setNumber(l, it->first.c_str(), it->second);
+    }
+    lua_setfield(l, -2, "skill_mods");
+
+    lua_newtable(l);
+    for (std::map<std::string, float>::const_iterator it = side.armor.begin(); it != side.armor.end(); ++it)
+    {
+        setNumber(l, it->first.c_str(), it->second);
+    }
+    lua_setfield(l, -2, "armor");
+}
+
+void pushWeapon(lua_State* l, const CombatWeapon& weapon)
+{
+    lua_newtable(l);
+    setString(l, "group", weapon.group);
+    setString(l, "damage_type", weapon.damageType);
+    setNumber(l, "min_damage", weapon.minDamage);
+    setNumber(l, "max_damage", weapon.maxDamage);
+    setNumber(l, "speed", weapon.speed);
+    setNumber(l, "zero_mod", weapon.zeroMod);
+    setNumber(l, "mid_mod", weapon.midMod);
+    setNumber(l, "max_mod", weapon.maxMod);
+    setNumber(l, "mid_range", weapon.midRange);
+    setNumber(l, "max_range", weapon.maxRange);
+    setNumber(l, "armor_piercing", weapon.armorPiercing);
+}
+
+void pushAttack(lua_State* l, const CombatAttack& attack)
+{
+    lua_newtable(l);
+    pushSide(l, attack.attacker);
+    lua_setfield(l, -2, "attacker");
+    pushSide(l, attack.defender);
+    lua_setfield(l, -2, "defender");
+    pushWeapon(l, attack.weapon);
+    lua_setfield(l, -2, "weapon");
+    setNumber(l, "distance", attack.distance);
+    setNumber(l, "damage_multiplier", attack.damageMultiplier);
+    setNumber(l, "delay_multiplier", attack.delayMultiplier);
+    if (!attack.pool.empty())
+    {
+        setString(l, "pool", attack.pool);
+    }
+}
+
+} // namespace
+
+CombatRules::CombatRules()
+    : mState(luaL_newstate())
+    , mRules(0)
+{
+    luaL_openlibs(mState);
+}
+
+CombatRules::~CombatRules()
+{
+    lua_close(mState);
+}
+
+bool CombatRules::load(const std::string& path)
+{
+    if (mRules)
+    {
+        luaL_unref(mState, LUA_REGISTRYINDEX, mRules);
+        mRules = 0;
+    }
+
+    if (luaL_loadfile(mState, path.c_str()) != 0 || lua_pcall(mState, 0, 1, 0) != 0)
+    {
+        LOG(WARNING) << "Combat rules: could not load " << path << ": " << lua_tostring(mState, -1);
+        lua_pop(mState, 1);
+        return false;
+    }
+    if (!lua_istable(mState, -1))
+    {
+        LOG(WARNING) << "Combat rules: " << path << " does not return a table";
+        lua_pop(mState, 1);
+        return false;
+    }
+
+    lua_pushvalue(mState, -1);
+    lua_setglobal(mState, "rules");
+    mRules = luaL_ref(mState, LUA_REGISTRYINDEX);
+
+    // Each zone rolls its own dice.
+    lua_getglobal(mState, "math");
+    lua_getfield(mState, -1, "randomseed");
+    lua_pushnumber(mState, static_cast<lua_Number>(std::time(0)));
+    lua_pcall(mState, 1, 0, 0);
+    lua_pop(mState, 1);
+
+    LOG(INFO) << "Combat rules loaded from " << path;
+    return true;
+}
+
+// Calls rules[function] with the args on the stack; leaves the results.
+bool CombatRules::_call(const char* function, int args, int results)
+{
+    if (!mRules)
+    {
+        lua_pop(mState, args);
+        return false;
+    }
+
+    lua_rawgeti(mState, LUA_REGISTRYINDEX, mRules);
+    lua_getfield(mState, -1, function);
+    lua_remove(mState, -2);
+    if (!lua_isfunction(mState, -1))
+    {
+        LOG(WARNING) << "Combat rules: no function rules." << function;
+        lua_pop(mState, args + 1);
+        return false;
+    }
+    lua_insert(mState, -(args + 1));
+
+    if (lua_pcall(mState, args, results, 0) != 0)
+    {
+        LOG(WARNING) << "Combat rules: rules." << function << " failed: " << lua_tostring(mState, -1);
+        lua_pop(mState, 1);
+        return false;
+    }
+    return true;
+}
+
+CombatOutcome CombatRules::attack(const CombatAttack& attack)
+{
+    CombatOutcome outcome;
+
+    pushAttack(mState, attack);
+    if (!_call("attack", 1, 1))
+    {
+        return outcome;
+    }
+    if (!lua_istable(mState, -1))
+    {
+        LOG(WARNING) << "Combat rules: rules.attack did not return a table";
+        lua_pop(mState, 1);
+        return outcome;
+    }
+
+    lua_getfield(mState, -1, "hit");
+    outcome.hit = lua_toboolean(mState, -1) != 0;
+    lua_pop(mState, 1);
+
+    lua_getfield(mState, -1, "chance");
+    outcome.chance = static_cast<float>(lua_tonumber(mState, -1));
+    lua_pop(mState, 1);
+
+    lua_getfield(mState, -1, "damage");
+    outcome.damage = static_cast<int>(lua_tonumber(mState, -1));
+    lua_pop(mState, 1);
+
+    lua_getfield(mState, -1, "pool");
+    if (lua_isstring(mState, -1))
+    {
+        outcome.pool = lua_tostring(mState, -1);
+    }
+    lua_pop(mState, 1);
+
+    lua_getfield(mState, -1, "delay");
+    if (lua_isnumber(mState, -1))
+    {
+        outcome.delay = static_cast<float>(lua_tonumber(mState, -1));
+    }
+    lua_pop(mState, 1);
+
+    lua_pop(mState, 1);
+    outcome.ok = true;
+    return outcome;
+}
+
+bool CombatRules::inRange(const CombatWeapon& weapon, float distance)
+{
+    pushWeapon(mState, weapon);
+    lua_pushnumber(mState, distance);
+    if (!_call("inRange", 2, 1))
+    {
+        // No rules: the weapon's own range, else the old fixed reach.
+        float reach = weapon.maxRange;
+        if (reach <= 0)
+        {
+            reach = 6.0f;
+            if (weapon.group == "pistol") reach = 35.0f;
+            else if (weapon.group == "carbine") reach = 50.0f;
+            else if (weapon.group == "rifle") reach = 64.0f;
+        }
+        return distance <= reach;
+    }
+    bool result = lua_toboolean(mState, -1) != 0;
+    lua_pop(mState, 1);
+    return result;
+}

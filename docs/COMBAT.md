@@ -2,7 +2,9 @@
 
 A review of the combat code as it stands (Nov 2026), from reading it and
 from fights on the VM: what is implemented, the actual maths, what is
-missing, and what should move to scripts or data. The original pre-CU rules
+missing, and what should move to scripts or data. The maths of an attack
+is now in a script, `data/script/combat/rules.lua` ("The combat rules"
+below). The original pre-CU rules
 come from the Prima guides (`docs/SOURCES.md`); this page describes the
 code, not the original.
 
@@ -12,26 +14,25 @@ code, not the original.
    target. It goes into the player's command queue
    (`ObjectController::enqueueCommandMessage`). Combat commands
    (`command_table.addtocombatqueue = 1`) run one at a time, each followed
-   by its cooldown, `command_table.defaulttime`: **2000 ms for `attack`**,
-   whatever the weapon. Non-combat commands are put ahead of combat ones.
+   by its cooldown: for attacks, the time the combat rules give (the
+   weapon's attack speed); for other combat commands,
+   `command_table.defaulttime`. Non-combat commands are put ahead of
+   combat ones.
 2. **Auto-attack.** After the first attack the server keeps attacking the
    same target: when the queue is empty and the cooldown has passed, it
    queues an internal `attack` (`_processCommandQueue`).
 3. **Checks** (`CombatManager::handleAttack`, `_verifyCombatState`): a
-   weapon in the left hand, the target within range (6 m, pistols 35 m,
-   carbines 50 m, rifles 64 m; hard-coded), the target attackable, not
-   incapacitated or dead. Both sides go into the Combat state and onto each
-   other's defender lists.
-4. **Hit or not** (`_hitCheck`): a fixed roll, `rand() % 12`:
-   0 or 5-11 hit (8 in 12, **67%**), 1 miss, 2 block, 3 dodge, 4 counter
-   (1 in 12 each). Only a hit does damage. No accuracy, defence, posture,
-   stats, skills or range modifiers.
-5. **Damage** (`_executeAttack`): uniform in [weapon min, weapon max),
-   times the command's `damage_multiplier` if it has one. Mitigation
-   (armour, resistances) is an empty TODO.
-6. **Which pool.** If the command names no pool (the default attack names
-   none), health, action or mind at random, **a third each**. Specials can
-   name one (`health_hit_chance` etc., used as on/off, not as a chance).
+   weapon in the left hand, the target within the weapon's max range
+   (`rules.inRange`), the target attackable, not incapacitated or dead.
+   Both sides go into the Combat state and onto each other's defender
+   lists.
+4. **Hit or not, damage, pool, attack time:** the combat rules
+   (`rules.attack`), below. A miss shows "miss"; block, dodge and counter
+   are not rolled (no rule for them yet).
+5. **Damage** goes to the pool the rules chose (`CombatManager::applyDamage`).
+6. **Specials** pass their `damage_multiplier`, `delay_multiplier` and pool
+   (`health_hit_chance` etc., used as on/off, not as a chance) to the
+   rules.
 7. **States.** If the command has a knockdown, dizzy, blind, stun,
    intimidate or posture-down chance, the state is **always** applied: the
    "chance" is never rolled.
@@ -48,10 +49,41 @@ code, not the original.
     between the weapon types they used; combat XP is a fraction of it.
     Loot rights go to the same player or group.
 
-Creatures attack the same way (`NpcManager::handleAttack`): their own damage
-range (`creature_damage_min/max`), every `creature_attack` seconds, the same
-67% hit roll and the same random pool. The to-hit figure the Prima tables
-give per creature (e.g. 28% for a womp rat) is not used.
+Creatures attack the same way (`NpcManager::handleAttack`): every
+`creature_attack` seconds, through the same rules, with their own damage
+range (`creature_damage_min/max`) and no weapon range modifiers. The to-hit
+figure the Prima tables give per creature (e.g. 28% for a womp rat) is not
+in the database yet; the rules take it as `to_hit` when it is.
+
+## The combat rules
+
+`data/script/combat/rules.lua`, loaded by every zone at start (its own Lua
+state, called directly on each attack; `src/ScriptEngine/CombatRules.*`).
+If the script is missing or fails, attacks fall back to the old rules (two
+hits in three, the weapon's damage, `defaulttime`). Unit tests:
+`src/ScriptEngine/combat_rules_unittest.cc`.
+
+What it works out, from the guide where it gives the rule and with
+**reconstructed** numbers (ours, marked in the script, the ones to tune)
+where it does not:
+
+| | Rule | Source |
+|---|---|---|
+| Accuracy modifier | the weapon's range curve (point blank at 0 m, ideal at its ideal range, max at its max range, straight lines between) + the weapon group's accuracy skill mods + postures - the defender's ranged or melee defence | p. 66, p. 73, p. 145 |
+| Postures | attacker kneeling +10, prone +20; a kneeling/prone target -10/-20 against ranged attacks, +10/+20 against melee | p. 73; sizes reconstructed |
+| Chance to hit | 50% + 1% per point of accuracy modifier, 5-95% | reconstructed |
+| Creatures | their own to-hit replaces the 50% when known | creature tables |
+| Damage | uniform in the weapon's range x the special's multiplier x armour rating (+25% per level the weapon is above the armour, -50% per level below) x (1 - armour effectiveness for the damage type) | p. 388, pp. 394-395 |
+| Pool | the special's, else health 50%, action 30%, mind 20% | reconstructed |
+| Attack time | the weapon's attack speed x (1 - 1% per point of speed mod) x the special's delay multiplier, at least 1 s | p. 389, p. 145; the 1% reconstructed |
+| Range | the weapon's max range + 1 m for the bodies | p. 390 |
+
+Weapons carry their ranges in metres as internal attributes
+(`combat_range_mid`, `combat_range_max`; migration 007, from
+`mmoserverdb/reference/prima_ed/weapons.csv`); weapons without them use
+their group's typical ranges. Players' worn armour is not read yet (no
+armour on the defender's side); creatures' `armor_rating` and
+`cat_armor_effectiveness.*` are.
 
 ## Why a womp rat took 7 minutes
 
@@ -72,7 +104,14 @@ three: about 7-8 minutes, as seen. The creature's 90-110 damage, spread the
 same way over the player's larger, faster-regenerating pools, roughly
 cancels out, so neither side wins quickly.
 
-What made it slow, in order of effect: damage spread over three pools
+With the rules and the noob CDEF (50-80, 4 s; new characters since
+migration 007), the same novice artisan at 10 m: modifier +17, 67% to
+hit, 10.8 damage a second, half of it on health: 900 / (5.4 - 1) = about
+3.5 minutes for the womp rat, a level 10 creature; about 35 s for a lesser
+desert womp rat (155). A novice marksman (+10 accuracy, +5 speed) at 15 m:
+90% to hit, about 2 minutes for the womp rat.
+
+What made it slow before the rules, in order of effect: damage spread over three pools
 instead of one; no skill or stat modifiers at all; creature regeneration
 during the fight; the flat 2 s cadence (the pistol's own speed, 3.2 s, is
 not used, so in that respect players attack faster than they should).
@@ -95,17 +134,12 @@ not used, so in that respect players attack faster than they should).
 
 ## What is not
 
-- **The to-hit formula:** no accuracy (weapon, skill mods), defence
-  (dodge, block, counterattack skill mods), posture, range modifiers
-  (the weapon's point blank / ideal / max range), target's level, or the
-  creature table's to-hit.
-- **Damage modifiers:** no skill or stat bonuses, armour, resistances or
-  vulnerabilities (the attributes exist on creatures and items, unused),
-  no wounds (weapons have a wound chance) or battle fatigue.
-- **Where damage lands:** pre-CU attacks hit a body location which decided
-  the pool; here, a random pool for default attacks.
-- **Attack speed:** weapon speed and speed skill mods are ignored; every
-  `attack` is 2 s.
+- **To-hit:** no block, dodge or counterattack (the skill mods exist),
+  certification penalty, moving penalty, states (aiming, blinded...),
+  the "no point blank attacks while prone" rule; creature to-hits are not
+  in the database yet.
+- **Damage modifiers:** no skill or stat bonuses, players' worn armour,
+  vulnerabilities, wounds (weapons have a wound chance) or battle fatigue.
 - **Special attacks:** the command table has `attack`, `berserk1`,
   `intimidate1`, `warcry1` and the like, but no weapon specials
   (headshot, bodyshot, legshot...) for the professions.
@@ -127,7 +161,7 @@ scripts for behaviour:
 | Part | Where | Why |
 |---|---|---|
 | The command queue, cooldowns, auto-attack, states, HAM, regen ticks, incap/death | C++ | the engine; runs every tick for everyone |
-| The to-hit and damage formulas | C++, with their constants in data | run on every attack; tuning without rebuilding |
+| The to-hit and damage formulas | script (`combat/rules.lua`) | run on every attack; communities rebalance without rebuilding |
 | Weapon stats, creature stats, skill mods, armour | data (items, `non_persistent_npc_attributes`, skill tables) | already data; needs the right values (Prima) |
 | Special attacks: costs, multipliers, pools, state chances, animations | data (`command_table`) | the server already reads all of these columns |
 | Creature behaviour: aggro, fleeing, special moves, calling for help, the tutorial bandit's grenade | scripts (`ai/`), on events | content, varies per creature |
@@ -253,17 +287,21 @@ mods).
   weapon's costs (p. 389).
 
 In the database: the plain CDEF (item type 2326) holds the crafting ranges
-(damage min 17-32, max 35-65: p. 393) and a character gets one at the
-bottom of them (17-35, as seen); the noob CDEF (2755) matches p. 392 but
-for the zero and max range mods (0 and -80 against -10 and -90). No weapon
-stores its attack speed or its mid range in metres.
+(damage min 17-32, max 35-65: p. 393) and characters got one at the
+bottom of them (17-35, as seen); the noob CDEF (2755) matched p. 392 but
+for the zero and max range mods (0 and -80 against -10 and -90). Migration
+007 fixes those, starts new characters with the noob CDEF, and adds every
+weapon's ideal and max range in metres. The other weapons already matched
+the guide but for empty values (cleaver, katana, sword 02, Jawa ion rifle)
+and the point blank modifier of most pistols (0 for -5 to -20).
 
 ### Against the code
 
 | Rule | Code today |
 |---|---|
-| Accuracy roll from range mods, posture, certification, states | fixed 67% |
-| Attack time from the weapon's attack speed | 2 s for every weapon |
+| Accuracy roll from range mods, posture, certification, states | range mods, skill mods, postures (rules.lua); not certification or states |
+| Attack time from the weapon's attack speed | the weapon's speed and speed mods (rules.lua) |
+| Armour rating and effectiveness | creatures' (rules.lua); not players' worn armour |
 | Specials: time, damage, cost and to-hit from the weapon | 4 combat specials in `command_table`; costs fixed, not from the weapon |
 | Effects rolled per effect, with durations | always applied, no duration |
 | Bleeding, wounds, battle fatigue | not in combat |
@@ -277,8 +315,9 @@ stores its attack speed or its mid range in metres.
 2. Read the original rules: done (both guides' combat chapters, the
    Marksman and Brawler chapters). The numbers behind accuracy are in
    neither guide: measure the client's accuracy display instead.
-3. To-hit and damage from those rules, with the constants in data; weapon
-   speed; damage to the pool the attack hits.
+3. To-hit and damage from those rules: done, in `combat/rules.lua`; the
+   weapons' ranges and the noob CDEF: migration 007. Next: tune the
+   reconstructed numbers in play.
 4. Creature regeneration and to-hit from the creature tables.
 5. Specials as data, profession by profession (marksman and brawler first:
    the starting professions).

@@ -102,7 +102,6 @@ private:
     NpcManager();
 
     // Simulated Combat Manager
-    uint8	_hitCheck(CreatureObject* attacker,CreatureObject* defender,Weapon* weapon);
     bool	_verifyCombatState(CreatureObject* attacker, uint64 defenderId);
 
     uint8	_executeAttack(CreatureObject* attacker,CreatureObject* defender,Weapon* weapon);

@@ -215,7 +215,7 @@ first time.
 Confirmed with a client: the tutorial bandit appears, fights, and the
 script continues after his grenade.
 
-### 5i. Still in combat after the opponent dies — open (workaround: `/peace`)
+### 5i. Still in combat after the opponent dies — fix needs testing
 
 After killing the tutorial bandit the player stays in combat, which blocks
 leaving the tutorial. When a creature dies, `die()` makes peace with its
@@ -234,8 +234,16 @@ Not enough: on the VM the combat music still started as the bandit died
 *at* the death suggests something puts the player back into combat after
 `die()` (auto-attack firing again, the bandit's AI, or the grenade path,
 where `npcStopFight` does nothing), or the player was not in the bandit's
-defender list. For the combat review: log the player's states and defender
-list around a creature's death.
+defender list.
+
+Found: a creature's AI never left combat, not even dead. `State_Dead`
+was never set, so the corpse's AI kept attacking every tick, and
+`NpcManager::_verifyCombatState` checked whether the target was dead but
+not the attacker: each attack put the player back into combat and back on
+the corpse's defender list, undoing the peace, until the corpse was
+removed minutes later. Now a dead or incapacitated creature's AI moves to
+`State_Dead` and stops, and `_verifyCombatState` refuses attacks from a
+dead or incapacitated NPC.
 
 ### 5j. Lairs never spawn — open
 

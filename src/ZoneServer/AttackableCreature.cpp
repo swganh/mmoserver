@@ -636,8 +636,8 @@ uint64 AttackableCreature::handleState(uint64 timeOverdue)
     {
     case State_Dead:
     {
-        // Remove us from all timers etc...
-        // NpcManager::Instance()->removeNpc(this->getId());
+        // Nothing to do until the corpse is removed; check back rarely.
+        waitTime = 10000;
     }
     break;
 
@@ -788,6 +788,15 @@ uint64 AttackableCreature::handleState(uint64 timeOverdue)
     case State_Combat:
     {
         waitTime = (uint64)activeDefaultPeriodTime;
+
+        // A dead creature stops fighting. Nothing took it out of combat, so
+        // the corpse kept attacking and put its opponent back into combat
+        // after every peace (KNOWN_ISSUES #5i).
+        if (this->isDead() || this->isIncapacitated())
+        {
+            mCombatState = State_Dead;
+            break;
+        }
 
         int64 activation = this->getCombatTimer();
         if (activation < 0)

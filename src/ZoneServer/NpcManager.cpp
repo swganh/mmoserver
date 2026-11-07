@@ -403,6 +403,12 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 	}
 	else if (AttackableCreature* attackerNpc = dynamic_cast<AttackableCreature*>(attacker))
 	{
+		// The dead don't attack (KNOWN_ISSUES #5i).
+		if (attackerNpc->isDead() || attackerNpc->isIncapacitated())
+		{
+			return(false);
+		}
+
 		// make sure we got both objects
 		if (attackerNpc && defender)
 		{

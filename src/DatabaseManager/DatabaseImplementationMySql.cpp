@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "DatabaseManager/DatabaseImplementationMySql.h"
 
+#include <algorithm>
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
@@ -240,9 +241,12 @@ uint32_t DatabaseImplementationMySql::escapeString(char* target, const char* sou
     }
 
     sql::mysql::MySQL_Connection* mysql_conn = dynamic_cast<sql::mysql::MySQL_Connection*>(connection_.get()); 
-    std::string tmp = mysql_conn->escapeString(source);
-        
-    strncpy(target, tmp.c_str(), tmp.length());
+    // Escape all `length` bytes: binary data (mail attachments, UTF-16)
+    // contains zero bytes, and passing `source` as a C string cut it at the
+    // first one, so attachments were stored as a byte or two.
+    std::string tmp = mysql_conn->escapeString(std::string(source, length));
+
+    memcpy(target, tmp.data(), tmp.length());
     target[tmp.length()] = 0;
 
     return tmp.length();
@@ -338,8 +342,15 @@ void DatabaseImplementationMySql::processFieldBinding_(
         }
                                   
         case DFT_raw: {
+            // Raw bytes, e.g. a mail's attachments (UTF-16 data, full of
+            // zero bytes): copy them all, up to the field's size. strncpy
+            // stopped at the first zero, so attachments came back empty.
             std::string tmp = result->getString(result_field_id);
-            strncpy(&((char*)object)[binding->getField(field_id).offset], tmp.c_str(), tmp.length());
+            const DataField& raw_field = binding->getField(field_id);
+            size_t length = std::min<size_t>(tmp.length(), raw_field.size);
+            char* destination = &((char*)object)[raw_field.offset];
+            memcpy(destination, tmp.data(), length);
+            memset(destination + length, 0, raw_field.size - length);
             break;
         }
 

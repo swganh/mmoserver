@@ -509,6 +509,62 @@ for the trainer room's narration. Gates are now set on every tick from the
 room the player is in, whatever the script is doing, and a step the player
 has gone past stops waiting (`docs/TUTORIAL.md`).
 
+### 22. No welcome mail after the tutorial (and no mail from zones) — fixed
+
+The original sent new players a welcome letter and a letter for their
+starting profession (`newbie_tutorial/newbie_mail`). None arrived here.
+`Tutorial::sendStartingMails` sends them when the player picks a
+destination, to the ChatServer (`opIsmSendSystemMailMessage`), whose
+`_processSystemMailMessage` looked up the recipient's name with a query
+whose result nothing handled (`ChatQuery_QueryFirstName` had no case), so
+the mail was dropped. Every mail a zone sends went the same way: bank wire
+transfers (`sendBanktipMail`) and bazaar instant sales too. It now goes
+through `ChatManager::sendSystemMailMessage`, the path the ChatServer's
+own structure and auction mails use, which stores the mail and tells the
+player if online. Also fixed: the mail leaked when the recipient was not
+found, and `sendStartingMails` leaked its message object.
+
+Then the mails arrived with an empty body. A system mail's body is a
+reference into the client's string files, sent as binary out-of-band
+data in the mail's attachments, and those were stored in a `utf8mb3`
+`TEXT` column through a `TEXT` parameter of `sf_MailCreate`: bytes that
+are not valid UTF-8 (`FF FF` in the header) are refused or mangled.
+Attachments are now a `BLOB` (migration 005, the function, the schema),
+and the ChatServer sends them as `_binary` literals. Player mail with
+attachments (waypoints) went through the same column.
+
+Still empty after that: the body itself was built wrong. `atMacroString`
+writes the out-of-band package count as its internal counter, 0 for the
+first package (bytes `00 00` where the client needs `01 00`), plus 8 stray
+bytes at the end, so the client found no package to show. The newbie mails
+and the bank wire mails now use `common::OutOfBand`, the builder system
+messages use (and they display). Still on `atMacroString`: the bazaar
+mails, which carry a waypoint `common::OutOfBand` can't add yet; they need
+the same count fix or waypoint support in `common::OutOfBand`.
+
+And reading them back: the database layer copied raw fields (`DFT_raw`,
+the mail's attachments) with `strncpy`, which stops at the first zero
+byte, and UTF-16 has one in nearly every other byte. No attachment ever
+came back: not the system mails' bodies, not a waypoint a player attached
+(seen on the VM: plain player mail worked, the reply's attachment was
+missing). Raw fields are now copied whole, up to the field's size.
+
+And storing them: `escapeString` ignored its length and passed the bytes
+to the connector as a C string, so an attachment was stored as its first
+byte. Shown with the database layer and MariaDB: the welcome mail's body
+(124 bytes) came back as `01` and zeros; it now comes back identical. Only
+the mail attachments pass bytes with zeros; for every other caller (names,
+text) the result is the same as before. Mails stored before this fix stay
+empty; new ones open whole.
+
+Confirmed on the VM: a new character's welcome and profession mails show
+their full text, and a player's mail with a waypoint attached arrives with
+it. Still open: the bazaar mails (on `atMacroString`, see above) and the
+`newbie_mail` prompt on arrival.
+
+Still to add: the client's prompt for it, `system_messages:newbie_mail`
+("You've received a message.  Press the letter-icon..."), on arrival.
+
 ## Fixed while getting the servers running
 
 For reference; details are in the commit messages on `phase2-db-installer`.

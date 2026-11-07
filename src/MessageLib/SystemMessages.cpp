@@ -36,6 +36,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 #include "Common/atMacroString.h"
+#include "Common/OutOfBand.h"
+#include "Common/byte_buffer.h"
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageDispatch.h"
@@ -48,14 +50,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void MessageLib::sendBanktipMail(PlayerObject* playerObject, PlayerObject* targetObject, uint32 amount)
 {
+    // playerObject wired amount credits to targetObject. Each gets a mail
+    // naming the other, as the ChatServer's own sendBanktipMail does. The
+    // bodies are out-of-band prose packages (see sendNewbieMail).
+    std::wstring playerName(playerObject->getFirstName().getAnsi(), playerObject->getFirstName().getAnsi() + playerObject->getFirstName().getLength());
+    std::wstring targetName(targetObject->getFirstName().getAnsi(), targetObject->getFirstName().getAnsi() + targetObject->getFirstName().getLength());
 
-    atMacroString* aMS = new atMacroString();
+    // To the receiver, from the sender: prose_wire_mail_target, %TO the sender.
+    common::OutOfBand targetBody("base_player", "prose_wire_mail_target", L"", L"", playerName, static_cast<int32_t>(amount));
+    const common::ByteBuffer* attachment = targetBody.Pack();
 
-    aMS->addMBstf("base_player","prose_wire_mail_target");
-    aMS->addDI(amount);
-    aMS->addTO(playerObject->getFirstName());
-    aMS->addTextModule();
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opIsmSendSystemMailMessage);
+    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint64(targetObject->getId());
+    mMessageFactory->addString(playerObject->getFirstName());
+    mMessageFactory->addString(BString("@base_player:wire_mail_subject"));
+    mMessageFactory->addUint32(0);
+    mMessageFactory->addData(attachment->data(), attachment->size());
 
+    Message* newMessage = mMessageFactory->EndMessage();
+    playerObject->getClient()->SendChannelA(newMessage, playerObject->getAccountId(), CR_Chat, 6);
+
+    // To the sender, as from the receiver: prose_wire_mail_self, %TO the receiver.
+    common::OutOfBand selfBody("base_player", "prose_wire_mail_self", L"", L"", targetName, static_cast<int32_t>(amount));
+    attachment = selfBody.Pack();
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opIsmSendSystemMailMessage);
@@ -64,37 +83,10 @@ void MessageLib::sendBanktipMail(PlayerObject* playerObject, PlayerObject* targe
     mMessageFactory->addString(targetObject->getFirstName());
     mMessageFactory->addString(BString("@base_player:wire_mail_subject"));
     mMessageFactory->addUint32(0);
-    mMessageFactory->addString(aMS->assemble());
-    delete aMS;
-
-
-    Message* newMessage = mMessageFactory->EndMessage();
-    playerObject->getClient()->SendChannelA(newMessage, playerObject->getAccountId(), CR_Chat, 6);
-
-
-
-    aMS = new atMacroString();
-
-    aMS->addMBstf("base_player","prose_wire_mail_self");
-    aMS->addDI(amount);
-    aMS->addTO(targetObject->getFirstName());
-    aMS->addTextModule();
-
-
-    mMessageFactory->StartMessage();
-    mMessageFactory->addUint32(opIsmSendSystemMailMessage);
-    mMessageFactory->addUint64(targetObject->getId());
-    mMessageFactory->addUint64(targetObject->getId());
-    mMessageFactory->addString(playerObject->getFirstName());
-    mMessageFactory->addString(BString("@base_player:wire_mail_subject"));
-    mMessageFactory->addUint32(0);
-    mMessageFactory->addString(aMS->assemble());
-    delete aMS;
-
+    mMessageFactory->addData(attachment->data(), attachment->size());
 
     newMessage = mMessageFactory->EndMessage();
     playerObject->getClient()->SendChannelA(newMessage, playerObject->getAccountId(), CR_Chat, 6);
-
 }
 
 
@@ -179,12 +171,12 @@ void MessageLib::sendSoldInstantMail(uint64 oldOwner, PlayerObject* newOwner, BS
 
 void MessageLib::sendNewbieMail(PlayerObject* playerObject, BString subject, BString bodyDir, BString bodyStr)
 {
-    atMacroString* aMS = new atMacroString();
-
-    aMS->addMBstf(bodyDir, bodyStr);
-    aMS->addTextModule();
-    //needed this extra one for some reason
-    //aMS->addTextModule();
+    // The body is a reference to the client's string file, as an
+    // out-of-band prose package after an empty text (like system messages).
+    // atMacroString wrote a package count of 0 here, so the client showed
+    // an empty body (KNOWN_ISSUES #22).
+    common::OutOfBand body(bodyDir.getAnsi(), bodyStr.getAnsi());
+    const common::ByteBuffer* attachment = body.Pack();
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opIsmSendSystemMailMessage);
@@ -193,8 +185,7 @@ void MessageLib::sendNewbieMail(PlayerObject* playerObject, BString subject, BSt
     mMessageFactory->addString("Star Wars Galaxies");
     mMessageFactory->addString(subject);
     mMessageFactory->addUint32(0);
-    mMessageFactory->addString(aMS->assemble());
-    delete aMS;
+    mMessageFactory->addData(attachment->data(), attachment->size());
 
     Message* newMessage = mMessageFactory->EndMessage();
     playerObject->getClient()->SendChannelA(newMessage, playerObject->getAccountId(), CR_Chat, 6);

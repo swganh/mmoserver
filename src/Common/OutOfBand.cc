@@ -65,8 +65,8 @@ OutOfBand::OutOfBand(const std::string& base_stf_file, const std::string& base_s
 
     AddProsePackage(base_stf_file, base_stf_label,
                     tu_object_id, tu_stf_file, tu_stf_label, tu_custom_string,
-                    tu_object_id, tu_stf_file, tu_stf_label, tu_custom_string,
-                    tu_object_id, tu_stf_file, tu_stf_label, tu_custom_string,
+                    tt_object_id, tt_stf_file, tt_stf_label, tt_custom_string,
+                    to_object_id, to_stf_file, to_stf_label, to_custom_string,
                     di_integer, df_float, display_flag);
 }
 

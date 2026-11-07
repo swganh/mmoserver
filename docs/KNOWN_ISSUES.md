@@ -280,7 +280,7 @@ unknown travel point) now log the reason and tell the player instead of
 doing nothing. The tutorial's travel uses a different, synchronous path and
 was not affected.
 
-### 5h. "Too many commands queued. A command was dropped." — fix needs testing
+### 5h. "Too many commands queued. A command was dropped." — open
 
 Seen repeatedly while fighting the tutorial bandit and a rill on Tatooine.
 The command queue (30 entries) was strictly first in, first out: a combat
@@ -290,6 +290,13 @@ a fight, which should run at once. In a long fight they piled up past 30
 and were dropped. Now, while the front combat command cools down, the
 first non-combat command behind it runs; combat commands keep their order
 and cooldowns.
+
+Still seen on the VM with that change, with several Attacks in the
+client's queue: non-combat commands were already put ahead of combat ones
+when queued, so it is the attacks themselves. The zone now logs what fills
+the queue when it overflows (`Command queue full for ...`: how many are
+combat commands, the front one, the time to the next combat command, and
+whether the queue is scheduled). `docs/COMBAT.md` has the combat review.
 
 ### 5g. No explosion when the tutorial debris is destroyed — fix needs testing
 

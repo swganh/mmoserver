@@ -875,6 +875,23 @@ bool ObjectController::_validateEnqueueCommand(uint32 &reply1,uint32 &reply2,uin
         PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
         if(this->getCommandQueue()->size() >= COMMAND_QUEUE_MAX_SIZE)
         {
+            // What filled the queue (KNOWN_ISSUES #5h): how many are combat
+            // commands, the front one, and how long until it may run.
+            uint32 combatCommands = 0;
+            for (ObjControllerCommandMessage* queued : mCommandQueue)
+            {
+                if (queued->getCmdProperties() && queued->getCmdProperties()->mAddToCombatQueue)
+                {
+                    ++combatCommands;
+                }
+            }
+            uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
+            ObjControllerCommandMessage* front = mCommandQueue.front();
+            LOG(WARNING) << "Command queue full for " << mObject->getId() << ": " << mCommandQueue.size()
+                         << " queued, " << combatCommands << " combat; front 0x" << std::hex << front->getOpcode() << std::dec
+                         << " (sequence " << front->getSequence() << "), next combat command in "
+                         << ((mNextCommandExecution > now) ? (mNextCommandExecution - now) : 0) << " ms"
+                         << (mTaskId ? "" : ", queue NOT scheduled") << "; dropping 0x" << std::hex << opcode << std::dec;
             gMessageLib->SendSystemMessage(::common::OutOfBand("client", "too_many_commands_queued_generic"),player);
             return(false);
         }

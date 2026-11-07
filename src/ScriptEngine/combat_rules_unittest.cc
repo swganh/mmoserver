@@ -14,6 +14,7 @@ in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 // data/script/combat/rules.lua: the maths, through its functions, and the
 // C++ side that passes an attack in and reads the outcome.
 
+#include <cstdio>
 #include <string>
 #include <vector>
 
@@ -253,9 +254,8 @@ TEST_F(CombatRulesTest, InRangeFromCpp) {
 TEST_F(CombatRulesTest, ClientRangesFromCpp) {
     std::string layout;
     std::vector<double> values;
-    // The weapon's own values, not the probe in use while the message is
-    // worked out.
-    ASSERT_EQ(0, luaL_dostring(rules_.state(), "rules.CLIENT_RANGES_PROBE = nil"));
+    // The weapon's own values, not a probe file.
+    ASSERT_EQ(0, luaL_dostring(rules_.state(), "rules.CLIENT_RANGES_PROBE_FILE = nil"));
     ASSERT_TRUE(rules_.clientRanges(noobCdef(), layout, values));
     ASSERT_EQ(5u, layout.size());
     ASSERT_EQ(5u, values.size());
@@ -284,6 +284,24 @@ TEST_F(CombatRulesTest, ClientRangesFromCpp) {
     EXPECT_FALSE(rules_.clientRanges(noobCdef(), layout, values));
     ASSERT_EQ(0, luaL_dostring(l, "rules.clientRanges = function() return 'iq', 1, 2 end"));
     EXPECT_FALSE(rules_.clientRanges(noobCdef(), layout, values));
+    // A probe file replaces the weapon's values.
+    {
+        const char* probe = "combat_rules_probe_test.txt";
+        FILE* f = fopen(probe, "w");
+        ASSERT_TRUE(f != 0);
+        fputs("fif 1 2 3.5\nignored\n", f);
+        fclose(f);
+        ASSERT_EQ(0, luaL_dofile(l, kRules));
+        lua_setglobal(l, "rules2");
+        ASSERT_EQ(0, luaL_dostring(l, "rules2.CLIENT_RANGES_PROBE_FILE = 'combat_rules_probe_test.txt'"));
+        ASSERT_EQ(0, luaL_dostring(l, "a, b, c, d = rules2.clientRanges({ group = 'pistol' })"));
+        lua_getglobal(l, "a");
+        EXPECT_STREQ("fif", lua_tostring(l, -1));
+        lua_getglobal(l, "d");
+        EXPECT_DOUBLE_EQ(3.5, lua_tonumber(l, -1));
+        lua_pop(l, 2);
+        std::remove(probe);
+    }
     // A script that returns nothing turns the message off.
     ASSERT_EQ(0, luaL_dostring(l, "rules.clientRanges = function() end"));
     EXPECT_FALSE(rules_.clientRanges(noobCdef(), layout, values));

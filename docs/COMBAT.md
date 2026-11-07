@@ -145,7 +145,10 @@ sends it to the player on every target change: the weapon's id, then
 ideal modifier, max range, max modifier. To be checked in game against the
 noob CDEF (-10 at 0 m, +30 at 15 m, -90 at 64 m); if the window shows
 something else, change the order in the script and restart the zone. If
-`rules.clientRanges` returns nothing, no message is sent. The script also
+`rules.clientRanges` returns nothing, no message is sent. A probe file,
+`script/combat/client_ranges_probe.txt` next to the zone, replaces the
+values for every weapon while it exists (first line, e.g.
+`fffff -10 15 30 64 -90`), read on every target change. The script also
 picks each field's type (`"i"` int32, `"f"` float); each send is logged
 (`WeaponRanges sent to ...` in the zone log).
 
@@ -155,7 +158,10 @@ Tries, marksman with the noob CDEF against a womp rat:
 |---|---|
 | `iiiii` | no change: -5 on top of the target armed, -15 unarmed |
 | `fffff` -10, 15, 30, 64, -90 | the client takes it: +50 flat from about 5 m to 0 m, "--" (out of range) from about 5 m to 66 m |
-| `fffff` -21, 12, 33, 24, -45 (probe, every weapon) | |
+| `fffff` -21, 12, 33, 24, -45 (probe, every weapon) | "--" everywhere |
+
+From here one field at a time, from try 2, with the probe file
+(`script/combat/client_ranges_probe.txt`, read on every target change).
 
 ## What is not
 

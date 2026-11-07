@@ -305,15 +305,38 @@ end
 -- integer, "f" a 4-byte float (at most 8 fields). Tries so far
 -- (docs/COMBAT.md): "iiiii" no change; "fffff" read by the client.
 --
--- Try 3, a probe: the same values for every weapon, all different and
--- within +-50 (the display may stop at +50), to see which field the
--- client takes for what. Back to the weapon's own values once known.
-rules.CLIENT_RANGES_PROBE = { -21, 12, 33, 24, -45 }
+-- While the fields are worked out: if script/combat/client_ranges_probe.txt
+-- exists (next to the zone), its first line is sent instead, for every
+-- weapon, e.g. "fffff -10 15 30 64 -90". It is read on every target
+-- change, so edit it and re-target; delete it to send the weapon's own
+-- values.
+rules.CLIENT_RANGES_PROBE_FILE = "script/combat/client_ranges_probe.txt"
+
+local function readProbe()
+  local file = rules.CLIENT_RANGES_PROBE_FILE and io.open(rules.CLIENT_RANGES_PROBE_FILE, "r")
+  if not file then
+    return nil
+  end
+  local line = file:read("*l") or ""
+  file:close()
+  local fields = {}
+  for word in string.gmatch(line, "%S+") do
+    fields[#fields + 1] = word
+  end
+  if #fields < 2 then
+    return nil
+  end
+  local result = { fields[1] }
+  for i = 2, #fields do
+    result[i] = tonumber(fields[i])
+  end
+  return result
+end
 
 function rules.clientRanges(weapon)
-  local probe = rules.CLIENT_RANGES_PROBE
+  local probe = readProbe()
   if probe then
-    return "fffff", probe[1], probe[2], probe[3], probe[4], probe[5]
+    return unpack(probe)
   end
   local midRange, maxRange = rules.ranges(weapon)
   return "fffff", weapon.zero_mod or 0, midRange, weapon.mid_mod or 0, maxRange, weapon.max_mod or 0

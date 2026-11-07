@@ -1,7 +1,8 @@
 # Known issues
 
-Problems found while running the servers on Linux with a real client
-(pre-CU SWGANH client, Ubuntu 26.04 server VM, MariaDB 11.8). Kept here
+Problems found while running the servers with a real client (pre-CU SWGANH
+client; servers on an Ubuntu 26.04 VM with MariaDB 11.8, and on Windows 11
+built with Visual Studio 2022). Kept here
 because Issues are disabled on this fork; move them to GitHub Issues when
 they are enabled.
 
@@ -196,7 +197,7 @@ never retired when it runs out.
 
 The script plays each voice-over and waits for it, and some prompts wait
 for the player to reach a spot, but the debris is made attackable at the
-start of its step (the later call in `TutorialPart_1_9.lua` is commented
+start of its step (the later call in `tutorial/part1.lua` is commented
 out). A quick player is ahead of the prompts. Pacing, not an engine delay.
 
 ### 5f. Combat creatures never appeared (tutorial bandit) — fix needs testing
@@ -221,8 +222,20 @@ leaving the tutorial. When a creature dies, `die()` makes peace with its
 defenders (clears the defender lists, sets the Peace state) but, unlike the
 `/peace` command (`ObjectController::_handlePeace`), does not switch off the
 attacker's auto-attack, clear the combat target or resend the player's
-state. `/peace` or the Peace button gets the player out of combat. For the
-combat and creature AI review.
+state. `/peace` or the Peace button gets the player out of combat.
+
+Seen again in the tutorial after the debris and the bandit (combat music
+until it timed out). Fixed: when a creature dies, each player who fought
+it and has nobody else to fight leaves combat as with `/peace` (combat
+target cleared, auto-attack off, Peace state, state resent).
+
+Not enough: on the VM the combat music still started as the bandit died
+(to his own grenade) and the player had to press Peace. The music starting
+*at* the death suggests something puts the player back into combat after
+`die()` (auto-attack firing again, the bandit's AI, or the grenade path,
+where `npcStopFight` does nothing), or the player was not in the bandit's
+defender list. For the combat review: log the player's states and defender
+list around a creature's death.
 
 ### 5j. Lairs never spawn — open
 
@@ -264,10 +277,10 @@ was not affected.
 Seen repeatedly while fighting the tutorial bandit. The player's command
 queue overflows during auto-attack; check its limit and what fills it.
 
-### 5g. No explosion when the tutorial debris is destroyed — open
+### 5g. No explosion when the tutorial debris is destroyed — fix needs testing
 
-Cosmetic. `AttackableStaticNpc::playDeathAnimation` exists; check what it
-sends.
+The script now plays `clienteffect/combat_explosion_lair_large.cef` on the
+debris when it is destroyed (`docs/TUTORIAL.md`).
 
 ## Login
 
@@ -358,6 +371,143 @@ Every server prints this with a meaningless number (e.g. `7.27059e+31`);
 the value being printed is not initialised or not a heap figure.
 
 ---
+
+## Windows
+
+### 11. Zones crashed on Windows as soon as an NPC moved at negative coordinates — fixed
+
+`zmap::_getCellId` converted a negative float position straight to an
+unsigned integer, which C++ leaves undefined. GCC happened to wrap it, and
+adding half the map size wrapped it back to the right grid cell, so Linux
+worked; MSVC did not, the index left the lookup table and the Tatooine zone
+died with an access violation right after startup. It now converts through a
+signed integer and clamps to the grid (the same cells as before for every
+position on the map). `zmap::addRegion` stored region positions in unsigned
+integers too, which put regions starting at negative coordinates in the
+wrong cells on Linux as well.
+
+### 12. Bugs found by MSVC warnings — open
+
+The first Windows build warns about code that is wrong on every platform
+(GCC does not warn at the project's warning level):
+
+- `CloningTerminal.cpp:183` passes the `Database` object where the SQL
+  expects the schema name (`%s`), so choosing a cloning facility runs broken
+  SQL.
+- `TradeManagerChat.cpp:1383` passes the galaxy name twice, so the auction id
+  in the query is the wrong argument (bazaar auction lookup).
+- `StateManager.cpp:47-49`, `GroupObject.cpp:263` call `empty()` (a test)
+  where `clear()` was meant.
+- `AttackableCreature.cpp:999`, `MissionManager.cpp:1189-1446` use
+  uninitialised variables (`destination`, `mission_start`, `mission_dest`).
+- `OCAdminHandlers.cpp:85`, `OCCharacterSheethandlers.cpp:293`,
+  `OCStructureHandlers.cpp:300`: scanf formats that do not match their
+  arguments (narrow strings read with wide formats).
+- `HashString.cc:45`, `anh/hash_string.cc:26` store a 32-bit hash in a
+  pointer.
+
+To fix with the warning cleanup in phase 3, or sooner for cloning and the
+bazaar when those are tested.
+
+### 13. `build_server.ps1 -Solution` with a side-by-side older MSVC — open
+
+A generated Visual Studio solution builds with Visual Studio's default MSVC,
+which can be an older one installed side by side, while vcpkg's libraries
+use the newest; linking then fails. The Ninja build is not affected.
+Workaround in `docs/WINDOWS.md`.
+
+## Zones and scripts
+
+### 14. Tatooine crashed once while a character loaded in — fix needs testing
+
+Seen once on the Linux VM; the log ended without a reason and it did not
+happen again under `./server.sh debug -g`. One candidate, found while adding
+script events: when an object left the world, `zmap::RemoveObject` erased a
+region that no longer existed from the object's region list and then called
+`onObjectLeave` on it anyway, through a null pointer. It now skips that
+region. If a zone crashes again, run it under `debug -g` and keep the log.
+
+### 15. Scripts' `print` output never reached the logs — fixed
+
+Lua's `print` wrote to stdout, which the servers buffer into the log file;
+the buffer was never written before the server stopped, so script messages
+(`WeatherController v.0.2` and the like) were lost. `print` now goes through
+the server's logger and appears in the zone log as `[script] ...`.
+
+### 16. Server-side regions never matched (cities, badges) — fixed
+
+Found when `region_entered` did not fire in Bestine. The region map
+(`zmap`) treated every region as a rectangle with its corner at
+`planet_regions.x/z`, with width and height swapped, so nobody was ever
+inside a city and badge squares were shifted by half their size. It also
+stepped grid rows by 410 cells where a row has 411, and `RemoveRegion`
+(camps) never removed anything.
+
+Fixed: regions follow the convention the no-build check already used:
+x/z is the centre, `width` 0 makes a circle with `height` as its diameter,
+otherwise a width x height rectangle around the centre
+(`IsPointInRegion`, `GetRegionBounds` in `Utils/MathFunctions`, unit
+tested).
+
+City areas: the cities' rows were the larger no-build areas (Bestine 750 m
+radius), not the areas the client names. Migration 003 gives Tatooine's
+cities the client's own circles from `datatables/clientregion/tatooine.iff`
+(Bestine 375 m), generated with `tools/client/city_regions_sql.py`; the
+no-build rows are unchanged. Confirmed on the VM: Bestine's entry and exit
+match the client's messages, and the Lars homestead badge is awarded.
+Still to do: the other planets (their client files are needed), and the second circle the client draws for Mos Eisley
+and Mos Entha (the server has one area per city).
+
+### 17. Corpse loot can't be moved from the opened container — open
+
+Seen on the tutorial bandit. Loot all works; opening the corpse's
+container shows the items, but they can't be moved to the inventory. The
+single-item path changed with #10 (dragging an item frees the temporary
+copy); check that path first, with `tutorial.out` from a drag attempt.
+
+The events confirm it is the server: picking up items from the opened
+bandit corpse (`object_used menu_id=10`, three tries on two items) raised no
+`item_transferred`, so the transfer never completed.
+
+### 18. Tutorial combat is slow (debris, bandit) — open
+
+Destroying the debris and killing the bandit take much longer than in the
+original. Probably their HAM against a new character's damage with the
+limited combat we have; check the debris and bandit stats in the data
+against the client and recordings before changing them.
+
+### 19. The bandit survives his own grenade — fixed
+
+The pirate's lines (`newbie_convo` `pirate_taunt3`, "A GRENADE!", then
+`pirate_taunt4`, "This grenade is defective! Oh no!") set up his death by
+his own grenade; here he keeps fighting. The script throws it when either
+side runs low (200 HAM) or after five minutes of fighting: the lines, the
+explosion, then `die()`, which is also how he dies in normal combat. Next
+test: does the grenade go off, and does he fall? Confirmed on the VM: the
+lines, the explosion, and his corpse.
+
+### 20. A line of stormtroopers in the tutorial's first room — to check
+
+The database places 36 stormtroopers in the first cell of the tutorial
+station (`persistent_npcs`, parentId 2203318222960). The original
+project's data put them there, not the script. Check against recordings
+of the live tutorial and remove or thin them with a migration.
+
+### 21. Racing ahead in the tutorial got it stuck — fixed in parts 1-2, parts 3-9 need testing
+
+The script armed each check (container open, chat, food, client reports)
+only when it reached that step, so anything the player did earlier was
+missed and the script waited for it forever: the drum in room 2, after
+which the officer handing over the weapon would not talk. Parts 1 and 2 now
+run on events and check what the player has already done
+(`docs/TUTORIAL.md`); confirmed on the VM, racing through rooms 1-2 to the
+end of the tutorial. Parts 3-9 now run on events too, setting the
+sub-states C++ checks (the weapon, the release documents, the
+Quartermaster) as soon as the player arrives. A first run on the VM went
+through, but the mission officer refused the first time: the gate waited
+for the trainer room's narration. Gates are now set on every tick from the
+room the player is in, whatever the script is doing, and a step the player
+has gone past stops waiting (`docs/TUTORIAL.md`).
 
 ## Fixed while getting the servers running
 

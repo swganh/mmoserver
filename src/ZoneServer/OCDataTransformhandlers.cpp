@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/ActiveConversation.h"
 #include "ZoneServer/BuildingObject.h"
 #include "ZoneServer/CellObject.h"
+#include "ScriptEngine/ScriptEngine.h"
 #include "ZoneServer/ContainerManager.h"
 #include "ZoneServer/ConversationManager.h"
 #include "ZoneServer/Heightmap.h"
@@ -121,6 +122,8 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
         CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
         if(cell)
         {
+            gScriptEngine->raiseEvent(ScriptEvent("building_left", cell->getParentId(), player->getId())
+                .set("previous_cell", static_cast<double>(player->getParentId())));
             cell->removeObject(player);
         }
         else
@@ -300,6 +303,9 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
         gMessageLib->broadcastContainmentMessage(player->getId(),parentId,4,player);
         if((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId))))	{
             cell->addObjectSecure(player);
+            gScriptEngine->raiseEvent(ScriptEvent("cell_entered", parentId, player->getId())
+                .set("building", static_cast<double>(cell->getParentId()))
+                .set("previous_cell", static_cast<double>(oldParentId)));
             // Inform tutorial about cell change.
             if (gWorldConfig->isTutorial())
             {

@@ -72,15 +72,21 @@ void TravelTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 				// This is the Travel Terminal in the tutorial.
 				Tutorial* tutorial = playerObject->getTutorial();
 
-				// We will not display this when tutorial is in state 26 or above.
+				// 26: the release documents are delivered; 27: the oath is
+				// sworn too (tutorial/part1.lua).
 				if (tutorial->getSubState() < 26)
 				{
 					// The quatermaster speaks...
 					#if defined(_MSC_VER)
-					tutorial->spatialChat(47513085685, "Wait a minute there!  You can't use that travel terminal without the proper authorization.  Do you have your release documents on you?");
+					tutorial->spatialChat(47513085685, "@newbie_tutorial/newbie_convo:quarter_wait");
 					#else
-					tutorial->spatialChat(47513085685LLU, "Wait a minute there!  You can't use that travel terminal without the proper authorization.  Do you have your release documents on you?");
+					tutorial->spatialChat(47513085685LLU, "@newbie_tutorial/newbie_convo:quarter_wait");
 					#endif
+				}
+				else if (tutorial->getSubState() < 27)
+				{
+					// "You cannot become a citizen of Star Wars Galaxies until you promise..."
+					tutorial->scriptSystemMessage("@newbie_tutorial/system_messages:swear_reminder");
 				}
 				else
 				{

@@ -292,7 +292,7 @@ void ObjectController::_handleDeathBlow(uint64 targetId,Message* message,ObjectC
                     {
                         // here we go... KILL HIM!
 						gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "death_blow"), player);
-                        target->die();
+                        target->die(player->getId());
                     }
                 }
             }

@@ -40,12 +40,12 @@ tail -f build/linux-debug/bin/logs/tatooine.out
 ./server.sh stop
 git pull
 ./build_server.sh
-sudo ./mmoserverdb/setup.sh update-procedures
+sudo ./mmoserverdb/setup.sh update
 ./server.sh start
 ```
 
-`update-procedures` loads changed stored procedures into the database; the
-game data, accounts and characters are not touched.
+`update` loads changed stored procedures and applies new data changes
+(migrations) to the database; accounts and characters are kept.
 
 ## Debugging
 

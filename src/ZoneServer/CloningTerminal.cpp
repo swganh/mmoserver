@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageLib/MessageLib.h"
 
 #include "DatabaseManager/Database.h"
+#include "ScriptEngine/ScriptEngine.h"
 
 
 // TODO: Make this a Var when we start use the 20% discount from player city with "Clone Lab" specializations.
@@ -95,6 +96,8 @@ void CloningTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 
                         // Clone location successfully updated
                         gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "clone_success"), playerObject);
+
+                        gScriptEngine->raiseEvent(ScriptEvent("clone_saved", getId(), playerObject->getId()));
 
                         // Inform Tutorial about the cloning.
                         playerObject->getTutorial()->tutorialResponse("cloneDataSaved");

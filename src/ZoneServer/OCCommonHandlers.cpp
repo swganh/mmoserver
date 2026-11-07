@@ -78,6 +78,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cassert>
 #include <cerrno>
 #include <cstdlib>
+#include "ScriptEngine/ScriptEngine.h"
 
 using ::common::IEventPtr;
 using ::common::OutOfBand;
@@ -164,6 +165,8 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 
 		bool aContainer = false;
 
+		gScriptEngine->raiseEvent(ScriptEvent("container_opened", targetId, playerObject->getId()));
+
 		if (gWorldConfig->isTutorial())
 		{
 			playerObject->getTutorial()->containerOpen(targetId);
@@ -213,6 +216,8 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 void ObjectController::_handleCloseContainer(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
     PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
+
+    gScriptEngine->raiseEvent(ScriptEvent("container_closed", targetId, playerObject->getId()));
 
     if (gWorldConfig->isTutorial())
     {
@@ -425,7 +430,7 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 			if(building->checkCapacity(objectSize))
 			{
 				//*****************************
-				//if it is the House wé dont need to check a containers capacity further down
+				//if it is the House wÃ© dont need to check a containers capacity further down
 				if(!tangibleContainer)   //mainly as the container might not exist if its placed in the house directly
 					return true;
 
@@ -531,6 +536,8 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 	Container* container = dynamic_cast<Container*>(gWorldManager->getObjectById(tangible->getParentId()));
 	if (container)
 	{
+		gScriptEngine->raiseEvent(ScriptEvent("item_transferred", targetId, playerObject->getId())
+			.set("from_container", static_cast<double>(container->getId())));
 		container->removeObject(itemObject);
 		//gContainerManager->destroyObjectToRegisteredPlayers(container, tangible->getId());
 		if (gWorldConfig->isTutorial())
@@ -576,6 +583,10 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 			gWorldManager->addCreatureObjectForTimedDeletion(creatureInventory->getParentId(), LootedCorpseTimeout);
 		}
 		
+		gScriptEngine->raiseEvent(ScriptEvent("item_transferred", targetId, playerObject->getId())
+			.set("from_container", static_cast<double>(creatureInventory->getId()))
+			.set("corpse", static_cast<double>(creatureInventory->getParentId())));
+
 		if (gWorldConfig->isTutorial())
 		{
 			// TODO: Update tutorial about the loot.
@@ -656,7 +667,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 
 
-	if(swscanf(dataStr.getUnicode16().c_str(),L"%"WidePRIu64 L" %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
+	if(swscanf(dataStr.getUnicode16().c_str(),L"%" WidePRIu64 L" %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
 	{
 		DLOG(INFO) << "ObjController::_handleTransferItemMisc: Error in parameters";
 		return;
@@ -1071,6 +1082,8 @@ void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* messag
                     {
                         if (item->getItemFamily() == ItemFamily_Foods)
                         {
+                            gScriptEngine->raiseEvent(ScriptEvent("inventory_item_examined", item->getId(), playerObject->getId())
+                                .set("food", 1.0));
                             playerObject->getTutorial()->tutorialResponse("foodSelected");
                         }
                     }

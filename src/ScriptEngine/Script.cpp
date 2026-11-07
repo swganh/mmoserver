@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Script.h"
 #include "ScriptEngine.h"
+#include "ScriptEvent.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -54,7 +55,9 @@ Script::Script(ScriptEngine* scriptEngine) :
     mState(SS_Not_Loaded),
     mWaitTimeStamp(0),
     mTime(0),
-    mWaitFrame(0)
+    mWaitFrame(0),
+    mWaitEventSubject(0),
+    mWaitEventHasTimeout(false)
 {
     mThreadState = lua_newthread(mEngine->getMasterState());
 
@@ -62,6 +65,7 @@ Script::Script(ScriptEngine* scriptEngine) :
     lua_pushlightuserdata(mEngine->getMasterState(),this);
     lua_settable(mEngine->getMasterState(),LUA_GLOBALSINDEX);
 
+    mFile[0] = 0;
     strcpy(mLastError,"None");
 }
 
@@ -154,6 +158,13 @@ void Script::process(uint32 elTime)
     }
     break;
 
+    case SS_Wait_Event:
+    {
+        if(mWaitEventHasTimeout && mTime >= mWaitTimeStamp)
+            resumeWithEvent(NULL);
+    }
+    break;
+
     case SS_Not_Loaded:
     default:
         break;
@@ -165,6 +176,53 @@ void Script::process(uint32 elTime)
 void Script::abortWait()
 {
     _resumeScript(1);
+}
+
+//======================================================================================================================
+
+void Script::waitForEvent(const std::string& eventName, uint64 subject, uint32 timeoutMs)
+{
+    mWaitEventName       = eventName;
+    mWaitEventSubject    = subject;
+    mWaitEventHasTimeout = timeoutMs > 0;
+    mWaitTimeStamp       = mTime + timeoutMs;
+    mState               = SS_Wait_Event;
+}
+
+//======================================================================================================================
+
+bool Script::isWaitingFor(const ScriptEvent& event) const
+{
+    return mState == SS_Wait_Event && mWaitEventName == event.name
+           && (mWaitEventSubject == 0 || mWaitEventSubject == event.subject);
+}
+
+//======================================================================================================================
+
+void Script::resumeWithEvent(const ScriptEvent* event)
+{
+    mState = SS_Running;
+
+    if(event)
+    {
+        ScriptEngine::pushEvent(mThreadState, *event);
+    }
+    else
+    {
+        lua_pushnil(mThreadState);
+    }
+
+    int ret = lua_resume(mThreadState,1);
+
+    if(ret == 0)
+    {
+        mState = SS_Not_Loaded;
+    }
+    else if(ret != LUA_YIELD)
+    {
+        mState = SS_Not_Loaded;
+        _formatError();
+    }
 }
 
 //======================================================================================================================
@@ -204,8 +262,9 @@ void Script::_formatError()
 
     lua_pop(mThreadState,1);
 
-    strcpy(mLastError,msg);
-	LOG(ERR) << "ScriptingEngine::callFunction wrong result type: " << mLastError;
+    strncpy(mLastError,msg,sizeof(mLastError) - 1);
+    mLastError[sizeof(mLastError) - 1] = 0;
+	LOG(ERR) << "Script " << mFile << ": " << mLastError;
 }
 
 //======================================================================================================================

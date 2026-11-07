@@ -5,6 +5,21 @@
 
 #include "Object.h"
 #include "RegionObject.h"
+
+#include "ScriptEngine/ScriptEngine.h"
+#include "Utils/MathFunctions.h"
+
+namespace {
+// Region events are raised for players only: creatures cross regions all the time.
+void raiseRegionEvent(const char* name, RegionObject* region, Object* object) {
+    if (object->getType() != ObjType_Player) {
+        return;
+    }
+    gScriptEngine->raiseEvent(ScriptEvent(name, region->getId(), object->getId())
+        .set("region_name", region->getRegionName())
+        .set("region_type", static_cast<double>(region->getRegionType())));
+}
+}
 //#include "PlayerObject.h"
 
 using std::find_if;
@@ -83,6 +98,7 @@ void zmap::updateRegions(Object* object) {
 
         if (! isObjectInRegionBoundary_(object, region)) {
             region->onObjectLeave(object);
+            raiseRegionEvent("region_left", region.get(), object);
             region_set.erase(region_set_it++);
             continue;
         }
@@ -106,50 +122,44 @@ void zmap::updateRegions(Object* object) {
         if (region_set.find(region->getId()) == region_set.end() && isObjectInRegionBoundary_(object, region)) {
             object->zmapSubCells.insert(region->getId());
             region->onObjectEnter(object);
+            raiseRegionEvent("region_entered", region.get(), object);
         }
     });
 }
 
 bool zmap::isObjectInRegionBoundary_(Object* object, shared_ptr<RegionObject> region) {
-	float x = object->mPosition.x;
-	float z = object->mPosition.z;
-
-	if(((x >= region->mPosition.x) && (x <= (region->mPosition.x + region->getHeight()))) &&
-		((z >= region->mPosition.z) && (z <= (region->mPosition.z + region->getWidth())))) 
-    {
-        return true;
-    }
-    
-    return false;
+    return IsPointInRegion(glm::vec2(object->mPosition.x, object->mPosition.z),
+                           glm::vec2(region->mPosition.x, region->mPosition.z),
+                           region->getWidth(), region->getHeight());
 }
 
 
 void zmap::addRegion(std::shared_ptr<RegionObject> region) {
-    uint32_t low_x = region->mPosition.x;
-    uint32_t low_z = region->mPosition.z;
-    uint32_t width = region->getWidth();
-    uint32_t height = region->getHeight();
-
-    uint32_t lowerLeft	= _getCellId(low_x,			low_z);
-    uint32_t lowerRight	= _getCellId(low_x+width,	low_z);
-    uint32_t upperLeft	= _getCellId(low_x,			low_z+height);
-    uint32_t upperRight	= _getCellId(low_x+width,	low_z+height);
-
-    int cellCountZ = (upperLeft - lowerLeft)/GRIDWIDTH;
-    int cellCountX = (lowerRight - lowerLeft);
-	assert(cellCountX >= 0);
-	assert(cellCountZ >= 0);
-
-    for (int i=0; i <= cellCountZ; ++i) {
-        for (int j=0; j <= cellCountX; ++j) {
-            auto it = ZMapCells.find((lowerLeft + j + i * GRIDWIDTH));
-            (*it).second->SubCells.push_back(region);
-        }
+    for (uint32 cell : _regionCells(region.get())) {
+        ZMapCells[cell]->SubCells.push_back(region);
     }
 
 	subCells.insert(std::make_pair(region->getId(), region));
+}
 
-    return;
+// The grid cells a region's bounds overlap (regions off the map use the
+// edge cells, as positions do in _getCellId).
+std::vector<uint32> zmap::_regionCells(RegionObject* region) {
+    glm::vec2 lower_left, upper_right;
+    GetRegionBounds(glm::vec2(region->mPosition.x, region->mPosition.z),
+                    region->getWidth(), region->getHeight(), lower_left, upper_right);
+
+    int32 low_row, low_column, high_row, high_column;
+    _getRowColumn(lower_left.x, lower_left.y, low_row, low_column);
+    _getRowColumn(upper_right.x, upper_right.y, high_row, high_column);
+
+    std::vector<uint32> cells;
+    for (int32 row = low_row; row <= high_row; ++row) {
+        for (int32 column = low_column; column <= high_column; ++column) {
+            cells.push_back(zmap_lookup[row][column]);
+        }
+    }
+    return cells;
 }
 
 std::shared_ptr<RegionObject> zmap::findRegion(uint64_t region_id) {
@@ -171,47 +181,42 @@ bool zmap::isObjectInRegion(Object* object, uint64 region_id) {
 }
 
 void zmap::RemoveRegion(uint64 regionId) {
-    SubCellMap::iterator it	 = subCells.begin();
-    SubCellMap::iterator end = subCells.end();
-
-    while(it != end)    {
-		if((*it).second->getId() == regionId)        {
-            //get cells
-			uint32 lowerLeft  = _getCellId((*it).second->mPosition.x, (*it).second->mPosition.z);
-			uint32 lowerRight = _getCellId((*it).second->mPosition.x + (*it).second->getWidth(),	(*it).second->mPosition.z);
-			uint32 upperLeft  = _getCellId((*it).second->mPosition.x, (*it).second->mPosition.z + (*it).second->getHeight());
-			uint32 upperRight = _getCellId((*it).second->mPosition.x + (*it).second->getWidth(),	(*it).second->mPosition.z + (*it).second->getHeight());
-
-            unsigned int cellCountZ = (lowerLeft - upperLeft)/GRIDWIDTH;
-            unsigned int cellCountX = (lowerLeft - lowerRight);
-
-            for(unsigned int i=0; i < cellCountZ; i++)	{
-                for(unsigned int j=0; j < cellCountX; j++)	{
-                    std::map<uint32, ObjectStruct*>::iterator it = ZMapCells.find((lowerLeft + j + i * GRIDWIDTH));
-
-                    SharedObjectListType			cellList	= (*it).second->SubCells;
-                    SharedObjectListType::iterator	CellListit	= cellList.begin();
-
-                    while(CellListit != cellList.begin())	{
-						if((*CellListit)->getId() == regionId)	{
-                            cellList.erase(CellListit);
-                            break;
-                        }
-                        CellListit++;
-                    }
-                }
-            }
-
-            it = subCells.erase(it);
-			continue;
-        }
-        ++it;
+    // By the full id: the map's key is a truncated one.
+    auto it = find_if(subCells.begin(), subCells.end(), [regionId] (const SubCellMap::value_type& map_entry) {
+        return map_entry.second->getId() == regionId;
+    });
+    if (it == subCells.end()) {
+        return;
     }
+
+    for (uint32 cell : _regionCells(it->second.get())) {
+        SharedObjectListType& list = ZMapCells[cell]->SubCells;
+        list.remove_if([regionId] (const std::shared_ptr<Object>& object) {
+            return object->getId() == regionId;
+        });
+    }
+
+    subCells.erase(it);
+}
+
+void zmap::_getRowColumn(float x, float z, int32& row, int32& column)
+{
+    row = (static_cast<int32>(z) + (MAPWIDTH/2)) / GRIDWIDTH;
+    column = (static_cast<int32>(x) + (MAPHEIGHT/2)) / GRIDHEIGHT;
+    row = std::max(0, std::min(row, GRIDWIDTH));
+    column = std::max(0, std::min(column, GRIDHEIGHT));
 }
 
 uint32 zmap::_getCellId(float x, float z)
 {
-    return zmap_lookup[( ( ((uint32)z) + (MAPWIDTH/2) )/GRIDWIDTH)][((((uint32)x) + (MAPHEIGHT/2))/GRIDHEIGHT)];
+    // Convert through a signed integer: a negative float converted straight
+    // to an unsigned one is undefined. GCC happened to wrap it (and adding
+    // half the map size wrapped it back); MSVC does not, and the index left
+    // the table (an access violation as soon as an NPC moved at negative
+    // coordinates). Positions off the map use the edge cells.
+    int32 row, column;
+    _getRowColumn(x, z, row, column);
+    return zmap_lookup[row][column];
 }
 
 
@@ -277,10 +282,12 @@ void zmap::RemoveObject(Object *removeObject)
         auto region = findRegion(*set_it);
 
         if (!region) {
-		    region_set->erase(set_it++);		
+		    region_set->erase(set_it++);
+		    continue;
         }
 
 		region->onObjectLeave(removeObject);
+		raiseRegionEvent("region_left", region.get(), removeObject);
 		region_set->erase(set_it++);	
     }
 

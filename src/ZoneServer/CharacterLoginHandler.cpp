@@ -61,6 +61,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/WorldConfig.h"
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
+#include "ScriptEngine/ScriptEngine.h"
 
 using namespace std;
 //======================================================================================================================
@@ -289,6 +290,13 @@ void	CharacterLoginHandler::_processNewbieTutorialResponse(Message* message, Dis
     {
         BString tutorialEventString;
         message->getStringAnsi(tutorialEventString);
+
+        // What the client reports doing (zoomCamera, openInventory, ...),
+        // when asked to (NewbieTutorialRequest) and "clientReady" at login.
+        DLOG(INFO) << "Client report from " << player->getId() << ": " << tutorialEventString.getAnsi();
+        gScriptEngine->raiseEvent(ScriptEvent("client_report", player->getId())
+            .set("action", std::string(tutorialEventString.getAnsi())));
+
         if (gWorldConfig->isTutorial())
         {
             // Notify tutorial

@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 
 #include "MessageLib/MessageLib.h"
+#include "ScriptEngine/ScriptEngine.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -260,6 +261,9 @@ void ConversationManager::startConversation(NPCObject* npc,PlayerObject* player)
 
 	mActiveConversations.insert(std::make_pair(player->getId(),av));
 
+	gScriptEngine->raiseEvent(ScriptEvent("conversation_started", npc->getId(), player->getId())
+		.set("conversation", static_cast<double>(npc->getInternalAttribute<uint32>("base_conversation"))));
+
 	// In case of npc trainers, they may not always open a dialog, they just chat in spatial. (like traniers that you can not train from yet)
 	// We need a way to abort the dialog.
 	// Pre process npc conversation.
@@ -309,6 +313,8 @@ void ConversationManager::stopConversation(PlayerObject* player,bool sendStop)
             gMessageLib->sendStopNPCConversation((*it).second->getNpc(),player);
         }
 
+        gScriptEngine->raiseEvent(ScriptEvent("conversation_ended", (*it).second->getNpc()->getId(), player->getId()));
+
         // Notify NPC before destruction.
         (*it).second->getNpc()->stopConversation(player);
 
@@ -329,6 +335,14 @@ void ConversationManager::updateConversation(uint32 selectId,PlayerObject* playe
     	LOG(ERR) << "Could not find conversation intended for player [" << player->getId() << "]";
         return;
     }
+
+    ScriptEvent selected("conversation_option_selected", av->getNpc()->getId(), player->getId());
+    selected.set("option", static_cast<double>(selectId));
+    if(av->getCurrentPage())
+    {
+        selected.set("page", static_cast<double>(av->getCurrentPage()->mId));
+    }
+    gScriptEngine->raiseEvent(selected);
 
     av->updateCurrentPage(selectId);
 

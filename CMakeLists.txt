@@ -23,7 +23,9 @@ if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
 endif()
 
 if(MSVC)
-    add_compile_definitions(_WIN32_WINNT=0x0A00 WINVER=0x0A00
+    # NOMINMAX: windows.h's min/max macros break std::min, std::max and
+    # numeric_limits<>::max() in the dependencies' headers.
+    add_compile_definitions(_WIN32_WINNT=0x0A00 WINVER=0x0A00 NOMINMAX
         _CRT_SECURE_NO_WARNINGS _SCL_SECURE_NO_WARNINGS)
 
     # Legacy warnings, kept disabled until the warning cleanup in phase 3:
@@ -40,7 +42,12 @@ if(MSVC)
     # /wd4005 - macro redefinition
     # /wd4075 - initializers put in unrecognized initialization area
     add_compile_options(/wd4244 /wd4251 /wd4786 /wd4503 /wd4275 /wd4290
-        /wd4661 /wd4996 /wd4127 /wd4100 /wd4005 /wd4075 /bigobj /MP)
+        /wd4661 /wd4996 /wd4127 /wd4100 /wd4005 /wd4075 /bigobj /MP
+        # oneTBB's headers need the conforming lambda processor.
+        /Zc:lambda
+        # Sources are UTF-8, as GCC assumes; MSVC otherwise reads them in the
+        # system code page.
+        /utf-8)
 else()
     add_compile_options(-Wno-invalid-offsetof -Wno-write-strings)
 endif()
@@ -51,6 +58,24 @@ enable_testing()
 include(GoogleTest)
 
 add_subdirectory(src)
+
+# On Windows there is no build_server.sh: stage config/, script/, logs/ and
+# heightmaps/ next to the binaries after every build, so a build from Visual
+# Studio can be run straight away.
+if(WIN32)
+    # The servers' directory: bin/ with Ninja, bin/<config>/ with a Visual
+    # Studio solution.
+    add_custom_target(stage_runtime_data ALL
+        COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${PROJECT_SOURCE_DIR}
+            -DBIN_DIR=$<TARGET_FILE_DIR:ConnectionServer>
+            -P ${PROJECT_SOURCE_DIR}/tools/cmake/StageRuntimeData.cmake
+        COMMENT "Staging config, scripts and heightmaps next to the servers"
+        VERBATIM)
+
+    # In a generated Visual Studio solution, F5 starts a zone in the
+    # directory that holds its config.
+    set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT ZoneServer)
+endif()
 
 # `cmake --install` lays out a runnable server: binaries plus the data they
 # load relative to the working directory.

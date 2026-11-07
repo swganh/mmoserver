@@ -121,7 +121,7 @@ void HouseObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 }
 
 //=============================================================================
-// ´not needed - this is handled over the structures terminal
+// Â´not needed - this is handled over the structures terminal
 void HouseObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
 

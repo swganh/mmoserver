@@ -4,18 +4,17 @@
 print("Tatooine NPC test");
 LuaScriptEngine.WaitMSec(1000);
 
-local MM = require 'script/TatooineNpcTest2'
+local MM = require 'script/dev/tatooine_npc_test2'
 
-local myPos = "SL";
+local myPos = "SR";
 local prevPos = "";
 
 -- npcObjects to use in formation.
 local npcMembers = { };
 
-
-local spawnPosX = -1368.0
+local spawnPosX = -1371.0
 local defaultYPos = 12
-local spawnPosZ = -3725.0
+local spawnPosZ = -3726.0
 
 -- LuaScriptEngine.WaitMSec(10000);
 
@@ -23,9 +22,9 @@ local spawnPosZ = -3725.0
 
 
 local noOfLines = 1;
-local columnWidth = 1;
+local columnWidth = 2;
 
-local noOfNpcsInTheFormation = 1;
+local noOfNpcsInTheFormation = 2;
 
 local none = 0;
 
@@ -39,15 +38,18 @@ table.insert(npcMembers, defaultYPos);
 table.insert(npcMembers, spawnPosZ);
 
 
--- Insert empty leader.
-table.insert(npcMembers, none);
+-- Insert leader.
+-- local npc = MM.createAndSpawnNpc(47513075899, "", "", spawnPosX, defaultYPos, spawnPosZ);
+local npc = MM.createAndSpawnNpc(1, "", "", spawnPosX, defaultYPos, spawnPosZ);
+table.insert(npcMembers, npc);
 
 -- Insert our stormie
 -- local npc = MM.createAndSpawnNpc(47513075899, "", "", spawnPosX, defaultYPos, spawnPosZ);
 local npc = MM.createAndSpawnNpc(1, "", "", spawnPosX, defaultYPos, spawnPosZ);
 table.insert(npcMembers, npc);
+table.insert(npcMembers, none);
 
--- print("Starting to move on-man-gang");
+-- print("Starting to move gang");
 
 while (1) do
 	local temp;

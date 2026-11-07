@@ -42,25 +42,79 @@ it would put the project and everyone who hosts it at legal risk.
   | `LuaWorldManager.pkg` | 6 | world queries |
   | `LuaObject.pkg`, `LuaCommonMessages.pkg` | 4 | misc |
 
-- **Events** are thin: world scripts get `onPlayerEntered` and
-  `onPlayerLeft`; command scripts can hook object controller commands
-  (`ObjectControllerCommandMap`); the tutorial registers its own listener.
-  Everything else is polled (see below).
+- **Events**: scripts can wait for or listen to what players do
+  (`LuaScriptEngine.WaitEvent`, `OnEvent`; see [Events](#events)). The
+  older hooks remain: world scripts get `onPlayerEntered` and
+  `onPlayerLeft` as strings, command scripts can hook object controller
+  commands (`ObjectControllerCommandMap`), and the tutorial registers its
+  own listener. The tutorial still polls (see below) until it moves onto
+  events.
+- **`print`** writes to the zone's log, as `[script] ...`.
 
 ### Scripts (`data/script/`)
 
 | Script | Runs on | Notes |
 |---|---|---|
-| `TutorialPart_1_9.lua` (2019 lines) | tutorial, one per player | started from `Tutorial.cpp:590` |
-| `TutorialPart_2_9.lua` (51 lines) | - | stub |
-| `WeatherController.lua` | every planet | via `config_zone_scripts` |
-| `PlayerLoginReporter.lua` | every planet | via `config_zone_scripts` |
-| `TatooineNpcTest*.lua` (7) | Tatooine | development tests that spawn NPCs; still enabled in `config_zone_scripts` |
-| `CorelliaInstanceTest.lua` | Corellia | development test, enabled |
-| `command/burstrun.lua` | command hook | |
+| `tutorial/part1.lua` (2019 lines) | tutorial, one per player | started from `Tutorial.cpp:590` |
+| `tutorial/part2.lua` (51 lines) | - | stub |
+| `world/common/weather.lua` | every planet | via `config_zone_scripts` |
+| `world/common/login_reporter.lua` | every planet | via `config_zone_scripts` |
+| `dev/tatooine_npc_test1-7.lua` | Tatooine | development tests that spawn NPCs (formations, random lairs); `test2` is a module the others `require`; still enabled in `config_zone_scripts` |
+| `dev/corellia_instance_test.lua` | Corellia | development test, enabled |
+| `dev/event_logger.lua` | Tatooine, tutorial | logs every script event (`grep 'event:'` in the zone log) |
+| `commands/burstrun.lua` | command hook | via `command_table.scripthook` |
 
 Zone scripts are configured in the `config_zone_scripts` table (planet id
-and file).
+and file), command hooks in `command_table.scripthook`, and the tutorial's
+path is in `Tutorial.cpp`.
+
+## Layout
+
+Agreed November 2026; `data/script/README.md` has the folder table and the
+conventions. In short:
+
+```
+data/script/
+  lib/              shared modules (require 'script/lib/...')
+  world/common/     every planet: weather, login messages
+  world/<planet>/   one planet's world scripts
+  tutorial/         the new-player tutorial
+  commands/         command hooks
+  ai/               behaviours: patrol, formation, wander, lair defence
+  spawns/<planet>/  static NPCs, patrols, spawn regions
+  conversations/    dialogue trees for quest givers and named NPCs
+  quests/<planet>/  quest chains
+  themeparks/       Jabba, Imperial, Rebel, Nym
+  missions/         mission terminal templates
+  dev/              tests and experiments, not for live servers
+```
+
+The split: **C++ is the engine** (network, object model, spatial grid,
+database, movement, combat maths, crafting mechanics, persistence), **Lua is
+behaviour** (what NPCs, quests, the tutorial and events do), and **the
+database is data** (loot tables, trainers, item stats, spawn tables): content
+that only needs a table does not need a script.
+
+What moves out of C++, roughly in this order:
+
+| Content | In C++ today | Moves to |
+|---|---|---|
+| Tutorial | `Tutorial.cpp`, 38 `isTutorial()` checks in 20 files, hard-coded NPC and terminal ids | `tutorial/` on event hooks |
+| Quest givers | `QuestGiver.cpp` checks NPC ids per conversation outcome | `conversations/`, `quests/` |
+| NPC spawns and patrols | `NpcManager`, spawn regions, the `dev/` tests | `spawns/`, `ai/` |
+| Creature behaviour, lairs | `AttackableCreature`, `LairObject` (largely stripped) | `ai/`, with C++ keeping the primitives (move, attack, aggro events) |
+| Theme parks | not implemented | `themeparks/`, on the quest API |
+| Mission targets | `MissionManager` | `missions/` templates; the terminal stays C++ |
+| Badges by region | `BadgeRegion` | `world/` or an event hook |
+| Trainers, loot | C++ and tables | stay data in the database |
+
+The `dev/` scripts' useful parts (formation movement, NPC spawning) become
+`ai/` and `lib/` modules; the tests themselves stay in `dev/` and are to be
+disabled on Tatooine once something real replaces what they show.
+
+Moving a script that the database names needs a migration
+(`mmoserverdb/migrations`, applied by `setup.sh install`, `migrate` and
+`update`); CI checks that every script path in the database exists.
 
 ## What is wrong with it
 
@@ -113,23 +167,16 @@ after each.
 - Compare with what [swganh](https://github.com/anhstudios/swganh) put in
   scripts (commands, radials, attributes, buffs, spawns, weather, character
   creation); see "Prior work" in `docs/ROADMAP.md` for how to use it.
-- Decide what to do with the `TatooineNpcTest*` and `CorelliaInstanceTest`
-  scripts (disable in `config_zone_scripts`, or keep as examples).
+- The `dev/` test scripts: their useful parts become `ai/` and `lib/`
+  modules (see Layout); then disable them in `config_zone_scripts` with a
+  migration.
 
-### 2. Event hooks
+### 2. Event hooks — done
 
-Add events that scripts can wait on instead of polling, raised from the C++
-places that already know: creature died, conversation started/ended (with
-the option chosen), player entered cell or region, item looted, object used
-(radial menu), skill trained. In Lua this is a wait that yields until the
-event or a timeout:
-
-```lua
-local event = LuaScriptEngine.WaitEvent("creature_died", npcDebrisId, 60000)
-```
-
-The coroutine model makes this a small change to `Script`: a new wait state
-resumed by the event instead of the clock.
+See [Events](#events). Still to add when content needs them: item looted,
+skill trained, player entered a cell (buildings, for the tutorial rooms),
+and the killer of a creature killed in combat (today only a death blow
+names one).
 
 ### 3. A small, documented script API
 
@@ -142,7 +189,7 @@ calls the script instead of `QuestGiver.cpp` checking NPC ids.
 
 ### 4. Move the tutorial onto it
 
-Rewrite `TutorialPart_1_9.lua` against the new API and events, step by
+Rewrite `tutorial/part1.lua` against the new API and events, step by
 step, and delete the tutorial branches from C++ as each moves. Ids come
 from the database or named lookups. Then the same for quests and spawns.
 
@@ -154,6 +201,109 @@ tolua++ as part of the build and regenerate `LuaInterface.cpp` from the
 (sol2 supports Lua 5.1) when the API in step 3 is written, binding only
 that API.
 
+## Events
+
+The zone raises an event where the C++ already knows something happened.
+Events are queued and delivered at the start of the next script tick, never
+in the middle of the game code that raised them.
+
+An event is a table with `name`, `subject` (what it is about), `source` (who
+caused it, usually the player; 0 when unknown) and the fields below. Ids are
+Lua numbers, exact up to 2^53.
+
+| Event | subject | source | Fields |
+|---|---|---|---|
+| `player_entered_zone` | player | 0 | `player_name`, `planet`, `players` (count in the zone) |
+| `player_left_zone` | player | 0 | `player_name`, `planet`, `players` |
+| `creature_died` | the creature or player that died | the killer, for a death blow; otherwise 0 | `is_player` (1 or 0) |
+| `conversation_started` | NPC | player | `conversation` (its id) |
+| `conversation_option_selected` | NPC | player | `option` (index chosen), `page` (page it was chosen on) |
+| `conversation_ended` | NPC | player | |
+| `region_entered` | region | player | `region_name`, `region_type` |
+| `region_left` | region | player | `region_name`, `region_type` |
+| `object_used` | object | player | `menu_id` (the radial menu item) |
+| `cell_entered` | the cell (room) entered | player | `building`, `previous_cell` (0 when coming in from outside) |
+| `building_left` | the building | player | `previous_cell` |
+| `player_chat` | player | 0 | `text` (non-ASCII characters as `?`) |
+| `container_opened` | container | player | |
+| `container_closed` | container | player | |
+| `item_transferred` | item | player | `from_container`; `corpse` when looted |
+| `inventory_item_examined` | item | player | `food` (1 for food) |
+| `food_eaten` | food item | player | |
+| `clone_saved` | cloning terminal | player | |
+| `items_insured` | insurance terminal | player | |
+| `client_report` | player | 0 | `action`: what the client reports, e.g. `zoomCamera`, `chatActive`, `openInventory`, `closeInventory`, `foodSelected`, `foodUsed`, `cloneDataSaved`, `insureItemsDone`, `closeHolocron`, `changeLookAtTarget`; `clientReady` at login |
+
+Region and cell events are raised for players only. A player placed in a
+cell without walking there (login, a warp) raises no `cell_entered`.
+
+The client sends `client_report` for the actions the tutorial asks it to
+watch; the list above is what the old tutorial code handles. Others may
+exist: run the event logger in the tutorial to see every report.
+
+### Waiting for an event
+
+`LuaScriptEngine.WaitEvent(name [, subject [, timeoutMs]])` pauses the
+script until the event is raised about `subject` (any subject when it is 0
+or left out) and returns it, or returns `nil` after `timeoutMs` (no limit
+when it is 0 or left out). It is a wait like `WaitMSec`, for a script's own
+flow:
+
+```lua
+-- A quest step: kill the creature, within ten minutes.
+local event = LuaScriptEngine.WaitEvent("creature_died", targetId, 600000)
+if event == nil then
+  -- timed out
+elseif event.source == playerId then
+  -- the player killed it
+end
+```
+
+### Listening to an event
+
+`LuaScriptEngine.OnEvent(name, handler [, subject])` calls `handler(event)`
+every time the event is raised, and returns an id;
+`LuaScriptEngine.RemoveEventHandler(id)` stops it. For world scripts that
+react to everyone:
+
+```lua
+LuaScriptEngine.OnEvent("region_entered", function(e)
+  print("player " .. e.source .. " entered " .. e.region_name)
+end)
+```
+
+A handler runs to completion and cannot wait (`WaitMSec`, `WaitEvent`... in
+a handler are an error, logged). To do something that takes time, wait in a
+script instead, e.g. a loop around `WaitEvent`.
+
+### Raising an event from a script
+
+`LuaScriptEngine.RaiseEvent(name, subject [, source [, fields]])` queues an
+event like the zone's own, delivered on the next tick, e.g. a quest step
+telling another script it is done:
+
+```lua
+LuaScriptEngine.RaiseEvent("quest_step_done", playerId, 0, { quest = "tusken_raid", step = 3 })
+```
+
+Fields are numbers or strings. Use names that don't collide with the
+zone's events.
+
+### Adding an event
+
+In the C++ where it happens:
+
+```cpp
+#include "ScriptEngine/ScriptEngine.h"
+
+gScriptEngine->raiseEvent(ScriptEvent("item_looted", itemId, playerId)
+    .set("count", 1.0)
+    .set("template", std::string("object/tangible/...")));
+```
+
+Then add it to the table above. The engine is covered by
+`src/ScriptEngine/script_events_unittest.cc`.
+
 ## Fits with the wider plan
 
 - **Windows build first.** Bindings (step 5) and the script engine have to
@@ -163,8 +313,9 @@ that API.
   script API wraps is where most of the bugs found in testing were (NPC
   visibility, death, posture, spawning), so stabilising those mechanics
   comes before moving content onto them.
-- **Tests.** The script engine and an event-driven API can be unit tested
-  (a script waiting on an event, resumed by it) without a client; the
+- **Tests.** The script engine is unit tested with a real Lua (events in
+  `script_events_unittest.cc`); the game bindings are opened by the
+  ZoneServer, not the engine, so the tests need no zone. The
   ZoneServer has no unit test target yet (its `main` is in
   `ZoneServer.cpp`, which the test layout in `MMOServerExecutable.cmake`
   expects in `main.cpp`).

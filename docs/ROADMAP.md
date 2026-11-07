@@ -62,7 +62,7 @@ and what still needs a client test is in `docs/TEST_PLAN.md`.
 
 | Phase | State |
 |---|---|
-| 1. Reproducible build | Linux done (merged). Windows build next |
+| 1. Reproducible build | Linux done (merged). Windows in progress (`windows-dev-env`) |
 | 2. Runnable server | Installer, launcher and runtime fixes done (PRs #2 and #3 on the fork); client tests in `docs/TEST_PLAN.md`; security and remote database access to do |
 | 3. Refactoring: scripts first, then modernisation | Planned (`docs/SCRIPTING.md`) |
 | 4. Content | Planned |
@@ -80,21 +80,33 @@ and what still needs a client test is in `docs/TEST_PLAN.md`.
    hooks instead of polling; then dependency upgrades and the rest of the
    modernisation.
 
+## Database
+
+**MariaDB is the supported database**, on Linux and on Windows: it is what
+Ubuntu and Debian install, what CI tests (10.11 and 11.8) and what the
+installer, procedures and collation fixes are written for. MySQL is not
+supported. Its stricter defaults (`NO_ZERO_DATE`, `ONLY_FULL_GROUP_BY`), new
+reserved words, deprecated `utf8mb3` and `caching_sha2_password` would mean
+schema-wide changes with no gameplay benefit, and MySQL 8.0 is end of life.
+Optional later: a CI job installing on MySQL 8.4 LTS to measure the gap,
+best combined with the move to prepared statements in phase 3.
+
 ## Phase 1: reproducible build
 
 Done for Linux: CMake with imported targets, presets, vcpkg manifest with
 Lua 5.1 and tolua++ overlay ports, `build_server.sh`, verified heightmap
 downloads, CI on Ubuntu 24.04 and 26.04 plus the vcpkg route.
 
-**Remaining: Windows.**
-- `windows-x64` debug and release presets using vcpkg (the manifest and
-  overlay ports are already platform-neutral).
-- Rewrite `build_server.bat` as a thin wrapper like `build_server.sh`;
-  remove `deps/build_deps.bat` and `tools/windows/postbuild.bat`.
-- Heightmaps with `curl.exe` and the same SHA-256 checks.
-- A Windows job in CI.
-- `server.ps1` (or the existing `.bat` launchers updated) to start and stop
-  the servers like `server.sh`.
+**Windows (in progress, `docs/WINDOWS.md`):** `windows-debug` and
+`windows-release` presets (MSVC with Ninja, vcpkg), `build_server.ps1`
+(finds Visual Studio, builds, tests, downloads heightmaps with SHA-256
+checks), `server.ps1` to start and stop the servers, data staged by the
+build, a Windows CI job; the old Windows tooling and bundled executables are
+removed. Confirmed with a client: servers built
+and run on Windows against the Linux VM's database. Remaining: a local
+MariaDB on the Windows PC (`setup.sh` runs under Git Bash, or a
+`setup.ps1`), so development needs no second machine; `-Solution` builds
+with a side-by-side older MSVC (docs/WINDOWS.md).
 
 ## Phase 2: runnable server for a community
 
@@ -104,11 +116,9 @@ status, debug sessions in tmux with gdb), and the runtime fixes listed in
 `docs/KNOWN_ISSUES.md`.
 
 Remaining:
-- **Remote database access** for the Windows development setup:
-  `setup.sh allow-host <address>` to create the `swganh` user for one
-  development machine and print the MariaDB `bind-address` change. Never
-  open the database port to the internet; document an SSH tunnel as the
-  alternative.
+- **Remote database access** for the Windows development setup: done,
+  `setup.sh allow-host <address>` / `deny-host`, or an SSH tunnel
+  (`docs/WINDOWS.md`).
 - **Security** (code review section 4, before any public server):
   bounds-checked `Message` reads; player text out of fixed SQL buffers and
   into prepared statements; hashed passwords (Argon2id or bcrypt) with

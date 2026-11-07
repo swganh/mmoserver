@@ -162,6 +162,22 @@ Tries, marksman with the noob CDEF against a womp rat:
 
 From here one field at a time, from try 2, with the probe file
 (`script/combat/client_ranges_probe.txt`, read on every target change).
+The window read +50 in each, with "--" beyond the distance given:
+
+| Probe | Fields | Shown up to |
+|---|---|---|
+| A | -10 15 30 64 -90 | 5 m |
+| B | -10 **25** 30 64 -90 | 10 m |
+| C | **0** 15 30 64 -90 | 9 m |
+| D | -10 15 30 **20** -90 | 4 m |
+| E | -10 15 **0** 64 -90 | 3 m |
+| F | -10 15 30 64 **0** | 16 m |
+
+Every field moves the edge, so "--" looks like the accuracy falling below
+a floor rather than a max range, and +50 a cap on the display. The best
+straight-line fit (point blank = 4th field, ideal range = 2nd, ideal
+modifier = 5th, floor about 0) matches A, B, D and F but not C and E, so
+it is not the answer. Next: small values, so the number itself shows.
 
 ## What is not
 

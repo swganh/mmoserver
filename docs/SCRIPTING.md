@@ -61,7 +61,7 @@ it would put the project and everyone who hosts it at legal risk.
 | `world/common/login_reporter.lua` | every planet | via `config_zone_scripts` |
 | `dev/tatooine_npc_test1-7.lua` | Tatooine | development tests that spawn NPCs (formations, random lairs); `test2` is a module the others `require`; still enabled in `config_zone_scripts` |
 | `dev/corellia_instance_test.lua` | Corellia | development test, enabled |
-| `dev/event_logger.lua` | Tatooine | logs every script event (`grep 'event:'` in the zone log) |
+| `dev/event_logger.lua` | Tatooine, tutorial | logs every script event (`grep 'event:'` in the zone log) |
 | `commands/burstrun.lua` | command hook | via `command_table.scripthook` |
 
 Zone scripts are configured in the `config_zone_scripts` table (planet id
@@ -222,8 +222,24 @@ Lua numbers, exact up to 2^53.
 | `region_entered` | region | player | `region_name`, `region_type` |
 | `region_left` | region | player | `region_name`, `region_type` |
 | `object_used` | object | player | `menu_id` (the radial menu item) |
+| `cell_entered` | the cell (room) entered | player | `building`, `previous_cell` (0 when coming in from outside) |
+| `building_left` | the building | player | `previous_cell` |
+| `player_chat` | player | 0 | `text` (non-ASCII characters as `?`) |
+| `container_opened` | container | player | |
+| `container_closed` | container | player | |
+| `item_transferred` | item | player | `from_container`; `corpse` when looted |
+| `inventory_item_examined` | item | player | `food` (1 for food) |
+| `food_eaten` | food item | player | |
+| `clone_saved` | cloning terminal | player | |
+| `items_insured` | insurance terminal | player | |
+| `client_report` | player | 0 | `action`: what the client reports, e.g. `zoomCamera`, `chatActive`, `openInventory`, `closeInventory`, `foodSelected`, `foodUsed`, `cloneDataSaved`, `insureItemsDone`, `closeHolocron`, `changeLookAtTarget`; `clientReady` at login |
 
-Region events are raised for players only.
+Region and cell events are raised for players only. A player placed in a
+cell without walking there (login, a warp) raises no `cell_entered`.
+
+The client sends `client_report` for the actions the tutorial asks it to
+watch; the list above is what the old tutorial code handles. Others may
+exist: run the event logger in the tutorial to see every report.
 
 ### Waiting for an event
 
@@ -259,6 +275,19 @@ end)
 A handler runs to completion and cannot wait (`WaitMSec`, `WaitEvent`... in
 a handler are an error, logged). To do something that takes time, wait in a
 script instead, e.g. a loop around `WaitEvent`.
+
+### Raising an event from a script
+
+`LuaScriptEngine.RaiseEvent(name, subject [, source [, fields]])` queues an
+event like the zone's own, delivered on the next tick, e.g. a quest step
+telling another script it is done:
+
+```lua
+LuaScriptEngine.RaiseEvent("quest_step_done", playerId, 0, { quest = "tusken_raid", step = 3 })
+```
+
+Fields are numbers or strings. Use names that don't collide with the
+zone's events.
 
 ### Adding an event
 

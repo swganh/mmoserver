@@ -226,6 +226,33 @@ void WorldManager::_loadWorldObjects()
 			}
         });
 
+        // load world scripts (the tutorial too: config_zone_scripts decides)
+        {
+            stringstream query_stream;
+            query_stream << "SELECT priority,file FROM "<<mDatabase->galaxy()<<".config_zone_scripts WHERE planet_id=" << mZoneId
+                         << " ORDER BY id;";
+            mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
+                if (! result) {
+                    return;
+                }
+
+                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+
+                while(result_set->next())
+                {
+                    Script* script = gScriptEngine->createScript();
+                    script->setPriority(result_set->getUInt("priority"));
+                    script->setFileName(result_set->getString("file").c_str());
+                    mWorldScripts.push_back(script);
+                }
+
+				if (mWorldScripts.size())
+				{
+					LOG(INFO) << "Loaded " << mWorldScripts.size() << " World Scripts";
+				}
+            });
+        }
+
         if(mZoneId != 41)
         {
             // load cities
@@ -303,31 +330,6 @@ void WorldManager::_loadWorldObjects()
 				else
 				{
 					LOG(INFO) << "Unable to load spawn regions with id: " << mZoneId;
-				}
-            });
-
-            // load world scripts
-            query_stream.str(std::string());
-            query_stream << "SELECT priority,file FROM "<<mDatabase->galaxy()<<".config_zone_scripts WHERE planet_id=" << mZoneId
-                         << " ORDER BY id;";
-            mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
-                if (! result) {
-                    return;
-                }
-
-                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-
-                while(result_set->next())
-                {
-                    Script* script = gScriptEngine->createScript();
-                    script->setPriority(result_set->getUInt("priority"));
-                    script->setFileName(result_set->getString("file").c_str());
-                    mWorldScripts.push_back(script);
-                }
-
-				if (mWorldScripts.size())
-				{
-					LOG(INFO) << "Loaded " << mWorldScripts.size() << " World Scripts";
 				}
             });
 

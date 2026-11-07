@@ -222,8 +222,20 @@ leaving the tutorial. When a creature dies, `die()` makes peace with its
 defenders (clears the defender lists, sets the Peace state) but, unlike the
 `/peace` command (`ObjectController::_handlePeace`), does not switch off the
 attacker's auto-attack, clear the combat target or resend the player's
-state. `/peace` or the Peace button gets the player out of combat. For the
-combat and creature AI review.
+state. `/peace` or the Peace button gets the player out of combat.
+
+Seen again in the tutorial after the debris and the bandit (combat music
+until it timed out). Fixed: when a creature dies, each player who fought
+it and has nobody else to fight leaves combat as with `/peace` (combat
+target cleared, auto-attack off, Peace state, state resent).
+
+Not enough: on the VM the combat music still started as the bandit died
+(to his own grenade) and the player had to press Peace. The music starting
+*at* the death suggests something puts the player back into combat after
+`die()` (auto-attack firing again, the bandit's AI, or the grenade path,
+where `npcStopFight` does nothing), or the player was not in the bandit's
+defender list. For the combat review: log the player's states and defender
+list around a creature's death.
 
 ### 5j. Lairs never spawn — open
 
@@ -265,10 +277,10 @@ was not affected.
 Seen repeatedly while fighting the tutorial bandit. The player's command
 queue overflows during auto-attack; check its limit and what fills it.
 
-### 5g. No explosion when the tutorial debris is destroyed — open
+### 5g. No explosion when the tutorial debris is destroyed — fix needs testing
 
-Cosmetic. `AttackableStaticNpc::playDeathAnimation` exists; check what it
-sends.
+The script now plays `clienteffect/combat_explosion_lair_large.cef` on the
+debris when it is destroyed (`docs/TUTORIAL.md`).
 
 ## Login
 
@@ -446,12 +458,56 @@ match the client's messages, and the Lars homestead badge is awarded.
 Still to do: the other planets (their client files are needed), and the second circle the client draws for Mos Eisley
 and Mos Entha (the server has one area per city).
 
-### 17. The tutorial bandit could not be looted — open
+### 17. Corpse loot can't be moved from the opened container — open
 
-Seen in a tutorial run on the `event-hooks` branch; the rest of the
-tutorial went smoothly. Rill corpses on Tatooine loot fine. May be related to
-the loot all changes in #10. Next time: note whether the radial menu shows
-Loot, what happens on Loot / Loot all, and send `tutorial.out` from then.
+Seen on the tutorial bandit. Loot all works; opening the corpse's
+container shows the items, but they can't be moved to the inventory. The
+single-item path changed with #10 (dragging an item frees the temporary
+copy); check that path first, with `tutorial.out` from a drag attempt.
+
+The events confirm it is the server: picking up items from the opened
+bandit corpse (`object_used menu_id=10`, three tries on two items) raised no
+`item_transferred`, so the transfer never completed.
+
+### 18. Tutorial combat is slow (debris, bandit) — open
+
+Destroying the debris and killing the bandit take much longer than in the
+original. Probably their HAM against a new character's damage with the
+limited combat we have; check the debris and bandit stats in the data
+against the client and recordings before changing them.
+
+### 19. The bandit survives his own grenade — fixed
+
+The pirate's lines (`newbie_convo` `pirate_taunt3`, "A GRENADE!", then
+`pirate_taunt4`, "This grenade is defective! Oh no!") set up his death by
+his own grenade; here he keeps fighting. The script throws it when either
+side runs low (200 HAM) or after five minutes of fighting: the lines, the
+explosion, then `die()`, which is also how he dies in normal combat. Next
+test: does the grenade go off, and does he fall? Confirmed on the VM: the
+lines, the explosion, and his corpse.
+
+### 20. A line of stormtroopers in the tutorial's first room — to check
+
+The database places 36 stormtroopers in the first cell of the tutorial
+station (`persistent_npcs`, parentId 2203318222960). The original
+project's data put them there, not the script. Check against recordings
+of the live tutorial and remove or thin them with a migration.
+
+### 21. Racing ahead in the tutorial got it stuck — fixed in parts 1-2, parts 3-9 need testing
+
+The script armed each check (container open, chat, food, client reports)
+only when it reached that step, so anything the player did earlier was
+missed and the script waited for it forever: the drum in room 2, after
+which the officer handing over the weapon would not talk. Parts 1 and 2 now
+run on events and check what the player has already done
+(`docs/TUTORIAL.md`); confirmed on the VM, racing through rooms 1-2 to the
+end of the tutorial. Parts 3-9 now run on events too, setting the
+sub-states C++ checks (the weapon, the release documents, the
+Quartermaster) as soon as the player arrives. A first run on the VM went
+through, but the mission officer refused the first time: the gate waited
+for the trainer room's narration. Gates are now set on every tick from the
+room the player is in, whatever the script is doing, and a step the player
+has gone past stops waiting (`docs/TUTORIAL.md`).
 
 ## Fixed while getting the servers running
 

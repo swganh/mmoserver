@@ -34,6 +34,8 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 
 | Area | What was wrong | Confirmed by |
 |---|---|---|
+| Tutorial | Parts 3-9: refusals, the oath, the grenade [19, 21] | Raced through on the VM: weapon, documents and Quartermaster first time, the oath, the bandit killed by his own grenade (Nov 2026). Still in combat after his death [5i] |
+| Tutorial | Racing ahead got parts 1-2 stuck [21] | New character raced through rooms 1-2 (chat, zoom, drum, food before the prompts) and on to the end of the tutorial, Nov 2026 |
 | Regions | Cities never matched on the server [16] | Walked in and out of Bestine on the VM: `region_entered` / `region_left` logged with the client's "You have entered/left Bestine" (Nov 2026) |
 | Regions | Badge areas never matched [16] | Walked to the Lars homestead on the VM: badge "Location: Lars Homestead" awarded (Nov 2026) |
 | Install | Database install, collation errors on MariaDB 11.5+ | Installed on the Ubuntu 26.04 VM with MariaDB 11.8 |

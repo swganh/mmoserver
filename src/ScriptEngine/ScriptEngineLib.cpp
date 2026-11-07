@@ -61,6 +61,7 @@ static int		luaSplitString		(lua_State* l);
 static int		luaWaitEvent		(lua_State* l);
 static int		luaOnEvent			(lua_State* l);
 static int		luaRemoveEventHandler(lua_State* l);
+static int		luaRaiseEvent		(lua_State* l);
 static Script*	checkScriptObject	(lua_State* l, const char* function);
 static int		luaPrint			(lua_State* l);
 
@@ -76,6 +77,7 @@ static const luaL_reg scriptLib[] =
     {"WaitEvent",		luaWaitEvent},
     {"OnEvent",			luaOnEvent},
     {"RemoveEventHandler",	luaRemoveEventHandler},
+    {"RaiseEvent",		luaRaiseEvent},
     {NULL, NULL}
 };
 
@@ -227,6 +229,39 @@ static int luaRemoveEventHandler(lua_State* l)
 {
     gScriptEngine->removeEventHandler((uint32)luaL_checknumber(l,1));
 
+    return(0);
+}
+
+//======================================================================================================================
+
+// LuaScriptEngine.RaiseEvent(name, subject [, source [, { field = number or string, ... }]])
+// Queues an event like the zone's own, for other scripts (delivered next tick).
+static int luaRaiseEvent(lua_State* l)
+{
+    ScriptEvent event(luaL_checkstring(l,1), (uint64)luaL_checknumber(l,2), (uint64)luaL_optnumber(l,3,0));
+
+    if(lua_istable(l,4))
+    {
+        lua_pushnil(l);
+        while(lua_next(l,4) != 0)
+        {
+            if(lua_type(l,-2) == LUA_TSTRING)
+            {
+                std::string key = lua_tostring(l,-2);
+                if(lua_type(l,-1) == LUA_TNUMBER)
+                {
+                    event.set(key, (double)lua_tonumber(l,-1));
+                }
+                else if(lua_type(l,-1) == LUA_TSTRING)
+                {
+                    event.set(key, std::string(lua_tostring(l,-1)));
+                }
+            }
+            lua_pop(l,1);
+        }
+    }
+
+    gScriptEngine->raiseEvent(event);
     return(0);
 }
 

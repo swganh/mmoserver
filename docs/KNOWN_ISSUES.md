@@ -524,6 +524,16 @@ own structure and auction mails use, which stores the mail and tells the
 player if online. Also fixed: the mail leaked when the recipient was not
 found, and `sendStartingMails` leaked its message object.
 
+Then the mails arrived with an empty body. A system mail's body is a
+reference into the client's string files, sent as binary out-of-band
+data in the mail's attachments, and those were stored in a `utf8mb3`
+`TEXT` column through a `TEXT` parameter of `sf_MailCreate`: bytes that
+are not valid UTF-8 (`FF FF` in the header) are refused or mangled.
+Attachments are now a `BLOB` (migration 005, the function, the schema),
+and the ChatServer sends them as `_binary` literals. Player mail with
+attachments (waypoints) went through the same column. Mails stored
+before the fix stay empty; new ones are whole.
+
 Still to add: the client's prompt for it, `system_messages:newbie_mail`
 ("You've received a message.  Press the letter-icon..."), on arrival.
 

@@ -46,7 +46,7 @@ CREATE TABLE `chat_mail` (
   `body` text,
   `status` tinyint(1) unsigned NOT NULL default '0',
   `time` bigint(20) unsigned NOT NULL default '0',
-  `attachments` text,
+  `attachments` blob,
   `attachmentSize` int(11) unsigned NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `fk_mails_to_char` (`To`),

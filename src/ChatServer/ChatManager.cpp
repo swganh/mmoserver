@@ -464,6 +464,8 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             sqlPointer += mDatabase->escapeString(sqlPointer,asyncContainer->mMail->mText.getAnsi(),asyncContainer->mMail->mText.getLength());
             *sqlPointer++ = '\'';
             *sqlPointer++ = ',';
+            // The attachments are binary (UTF-16 out-of-band data): not text.
+            sqlPointer += sprintf(sqlPointer, "_binary");
             *sqlPointer++ = '\'';
             sqlPointer += mDatabase->escapeString(sqlPointer,asyncContainer->mMail->mAttachments.getRawData(),(asyncContainer->mMail->mAttachments.getLength() << 1));
             *sqlPointer++ = '\'';
@@ -2313,6 +2315,8 @@ void ChatManager::_PersistentMessagebySystem(Mail* mail,DispatchClient* client, 
         sqlPointer += mDatabase->escapeString(sqlPointer,mail->mText.getAnsi(),mail->mText.getLength());
         *sqlPointer++ = '\'';
         *sqlPointer++ = ',';
+        // The attachments are binary (UTF-16 out-of-band data): not text.
+        sqlPointer += sprintf(sqlPointer, "_binary");
         *sqlPointer++ = '\'';
         sqlPointer += mDatabase->escapeString(sqlPointer,mail->mAttachments.getRawData(),(mail->mAttachments.getLength() << 1));
         *sqlPointer++ = '\'';
@@ -2423,6 +2427,8 @@ void ChatManager::_processPersistentMessageToServer(Message* message,DispatchCli
         sqlPointer += mDatabase->escapeString(sqlPointer,mail->mText.getAnsi(),mail->mText.getLength());
         *sqlPointer++ = '\'';
         *sqlPointer++ = ',';
+        // The attachments are binary (UTF-16 out-of-band data): not text.
+        sqlPointer += sprintf(sqlPointer, "_binary");
         *sqlPointer++ = '\'';
         sqlPointer += mDatabase->escapeString(sqlPointer,mail->mAttachments.getRawData(),(mail->mAttachments.getLength() << 1));
         *sqlPointer++ = '\'';

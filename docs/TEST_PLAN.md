@@ -28,13 +28,13 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 |---|---|---|---|---|
 | T3 | Login | Refusals were silent [6] | If anything is refused at the galaxy screen | `connection.out` has a `Refusing account N: <reason>` line; send it to me |
 | T4 | Script events | New | `sudo ./mmoserverdb/setup.sh update`, then on Tatooine: log in, walk into Mos Eisley, talk to an NPC and pick an option, use a radial menu item, kill a creature, log out. Watch `tail -f tatooine.out \| grep 'event:'` | one `event:` line per action, with the player's id as `source` |
-| T7 | Tutorial parts 1-2 | Racing ahead left the tutorial waiting for something already done (the drum) | New character: race through rooms 1-2 (chat, open the drum and take everything, eat, before the prompts ask). Then a second character at a slow pace | Racing: no prompt for what is done, no getting stuck, on to room 3. Slow: reminders after a pause. Prompts never overlap. `grep -E 'event:' tutorial.out` |
 | T5 | Scripts | `print` output was lost [15] | Start Tatooine | `tatooine.out` has `[script] WeatherController v.0.2` and `[script] event_logger: listening to 9 events` |
 
 ## Confirmed
 
 | Area | What was wrong | Confirmed by |
 |---|---|---|
+| Tutorial | Racing ahead got parts 1-2 stuck [21] | New character raced through rooms 1-2 (chat, zoom, drum, food before the prompts) and on to the end of the tutorial, Nov 2026 |
 | Regions | Cities never matched on the server [16] | Walked in and out of Bestine on the VM: `region_entered` / `region_left` logged with the client's "You have entered/left Bestine" (Nov 2026) |
 | Regions | Badge areas never matched [16] | Walked to the Lars homestead on the VM: badge "Location: Lars Homestead" awarded (Nov 2026) |
 | Install | Database install, collation errors on MariaDB 11.5+ | Installed on the Ubuntu 26.04 VM with MariaDB 11.8 |

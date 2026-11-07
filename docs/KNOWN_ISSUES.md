@@ -453,6 +453,10 @@ container shows the items, but they can't be moved to the inventory. The
 single-item path changed with #10 (dragging an item frees the temporary
 copy); check that path first, with `tutorial.out` from a drag attempt.
 
+The events confirm it is the server: picking up items from the opened
+bandit corpse (`object_used menu_id=10`, three tries on two items) raised no
+`item_transferred`, so the transfer never completed.
+
 ### 18. Tutorial combat is slow (debris, bandit) — open
 
 Destroying the debris and killing the bandit take much longer than in the
@@ -474,14 +478,15 @@ station (`persistent_npcs`, parentId 2203318222960). The original
 project's data put them there, not the script. Check against recordings
 of the live tutorial and remove or thin them with a migration.
 
-### 21. Racing ahead in the tutorial got it stuck — fix needs testing (parts 1-2)
+### 21. Racing ahead in the tutorial got it stuck — fixed in parts 1-2
 
 The script armed each check (container open, chat, food, client reports)
 only when it reached that step, so anything the player did earlier was
 missed and the script waited for it forever: the drum in room 2, after
 which the officer handing over the weapon would not talk. Parts 1 and 2 now
 run on events and check what the player has already done
-(`docs/TUTORIAL.md`); parts 3-9 still poll and move over next.
+(`docs/TUTORIAL.md`); confirmed on the VM, racing through rooms 1-2 to the
+end of the tutorial. Parts 3-9 still poll and move over next.
 
 ## Fixed while getting the servers running
 

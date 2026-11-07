@@ -60,6 +60,13 @@ a reconnect resumes at its step.
 - The CTRL-C status screen prompts (`open_status_prompt`,
   `close_status_prompt`, ...). Whether the client reports the status screen
   is not known yet.
+- Stat migration: `stat_open` ("...in this Tutorial, you may migrate your
+  stats and the changes will take effect immediately", sound
+  `tut_00_stat_open`) is never played. `stat_migration` is the Planet
+  Selection Room's version, played only when the tutorial is skipped. The
+  server handles the client's Stat Migration window (CTRL-C). Where the
+  original played `stat_open` is to be checked against recordings; likely
+  with the status screen prompts.
 - The bandit's grenade (`pirate_taunt3`, `pirate_taunt4`; KNOWN_ISSUES #19)
   and the debris explosion (#5g).
 - Barks never used: the trapped refugees, `shout_panic3/4`,

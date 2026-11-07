@@ -212,10 +212,14 @@ marksman standing, womp rat: -15 at 2 m, +3 at 8 m, +23 at 16 m, -31 at
 40 m, -50 at 64 m ("--" beyond). That is the guide's curve, 2 m further
 out (the client measures between the bodies, not the centres), plus the
 client's -5, shown between -50 and +50. The rules now measure the same
-way (`RANGE_ALLOWANCE`), so the chance rolled follows the one shown. Not
-known: where the client's -5 comes from (skill mods, the target), so the
-window's number and the rules' modifier may part for other characters or
-targets.
+way (`RANGE_ALLOWANCE`), so the chance rolled follows the one shown. The -5
+is the client's own: a brawler (no pistol accuracy mod) read the same as
+the marksman (+10) with the noob CDEF (-15, +5, +23, -31, -50 at 1, 8,
+16, 40, 64 m), so the window leaves skill mods out. An artisan read -5,
++11, +30, -27, -50, which fits the plain CDEF (0, +35, -80). The ranges
+are sent on every target change and on every equip or unequip (at first
+only on target change, so a weapon switch showed the old weapon's curve
+until the next target).
 
 ## What is not
 

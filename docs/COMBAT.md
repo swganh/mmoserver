@@ -134,12 +134,107 @@ scripts for behaviour:
 | Combat events for scripts: attack, hit, incap, death, XP | C++ raises them (`creature_died` exists) | quests and AI react to them |
 | XP and loot rules | C++ with data tables | small and per kill |
 
+## The original rules (An Empire Divided, 2003)
+
+From Prima's *An Empire Divided*, chapter 5, "Combat" (pp. 65-86; PDF page
+= guide page + 3), the launch-era guide (`docs/SOURCES.md`). The guide
+states the rules in words; where it gives no numbers, none are invented
+here.
+
+**Accuracy.** Each attack makes an accuracy roll; the target window shows
+your accuracy modifier against it, the chance to hit, "the higher the
+number, the better" (p. 73). The modifier depends on:
+- the distance to the target, through the weapon's three range attack
+  mods: point blank, ideal (at the weapon's ideal range) and max (at its
+  maximum range). The guide's laser rifle: -30, +10 at 52 m, -60 at 64 m
+  (p. 66). The CDEF pistol, as the client shows it: -10, +35, -80;
+- certification: an uncertified weapon gives an accuracy penalty (p. 67);
+- your posture and the target's posture (below), moving (running and
+  firing a pistol is penalised, p. 67), and states (p. 84);
+- melee weapons such as the survival knife: "+30 chance to hit across the
+  board" (p. 66).
+
+**Postures** (p. 73). Standing: no modifier; spotted sooner. Kneeling: a
+bonus to your accuracy, harder to spot, ranged attackers get a penalty
+against you, melee attackers a bonus. Prone: a significant bonus to your
+accuracy and a significant penalty to those firing at you, melee attackers
+a huge advantage; no attacking at point blank range while prone.
+A ranged weapon also gives a defensive penalty against melee attackers
+(p. 70, p. 73).
+
+**Damage** goes to one or more of health, action and mind; fly text is red
+for health, green for action, blue for mind, mixed colours for two pools,
+white for all three (p. 85). Some weapons cause bleeding on a hit, which
+drains pools over time (p. 85); every move that wounds also causes
+bleeding (p. 75).
+
+**Wounds** lower a pool's maximum and do not regenerate: medics, combat
+medics and doctors heal health and action wounds, entertainers mind wounds.
+**Battle fatigue** builds up in combat; it does not affect fighting but
+hampers the curing of wounds; entertainers heal it (p. 86).
+
+**Incapacitation:** any pool at 0. No moving, attacking, talking or
+equipping; a timer shows when you get up; a stimpack revives (p. 85).
+**Death:** a deathblow while incapacitated, or three incapacitations within
+any 10 minutes (p. 85). Killers deliver deathblows, non-killers only
+incapacitate (p. 73).
+
+**Con colours** (green, blue, white, yellow, red) are relative to your
+skill with the equipped weapon and change with it (p. 72). Pack creatures
+assist each other (p. 73); creatures show "?" (alerted), "!" (warning) and
+a fear symbol (may flee) before engaging (p. 71).
+
+**Special moves** (pp. 74-83), a table for every weapon type (1H and 2H
+melee, polearm, unarmed, pistol, carbine, rifle, "ranged"):
+- time = time modifier x the weapon's attack speed;
+- damage = damage modifier x the weapon's min/max damage;
+- HAM costs = cost modifier x the weapon's HAM costs (the CDEF pistol: 7
+  health, 15 action, 7 mind);
+- a to-hit modifier (e.g. +25 for 1H melee moves, +50 for pistol moves);
+- the attacker's and defender's end posture (up, down, knocked down);
+- up to three effects (stunned, blinded, dizzy, ...), each with its own
+  chance on a successful hit and its own duration in seconds.
+
+The marksman's starting moves: Point-Blank Single 1 and Point-Blank
+Area 1 cancel the point-blank accuracy penalty, Overcharge Shot 1 adds
+damage at the cost of weapon condition (p. 69). The table's text layer is
+garbled by OCR; it will be transcribed from the page images when the
+specials are built.
+
+**States** (p. 84): aggressive (better counterattack, harder to hit),
+aiming (bonus to hit on the next attack), alert (counters surprise
+attacks), berserk (to hit, speed and damage up, defence down), blinded
+(offence and defence down), dizzy (may fall when changing posture),
+evading (chance to dodge), immobilized, in combat, incapacitated,
+intimidated (easier to hit), rallied (to hit and defence up), stunned
+(defence down), taking cover (defence up), tumbling (defence while
+changing posture).
+
+**Not in this chapter:** the numbers behind accuracy (base chance, the
+size of the posture and state modifiers, how skill mods add in),
+regeneration rates, XP. Candidates: the 2004 guide's combat pages
+(pp. 40-48), the profession chapters (skill mods per skill box), and the
+client's own target window, which shows the accuracy modifier.
+
+### Against the code
+
+| Rule | Code today |
+|---|---|
+| Accuracy roll from range mods, posture, certification, states | fixed 67% |
+| Attack time from the weapon's attack speed | 2 s for every weapon |
+| Specials: time, damage, cost and to-hit from the weapon | 4 combat specials in `command_table`; costs fixed, not from the weapon |
+| Effects rolled per effect, with durations | always applied, no duration |
+| Bleeding, wounds, battle fatigue | not in combat |
+| Three incaps in 10 minutes means death | `IncapResetTime` is configurable; to check against the 10 minutes |
+| Prone: no attacking at point blank | no |
+| Con colour by weapon skill | client side; the server sends levels |
+
 ## Order of work
 
 1. Find what overflows the command queue (the new log line, next fight).
-2. Read the original rules: the Prima combat chapter (2004 QRG pp. 40-48,
-   and the Empire Divided guide's), and write the formulas down here with
-   page citations before changing code.
+2. Read the original rules: done for *An Empire Divided* chapter 5
+   (above). Still wanted for the numbers: the 2004 guide's combat pages
+   (pp. 40-48) and the marksman and brawler chapters (skill mods).
 3. To-hit and damage from those rules, with the constants in data; weapon
    speed; damage to the pool the attack hits.
 4. Creature regeneration and to-hit from the creature tables.

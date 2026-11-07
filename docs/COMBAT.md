@@ -210,11 +210,28 @@ intimidated (easier to hit), rallied (to hit and defence up), stunned
 (defence down), taking cover (defence up), tumbling (defence while
 changing posture).
 
+**The 2004 guide** (pp. 40-48) repeats this chapter almost word for word,
+with two differences: an uncertified weapon gives "severe damage
+penalties" (p. 41; the 2003 guide says accuracy penalties, p. 67), and on
+the radar red dots are aggressive creatures, yellow dots peaceful ones
+(p. 43). No formulas either.
+
+**Skill mods and base attributes.** The profession chapters list each
+skill box's mods and each species' starting attributes (Marksman,
+*An Empire Divided* pp. 140-148: Novice Marksman +10 accuracy and +5 speed
+for pistol, carbine and rifle, p. 145; Brawler pp. 123-131). The database
+already has them (`skills_skillmods`): Novice Marksman and Novice Brawler
+match the guide for accuracy and speed (the Brawler's unarmed damage is
+unclear in the scan). A Novice Artisan has no combat mods. The combat code
+reads none of them, nor the `private_<weapon>_combat_difficulty` mods
+(100 per novice combat box) that look like the basis of the con colour.
+
 **Not in this chapter:** the numbers behind accuracy (base chance, the
 size of the posture and state modifiers, how skill mods add in),
-regeneration rates, XP. Candidates: the 2004 guide's combat pages
-(pp. 40-48), the profession chapters (skill mods per skill box), and the
-client's own target window, which shows the accuracy modifier.
+regeneration rates, XP. Neither guide gives them. What remains: the
+client's own target window, which shows the accuracy modifier the client
+works out, measured against known inputs (range, postures, weapons, skill
+mods).
 
 ### Against the code
 
@@ -232,9 +249,9 @@ client's own target window, which shows the accuracy modifier.
 ## Order of work
 
 1. Find what overflows the command queue (the new log line, next fight).
-2. Read the original rules: done for *An Empire Divided* chapter 5
-   (above). Still wanted for the numbers: the 2004 guide's combat pages
-   (pp. 40-48) and the marksman and brawler chapters (skill mods).
+2. Read the original rules: done (both guides' combat chapters, the
+   Marksman and Brawler chapters). The numbers behind accuracy are in
+   neither guide: measure the client's accuracy display instead.
 3. To-hit and damage from those rules, with the constants in data; weapon
    speed; damage to the pool the attack hits.
 4. Creature regeneration and to-hit from the creature tables.

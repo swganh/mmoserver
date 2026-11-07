@@ -154,6 +154,7 @@ Tries, marksman with the noob CDEF against a womp rat:
 | Layout | Target window |
 |---|---|
 | `iiiii` | no change: -5 on top of the target armed, -15 unarmed |
+| `fffff` -10, 15, 30, 64, -90 | the client takes it: +50 at 3 m (expected about +8 with marksman's +10) |
 
 ## What is not
 

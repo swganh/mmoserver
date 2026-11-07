@@ -177,7 +177,24 @@ Every field moves the edge, so "--" looks like the accuracy falling below
 a floor rather than a max range, and +50 a cap on the display. The best
 straight-line fit (point blank = 4th field, ideal range = 2nd, ideal
 modifier = 5th, floor about 0) matches A, B, D and F but not C and E, so
-it is not the answer. Next: small values, so the number itself shows.
+it is not the answer.
+
+Small values (G baseline `0 15 0 20 0`, one field changed in each):
+
+| Probe | Changed | 1 m | 2 m to the edge | Edge |
+|---|---|---|---|---|
+| G | none | -5 (-25 while moving) | +50 | 17-18 m |
+| H | 1st 0 → 10 | -5 | +50 | 18 m |
+| I | 2nd 15 → 25 | -5 | +50 | 26-27 m |
+| J | 3rd 0 → 10 | +50 | +50 | 18 m |
+| K | 4th 20 → 30 | -5 | +50 | 18 m |
+| L | 5th 0 → 10 | -5 | +50 | 18 m |
+
+Found: the 2nd field is the max range (the edge is about 2 m past it,
+probably the bodies' radii). The window adds the client's own modifiers
+(moving: -20). Not yet: the other four; the number between 2 m and the
+edge is +50 whatever they are, so the display seems capped at +50 with
+the client's own base putting it over.
 
 ## What is not
 

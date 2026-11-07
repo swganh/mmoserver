@@ -34,6 +34,7 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 
 | Area | What was wrong | Confirmed by |
 |---|---|---|
+| Mail | No welcome mail; empty bodies; lost attachments [22] | New character on the VM: the welcome and profession mails arrive with their full text; a mail with a waypoint attached arrives with it (Nov 2026) |
 | Tutorial | Parts 3-9: refusals, the oath, the grenade [19, 21] | Raced through on the VM: weapon, documents and Quartermaster first time, the oath, the bandit killed by his own grenade (Nov 2026). Still in combat after his death [5i] |
 | Tutorial | Racing ahead got parts 1-2 stuck [21] | New character raced through rooms 1-2 (chat, zoom, drum, food before the prompts) and on to the end of the tutorial, Nov 2026 |
 | Regions | Cities never matched on the server [16] | Walked in and out of Bestine on the VM: `region_entered` / `region_left` logged with the client's "You have entered/left Bestine" (Nov 2026) |

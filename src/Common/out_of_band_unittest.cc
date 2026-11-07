@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Common/OutOfBand.h"
 
+#include <cstring>
+
 #include <gtest/gtest.h>
 
 #include "Common/byte_buffer.h"
@@ -107,6 +109,41 @@ TEST(OutOfBandTests, CanCreateOutOfBandFromProse) {
     OutOfBand attachment2(prose);
 
     EXPECT_EQ(1, attachment2.Count());
+}
+
+TEST(OutOfBandTests, FullConstructorKeepsTheTtAndToValues) {
+    // The constructor taking every value used to repeat the TU values for TT
+    // and TO, so %TT and %TO came out as %TU (e.g. an empty name in mail).
+    OutOfBand built("test_file", "test_label",
+                    1, "tu_file", "tu_label", L"tu",
+                    2, "tt_file", "tt_label", L"tt",
+                    3, "to_file", "to_label", L"to",
+                    42, 0.5f, true);
+
+    ProsePackage prose;
+    prose.base_stf_file = "test_file";
+    prose.base_stf_label = "test_label";
+    prose.tu_object_id = 1;
+    prose.tu_stf_file = "tu_file";
+    prose.tu_stf_label = "tu_label";
+    prose.tu_custom_string = L"tu";
+    prose.tt_object_id = 2;
+    prose.tt_stf_file = "tt_file";
+    prose.tt_stf_label = "tt_label";
+    prose.tt_custom_string = L"tt";
+    prose.to_object_id = 3;
+    prose.to_stf_file = "to_file";
+    prose.to_stf_label = "to_label";
+    prose.to_custom_string = L"to";
+    prose.di_integer = 42;
+    prose.df_float = 0.5f;
+    prose.display_flag = true;
+    OutOfBand expected(prose);
+
+    const ByteBuffer* a = built.Pack();
+    const ByteBuffer* b = expected.Pack();
+    ASSERT_EQ(b->size(), a->size());
+    EXPECT_EQ(0, memcmp(b->data(), a->data(), b->size()));
 }
 
 TEST(OutOfBandTests, CanAddMultipleProsePackages) {

@@ -132,6 +132,21 @@ not used, so in that respect players attack faster than they should).
 - Ability costs (`healthcost` etc.) are charged for commands that have them
   (`ObjectController.cpp`); 71 commands have costs.
 
+## The target window's accuracy
+
+The client works out the accuracy modifier it shows; the server does not
+send it. It needs the weapon's range data, which the server never sent
+(weapons go to the client as plain tangible objects), so the window showed
+a number only next to the target. The SWGANH wiki lists an object
+controller message for it, WeaponRanges (0x140): after the header, a LONG
+and five INTs, otherwise undocumented ("25%", Jan 2008). The server now
+sends it to the player on every target change: the weapon's id, then
+`rules.clientRanges(weapon)`, a guess: point blank modifier, ideal range,
+ideal modifier, max range, max modifier. To be checked in game against the
+noob CDEF (-10 at 0 m, +30 at 15 m, -90 at 64 m); if the window shows
+something else, change the order in the script and restart the zone. If
+`rules.clientRanges` returns nothing, no message is sent.
+
 ## What is not
 
 - **To-hit:** no block, dodge or counterattack (the skill mods exist),

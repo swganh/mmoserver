@@ -249,6 +249,29 @@ TEST_F(CombatRulesTest, InRangeFromCpp) {
     EXPECT_FALSE(rules_.inRange(cdef, 66));
 }
 
+TEST_F(CombatRulesTest, ClientRangesFromCpp) {
+    int values[5] = { 0, 0, 0, 0, 0 };
+    ASSERT_TRUE(rules_.clientRanges(noobCdef(), values));
+    EXPECT_EQ(-10, values[0]);
+    EXPECT_EQ(15, values[1]);
+    EXPECT_EQ(30, values[2]);
+    EXPECT_EQ(64, values[3]);
+    EXPECT_EQ(-90, values[4]);
+
+    // A weapon without ranges in metres gets its group's.
+    CombatWeapon old = noobCdef();
+    old.midRange = 0;
+    old.maxRange = 0;
+    ASSERT_TRUE(rules_.clientRanges(old, values));
+    EXPECT_EQ(15, values[1]);
+    EXPECT_EQ(64, values[3]);
+
+    // A script that returns nothing turns the message off.
+    lua_State* l = rules_.state();
+    ASSERT_EQ(0, luaL_dostring(l, "rules.clientRanges = function() end"));
+    EXPECT_FALSE(rules_.clientRanges(noobCdef(), values));
+}
+
 TEST(CombatRulesLoadTest, MissingScriptFallsBack) {
     CombatRules rules;
     EXPECT_FALSE(rules.load("no/such/rules.lua"));
@@ -259,6 +282,8 @@ TEST(CombatRulesLoadTest, MissingScriptFallsBack) {
     pistol.group = "pistol";
     EXPECT_TRUE(rules.inRange(pistol, 30));
     EXPECT_FALSE(rules.inRange(pistol, 40));
+    int values[5];
+    EXPECT_FALSE(rules.clientRanges(pistol, values));
 }
 
 } // namespace

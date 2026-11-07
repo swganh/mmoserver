@@ -526,6 +526,26 @@ CombatWeapon CombatManager::buildWeapon(Weapon* weapon)
     return w;
 }
 
+void CombatManager::sendWeaponRanges(PlayerObject* player)
+{
+    Weapon* weapon = dynamic_cast<Weapon*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left));
+    if (!weapon)
+    {
+        return;
+    }
+    int32 values[5];
+    int ranges[5];
+    if (!mRules.clientRanges(buildWeapon(weapon), ranges))
+    {
+        return;
+    }
+    for (int i = 0; i < 5; ++i)
+    {
+        values[i] = ranges[i];
+    }
+    gMessageLib->sendWeaponRanges(player, weapon->getId(), values);
+}
+
 void CombatManager::applyDamage(CreatureObject* defender, const std::string& pool, int32 damage)
 {
     if (defender->getCreoGroup() == CreoGroup_AttackableObject)

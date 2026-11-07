@@ -106,6 +106,9 @@ public:
 
     CombatOutcome   attack(const CombatAttack& attack);
     bool            inRange(const CombatWeapon& weapon, float distance);
+    // The five numbers of the WeaponRanges message; false if no rules or
+    // the script returns nothing (send nothing then).
+    bool            clientRanges(const CombatWeapon& weapon, int values[5]);
 
     // For the tests: the Lua state, with the rules table in global "rules".
     lua_State*      state() { return mState; }

@@ -259,3 +259,20 @@ bool CombatRules::inRange(const CombatWeapon& weapon, float distance)
     lua_pop(mState, 1);
     return result;
 }
+
+bool CombatRules::clientRanges(const CombatWeapon& weapon, int values[5])
+{
+    pushWeapon(mState, weapon);
+    if (!_call("clientRanges", 1, 5))
+    {
+        return false;
+    }
+    // Nothing returned: send nothing.
+    bool ok = lua_isnumber(mState, -5) != 0;
+    for (int i = 0; i < 5; ++i)
+    {
+        values[i] = static_cast<int>(lua_tonumber(mState, i - 5));
+    }
+    lua_pop(mState, 5);
+    return ok;
+}

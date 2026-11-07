@@ -47,6 +47,7 @@ class Weapon;
 class CreatureObject;
 class CMWeaponGroup;
 class ObjectControllerCmdProperties;
+class PlayerObject;
 
 typedef	std::vector<CMWeaponGroup*>	WeaponGroups;
 
@@ -76,6 +77,10 @@ public:
     // An attack as the rules see it, from the zone's objects.
     CombatSide				buildSide(CreatureObject* creature);
     CombatWeapon			buildWeapon(Weapon* weapon);
+
+    // Tells the player's client the range data of the weapon in hand, for
+    // the target window's accuracy display.
+    void					sendWeaponRanges(PlayerObject* player);
 
     // Applies a hit's damage to the pool the rules chose.
     void					applyDamage(CreatureObject* defender, const std::string& pool, int32 damage);

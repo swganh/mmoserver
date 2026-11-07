@@ -377,6 +377,12 @@ public:
     void				sendDataTransform053(Object* object);
     void				sendDataTransformWithParent053(Object* object);
     void				sendSitOnObject(CreatureObject* creatureObject);
+
+    // WeaponRanges (ObjController 0x140): the weapon's range data, for the
+    // client's accuracy display. Five numbers whose meaning is not
+    // documented (SWGANH wiki: LONG, then five INTs); data/script/combat/
+    // rules.lua (rules.clientRanges) decides what goes in them.
+    void				sendWeaponRanges(PlayerObject* player, uint64 weaponId, const int32 values[5]);
     void				sendDataTransformWithParent0B(Object* object);
     void				sendDataTransform0B(Object* object);
 

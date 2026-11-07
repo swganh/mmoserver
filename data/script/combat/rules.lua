@@ -295,6 +295,18 @@ function rules.delay(a)
   return speed
 end
 
+-- What the server tells the client about the weapon (WeaponRanges, object
+-- controller 0x140), for the accuracy the target window shows. The wiki
+-- gives the message as five INTs without names; the order below is a
+-- guess (point blank at 0 m needs no distance of its own), to be checked
+-- against the target window. Return five integers, or nothing to send no
+-- message.
+function rules.clientRanges(weapon)
+  local midRange, maxRange = rules.ranges(weapon)
+  local function int(x) return math.floor((x or 0) + 0.5) end
+  return int(weapon.zero_mod), int(midRange), int(weapon.mid_mod), int(maxRange), int(weapon.max_mod)
+end
+
 function rules.attack(a)
   local chance = rules.hitChance(a)
   local result = { chance = chance, delay = rules.delay(a) }

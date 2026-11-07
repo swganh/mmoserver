@@ -540,8 +540,16 @@ bytes at the end, so the client found no package to show. The newbie mails
 and the bank wire mails now use `common::OutOfBand`, the builder system
 messages use (and they display). Still on `atMacroString`: the bazaar
 mails, which carry a waypoint `common::OutOfBand` can't add yet; they need
-the same count fix or waypoint support in `common::OutOfBand`. Mails stored
-before the fix stay empty; new ones are whole.
+the same count fix or waypoint support in `common::OutOfBand`.
+
+And reading them back: the database layer copied raw fields (`DFT_raw`,
+the mail's attachments) with `strncpy`, which stops at the first zero
+byte, and UTF-16 has one in nearly every other byte. No attachment ever
+came back: not the system mails' bodies, not a waypoint a player attached
+(seen on the VM: plain player mail worked, the reply's attachment was
+missing). Raw fields are now copied whole, up to the field's size. Mails
+stored before migration 005 stay empty; those stored since should open
+whole.
 
 Still to add: the client's prompt for it, `system_messages:newbie_mail`
 ("You've received a message.  Press the letter-icon..."), on arrival.

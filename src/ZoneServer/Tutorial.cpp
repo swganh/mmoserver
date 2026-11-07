@@ -1132,6 +1132,5 @@ void Tutorial::sendStartingMails(void)
     }
     //sends the starting profession email
     message->SendNewbieMailMessage(mPlayerObject, subject, bodyDir, bodyStr);
-    message = NULL;
     delete message;
 }

@@ -2217,6 +2217,7 @@ void ChatManager::sendSystemMailMessage(Mail* mail,uint64 recipient)
         
         if (!result_set->next()) {
             LOG(WARNING) << "Unable to find the firstname for character with the id [" << recipient << "]";
+            delete mail;
             return;
         }
 
@@ -2261,21 +2262,10 @@ void ChatManager::_processSystemMailMessage(Message* message,DispatchClient* cli
     mail->setTime(static_cast<uint32>(time(NULL)));
     mail->setAttachments(attachmentData);
 
-
-    //ok we will enter now a db call in order to get the recipients name
-
-    ChatAsyncContainer* asyncContainer = new ChatAsyncContainer(ChatQuery_QueryFirstName);
-    asyncContainer->mMail = mail;
-    asyncContainer->mMailCounter = 1;
-    asyncContainer->mReceiverId = ReceiverID;
-    asyncContainer->mClient = client;
-
-    int8 sql[100];
-    sprintf(sql, "SELECT firstname FROM %s.characters WHERE id LIKE %" PRIu64 "",mDatabase->galaxy(), ReceiverID);
-
-    mDatabase->executeSqlAsync(this,asyncContainer,sql);
-
-
+    // Look up the recipient's name, then store and deliver the mail. (This
+    // used a query whose result nothing handled, so every mail a zone sent
+    // was dropped: the tutorial's welcome mails, bank wires, bazaar sales.)
+    sendSystemMailMessage(mail, ReceiverID);
 }
 void ChatManager::_PersistentMessagebySystem(Mail* mail,DispatchClient* client, BString receiverStr)
 {

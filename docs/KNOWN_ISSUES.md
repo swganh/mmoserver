@@ -509,24 +509,23 @@ for the trainer room's narration. Gates are now set on every tick from the
 room the player is in, whatever the script is doing, and a step the player
 has gone past stops waiting (`docs/TUTORIAL.md`).
 
-### 22. No welcome mail after the tutorial — open
+### 22. No welcome mail after the tutorial (and no mail from zones) — fix needs testing
 
 The original sent new players a welcome letter and a letter for their
-starting profession (`newbie_tutorial/newbie_mail`: `welcome_subject` /
-`welcome_body`, `<profession>_subject` / `_body`, and `collector_*` for the
-Collector's Edition). None arrives here. The code exists:
-`Tutorial::sendStartingMails` runs when the player picks a destination at
-the travel terminal (`Tutorial.cpp`, after the warp) and sends both through
-`MessageLib::sendNewbieMail` to the ChatServer (`opIsmSendSystemMailMessage`).
-To check: whether the ChatServer receives and stores them (the player is
-leaving the zone at that moment, so sending earlier, at the Quartermaster or
-after the oath, may be the fix), and that the body (an STF reference in an
-out-of-band "macro" string) is built as the client expects. Also:
-- The prompt for it, `system_messages:newbie_mail` ("You've received a
-  message.  Press the letter-icon..."), is never shown; it belongs on the
-  planet after arrival.
-- `sendStartingMails` leaks its `SendSystemMailMessage` (set to NULL, then
-  deleted).
+starting profession (`newbie_tutorial/newbie_mail`). None arrived here.
+`Tutorial::sendStartingMails` sends them when the player picks a
+destination, to the ChatServer (`opIsmSendSystemMailMessage`), whose
+`_processSystemMailMessage` looked up the recipient's name with a query
+whose result nothing handled (`ChatQuery_QueryFirstName` had no case), so
+the mail was dropped. Every mail a zone sends went the same way: bank wire
+transfers (`sendBanktipMail`) and bazaar instant sales too. It now goes
+through `ChatManager::sendSystemMailMessage`, the path the ChatServer's
+own structure and auction mails use, which stores the mail and tells the
+player if online. Also fixed: the mail leaked when the recipient was not
+found, and `sendStartingMails` leaked its message object.
+
+Still to add: the client's prompt for it, `system_messages:newbie_mail`
+("You've received a message.  Press the letter-icon..."), on arrival.
 
 ## Fixed while getting the servers running
 

@@ -1,0 +1,68 @@
+type,name,armor_rating,damage_type,min_damage,max_damage,attack_speed,zero_range_mod,mid_range,mid_range_mod,max_range,max_range_mod,damage_radius,wound_chance,health_cost,action_cost,mind_cost,page
+1H Melee,dagger (Twi'lek),0,kinetic,20,45,3,25,3,25,4,25,0,9,6,29,6,390
+1H Melee,gaderiffi baton,0,kinetic,70,140,4.5,-10,3,-10,5,-10,0,16,47,26,10,390
+1H Melee,rantok sword,0,kinetic,45,150,3.3,10,3,10,3,10,0,20,27,40,25,390
+1H Melee,Ryyk blade,0,kinetic,25,140,3.3,-15,3,-15,4,-15,0,22,39,30,25,390
+1H Melee,stone knife,0,kinetic,20,30,3.5,5,3,5,4,5,0,6,5,12,5,390
+1H Melee,stone knife (noob),0,kinetic,7,47,3,-6,1,-10,4,-10,0,7,11,17,11,390
+1H Melee,stun baton,0,stun,40,75,3.2,0,2,0,4,0,0,2,10,38,32,390
+1H Melee,survival knife,0,kinetic,20,40,3.25,30,3,30,4,30,0,8,7,22,5,390
+1H Melee,sword 01,0,kinetic,20,90,3.5,10,3,10,4,10,0,14,22,22,22,390
+1H Melee,sword 01 (noob),0,kinetic,15,95,4,-7,3,-5,4,-5,0,4,10,15,20,390
+1H Melee,sword 02,0,kinetic,25,100,3.1,5,3,5,4,5,0,18,18,40,25,390
+1H Melee,vibroblade,1,kinetic,15,85,3.25,5,3,5,4,5,0,12,10,36,10,390
+2H Melee,lightsaber,2,energy,70,190,1.8,20,5,15,5,5,0,12,5,5,5,390
+2H Melee,battleaxe,0,kinetic,75,125,4.5,5,5,5,5,5,0,17,42,15,10,390
+2H Melee,cleaver,1,kinetic,50,150,4.1,-15,5,-15,5,-15,0,27,38,35,20,390
+2H Melee,katana,0,kinetic,15,160,3.5,-5,5,-5,5,-5,0,21,21,50,25,390
+2H Melee,maul,2,blast,75,335,6.5,-35,5,-35,5,-35,0,15,95,25,10,390
+2H Melee,heavy duty axe,0,kinetic,35,140,5,0,3,0,5,0,0,15,35,25,10,390
+2H Melee,scythe,1,kinetic,40,210,4.7,10,5,10,5,10,0,30,31,76,31,390
+2H Melee,vibro-axe,1,kinetic,75,175,5,-20,3,-20,5,-20,0,20,65,40,15,390
+Polearm,controllerfp lance,0,kinetic,10,190,5.15,10,3,10,5,10,0,14,20,45,22,390
+Polearm,staff metal lance,0,kinetic,80,110,5,0,3,0,5,0,0,7,51,30,15,390
+Polearm,staff wood s1,0,kinetic,35,80,4.75,20,3,20,5,20,0,5,15,38,15,390
+Polearm,staff wood s2,0,kinetic,40,85,4.75,10,3,10,5,10,0,5,20,38,15,390
+Polearm,vibro-axe polearm,2,kinetic,70,280,5,-50,3,-50,4,-50,0,33,70,55,22,390
+Polearm,vibrolance,1,electrical,60,220,4.5,-30,3,-30,4,-30,0,20,45,65,22,390
+Unarmed,vibroknuckler,1,kinetic,10,85,2.75,10,1,10,3,10,0,8,15,25,15,390
+Carbine,DH17 carbine,0,energy,40,115,3.5,-35,35,15,64,-60,0,9,19,27,12,392
+Carbine,DH17 snub-nosed carbine,0,energy,40,115,3.5,-25,25,0,64,-80,0,9,22,24,12,392
+Carbine,DXR6 carbine,1,acid,90,110,4.6,-20,22,0,64,-80,0,15,25,40,19,392
+Carbine,E11 carbine,1,energy,40,95,3.3,-40,30,0,64,-80,0,10,25,32,15,392
+Carbine,EE3 carbine,0,heat,50,130,4.1,-25,27,0,64,-80,3,7,34,28,15,392
+Carbine,elite carbine,1,energy,80,125,4.1,-35,40,10,64,-50,0,12,25,40,20,392
+Carbine,laser carbine,2,energy,10,185,4.6,-45,50,5,64,-40,0,10,22,36,15,392
+Pistol,CDEF pistol,0,energy,25,50,3.5,0,15,50,64,-80,0,4,10,15,10,392
+Pistol,CDEF pistol (noob),0,energy,50,80,4,-10,15,30,64,-90,0,7,10,20,10,392
+Pistol,D18 pistol,0,energy,15,60,3,-5,15,35,64,-60,0,6,10,24,10,392
+Pistol,DH17 pistol,0,energy,50,75,3.2,-20,20,10,64,-60,0,10,18,31,10,392
+Pistol,DL44 metal pistol,0,energy,20,100,3.4,-12,5,15,64,-80,0,7,10,29,10,392
+Pistol,DL44 pistol,0,energy,20,90,3.4,-10,8,25,64,-80,0,7,10,27,10,392
+Pistol,DX2 pistol,0,acid,60,90,3.5,25,8,-30,64,-90,0,12,20,35,13,392
+Pistol,FWG5 pistol,0,heat,20,100,3.5,0,20,20,64,-70,0,9,10,31,15,392
+Pistol,power5 pistol,0,energy,25,125,3.6,-12,10,5,64,-70,0,10,14,33,13,392
+Pistol,scout blaster pistol,0,energy,35,80,3.1,20,19,0,64,-90,0,7,10,20,10,392
+Pistol,srcombat pistol,1,energy,45,100,3.75,5,12,-20,48,-80,0,13,23,36,13,392
+Pistol,striker pistol (noob),0,energy,20,85,5,-10,20,0,64,-80,0,10,10,20,10,392
+Pistol,striker striker,0,kinetic,35,60,3.4,-10,20,10,64,-70,0,10,10,26,17,392
+Pistol,tangle pistol,0,stun,45,55,3.7,0,10,-10,48,-80,0,3,12,25,20,392
+Rifle,E11 rifle,2,energy,60,120,5.25,-70,50,30,64,-50,0,10,12,20,33,392
+Rifle,bowcaster rifle,0,energy,110,180,6.3,-30,45,0,64,-80,0,13,26,26,37,392
+Rifle,DLT20 rifle,0,energy,95,130,6,-70,60,30,64,-50,0,9,12,20,23,392
+Rifle,DLT20a rifle,0,energy,95,130,6,-50,45,20,64,-50,0,9,12,25,22,392
+Rifle,Jawa ion rifle,1,stun,80,150,6.5,-50,40,0,64,-80,0,4,12,25,40,392
+Rifle,laser rifle,2,energy,10,290,6.75,-80,60,20,64,-50,0,10,12,20,52,392
+Rifle,laser rifle (noob),0,energy,65,155,4,-30,52,10,64,-60,0,7,12,20,46,392
+Rifle,SG82 rifle,0,cold,100,130,5.8,-50,35,15,64,-50,0,14,22,20,37,392
+Rifle,spraystick,0,energy,10,110,2.3,-20,30,0,64,-60,2,17,12,36,36,392
+Rifle,T21 rifle,3,energy,150,425,9,-90,60,0,64,-10,0,22,35,30,64,392
+Rifle,Tusken rifle,1,kinetic,100,150,7,-60,60,20,64,-50,0,9,10,18,42,392
+Thrown,cryoban grenade,1,cold,20,250,7,-10,20,15,32,-30,8,10,40,100,15,392
+Thrown,fallback grenade,0,blast,98,200,2.3,-10,20,15,32,-30,6,10,19,10,23,392
+Thrown,fragmentation grenade,1,blast,50,300,4,-10,20,15,32,-30,10,10,80,80,15,392
+Thrown,glop grenade,0,acid,100,350,5,-10,20,15,32,-30,4,10,100,40,15,392
+Thrown,Imperial detonator grenade,3,blast,100,550,6,-10,20,15,32,-30,6,10,125,125,50,392
+Thrown,light fragmentation grenade,0,blast,50,150,4,-10,20,15,32,-30,8,10,50,50,10,392
+Thrown,proton grenade,2,heat,100,300,10,-10,20,15,32,-30,15,10,30,75,65,392
+Thrown,thermal detonator,1,blast,100,400,5,-10,20,15,32,-30,10,10,75,75,35,392

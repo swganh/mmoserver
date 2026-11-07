@@ -233,6 +233,31 @@ client's own target window, which shows the accuracy modifier the client
 works out, measured against known inputs (range, postures, weapons, skill
 mods).
 
+**Weapons and armour** (appendix, pp. 388-395; transcribed in
+`mmoserverdb/reference/prima_ed/`):
+- every weapon has damage, attack speed (seconds between attacks), an
+  accuracy modifier at point blank, at its mid (ideal) range and at its
+  max range, a wound chance and HAM costs for specials. The CDEF pistol:
+  25-50, 3.5 s, 0 / +50 at 15 m / -80 at 64 m; the "noob" CDEF new
+  characters get: 50-80, 4 s, -10 / +30 at 15 m / -90 at 64 m (p. 392);
+- **armour rating** (p. 388): weapons and armour are rated 0 (none) to 3
+  (heavy); player-crafted armour is 1, creatures 0-3. A weapon rated
+  higher than the armour does 25% more damage per level (100 becomes 156
+  for two levels); rated lower, 50% less per level (100 becomes 25 for
+  two levels);
+- **armour effectiveness** (pp. 394-395): the percentage of damage
+  absorbed, generic or per damage type: a number for that type replaces
+  the generic value, 0 means no protection against it, "+" the generic
+  value;
+- default attacks cost no HAM; a special costs its modifiers times the
+  weapon's costs (p. 389).
+
+In the database: the plain CDEF (item type 2326) holds the crafting ranges
+(damage min 17-32, max 35-65: p. 393) and a character gets one at the
+bottom of them (17-35, as seen); the noob CDEF (2755) matches p. 392 but
+for the zero and max range mods (0 and -80 against -10 and -90). No weapon
+stores its attack speed or its mid range in metres.
+
 ### Against the code
 
 | Rule | Code today |

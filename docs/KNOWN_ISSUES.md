@@ -509,6 +509,25 @@ for the trainer room's narration. Gates are now set on every tick from the
 room the player is in, whatever the script is doing, and a step the player
 has gone past stops waiting (`docs/TUTORIAL.md`).
 
+### 22. No welcome mail after the tutorial — open
+
+The original sent new players a welcome letter and a letter for their
+starting profession (`newbie_tutorial/newbie_mail`: `welcome_subject` /
+`welcome_body`, `<profession>_subject` / `_body`, and `collector_*` for the
+Collector's Edition). None arrives here. The code exists:
+`Tutorial::sendStartingMails` runs when the player picks a destination at
+the travel terminal (`Tutorial.cpp`, after the warp) and sends both through
+`MessageLib::sendNewbieMail` to the ChatServer (`opIsmSendSystemMailMessage`).
+To check: whether the ChatServer receives and stores them (the player is
+leaving the zone at that moment, so sending earlier, at the Quartermaster or
+after the oath, may be the fix), and that the body (an STF reference in an
+out-of-band "macro" string) is built as the client expects. Also:
+- The prompt for it, `system_messages:newbie_mail` ("You've received a
+  message.  Press the letter-icon..."), is never shown; it belongs on the
+  planet after arrival.
+- `sendStartingMails` leaks its `SendSystemMailMessage` (set to NULL, then
+  deleted).
+
 ## Fixed while getting the servers running
 
 For reference; details are in the commit messages on `phase2-db-installer`.

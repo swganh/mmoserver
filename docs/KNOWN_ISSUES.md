@@ -483,12 +483,23 @@ The events confirm it is the server: picking up items from the opened
 bandit corpse (`object_used menu_id=10`, three tries on two items) raised no
 `item_transferred`, so the transfer never completed.
 
-### 18. Tutorial combat is slow (debris, bandit) — open
+### 18. Combat is slow (debris, bandit, Tatooine creatures) — partly fixed
 
 Destroying the debris and killing the bandit take much longer than in the
 original. Probably their HAM against a new character's damage with the
 limited combat we have; check the debris and bandit stats in the data
 against the client and recordings before changing them.
+
+Tatooine: the database had copied the womp rat's stats (1000 HAM, 90-110
+damage) onto its smaller relatives, so a novice fighting a lesser desert
+womp rat (Prima 2004 p. 180: level 5, 140-170 HAM, 45-50 damage) faced a
+creature six times too tough; the rill had 500 health (p. 182: 180-220).
+Migration 006 sets the womp rat (p. 184: level 10, 810-990 HAM, 90-110
+damage, 356 XP), the lesser desert womp rat and the rill from the guide.
+The womp rat itself was nearly right: it is a level 10 creature, a hard
+fight for a novice. Still to do: the other creatures as their pages come
+(greater desert and variegated womp rats are not in the pages at hand),
+and the tutorial's debris and bandit.
 
 ### 19. The bandit survives his own grenade — fixed
 

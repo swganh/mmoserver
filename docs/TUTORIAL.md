@@ -34,29 +34,34 @@ The station is building 2203318222959; each room is a cell. Room n is cell
 
 The prompts call it "PART ONE OF NINE" etc. (`part_1` … `part_9`).
 
-| Part | Sub-states | Status |
+| Part | Sub-states | What |
 |---|---|---|
-| 1. Movement and chat | 1-5 | on events |
-| 2. Conversing with NPCs and inventory | 6-9 | on events |
-| 3. Banking and shopping | 10 | old (polls) |
-| 4. Cloning and insurance | 11-14 | old |
-| 5. Combat moves and radar | 15-17 | old |
-| 6. Combat | 18 | old |
-| 7. Skill training | 19 | old |
-| 8. Missions and waypoints | 20+ | old |
-| 9. Bye (the Quartermaster, the oath, travel) | | old; the oath is missing |
+| 1. Movement and chat | 1-5 | camera, chat, Holocron, to room 2 |
+| 2. Conversing with NPCs and inventory | 6-9 | the officer, the drum, food, toolbar |
+| 3. Banking and shopping | 10 | the officer, bank and bazaar terminals |
+| 4. Cloning and insurance | 11-14 | the ramp barks, the droid, cloning, insurance, radar, panic |
+| 5. Combat moves and radar | 15-17 | the nervous refugee, the soldier's weapon (16), the debris |
+| 6. Combat | 18 | the bandit and his grenade |
+| 7. Skill training | 19-20 | the officer, the skill trainer |
+| 8. Missions and waypoints | 21-23 | the mission terminal, the release documents (22) |
+| 9. Bye | 24-27 | the Quartermaster (25), the oath (26), travel (27) |
 
-"On events": each step checks first whether the player has already done it
-(`tutorial/progress.lua` records it from script events from the start), so a
-player who is ahead gets no prompt for it; reminders only come after a
-pause; prompts never talk over each other. Sub-states are saved as before, so
-a reconnect resumes at its step.
+All parts run on events (`tutorial/progress.lua`): each step checks first
+whether the player has already done it, so a player who is ahead gets no
+prompt for it; reminders only come after a pause; prompts never talk over
+each other. The sub-states that C++ checks are set as soon as the player
+reaches the place they matter, never held back by narration: the soldier
+hands over the weapon at 16, the mission officer the documents at 22, the
+Quartermaster takes them at 25, and the travel terminal works from 27 (after
+the oath). Sub-states are saved at every step, so a reconnect resumes there.
+
+`src/ScriptEngine/tutorial_playthrough_unittest.cc` plays the whole script
+on a fake station (`testdata/`) with a player who races ahead (no
+reminders, no waiting; about 2 simulated minutes, most of it narration that
+always plays) and one who waits for every prompt.
 
 ## Missing beats (from the client's files)
 
-- The code of conduct oath at the end: `oath_explain`, `the_oath`,
-  `make_promise`, `swear_reminder`, `tut_60` (sounds `tut_00_swear`,
-  `tut_58/59_pledge`, `tut_60_thankyou`).
 - The CTRL-C status screen prompts (`open_status_prompt`,
   `close_status_prompt`, ...). Whether the client reports the status screen
   is not known yet.
@@ -67,12 +72,24 @@ a reconnect resumes at its step.
   server handles the client's Stat Migration window (CTRL-C). Where the
   original played `stat_open` is to be checked against recordings; likely
   with the status screen prompts.
-- The bandit's grenade (`pirate_taunt3`, `pirate_taunt4`; KNOWN_ISSUES #19)
-  and the debris explosion (#5g).
-- Barks never used: the trapped refugees, `shout_panic3/4`,
-  `quarter_wait`, `mission_repeat`.
+- Barks never used: the trapped refugees (`trapped_guy1-5`),
+  `shout_panic4`, `mission_repeat`, `pirate_taunt1/2`, `nervous_guy5`.
 - Sounds never played: `tut_00_dispenser1/2`, `tut_30_dispenser`,
   `tut_31_bank`, `tut_34_proceed`, `tut_35_elevator`, `tut_39_gosee`,
   `tut_46_combattoolbar`, `tut_48_targetattribs`, `tut_00_stat_open`,
-  `tut_00_statmigration`, `tut_00_keymaps`, `tut_00_keymap_2`,
-  `tut_00_follow_arrow`, `tut_24_toolbarslots` and the oath sounds.
+  `tut_00_keymaps`, `tut_00_keymap_2`, `tut_00_follow_arrow`,
+  `tut_24_toolbarslots`, `tut_59_pledge`.
+
+## Added from the client's files, to check against recordings
+
+- The oath (sub-state 26): `oath_explain` with `tut_00_code_of_conduct`,
+  `the_oath` with `tut_58_pledge`, `make_promise` with `tut_00_swear`, then
+  waiting for I PROMISE in chat (`swear_reminder` with
+  `tut_00_swear_reminder` every 30 s), then `tut_60` with
+  `tut_60_thankyou`. Which pledge sound goes with which line is a guess.
+- The debris explodes when destroyed
+  (`clienteffect/combat_explosion_lair_large.cef`).
+- The bank officer's greeting is `banker_greeting` ("...if you need
+  assistance with this terminal"); the old script used the cloning droid's.
+- The Quartermaster's "Wait a minute there!" at the travel terminal is the
+  client's `quarter_wait`, not a copy in C++.

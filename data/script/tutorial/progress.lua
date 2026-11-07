@@ -41,6 +41,9 @@ function Progress.new(tutorial, playerId)
     ate = false,
     cloned = false,
     insured = false,
+    died = {},            -- creature id -> true (the debris, the bandit)
+    used = {},            -- object id -> radial menu id last used
+    said = {},            -- what the player typed, lower case, latest last
   }, Progress)
 
   local function on(name, handler)
@@ -60,7 +63,13 @@ function Progress.new(tutorial, playerId)
     if e.action == "openInventory" then p.inventoryOpen = true end
     if e.action == "closeInventory" then p.inventoryOpen = false end
   end))
-  on("player_chat", about(function(e) p.chatted = true end))
+  on("player_chat", about(function(e)
+    p.chatted = true
+    p.said[#p.said + 1] = string.lower(e.text or "")
+  end))
+  -- The tutorial's creatures are the player's own, whoever ends them.
+  on("creature_died", function(e) p.died[e.subject] = true end)
+  on("object_used", by(function(e) p.used[e.subject] = e.menu_id end))
   on("container_opened", by(function(e) p.opened[e.subject] = true end))
   on("container_closed", by(function(e) p.closed[e.subject] = true end))
   on("item_transferred", by(function(e)
@@ -86,6 +95,16 @@ function Progress:stop()
     LuaScriptEngine.RemoveEventHandler(id)
   end
   self.handlers = {}
+end
+
+-- Whether the player has typed text containing words (lower case).
+function Progress:hasSaid(words)
+  for _, text in ipairs(self.said) do
+    if string.find(text, words, 1, true) then
+      return true
+    end
+  end
+  return false
 end
 
 function Progress:reported(action)

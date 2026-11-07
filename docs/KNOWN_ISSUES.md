@@ -265,10 +265,10 @@ was not affected.
 Seen repeatedly while fighting the tutorial bandit. The player's command
 queue overflows during auto-attack; check its limit and what fills it.
 
-### 5g. No explosion when the tutorial debris is destroyed — open
+### 5g. No explosion when the tutorial debris is destroyed — fix needs testing
 
-Cosmetic. `AttackableStaticNpc::playDeathAnimation` exists; check what it
-sends.
+The script now plays `clienteffect/combat_explosion_lair_large.cef` on the
+debris when it is destroyed (`docs/TUTORIAL.md`).
 
 ## Login
 
@@ -464,12 +464,15 @@ original. Probably their HAM against a new character's damage with the
 limited combat we have; check the debris and bandit stats in the data
 against the client and recordings before changing them.
 
-### 19. The bandit survives his own grenade — open
+### 19. The bandit survives his own grenade — needs testing
 
 The pirate's lines (`newbie_convo` `pirate_taunt3`, "A GRENADE!", then
 `pirate_taunt4`, "This grenade is defective! Oh no!") set up his death by
-his own grenade; here he keeps fighting. A scripted beat to add when the
-tutorial moves onto events.
+his own grenade; here he keeps fighting. The script throws it when either
+side runs low (200 HAM) or after five minutes of fighting: the lines, the
+explosion, then `die()`, which is also how he dies in normal combat. Next
+test: does the grenade go off, and does he fall? `tutorial.out` has
+`creature_died` for him when he does.
 
 ### 20. A line of stormtroopers in the tutorial's first room — to check
 
@@ -478,7 +481,7 @@ station (`persistent_npcs`, parentId 2203318222960). The original
 project's data put them there, not the script. Check against recordings
 of the live tutorial and remove or thin them with a migration.
 
-### 21. Racing ahead in the tutorial got it stuck — fixed in parts 1-2
+### 21. Racing ahead in the tutorial got it stuck — fixed in parts 1-2, parts 3-9 need testing
 
 The script armed each check (container open, chat, food, client reports)
 only when it reached that step, so anything the player did earlier was
@@ -486,7 +489,9 @@ missed and the script waited for it forever: the drum in room 2, after
 which the officer handing over the weapon would not talk. Parts 1 and 2 now
 run on events and check what the player has already done
 (`docs/TUTORIAL.md`); confirmed on the VM, racing through rooms 1-2 to the
-end of the tutorial. Parts 3-9 still poll and move over next.
+end of the tutorial. Parts 3-9 now run on events too, setting the
+sub-states C++ checks (the weapon, the release documents, the
+Quartermaster) as soon as the player arrives.
 
 ## Fixed while getting the servers running
 

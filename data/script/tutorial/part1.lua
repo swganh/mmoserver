@@ -15,6 +15,11 @@ end
 local scriptSupport = ScriptSupport:Instance();
 local playerId = tutorial:getPlayer();
 
+-- What the player does is recorded from here on, before anything else is
+-- set up: a player may act within the first second (tutorial/progress.lua).
+local Progress = require 'script/tutorial/progress'
+local progress = Progress.new(tutorial, playerId)
+
 local function createAndSpawnNpc(npcTypeId, npcFirstName, npcLastName, cellId, ySpawnDir, wSpawnDir, xSpawnPos, ySpawnPos, zSpawnPos)
 
 	-- Create the npc, of type "npcTypeId".
@@ -223,8 +228,6 @@ end;
 -- prompt for it, and a player who is slow gets reminders. Prompts never
 -- talk over each other. Sub-states are saved as before, so a reconnect
 -- resumes at the step it left.
-local Progress = require 'script/tutorial/progress'
-local progress = Progress.new(tutorial, playerId)
 
 -- isContainerEmpty only answers for the container named here.
 tutorial:enableItemContainerEvent(containerId);
@@ -441,6 +444,525 @@ local function partsOneAndTwo(fromSubState)
 	tutorial:setSubState(10);
 end
 
+-- Parts three to nine (sub-states 10 to 27), on events like parts one and
+-- two. The sub-states that C++ checks are set as soon as the player reaches
+-- the place they matter, never held back by narration:
+--   16: the soldier hands over the weapon (QuestGiver sets 17),
+--   22: the mission officer gives the release documents (sets 23),
+--   25: the Quartermaster takes them (sets 26),
+--   27: the oath is sworn; the travel terminal works from here.
+
+-- Rooms in the order they are walked through (room n is cell 959 + n;
+-- the debris corridor, room 14, lies between rooms 7 and 8).
+local STAGE = { [1] = 1, [2] = 2, [3] = 3, [4] = 4, [5] = 5, [6] = 6, [7] = 7,
+                [14] = 8, [8] = 9, [9] = 10, [10] = 11, [11] = 12 };
+
+local function stage()
+	return STAGE[room()] or 0;
+end
+
+local function posX() return tutorial:getPlayerPosX(); end
+local function posY() return tutorial:getPlayerPosY(); end
+local function posZ() return tutorial:getPlayerPosZ(); end
+
+-- Moves the tutorial to sub-state n unless C++ or the player already went
+-- further; true when step n still has to be done.
+local function todo(n)
+	local current = tutorial:getSubState();
+	if current < n then
+		tutorial:setSubState(n);
+		current = n;
+	end
+	return current == n;
+end
+
+local function flyText(objectId, key)
+	scriptSupport:sendFlyText(objectId, playerId, "newbie_tutorial/system_messages", key, 0, 255, 0, 0);
+end
+
+local function npcSays(npcId, key)
+	tutorial:spatialChat(npcId, "@newbie_tutorial/newbie_convo:" .. key);
+end
+
+local function npcShouts(npcId, key)
+	tutorial:spatialChatShout(npcId, "@newbie_tutorial/newbie_convo:" .. key);
+end
+
+local function dead(npcId)
+	return npcId == nil or progress.died[npcId] or scriptSupport:npcIsDead(npcId);
+end
+
+local function step10()	-- Part 3: banking and shopping (room 3)
+	tutorial:enableHudElement("chatbox");
+	tutorial:enableHudElement("toolbar");
+	tutorial:enableNpcConversationEvent(bankAndBazzarRoomOfficerId);
+	-- "PART THREE OF NINE (banking and shopping)"
+	progress:say("part_3", nil, 1000);
+
+	local officer = bankAndBazzarRoomOfficerId;
+	local function leftRoom() return stage() > 3 or (room() == 3 and posZ() < -19) end
+	if not progress.talking[officer] and not leftRoom() then
+		npcSays(officer, "banker_greeting");
+		-- "Converse with the Imperial Officer"
+		progress:say("tut_28", 3149, 5000);		-- sound/tut_28_converse.snd
+		local explained = false;
+		progress:waitFor(function()
+			if not explained and scriptSupport:getTarget(playerId) == officer and not progress.talking[officer] then
+				explained = true;
+				-- "Do you see the option to converse?..."
+				progress:say("tut_11", 3436, 10000);	-- sound/tut_11_converse.snd
+			end
+			return progress.talking[officer] or leftRoom();
+		end, function() progress:say("tut_28", 3149, 5000) end, 30000, 30000);
+	end
+	progress:waitFor(function() return progress.talked[officer] or leftRoom() end);
+
+	-- The bank and the bazaar: each explained when the player looks at or uses it.
+	local bankDone, bazaarDone = false, false;
+	local sinceFlyText = 0;
+	while not (bankDone and bazaarDone) and not leftRoom() do
+		local target = scriptSupport:getTarget(playerId);
+		if not bankDone and (target == bankTerminalId or progress.used[bankTerminalId]) then
+			bankDone = true;
+			-- "Banks let you deposit and withdraw cash on hand..." and the rest.
+			progress:say("bank_info_1", 421, 6000);		-- sound/tut_32_bank.snd
+			progress:say("bank_info_2", nil, 7000);
+			progress:say("bank_info_3", nil, 7000);
+			progress:say("bank_info_4", nil, 5000);
+		elseif not bazaarDone and (target == bazzarTerminalId or progress.used[bazzarTerminalId]) then
+			bazaarDone = true;
+			-- "This is an item dispenser..." / galactic bazaar / everything...
+			progress:say("bazaar_info_1", 936, 5500);	-- sound/tut_29_itemdispenser.snd
+			progress:say("bazaar_info_2", 98, 7000);		-- sound/tut_00_bazaar_tease.snd
+			progress:say("bazaar_info_3", nil, 8500);
+		end
+		if sinceFlyText <= 0 then
+			if not bankDone then flyText(bankTerminalId, "bank_flytext") end			-- "*Access the bank here!*"
+			if not bazaarDone then flyText(bazzarTerminalId, "bazaar_flytext") end	-- "*Shop!*"
+			sinceFlyText = 5000;
+		end
+		progress:sleep(250);
+		sinceFlyText = sinceFlyText - 250;
+	end
+end
+
+local function step11()	-- Part 4: down the ramp past the insured commoners (room 4)
+	tutorial:enableHudElement("chatbox");
+	tutorial:enableHudElement("toolbar");
+	-- "PART FOUR OF NINE (cloning and insurance)"
+	progress:say("part_4", nil, 1000);
+	if stage() < 5 then
+		-- "Move down the ramp toward the cloning and insurance terminals."
+		progress:say("tut_36", 2297, 3000);			-- sound/tut_36_movedownhall.snd
+		local barks = {
+			{ npcUserBark1Id, "ins_user_bark_1", function() return posY() <= -6.9 end },
+			{ npcUserBark2Id, "ins_user_bark_2", function() return posZ() <= -47 end },
+			{ npcUserBark3Id, "ins_user_bark_3", function() return posZ() <= -54 or posX() <= 45 end },
+		};
+		progress:waitFor(function() return stage() >= 4 end);
+		for _, bark in ipairs(barks) do
+			progress:waitFor(function() return stage() >= 5 or (stage() == 4 and bark[3]()) end);
+			if stage() >= 5 then break end
+			npcSays(bark[1], bark[2]);
+		end
+	end
+	progress:waitFor(function() return stage() >= 5 end,
+		function() progress:say("tut_36", 2297, 3000) end, 30000, 30000);
+end
+
+local function step12()	-- Part 4: cloning and insurance (room 5)
+	tutorial:enableHudElement("chatbox");
+	tutorial:enableHudElement("toolbar");
+	tutorial:enableNpcConversationEvent(cloningAndInsuranceDroidId);
+	local droid = cloningAndInsuranceDroidId;
+	local function movedOn() return stage() > 5 end
+
+	if not (progress.cloned or progress.talking[droid] or movedOn()) then
+		npcSays(droid, "clone_greeting");
+		progress:waitFor(function() return progress.talking[droid] or progress.cloned or movedOn() end,
+			function() npcSays(droid, "clone_prompt_convo") end, 10000, 30000);
+	end
+	progress:waitFor(function() return progress.talked[droid] or progress.cloned or movedOn() end);
+
+	if not (progress.cloned or movedOn()) then
+		flyText(cloningTerminalId, "clone_here");	-- "*Clone!*"
+		-- "Use the cloning terminal..."
+		progress:say("tut_37", 3245, 5000);			-- sound/tut_37_cloning.snd
+		progress:waitFor(function() return progress.cloned or movedOn() end,
+			function() flyText(cloningTerminalId, "clone_here") end, 5000, 5000);
+	end
+	if progress.cloned then
+		-- "Your clone data has been saved!"
+		progress:say("declare_cloned", nil, 1000);
+	end
+
+	if not (progress.insured or movedOn()) then
+		npcSays(droid, "convo_3_explain_terminal_1");
+		progress:sleep(5000);
+		npcSays(droid, "convo_3_explain_terminal_2");
+		flyText(insuranceTerminalId, "insure_here");	-- "*Insurance!*"
+		-- "Use the insurance terminal."
+		progress:say("tut_38", 2678, 3000);			-- sound/tut_38_insurance.snd
+		progress:waitFor(function() return progress.insured or movedOn() end,
+			function() flyText(insuranceTerminalId, "insure_here") end, 5000, 5000);
+	end
+	if progress.insured then
+		-- "All of your items have been insured!"
+		progress:say("declare_insured", nil, 3000);
+	end
+
+	if not movedOn() then
+		-- "Proceed to the next room."
+		progress:say("visit_commerce_room", 2202, 3000);	-- sound/tut_27_proceed.snd
+	end
+	progress:waitFor(function() return posZ() <= -64 or stage() >= 6 end);
+	if stage() <= 6 then
+		npcShouts(npcShoutPanic, "shout_panic1");
+	end
+end
+
+local function step13()	-- Part 4: the radar
+	tutorial:enableHudElement("chatbox");
+	tutorial:enableHudElement("toolbar");
+	progress:waitFor(function() return posZ() <= -73 or stage() >= 6 end);
+	-- "If you're going down that hallway, you might want advanced warning... This is your radar."
+	progress:say("radar", 2975, 2000);			-- sound/tut_41_advancewarning.snd
+	tutorial:enableHudElement("radar");
+end
+
+local function step14()	-- Part 4: the panic in the corridor (room 6)
+	tutorial:enableHudElement("chatbox");
+	tutorial:enableHudElement("toolbar");
+	tutorial:enableHudElement("radar");
+	progress:waitFor(function() return stage() >= 6 end);
+	if stage() == 6 then
+		npcShouts(npcShoutPanic, "shout_panic2");
+		npcShouts(npcShoutPanic, "shout_panic3");
+	end
+end
+
+local function step15()	-- Part 5: combat moves and radar; the nervous refugee
+	tutorial:enableHudElement("chatbox");
+	tutorial:enableHudElement("toolbar");
+	tutorial:enableHudElement("radar");
+	-- "PART FIVE OF NINE (combat moves and radar)"
+	progress:say("part_5", nil, 1000);
+	local lines = {
+		{ "nervous_guy1", function() return posX() >= 12 end },
+		{ "nervous_guy2", function() return posZ() >= -86 and posX() >= 12 end },
+		{ "nervous_guy3", function() return posZ() >= -82 and posX() >= 12 end },
+	};
+	for _, line in ipairs(lines) do
+		progress:waitFor(function() return stage() >= 7 or line[2]() end);
+		if stage() >= 7 then break end
+		npcSays(npcNervousGuy, line[1]);
+	end
+end
+
+local function step16()	-- Part 5: the soldier who hands over a weapon (room 7)
+	tutorial:enableHudElement("chatbox");
+	tutorial:enableHudElement("toolbar");
+	tutorial:enableHudElement("radar");
+	tutorial:enableNpcConversationEvent(npcCovardOfficer);
+	local function armed() return tutorial:getSubState() >= 17 end
+	if stage() < 7 then
+		-- "The red dots show potentially aggressive entities..." / zoom the map
+		progress:say("radar_more", 1259, 18000);		-- sound/tut_42_map.snd
+		progress:say("tut_43", 2327, 5000);			-- sound/tut_43_zoommap.snd
+		progress:waitFor(function() return stage() >= 7 or armed() end);
+	end
+	if not armed() then
+		-- "Converse with the soldier."
+		progress:say("tut_40", 957, 3000);			-- sound/tut_40_converse.snd
+		progress:waitFor(armed, function() progress:say("tut_40", 957, 3000) end, 30000, 30000);
+	end
+end
+
+local function step17()	-- Part 5: the debris blocking the hallway
+	if npcDebrisId == nil then
+		npcDebris, npcDebrisId = createAndSpawnNpc(npcDebrisTypeId, "", "", cellDebris, yDirDebris, wDirDebris, xPosDebris, yPosDebris, zPosDebris);
+	end
+	tutorial:makeCreatureAttackable(npcDebrisId);
+	tutorial:enableHudElement("chatbox");
+	tutorial:enableHudElement("toolbar");
+	tutorial:enableHudElement("radar");
+	tutorial:enableHudElement("hambar");
+
+	if stage() <= 7 and not dead(npcDebrisId) then
+		progress:waitFor(function() return posX() >= 45 or stage() > 7 or dead(npcDebrisId) end);
+		if stage() <= 7 then
+			npcShouts(npcNervousGuy, "nervous_guy4");
+		end
+	end
+	if not dead(npcDebrisId) then
+		progress:waitFor(function() return (posZ() <= -80 and posX() >= 72) or stage() > 7 or dead(npcDebrisId) end);
+	end
+	if not dead(npcDebrisId) then
+		-- "The hallway is blocked by debris.  Attack it to destroy it..."
+		progress:say("tut_45", 3183, 8000);			-- sound/tut_45_proceed.snd
+		progress:waitFor(function() return dead(npcDebrisId) end);
+	end
+	-- It explodes (KNOWN_ISSUES #5g).
+	scriptSupport:scriptSystemMessage(playerId, npcDebrisId, "clienteffect/combat_explosion_lair_large.cef");
+	npcDebrisId = nil;
+end
+
+local function step18()	-- Part 6: combat with the bandit (room 8)
+	tutorial:enableHudElement("all");
+	local npcBandit, npcBanditId = createAndSpawnNpc(npcBanditTypeId, "", "", cellBandit, yDirBandit, wDirBandit, xPosBandit, yPosBandit, zPosBandit);
+	createAndPopulateLoot(89, npcBanditId, playerId);		-- a melon
+	createAndPopulateLoot(35, npcBanditId, playerId);		-- blue milk
+
+	-- Special attacks, the default attack, "PART SIX OF NINE (combat)", attacking.
+	progress:say("explain_combat_1", 179, 5000);			-- sound/tut_47_defaultattack.snd
+	progress:say("explain_combat_2", nil, 10000);
+	progress:say("part_6", nil, 3000);
+	progress:say("tut_44_attacking", 1553, 5000);		-- sound/tut_44_attacking.snd
+
+	-- Up to five minutes of fighting; when either side runs low, or time
+	-- is up, the bandit throws his grenade, which is defective.
+	local combatMaxDuration = 300000;
+	local combatTimer = combatMaxDuration;
+	while not dead(npcBanditId) do
+		if tutorial:isLowHam(npcBanditId, 200) then
+			combatTimer = 0;
+		end
+		if scriptSupport:npcInCombat(npcBanditId) and scriptSupport:npcInCombat(playerId) then
+			combatTimer = combatTimer - 250;
+			if combatTimer <= 0 then
+				tutorial:npcStopFight(npcBanditId);
+				npcSays(npcBanditId, "pirate_taunt3");		-- "...A GRENADE!"
+				progress:sleep(2000);
+				npcSays(npcBanditId, "pirate_taunt4");		-- "...This grenade is defective!  Oh no!"
+				progress:sleep(250);
+				scriptSupport:scriptSystemMessage(playerId, npcBanditId, "clienteffect/combat_grenade_proton.cef");
+				scriptSupport:npcKill(npcBanditId);
+			end
+		else
+			combatTimer = combatMaxDuration;
+		end
+		-- Don't let the player over the bridge.
+		if posX() < 17 and posZ() < -106 then
+			scriptSupport:setPlayerPosition(playerId, cellBandit, 19, posY(), -112);
+		end
+		progress:sleep(250);
+	end
+	progress:sleep(3000);
+	-- "Congratulations!  The pirate has been destroyed.  Now you can loot his corpse..."
+	progress:say("loot_pirate", 3705, 2500);			-- sound/tut_00_congratulations.snd
+end
+
+local function step19()	-- Part 7: skill training (room 9)
+	tutorial:enableHudElement("all");
+	if npcSkillTrainerId == nil then
+		npcSkillTrainerTypeId = tutorial:getSkillTrainerTypeId();
+		if npcSkillTrainerTypeId == 0 then
+			print("Tutorial: no skill trainer for this profession");
+			return false;
+		end
+		npcSkillTrainer, npcSkillTrainerId = createAndSpawnNpc(npcSkillTrainerTypeId, "", "", cellSkillTrainer, yDirSkillTrainer, wDirSkillTrainer, xPosSkillTrainer, yPosSkillTrainer, zPosSkillTrainer);
+		tutorial:setTutorialCelebTaunts(celeb_guy1_Id);
+		tutorial:setTutorialCelebTaunts(celeb_guy2_Id);
+		tutorial:setTutorialRefugeeTaunts(refugee_guy1_id);
+		tutorial:setTutorialRefugeeTaunts(refugee_guy2_id);
+		tutorial:setTutorialRefugeeTaunts(refugee_guy3_id);
+	end
+
+	if stage() < 10 then
+		-- "Proceed to the next room."
+		progress:say("visit_commerce_room", 685, 3000);	-- sound/tut_52_walkdown.snd
+		progress:waitFor(function() return stage() >= 10 end,
+			function() progress:say("visit_commerce_room", 685, 3000) end, 30000, 30000);
+	end
+
+	local officer = npcOfficerWithTrainerId;
+	tutorial:enableNpcConversationEvent(officer);
+	local function trained() return tutorial:isPlayerTrained() end
+	local function movedOn() return stage() > 10 end
+	-- "PART SEVEN OF NINE (skill training)"
+	progress:say("part_7", nil, 2000);
+	if not (progress.talking[officer] or trained() or movedOn()) then
+		npcSays(officer, "off_1_greeting");
+		-- "Converse with the soldier."
+		progress:say("tut_40", 957, 3000);			-- sound/tut_40_converse.snd
+		progress:waitFor(function() return progress.talking[officer] or trained() or movedOn() end,
+			function() progress:say("tut_40", 957, 3000) end, 30000, 30000);
+	end
+	progress:waitFor(function() return progress.talked[officer] or trained() or movedOn() end);
+
+	if not trained() then
+		tutorial:enableNpcConversationEvent(npcSkillTrainerId);
+		npcSays(npcSkillTrainerId, "trainer_grunt");
+		-- "The Imperial Officer has directed you to a Skill Trainer..."
+		progress:say("tut_49", 3821, 3000);			-- sound/tut_49_skilltrainer.snd
+		progress:waitFor(trained, function() progress:say("tut_49", 3821, 3000) end, 60000, 60000);
+		progress:waitFor(function() return progress.talked[npcSkillTrainerId] or movedOn() end);
+	end
+	if not movedOn() then
+		-- skills window (CTRL-S); character sheet (CTRL-C)
+		progress:say("tut_50", 883, 25000);			-- sound/tut_50_skillbrowser.snd
+		progress:say("tut_51", 3773, 12000);			-- sound/tut_51_charactersheet.snd
+	end
+end
+
+local function step20()	-- Part 7: on to the mission room
+	tutorial:enableHudElement("all");
+	if stage() < 11 then
+		-- "Proceed to the next room."
+		progress:say("visit_commerce_room", 685, 3000);	-- sound/tut_52_walkdown.snd
+		progress:waitFor(function() return stage() >= 11 end,
+			function() progress:say("visit_commerce_room", 685, 3000) end, 30000, 30000);
+	end
+end
+
+local function step22()	-- Part 8: missions and waypoints (room 10); the release documents
+	tutorial:enableHudElement("all");
+	local officer = npcOfficerInMissionRoomId;
+	tutorial:enableNpcConversationEvent(officer);
+	local function documents() return tutorial:getSubState() >= 23 end
+
+	-- "PART EIGHT OF NINE (missions and waypoints)"
+	progress:say("part_8", nil, 3000);
+	if not (progress.talking[officer] or documents()) then
+		-- mission terminals, waypoints, NPCs with tasks
+		progress:say("tut_53", 3591, 10000);			-- sound/tut_53_missions.snd
+		progress:say("tut_55_waypoints", 2887, 10000);	-- sound/tut_55_waypoints.snd
+		progress:say("tut_54", 131, 2000);			-- sound/tut_54_npcmission.snd
+		tutorial:npcSendAnimation(npcCommonerInMissionRoomId, 7, officer);
+	end
+
+	local onTerminal = false;
+	progress:waitFor(function()
+		-- Looking at the mission terminal explains why it can't be used here.
+		local looking = scriptSupport:getTarget(playerId) == missionTerminalId;
+		if looking and not onTerminal then
+			-- "You cannot take a mission from this terminal..."
+			progress:say("mission_terminal", 3397, 5000);	-- sound/tut_00_mission_terminal.snd
+		end
+		onTerminal = looking;
+		return documents();
+	end, function()
+		if not progress.talking[officer] or progress.talked[officer] then
+			npcSays(officer, "mission_hail");
+		end
+	end, 1, 30000);
+end
+
+local function step23()	-- Part 8: on to the Quartermaster
+	tutorial:enableHudElement("all");
+	if stage() < 12 then
+		-- "Move to the next room to deliver your release documents to the Quartermaster."
+		progress:say("tut_56", 1731, 3000);			-- sound/tut_56_quartermaster.snd
+		progress:waitFor(function() return stage() >= 12 end,
+			function() progress:say("tut_56", 1731, 3000) end, 30000, 30000);
+	end
+end
+
+local function step25()	-- Part 9: the Quartermaster (room 11)
+	tutorial:enableHudElement("all");
+	tutorial:enableNpcConversationEvent(npcQuartermasterId);
+	local function delivered() return tutorial:getSubState() >= 26 end
+	-- "PART NINE OF NINE (bye!)"
+	progress:say("part_9", nil, 1000);
+	if not (progress.talking[npcQuartermasterId] or delivered()) then
+		npcSays(npcQuartermasterId, "quarter_greeting");
+		-- "Converse with the Quartermaster."
+		progress:say("tut_57", 1893, 3000);			-- sound/tut_57_quartermaster.snd
+	end
+	progress:waitFor(delivered, function() progress:say("tut_57", 1893, 3000) end, 30000, 30000);
+end
+
+local function step26()	-- Part 9: the oath, before the travel terminal works
+	tutorial:enableHudElement("all");
+	local function sworn() return progress:hasSaid("i promise") end
+	-- "You are required to promise to obey the code of conduct..."
+	progress:say("oath_explain", 1047, 6000);			-- sound/tut_00_code_of_conduct.snd
+	-- "I promise to treat my fellow players and citizens with respect..."
+	progress:say("the_oath", 1424, 6000);			-- sound/tut_58_pledge.snd
+	-- "To swear your oath, please type the words I PROMISE into your chat window..."
+	progress:say("make_promise", 2730, 5000);			-- sound/tut_00_swear.snd
+	-- Only what is typed from here counts.
+	progress.said = {};
+	progress:waitFor(sworn,
+		function() progress:say("swear_reminder", 3175, 6000) end, 30000, 30000);	-- sound/tut_00_swear_reminder.snd
+	-- "Thank you.  You are now a citizen of Star Wars Galaxies."
+	progress:say("tut_60", 686, 4000);				-- sound/tut_60_thankyou.snd
+	tutorial:setSubState(27);
+end
+
+local function step27()	-- Done: the travel terminal shows the destinations.
+	tutorial:enableHudElement("all");
+end
+
+local function partsThreeToNine()
+	if todo(10) and step10() == false then
+		return false;
+	end
+
+	if todo(11) and step11() == false then
+		return false;
+	end
+
+	if todo(12) and step12() == false then
+		return false;
+	end
+
+	if todo(13) and step13() == false then
+		return false;
+	end
+
+	if todo(14) and step14() == false then
+		return false;
+	end
+
+	if todo(15) and step15() == false then
+		return false;
+	end
+
+	if todo(16) and step16() == false then
+		return false;
+	end
+
+	if todo(17) and step17() == false then
+		return false;
+	end
+
+	if todo(18) and step18() == false then
+		return false;
+	end
+
+	if todo(19) and step19() == false then
+		return false;
+	end
+
+	if todo(20) and step20() == false then
+		return false;
+	end
+
+	todo(21);
+	if todo(22) and step22() == false then
+		return false;
+	end
+
+	if todo(23) and step23() == false then
+		return false;
+	end
+
+	todo(24);
+	if todo(25) and step25() == false then
+		return false;
+	end
+
+	if todo(26) and step26() == false then
+		return false;
+	end
+
+	if todo(27) and step27() == false then
+		return false;
+	end
+	progress:quiet();
+	return true;
+end
 local delayLeft = 0;
 local count;
 
@@ -451,1109 +973,10 @@ while state == 1 do
 		partsOneAndTwo(subState);
 		delayLeft = 0;
 
-	elseif subState == 10 then		-- Part 3
-		tutorial:updateTutorial("changeLookAtTarget");
-		tutorial:enableNpcConversationEvent(bankAndBazzarRoomOfficerId);
-		
-		tutorial:enableHudElement("chatbox");
-		tutorial:enableHudElement("toolbar");	-- Enable toolbar
-
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-
-		-- "PART THREE OF NINE (banking and shopping)"
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:part_3");
-
-		LuaScriptEngine.WaitMSec(1000);
-
-		-- "Converse with the Imperial Officer"
-		-- tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_28");
-		-- tutorial:scriptPlayMusic(3149);		-- sound/tut_28_converse.snd
-
-		-- tutorial:spatialChat(bankAndBazzarRoomOfficerId, "Well hello!  Come talk to me if you need assistance with this terminal");
-		-- delayLeft = 5000;
-		
-		local targetSelected = false;
-		while (targetSelected == false) do
-			-- "Converse with the Imperial Officer"
-			tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_28");
-			tutorial:scriptPlayMusic(3149);		-- sound/tut_28_converse.snd
-			
-			tutorial:spatialChat(bankAndBazzarRoomOfficerId, "@newbie_tutorial/newbie_convo:clone_greeting");
-			delayLeft = 5000;
-			
-			for count = 1,60 do 
-				if (tutorial:isChangeLookAtTarget() == false) then
-					LuaScriptEngine.WaitMSec(500);
-					if delayLeft > 0 then
-						delayLeft = delayLeft - 500
-					end
-				end
-				-- Is it the correct target?g9
-				if (scriptSupport:getTarget(playerId) == bankAndBazzarRoomOfficerId)  then
-					targetSelected = true;
-					break;
-				else
-					-- print("Wrong target selected");
-					tutorial:updateTutorial("changeLookAtTarget");
-				end
-			end;
-		-- end;
-		
-			if (targetSelected == true) then
-				targetSelected = false;
-				
-				-- Activate again, we need to check bank and bazzar.
-				tutorial:updateTutorial("changeLookAtTarget");
-	
-				-- wait until sound has stopped.
-				LuaScriptEngine.WaitMSec(delayLeft);
-				delayLeft = 0;
-
-				-- "Do you see the option to converse?  While holding your mouse button, move to the converse option and let go of the mouse button to select it."
-				tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_11");
-				tutorial:scriptPlayMusic(3436);		-- sound/tut_11_converse.snd
-						
-				for count = 1,60 do 
-					if (tutorial:isNpcConversationStarted(bankAndBazzarRoomOfficerId) == false) then
-						LuaScriptEngine.WaitMSec(500);
-						if delayLeft > 0 then
-							delayLeft = delayLeft - 500
-						end;
-					else
-						targetSelected = true;
-						break;
-					end;
-				end;
-			end
-	
-		end;
-	
-		-- wait until sound has stopped.
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-
-		local allTargetsActivated = false;
-		local bankSelected = false;
-		local bazzarSelected = false;
-		
-		while (allTargetsActivated == false) do
-			for count = 1,60 do 
-				if (allTargetsActivated == true) then
-					break;
-				end;
-		
-				if (count % 10) == 0 then
-					if (bankSelected == false) then
-						-- send flytext "*Access the bank here!*"
-						scriptSupport:sendFlyText(bankTerminalId, playerId, "newbie_tutorial/system_messages", "bank_flytext", 0, 255, 0, 0);
-					end;
-
-					if (bazzarSelected == false) then
-						-- send flytext "*Shop!*"
-						scriptSupport:sendFlyText(bazzarTerminalId, playerId, "newbie_tutorial/system_messages", "bazaar_flytext", 0, 255, 0, 0);
-					end;
-				end;
-				
-				if (tutorial:isChangeLookAtTarget() == false) then
-					LuaScriptEngine.WaitMSec(500);
-					if delayLeft > 0 then
-						delayLeft = delayLeft - 500
-					end
-				end;
-
-				-- Is it the correct target?
-				if (scriptSupport:getTarget(playerId) == bankTerminalId) and (delayLeft == 0) then
-					if (bankSelected == false) then
-						tutorial:updateTutorial("changeLookAtTarget");
-						
-						-- "Banks let you deposit and withdraw cash on hand.  You can also use the bank to store items."
-						tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:bank_info_1");
-
-						tutorial:scriptPlayMusic(421);		-- sound/tut_32_bank.snd							
-						LuaScriptEngine.WaitMSec(6000);
-
-						-- "You can only retrieve your items from the bank in which you stored the item.  You can only store items in the bank you've joined."
-						tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:bank_info_2");
-						LuaScriptEngine.WaitMSec(7000);
-						
-						-- "Although you can change banks at any time, you can only be a member of one bank at a time."
-						tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:bank_info_3");
-						LuaScriptEngine.WaitMSec(7000);
-						
-						-- "You can spend credits from your bank account at most terminals."
-						tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:bank_info_4");
-						LuaScriptEngine.WaitMSec(5000);
-						
-						-- "Banks let you deposit and withdraw cash on hand.  You can also use the bank to store items.  You can only retrieve your items from the bank in which you stored the item.  You can only store items in the bank you've joined.  Although you can change banks at any time, you can only be a member of one bank at a time.  You can spend credits from your bank account at most terminals."
-						-- tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_32");
-
-						-- tutorial:scriptPlayMusic(421);		-- sound/tut_32_bank.snd							
-						-- LuaScriptEngine.WaitMSec(25000);
-
-						-- "When you find hard credits (cash on hand), be sure to deposit them in your bank as soon as possible to avoid losing them."
-						-- tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:bank_info_5");
-
-						-- "When you find hard credits (cash on hand) be sure to deposit them in your bank as soon as possible to avoid losing them."
-						-- tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_33");
-						
-						
-						-- tutorial:scriptPlayMusic(46);		-- sound/tut_33_cash.snd							
-						-- delayLeft = 12000;
-						bankSelected = true;
-					end;
-					
-				elseif (scriptSupport:getTarget(playerId) == bazzarTerminalId) and (delayLeft == 0) then
-					if (bazzarSelected == false) then
-						tutorial:updateTutorial("changeLookAtTarget");
-						
-						-- "This is an item dispenser.  You can use it to buy basic items in the game."
-						tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:bazaar_info_1");
-
-						tutorial:scriptPlayMusic(936);		-- sound/tut_29_itemdispenser.snd	-- This is an item Dispenser"
-						LuaScriptEngine.WaitMSec(5500);
-						
-						tutorial:scriptPlayMusic(98);		-- sound/tut_00_bazaar_tease.snd
-						-- "In addition to the basic item dispensers, you'll find a number of terminals that will connect you to the galactic bazaar."
-						tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:bazaar_info_2");
-						LuaScriptEngine.WaitMSec(7000);
-						
-						-- "Everything from large quantities of resources, to specialized items can be bought and sold at the bazaar terminal."
-						tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:bazaar_info_3");
-					
-						-- tutorial:scriptPlayMusic(98);		-- sound/tut_00_bazaar_tease.snd
-						delayLeft = 8500;
-						bazzarSelected = true;						
-					end;
-				end;
-				
-				if (bankSelected == false) or (bazzarSelected == false) then
-					tutorial:updateTutorial("changeLookAtTarget");
-				else
-					allTargetsActivated = true;
-				end
-				
-				-- print("Room = " .. tutorial:getRoom() .. " and Z-position = " .. tutorial:getPlayerPosZ());
-				if (tutorial:getRoom() == 3) and (tutorial:getPlayerPosZ() < -19) then
-					-- print("Breaking from loop");
-					allTargetsActivated = true;
-				end;	
-
-			end;
-			
-		end;
- 		tutorial:setSubState(11);
-		
-	elseif subState == 11 then		-- Part 4 (first part)
-		tutorial:enableHudElement("chatbox");
-		tutorial:enableHudElement("toolbar");	-- Enable toolbar
-		-- tutorial:enableNpcConversationEvent(cloningAndInsuranceDroidId);
-
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 3000;
-
-		-- "PART FOUR OF NINE (cloning and insurance)"
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:part_4");
-
-		-- if (tutorial:getRoom() ~= 5) then
-		if (tutorial:getRoom() < 5) then	
-			-- "Move down the ramp toward the cloning and insurance terminals."
-			tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_36");
-			tutorial:scriptPlayMusic(2297);	-- sound/tut_36_movedownhall.snd	
-			
-			-- We are going to pass some npc's that bark at us... and they all are in room 4.
-			while tutorial:getRoom() ~= 4 do			
-				LuaScriptEngine.WaitMSec(500);
-				if delayLeft > 0 then
-					delayLeft = delayLeft - 500
-				end
-			end
-			
-			-- Now we are in the room with barkers...
-			-- Are we down the ramp yet?
-			local playerPosHeight = tutorial:getPlayerPosY();
-			
-			while (playerPosHeight > -6.9) do
-				-- print("Height = " .. playerPosHeight);	
-				LuaScriptEngine.WaitMSec(500);
-				if delayLeft > 0 then
-					delayLeft = delayLeft - 500
-				end
-				playerPosHeight = tutorial:getPlayerPosY();
-			end;
-
-			-- Yee, we are down the ramp now.
-			-- Let the dog start barking...
-			tutorial:spatialChat(npcUserBark1Id, "@newbie_tutorial/newbie_convo:ins_user_bark_1");
-			
-			local playerPosZ = tutorial:getPlayerPosZ();			
-					
-			while (playerPosZ > -47) do
-				-- print("playerPosZ = " .. playerPosZ);	
-				LuaScriptEngine.WaitMSec(500);
-				if delayLeft > 0 then
-					delayLeft = delayLeft - 500
-				end
-				playerPosZ = tutorial:getPlayerPosZ();					
-			end;
-			tutorial:spatialChat(npcUserBark2Id, "@newbie_tutorial/newbie_convo:ins_user_bark_2");					
-
-			local playerPosX = tutorial:getPlayerPosX();
-			playerPosZ = tutorial:getPlayerPosZ();			
-					
-			while (playerPosZ > -54) and (playerPosX > 45) do
-				-- print("playerPosX = " .. playerPosX);
-				-- print("playerPosZ = " .. playerPosZ);				
-				LuaScriptEngine.WaitMSec(500);
-				if delayLeft > 0 then
-					delayLeft = delayLeft - 500
-				end
-				playerPosX = tutorial:getPlayerPosX();
-				playerPosZ = tutorial:getPlayerPosZ();			
-			end;
-			tutorial:spatialChat(npcUserBark3Id, "@newbie_tutorial/newbie_convo:ins_user_bark_3");								
-		end;
-
-		-- wait until we are in the correct room.
-		while tutorial:getRoom() ~= 5 do			
-			LuaScriptEngine.WaitMSec(1000);
-			if delayLeft > 0 then
-				delayLeft = delayLeft - 1000
-			end
-		end
-
- 		tutorial:setSubState(12);
-		
-	elseif subState == 12 then		-- Continue Part 4
-		tutorial:enableHudElement("chatbox");
-		tutorial:enableHudElement("toolbar");	-- Enable toolbar
-		tutorial:enableNpcConversationEvent(cloningAndInsuranceDroidId);
-
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-
-		-- tutorial:spatialChat(cloningAndInsuranceDroidId, "@newbie_tutorial/newbie_convo:clone_greeting");
-		tutorial:spatialChat(cloningAndInsuranceDroidId, "@newbie_tutorial/newbie_convo:clone_greeting");
-
-		LuaScriptEngine.WaitMSec(2000);
-		
-		-- tutorial:spatialChat(cloningAndInsuranceDroidId, "@newbie_tutorial/newbie_convo:clone_prompt_convo");
-		-- tutorial:spatialChat(cloningAndInsuranceDroidId, "Remember, to speak to me just click-and-hold on me until you get the radial menu, then select the CONVERSE menu option.");
-		-- wait at least until the previous sound/music has stopped.
-
-		delayLeft = 10000;		-- Shorter delay for the first time.
-		while tutorial:isNpcConversationStarted(cloningAndInsuranceDroidId) == false do
-			LuaScriptEngine.WaitMSec(500);
-			if delayLeft > 0 then
-				delayLeft = delayLeft - 500
-			else
-				-- tutorial:spatialChat(cloningAndInsuranceDroidId, "@newbie_tutorial/newbie_convo:clone_prompt_convo");
-				tutorial:spatialChat(cloningAndInsuranceDroidId, "@newbie_tutorial/newbie_convo:clone_prompt_convo");
-				delayLeft = 30000;				
-			end
-		end
-		delayLeft = 0;
-
-		-- Set event for using the Cloning Terminal.
-		tutorial:updateTutorial("cloneDataSaved");
-		
-		-- Let the user have the conversation with the droid.
-
-		while tutorial:isNpcConversationEnded(cloningAndInsuranceDroidId) == false do
-			LuaScriptEngine.WaitMSec(1000);
-		end
-		
-		-- Conversation done, let's use the terminals. Cloning first.
-
-		-- send flytext "*Clone!*"
-		scriptSupport:sendFlyText(cloningTerminalId, playerId, "newbie_tutorial/system_messages", "clone_here", 0, 255, 0, 0);
-
-		-- "Use the cloning terminal.  You can do this through the radial menu, or you can just double-click.  The cursor changes when over a usable item."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_37");
-		tutorial:scriptPlayMusic(3245);		-- sound/tut_37_cloning.snd							
-
-		LuaScriptEngine.WaitMSec(5000);
-
--- TODO: We SHALL wait for the cloning data to be storead AND full Insurance before we continue.
-
-		-- wait for the cloning data to be storead
-		count = 0;
-		while (tutorial:isCloneDataSaved() == false) do
-			LuaScriptEngine.WaitMSec(500);
-
-			if (count % 10) == 0 then
-				-- send flytext "*Clone!*"
-				scriptSupport:sendFlyText(cloningTerminalId, playerId, "newbie_tutorial/system_messages", "clone_here", 0, 255, 0, 0);
-				count = 1;
-			else
-				count = count + 1;
-			end;
-		end;
-		
-		tutorial:updateTutorial("insureItemsDone");
-
-		-- "Your clone data has been saved!"
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:declare_cloned");
-
-		-- tutorial:spatialChat(cloningAndInsuranceDroidId, "@newbie_tutorial/newbie_convo:convo_3_explain_terminal_1");
-		tutorial:spatialChat(cloningAndInsuranceDroidId, "@newbie_tutorial/newbie_convo:convo_3_explain_terminal_1");
-		
-		LuaScriptEngine.WaitMSec(5000);
-		
-		-- tutorial:spatialChat(cloningAndInsuranceDroidId, "@newbie_tutorial/newbie_convo:convo_3_explain_terminal_2");
-		tutorial:spatialChat(cloningAndInsuranceDroidId, "@newbie_tutorial/newbie_convo:convo_3_explain_terminal_2");
-
-		-- send flytext "*Insurance!*"
-		scriptSupport:sendFlyText(insuranceTerminalId, playerId, "newbie_tutorial/system_messages", "insure_here", 0, 255, 0, 0);
-
-		LuaScriptEngine.WaitMSec(2000);
-		
-		-- "Use the insurance terminal."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_38");
-		tutorial:scriptPlayMusic(2678);		-- sound/tut_38_insurance.snd						
-
-		LuaScriptEngine.WaitMSec(3000);
-		
-		-- Is it the correct target?
-		count = 0;		
-		while (tutorial:isItemsInsured() == false) do
-			LuaScriptEngine.WaitMSec(500);
-		
-			if (count % 10) == 0 then
-				-- send flytext "*Insurance!*"
-				scriptSupport:sendFlyText(insuranceTerminalId, playerId, "newbie_tutorial/system_messages", "insure_here", 0, 255, 0, 0);
-				count = 1;
-			else
-				count = count + 1;
-			end;
-		end;
-
-		-- "All of your items have been insured!"
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:declare_insured");
-		LuaScriptEngine.WaitMSec(3000);
-
-		-- Some extra hints have been requested here, so I add this one.
-		-- "Proceed to the next room."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:visit_commerce_room");
-		tutorial:scriptPlayMusic(2202);		-- sound/tut_27_proceed.snd
-
-		--  Waiting for one of the commoners to get "panic".
-		local playerPosZ = tutorial:getPlayerPosZ();			
-				
-		while (playerPosZ > -64) do
-			LuaScriptEngine.WaitMSec(500);
-			if delayLeft > 0 then
-				delayLeft = delayLeft - 500
-			end
-			playerPosZ = tutorial:getPlayerPosZ();					
-		end;
-		tutorial:spatialChatShout(npcShoutPanic, "@newbie_tutorial/newbie_convo:shout_panic1");					
-		
- 		tutorial:setSubState(13);
-		
-	elseif subState == 13 then		-- Continue Part 4
-		tutorial:enableHudElement("chatbox");
-		tutorial:enableHudElement("toolbar");	-- Enable toolbar
-		LuaScriptEngine.WaitMSec(3000);
-	
-		local playerPosZ = tutorial:getPlayerPosZ();			
-		while (playerPosZ > -73) do
-			LuaScriptEngine.WaitMSec(500);
-			playerPosZ = tutorial:getPlayerPosZ();					
-		end;
-
-		-- "If you're going down that hallway, you might want advanced warning of what's down there.  This is your radar."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:radar");
-		tutorial:scriptPlayMusic(2975);		-- sound/tut_41_advancewarning.snd	
-		LuaScriptEngine.WaitMSec(2000);
-		tutorial:enableHudElement("radar");	-- Enable radar	
-		
- 		tutorial:setSubState(14);
-		
-	elseif subState == 14 then		-- Continue Part 4
-		tutorial:enableHudElement("chatbox");
-		tutorial:enableHudElement("toolbar");	-- Enable toolbar
-		tutorial:enableHudElement("radar");	-- Enable radar
-		LuaScriptEngine.WaitMSec(3000);
-		
-		local playerPosX = tutorial:getPlayerPosZ();			
-		local playerPosZ = tutorial:getPlayerPosZ();			
-		while (playerPosZ > -86) and (playerPosX < 3) and (tutorial:getRoom() < 7) do
-		 	LuaScriptEngine.WaitMSec(500);
-		 	playerPosZ = tutorial:getPlayerPosZ();					
-		end;
-		
-		tutorial:spatialChatShout(npcShoutPanic, "@newbie_tutorial/newbie_convo:shout_panic2");					
-		
-		-- Wait until we enter the next room.
-		while (tutorial:getRoom() < 6) do
-			LuaScriptEngine.WaitMSec(500);
-		end
-
-		local playerPosX = tutorial:getPlayerPosX();			
-				
-		while (playerPosX < 4)  and (tutorial:getRoom() < 7) do
-			LuaScriptEngine.WaitMSec(500);
-			playerPosX = tutorial:getPlayerPosX();					
-		end;
-
- 		tutorial:setSubState(15);
-		
-	elseif subState == 15 then		-- Part 5
-
-		tutorial:enableHudElement("chatbox");
-		tutorial:enableHudElement("toolbar");	-- Enable toolbar
-		tutorial:enableHudElement("radar");	-- Enable radar
-
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-		
-		-- "PART FIVE OF NINE (combat moves and radar)"
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:part_5");
-		LuaScriptEngine.WaitMSec(1000);
-		
-		-- The red dots show potentially aggressive entities.  Yellow dots indicate peaceful life signatures.  You can also access an overlay map with CTRL-M.  Press CTRL-M again to turn it off.
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:radar_more");
-		tutorial:scriptPlayMusic(1259);		-- sound/tut_42_map.snd	
-		LuaScriptEngine.WaitMSec(18000);
-						
-		-- You can zoom the overlay map using the mousewheel, while holding down the CTRL key.
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_43");
-		tutorial:scriptPlayMusic(2327);		-- sound/tut_43_zoommap.snd	
-		delayLeft = 5000;
-	
-		local playerPosX = tutorial:getPlayerPosX();			
-				
-		while (playerPosX < 12)  and (tutorial:getRoom() < 7) do
-			LuaScriptEngine.WaitMSec(500);
-			if delayLeft > 0 then
-				delayLeft = delayLeft - 500
-			end
-			playerPosX = tutorial:getPlayerPosX();					
-		end;
-		tutorial:spatialChat(npcNervousGuy, "@newbie_tutorial/newbie_convo:nervous_guy1");	-- nervous_guy1
-
-		playerPosX = tutorial:getPlayerPosX();
-		playerPosZ = tutorial:getPlayerPosZ();			
-		while ((playerPosZ < -86) or (playerPosX < 12)) and (tutorial:getRoom() < 7)  do
-			LuaScriptEngine.WaitMSec(500);
-			if delayLeft > 0 then
-				delayLeft = delayLeft - 500
-			end
-			playerPosX = tutorial:getPlayerPosX();		
-			playerPosZ = tutorial:getPlayerPosZ();						
-		end;
-		tutorial:spatialChat(npcNervousGuy, "@newbie_tutorial/newbie_convo:nervous_guy2");	-- nervous_guy2
-
-		playerPosX = tutorial:getPlayerPosX();
-		playerPosZ = tutorial:getPlayerPosZ();			
-		while ((playerPosZ < -82) or (playerPosX < 12)) and (tutorial:getRoom() < 7)  do
-			LuaScriptEngine.WaitMSec(500);
-			if delayLeft > 0 then
-				delayLeft = delayLeft - 500
-			end
-			playerPosX = tutorial:getPlayerPosX();		
-			playerPosZ = tutorial:getPlayerPosZ();						
-		end;
-		tutorial:spatialChat(npcNervousGuy, "@newbie_tutorial/newbie_convo:nervous_guy3");	-- nervous_guy3
- 		tutorial:setSubState(16);
- 		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 3000;
-				
-	elseif subState == 16 then		-- Continue part 5
-		tutorial:enableHudElement("chatbox");
-		tutorial:enableHudElement("toolbar");	-- Enable toolbar
-		tutorial:enableHudElement("radar");	-- Enable radar
-		tutorial:enableNpcConversationEvent(npcCovardOfficer);
-
-		-- Wait until we enter the next room.
-		while tutorial:getRoom() < 7 do
-			LuaScriptEngine.WaitMSec(500);
-			if delayLeft > 0 then
-				delayLeft = delayLeft - 500
-			end
-		end
- 		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-		
-		-- NOTE: The state and npc id used are to be retained in QuestGiver::handleConversationEvent() and QuestGiver::preProcessfilterConversation().
-		
-		-- "Converse with the soldier."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_40");
-		tutorial:scriptPlayMusic(957);		-- sound/tut_40_converse.snd	-- Converse with the soldier.
-		
-		while tutorial:isNpcConversationStarted(npcCovardOfficer) == false do
-			LuaScriptEngine.WaitMSec(500);
-		end
-
-		while tutorial:isNpcConversationEnded(npcCovardOfficer) == false do
-			LuaScriptEngine.WaitMSec(500);
-
-			-- The state is magically changed to 17 in QuestGiver::handleConversationEvent().
-			if (tutorial:getSubState() == 17) then -- "Ho-ho, now I have a machine gun" (or maybe just a pistol)
-				-- tutorial:addQuestWeapon(10,2755);
-				-- "A weapon has been added to your inventory."
-				-- tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:receive_weapon");
-				break;
-			end;
-		end
-		
-	elseif subState == 17 then		-- Continue part 5
-		if (npcDebrisId == nil) then
-			-- Create the Debris
-			print("Adding new debris");
-			npcDebris, npcDebrisId = createAndSpawnNpc(npcDebrisTypeId, "", "", cellDebris, yDirDebris, wDirDebris, xPosDebris, yPosDebris, zPosDebris);
-		end;
-
-		-- enable Debris to be attacked.
-		tutorial:makeCreatureAttackable(npcDebrisId);
-
-		tutorial:enableHudElement("chatbox");
-		tutorial:enableHudElement("toolbar");	-- Enable toolbar
-		tutorial:enableHudElement("radar");	-- Enable radar
-		tutorial:enableHudElement("hambar");	-- Enable hambar
-
- 		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-		
-		local playerPosX = tutorial:getPlayerPosX();			
-		while (playerPosX < 45) do
-			LuaScriptEngine.WaitMSec(500);
-			playerPosX = tutorial:getPlayerPosX();					
-		end;
-		tutorial:spatialChatShout(npcNervousGuy, "@newbie_tutorial/newbie_convo:nervous_guy4");	-- nervous_guy4
-		
-		playerPosX = tutorial:getPlayerPosX();
-		local playerPosZ = tutorial:getPlayerPosZ();			
-		while (playerPosZ > -80) or (playerPosX < 72) do
-			LuaScriptEngine.WaitMSec(500);
-			playerPosX = tutorial:getPlayerPosX();		
-			playerPosZ = tutorial:getPlayerPosZ();						
-		end;
-
-		-- enable Debris to be attacked.
-		-- tutorial:makeCreatureAttackable(npcDebrisId);
-
-		-- "The hallway is blocked by debris.  Attack it to destroy it.  Then proceed to the next room to face your enemy."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_45");
-		tutorial:scriptPlayMusic(3183);		-- sound/tut_45_proceed.snd
-		delayLeft = 8000;
-		-- LuaScriptEngine.WaitMSec(3000);
-
-		-- LuaScriptEngine.WaitMSec(6000);
-
-		while (scriptSupport:npcIsDead(npcDebrisId) == false) do
-			LuaScriptEngine.WaitMSec(500);
-			if (delayLeft > 0) then
-				delayLeft = delayLeft - 500
-			end
-		end;
-		-- This will make the Debris re-spawn when we test and goes back to previous "state".
-		npcDebrisId = nil;
- 		tutorial:setSubState(18);
-
- 		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-
-	elseif subState == 18 then		-- Part 6
-		-- Spawn the bandit
-		tutorial:enableHudElement("all");		-- Enable full UI
-		
-		local npcBandit;
-		local npcBanditId;
-		npcBandit, npcBanditId = createAndSpawnNpc(npcBanditTypeId, "", "", cellBandit, yDirBandit, wDirBandit, xPosBandit, yPosBandit, zPosBandit);
-
-		-- 89 equals a melon :)
-		createAndPopulateLoot(89, npcBanditId, playerId);
-		
-		-- 35 equals blue milk :)
-		createAndPopulateLoot(35, npcBanditId, playerId);
-		
-		LuaScriptEngine.WaitMSec(2000);	
-
-		-- "In combat, you can spend your HEALTH, MIND or ACTION pools to invoke special attacks."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:explain_combat_1");
-		tutorial:scriptPlayMusic(179);		-- sound/tut_47_defaultattack.snd
-		LuaScriptEngine.WaitMSec(5000);
-
-		-- "The ATTACK option on the radial menu will be the default attack for hostile creatures."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:explain_combat_2");
-		LuaScriptEngine.WaitMSec(10000);
-		-- delayLeft = 8000;
-
-		-- "PART SIX OF NINE (combat)"
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:part_6");
-		LuaScriptEngine.WaitMSec(3000);
-		
-		-- "When you hover your cursor over someone, your cursor changes to let you know that you can attack them.  Double-clicking them will attack them.  You can also cycle through targets with the tab key."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_44_attacking");
-		tutorial:scriptPlayMusic(1553);		-- sound/tut_44_attacking.snd
-		-- LuaScriptEngine.WaitMSec(5000);
-		delayLeft = 5000;
-
-		-- to be used when combat starts.
-		while (scriptSupport:npcInCombat(npcBanditId) == false) do
-			LuaScriptEngine.WaitMSec(500);
-			if delayLeft > 0 then
-				delayLeft = delayLeft - 500
-			end
-		end;
-		
-		-- fight for about 3 min, don't let the player over the bridge.
-		-- if player HAM goes below 50%, let the Bandit use his grenade.
-		-- if player pulls out of the fight, restart the time to completion.
-
-		local combatMaxDuration = 300000;	-- 5 minutes max to fight uninterrupted and have fun!
-		-- local combatMaxDuration = 15000;	-- 1 minute to fight and have fun!
-
-		local combatTimer = combatMaxDuration;
-		
-		-- Main combat loop, continue here until npc is dead.
-		-- We are in combat. Check player and target HAM.
-		while (scriptSupport:npcIsDead(npcBanditId) == false) do
-			if (tutorial:isLowHam(npcBanditId, 200) == true) then
-				combatTimer = 0;
-			end;
-			
-			if ((scriptSupport:npcInCombat(npcBanditId) == true) and (scriptSupport:npcInCombat(playerId) == true)) then
-				if (combatTimer > 0) then
-					combatTimer = combatTimer - 500;
-					LuaScriptEngine.WaitMSec(500);
-				else
-					-- Blow the grenade.
-					tutorial:npcStopFight(npcBanditId);
-				
-					tutorial:spatialChat(npcBanditId, "@newbie_tutorial/newbie_convo:pirate_taunt3");
-					LuaScriptEngine.WaitMSec(2000);
-					tutorial:spatialChat(npcBanditId, "@newbie_tutorial/newbie_convo:pirate_taunt4");
-					LuaScriptEngine.WaitMSec(250);
-					scriptSupport:npcKill(npcBanditId);
-					scriptSupport:scriptSystemMessage(playerId, npcBanditId, "clienteffect/combat_grenade_proton.cef");
-					-- scriptSupport:npcKill(npcBanditId);
-				end;
-			else
-				-- We pulled out of combat, to bad.
-				-- print("Out of combat");			
-				combatTimer = combatMaxDuration;
-				LuaScriptEngine.WaitMSec(500);
-			end;
-			
-			-- Don't let the player over the bridge.
-			local playerPosX = tutorial:getPlayerPosX();
-			local playerPosY = tutorial:getPlayerPosY();			
-			local playerPosZ = tutorial:getPlayerPosZ();	
-			
-			if (playerPosX < 17) and (playerPosZ < -106)  then
-				scriptSupport:setPlayerPosition(playerId, cellBandit, 19, playerPosY, -112);
-			end;
-		end;
-
-		tutorial:setSubState(19);				
-		
-		-- wait until sound has stopped.
-		LuaScriptEngine.WaitMSec(6000);
-		
-		-- "Congratulations!  The pirate has been destroyed.  Now you can loot his corpse by clicking and holding your mouse on him until you get the radial menu option to LOOT."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:loot_pirate");
-		tutorial:scriptPlayMusic(3705);		-- sound/tut_00_congratulations.snd
-		delayLeft = 2500;
-		
-	elseif subState == 19 then		-- Part 7
-		tutorial:enableHudElement("all");		-- Enable full UI
-
-		-- Have to check the existance of the trainer, since in test mode, we may enter here more than once.
-		if (npcSkillTrainerId == nil) then
-			-- spawn your dedicated skill trainer.
-			npcSkillTrainerTypeId = tutorial:getSkillTrainerTypeId();
-
-			if (npcSkillTrainerTypeId ~= 0) then
-				npcSkillTrainer, npcSkillTrainerId = createAndSpawnNpc(npcSkillTrainerTypeId, "", "", cellSkillTrainer, yDirSkillTrainer, wDirSkillTrainer, xPosSkillTrainer, yPosSkillTrainer, zPosSkillTrainer);
-				-- print("Spawned NPC");			
-			else
-				-- Invalid skill trainer type id, we have to abort the script.
-				print("Failed spawning NPC");
-				state = 2;
-				break;
-			end;
-			
-			tutorial:setTutorialCelebTaunts(celeb_guy1_Id);
-			tutorial:setTutorialCelebTaunts(celeb_guy2_Id);
-			
-			tutorial:setTutorialRefugeeTaunts(refugee_guy1_id);
-			tutorial:setTutorialRefugeeTaunts(refugee_guy2_id);
-			tutorial:setTutorialRefugeeTaunts(refugee_guy3_id);
-		end;
-			
-		-- special for testing
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-		
-		-- LuaScriptEngine.WaitMSec(7000);
-		
-		-- Enable when re-testing combat.
-		-- tutorial:scriptSystemMessage("Developer message: If you want to help us test combat again, go back to the imperial officer in the previous room.");
-		-- tutorial:scriptSystemMessage("When there, you are ready for a new fight. No logout is required.");
-		
-		while (tutorial:getRoom() ~= 9)  do
-		
-		-- Enable when re-testing combat.
-			
-			-- LuaScriptEngine.WaitMSec(500);
-			-- if delayLeft > 0 then
-			-- 	delayLeft = delayLeft - 500
-			-- end
-			
-			-- special for testing.
-			-- if tutorial:getRoom() == 7 then
-			--	tutorial:setSubState(17);	
-			--	tutorial:scriptSystemMessage("Developer message: You are now ready for a new fight. Go back and kill that Pirate.");
-			--	tutorial:scriptSystemMessage("Thank you, all help with testing is appreciated!");
-			--	break
-			-- end 
-			
-			local count;
-			for count = 1,60 do 
-				if (tutorial:getRoom() == 9) then
-					break
-				end 
-				LuaScriptEngine.WaitMSec(500);
-				if delayLeft > 0 then
-					delayLeft = delayLeft - 500
-				end
-			end;
-			
-			LuaScriptEngine.WaitMSec(delayLeft);
-			delayLeft = 0;		
-			
-			if (tutorial:getRoom() ~= 9) then
-				-- "Proceed to the next room."
-				tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:visit_commerce_room");
-				tutorial:scriptPlayMusic(685);			-- sound/tut_52_walkdown.snd	
-				delayLeft = 3000;		
-			end;
-		end;
-		
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-
-		-- Enable when re-testing combat.
-		-- if (tutorial:getSubState() == 19) then
-		tutorial:enableNpcConversationEvent(npcOfficerWithTrainerId);
-
-		-- "PART SEVEN OF NINE (skill training)"
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:part_7");
-		LuaScriptEngine.WaitMSec(2000);
-		
-		tutorial:spatialChat(npcOfficerWithTrainerId, "@newbie_tutorial/newbie_convo:off_1_greeting");	--	off_1_greeting
-		LuaScriptEngine.WaitMSec(1000);
-		
-		while tutorial:isNpcConversationStarted(npcOfficerWithTrainerId) == false do
-			-- "Converse with the soldier."
-			tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_40");
-			tutorial:scriptPlayMusic(957);		-- sound/tut_40_converse.snd	-- Converse with the soldier.
-
-			delayLeft = 3000;	
-			
-			local count;
-			for count = 1,60 do 
-				if tutorial:isNpcConversationStarted(npcOfficerWithTrainerId) == true then
-					break
-				end 
-				LuaScriptEngine.WaitMSec(500);
-				if delayLeft > 0 then
-					delayLeft = delayLeft - 500
-				end
-			end
-		end
-
-		while tutorial:isNpcConversationEnded(npcOfficerWithTrainerId) == false do
-			LuaScriptEngine.WaitMSec(500);
-		end;
-
-		-- if the player already have trained, do not force him to converse with trainer.
-		if tutorial:isPlayerTrained() == false then
-			tutorial:enableNpcConversationEvent(npcSkillTrainerId);
-		
-			tutorial:spatialChat(npcSkillTrainerId, "@newbie_tutorial/newbie_convo:trainer_grunt");	--	trainer_grunt
-			LuaScriptEngine.WaitMSec(delayLeft);
-			delayLeft = 0;
-
-			while tutorial:isPlayerTrained() == false do
-				-- "The Imperial Officer has directed you to a Skill Trainer.  Converse with the Skill Trainer to learn your first skill."
-				tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_49");
-				tutorial:scriptPlayMusic(3821);		-- sound/tut_49_skilltrainer.snd
-
-				delayLeft = 3000;	
-				
-				local count;
-				for count = 1,120 do 
-					if tutorial:isPlayerTrained() == true then
-						break
-					end 
-					LuaScriptEngine.WaitMSec(500);
-					if delayLeft > 0 then
-						delayLeft = delayLeft - 500
-					end
-				end
-			end
-			
-			-- Wait for end of conversation.
-			while tutorial:isNpcConversationEnded(npcSkillTrainerId) == false do
-				LuaScriptEngine.WaitMSec(500);
-			end;
-			LuaScriptEngine.WaitMSec(delayLeft);
-			delayLeft = 0;
-					
-		end;
-		LuaScriptEngine.WaitMSec(3000);
-		
-		-- "You've picked up your first skill.  There are many skills to master in your chosen profession and there are advanced professions that only open up once you have mastered many skills.  You can check your skills using the skills window.  You can reach this with the skills button on the button bar, or by pressing CTRL-S."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_50");
-		tutorial:scriptPlayMusic(883);		-- sound/tut_50_skillbrowser.snd
-		LuaScriptEngine.WaitMSec(25000);
-		
-		-- "You can also check your character status after your fight, by pressing the character-sheet button on the button bar, or CTRL-C."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_51");
-		tutorial:scriptPlayMusic(3773);		-- sound/tut_51_charactersheet.snd
-		-- LuaScriptEngine.WaitMSec(12000);
-		delayLeft = 12000;
-	
-		-- "Proceed to the next room."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:visit_commerce_room");
-		tutorial:scriptPlayMusic(685);			-- sound/tut_52_walkdown.snd	
-		delayLeft = 3000;
-		tutorial:setSubState(20);
-
-		-- end;
-		
-	elseif subState == 20 then
-		tutorial:enableHudElement("all");		-- Enable full UI
-
-		-- Wait until we enter the mission terminal room.
-		while tutorial:getRoom() ~= 10 do
-			local count;
-			for count = 1,60 do 
-				if (tutorial:getRoom() == 10) then
-					break
-				end 
-				LuaScriptEngine.WaitMSec(500);
-				if delayLeft > 0 then
-					delayLeft = delayLeft - 500
-				end
-			end;
-			
-			LuaScriptEngine.WaitMSec(delayLeft);
-			delayLeft = 0;		
-			
-			if (tutorial:getRoom() ~= 10) then
-				-- "Proceed to the next room."
-				tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:visit_commerce_room");
-				tutorial:scriptPlayMusic(685);			-- sound/tut_52_walkdown.snd	
-				delayLeft = 3000;
-			end;
-		end;
-			
-		tutorial:setSubState(21);
-
-	elseif subState == 21 then					-- Part 8
-		tutorial:enableNpcConversationEvent(npcOfficerInMissionRoomId);
-		tutorial:enableHudElement("all");		-- Enable full UI
-
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-
-		-- "PART EIGHT OF NINE (missions and waypoints)"
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:part_8");
-		LuaScriptEngine.WaitMSec(3000);
-
-		-- "Mission terminals like those to your left are located throughout the world.  Whenever you want a quick adventure you can always take a job from a mission terminal."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_53");
-		tutorial:scriptPlayMusic(3591);		-- sound/tut_53_missions.snd
-		LuaScriptEngine.WaitMSec(10000);
-		
-		-- "Waypoints indicate destinations.  When you have a job or mission, you can follow the waypoint on your radar.  They appear light blue."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_55_waypoints");
-		tutorial:scriptPlayMusic(2887);		-- sound/tut_55_waypoints.snd
-		LuaScriptEngine.WaitMSec(10000);
-		
-		-- "You can also speak to npcs and do tasks for them.  There's one over there who has something for you to do."
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_54");
-		tutorial:scriptPlayMusic(131);		-- sound/sound/tut_54_npcmission.snd.snd
-		
-		LuaScriptEngine.WaitMSec(2000);
-		tutorial:npcSendAnimation(npcCommonerInMissionRoomId, 7, npcOfficerInMissionRoomId);
-		delayLeft = 5000;
-		
-		tutorial:setSubState(22);	-- Going to get the release documents.
-
-	elseif subState == 22 then	
-		tutorial:enableNpcConversationEvent(npcOfficerInMissionRoomId);
-		tutorial:enableHudElement("all");		-- Enable full UI
-		local missionTerminalSelected = false;
-
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-		
-		if (scriptSupport:getTarget(playerId) == missionTerminalId) then
-			missionTerminalSelected = true;
-
-			-- "You cannot take a mission from this terminal.  To take a mission, you will need to find a mission terminal on a planet."
-			tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:mission_terminal");
-			tutorial:scriptPlayMusic(3397);		-- sound/tut_00_mission_terminal.snd
-			delayLeft = 5000;
-			tutorial:updateTutorial("changeLookAtTarget");
-		else
-			tutorial:updateTutorial("changeLookAtTarget");
-		end;
-		
-		while tutorial:isNpcConversationStarted(npcOfficerInMissionRoomId) == false do
-			tutorial:spatialChat(npcOfficerInMissionRoomId, "@newbie_tutorial/newbie_convo:mission_hail");	--	mission_hail
-			-- LuaScriptEngine.WaitMSec(3000);
-			-- delayLeft = 3000;
-
-			local count;
-			for count = 1,60 do 
-				if (tutorial:isNpcConversationStarted(npcOfficerInMissionRoomId) == true) then
-					break
-				end 
-				LuaScriptEngine.WaitMSec(500);
-				if delayLeft > 0 then
-					delayLeft = delayLeft - 500
-				end
-				
-				if (tutorial:isChangeLookAtTarget() == true) then
-					-- Is it the correct target?
-					if (scriptSupport:getTarget(playerId) == missionTerminalId) then
-						if (missionTerminalSelected == false) then
-							LuaScriptEngine.WaitMSec(delayLeft);
-							delayLeft = 0;
-							missionTerminalSelected = true;
-							-- "You cannot take a mission from this terminal.  To take a mission, you will need to find a mission terminal on a planet."
-							tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:mission_terminal");
-							tutorial:scriptPlayMusic(3397);		-- sound/tut_00_mission_terminal.snd
-							delayLeft = 5000;
-							tutorial:updateTutorial("changeLookAtTarget");
-						end;							
-					else
-						tutorial:updateTutorial("changeLookAtTarget");
-						missionTerminalSelected = false;
-					end;
-				end;					
-			end;
-			-- tutorial:spatialChat(npcOfficerInMissionRoomId, "You there.  No time for that now.  I've got something for you to do.");	--	mission_hail
-		end
-
-		while tutorial:isNpcConversationEnded(npcOfficerInMissionRoomId) == false do
-			LuaScriptEngine.WaitMSec(500);
-			if (tutorial:isChangeLookAtTarget() == true) then
-				-- Is it the correct target?
-				if (scriptSupport:getTarget(playerId) == missionTerminalId) then
-					if (missionTerminalSelected == false) then
-						LuaScriptEngine.WaitMSec(delayLeft);
-						delayLeft = 0;
-						missionTerminalSelected = true;
-						-- "You cannot take a mission from this terminal.  To take a mission, you will need to find a mission terminal on a planet."
-						tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:mission_terminal");
-						tutorial:scriptPlayMusic(3397);		-- sound/tut_00_mission_terminal.snd
-						delayLeft = 5000;
-						tutorial:updateTutorial("changeLookAtTarget");
-					end;							
-				else
-					tutorial:updateTutorial("changeLookAtTarget");
-					missionTerminalSelected = false;
-				end;
-			end;
-		end;
-		delayLeft = 1000;
-
-		-- Will end up in state 23 when finishing the conversation...	
-
-	elseif subState == 23 then
-		tutorial:enableHudElement("all");		-- Enable full UI
-
-		-- Wait until we enter the mission terminal room.
-		while tutorial:getRoom() ~= 11 do
-			-- "Move to the next room to deliver your release documents to the Quartermaster."
-			tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_56");
-			tutorial:scriptPlayMusic(1731);		-- sound/tut_56_quartermaster.snd
-			delayLeft = 3000;		
-		
-			local count;
-			for count = 1,60 do 
-				if (tutorial:getRoom() == 11) then
-					break
-				end 
-				LuaScriptEngine.WaitMSec(500);
-				if delayLeft > 0 then
-					delayLeft = delayLeft - 500
-				end
-			end;		
-		end;
-			
-		tutorial:setSubState(24);
-
-	elseif subState == 24 then					-- Part 9
-		tutorial:enableHudElement("all");		-- Enable full UI
-
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-
-		-- "PART NINE OF NINE (bye!)"
-		tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:part_9");
-		LuaScriptEngine.WaitMSec(1000);
-
-		tutorial:spatialChat(npcQuartermasterId, "@newbie_tutorial/newbie_convo:quarter_greeting");	--	quarter_greeting
-		LuaScriptEngine.WaitMSec(1000);
-		
-		tutorial:setSubState(25);
-
-	elseif subState == 25 then					-- Continue part 9
-		tutorial:enableNpcConversationEvent(npcQuartermasterId);
-		tutorial:enableHudElement("all");		-- Enable full UI
-
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-		
-		while tutorial:isNpcConversationStarted(npcQuartermasterId) == false do
-			-- "Converse with the Quartermaster."
-			tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:tut_57");
-			tutorial:scriptPlayMusic(1893);		-- sound/tut_57_quartermaster.snd
-			LuaScriptEngine.WaitMSec(3000);
-			delayLeft = 3000;	
-			
-			local count;
-			for count = 1,60 do 
-				if (tutorial:isNpcConversationStarted(npcQuartermasterId) == true) then
-					break
-				end 
-				LuaScriptEngine.WaitMSec(500);
-				if delayLeft > 0 then
-					delayLeft = delayLeft - 500
-				end
-			end
-		end
-
-		while (tutorial:isNpcConversationEnded(npcQuartermasterId) == false) do
-			LuaScriptEngine.WaitMSec(500);
-		end;
-		delayLeft = 1000;
-
-	elseif subState == 26 then					-- Continue part 9
-		tutorial:enableHudElement("all");		-- Enable full UI
-
-		LuaScriptEngine.WaitMSec(delayLeft);
-		delayLeft = 0;
-
-
-		-- "Select your destination by clicking on one of the planets on the screen.  When you have selected the planet, select which city you wish to travel to by clicking on the picture to the right of the screen.  When you are ready to travel to the city, click on the arrow in the lower right-hand corner of the screen."
-		-- tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:select_dest");
-
+	else
+		partsThreeToNine();
 		state = 2;
-		
-		-- LuaScriptEngine.WaitMSec(3000);
-		-- tutorial:scriptSystemMessage("This is the end, for now.");
-		
-	end	
+	end
 end
 
 if state == 3 then

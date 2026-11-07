@@ -28,6 +28,7 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 |---|---|---|---|---|
 | T3 | Login | Refusals were silent [6] | If anything is refused at the galaxy screen | `connection.out` has a `Refusing account N: <reason>` line; send it to me |
 | T4 | Script events | New | `sudo ./mmoserverdb/setup.sh update`, then on Tatooine: log in, walk into Mos Eisley, talk to an NPC and pick an option, use a radial menu item, kill a creature, log out. Watch `tail -f tatooine.out \| grep 'event:'` | one `event:` line per action, with the player's id as `source` |
+| T8 | Tutorial parts 3-9 | Racing ahead could leave the soldier, the mission officer or the Quartermaster refusing; no oath; no explosions | New character: race through (talk to each NPC as soon as you reach them). Then one at a normal pace. Let the bandit fight until the grenade | No refusals; the debris explodes; the grenade goes off and the bandit falls; the oath (type I PROMISE) before the travel terminal works |
 | T5 | Scripts | `print` output was lost [15] | Start Tatooine | `tatooine.out` has `[script] WeatherController v.0.2` and `[script] event_logger: listening to 9 events` |
 
 ## Confirmed

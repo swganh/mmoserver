@@ -276,6 +276,19 @@ A handler runs to completion and cannot wait (`WaitMSec`, `WaitEvent`... in
 a handler are an error, logged). To do something that takes time, wait in a
 script instead, e.g. a loop around `WaitEvent`.
 
+### Raising an event from a script
+
+`LuaScriptEngine.RaiseEvent(name, subject [, source [, fields]])` queues an
+event like the zone's own, delivered on the next tick, e.g. a quest step
+telling another script it is done:
+
+```lua
+LuaScriptEngine.RaiseEvent("quest_step_done", playerId, 0, { quest = "tusken_raid", step = 3 })
+```
+
+Fields are numbers or strings. Use names that don't collide with the
+zone's events.
+
 ### Adding an event
 
 In the C++ where it happens:

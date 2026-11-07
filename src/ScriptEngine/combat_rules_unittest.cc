@@ -257,12 +257,12 @@ TEST_F(CombatRulesTest, ClientRangesFromCpp) {
     // The weapon's own values, not a probe file.
     ASSERT_EQ(0, luaL_dostring(rules_.state(), "rules.CLIENT_RANGES_PROBE_FILE = nil"));
     ASSERT_TRUE(rules_.clientRanges(noobCdef(), layout, values));
-    ASSERT_EQ(5u, layout.size());
+    EXPECT_EQ("ffiii", layout);
     ASSERT_EQ(5u, values.size());
-    EXPECT_DOUBLE_EQ(-10, values[0]);
-    EXPECT_DOUBLE_EQ(15, values[1]);
-    EXPECT_DOUBLE_EQ(30, values[2]);
-    EXPECT_DOUBLE_EQ(64, values[3]);
+    EXPECT_DOUBLE_EQ(15, values[0]);
+    EXPECT_DOUBLE_EQ(64, values[1]);
+    EXPECT_DOUBLE_EQ(-10, values[2]);
+    EXPECT_DOUBLE_EQ(30, values[3]);
     EXPECT_DOUBLE_EQ(-90, values[4]);
 
     // A weapon without ranges in metres gets its group's.
@@ -270,8 +270,8 @@ TEST_F(CombatRulesTest, ClientRangesFromCpp) {
     old.midRange = 0;
     old.maxRange = 0;
     ASSERT_TRUE(rules_.clientRanges(old, layout, values));
-    EXPECT_DOUBLE_EQ(15, values[1]);
-    EXPECT_DOUBLE_EQ(64, values[3]);
+    EXPECT_DOUBLE_EQ(15, values[0]);
+    EXPECT_DOUBLE_EQ(64, values[1]);
 
     lua_State* l = rules_.state();
     // Any layout of i and f, as long as it matches the values.

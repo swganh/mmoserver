@@ -297,13 +297,13 @@ end
 
 -- What the server tells the client about the weapon (WeaponRanges, object
 -- controller 0x140), for the accuracy the target window shows. The wiki
--- gives the message as five INTs without names; the order below is a
--- guess (point blank at 0 m needs no distance of its own), to be checked
--- against the target window. Return nothing to send no message.
+-- gives the message as five INTs without names; worked out against the
+-- target window (docs/COMBAT.md): the ideal and max range in metres
+-- (floats), then the point blank, ideal and max modifiers (integers).
+-- Return nothing to send no message.
 --
 -- The first value is the layout: one letter per field, "i" a 4-byte
--- integer, "f" a 4-byte float (at most 8 fields). Tries so far
--- (docs/COMBAT.md): "iiiii" no change; "fffff" read by the client.
+-- integer, "f" a 4-byte float (at most 8 fields).
 --
 -- While the fields are worked out: if script/combat/client_ranges_probe.txt
 -- exists (next to the zone), its first line is sent instead, for every
@@ -339,7 +339,7 @@ function rules.clientRanges(weapon)
     return unpack(probe)
   end
   local midRange, maxRange = rules.ranges(weapon)
-  return "fffff", weapon.zero_mod or 0, midRange, weapon.mid_mod or 0, maxRange, weapon.max_mod or 0
+  return "ffiii", midRange, maxRange, weapon.zero_mod or 0, weapon.mid_mod or 0, weapon.max_mod or 0
 end
 
 function rules.attack(a)

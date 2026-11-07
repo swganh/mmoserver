@@ -141,8 +141,8 @@ a number only next to the target. The SWGANH wiki lists an object
 controller message for it, WeaponRanges (0x140): after the header, a LONG
 and five INTs, otherwise undocumented ("25%", Jan 2008). The server now
 sends it to the player on every target change: the weapon's id, then
-`rules.clientRanges(weapon)`, a guess: point blank modifier, ideal range,
-ideal modifier, max range, max modifier. To be checked in game against the
+`rules.clientRanges(weapon)`: ideal range, max range (floats), point blank,
+ideal and max modifiers (integers), worked out below. To be checked in game against the
 noob CDEF (-10 at 0 m, +30 at 15 m, -90 at 64 m); if the window shows
 something else, change the order in the script and restart the zone. If
 `rules.clientRanges` returns nothing, no message is sent. A probe file,
@@ -200,6 +200,15 @@ Uniform values, max range 20: `-20 20 -20 -20 -20`, `-40 ...`, `-60 ...`
 showed "--" even at 1 m; `20 20 20 20 20` showed +50 from 1 m to about
 21 m. Nothing in between: the client may read the modifiers as fractions
 (0.30 for +30), so 20 is far over the cap and -20 far under the floor.
+
+Fractions, max range 20: 0.1 and 0.3 everywhere showed +50, -0.1 "--",
+all 0 showed -5 at every distance (-35 walking). So not fractions: the
+modifier fields are integers, and a float's bits read as an integer are
+huge, positive or negative with the float's sign. The distances behaved
+as floats. Layout found: **ideal range (float), max range (float), point
+blank modifier, ideal modifier, max modifier (integers)**, "ffiii". It
+fits every probe from G on (A-F had a negative ideal range). The client
+adds its own base (-5 for this marksman standing) and modifiers (moving).
 
 ## What is not
 

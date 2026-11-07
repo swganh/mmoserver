@@ -76,7 +76,8 @@ where it does not:
 | Damage | uniform in the weapon's range x the special's multiplier x armour rating (+25% per level the weapon is above the armour, -50% per level below) x (1 - armour effectiveness for the damage type) | p. 388, pp. 394-395 |
 | Pool | the special's, else health 50%, action 30%, mind 20% | reconstructed |
 | Attack time | the weapon's attack speed x (1 - 1% per point of speed mod) x the special's delay multiplier, at least 1 s | p. 389, p. 145; the 1% reconstructed |
-| Range | the weapon's max range + 1 m for the bodies | p. 390 |
+| Distance | centre to centre less 2 m for the bodies, as the client measures | target window |
+| Range | the weapon's max range + 2 m for the bodies | p. 390, target window |
 
 Weapons carry their ranges in metres as internal attributes
 (`combat_range_mid`, `combat_range_max`; migration 007, from
@@ -139,18 +140,14 @@ send it. It needs the weapon's range data, which the server never sent
 (weapons go to the client as plain tangible objects), so the window showed
 a number only next to the target. The SWGANH wiki lists an object
 controller message for it, WeaponRanges (0x140): after the header, a LONG
-and five INTs, otherwise undocumented ("25%", Jan 2008). The server now
+and five INTs, otherwise undocumented ("25%", Jan 2008). The server
 sends it to the player on every target change: the weapon's id, then
 `rules.clientRanges(weapon)`: ideal range, max range (floats), point blank,
-ideal and max modifiers (integers), worked out below. To be checked in game against the
-noob CDEF (-10 at 0 m, +30 at 15 m, -90 at 64 m); if the window shows
-something else, change the order in the script and restart the zone. If
-`rules.clientRanges` returns nothing, no message is sent. A probe file,
-`script/combat/client_ranges_probe.txt` next to the zone, replaces the
-values for every weapon while it exists (first line, e.g.
-`fffff -10 15 30 64 -90`), read on every target change. The script also
-picks each field's type (`"i"` int32, `"f"` float); each send is logged
-(`WeaponRanges sent to ...` in the zone log).
+ideal and max modifiers (integers), worked out below. If
+`rules.clientRanges` returns nothing, no message is sent. The script also
+picks each field's type (`"i"` int32, `"f"` float). The probes below were
+sent from a probe file the script read on each target change (removed
+once the layout was found).
 
 Tries, marksman with the noob CDEF against a womp rat:
 
@@ -209,6 +206,16 @@ as floats. Layout found: **ideal range (float), max range (float), point
 blank modifier, ideal modifier, max modifier (integers)**, "ffiii". It
 fits every probe from G on (A-F had a negative ideal range). The client
 adds its own base (-5 for this marksman standing) and modifiers (moving).
+
+Checked with the noob CDEF's own values (`ffiii 15 64 -10 30 -90`),
+marksman standing, womp rat: -15 at 2 m, +3 at 8 m, +23 at 16 m, -31 at
+40 m, -50 at 64 m ("--" beyond). That is the guide's curve, 2 m further
+out (the client measures between the bodies, not the centres), plus the
+client's -5, shown between -50 and +50. The rules now measure the same
+way (`RANGE_ALLOWANCE`), so the chance rolled follows the one shown. Not
+known: where the client's -5 comes from (skill mods, the target), so the
+window's number and the rules' modifier may part for other characters or
+targets.
 
 ## What is not
 

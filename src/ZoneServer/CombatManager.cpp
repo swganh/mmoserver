@@ -48,7 +48,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <algorithm>
 #include <cstdlib>
-#include <sstream>
 #include <vector>
 //=========================================================================================
 
@@ -542,14 +541,6 @@ void CombatManager::sendWeaponRanges(PlayerObject* player)
         return;
     }
     gMessageLib->sendWeaponRanges(player, weapon->getId(), layout, values);
-
-    // While the message is being worked out (docs/COMBAT.md).
-    std::ostringstream sent;
-    for (size_t i = 0; i < values.size(); ++i)
-    {
-        sent << " " << layout[i] << ":" << values[i];
-    }
-    LOG(INFO) << "WeaponRanges sent to " << player->getId() << " for weapon " << weapon->getId() << ":" << sent.str();
 }
 
 void CombatManager::applyDamage(CreatureObject* defender, const std::string& pool, int32 damage)

@@ -112,14 +112,15 @@ TEST_F(CombatRulesTest, WeaponsWithoutRangeDataUseTheGroupDefaults) {
     EXPECT_DOUBLE_EQ(1, eval("rules.inRange(old, 64) and 1 or 0"));
     EXPECT_DOUBLE_EQ(0, eval("rules.inRange(old, 70) and 1 or 0"));
     run("knife = { group = 'onehandmelee' }");
-    EXPECT_DOUBLE_EQ(1, eval("rules.inRange(knife, 5.5) and 1 or 0"));
-    EXPECT_DOUBLE_EQ(0, eval("rules.inRange(knife, 7) and 1 or 0"));
+    EXPECT_DOUBLE_EQ(1, eval("rules.inRange(knife, 6.5) and 1 or 0"));
+    EXPECT_DOUBLE_EQ(0, eval("rules.inRange(knife, 7.5) and 1 or 0"));
 }
 
 TEST_F(CombatRulesTest, AccuracyAddsSkillModsAndPostures) {
     run(kCdefLua);
     // Novice Marksman: +10 pistol accuracy (p. 145).
-    run("a = { weapon = cdef, distance = 15,"
+    // 17 m apart: 15 m once the bodies are allowed for, the ideal range.
+    run("a = { weapon = cdef, distance = 17,"
         " attacker = { posture = 'standing', skill_mods = { pistol_accuracy = 10 } },"
         " defender = { posture = 'standing' } }");
     EXPECT_DOUBLE_EQ(40, eval("rules.accuracy(a)"));
@@ -135,9 +136,21 @@ TEST_F(CombatRulesTest, AccuracyAddsSkillModsAndPostures) {
     EXPECT_DOUBLE_EQ(20, eval("rules.accuracy(a)"));
 }
 
+// The target window with the noob CDEF, a marksman standing against a womp
+// rat (docs/COMBAT.md): -15 at 2 m, +3 at 8 m, +23 at 16 m, -31 at 40 m,
+// the client adding its own -5. The rules' modifier at the same distances.
+TEST_F(CombatRulesTest, RangeModMatchesTheTargetWindow) {
+    run(kCdefLua);
+    run("function at(d) return rules.accuracy({ weapon = cdef, distance = d, attacker = {}, defender = {} }) - 5 end");
+    EXPECT_NEAR(-15, eval("at(2)"), 2);
+    EXPECT_NEAR(3, eval("at(8)"), 2);
+    EXPECT_NEAR(23, eval("at(16)"), 2);
+    EXPECT_NEAR(-31, eval("at(40)"), 2);
+}
+
 TEST_F(CombatRulesTest, DefenceModsLowerTheChance) {
     run(kCdefLua);
-    run("a = { weapon = cdef, distance = 15, attacker = {},"
+    run("a = { weapon = cdef, distance = 17, attacker = {},"
         " defender = { skill_mods = { ranged_defense = 25, melee_defense = 100 } } }");
     EXPECT_DOUBLE_EQ(5, eval("rules.accuracy(a)"));
 }
@@ -146,7 +159,7 @@ TEST_F(CombatRulesTest, HitChanceIsBounded) {
     run(kCdefLua);
     run("far = { weapon = cdef, distance = 64, attacker = {}, defender = {} }");
     EXPECT_DOUBLE_EQ(5, eval("rules.hitChance(far)"));
-    run("near = { weapon = cdef, distance = 15, attacker = { posture = 'prone',"
+    run("near = { weapon = cdef, distance = 17, attacker = { posture = 'prone',"
         " skill_mods = { pistol_accuracy = 100 } }, defender = {} }");
     EXPECT_DOUBLE_EQ(95, eval("rules.hitChance(near)"));
     // A creature's own to-hit replaces the base chance.
@@ -212,7 +225,7 @@ TEST_F(CombatRulesTest, AttackFromCpp) {
     attack.attacker.skillMods["pistol_speed"] = 5;
     attack.defender.kind = "creature";
     attack.weapon = noobCdef();
-    attack.distance = 15;
+    attack.distance = 17;
 
     int hits = 0;
     for (int i = 0; i < 1000; ++i) {
@@ -248,14 +261,13 @@ TEST_F(CombatRulesTest, AttackFromCpp) {
 TEST_F(CombatRulesTest, InRangeFromCpp) {
     CombatWeapon cdef = noobCdef();
     EXPECT_TRUE(rules_.inRange(cdef, 64));
-    EXPECT_FALSE(rules_.inRange(cdef, 66));
+    EXPECT_TRUE(rules_.inRange(cdef, 66));
+    EXPECT_FALSE(rules_.inRange(cdef, 67));
 }
 
 TEST_F(CombatRulesTest, ClientRangesFromCpp) {
     std::string layout;
     std::vector<double> values;
-    // The weapon's own values, not a probe file.
-    ASSERT_EQ(0, luaL_dostring(rules_.state(), "rules.CLIENT_RANGES_PROBE_FILE = nil"));
     ASSERT_TRUE(rules_.clientRanges(noobCdef(), layout, values));
     EXPECT_EQ("ffiii", layout);
     ASSERT_EQ(5u, values.size());
@@ -284,24 +296,6 @@ TEST_F(CombatRulesTest, ClientRangesFromCpp) {
     EXPECT_FALSE(rules_.clientRanges(noobCdef(), layout, values));
     ASSERT_EQ(0, luaL_dostring(l, "rules.clientRanges = function() return 'iq', 1, 2 end"));
     EXPECT_FALSE(rules_.clientRanges(noobCdef(), layout, values));
-    // A probe file replaces the weapon's values.
-    {
-        const char* probe = "combat_rules_probe_test.txt";
-        FILE* f = fopen(probe, "w");
-        ASSERT_TRUE(f != 0);
-        fputs("fif 1 2 3.5\nignored\n", f);
-        fclose(f);
-        ASSERT_EQ(0, luaL_dofile(l, kRules));
-        lua_setglobal(l, "rules2");
-        ASSERT_EQ(0, luaL_dostring(l, "rules2.CLIENT_RANGES_PROBE_FILE = 'combat_rules_probe_test.txt'"));
-        ASSERT_EQ(0, luaL_dostring(l, "a, b, c, d = rules2.clientRanges({ group = 'pistol' })"));
-        lua_getglobal(l, "a");
-        EXPECT_STREQ("fif", lua_tostring(l, -1));
-        lua_getglobal(l, "d");
-        EXPECT_DOUBLE_EQ(3.5, lua_tonumber(l, -1));
-        lua_pop(l, 2);
-        std::remove(probe);
-    }
     // A script that returns nothing turns the message off.
     ASSERT_EQ(0, luaL_dostring(l, "rules.clientRanges = function() end"));
     EXPECT_FALSE(rules_.clientRanges(noobCdef(), layout, values));

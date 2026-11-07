@@ -102,9 +102,12 @@ rules.DEFAULT_RANGES = {
   melee = { mid_range = 3, max_range = 5 },
 }
 
--- Distances are measured between centres; this much more is allowed for
--- the bodies. Reconstructed.
-rules.RANGE_ALLOWANCE = 1
+-- Distances are measured between centres; the client measures about this
+-- much less, for the bodies (target window, docs/COMBAT.md: the CDEF's
+-- range curve shows 2 m further out, and the target stays in range 2 m
+-- past the max range). Ranges and range modifiers use the same, so the
+-- chance rolled matches the one shown.
+rules.RANGE_ALLOWANCE = 2
 
 -- Damage ---------------------------------------------------------------------
 
@@ -190,7 +193,7 @@ function rules.accuracy(a)
   local defender = a.defender or {}
   local total = 0
   if weapon then
-    total = total + rules.rangeMod(weapon, a.distance or 0)
+    total = total + rules.rangeMod(weapon, math.max((a.distance or 0) - rules.RANGE_ALLOWANCE, 0))
     total = total + sumMods(attacker, rules.ACCURACY_MODS[weapon.group])
   end
   total = total + (rules.ATTACKER_POSTURE[attacker.posture or "standing"] or 0)
@@ -304,40 +307,8 @@ end
 --
 -- The first value is the layout: one letter per field, "i" a 4-byte
 -- integer, "f" a 4-byte float (at most 8 fields).
---
--- While the fields are worked out: if script/combat/client_ranges_probe.txt
--- exists (next to the zone), its first line is sent instead, for every
--- weapon, e.g. "fffff -10 15 30 64 -90". It is read on every target
--- change, so edit it and re-target; delete it to send the weapon's own
--- values.
-rules.CLIENT_RANGES_PROBE_FILE = "script/combat/client_ranges_probe.txt"
-
-local function readProbe()
-  local file = rules.CLIENT_RANGES_PROBE_FILE and io.open(rules.CLIENT_RANGES_PROBE_FILE, "r")
-  if not file then
-    return nil
-  end
-  local line = file:read("*l") or ""
-  file:close()
-  local fields = {}
-  for word in string.gmatch(line, "%S+") do
-    fields[#fields + 1] = word
-  end
-  if #fields < 2 then
-    return nil
-  end
-  local result = { fields[1] }
-  for i = 2, #fields do
-    result[i] = tonumber(fields[i])
-  end
-  return result
-end
 
 function rules.clientRanges(weapon)
-  local probe = readProbe()
-  if probe then
-    return unpack(probe)
-  end
   local midRange, maxRange = rules.ranges(weapon)
   return "ffiii", midRange, maxRange, weapon.zero_mod or 0, weapon.mid_mod or 0, weapon.max_mod or 0
 end

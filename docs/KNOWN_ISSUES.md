@@ -479,7 +479,7 @@ match the client's messages, and the Lars homestead badge is awarded.
 Still to do: the other planets (their client files are needed), and the second circle the client draws for Mos Eisley
 and Mos Entha (the server has one area per city).
 
-### 17. Corpse loot can't be moved from the opened container — fix needs testing
+### 17. Corpse loot can't be moved from the opened container — fixed
 
 Seen on the tutorial bandit. Loot all works; opening the corpse's
 container shows the items, but they can't be moved to the inventory. The
@@ -503,7 +503,8 @@ corpse: the corpse's loot window sends its items to the player without
 registering the player as watching the corpse's inventory, and taking an
 item only told registered watchers. The looter is now told directly,
 for loot all and for single items. Others who had the corpse open (a
-group) still see the old contents until they reopen it.
+group) still see the old contents until they reopen it. Confirmed on the VM:
+single items drag out of the bandit's corpse, and loot all empties it.
 
 Creature corpses (womp rats and the like) hold credits only: the server
 never puts items in them, and neither guide lists item loot for creatures

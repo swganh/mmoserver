@@ -496,8 +496,14 @@ creature's inventory is not in the world's object map, and that branch
 only accepted the player's own inventory, so every pick-up from a corpse
 was refused (loot all takes another path). It now also accepts a dead
 creature's inventory when the player has loot rights, the same check as
-the corpse's loot radial. Next test: drag single items from the bandit's
-corpse to the inventory.
+the corpse's loot radial.
+
+Loot all then put the items in the inventory but left them showing on the
+corpse: the corpse's loot window sends its items to the player without
+registering the player as watching the corpse's inventory, and taking an
+item only told registered watchers. The looter is now told directly,
+for loot all and for single items. Others who had the corpse open (a
+group) still see the old contents until they reopen it.
 
 Creature corpses (womp rats and the like) hold credits only: the server
 never puts items in them, and neither guide lists item loot for creatures

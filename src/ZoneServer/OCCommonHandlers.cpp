@@ -256,6 +256,20 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 			return true;
 		}
 
+		// A corpse we may loot: a dead creature's inventory, with loot
+		// rights (the same check as the corpse's loot radial).
+		NPCObject* corpse = dynamic_cast<NPCObject*>(gWorldManager->getObjectById(containingContainer - INVENTORY_OFFSET));
+		PlayerObject* looter = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
+		if (corpse && looter && corpse->isDead()
+			&& corpse->allowedToLoot(playerId, looter->getGroupId()))
+		{
+			Inventory* corpseInventory = dynamic_cast<Inventory*>(corpse->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+			if (corpseInventory && corpseInventory->getId() == containingContainer)
+			{
+				return true;
+			}
+		}
+
 		return false;
 
 	}

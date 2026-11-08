@@ -479,7 +479,7 @@ match the client's messages, and the Lars homestead badge is awarded.
 Still to do: the other planets (their client files are needed), and the second circle the client draws for Mos Eisley
 and Mos Entha (the server has one area per city).
 
-### 17. Corpse loot can't be moved from the opened container — open
+### 17. Corpse loot can't be moved from the opened container — fix needs testing
 
 Seen on the tutorial bandit. Loot all works; opening the corpse's
 container shows the items, but they can't be moved to the inventory. The
@@ -489,6 +489,24 @@ copy); check that path first, with `tutorial.out` from a drag attempt.
 The events confirm it is the server: picking up items from the opened
 bandit corpse (`object_used menu_id=10`, three tries on two items) raised no
 `item_transferred`, so the transfer never completed.
+
+Cause: the transfer first asks whether the player may take things out of
+the item's container (`ObjectController::checkContainingContainer`). A
+creature's inventory is not in the world's object map, and that branch
+only accepted the player's own inventory, so every pick-up from a corpse
+was refused (loot all takes another path). It now also accepts a dead
+creature's inventory when the player has loot rights, the same check as
+the corpse's loot radial. Next test: drag single items from the bandit's
+corpse to the inventory.
+
+Creature corpses (womp rats and the like) hold credits only: the server
+never puts items in them, and neither guide lists item loot for creatures
+(the 2003 tables have no loot column, the 2004 ones meat, hide and bone,
+which come from harvesting). `loot_groups` and `loot_templates` exist in
+the database but nothing reads them, and their rows are placeholders
+(group 1, used by the womp rats, holds Tusken boots). Credits are
+10-34 at random for every creature (`NonPersistentNpcFactory`), not from
+any source.
 
 ### 18. Combat is slow (debris, bandit, Tatooine creatures) — partly fixed
 

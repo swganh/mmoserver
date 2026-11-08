@@ -130,8 +130,31 @@ not used, so in that respect players attack faster than they should).
   branch: a dead creature stops attacking).
 - XP by most damage, per weapon type, group split; loot rights.
 - Combat spam, fly text (miss, block, dodge, counter), animations.
-- Ability costs (`healthcost` etc.) are charged for commands that have them
-  (`ObjectController.cpp`); 71 commands have costs.
+- Specials' HAM costs: their cost modifiers x the weapon's attack costs
+  (`rules.costs`), charged when the special is used; a special the
+  attacker cannot pay for is refused. (The flat `healthcost` etc. columns
+  were never charged: `ObjectController::_consumeHam` has no caller.)
+
+## Specials
+
+The special moves table (*An Empire Divided* pp. 76-83, 134 moves for one-
+and two-handed melee, polearm, unarmed, pistol, carbine, rifle and ranged;
+`mmoserverdb/reference/prima_ed/specials.csv`) is in `command_table`
+(migration 010, written by `tools/reference/specials_sql.py`):
+
+| Table | `command_table` | Used as |
+|---|---|---|
+| time modifier | `delay_multiplier` | x the weapon's attack speed |
+| damage modifier | `damage_multiplier` | x the weapon's damage |
+| health, action, mind cost | `*cost_multiplier` (now FLOAT) | x the weapon's attack costs (`rules.costs`) |
+| to-hit modifier | `accuracy_bonus` | added to the accuracy modifier |
+| defender's end posture | `knockdown_chance`, `posture_down_chance`, `posture_up_chance` | 100 where given: down is standing to kneeling to prone, up the reverse |
+| effects, chance, duration | `stun/dizzy/blind_chance`, `*_duration` (new) | rolled on a hit, less the defender's `stun_defense` etc.; the state ends after its duration |
+
+Before: damage and time multipliers that matched neither the guide nor
+each other (Overcharge Shot 1: 5x damage, 2x time; the guide: 2x, 1.25x),
+cost multipliers of 1 that nothing read, and state chances applied on
+every hit, never rolled, and never removed (a stun lasted for good).
 
 ## The target window's accuracy
 
@@ -237,11 +260,12 @@ against melee) is not known.
   in the database yet.
 - **Damage modifiers:** no skill or stat bonuses, players' worn armour,
   vulnerabilities, wounds (weapons have a wound chance) or battle fatigue.
-- **Special attacks:** the command table has `attack`, `berserk1`,
-  `intimidate1`, `warcry1` and the like, but no weapon specials
-  (headshot, bodyshot, legshot...) for the professions.
-- **State chances** are not rolled; states have no durations or
-  defences; knockdown/dizzy interplay is missing.
+- **Special attacks:** the attacker's end posture (Dive Shot prone, Kip Up
+  Shot standing, Roll Shot kneeling), area and cone attacks (every special
+  hits its one target), and the special moves the guide's table does not
+  list (berserk, warcry, intimidate, taunt, Center of Being).
+- **States:** knockdown/dizzy interplay (a dizzy creature falling when it
+  changes posture), knockdowns and posture changes have no duration.
 - **Creatures:** no special moves, no fleeing, no healing; creature
   regeneration is a made-up rule; aggression ignores the player's level.
 - **Combat XP** rates and weapon XP split are placeholders ("a complete
@@ -416,6 +440,7 @@ and the point blank modifier of most pistols (0 for -5 to -20).
    weapons' ranges and the noob CDEF: migration 007. Next: tune the
    reconstructed numbers in play.
 4. Creature regeneration and to-hit from the creature tables.
-5. Specials as data, profession by profession (marksman and brawler first:
-   the starting professions).
+5. Specials as data: done for the 134 moves of the special moves table
+   (migration 010), with costs, to-hit, posture changes and timed effects
+   in the rules. Next: attacker postures, areas and cones.
 6. Creature behaviour as `ai/` scripts.

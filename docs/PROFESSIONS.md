@@ -61,8 +61,6 @@ range (the client's 0 means the weapon's range).
 
 ## Specials
 
-The marksman's specials are all in `command_table` with damage and delay
-multipliers and pools; their HAM costs are 0 (the guide: cost modifiers x
-the weapon's HAM costs, p. 74) and no accuracy bonus is set. The special
-move tables (pp. 74-83: time, damage, cost and to-hit modifiers, end
-postures, effects with chances and durations) are the source for them.
+The 134 moves of the guide's special moves table (pp. 76-83) are in
+`command_table` from migration 010; `docs/COMBAT.md`, "Specials", has how
+the server uses them.

@@ -155,6 +155,15 @@ public:
     float	mExtendedRange;
     float	mDamageMultiplier;
     float	mDelayMultiplier;
+    // specials (migration 010, An Empire Divided pp. 76-83)
+    int32	mAccuracyBonus = 0;
+    float	mHealthCostMultiplier = 0;
+    float	mActionCostMultiplier = 0;
+    float	mMindCostMultiplier = 0;
+    float	mPostureUpChance = 0;
+    float	mStunDuration = 0;
+    float	mDizzyDuration = 0;
+    float	mBlindDuration = 0;
 };
 
 //======================================================================================================================

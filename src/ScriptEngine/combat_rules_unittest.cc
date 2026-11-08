@@ -302,6 +302,77 @@ TEST_F(CombatRulesTest, ClientRangesFromCpp) {
     EXPECT_EQ(0, lua_gettop(l));
 }
 
+TEST_F(CombatRulesTest, SpecialsCostTheWeaponsCostsTimesTheirModifiers) {
+    // Overcharge Shot 1 with the noob CDEF (10/20/10 costs, p. 392):
+    // modifiers 0.5, 0.5, 0.5 (p. 80).
+    CombatAttack attack;
+    attack.weapon = noobCdef();
+    attack.weapon.healthCost = 10;
+    attack.weapon.actionCost = 20;
+    attack.weapon.mindCost = 10;
+    attack.healthCostMultiplier = 0.5f;
+    attack.actionCostMultiplier = 0.5f;
+    attack.mindCostMultiplier = 0.5f;
+    int health = -1, action = -1, mind = -1;
+
+    // The default attack costs nothing (p. 389).
+    ASSERT_TRUE(rules_.costs(attack, health, action, mind));
+    EXPECT_EQ(0, health + action + mind);
+
+    attack.special = true;
+    ASSERT_TRUE(rules_.costs(attack, health, action, mind));
+    EXPECT_EQ(5, health);
+    EXPECT_EQ(10, action);
+    EXPECT_EQ(5, mind);
+}
+
+TEST_F(CombatRulesTest, AccuracyBonusAddsToTheModifier) {
+    run(kCdefLua);
+    run("a = { weapon = cdef, distance = 17, attacker = {}, defender = {}, accuracy_bonus = 15 }");
+    EXPECT_DOUBLE_EQ(45, eval("rules.accuracy(a)"));
+}
+
+TEST_F(CombatRulesTest, EffectsRollTheirChanceLessDefence) {
+    run("a = { defender = { skill_mods = { stun_defense = 30 } },"
+        " effects = { stun = { chance = 85, duration = 45 }, dizzy = { chance = 100, duration = 0 } } }");
+    EXPECT_DOUBLE_EQ(55, eval("rules.effectChance(a, 'stun', 85)"));
+    EXPECT_DOUBLE_EQ(100, eval("rules.effectChance(a, 'dizzy', 100)"));
+    // A roll of 0.5 lands both (50 < 55, 50 < 100); no duration means 30 s.
+    run("landed = rules.effects(a, function() return 0.5 end)");
+    EXPECT_DOUBLE_EQ(2, eval("#landed"));
+    EXPECT_EQ("stun", evalString("landed[1].name"));
+    EXPECT_DOUBLE_EQ(45, eval("landed[1].duration"));
+    EXPECT_DOUBLE_EQ(30, eval("landed[2].duration"));
+    // A roll of 0.6 misses the stun (60 >= 55).
+    run("landed = rules.effects(a, function() return 0.6 end)");
+    EXPECT_DOUBLE_EQ(1, eval("#landed"));
+    EXPECT_EQ("dizzy", evalString("landed[1].name"));
+}
+
+TEST_F(CombatRulesTest, EffectsReachCpp) {
+    CombatAttack attack;
+    attack.weapon = noobCdef();
+    attack.distance = 17;
+    attack.special = true;
+    attack.accuracyBonus = 200;     // always hits (95%)...
+    attack.effects["knockdown"] = CombatEffect(100, 0);
+    int knockdowns = 0, hits = 0;
+    for (int i = 0; i < 100; ++i) {
+        CombatOutcome outcome = rules_.attack(attack);
+        ASSERT_TRUE(outcome.ok);
+        if (outcome.hit) {
+            ++hits;
+            ASSERT_EQ(1u, outcome.effects.size());
+            EXPECT_EQ("knockdown", outcome.effects[0].first);
+            ++knockdowns;
+        } else {
+            EXPECT_TRUE(outcome.effects.empty());
+        }
+    }
+    EXPECT_EQ(hits, knockdowns);
+    EXPECT_GT(hits, 80);
+}
+
 TEST(CombatRulesLoadTest, MissingScriptFallsBack) {
     CombatRules rules;
     EXPECT_FALSE(rules.load("no/such/rules.lua"));

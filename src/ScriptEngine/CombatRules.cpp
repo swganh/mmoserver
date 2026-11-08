@@ -92,6 +92,9 @@ void pushWeapon(lua_State* l, const CombatWeapon& weapon)
     setNumber(l, "mid_range", weapon.midRange);
     setNumber(l, "max_range", weapon.maxRange);
     setNumber(l, "armor_piercing", weapon.armorPiercing);
+    setNumber(l, "health_cost", weapon.healthCost);
+    setNumber(l, "action_cost", weapon.actionCost);
+    setNumber(l, "mind_cost", weapon.mindCost);
 }
 
 void pushAttack(lua_State* l, const CombatAttack& attack)
@@ -110,6 +113,25 @@ void pushAttack(lua_State* l, const CombatAttack& attack)
     {
         setString(l, "pool", attack.pool);
     }
+    lua_pushboolean(l, attack.special ? 1 : 0);
+    lua_setfield(l, -2, "special");
+    setNumber(l, "accuracy_bonus", attack.accuracyBonus);
+
+    lua_newtable(l);
+    setNumber(l, "health", attack.healthCostMultiplier);
+    setNumber(l, "action", attack.actionCostMultiplier);
+    setNumber(l, "mind", attack.mindCostMultiplier);
+    lua_setfield(l, -2, "cost_multipliers");
+
+    lua_newtable(l);
+    for (std::map<std::string, CombatEffect>::const_iterator it = attack.effects.begin(); it != attack.effects.end(); ++it)
+    {
+        lua_newtable(l);
+        setNumber(l, "chance", it->second.chance);
+        setNumber(l, "duration", it->second.duration);
+        lua_setfield(l, -2, it->first.c_str());
+    }
+    lua_setfield(l, -2, "effects");
 }
 
 } // namespace
@@ -233,9 +255,47 @@ CombatOutcome CombatRules::attack(const CombatAttack& attack)
     }
     lua_pop(mState, 1);
 
+    lua_getfield(mState, -1, "effects");
+    if (lua_istable(mState, -1))
+    {
+        int count = static_cast<int>(lua_objlen(mState, -1));
+        for (int i = 1; i <= count; ++i)
+        {
+            lua_rawgeti(mState, -1, i);
+            if (lua_istable(mState, -1))
+            {
+                lua_getfield(mState, -1, "name");
+                lua_getfield(mState, -2, "duration");
+                if (lua_isstring(mState, -2))
+                {
+                    outcome.effects.push_back(std::make_pair(std::string(lua_tostring(mState, -2)),
+                                              static_cast<float>(lua_tonumber(mState, -1))));
+                }
+                lua_pop(mState, 2);
+            }
+            lua_pop(mState, 1);
+        }
+    }
+    lua_pop(mState, 1);
+
     lua_pop(mState, 1);
     outcome.ok = true;
     return outcome;
+}
+
+bool CombatRules::costs(const CombatAttack& attack, int& health, int& action, int& mind)
+{
+    health = action = mind = 0;
+    pushAttack(mState, attack);
+    if (!_call("costs", 1, 3))
+    {
+        return false;
+    }
+    health = static_cast<int>(lua_tonumber(mState, -3));
+    action = static_cast<int>(lua_tonumber(mState, -2));
+    mind = static_cast<int>(lua_tonumber(mState, -1));
+    lua_pop(mState, 3);
+    return true;
 }
 
 bool CombatRules::inRange(const CombatWeapon& weapon, float distance)

@@ -18,6 +18,13 @@
 --   a.delay_multiplier      the command's, 1 for the default attack
 --   a.pool                  "health", "action" or "mind" if the command names
 --                           one, nil for the default attack
+--   a.special               true for a special move, false for the default attack
+--   a.accuracy_bonus        the special's to-hit modifier
+--   a.cost_multipliers      { health, action, mind }: the special's HAM cost
+--                           modifiers (x the weapon's costs)
+--   a.effects               effect -> { chance, duration }: "knockdown",
+--                           "posture_down", "posture_up", "stun", "dizzy",
+--                           "blind", "intimidate"
 --   a.attacker, a.defender  sides:
 --     kind                  "player", "creature" or "object" (lairs, debris)
 --     posture               "standing", "kneeling", "prone" or "other"
@@ -34,8 +41,11 @@
 --     zero_mod, mid_mod, max_mod   accuracy at point blank, ideal and max range
 --     mid_range, max_range  metres
 --     armor_piercing        0-3, the weapon's armour rating
+--     health_cost, action_cost, mind_cost   the weapon's attack costs
 --
--- What it returns: { hit, chance, damage, pool, delay } (delay in seconds).
+-- What it returns: { hit, chance, damage, pool, delay, effects } (delay in
+-- seconds; effects: a list of { name, duration } that landed).
+-- rules.costs(a) returns the health, action and mind a special costs.
 
 local rules = {}
 
@@ -121,6 +131,26 @@ rules.ARMOR_PIERCE_PENALTY = 0.5
 -- more (p. 85) but not how often each; reconstructed.
 rules.POOL_WEIGHTS = { { "health", 50 }, { "action", 30 }, { "mind", 20 } }
 
+-- Specials -------------------------------------------------------------------
+
+-- Each point of the defender's defence mod takes this much off the chance
+-- of the matching effect (Knockdown Defense, Stun Defense...). Reconstructed.
+rules.EFFECT_DEFENSE_PER_POINT = 1
+rules.EFFECT_DEFENSE_MODS = {
+  knockdown = { "knockdown_defense" },
+  posture_down = { "posture_change_down_defense" },
+  posture_up = { "posture_change_up_defense" },
+  stun = { "stun_defense" },
+  dizzy = { "dizzy_defense" },
+  blind = { "blind_defense" },
+  intimidate = { "intimidate_defense" },
+}
+-- An effect the table gives no duration for lasts this long, in seconds:
+-- the table's usual duration.
+rules.DEFAULT_EFFECT_DURATION = 30
+-- The order effects are tried in (the posture changes first).
+rules.EFFECT_ORDER = { "knockdown", "posture_down", "posture_up", "stun", "dizzy", "blind", "intimidate" }
+
 -- Attack time ----------------------------------------------------------------
 
 -- Each point of speed mod takes this fraction off the weapon's attack
@@ -201,6 +231,8 @@ function rules.accuracy(a)
   local byPosture = ranged and rules.DEFENDER_POSTURE_RANGED or rules.DEFENDER_POSTURE_MELEE
   total = total + (byPosture[defender.posture or "standing"] or 0)
   total = total - sumMods(defender, ranged and rules.RANGED_DEFENSE_MODS or rules.MELEE_DEFENSE_MODS)
+  -- A special's to-hit modifier (the special moves table, pp. 76-83).
+  total = total + (a.accuracy_bonus or 0)
   return total
 end
 
@@ -313,6 +345,48 @@ function rules.clientRanges(weapon)
   return "ffiii", midRange, maxRange, weapon.zero_mod or 0, weapon.mid_mod or 0, weapon.max_mod or 0
 end
 
+-- What a special costs: its cost modifiers x the weapon's attack costs
+-- (p. 389). Default attacks cost nothing.
+function rules.costs(a)
+  if not a.special then
+    return 0, 0, 0
+  end
+  local weapon = a.weapon or {}
+  local m = a.cost_multipliers or {}
+  local function cost(base, multiplier)
+    return math.floor((base or 0) * (multiplier or 0) + 0.5)
+  end
+  return cost(weapon.health_cost, m.health), cost(weapon.action_cost, m.action), cost(weapon.mind_cost, m.mind)
+end
+
+-- An effect's chance against this defender, in percent.
+function rules.effectChance(a, effect, chance)
+  local defence = sumMods(a.defender, rules.EFFECT_DEFENSE_MODS[effect])
+  chance = chance - defence * rules.EFFECT_DEFENSE_PER_POINT
+  if chance < 0 then chance = 0 end
+  if chance > 100 then chance = 100 end
+  return chance
+end
+
+-- The effects a hit applies; roll() gives numbers in [0, 1).
+function rules.effects(a, roll)
+  local landed = {}
+  local effects = a.effects or {}
+  for _, name in ipairs(rules.EFFECT_ORDER) do
+    local effect = effects[name]
+    if effect and (effect.chance or 0) > 0 then
+      if roll() * 100 < rules.effectChance(a, name, effect.chance) then
+        local duration = effect.duration
+        if not duration or duration <= 0 then
+          duration = rules.DEFAULT_EFFECT_DURATION
+        end
+        landed[#landed + 1] = { name = name, duration = duration }
+      end
+    end
+  end
+  return landed
+end
+
 function rules.attack(a)
   local chance = rules.hitChance(a)
   local result = { chance = chance, delay = rules.delay(a) }
@@ -320,6 +394,7 @@ function rules.attack(a)
   if result.hit then
     result.damage = rules.damage(a, math.random())
     result.pool = rules.pool(a, math.random())
+    result.effects = rules.effects(a, math.random)
   else
     result.damage = 0
   end

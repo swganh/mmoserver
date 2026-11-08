@@ -44,6 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
 
+#include "Utils/clock.h"
 #include "Utils/rand.h"
 
 #include <algorithm>
@@ -65,6 +66,10 @@ CombatManager::CombatManager(Database* database) :
 
     // Without the script, attacks fall back to the old fixed rules.
     mRules.load("script/combat/rules.lua");
+
+    // Stuns, dizziness and the like wear off (their durations: the special
+    // moves table, migration 010).
+    gWorldManager->getPlayerScheduler()->addTask(fastdelegate::MakeDelegate(this, &CombatManager::_expireStates), 7, 1000, NULL);
 }
 
 //=========================================================================================
@@ -540,6 +545,10 @@ CombatWeapon CombatManager::buildWeapon(Weapon* weapon)
     {
         w.armorPiercing = armorLevel(weapon->getAttribute<std::string>("wpn_armor_pierce_rating"));
     }
+    // What a special costs is a multiple of these (p. 389).
+    w.healthCost = numberAttribute(weapon, "cat_wpn_attack_cost.wpn_attack_cost_health", 0);
+    w.actionCost = numberAttribute(weapon, "cat_wpn_attack_cost.wpn_attack_cost_action", 0);
+    w.mindCost = numberAttribute(weapon, "cat_wpn_attack_cost.wpn_attack_cost_mind", 0);
     return w;
 }
 
@@ -581,13 +590,8 @@ void CombatManager::applyDamage(CreatureObject* defender, const std::string& poo
 
 //======================================================================================================================
 
-uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,Weapon* weapon, uint64* delayMs)
+CombatAttack CombatManager::_buildAttack(CreatureObject* attacker, CreatureObject* defender, ObjectControllerCmdProperties* cmdProperties, Weapon* weapon)
 {
-	uint8	stateApplied			= 0;
-	int32	multipliedDamage		= 0;
-	BString	combatSpam				= "melee";
-
-	// The combat rules (data/script/combat/rules.lua) decide the outcome.
 	CombatAttack attack;
 	attack.attacker = buildSide(attacker);
 	attack.defender = buildSide(defender);
@@ -612,6 +616,72 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 	else if (cmdProperties->mMindHitChance)
 	{
 		attack.pool = "mind";
+	}
+
+	// A special (anything but the default attack, 0xa8fef90a): its to-hit
+	// modifier, costs and effects (command_table, migration 010).
+	attack.special = cmdProperties->mCmdCrc != 0xa8fef90a;
+	attack.accuracyBonus = static_cast<float>(cmdProperties->mAccuracyBonus);
+	attack.healthCostMultiplier = cmdProperties->mHealthCostMultiplier;
+	attack.actionCostMultiplier = cmdProperties->mActionCostMultiplier;
+	attack.mindCostMultiplier = cmdProperties->mMindCostMultiplier;
+	struct { const char* name; float chance; float duration; } effects[] = {
+		{ "knockdown", cmdProperties->mKnockdownChance, 0 },
+		{ "posture_down", cmdProperties->mPostureDownChance, 0 },
+		{ "posture_up", cmdProperties->mPostureUpChance, 0 },
+		{ "stun", cmdProperties->mStunChance, cmdProperties->mStunDuration },
+		{ "dizzy", cmdProperties->mDizzyChance, cmdProperties->mDizzyDuration },
+		{ "blind", cmdProperties->mBlindChance, cmdProperties->mBlindDuration },
+		{ "intimidate", cmdProperties->mIntimidateChance, 0 },
+	};
+	for (size_t i = 0; i < sizeof(effects) / sizeof(effects[0]); ++i)
+	{
+		if (effects[i].chance > 0)
+		{
+			attack.effects[effects[i].name] = CombatEffect(effects[i].chance, effects[i].duration);
+		}
+	}
+	return attack;
+}
+
+bool CombatManager::_payCosts(CreatureObject* attacker, const CombatAttack& attack)
+{
+	int health = 0, action = 0, mind = 0;
+	if (!attack.special || !mRules.costs(attack, health, action, mind) || (health + action + mind) == 0)
+	{
+		return true;
+	}
+	Ham* ham = attacker->getHam();
+	if (!ham || !ham->checkMainPools(health, action, mind))
+	{
+		return false;
+	}
+	if (health) ham->updatePropertyValue(HamBar_Health, HamProperty_CurrentHitpoints, -health);
+	if (action) ham->updatePropertyValue(HamBar_Action, HamProperty_CurrentHitpoints, -action);
+	if (mind) ham->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, -mind);
+	return true;
+}
+
+uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,Weapon* weapon, uint64* delayMs)
+{
+	int32	multipliedDamage		= 0;
+	BString	combatSpam				= "melee";
+
+	// The combat rules (data/script/combat/rules.lua) decide the outcome.
+	CombatAttack attack = _buildAttack(attacker, defender, cmdProperties, weapon);
+
+	// A special the attacker cannot pay for does not happen.
+	if (!_payCosts(attacker, attack))
+	{
+		if (PlayerObject* player = dynamic_cast<PlayerObject*>(attacker))
+		{
+			gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), player);
+		}
+		if (delayMs)
+		{
+			*delayMs = 1000;
+		}
+		return 1;
 	}
 
 	CombatOutcome outcome = mRules.attack(attack);
@@ -639,8 +709,8 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 	{
 		multipliedDamage = -outcome.damage;
 
-		// state effects
-		stateApplied = _tryStateEffects(attacker,defender,cmdProperties,weapon);
+		// states: the effects that landed (rules.effects)
+		_applyEffects(defender, outcome);
 
 
 		// Here is the deal. When a player makes damage to a npc, we have to register the player, its group, damage done and what (kind of) weapon used.
@@ -804,54 +874,98 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 
 //======================================================================================================================
 
-uint8 CombatManager::_tryStateEffects(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,Weapon* weapon)
+void CombatManager::_applyEffects(CreatureObject* defender, const CombatOutcome& outcome)
 {
-	if(cmdProperties->mKnockdownChance)
-	{
-        gStateManager.setCurrentPostureState(defender, CreaturePosture_KnockedDown);
-        gStateManager.setCurrentLocomotionState(defender, CreatureLocomotion_KnockedDown);
+	uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
 
-		if(PlayerObject* player = dynamic_cast<PlayerObject*>(defender))
+	for (size_t i = 0; i < outcome.effects.size(); ++i)
+	{
+		const std::string& name = outcome.effects[i].first;
+		uint64 durationMs = static_cast<uint64>(outcome.effects[i].second * 1000.0f);
+
+		if (name == "knockdown")
 		{
-			//See if our player is mounted -- if so dismount him 
-			if(player->checkIfMounted())
+			gStateManager.setCurrentPostureState(defender, CreaturePosture_KnockedDown);
+			gStateManager.setCurrentLocomotionState(defender, CreatureLocomotion_KnockedDown);
+
+			if(PlayerObject* player = dynamic_cast<PlayerObject*>(defender))
 			{
-				//Get the player's mount
-				if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(player->getMount()->controller())))
+				//See if our player is mounted -- if so dismount him
+				if(player->checkIfMounted())
 				{
-					//Now dismount
-					vehicle->DismountPlayer();
+					//Get the player's mount
+					if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(player->getMount()->controller())))
+					{
+						//Now dismount
+						vehicle->DismountPlayer();
+					}
 				}
 			}
+			continue;
+		}
+		// Down: standing to kneeling, kneeling to prone. Up: the other way.
+		if (name == "posture_down" || name == "posture_up")
+		{
+			uint64 posture = defender->states.getPosture();
+			bool down = (name == "posture_down");
+			if (down && posture == CreaturePosture_Upright)
+				gStateManager.setCurrentPostureState(defender, CreaturePosture_Crouched);
+			else if (down && posture == CreaturePosture_Crouched)
+				gStateManager.setCurrentPostureState(defender, CreaturePosture_Prone);
+			else if (!down && posture == CreaturePosture_Prone)
+				gStateManager.setCurrentPostureState(defender, CreaturePosture_Crouched);
+			else if (!down && posture == CreaturePosture_Crouched)
+				gStateManager.setCurrentPostureState(defender, CreaturePosture_Upright);
+			continue;
+		}
+
+		CreatureState state;
+		if (name == "stun") state = CreatureState_Stunned;
+		else if (name == "dizzy") state = CreatureState_Dizzy;
+		else if (name == "blind") state = CreatureState_Blinded;
+		else if (name == "intimidate") state = CreatureState_Intimidated;
+		else continue;
+
+		gStateManager.setCurrentActionState(defender, state);
+
+		// The state ends after its duration; a new one restarts the time.
+		bool found = false;
+		for (size_t j = 0; j < mTimedStates.size(); ++j)
+		{
+			if (mTimedStates[j].creatureId == defender->getId() && mTimedStates[j].state == static_cast<uint64>(state))
+			{
+				mTimedStates[j].expires = now + durationMs;
+				found = true;
+				break;
+			}
+		}
+		if (!found)
+		{
+			TimedState timed = { defender->getId(), static_cast<uint64>(state), now + durationMs };
+			mTimedStates.push_back(timed);
 		}
 	}
+}
 
-	if(cmdProperties->mDizzyChance)
+bool CombatManager::_expireStates(uint64 callTime, void* ref)
+{
+	uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
+	for (size_t i = 0; i < mTimedStates.size(); )
 	{
-		gStateManager.setCurrentActionState(defender, CreatureState_Dizzy);
-    }
-
-	if(cmdProperties->mBlindChance)
-	{
-        gStateManager.setCurrentActionState(defender, CreatureState_Blinded);
+		if (mTimedStates[i].expires > now)
+		{
+			++i;
+			continue;
+		}
+		CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(mTimedStates[i].creatureId));
+		if (creature && creature->states.checkState(static_cast<CreatureState>(mTimedStates[i].state)))
+		{
+			gStateManager.removeActionState(creature, static_cast<CreatureState>(mTimedStates[i].state));
+		}
+		mTimedStates[i] = mTimedStates.back();
+		mTimedStates.pop_back();
 	}
-
-	if(cmdProperties->mStunChance)
-	{
-		gStateManager.setCurrentActionState(defender, CreatureState_Stunned);
-	}
-
-	if(cmdProperties->mIntimidateChance)
-	{
-        gStateManager.setCurrentActionState(defender, CreatureState_Intimidated);
-	}
-
-	if(cmdProperties->mPostureDownChance)
-	{
-		gStateManager.setCurrentPostureState(defender, CreaturePosture_Crouched);
-	}
-
-	return(0);
+	return true;
 }
 
 //======================================================================================================================

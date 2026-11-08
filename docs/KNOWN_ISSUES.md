@@ -506,7 +506,9 @@ which come from harvesting). `loot_groups` and `loot_templates` exist in
 the database but nothing reads them, and their rows are placeholders
 (group 1, used by the womp rats, holds Tusken boots). Credits are
 10-34 at random for every creature (`NonPersistentNpcFactory`), not from
-any source.
+any source. Creatures did drop small amounts of credits pre-CU (as
+remembered by a player of the time), so the credits stay; the amounts are
+still to be sourced.
 
 ### 18. Combat is slow (debris, bandit, Tatooine creatures) — partly fixed
 
@@ -652,3 +654,14 @@ For reference; details are in the commit messages on `phase2-db-installer`.
   over the drum: fly text cast its source to a creature (null for a
   container). Fly text in instances also only reached grouped players.
 - Missing `sp_DeleteMail`; SQL procedures broken by earlier bulk edits.
+
+### 23. Harvesting a creature corpse does nothing — open
+
+A Novice Scout (skill 31, `outdoors_scout_novice`) with loot rights gets
+"harvest corpse" and harvest meat, hide or bone on a creature's corpse
+(`AttackableCreature` radial), but `ScoutManager::handleHarvestCorpse` is
+empty: nothing is harvested. The creature data names the resources (the
+womp rat: `res_meat` Carnivore Meat, `res_hide` Bristley Hide) with
+`harvest_qty` 0. The 2004 guide's creature tables give each creature's
+meat, hide, bone and milk type and quantity; harvesting belongs with the
+scout's review, and the quantities with the creature transcription.

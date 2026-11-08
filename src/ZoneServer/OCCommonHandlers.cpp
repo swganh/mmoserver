@@ -593,6 +593,12 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 		// we destroy the item in this case as its a temporary!! 
 		// we do not want to clog the db with unlooted items
 		gContainerManager->destroyObjectToRegisteredPlayers(creatureInventory, tangible->getId());
+		// The corpse's loot window sends its items without registering the
+		// player to the corpse, so the looter is told separately.
+		if (!creatureInventory->checkRegisteredWatchers(playerObject))
+		{
+			gMessageLib->sendDestroyObject(tangible->getId(), playerObject);
+		}
 
 		ObjectIDList* invObjList = creatureInventory->getObjects();
 		if (invObjList->size() == 0)

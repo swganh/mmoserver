@@ -899,6 +899,9 @@ bool ObjectController::_validateEnqueueCommand(uint32 &reply1,uint32 &reply2,uin
         }
         if(!((*it)->validate(reply1,reply2,targetId,opcode,cmdProperties)))
         {
+            LOG(INFO) << "Command 0x" << std::hex << opcode << std::dec << " from " << mObject->getId()
+                      << " on " << targetId << " refused when queued (validator " << (it - mEnqueueValidators.begin())
+                      << ", replies " << reply1 << "/" << reply2 << ")";
             if(opcode == opOCRequestCraftingSession)
             {
                 gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,player);
@@ -930,6 +933,9 @@ bool ObjectController::_validateProcessCommand(uint32 &reply1,uint32 &reply2,uin
     {
         if(!((*it)->validate(reply1,reply2,targetId,opcode,cmdProperties)))
         {
+            LOG(INFO) << "Command 0x" << std::hex << opcode << std::dec << " from " << mObject->getId()
+                      << " on " << targetId << " refused when run (validator " << (it - mProcessValidators.begin())
+                      << ", replies " << reply1 << "/" << reply2 << ")";
             PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
             if(opcode == opOCRequestCraftingSession)
             {

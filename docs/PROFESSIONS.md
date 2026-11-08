@@ -1,9 +1,18 @@
-# Professions: the database against the guide
+# Professions: the database against the client and the guide
 
-The skill boxes in the database (`skills`, `skills_skillmods`,
-`skills_skillcommands`) checked against Prima's *An Empire Divided* (2003,
-the launch guide; `docs/SOURCES.md`), profession chapters, read from the
-page images. Mods named `private_*` are internal and not in the guide.
+**Baseline: the client's own skill table, Publish 14**
+(`datatables/skill/skills.iff`), which the client builds the skill tree,
+mods and commands from. `tools/client/skills_compare.py` compares it with
+the database; migration 008 made all 1,068 skills match (16 boxes
+differed). Run the tool again after any skill change.
+
+Below, the first review: the marksman and brawler boxes against Prima's
+*An Empire Divided* (2003, the launch guide; `docs/SOURCES.md`), read
+from the page images, before the client's table was at hand. Where the
+guide and the client differ, the client (later pre-CU) wins: unarmed
+damage, Center of Being, the rifle concealment chance and the two-handed
+certifications' boxes are Publish 14's. Mods named `private_*` are
+internal and not in the guide.
 
 ## Marksman (pp. 145-148)
 
@@ -34,10 +43,9 @@ speed mods, every special and every certification, but:
 | Master Two-Hand (`2handmelee_04`) | Two-handed Curved Sword and Scythe certifications | Cleaver |
 | Master Brawler | Two-handed Melee Accuracy +5, Speed +5; Taunt +30; One-handed Melee Toughness +5 | missing |
 
-The polearm and two-hand toughness rows look swapped, and the polearm
-speed is a typing slip. The others (unarmed damage, Center of Being, the
-rifle concealment chance, the certifications' boxes) may be later changes
-the database took from another publish rather than mistakes.
+The client confirms the polearm speed, the swapped toughness rows and the
+Master Brawler's missing mods as mistakes (fixed by migration 008). The
+rest are Publish 14 as the database has it.
 
 ## Specials
 

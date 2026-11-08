@@ -221,6 +221,14 @@ are sent on every target change and on every equip or unequip (at first
 only on target change, so a weapon switch showed the old weapon's curve
 until the next target).
 
+Re-test with new Rodian characters, noob CDEF: a brawler read -15, +6,
++24, -33, -50 and an artisan -15, +4, +25, -31, -50 at 1, 8, 16, 40,
+64 m: the same curve for both. Unarmed (the server sends ideal 3 m, max
+5 m, all modifiers 0): -15 up to about 6 m, "--" beyond. So the client
+takes the reach, but its own base is -15 unarmed against -5 with the
+pistol; where the 10 comes from (weapon type, the target's defence
+against melee) is not known.
+
 ## What is not
 
 - **To-hit:** no block, dodge or counterattack (the skill mods exist),

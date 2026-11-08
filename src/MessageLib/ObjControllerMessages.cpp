@@ -181,6 +181,38 @@ void MessageLib::SendSpatialEmote(CreatureObject* source, uint32_t emote_id, uin
 // sit on chair/bank
 //
 
+void MessageLib::sendWeaponRanges(PlayerObject* player, uint64 weaponId, const std::string& layout, const std::vector<double>& values)
+{
+    if (!_checkPlayer(player))
+    {
+        return;
+    }
+
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opObjControllerMessage);
+    mMessageFactory->addUint32(0x0000000B);
+    mMessageFactory->addUint32(opWeaponRanges);
+    mMessageFactory->addUint64(player->getId());
+    mMessageFactory->addUint32(0);
+    mMessageFactory->addUint64(weaponId);
+    for (size_t i = 0; i < layout.size() && i < values.size(); ++i)
+    {
+        if (layout[i] == 'f')
+        {
+            mMessageFactory->addFloat(static_cast<float>(values[i]));
+        }
+        else
+        {
+            double rounded = values[i] < 0 ? values[i] - 0.5 : values[i] + 0.5;
+            mMessageFactory->addUint32(static_cast<uint32>(static_cast<int32>(rounded)));
+        }
+    }
+
+    (player->getClient())->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(), CR_Client, 5);
+}
+
+//======================================================================================================================
+
 void MessageLib::sendSitOnObject(CreatureObject* creatureObject)
 {
     mMessageFactory->StartMessage();

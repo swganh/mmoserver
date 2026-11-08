@@ -33,6 +33,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/bstring.h"
 #include "Utils/typedefs.h"
 #include "DatabaseManager/DatabaseCallback.h"
+#include "ScriptEngine/CombatRules.h"
+
+#include <string>
 
 
 //=========================================================================================
@@ -44,6 +47,7 @@ class Weapon;
 class CreatureObject;
 class CMWeaponGroup;
 class ObjectControllerCmdProperties;
+class PlayerObject;
 
 typedef	std::vector<CMWeaponGroup*>	WeaponGroups;
 
@@ -63,7 +67,23 @@ public:
     uint32					getDefaultAttackAnimation(uint32 weaponGroup);
     BString					getDefaultSpam(uint32 weaponGroup);
 
-    bool					handleAttack(CreatureObject*  attacker,uint64 targetId,ObjectControllerCmdProperties* cmdProperties);
+    // delayMs, if given, gets the time to the attacker's next attack, from
+    // the combat rules (data/script/combat/rules.lua).
+    bool					handleAttack(CreatureObject*  attacker,uint64 targetId,ObjectControllerCmdProperties* cmdProperties, uint64* delayMs = 0);
+
+    // The combat rules script, shared with NpcManager.
+    CombatRules&			rules() { return mRules; }
+
+    // An attack as the rules see it, from the zone's objects.
+    CombatSide				buildSide(CreatureObject* creature);
+    CombatWeapon			buildWeapon(Weapon* weapon);
+
+    // Tells the player's client the range data of the weapon in hand, for
+    // the target window's accuracy display.
+    void					sendWeaponRanges(PlayerObject* player);
+
+    // Applies a hit's damage to the pool the rules chose.
+    void					applyDamage(CreatureObject* defender, const std::string& pool, int32 damage);
 
     ~CombatManager();
 
@@ -74,15 +94,14 @@ private:
     // bool					_verifyCombatState(CreatureObject* attacker,CreatureObject* defender);
     bool					_verifyCombatState(CreatureObject* attacker, uint64 defenderId);
 
-    uint8					_executeAttack(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,Weapon* weapon);
-    uint8					_hitCheck(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,Weapon* weapon);
-    int32					_mitigateDamage(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,int32 oldDamage,Weapon* weapon);
+    uint8					_executeAttack(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,Weapon* weapon, uint64* delayMs);
     uint8					_tryStateEffects(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,Weapon* weapon);
 
     static bool				mInsFlag;
     static CombatManager*	mSingleton;
     Database*				mDatabase;
     WeaponGroups			mWeaponGroups;
+    CombatRules				mRules;
 };
 
 //=========================================================================================

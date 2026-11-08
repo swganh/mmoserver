@@ -33,6 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "EVWeapon.h"
 #include "EVPosture.h"
 #include "ObjectController.h"
+
+#include <algorithm>
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
 #include "objcontrollercommandmessage.h"
@@ -307,14 +309,25 @@ bool ObjectController::_processCommandQueue()
         {
         }
 
-        // see if we got something to execute yet
-        ObjControllerCommandMessage* cmdMsg = mCommandQueue.front();
-
-        // we might need to execute the command directly if it is part of the combat queue
-        // and our queue execution timer permits it
-        // or it is not part of the combat queue and can be executed directly in any case
-        if ((mNextCommandExecution <= currentTime) || !cmdMsg->getCmdProperties()->mAddToCombatQueue)
+        // The next command to run: the front one, unless it is a combat
+        // command still cooling down; then the first non-combat command
+        // behind it. Non-combat commands (look-ats, attribute requests...)
+        // waited behind combat cooldowns before, and in a long fight the
+        // queue overflowed ("Too many commands queued", KNOWN_ISSUES #5h).
+        auto isCombat = [] (ObjControllerCommandMessage* msg) {
+            return msg->getCmdProperties() && msg->getCmdProperties()->mAddToCombatQueue;
+        };
+        CommandQueue::iterator cmdIt = mCommandQueue.begin();
+        if (isCombat(*cmdIt) && mNextCommandExecution > currentTime)
         {
+            cmdIt = std::find_if(mCommandQueue.begin(), mCommandQueue.end(),
+                                 [&isCombat] (ObjControllerCommandMessage* msg) { return !isCombat(msg); });
+        }
+
+        if (cmdIt != mCommandQueue.end())
+        {
+            ObjControllerCommandMessage* cmdMsg = *cmdIt;
+
             if (cmdMsg->getCmdProperties()->mAddToCombatQueue)
             {
                 // Compensate combat command for any lag, i.e. command arriving late.
@@ -337,21 +350,9 @@ bool ObjectController::_processCommandQueue()
                 // Do not mess with cooldowns for non combat commands, those timer values are for preventing spam of the same message,
                 // and spam preventing is not implemented yet.
                 uint64 timeToNextCommand = 0;
-                if (cmdMsg->getCmdProperties()->mAddToCombatQueue)
-                {
-                    // Set up the cooldown time.
-                    if (mUnderrunTime < cmdProperties->mDefaultTime)
-                    {
-                        timeToNextCommand = (cmdProperties->mDefaultTime - mUnderrunTime);
-                        mUnderrunTime = 0;
-                    }
-                    else
-                    {
-                        // Compensate as much as we can.
-                        timeToNextCommand = cmdProperties->mDefaultTime / 2;
-                        mUnderrunTime -= timeToNextCommand;
-                    }
-                }
+                // An attack's cooldown comes from the combat rules (the
+                // weapon's speed); other combat commands use their own.
+                uint64 attackDelay = 0;
 
                 // keep a pointer to the start
                 uint16	paramsIndex = 0;
@@ -422,7 +423,7 @@ bool ObjectController::_processCommandQueue()
                     // CreatureObject* creature = NULL;
                     if (targetId != 0)
                     {
-                        cmdExecutedOk = gCombatManager->handleAttack(player, targetId, cmdProperties);
+                        cmdExecutedOk = gCombatManager->handleAttack(player, targetId, cmdProperties, &attackDelay);
                         if (!cmdExecutedOk)
                         {
                             // We have lost our target.
@@ -479,6 +480,20 @@ bool ObjectController::_processCommandQueue()
                 // Do not mess with cooldowns for non combat commands...
                 if (cmdMsg->getCmdProperties()->mAddToCombatQueue)
                 {
+                    // Set up the cooldown time.
+                    uint64 cooldown = attackDelay ? attackDelay : cmdProperties->mDefaultTime;
+                    if (mUnderrunTime < cooldown)
+                    {
+                        timeToNextCommand = (cooldown - mUnderrunTime);
+                        mUnderrunTime = 0;
+                    }
+                    else
+                    {
+                        // Compensate as much as we can.
+                        timeToNextCommand = cooldown / 2;
+                        mUnderrunTime -= timeToNextCommand;
+                    }
+
                     if (cmdExecutedOk)
                     {
                         mNextCommandExecution = currentTime + timeToNextCommand;
@@ -514,15 +529,15 @@ bool ObjectController::_processCommandQueue()
             {
                 message->setPendingDelete(true);
             }
-            // Remove the command from queue. Note: pop() invokes object destructor.
-            mCommandQueue.pop_front();
+            // Remove the command from queue.
+            mCommandQueue.erase(cmdIt);
 
             // cmdMsg->~ObjControllerCommandMessage();
             mCmdMsgPool.free(cmdMsg);
         }
         else
         {
-            // Make it simple, the time was not up yet, just leave, let other instances have the cpu, and handle it the next cycle.
+            // Only combat commands waiting for their cooldown: handle them next cycle.
             break;
         }
 
@@ -862,6 +877,23 @@ bool ObjectController::_validateEnqueueCommand(uint32 &reply1,uint32 &reply2,uin
         PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
         if(this->getCommandQueue()->size() >= COMMAND_QUEUE_MAX_SIZE)
         {
+            // What filled the queue (KNOWN_ISSUES #5h): how many are combat
+            // commands, the front one, and how long until it may run.
+            uint32 combatCommands = 0;
+            for (ObjControllerCommandMessage* queued : mCommandQueue)
+            {
+                if (queued->getCmdProperties() && queued->getCmdProperties()->mAddToCombatQueue)
+                {
+                    ++combatCommands;
+                }
+            }
+            uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
+            ObjControllerCommandMessage* front = mCommandQueue.front();
+            LOG(WARNING) << "Command queue full for " << mObject->getId() << ": " << mCommandQueue.size()
+                         << " queued, " << combatCommands << " combat; front 0x" << std::hex << front->getOpcode() << std::dec
+                         << " (sequence " << front->getSequence() << "), next combat command in "
+                         << ((mNextCommandExecution > now) ? (mNextCommandExecution - now) : 0) << " ms"
+                         << (mTaskId ? "" : ", queue NOT scheduled") << "; dropping 0x" << std::hex << opcode << std::dec;
             gMessageLib->SendSystemMessage(::common::OutOfBand("client", "too_many_commands_queued_generic"),player);
             return(false);
         }

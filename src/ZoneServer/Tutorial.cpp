@@ -102,10 +102,11 @@ const uint64 StartingRoom = 2203318222960;
 const uint64 StartingRoom = 2203318222960LLU;
 #endif
 
-// This is a type of CDEF-Pistol
+// The weapon the Covard officer hands over: the noob CDEF pistol (An Empire
+// Divided p. 392: 50-80, 4 s), the one new characters start with
+// (migration 007), not the plain CDEF at the bottom of its crafting ranges.
 const uint32 DefaultQuestWeaponFamily = 10;
-// const uint32 DefaultQuestWeaponType = 2755;
-const uint32 DefaultQuestWeaponType = 2326; // A even more useless gun for the tutorial :)
+const uint32 DefaultQuestWeaponType = 2755;
 
 
 // const uint64 ItemOfficerRoom = (StartingRoom + 1);

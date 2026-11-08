@@ -1,7 +1,7 @@
 # Scripts
 
 Lua 5.1 scripts run by the zone servers. The C++ servers are the engine
-(network, world, movement, combat rules, persistence); scripts say what
+(network, world, movement, the combat loop, persistence); scripts say what
 happens; tables in the database hold the data (items, loot, trainers, spawn
 tables). The plan and the reasoning are in `docs/SCRIPTING.md`.
 
@@ -12,6 +12,7 @@ tables). The plan and the reasoning are in `docs/SCRIPTING.md`.
 | `world/<planet>/` | One planet's world scripts (ambient life, events) | `config_zone_scripts` |
 | `tutorial/` | The new-player tutorial | the tutorial zone, per player |
 | `commands/` | Hooks for player commands (`/burstrun`) | `command_table.scripthook` |
+| `combat/` | The combat rules (`rules.lua`): hit chance, damage, pool, attack time | every zone, at start |
 | `ai/` | NPC and creature behaviours (patrol, formation, lair defence) | other scripts |
 | `spawns/<planet>/` | Static NPCs, patrols and spawn regions | `config_zone_scripts` |
 | `conversations/` | Dialogue trees for quest givers and named NPCs | (planned) |

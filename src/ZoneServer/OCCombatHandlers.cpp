@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "StateManager.h"
 #include "WorldManager.h"
 #include "ContainerManager.h"
+#include "CombatManager.h"
 
 #include "MessageLib/MessageLib.h"
 
@@ -264,6 +265,12 @@ void ObjectController::handleSetTarget(Message* message)
     // There is a reason we get data like targets from the client, as handlers (id's) instead of references (pointers).
 
     gMessageLib->sendTargetUpdateDeltasCreo6(creatureObject);
+
+    // The client works out the accuracy it shows from the weapon's ranges.
+    if (PlayerObject* player = dynamic_cast<PlayerObject*>(creatureObject))
+    {
+        gCombatManager->sendWeaponRanges(player);
+    }
 } 
 
 //=============================================================================================================================

@@ -40,6 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ManufacturingSchematic.h"
 #include "MissionObject.h"
 #include "NPCObject.h"
+#include "CombatManager.h"
 #include "ObjectController.h"
 #include "ObjectControllerCommandMap.h"
 #include "ObjectControllerOpcodes.h"
@@ -528,7 +529,10 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 	if (tangible->getParentId() == playerObject->getId())
 	{
 		// unequip it
-		return playerObject->getEquipManager()->unEquipItem(itemObject);
+		bool unequipped = playerObject->getEquipManager()->unEquipItem(itemObject);
+		// The weapon in hand may have changed: the target window's accuracy.
+		gCombatManager->sendWeaponRanges(playerObject);
+		return unequipped;
 		
 	}
 	
@@ -821,6 +825,8 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 			LOG(WARNING) << "ObjectController::_handleTransferItemMisc: Error equipping  " << item->getId();
 			//panik!!!!!!
 		}
+		// The weapon in hand may have changed: the target window's accuracy.
+		gCombatManager->sendWeaponRanges(player);
 		
 		itemObject->setParentIdIncDB(newContainer->getId());
 		return;

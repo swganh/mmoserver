@@ -215,7 +215,7 @@ first time.
 Confirmed with a client: the tutorial bandit appears, fights, and the
 script continues after his grenade.
 
-### 5i. Still in combat after the opponent dies — open (workaround: `/peace`)
+### 5i. Still in combat after the opponent dies — fix needs testing
 
 After killing the tutorial bandit the player stays in combat, which blocks
 leaving the tutorial. When a creature dies, `die()` makes peace with its
@@ -234,8 +234,16 @@ Not enough: on the VM the combat music still started as the bandit died
 *at* the death suggests something puts the player back into combat after
 `die()` (auto-attack firing again, the bandit's AI, or the grenade path,
 where `npcStopFight` does nothing), or the player was not in the bandit's
-defender list. For the combat review: log the player's states and defender
-list around a creature's death.
+defender list.
+
+Found: a creature's AI never left combat, not even dead. `State_Dead`
+was never set, so the corpse's AI kept attacking every tick, and
+`NpcManager::_verifyCombatState` checked whether the target was dead but
+not the attacker: each attack put the player back into combat and back on
+the corpse's defender list, undoing the peace, until the corpse was
+removed minutes later. Now a dead or incapacitated creature's AI moves to
+`State_Dead` and stops, and `_verifyCombatState` refuses attacks from a
+dead or incapacitated NPC.
 
 ### 5j. Lairs never spawn — open
 
@@ -274,8 +282,21 @@ was not affected.
 
 ### 5h. "Too many commands queued. A command was dropped." — open
 
-Seen repeatedly while fighting the tutorial bandit. The player's command
-queue overflows during auto-attack; check its limit and what fills it.
+Seen repeatedly while fighting the tutorial bandit and a rill on Tatooine.
+The command queue (30 entries) was strictly first in, first out: a combat
+command waiting for its cooldown at the front held up every command
+behind it, including the non-combat ones the client sends all the time in
+a fight, which should run at once. In a long fight they piled up past 30
+and were dropped. Now, while the front combat command cools down, the
+first non-combat command behind it runs; combat commands keep their order
+and cooldowns.
+
+Still seen on the VM with that change, with several Attacks in the
+client's queue: non-combat commands were already put ahead of combat ones
+when queued, so it is the attacks themselves. The zone now logs what fills
+the queue when it overflows (`Command queue full for ...`: how many are
+combat commands, the front one, the time to the next combat command, and
+whether the queue is scheduled). `docs/COMBAT.md` has the combat review.
 
 ### 5g. No explosion when the tutorial debris is destroyed — fix needs testing
 
@@ -469,12 +490,31 @@ The events confirm it is the server: picking up items from the opened
 bandit corpse (`object_used menu_id=10`, three tries on two items) raised no
 `item_transferred`, so the transfer never completed.
 
-### 18. Tutorial combat is slow (debris, bandit) — open
+### 18. Combat is slow (debris, bandit, Tatooine creatures) — partly fixed
 
 Destroying the debris and killing the bandit take much longer than in the
 original. Probably their HAM against a new character's damage with the
 limited combat we have; check the debris and bandit stats in the data
 against the client and recordings before changing them.
+
+Tatooine: the database had copied the womp rat's stats (1000 HAM, 90-110
+damage) onto its smaller relatives, so a novice fighting a lesser desert
+womp rat (Prima 2004 p. 180: level 5, 140-170 HAM, 45-50 damage) faced a
+creature six times too tough; the rill had 500 health (p. 182: 180-220).
+Migration 006 sets the womp rat (p. 184: level 10, 810-990 HAM, 90-110
+damage, 356 XP), the lesser desert womp rat and the rill from the guide.
+The womp rat itself was nearly right: it is a level 10 creature, a hard
+fight for a novice. Still to do: the other creatures as their pages come
+(greater desert and variegated womp rats are not in the pages at hand),
+and the tutorial's debris and bandit.
+
+The combat rules (`data/script/combat/rules.lua`, `docs/COMBAT.md`) replace
+the fixed 67% hit, the random pool and the 2 s attack: hit chance from the
+weapon's range modifiers, skill mods and postures; damage on one pool,
+mostly health; the weapon's own attack speed. Migration 007 gives the
+weapons their ranges in metres and new characters the noob CDEF (50-80,
+p. 392). Next test: a novice with the noob CDEF against a lesser desert womp
+rat and a womp rat, and the bandit.
 
 ### 19. The bandit survives his own grenade — fixed
 

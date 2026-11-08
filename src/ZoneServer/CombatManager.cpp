@@ -623,7 +623,8 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 		outcome.damage = static_cast<int32>(attack.weapon.minDamage) + gRandom->getRand() % (range > 0 ? range : 1);
 		static const char* kPools[] = { "health", "action", "mind" };
 		outcome.pool = attack.pool.empty() ? kPools[gRandom->getRand() % 3] : attack.pool;
-		outcome.delay = cmdProperties->mDefaultTime / 1000.0f;
+		// The client's attack has no default time (0): the old 2 s then.
+		outcome.delay = cmdProperties->mDefaultTime ? cmdProperties->mDefaultTime / 1000.0f : 2.0f;
 	}
 	if (delayMs)
 	{

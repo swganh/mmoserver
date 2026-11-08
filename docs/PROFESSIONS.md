@@ -47,6 +47,18 @@ The client confirms the polearm speed, the swapped toughness rows and the
 Master Brawler's missing mods as mistakes (fixed by migration 008). The
 rest are Publish 14 as the database has it.
 
+## Commands
+
+The client's command table, Publish 14
+(`datatables/command/command_table.iff`, 769 commands), against
+`command_table` (`tools/client/commands_compare.py`): the client times its
+command queue by each command's default time, and 310 differed (1.5 s for
+nearly every special against 2 s here). Migration 009 makes the times and
+the combat queue use match. The client's table has no damage, cost or
+to-hit figures: those were the server's. Not yet compared: the posture and
+state masks (which postures and states allow a command) and the maximum
+range (the client's 0 means the weapon's range).
+
 ## Specials
 
 The marksman's specials are all in `command_table` with damage and delay

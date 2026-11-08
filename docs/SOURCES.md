@@ -16,6 +16,7 @@ original game used. `tools/client/` reads them:
 | `stf.py <file.stf>` | prints a string file as `name<TAB>text` lines |
 | `city_regions_sql.py <planet> <clientregion/planet.iff>` | writes a migration with the client's city areas (as `003_tatooine_city_areas.sql`) |
 | `skills_compare.py <skill/skills.iff> [--sql]` | compares the client's skill table (Publish 14) with the database's skills; `--sql` writes the fix (as `008_skills_from_client.sql`) |
+| `commands_compare.py <command/command_table.iff> [--sql]` | compares the client's command table (Publish 14) with `command_table`: default times, combat queue use; `--sql` writes the fix (as `009_commands_from_client.sql`) |
 
 The extracted files themselves are not committed: keep them with your
 client. Generated data says which client file it came from.

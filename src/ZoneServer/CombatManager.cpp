@@ -388,6 +388,22 @@ std::string lowerCase(std::string text)
     return text;
 }
 
+// A weapon's damage type ("Energy", "Heat", "Electricity"...) as the armour
+// effectiveness key buildSide uses ("energy", "elemental_heat"...).
+std::string damageTypeName(const std::string& type)
+{
+    std::string name = lowerCase(type);
+    if (name == "heat" || name == "cold" || name == "acid" || name == "electrical")
+    {
+        return "elemental_" + name;
+    }
+    if (name == "electricity")
+    {
+        return "elemental_electrical";
+    }
+    return name;
+}
+
 // "None", "Light", "Medium", "Heavy" (or a number) as 0-3.
 int armorLevel(const std::string& rating)
 {
@@ -511,7 +527,7 @@ CombatWeapon CombatManager::buildWeapon(Weapon* weapon)
     w.maxDamage = numberAttribute(weapon, "cat_wpn_damage.wpn_damage_max", 100);
     if (weapon->hasAttribute("cat_wpn_damage.wpn_damage_type"))
     {
-        w.damageType = lowerCase(weapon->getAttribute<std::string>("cat_wpn_damage.wpn_damage_type"));
+        w.damageType = damageTypeName(weapon->getAttribute<std::string>("cat_wpn_damage.wpn_damage_type"));
     }
     w.speed = numberAttribute(weapon, "wpn_attack_speed", 0);
     w.zeroMod = numberAttribute(weapon, "cat_wpn_rangemods.wpn_range_zero", 0);
@@ -605,7 +621,8 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 		outcome.hit = (gRandom->getRand() % 3) != 0;
 		int32 range = static_cast<int32>(attack.weapon.maxDamage - attack.weapon.minDamage) + 1;
 		outcome.damage = static_cast<int32>(attack.weapon.minDamage) + gRandom->getRand() % (range > 0 ? range : 1);
-		outcome.pool = attack.pool.empty() ? "health" : attack.pool;
+		static const char* kPools[] = { "health", "action", "mind" };
+		outcome.pool = attack.pool.empty() ? kPools[gRandom->getRand() % 3] : attack.pool;
 		outcome.delay = cmdProperties->mDefaultTime / 1000.0f;
 	}
 	if (delayMs)

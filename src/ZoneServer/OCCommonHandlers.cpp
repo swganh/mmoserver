@@ -256,6 +256,20 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 			return true;
 		}
 
+		// A corpse we may loot: a dead creature's inventory, with loot
+		// rights (the same check as the corpse's loot radial).
+		NPCObject* corpse = dynamic_cast<NPCObject*>(gWorldManager->getObjectById(containingContainer - INVENTORY_OFFSET));
+		PlayerObject* looter = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
+		if (corpse && looter && corpse->isDead()
+			&& corpse->allowedToLoot(playerId, looter->getGroupId()))
+		{
+			Inventory* corpseInventory = dynamic_cast<Inventory*>(corpse->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+			if (corpseInventory && corpseInventory->getId() == containingContainer)
+			{
+				return true;
+			}
+		}
+
 		return false;
 
 	}
@@ -579,6 +593,12 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 		// we destroy the item in this case as its a temporary!! 
 		// we do not want to clog the db with unlooted items
 		gContainerManager->destroyObjectToRegisteredPlayers(creatureInventory, tangible->getId());
+		// The corpse's loot window sends its items without registering the
+		// player to the corpse, so the looter is told separately.
+		if (!creatureInventory->checkRegisteredWatchers(playerObject))
+		{
+			gMessageLib->sendDestroyObject(tangible->getId(), playerObject);
+		}
 
 		ObjectIDList* invObjList = creatureInventory->getObjects();
 		if (invObjList->size() == 0)
@@ -673,13 +693,13 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 	if(swscanf(dataStr.getUnicode16().c_str(),L"%" WidePRIu64 L" %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
 	{
-		DLOG(INFO) << "ObjController::_handleTransferItemMisc: Error in parameters";
+		LOG(INFO) << "Transfer of " << targetId << " refused: bad parameters";
 		return;
 	}
 
 	if (!itemObject)
 	{
-		DLOG(WARNING) << "ObjController::_handleTransferItemMisc: No Object to transfer :(";
+		LOG(INFO) << "Transfer of " << targetId << " refused: no such object";
 		return;
 	}
 
@@ -687,7 +707,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	if(!tangible)
 	{
 		//no tagible - get out of here
-		DLOG(WARNING) << "ObjController::_handleTransferItemMisc: No tangible to transfer :(";
+		LOG(INFO) << "Transfer of " << targetId << " refused: not a tangible";
 		return;
 	}
 
@@ -695,10 +715,10 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	Object* newContainer = gWorldManager->getObjectById(targetContainerId);
 	Object* oldContainer = gWorldManager->getObjectById(tangible->getParentId());
 	
-	DLOG(INFO) << "ObjController::_handleTransferItemMisc: parameters";
-	DLOG(INFO) << "ObjController::_handleTransferItemMisc: newcontainer : " << targetContainerId;
-	DLOG(INFO) << "ObjController::_handleTransferItemMisc: oldcontainer : " << tangible->getParentId();
-	DLOG(INFO) << "ObjController::_handleTransferItemMisc: linktype : " << linkType;
+		// Linux builds do not define _DEBUG, so DLOG says nothing there: these
+	// lines use LOG, one per transfer (KNOWN_ISSUES #17).
+	LOG(INFO) << "Transfer of " << targetId << " by " << playerObject->getId() << " from " << tangible->getParentId()
+	          << " to " << targetContainerId << " (link " << linkType << ")";
 
 	// We may want to transfer other things than items...basically tangibleObjects!
 	// resourcecontainers / factory crates
@@ -745,13 +765,13 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 	if(!checkTargetContainer(targetContainerId,itemObject))
 	{
-		DLOG(INFO) << "ObjController::_handleTransferItemMisc:TargetContainer is not valid :(";
+		LOG(INFO) << "Transfer of " << targetId << " refused: the target container " << targetContainerId << " does not take it";
 		return;
 	}
 
 	if(!checkContainingContainer(tangible->getParentId(), playerObject->getId()))
 	{
-		DLOG(INFO) << "ObjController::_handleTransferItemMisc:ContainingContainer is not allowing the transfer :(";
+		LOG(INFO) << "Transfer of " << targetId << " refused: no access to its container " << tangible->getParentId();
 		return;
 
 	}
@@ -759,7 +779,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	// Remove the object from whatever contains it.
 	if(!removeFromContainer(targetContainerId, targetId))
 	{
-		DLOG(INFO) << "ObjectController::_handleTransferItemMisc: removeFromContainer failed :( this might be caused by looting a corpse though";
+		LOG(INFO) << "Transfer of " << targetId << " handled by its container (corpse loot) or refused by it";
 		return;
 	}
 

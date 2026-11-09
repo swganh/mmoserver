@@ -451,6 +451,13 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
                     // Remove it from the corpse: for the watching players, from
                     // the inventory, and from the world.
                     gContainerManager->destroyObjectToRegisteredPlayers(inventory, item->getId(), true);
+                    // The corpse's loot window sends its items without
+                    // registering the player to the corpse, so the looter
+                    // is told separately.
+                    if (!inventory->checkRegisteredWatchers(playerObject))
+                    {
+                        gMessageLib->sendDestroyObject(item->getId(), playerObject);
+                    }
                     inventory->removeObject(item->getId());
                     gWorldManager->destroyObject(item);
 

@@ -1815,6 +1815,14 @@ void PlayerObject::clone(uint64 parentId, const glm::quat& dir, const glm::vec3&
     this->CleanUpBuffs();
     this->getHam()->resetModifiers();
     //TODO reset skillmodifiers
+
+    // Revive. The Dead posture refuses every transition out of it and locks
+    // the state layers, so the clone sets it here; warpPlanet's
+    // resetProperties then stands the player up and tells the client.
+    states.unblock();
+    states.setPosture(CreaturePosture_Upright);
+    states.setLocomotion(CreatureLocomotion_Standing);
+    mHam.restoreMainPools();
     gMessageLib->sendCurrentHitpointDeltasCreo6_Full(this);
 
     // Handle free deaths for newbies.

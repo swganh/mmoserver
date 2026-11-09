@@ -689,3 +689,17 @@ womp rat: `res_meat` Carnivore Meat, `res_hide` Bristley Hide) with
 `harvest_qty` 0. The 2004 guide's creature tables give each creature's
 meat, hide, bone and milk type and quantity; harvesting belongs with the
 scout's review, and the quantities with the creature transcription.
+
+### 24. A cloned player stays a corpse — fix needs testing
+
+Killed by womp rats near Bestine (three incaps inside the reset time, the
+`Player_Incapacitation` rule), the player cloned in Bestine but lay there as
+"corpse of ...", with empty HAM; `/stand` and `/kneel` answered "You cannot
+... while Standing". The Dead posture refuses every transition out of it
+(its deny list holds Dead itself) and locks the state layers, and
+`PlayerObject::clone` never left it, so `resetProperties` could not stand
+the player up and the client kept getting posture Dead. HAM was never
+refilled either. The clone now unlocks the layers, sets posture Upright and
+locomotion Standing, and fills health, action and mind to their maximum less
+wounds (`Ham::restoreMainPools`). Test: die, clone, and check the character
+stands with full HAM.

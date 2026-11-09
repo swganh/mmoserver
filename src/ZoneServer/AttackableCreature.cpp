@@ -626,6 +626,246 @@ void AttackableCreature::handleEvents()
         spawn();
         mCombatState = State_Idle;
     }
+    _think();
+}
+
+//=============================================================================
+//
+//	Creature AI: the decisions. The states' movement is in handleState.
+//
+
+namespace {
+// Players this close wake a creature up (it roams, and an aggressive one
+// watches for players in its attack range).
+const float kNoticeRange = 64.0f;
+// How far from home a creature follows a target when it has no stalking
+// distance of its own, in metres.
+const float kDefaultLeash = 64.0f;
+// Running after a target and walking home, in metres a second.
+const float kChaseSpeed = 6.0f;
+const float kHomeSpeed = 4.0f;
+}
+
+void AttackableCreature::_think(void)
+{
+    // The tutorial's bandit is scripted.
+    if (gWorldConfig->isTutorial())
+    {
+        return;
+    }
+    if (mCombatState == State_Unspawned || mCombatState == State_Halted || !isSpawned())
+    {
+        return;
+    }
+    if (isDead())
+    {
+        // Killed outside State_Combat (one hit from idle): stop roaming.
+        if (mCombatState != State_Dead)
+        {
+            mCombatState = State_Dead;
+            setRoamingSteps(0);
+        }
+        return;
+    }
+    if (mCombatState == State_Dead || isIncapacitated())
+    {
+        return;
+    }
+
+    if (mCombatState == State_Combat)
+    {
+        CreatureObject* target = dynamic_cast<CreatureObject*>(getTarget());
+        if (target && !target->isDead() && !target->isIncapacitated()
+                && checkDefenderList(target->getId()) && _withinLeash(target))
+        {
+            return;
+        }
+        if (target)
+        {
+            makePeaceWithDefender(target->getId());
+        }
+        if (uint64 next = _liveDefender())
+        {
+            setTarget(next);
+            return;
+        }
+        _endFight();
+        return;
+    }
+
+    // Attacked: fight back.
+    if (uint64 attacker = _liveDefender())
+    {
+        _startFight(attacker);
+        return;
+    }
+
+    // Aggressive: attack a player who comes too close (not on the way home).
+    if (mIsAgressive && mCombatState != State_CombatReady)
+    {
+        if (PlayerObject* player = _nearestPlayer(getAttackRange()))
+        {
+            _startFight(player->getId());
+            return;
+        }
+    }
+
+    bool playersNear = _nearestPlayer(kNoticeRange) != NULL;
+    if (mCombatState == State_Idle && playersNear)
+    {
+        mCombatState = State_Alerted;
+        setAiState(NpcIsReady);
+    }
+    else if (mCombatState == State_Alerted && !playersNear && getRoamingSteps() == 0)
+    {
+        mCombatState = State_Idle;
+        setAiState(NpcIsDormant);
+    }
+    else if (mCombatState == State_CombatReady && !isHoming())
+    {
+        // Home again.
+        mCombatState = playersNear ? State_Alerted : State_Idle;
+        setAiState(playersNear ? NpcIsReady : NpcIsDormant);
+    }
+}
+
+PlayerObject* AttackableCreature::_nearestPlayer(float range)
+{
+    ObjectSet inRange;
+    gSpatialIndexManager->getObjectsInRange(this, &inRange, ObjType_Player, range, true);
+
+    PlayerObject* nearest = NULL;
+    float nearestDistance = range;
+    for (ObjectSet::iterator it = inRange.begin(); it != inRange.end(); ++it)
+    {
+        PlayerObject* player = dynamic_cast<PlayerObject*>(*it);
+        if (!player || !player->isConnected() || player->isDead() || player->isIncapacitated())
+        {
+            continue;
+        }
+        float distance = glm::distance(mPosition, player->mPosition);
+        if (distance <= nearestDistance)
+        {
+            nearest = player;
+            nearestDistance = distance;
+        }
+    }
+    return nearest;
+}
+
+uint64 AttackableCreature::_liveDefender(void)
+{
+    ObjectIDList* defenders = getDefenders();
+    for (ObjectIDList::iterator it = defenders->begin(); it != defenders->end(); ++it)
+    {
+        CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(*it));
+        if (defender && !defender->isDead() && !defender->isIncapacitated() && _withinLeash(defender))
+        {
+            return defender->getId();
+        }
+    }
+    return 0;
+}
+
+float AttackableCreature::_leash(void) const
+{
+    return getStalkerDistanceMax() > 0 ? getStalkerDistanceMax() : kDefaultLeash;
+}
+
+bool AttackableCreature::_withinLeash(CreatureObject* target) const
+{
+    return glm::distance(getHomePosition(), target->mPosition) <= _leash() + getWeaponMaxRange();
+}
+
+void AttackableCreature::_startFight(uint64 targetId)
+{
+    setTarget(targetId);
+    disableHoming();
+    setRoamingSteps(0);
+    setCombatTimer(0);
+    mCombatState = State_Combat;
+    setAiState(NpcIsActive);
+    LOG(INFO) << "Creature " << getId() << " fights " << targetId;
+}
+
+void AttackableCreature::_endFight(void)
+{
+    // Peace with everyone left (a copy: making peace edits the list).
+    ObjectIDList defenders = *getDefenders();
+    for (ObjectIDList::iterator it = defenders.begin(); it != defenders.end(); ++it)
+    {
+        makePeaceWithDefender(*it);
+    }
+    if (!getDefenders()->empty())
+    {
+        clearDefenders();
+    }
+    setTarget(0);
+
+    // Walk home.
+    mCombatState = State_CombatReady;
+    setAiState(NpcIsReady);
+    _walkTo(getHomePosition(), kHomeSpeed, readyDefaultPeriodTime);
+    LOG(INFO) << "Creature " << getId() << " gives up and goes home";
+}
+
+void AttackableCreature::_walkTo(const glm::vec3& destination, float speed, uint64 periodMs)
+{
+    float distance = glm::distance(mPosition, destination);
+    int32 steps = static_cast<int32>(distance / (speed * periodMs / 1000.0f));
+    if (steps <= 0)
+    {
+        disableHoming();
+        setRoamingSteps(0);
+        return;
+    }
+    setDestination(destination);
+    setDirection(destination.x - mPosition.x, destination.z - mPosition.z);
+    setPositionOffset((destination - mPosition) / static_cast<float>(steps));
+    setRoamingSteps(steps);
+    enableHoming();
+}
+
+void AttackableCreature::_chase(void)
+{
+    CreatureObject* target = dynamic_cast<CreatureObject*>(getTarget());
+    if (!target)
+    {
+        return;
+    }
+    glm::vec3 toTarget = target->mPosition - mPosition;
+    toTarget.y = 0;
+    float distance = glm::length(toTarget);
+    if (distance < 0.01f)
+    {
+        return;
+    }
+    setDirection(toTarget.x, toTarget.z);
+
+    // Close enough to strike: stay, a little short of the weapon's reach.
+    float reach = getWeaponMaxRange();
+    if (distance <= reach * 0.9f)
+    {
+        return;
+    }
+    float speed = getStalkerSpeed() > 0 ? getStalkerSpeed() : kChaseSpeed;
+    float step = speed * activeDefaultPeriodTime / 1000.0f;
+    if (step > distance - reach * 0.75f)
+    {
+        step = distance - reach * 0.75f;
+    }
+    glm::vec3 position = mPosition + toTarget * (step / distance);
+
+    // Not past the leash.
+    if (glm::distance(position, getHomePosition()) > _leash())
+    {
+        return;
+    }
+    if (getParentId() == 0)
+    {
+        position.y = getHeightAt2DPosition(position.x, position.z, true);
+    }
+    updatePosition(getParentId(), position);
 }
 
 uint64 AttackableCreature::handleState(uint64 timeOverdue)
@@ -656,8 +896,8 @@ uint64 AttackableCreature::handleState(uint64 timeOverdue)
     {
         // Set me for a long wait...
 
-        // Start roaming timer, then we will have them all running when we get players in range.
-        waitTime = this->getRoamingDelay() + (int64)(((uint64)gRandom->getRand() * 1000) % ((this->getRoamingDelay()/2)+1));
+        // Look for players every few seconds (handleEvents decides).
+        waitTime = 2000 + (gRandom->getRand() % 1000);
     }
     break;
 
@@ -829,10 +1069,8 @@ uint64 AttackableCreature::handleState(uint64 timeOverdue)
         }
         this->setCombatTimer(activation);
 
-        if (this->isStalker())
-        {
-            this->stalk();
-        }
+        // Every creature runs after its target (within its leash).
+        this->_chase();
     }
     break;
 
@@ -1005,11 +1243,10 @@ void AttackableCreature::setupRoaming(int32 maxRangeX, int32 maxRangeZ)
     }
     else
     {
-        destination2.x = destination.x;
-        destination2.y = destination.z;
-
         // Verify that we don't roam outside given area.
         destination = getRandomPosition(mPosition, 2*maxRangeX, 2*maxRangeZ);
+        destination2.x = destination.x;
+        destination2.y = destination.z;
 
         uint32 sentinel = 0;
         while (glm::distance(homePosition, destination2) > getRoamingDistanceMax())

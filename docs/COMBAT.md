@@ -125,9 +125,11 @@ not used, so in that respect players attack faster than they should).
 - HAM pools, incapacitation, death, clone selection, regeneration with
   posture modifiers.
 - Duels between players; death blows in a duel.
-- Creature AI: idle, roaming, aggro within `creature_aggro_range`,
-  stalking, attacking, assisting a lair; `State_Dead` (since the combat
-  branch: a dead creature stops attacking).
+- Creature AI (`AttackableCreature::_think`; KNOWN_ISSUES 5j): fight
+  back, aggressive creatures attack players within
+  `creature_attack_range`, chase within the leash, give up and walk home,
+  roam while players are near; `State_Dead` (a dead creature stops
+  attacking). Assisting other creatures or the lair is not wired yet.
 - XP by most damage, per weapon type, group split; loot rights.
 - Combat spam, fly text (miss, block, dodge, counter), animations.
 - Specials' HAM costs: their cost modifiers x the weapon's attack costs

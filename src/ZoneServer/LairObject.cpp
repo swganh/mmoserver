@@ -127,6 +127,17 @@ uint64 LairObject::handleState(uint64 timeOverdue)
     {
         waitTime = dormantDefaultPeriodTime - timeOverdue;
         this->mInitialSpawnDelay -= dormantDefaultPeriodTime;
+
+        // The countdown ran out: the lair and its first wave go in the
+        // world. Nothing did this before, so no lair ever spawned.
+        if (this->mInitialSpawnDelay <= 0)
+        {
+            this->spawn();
+            this->spawnInitialWave();
+            mLairState = State_LairIdle;
+            LOG(INFO) << "Lair " << this->getId() << " spawned with " << this->mWaveSize << " creatures at "
+                      << this->mPosition.x << ", " << this->mPosition.z;
+        }
     }
     break;
 

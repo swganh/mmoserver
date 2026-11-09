@@ -349,6 +349,35 @@ TEST_F(CombatRulesTest, PostureChangesLastFiveSeconds) {
     EXPECT_DOUBLE_EQ(5, eval("landed[1].duration"));
 }
 
+TEST_F(CombatRulesTest, HitsWoundWithTheWeaponsWoundChance) {
+    // A dagger's 9% (p. 390): a roll under it wounds a tenth of the damage.
+    run("a = { weapon = { group = 'onehandmelee', wound_chance = 9 } }");
+    EXPECT_DOUBLE_EQ(5, eval("rules.wound(a, 50, 0.05)"));
+    EXPECT_DOUBLE_EQ(0, eval("rules.wound(a, 50, 0.5)"));
+    EXPECT_DOUBLE_EQ(1, eval("rules.wound(a, 4, 0.05)"));
+    EXPECT_DOUBLE_EQ(0, eval("rules.wound(a, 0, 0.05)"));
+    // Bare hands have no wound chance: the vibroknuckler's 8% (p. 390).
+    run("b = { weapon = { group = 'unarmed' } }");
+    EXPECT_DOUBLE_EQ(3, eval("rules.wound(b, 30, 0.07)"));
+    EXPECT_DOUBLE_EQ(0, eval("rules.wound(b, 30, 0.09)"));
+}
+
+TEST_F(CombatRulesTest, WoundsAndFatigueReachCpp) {
+    CombatAttack attack;
+    attack.weapon.group = "rifle";
+    attack.weapon.minDamage = 100;
+    attack.weapon.maxDamage = 100;
+    attack.weapon.woundChance = 100;
+    attack.accuracyBonus = 1000;
+    run("math.random = function(a) if a then return a end return 0 end");
+    CombatOutcome outcome = rules_.attack(attack);
+    ASSERT_TRUE(outcome.ok);
+    ASSERT_TRUE(outcome.hit);
+    EXPECT_EQ(outcome.damage / 10, outcome.wound);
+    EXPECT_GT(outcome.wound, 0);
+    EXPECT_EQ(1, outcome.fatigue);
+}
+
 TEST_F(CombatRulesTest, IncapsGrowLongerAndTheThirdKills) {
     bool dies = true;
     int seconds = 0;

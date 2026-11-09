@@ -619,6 +619,7 @@ uint8 NpcManager::_executeAttack(CreatureObject* attacker,CreatureObject* defend
     {
         multipliedDamage = -outcome.damage;
         gCombatManager->applyDamage(defender, outcome.pool, outcome.damage);
+        gCombatManager->applyWounds(defender, outcome);
         /*
         if (defender->isIncapacitated())
         {

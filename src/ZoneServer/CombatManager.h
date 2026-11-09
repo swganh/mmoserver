@@ -85,6 +85,8 @@ public:
 
     // Applies a hit's damage to the pool the rules chose.
     void					applyDamage(CreatureObject* defender, const std::string& pool, int32 damage);
+    // The wound and battle fatigue a hit leaves (rules.wound, FATIGUE_PER_HIT).
+    void					applyWounds(CreatureObject* defender, const CombatOutcome& outcome);
 
     ~CombatManager();
 

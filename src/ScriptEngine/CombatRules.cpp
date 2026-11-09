@@ -95,6 +95,7 @@ void pushWeapon(lua_State* l, const CombatWeapon& weapon)
     setNumber(l, "health_cost", weapon.healthCost);
     setNumber(l, "action_cost", weapon.actionCost);
     setNumber(l, "mind_cost", weapon.mindCost);
+    setNumber(l, "wound_chance", weapon.woundChance);
 }
 
 void pushAttack(lua_State* l, const CombatAttack& attack)
@@ -253,6 +254,14 @@ CombatOutcome CombatRules::attack(const CombatAttack& attack)
     {
         outcome.delay = static_cast<float>(lua_tonumber(mState, -1));
     }
+    lua_pop(mState, 1);
+
+    lua_getfield(mState, -1, "wound");
+    outcome.wound = static_cast<int>(lua_tonumber(mState, -1));
+    lua_pop(mState, 1);
+
+    lua_getfield(mState, -1, "fatigue");
+    outcome.fatigue = static_cast<int>(lua_tonumber(mState, -1));
     lua_pop(mState, 1);
 
     lua_getfield(mState, -1, "effects");

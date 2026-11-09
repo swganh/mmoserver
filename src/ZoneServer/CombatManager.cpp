@@ -549,6 +549,7 @@ CombatWeapon CombatManager::buildWeapon(Weapon* weapon)
     w.healthCost = numberAttribute(weapon, "cat_wpn_attack_cost.wpn_attack_cost_health", 0);
     w.actionCost = numberAttribute(weapon, "cat_wpn_attack_cost.wpn_attack_cost_action", 0);
     w.mindCost = numberAttribute(weapon, "cat_wpn_attack_cost.wpn_attack_cost_mind", 0);
+    w.woundChance = numberAttribute(weapon, "cat_wpn_damage.wpn_wound_chance", 0);
     return w;
 }
 
@@ -586,6 +587,35 @@ void CombatManager::applyDamage(CreatureObject* defender, const std::string& poo
         bar = HamBar_Mind;
     }
     defender->getHam()->updatePropertyValue(bar, HamProperty_CurrentHitpoints, -damage, true);
+}
+
+void CombatManager::applyWounds(CreatureObject* defender, const CombatOutcome& outcome)
+{
+    if (defender->getCreoGroup() == CreoGroup_AttackableObject || defender->isIncapacitated() || defender->isDead())
+    {
+        return;
+    }
+
+    if (outcome.wound > 0)
+    {
+        uint8 bar = HamBar_Health;
+        if (outcome.pool == "action")
+        {
+            bar = HamBar_Action;
+        }
+        else if (outcome.pool == "mind")
+        {
+            bar = HamBar_Mind;
+        }
+        defender->getHam()->updatePropertyValue(bar, HamProperty_Wounds, outcome.wound, false, true);
+        LOG(INFO) << "Combat wound " << outcome.wound << " " << outcome.pool << " on " << defender->getId();
+    }
+
+    // Battle fatigue only matters to players (it hampers wound healing).
+    if (outcome.fatigue > 0 && defender->getType() == ObjType_Player)
+    {
+        defender->getHam()->updateBattleFatigue(outcome.fatigue, true);
+    }
 }
 
 //======================================================================================================================
@@ -725,6 +755,7 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 		}
 
 		applyDamage(defender, outcome.pool, outcome.damage);
+		applyWounds(defender, outcome);
 		if (defender->isIncapacitated())
 		{
 			PlayerObject* playerAttacker = dynamic_cast<PlayerObject*>(attacker);

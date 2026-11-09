@@ -56,7 +56,7 @@ struct CombatWeapon
     CombatWeapon()
         : group("unarmed"), damageType("kinetic"), minDamage(1), maxDamage(1), speed(0)
         , zeroMod(0), midMod(0), maxMod(0), midRange(0), maxRange(0), armorPiercing(0)
-        , healthCost(0), actionCost(0), mindCost(0) {}
+        , healthCost(0), actionCost(0), mindCost(0), woundChance(0) {}
 
     std::string group;          // "pistol", "carbine", "rifle", "unarmed", ...
     std::string damageType;     // "energy", "kinetic", ...
@@ -72,6 +72,7 @@ struct CombatWeapon
     float       healthCost;     // the weapon's attack costs, for specials
     float       actionCost;
     float       mindCost;
+    float       woundChance;    // % chance a hit wounds, 0 if unknown
 };
 
 // An effect a special can apply: its chance (%) and duration (seconds).
@@ -107,7 +108,7 @@ struct CombatAttack
 
 struct CombatOutcome
 {
-    CombatOutcome() : ok(false), hit(false), chance(0), damage(0), pool("health"), delay(2.0f) {}
+    CombatOutcome() : ok(false), hit(false), chance(0), damage(0), pool("health"), delay(2.0f), wound(0), fatigue(0) {}
 
     bool        ok;         // false if the script failed; the rest are defaults then
     bool        hit;
@@ -115,6 +116,8 @@ struct CombatOutcome
     int         damage;
     std::string pool;       // "health", "action", "mind"
     float       delay;      // seconds to the next attack
+    int         wound;      // wound to the pool hit
+    int         fatigue;    // battle fatigue the defender gains
     // The effects that landed: name ("knockdown", "stun"...), seconds.
     std::vector<std::pair<std::string, float> > effects;
 };

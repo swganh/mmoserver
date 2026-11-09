@@ -162,7 +162,20 @@ rules.DEFAULT_ATTACK_COSTS = {
 -- The order effects are tried in (the posture changes first).
 rules.EFFECT_ORDER = { "knockdown", "posture_down", "posture_up", "stun", "dizzy", "blind", "intimidate" }
 
--- Incapacitation (players) -----------------------------------------------------
+-- Wounds and battle fatigue -----------------------------------------------------
+
+-- A hit wounds with the weapon's wound chance (p. 389: "Wound%"); a wound
+-- lowers the pool's maximum until healed (p. 86). The guide gives no wound
+-- size: a tenth of the damage, at least 1. Reconstructed.
+rules.WOUND_FRACTION = 0.1
+-- The wound chance of a weapon without one, by group, in percent: bare
+-- hands use the vibroknuckler's 8% (p. 390). Reconstructed.
+rules.DEFAULT_WOUND_CHANCE = { unarmed = 8 }
+-- Battle fatigue is gained through combat; it does not affect combat but
+-- hampers the healing of wounds (p. 86). The guide gives no rate: each hit
+-- taken adds this much, out of 1000. Reconstructed.
+rules.FATIGUE_PER_HIT = 1
+
 
 -- Three incaps within any 10 minutes kill (p. 85).
 rules.INCAP_WINDOW = 600     -- seconds
@@ -424,10 +437,25 @@ function rules.attack(a)
     result.damage = rules.damage(a, math.random())
     result.pool = rules.pool(a, math.random())
     result.effects = rules.effects(a, math.random)
+    result.wound = rules.wound(a, result.damage, math.random())
+    result.fatigue = rules.FATIGUE_PER_HIT
   else
     result.damage = 0
   end
   return result
+end
+
+-- The wound a hit for this much damage leaves, given a roll in [0, 1).
+function rules.wound(a, damage, roll)
+  local weapon = a.weapon or {}
+  local chance = weapon.wound_chance or 0
+  if chance <= 0 then
+    chance = rules.DEFAULT_WOUND_CHANCE[weapon.group] or 0
+  end
+  if damage <= 0 or roll * 100 >= chance then
+    return 0
+  end
+  return math.max(1, math.floor(damage * rules.WOUND_FRACTION))
 end
 
 -- The count-th incap within the window (1 for the first): whether it kills,

@@ -125,6 +125,14 @@ not used, so in that respect players attack faster than they should).
 - HAM pools, incapacitation, death, clone selection, regeneration with
   posture modifiers. Cloning revives the player with full health, action
   and mind, less wounds (KNOWN_ISSUES #24).
+- Wounds and battle fatigue (`rules.wound`, `rules.FATIGUE_PER_HIT`): a
+  hit wounds the pool it hit with the weapon's wound chance (p. 389;
+  `cat_wpn_damage.wpn_wound_chance`, bare hands and creatures the
+  vibroknuckler's 8%, p. 390); the wound is a tenth of the damage, at least
+  1, and lowers the pool's maximum. Each hit a player takes adds 1 battle
+  fatigue (of 1000). Both sizes are reconstructed: the guide gives none.
+  Each wound is logged (`Combat wound ...`); the client shows it in the
+  character sheet's Wounds column and as "wounded" combat spam.
 - Incapacitation from the combat rules (`rules.incap`, `rules.incapWindow`):
   three incaps within 10 minutes kill (p. 85); the first lasts 30 s, the
   second 60 s (`rules.INCAP_TIMES`, reconstructed: the guide's timer
@@ -280,7 +288,8 @@ against melee) is not known.
   the "no point blank attacks while prone" rule; creature to-hits are not
   in the database yet.
 - **Damage modifiers:** no skill or stat bonuses, players' worn armour,
-  vulnerabilities, wounds (weapons have a wound chance) or battle fatigue.
+  vulnerabilities. Wounds cause no bleeding yet (p. 389), and battle
+  fatigue does not yet hamper healing (p. 86): nothing heals wounds yet.
 - **Special attacks:** the attacker's end posture (Dive Shot prone, Kip Up
   Shot standing, Roll Shot kneeling), area and cone attacks (every special
   hits its one target), and the special moves the guide's table does not

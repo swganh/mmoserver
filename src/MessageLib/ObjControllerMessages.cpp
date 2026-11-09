@@ -322,7 +322,7 @@ void MessageLib::sendCreatureAnimation(CreatureObject* srcObject,const std::stri
 // posture update
 //
 
-void MessageLib::sendSelfPostureUpdate(PlayerObject* playerObject)
+void MessageLib::sendSelfPostureUpdate(CreatureObject* playerObject)
 {
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opObjControllerMessage);

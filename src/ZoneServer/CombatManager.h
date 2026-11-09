@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ScriptEngine/CombatRules.h"
 
 #include <string>
+#include <vector>
 
 
 //=========================================================================================
@@ -95,7 +96,26 @@ private:
     bool					_verifyCombatState(CreatureObject* attacker, uint64 defenderId);
 
     uint8					_executeAttack(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,Weapon* weapon, uint64* delayMs);
-    uint8					_tryStateEffects(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,Weapon* weapon);
+    // The attack as the rules see it: the sides, the weapon and the command.
+    CombatAttack			_buildAttack(CreatureObject* attacker, CreatureObject* defender, ObjectControllerCmdProperties* cmdProperties, Weapon* weapon);
+    // Charges a special's HAM costs; false (nothing charged) if the attacker
+    // cannot pay them.
+    bool					_payCosts(CreatureObject* attacker, const CombatAttack& attack);
+    // Applies the effects that landed; timed states are removed again later.
+    void					_applyEffects(CreatureObject* defender, const CombatOutcome& outcome);
+    // Scheduler callback: removes timed states whose time is up.
+    bool					_expireStates(uint64 callTime, void* ref);
+
+    struct TimedState
+    {
+        uint64	creatureId;
+        uint64	state;
+        uint64	expires;	// ms, Clock local time
+    };
+    std::vector<TimedState>	mTimedStates;
+    // A TimedState that stands a creature back up instead of ending a state.
+    static const uint64		kStandUp = 0;
+    void					_timeStandUp(CreatureObject* creature, uint64 when);
 
     static bool				mInsFlag;
     static CombatManager*	mSingleton;

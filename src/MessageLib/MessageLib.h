@@ -308,7 +308,7 @@ public:
     void sendFlyText(Object* source, PlayerObject* player, const std::string& stf_file, const std::string& stf_var, unsigned char red, unsigned char green, unsigned char blue, unsigned char display);
 
 
-    void				sendSelfPostureUpdate(PlayerObject* playerObject);
+    void				sendSelfPostureUpdate(CreatureObject* playerObject);
     void				sendSetWaypointActiveStatus(WaypointObject* waypointObject, bool active, PlayerObject* targetObject);
 
     // spatial

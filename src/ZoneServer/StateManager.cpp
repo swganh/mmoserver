@@ -153,6 +153,9 @@ void StateManager::setCurrentPostureState(CreatureObject* object, CreaturePostur
             if (object->getType() != ObjType_Player)
             {
                 gMessageLib->sendPostureAndStateUpdate(object);
+                // The posture command, as players get, so the client
+                // animates the change (kneeling, prone, knocked down).
+                gMessageLib->sendSelfPostureUpdate(object);
             }
         }
         else
@@ -198,13 +201,19 @@ void StateManager::setCurrentLocomotionState(CreatureObject* object, CreatureLoc
     LocomotionStateMap::iterator iter = mLocomotionStateMap.find(newLocomotion);
     if (iter != mLocomotionStateMap.end())
     {
-        // check if we can transition to the new state
-        if (mActionStateMap[newLocomotion]->CanTransition(object, newLocomotion))
+        // check if we can transition to the new state (the locomotion's
+        // own rules; this looked in the action state map)
+        if (iter->second->CanTransition(object, newLocomotion))
         {
-            // Exit old State
-            mLocomotionStateMap[object->states.getLocomotion()]->Exit(object);
+            // Exit old State. A creature whose locomotion was never set (0)
+            // has none: operator[] gave a null state here, and a crash.
+            LocomotionStateMap::iterator old = mLocomotionStateMap.find(static_cast<int64>(object->states.getLocomotion()));
+            if (old != mLocomotionStateMap.end())
+            {
+                old->second->Exit(object);
+            }
             // Enter new State
-            mLocomotionStateMap[newLocomotion]->Enter(object);
+            iter->second->Enter(object);
         }
         else
         {

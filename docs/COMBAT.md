@@ -123,7 +123,15 @@ not used, so in that respect players attack faster than they should).
   states, defender lists, `/peace`.
 - Default attacks with any weapon; damage from the weapon's min/max.
 - HAM pools, incapacitation, death, clone selection, regeneration with
-  posture modifiers.
+  posture modifiers. Cloning revives the player with full health, action
+  and mind, less wounds (KNOWN_ISSUES #24).
+- Incapacitation from the combat rules (`rules.incap`, `rules.incapWindow`):
+  three incaps within 10 minutes kill (p. 85); the first lasts 30 s, the
+  second 60 s (`rules.INCAP_TIMES`, reconstructed: the guide's timer
+  picture on p. 85 reads 52 s, so it is not a fixed 30 s). The window
+  counts from the first incap. Without the rules, the server's
+  `Player_Incap_Time`, `Player_Incap_Reset` and `Player_Incapacitation`
+  settings apply. Each incap is logged (`Player ... incapacitated`).
 - Duels between players; death blows in a duel.
 - Creature AI (`AttackableCreature::_think`; KNOWN_ISSUES 5j): fight
   back, aggressive creatures attack players within
@@ -279,7 +287,10 @@ against melee) is not known.
   list (berserk, warcry, intimidate, taunt, Center of Being).
 - **States:** knockdown/dizzy interplay (a dizzy creature falling when it
   changes posture), knockdowns and posture changes have no duration.
-- **Creatures:** no special moves, no fleeing, no healing; creature
+- **Creatures:** no special moves, no fleeing, no healing; no killers
+  (creatures that deathblow an incapacitated player, p. 73: every creature
+  only incapacitates) and no pack assist (p. 73), which wait for the
+  creature table; creature
   regeneration is a made-up rule; aggression ignores the player's level.
 - **Combat XP** rates and weapon XP split are placeholders ("a complete
   made up rule" in the code).

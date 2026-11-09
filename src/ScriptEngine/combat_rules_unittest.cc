@@ -349,6 +349,22 @@ TEST_F(CombatRulesTest, PostureChangesLastFiveSeconds) {
     EXPECT_DOUBLE_EQ(5, eval("landed[1].duration"));
 }
 
+TEST_F(CombatRulesTest, IncapsGrowLongerAndTheThirdKills) {
+    bool dies = true;
+    int seconds = 0;
+    ASSERT_TRUE(rules_.incap(1, dies, seconds));
+    EXPECT_FALSE(dies);
+    EXPECT_EQ(30, seconds);
+    ASSERT_TRUE(rules_.incap(2, dies, seconds));
+    EXPECT_FALSE(dies);
+    EXPECT_EQ(60, seconds);
+    ASSERT_TRUE(rules_.incap(3, dies, seconds));
+    EXPECT_TRUE(dies);
+    // Three incaps within any 10-minute span kill.
+    ASSERT_TRUE(rules_.incapWindow(seconds));
+    EXPECT_EQ(600, seconds);
+}
+
 TEST_F(CombatRulesTest, AccuracyBonusAddsToTheModifier) {
     run(kCdefLua);
     run("a = { weapon = cdef, distance = 17, attacker = {}, defender = {}, accuracy_bonus = 15 }");

@@ -298,6 +298,30 @@ bool CombatRules::costs(const CombatAttack& attack, int& health, int& action, in
     return true;
 }
 
+bool CombatRules::incap(int count, bool& dies, int& seconds)
+{
+    lua_pushnumber(mState, count);
+    if (!_call("incap", 1, 2))
+    {
+        return false;
+    }
+    dies = lua_toboolean(mState, -2) != 0;
+    seconds = static_cast<int>(lua_tonumber(mState, -1));
+    lua_pop(mState, 2);
+    return true;
+}
+
+bool CombatRules::incapWindow(int& seconds)
+{
+    if (!_call("incapWindow", 0, 1))
+    {
+        return false;
+    }
+    seconds = static_cast<int>(lua_tonumber(mState, -1));
+    lua_pop(mState, 1);
+    return true;
+}
+
 bool CombatRules::inRange(const CombatWeapon& weapon, float distance)
 {
     pushWeapon(mState, weapon);

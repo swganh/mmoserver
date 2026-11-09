@@ -162,6 +162,17 @@ rules.DEFAULT_ATTACK_COSTS = {
 -- The order effects are tried in (the posture changes first).
 rules.EFFECT_ORDER = { "knockdown", "posture_down", "posture_up", "stun", "dizzy", "blind", "intimidate" }
 
+-- Incapacitation (players) -----------------------------------------------------
+
+-- Three incaps within any 10 minutes kill (p. 85).
+rules.INCAP_WINDOW = 600     -- seconds
+rules.INCAP_DEATH = 3        -- the incap in the window that kills
+-- How long each incap in the window lasts, in seconds; past the end of the
+-- list the last entry repeats. The guide's picture of the incap timer
+-- (p. 85) reads 52 s, so it is not a fixed 30 s; how it grows is
+-- reconstructed: the first incap is short, the next one longer.
+rules.INCAP_TIMES = { 30, 60 }
+
 -- Attack time ----------------------------------------------------------------
 
 -- Each point of speed mod takes this fraction off the weapon's attack
@@ -417,6 +428,21 @@ function rules.attack(a)
     result.damage = 0
   end
   return result
+end
+
+-- The count-th incap within the window (1 for the first): whether it kills,
+-- and if not, how many seconds it lasts.
+function rules.incap(count)
+  if count >= rules.INCAP_DEATH then
+    return true, 0
+  end
+  local times = rules.INCAP_TIMES
+  return false, times[math.min(count, #times)] or 30
+end
+
+-- How long, in seconds, incaps are counted for before the count starts again.
+function rules.incapWindow()
+  return rules.INCAP_WINDOW
 end
 
 return rules

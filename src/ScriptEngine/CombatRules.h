@@ -133,6 +133,10 @@ public:
     bool            inRange(const CombatWeapon& weapon, float distance);
     // What a special costs (rules.costs); false (and 0s) if no rules.
     bool            costs(const CombatAttack& attack, int& health, int& action, int& mind);
+    // The count-th incap within the window (1 for the first): whether it
+    // kills, else its length in seconds; and the window's length in seconds.
+    bool            incap(int count, bool& dies, int& seconds);
+    bool            incapWindow(int& seconds);
     // The fields of the WeaponRanges message: layout ("i" int32, "f" float
     // per field) and values. False if no rules, the script returns nothing
     // (send nothing then) or the layout is not valid.

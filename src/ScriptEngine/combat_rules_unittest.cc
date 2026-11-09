@@ -378,6 +378,44 @@ TEST_F(CombatRulesTest, WoundsAndFatigueReachCpp) {
     EXPECT_EQ(1, outcome.fatigue);
 }
 
+TEST_F(CombatRulesTest, IntimidatedDefendersAreEasierToHit) {
+    run("a = { attacker = {}, defender = {} }");
+    double plain = eval("rules.accuracy(a)");
+    run("a.defender.states = { intimidated = true }");
+    EXPECT_DOUBLE_EQ(plain + 10, eval("rules.accuracy(a)"));
+}
+
+TEST_F(CombatRulesTest, BrawlerMovesRollTheirChance) {
+    // Intimidate 1: the command table's 25%, + the brawler's intimidate mod,
+    // - the defender's intimidate_defense.
+    run("a = { base_chance = 25, attacker = { skill_mods = { intimidate = 20 } },"
+        " defender = { skill_mods = { intimidate_defense = 5 } } }");
+    run("landed, chance, duration = rules.move('intimidate1', a, 0.39)");
+    EXPECT_DOUBLE_EQ(40, eval("chance"));
+    EXPECT_DOUBLE_EQ(1, eval("landed and 1 or 0"));
+    EXPECT_DOUBLE_EQ(30, eval("duration"));
+    run("landed = rules.move('intimidate1', a, 0.41)");
+    EXPECT_DOUBLE_EQ(0, eval("landed and 1 or 0"));
+    // Taunt has no state; no move is certain.
+    run("b = { attacker = { skill_mods = { taunt = 100 } }, defender = {} }");
+    run("landed, chance, duration = rules.move('taunt', b, 0)");
+    EXPECT_DOUBLE_EQ(95, eval("chance"));
+    EXPECT_DOUBLE_EQ(0, eval("duration"));
+
+    std::string kind;
+    float range = 0, radius = 0;
+    ASSERT_TRUE(rules_.moveReach("warcry1", kind, range, radius));
+    EXPECT_EQ("intimidate", kind);
+    EXPECT_FLOAT_EQ(15, radius);
+    EXPECT_FALSE(rules_.moveReach("berserk1", kind, range, radius));
+
+    CombatAttack attack;
+    bool landed = false;
+    float chance = 0, duration = 0;
+    ASSERT_TRUE(rules_.move("intimidate2", attack, 40, landed, chance, duration));
+    EXPECT_FLOAT_EQ(40, chance);
+}
+
 TEST_F(CombatRulesTest, IncapsGrowLongerAndTheThirdKills) {
     bool dies = true;
     int seconds = 0;

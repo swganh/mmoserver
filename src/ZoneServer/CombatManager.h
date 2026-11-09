@@ -71,6 +71,9 @@ public:
     // delayMs, if given, gets the time to the attacker's next attack, from
     // the combat rules (data/script/combat/rules.lua).
     bool					handleAttack(CreatureObject*  attacker,uint64 targetId,ObjectControllerCmdProperties* cmdProperties, uint64* delayMs = 0);
+    // Intimidate, Warcry and Taunt (rules.MOVES): their HAM cost, then a roll
+    // against each target. False if the move could not be used.
+    bool					handleBrawlerMove(PlayerObject* attacker, uint64 targetId, ObjectControllerCmdProperties* cmdProperties);
 
     // The combat rules script, shared with NpcManager.
     CombatRules&			rules() { return mRules; }

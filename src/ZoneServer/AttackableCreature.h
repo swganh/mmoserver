@@ -210,6 +210,8 @@ public:
     void	setLairId(uint64 lairId) {
         mLairId = lairId;
     }
+    // A brawler's Taunt landed: fight the taunter.
+    void	taunt(uint64 taunterId);
 
 
 private:

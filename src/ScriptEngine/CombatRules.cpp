@@ -76,6 +76,14 @@ void pushSide(lua_State* l, const CombatSide& side)
         setNumber(l, it->first.c_str(), it->second);
     }
     lua_setfield(l, -2, "armor");
+
+    lua_newtable(l);
+    for (std::vector<std::string>::const_iterator it = side.states.begin(); it != side.states.end(); ++it)
+    {
+        lua_pushboolean(l, 1);
+        lua_setfield(l, -2, it->c_str());
+    }
+    lua_setfield(l, -2, "states");
 }
 
 void pushWeapon(lua_State* l, const CombatWeapon& weapon)
@@ -317,6 +325,49 @@ bool CombatRules::incap(int count, bool& dies, int& seconds)
     dies = lua_toboolean(mState, -2) != 0;
     seconds = static_cast<int>(lua_tonumber(mState, -1));
     lua_pop(mState, 2);
+    return true;
+}
+
+bool CombatRules::moveReach(const std::string& name, std::string& kind, float& range, float& radius)
+{
+    lua_pushstring(mState, name.c_str());
+    if (!_call("moveReach", 1, 3))
+    {
+        return false;
+    }
+    bool known = lua_isstring(mState, -3) != 0;
+    if (known)
+    {
+        kind = lua_tostring(mState, -3);
+        range = static_cast<float>(lua_tonumber(mState, -2));
+        radius = static_cast<float>(lua_tonumber(mState, -1));
+    }
+    lua_pop(mState, 3);
+    return known;
+}
+
+bool CombatRules::move(const std::string& name, const CombatAttack& attack, float baseChance,
+                       bool& landed, float& chance, float& duration)
+{
+    lua_pushstring(mState, name.c_str());
+    pushAttack(mState, attack);
+    setNumber(mState, "base_chance", baseChance);
+    lua_getglobal(mState, "math");
+    lua_getfield(mState, -1, "random");
+    lua_remove(mState, -2);
+    if (lua_pcall(mState, 0, 1, 0) != 0)
+    {
+        lua_pop(mState, 3);
+        return false;
+    }
+    if (!_call("move", 3, 3))
+    {
+        return false;
+    }
+    landed = lua_toboolean(mState, -3) != 0;
+    chance = static_cast<float>(lua_tonumber(mState, -2));
+    duration = static_cast<float>(lua_tonumber(mState, -1));
+    lua_pop(mState, 3);
     return true;
 }
 

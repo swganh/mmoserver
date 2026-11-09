@@ -788,6 +788,16 @@ void AttackableCreature::_startFight(uint64 targetId)
     LOG(INFO) << "Creature " << getId() << " fights " << targetId;
 }
 
+void AttackableCreature::taunt(uint64 taunterId)
+{
+    if (isDead() || isIncapacitated() || getTargetId() == taunterId)
+    {
+        return;
+    }
+    LOG(INFO) << "Creature " << getId() << " taunted by " << taunterId;
+    _startFight(taunterId);
+}
+
 void AttackableCreature::_endFight(void)
 {
     // Peace with everyone left (a copy: making peace edits the list).

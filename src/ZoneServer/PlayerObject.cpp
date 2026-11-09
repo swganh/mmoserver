@@ -1315,6 +1315,10 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,BString inputStr,UI
                         }
                         if (this->mNewPlayerExemptions == 0)
                         {
+                            // Fill the pools first: a wound can't exceed the
+                            // pool's current points, and death left health at 0.
+                            this->getHam()->restoreMainPools();
+
                             // Add wounds...
                             this->getHam()->updatePrimaryWounds(100);
 

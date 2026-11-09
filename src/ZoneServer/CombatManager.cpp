@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectControllerCommandMap.h"
 #include "PlayerObject.h"
 #include "SkillManager.h"
+#include "SpatialIndexManager.h"
 #include "StateManager.h"
 #include "Weapon.h"
 #include "VehicleController.h"
@@ -495,6 +496,18 @@ CombatSide CombatManager::buildSide(CreatureObject* creature)
         side.kind = "creature";
     }
     side.posture = postureName(creature->states.getPosture());
+    struct { CreatureState state; const char* name; } kStates[] = {
+        { CreatureState_Intimidated, "intimidated" }, { CreatureState_Stunned, "stunned" },
+        { CreatureState_Blinded, "blinded" }, { CreatureState_Dizzy, "dizzy" },
+        { CreatureState_Berserk, "berserk" },
+    };
+    for (size_t i = 0; i < sizeof(kStates) / sizeof(kStates[0]); ++i)
+    {
+        if (creature->states.checkState(kStates[i].state))
+        {
+            side.states.push_back(kStates[i].name);
+        }
+    }
 
     SkillModsList* mods = creature->getSkillMods();
     for (SkillModsList::iterator it = mods->begin(); it != mods->end(); ++it)
@@ -587,6 +600,130 @@ void CombatManager::applyDamage(CreatureObject* defender, const std::string& poo
         bar = HamBar_Mind;
     }
     defender->getHam()->updatePropertyValue(bar, HamProperty_CurrentHitpoints, -damage, true);
+}
+
+bool CombatManager::handleBrawlerMove(PlayerObject* attacker, uint64 targetId, ObjectControllerCmdProperties* cmdProperties)
+{
+    std::string name = lowerCase(cmdProperties->mCommandStr.getAnsi());
+    std::string kind;
+    float range = 0, radius = 0;
+    if (!mRules.moveReach(name, kind, range, radius))
+    {
+        LOG(WARNING) << "Brawler move " << name << ": not in the combat rules (rules.MOVES)";
+        return false;
+    }
+    if (attacker->isIncapacitated() || attacker->isDead())
+    {
+        return false;
+    }
+
+    // The targets: the one targeted, or every enemy around for Warcry.
+    std::vector<CreatureObject*> targets;
+    if (radius > 0)
+    {
+        ObjectSet around;
+        gSpatialIndexManager->getObjectsInRange(attacker, &around, ObjType_Creature | ObjType_NPC, radius, true);
+        for (ObjectSet::iterator it = around.begin(); it != around.end(); ++it)
+        {
+            AttackableCreature* creature = dynamic_cast<AttackableCreature*>(*it);
+            if (creature && !creature->isDead() && !creature->isIncapacitated()
+                    && (creature->getPvPStatus() & CreaturePvPStatus_Attackable))
+            {
+                targets.push_back(creature);
+            }
+        }
+        if (targets.empty())
+        {
+            gMessageLib->SendSystemMessage(L"There is no one around to hear your warcry.", attacker);
+            return false;
+        }
+    }
+    else
+    {
+        CreatureObject* target = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
+        if (!target || target == attacker)
+        {
+            gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "target_type_prohibited"), attacker);
+            return false;
+        }
+        if (glm::distance(attacker->mPosition, target->mPosition) > range)
+        {
+            gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "target_out_of_range"), attacker);
+            return false;
+        }
+        targets.push_back(target);
+    }
+
+    // The move's flat HAM cost (command_table).
+    Ham* ham = attacker->getHam();
+    if (!ham->checkMainPools(cmdProperties->mHealthCost, cmdProperties->mActionCost, cmdProperties->mMindCost))
+    {
+        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), attacker);
+        return false;
+    }
+    if (cmdProperties->mHealthCost) ham->updatePropertyValue(HamBar_Health, HamProperty_CurrentHitpoints, -cmdProperties->mHealthCost);
+    if (cmdProperties->mActionCost) ham->updatePropertyValue(HamBar_Action, HamProperty_CurrentHitpoints, -cmdProperties->mActionCost);
+    if (cmdProperties->mMindCost) ham->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, -cmdProperties->mMindCost);
+
+    int landedCount = 0;
+    for (size_t i = 0; i < targets.size(); ++i)
+    {
+        CreatureObject* defender = targets[i];
+        // Using the move on someone starts the fight, as an attack does.
+        if (!_verifyCombatState(attacker, defender->getId()))
+        {
+            continue;
+        }
+        if (cmdProperties->mAnimationCrc)
+        {
+            gMessageLib->sendCombatAction(attacker, defender, cmdProperties->mAnimationCrc);
+        }
+
+        CombatAttack attack;
+        attack.attacker = buildSide(attacker);
+        attack.defender = buildSide(defender);
+        attack.distance = glm::distance(attacker->mPosition, defender->mPosition);
+        bool landed = false;
+        float chance = 0, duration = 0;
+        if (!mRules.move(name, attack, cmdProperties->mIntimidateChance, landed, chance, duration))
+        {
+            continue;
+        }
+        LOG(INFO) << "Brawler move " << name << " by " << attacker->getId() << " on " << defender->getId()
+                  << ": " << chance << "% " << (landed ? "landed" : "failed");
+        if (!landed)
+        {
+            continue;
+        }
+        ++landedCount;
+
+        if (kind == "intimidate")
+        {
+            CombatOutcome outcome;
+            outcome.effects.push_back(std::make_pair(std::string("intimidate"), duration));
+            _applyEffects(defender, outcome);
+        }
+        else if (kind == "taunt")
+        {
+            if (AttackableCreature* creature = dynamic_cast<AttackableCreature*>(defender))
+            {
+                creature->taunt(attacker->getId());
+            }
+        }
+    }
+
+    // What happened, for the brawler.
+    std::wstring move(name.begin(), name.end());
+    if (landedCount)
+    {
+        gMessageLib->SendSystemMessage(L"Your " + move + L" succeeds" +
+            (targets.size() > 1 ? L" on " + std::to_wstring(landedCount) + L" of " + std::to_wstring(targets.size()) : L"") + L".", attacker);
+    }
+    else
+    {
+        gMessageLib->SendSystemMessage(L"Your " + move + L" fails.", attacker);
+    }
+    return true;
 }
 
 void CombatManager::applyWounds(CreatureObject* defender, const CombatOutcome& outcome)

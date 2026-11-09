@@ -162,7 +162,31 @@ rules.DEFAULT_ATTACK_COSTS = {
 -- The order effects are tried in (the posture changes first).
 rules.EFFECT_ORDER = { "knockdown", "posture_down", "posture_up", "stun", "dizzy", "blind", "intimidate" }
 
--- Wounds and battle fatigue -----------------------------------------------------
+-- Brawler moves: Intimidate, Warcry, Taunt -------------------------------------
+
+-- An intimidated creature is easier to hit (p. 47 of the 2004 guide); how
+-- much easier is reconstructed. Added to the attacker's to-hit.
+rules.DEFENDER_STATE_MODS = { intimidated = 10 }
+-- Each move: what it does ("intimidate" or "taunt"), its chance in percent
+-- (Intimidate's is the command table's intimidate_chance, 25 and 40), the
+-- attacker's skill mod that adds to it and the defender's that takes from
+-- it, and its reach: range to the target, or radius around the attacker for
+-- Warcry, which intimidates every enemy around. The guide describes none of
+-- the three moves; Warcry's and Taunt's chances and reaches are
+-- reconstructed, Intimidate's 15 m is the command table's.
+rules.MOVES = {
+  intimidate1 = { kind = "intimidate", chance = 25, mod = "intimidate", defense = "intimidate_defense", range = 15 },
+  intimidate2 = { kind = "intimidate", chance = 40, mod = "intimidate", defense = "intimidate_defense", range = 15 },
+  warcry1 = { kind = "intimidate", chance = 25, mod = "warcry", defense = "intimidate_defense", radius = 15 },
+  warcry2 = { kind = "intimidate", chance = 40, mod = "warcry", defense = "intimidate_defense", radius = 20 },
+  taunt = { kind = "taunt", chance = 50, mod = "taunt", range = 15 },
+}
+-- How long an intimidation lasts, in seconds (the effects' usual duration).
+rules.INTIMIDATE_DURATION = 30
+-- No move is certain, nor hopeless. Reconstructed.
+rules.MIN_MOVE_CHANCE = 5
+rules.MAX_MOVE_CHANCE = 95
+
 
 -- A hit wounds with the weapon's wound chance (p. 389: "Wound%"); a wound
 -- lowers the pool's maximum until healed (p. 86). The guide gives no wound
@@ -268,6 +292,10 @@ function rules.accuracy(a)
   total = total - sumMods(defender, ranged and rules.RANGED_DEFENSE_MODS or rules.MELEE_DEFENSE_MODS)
   -- A special's to-hit modifier (the special moves table, pp. 76-83).
   total = total + (a.accuracy_bonus or 0)
+  -- The defender's states (intimidated...).
+  for state in pairs(defender.states or {}) do
+    total = total + (rules.DEFENDER_STATE_MODS[state] or 0)
+  end
   return total
 end
 
@@ -456,6 +484,32 @@ function rules.wound(a, damage, roll)
     return 0
   end
   return math.max(1, math.floor(damage * rules.WOUND_FRACTION))
+end
+
+-- A brawler move's kind ("intimidate", "taunt"), its range to the target
+-- and its radius around the attacker, in metres; nil for an unknown move.
+function rules.moveReach(name)
+  local move = rules.MOVES[name]
+  if not move then
+    return nil
+  end
+  return move.kind, move.range or 0, move.radius or 0
+end
+
+-- Whether a brawler move lands on a.defender, given a roll in [0, 1); its
+-- chance in percent; and how long, in seconds, its state lasts. a.base_chance
+-- (the command table's) replaces the move's own chance when set.
+function rules.move(name, a, roll)
+  local move = rules.MOVES[name]
+  if not move then
+    return false, 0, 0
+  end
+  local chance = (a.base_chance and a.base_chance > 0) and a.base_chance or move.chance
+  chance = chance + sumMods(a.attacker, move.mod and { move.mod })
+  chance = chance - sumMods(a.defender, move.defense and { move.defense })
+  chance = math.max(rules.MIN_MOVE_CHANCE, math.min(rules.MAX_MOVE_CHANCE, chance))
+  local duration = move.kind == "intimidate" and rules.INTIMIDATE_DURATION or 0
+  return roll * 100 < chance, chance, duration
 end
 
 -- The count-th incap within the window (1 for the first): whether it kills,

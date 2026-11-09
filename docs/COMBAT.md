@@ -133,6 +133,19 @@ not used, so in that respect players attack faster than they should).
   fatigue (of 1000). Both sizes are reconstructed: the guide gives none.
   Each wound is logged (`Combat wound ...`); the client shows it in the
   character sheet's Wounds column and as "wounded" combat spam.
+- Intimidate, Warcry and Taunt (`rules.MOVES`, `rules.move`;
+  `CombatManager::handleBrawlerMove`): each costs its flat HAM from the
+  command table and starts the fight as an attack would. Intimidate (15 m,
+  the command table's 25% and 40%) and Warcry (every attackable creature
+  within 15 m, 20 m for Warcry 2) leave the target Intimidated for 30 s;
+  Taunt (15 m) makes a creature fight the taunter. The chance adds the
+  brawler's `intimidate`, `warcry` or `taunt` mod and takes away the
+  defender's `intimidate_defense`, 5-95%. An intimidated defender is 10
+  easier to hit (`rules.DEFENDER_STATE_MODS`; "Intimidated: increases
+  chance of being hit", p. 47 of the 2004 guide). The guide describes none
+  of the three moves: Warcry's and Taunt's chances and reaches, and the
+  to-hit bonus, are reconstructed. Each roll is logged (`Brawler move ...`)
+  and the brawler told whether it succeeded.
 - Incapacitation from the combat rules (`rules.incap`, `rules.incapWindow`):
   three incaps within 10 minutes kill (p. 85); the first lasts 30 s, the
   second 60 s (`rules.INCAP_TIMES`, reconstructed: the guide's timer
@@ -293,7 +306,7 @@ against melee) is not known.
 - **Special attacks:** the attacker's end posture (Dive Shot prone, Kip Up
   Shot standing, Roll Shot kneeling), area and cone attacks (every special
   hits its one target), and the special moves the guide's table does not
-  list (berserk, warcry, intimidate, taunt, Center of Being).
+  list (berserk, Center of Being).
 - **States:** knockdown/dizzy interplay (a dizzy creature falling when it
   changes posture), knockdowns and posture changes have no duration.
 - **Creatures:** no special moves, no fleeing, no healing; no killers

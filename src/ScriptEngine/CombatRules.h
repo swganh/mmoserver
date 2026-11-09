@@ -49,6 +49,7 @@ struct CombatSide
     int                             armorRating; // 0-3
     std::map<std::string, float>    armor;      // damage type -> effectiveness %
     float                           toHit;      // creature to-hit %, < 0 if unknown
+    std::vector<std::string>        states;     // "intimidated", "stunned", ...
 };
 
 struct CombatWeapon
@@ -140,6 +141,12 @@ public:
     // kills, else its length in seconds; and the window's length in seconds.
     bool            incap(int count, bool& dies, int& seconds);
     bool            incapWindow(int& seconds);
+    // A brawler move (Intimidate, Warcry, Taunt): its kind ("intimidate",
+    // "taunt") and reach in metres; and whether it lands on attack.defender,
+    // its chance in % and its state's duration in seconds.
+    bool            moveReach(const std::string& name, std::string& kind, float& range, float& radius);
+    bool            move(const std::string& name, const CombatAttack& attack, float baseChance,
+                         bool& landed, float& chance, float& duration);
     // The fields of the WeaponRanges message: layout ("i" int32, "f" float
     // per field) and values. False if no rules, the script returns nothing
     // (send nothing then) or the layout is not valid.

@@ -704,4 +704,6 @@ locomotion Standing, and fills health, action and mind to their maximum less
 wounds (`Ham::restoreMainPools`). Tested on the VM: the clone stands with
 full HAM. The clone also stayed in combat: death's clearing of the action
 states is refused by the same lock (`ActionState::CanTransition` checks
-`blockAction`), so the clone now clears them too (needs testing).
+`blockAction`), so the clone now clears them too (needs testing). The clone's 100 health
+wound was lost: a wound can't exceed the pool's current points and death
+leaves health at 0, so the pools are now filled before the clone's wounds.

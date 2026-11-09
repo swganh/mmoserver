@@ -16,8 +16,19 @@ Reference data: migrations take their values from here and cite the page.
   per damage type: a number replaces the generic value, `0` means no
   protection against that type, `+` means the generic value (p. 395).
 
-Used by: migration 007 (`tools/reference/weapons_sql.py` writes it from
-`weapons.csv`) and the combat rules (`data/script/combat/rules.lua`).
+- `specials.csv` (pp. 76-83, each row across a page pair): the special
+  moves table, 134 moves. `time_mod`, `damage_mod` and the costs multiply
+  the weapon's attack speed, damage and HAM costs; `to_hit_mod` adds to
+  the accuracy; the end postures and effects (with one chance for all of a
+  move's effects, durations in seconds) apply on a hit. `area_length`
+  "weapon" means the weapon's range. ActionShot2's name is missing from the
+  page; it follows ActionShot1 with the same description. Polearm Sweep2's
+  to-hit is printed 15 where the other polearm moves have 10; kept as
+  printed.
+
+Used by: migrations 007 (`tools/reference/weapons_sql.py`, from
+`weapons.csv`) and 010 (`tools/reference/specials_sql.py`, from
+`specials.csv`) and the combat rules (`data/script/combat/rules.lua`).
 
 Not transcribed yet: the crafting ranges (pp. 391, 393; the range of each
 stat a crafted weapon can have) and the armour's per-piece HAM costs

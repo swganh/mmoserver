@@ -55,7 +55,8 @@ struct CombatWeapon
 {
     CombatWeapon()
         : group("unarmed"), damageType("kinetic"), minDamage(1), maxDamage(1), speed(0)
-        , zeroMod(0), midMod(0), maxMod(0), midRange(0), maxRange(0), armorPiercing(0) {}
+        , zeroMod(0), midMod(0), maxMod(0), midRange(0), maxRange(0), armorPiercing(0)
+        , healthCost(0), actionCost(0), mindCost(0) {}
 
     std::string group;          // "pistol", "carbine", "rifle", "unarmed", ...
     std::string damageType;     // "energy", "kinetic", ...
@@ -68,11 +69,26 @@ struct CombatWeapon
     float       midRange;       // metres, 0 if unknown
     float       maxRange;       // metres, 0 if unknown
     int         armorPiercing;  // 0-3
+    float       healthCost;     // the weapon's attack costs, for specials
+    float       actionCost;
+    float       mindCost;
+};
+
+// An effect a special can apply: its chance (%) and duration (seconds).
+struct CombatEffect
+{
+    CombatEffect() : chance(0), duration(0) {}
+    CombatEffect(float c, float d) : chance(c), duration(d) {}
+
+    float chance;
+    float duration;
 };
 
 struct CombatAttack
 {
-    CombatAttack() : distance(0), damageMultiplier(1), delayMultiplier(1) {}
+    CombatAttack()
+        : distance(0), damageMultiplier(1), delayMultiplier(1), special(false), accuracyBonus(0)
+        , healthCostMultiplier(0), actionCostMultiplier(0), mindCostMultiplier(0) {}
 
     CombatSide      attacker;
     CombatSide      defender;
@@ -81,6 +97,12 @@ struct CombatAttack
     float           damageMultiplier;
     float           delayMultiplier;
     std::string     pool;       // "" for the default attack
+    bool            special;    // a special move, not the default attack
+    float           accuracyBonus;
+    float           healthCostMultiplier;
+    float           actionCostMultiplier;
+    float           mindCostMultiplier;
+    std::map<std::string, CombatEffect> effects;    // "knockdown", "stun"...
 };
 
 struct CombatOutcome
@@ -93,6 +115,8 @@ struct CombatOutcome
     int         damage;
     std::string pool;       // "health", "action", "mind"
     float       delay;      // seconds to the next attack
+    // The effects that landed: name ("knockdown", "stun"...), seconds.
+    std::vector<std::pair<std::string, float> > effects;
 };
 
 class CombatRules
@@ -107,6 +131,8 @@ public:
 
     CombatOutcome   attack(const CombatAttack& attack);
     bool            inRange(const CombatWeapon& weapon, float distance);
+    // What a special costs (rules.costs); false (and 0s) if no rules.
+    bool            costs(const CombatAttack& attack, int& health, int& action, int& mind);
     // The fields of the WeaponRanges message: layout ("i" int32, "f" float
     // per field) and values. False if no rules, the script returns nothing
     // (send nothing then) or the layout is not valid.

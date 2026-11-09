@@ -1,0 +1,135 @@
+weapon_type,name,description,targets,area_length,area_width,time_mod,damage_mod,health_cost,action_cost,mind_cost,to_hit_mod,attacker_end_posture,defender_end_posture,effect_chance,effect1,effect1_duration,effect2,effect2_duration,effect3,effect3_duration,pages
+1H Melee,BlindHit1,blind single target,Single,,,1.5,1.5,0.5,0.5,0.625,25,,,100,Blinded,30,,,,,76-77
+1H Melee,BlindHit2,blind area,Area,weapon,,2.25,2.5,0.75,0.75,1.25,25,,,100,Blinded,50,,,,,76-77
+1H Melee,BodyHit1,body hit,Single,,,1.5,2,0.5,0.5,0.625,25,,,,,,,,,,76-77
+1H Melee,BodyHit2,body hit + damage,Single,,,2,3,0.75,0.75,1.25,25,,,,,,,,,,76-77
+1H Melee,BodyHit3,body hit + damage,Single,,,2.25,4,1,1,2,25,,,,,,,,,,76-77
+1H Melee,DizzyHit1,dizzy single target,Single,,,1.5,1,0.5,0.5,0.625,25,,,100,Dizzy,30,,,,,76-77
+1H Melee,DizzyHit2,dizzy area,Area,weapon,,2.25,1.5,0.75,0.75,1.25,25,,,100,Dizzy,50,,,,,76-77
+1H Melee,HealthHit1,wound,Single,,,1.5,1.5,0.5,0.5,0.625,25,,,,,,,,,,76-77
+1H Melee,HealthHit2,wound,Single,,,2,2.5,0.75,0.75,1.25,25,,,,,,,,,,76-77
+1H Melee,Hit1,damage,Single,,,1.5,2,0.5,0.5,0.625,25,,,,,,,,,,76-77
+1H Melee,Hit2,more damage,Single,,,2,3,0.75,0.75,1.25,25,,,,,,,,,,76-77
+1H Melee,Hit3,more damage + blind,Single,,,2.25,4,1,1,2,25,,,40,Blinded,30,,,,,76-77
+1H Melee,Lunge1,"extended distance, posture change",Single,,,1.5,2,0.5,0.5,1,25,,Down,,,,,,,,76-77
+1H Melee,Lunge2,"extended distance, knockdown",Single,,,2.5,3,0.625,0.625,1.5,25,,Knocked Down,,,,,,,,76-77
+1H Melee,ScatterHit1,multi hit location,Single,,,1.5,2,1,1,1.5,25,,,,,,,,,,76-77
+1H Melee,ScatterHit2,multi hit location,Single,,,2.5,3,1.25,1.25,2,25,,,,,,,,,,76-77
+1H Melee,SpinAttack1,area attack,Area,weapon,,1.5,2,1,1,1.5,25,,,,,,,,,,76-77
+1H Melee,SpinAttack2,area attack + blind,Area,weapon,,2.5,3,1.25,1.25,2,25,,,40,Blinded,30,,,,,76-77
+2H Melee,Area1,area hit + lower posture base damage,Area,,,1.5,2,0.5,1.5,0.5,10,,Down,,,,,,,,76-77
+2H Melee,Area2,area hit + damage + lower posture,Area,,,2,3,1,2,1,10,,Down,,,,,,,,76-77
+2H Melee,Area3,area hit + damage + dizzy + lower posture,Area,,,2.5,4,1.5,2.5,1.5,10,,Down,30,Dizzy,30,,,,,76-77
+2H Melee,HeadHit1,head hit,Single,,,1.25,2,0.5,1,0.5,10,,,,,,,,,,76-77
+2H Melee,HeadHit2,head hit,Single,,,1.75,3,1,1.5,1,10,,,,,,,,,,76-77
+2H Melee,HeadHit3,head hit,Single,,,2.25,4,1.5,2,1.5,10,,,,,,,,,,76-77
+2H Melee,Hit1,damage,Single,,,1.5,2,0.5,1,0.5,10,,,,,,,,,,76-77
+2H Melee,Hit2,more damage,Single,,,2,3,1,1.5,1,10,,,,,,,,,,76-77
+2H Melee,Hit3,more damage + dizzy,Single,,,2.5,4,1.25,2,1.25,10,,,30,Dizzy,30,,,,,76-77
+2H Melee,Lunge1,"extended distance, posture change",Single,,,1.5,2,1,0.5,0.5,10,,Down,,,,,,,,76-77
+2H Melee,Lunge2,"extended distance, knockdown",Single,,,2.5,3,1.5,0.625,0.625,10,,Knocked Down,,,,,,,,76-77
+2H Melee,MindHit1,mind hit,Single,,,1.25,1.5,0.5,1,0.5,10,,,,,,,,,,76-77
+2H Melee,MindHit2,mind hit,Single,,,2,2.5,1,1.5,1,10,,,,,,,,,,76-77
+2H Melee,SpinAttack1,area attack,Area,weapon,,1.5,2,1,1.5,1,10,,,,,,,,,,76-77
+2H Melee,SpinAttack2,area attack + more damage,Area,weapon,,2.5,3,1.5,2,1.5,10,,,,,,,,,,76-77
+2H Melee,Sweep1,lower posture single target,Single,,,1.5,1.5,0.75,1.5,0.75,10,,Down,,,,,,,,76-77
+2H Melee,Sweep2,"lower posture area, low damage",Area,weapon,,2.5,2,0.5,2.25,1,10,,Down,,,,,,,,76-77
+Carbine,ActionShot1,damages action drain/regen,Single,,,1.5,1.5,1.75,1.25,0.5,25,,Down,,,,,,,,76-77
+Carbine,ActionShot2,action drain/regen,Cone,64,15,2,2,2,1.25,0.5,25,,Down,,,,,,,,78-79
+Carbine,BurstShot1,increased damage,Single,,,2,2,1.75,1.25,0.5,25,,,,,,,,,,78-79
+Carbine,BurstShot2,increased damage,Single,,,2,3,2,1.25,0.5,25,,,,,,,,,,78-79
+Carbine,ChargeShot1,knockdown single,Single,,,2,1,0.5,2,0.5,25,,Knocked Down,,,,,,,,78-79
+Carbine,ChargeShot2,knockdown cone,Single,,,2,2,0.5,1.5,0.5,25,,,,,,,,,,78-79
+Carbine,CripplingShot,"single shot, high damage",Single,,,2,2.5,0.5,2,0.5,25,,,,,,,,,,78-79
+Carbine,FullAutoArea1,"chance to stun, blind, and dizzy multiple",Cone,64,15,1.5,1.5,1.75,2.5,0.5,25,,,5,Stunned,30,Blinded,40,Dizzy,30,78-79
+Carbine,FullAutoArea2,"chance to stun, blind, and dizzy multiple",Cone,64,15,1.5,2,2.5,2.5,0.5,25,,,30,Stunned,30,Blinded,40,Dizzy,30,78-79
+Carbine,FullAutoSingle1,"chance to stun, blind, and dizzy single",Single,,,1.5,2,1.75,2.5,0.5,25,,,30,Stunned,30,Blinded,40,Dizzy,30,78-79
+Carbine,FullAutoSingle2,"chance to stun, blind, and dizzy single",Single,,,1.5,3,2,2.5,0.5,25,,,30,Stunned,30,Blinded,40,Dizzy,30,78-79
+Carbine,LegShot1,shoots legs,Single,,,2,1,2.25,1.25,0.5,25,,,,,,,,,,78-79
+Carbine,LegShot2,shoots legs,Single,,,2,2,0.5,1.5,1.5,25,,,85,Stunned,45,,,,,78-79
+Carbine,LegShot3,shoots legs,Cone,64,15,2,3,0.5,2,2,25,,,100,Stunned,30,,,,,78-79
+Carbine,ScatterShot1,damages multiple locations,Single,,,2,2,1.75,1.25,0.5,25,,,,,,,,,,78-79
+Carbine,ScatterShot2,damages multiple locations,Single,,,2,3,2,1.25,0.5,25,,,,,,,,,,78-79
+Carbine,SuppressionFire2,lowers posture,Single,,,1.5,1.5,2,1.25,0.5,25,,Down,,,,,,,,78-79
+Carbine,WildShot1,stuns single,Single,,,2,1.5,1.75,1.25,0.5,25,,,30,Stunned,30,,,,,78-79
+Carbine,WildShot2,stuns cone,Single,,,2,2,2,1.25,0.5,25,,,30,Stunned,30,,,,,78-79
+Pistol,BodyShot1,shoots body,Single,,,1,2,0.5,0.75,0.5,50,,,,,,,,,,78-79
+Pistol,BodyShot2,shoots body,Single,,,1,3,0.5,1,0.5,50,,,,,,,,,,78-79
+Pistol,BodyShot3,shoots body,Single,,,1,4,0.5,1.25,0.5,50,,,,,,,,,,78-79
+Pistol,Defense1,hit with pistol,Single,,,2,2,0.5,0.75,0.5,50,,Knocked Down,,,,,,,,78-79
+Pistol,Defense2,hit with pistol,Single,,,2,4,0.5,1,0.5,50,,,,,,,,,,78-79
+Pistol,DisarmingShot1,hits gun,Single,,,1.5,2,0.5,0.75,0.5,50,,,,,,,,,,78-79
+Pistol,DisarmingShot2,hits gun,Cone,64,15,2,3,0.5,1,0.5,50,,Knocked Down,,,,,,,,78-79
+Pistol,DiveShot,to prone attack,Single,,,1.5,2,0.5,0.75,0.5,50,Prone,,,,,,,,,78-79
+Pistol,DoubleTap,increased damage,Single,,,2,3,0.5,0.75,0.5,50,,,,,,,,,,78-79
+Pistol,FanShot,fullautosingle with pistol,Single,,,2,3,0.5,1,0.5,50,,,,,,,,,,78-79
+Pistol,HealthShot1,damages health drain/regen,Single,,,2,1.5,0.5,0.75,0.5,50,,,,,,,,,,78-79
+Pistol,HealthShot2,damages health drain/regen,Single,,,2,2,0.5,1,0.5,50,,,,,,,,,,78-79
+Pistol,KipUpShot,to standing attack,Single,,,1.5,2,0.5,0.75,0.5,50,Standing,,,,,,,,,78-79
+Pistol,LastDitch,"high damage, high delay",Single,,,4,4,0.5,1.25,0.5,50,,,75,Stunned,30,,,,,78-79
+Pistol,LowBlow,knockdown,Single,,,2.5,1.5,0.5,1,0.5,50,,Knocked Down,,,,,,,,78-79
+Pistol,MultiTargetPistolShot,wrapper for above,Single,,,2,2.5,0.5,1.25,0.5,50,,,,,,,,,,78-79
+Pistol,MultiTargetShot,"actual attack, no action cost/time mods",Single,,,1,2.5,0.5,1.25,0.5,50,,,,,,,,,,78-79
+Pistol,PanicShot,delays everyone in cone,Cone,64,15,3,1,0.5,1.25,0.5,50,,,,,,,,,,78-79
+Pistol,PointBlankArea2,no close range penalty,Single,,,1.5,2,0.5,1,0.5,50,,,,,,,,,,80-81
+Pistol,PointBlankSingle2,no close range penalty,Single,,,1.5,3,0.5,1.5,0.5,50,,,,,,,,,,80-81
+Pistol,RollShot,to kneeling attack,Single,,,1.5,2,0.5,0.75,0.5,50,Kneeling,,,,,,,,,80-81
+Pistol,StoppingShot,increased damage,Single,,,2.5,3,0.5,1.25,0.5,50,,,,,,,,,,80-81
+Polearm,ActionHit1,actionwound,Single,,,1.5,1.5,1,0.5,0.5,10,,,,,,,,,,80-81
+Polearm,ActionHit2,actionwound,Single,,,2,2.5,1.5,1,1,10,,,,,,,,,,80-81
+Polearm,Area1,area attack + damage,Area,weapon,,1.75,1.5,1.5,1,1,10,,,,,,,,,,80-81
+Polearm,Area2,more damage + dizzy + stun,Area,weapon,,2.5,2,2,1.5,1.5,10,,,75,Dizzy,30,Stunned,30,,,80-81
+Polearm,Hit1,damage,Single,,,1.5,2,1,0.5,0.5,10,,,,,,,,,,80-81
+Polearm,Hit2,damage + stun,Single,,,2,2.5,1.5,1,1,10,,,75,Stunned,45,,,,,80-81
+Polearm,Hit3,damage + stun + lower posture,Single,,,2.5,3,2,1.5,1.5,10,,Down,75,Stunned,45,,,,,80-81
+Polearm,LegHit1,leghit,Single,,,1.25,1.5,1,0.5,0.5,10,,,,,,,,,,80-81
+Polearm,LegHit2,leghit,Single,,,1.75,2.5,1.5,1,1,10,,,,,,,,,,80-81
+Polearm,LegHit3,leghit,Single,,,2.25,3,2,1.5,1.5,10,,,,,,,,,,80-81
+Polearm,Lunge1,"extended distance, posture change",Single,,,1.5,1.5,0.5,1,0.5,10,,Down,,,,,,,,80-81
+Polearm,Lunge2,"extended distance, knockdown",Single,,,2.5,2.5,0.625,1.5,0.625,10,,Knocked Down,,,,,,,,80-81
+Polearm,SpinAttack1,area attack,Area,weapon,,1.5,2.5,1.5,1,1,10,,,,,,,,,,80-81
+Polearm,SpinAttack2,area attack + dizzy,Area,weapon,,2.5,3,2,1.5,1.5,10,,,75,Dizzy,25,,,,,80-81
+Polearm,Stun1,stun single target,Single,,,1.5,1.5,1,0.5,0.5,10,,,100,Stunned,30,,,,,80-81
+Polearm,Stun2,stun area,Area,weapon,,2,2.5,1.5,1,1,10,,,100,Stunned,60,,,,,80-81
+Polearm,Sweep1,single knockdown,Single,,,1.5,1.5,1.5,1,1,10,,Knocked Down,,,,,,,,80-81
+Polearm,Sweep2,area knockdown,Area,weapon,,2.5,2.5,2,1.5,1.5,15,,Knocked Down,,,,,,,,80-81
+Ranged,OverChargeShot1,increased damage,Single,,,1.25,2,0.5,0.5,0.5,15,,,,,,,,,,80-81
+Ranged,OverChargeShot2,increased damage,Single,,,2,3,1,1,1,15,,,,,,,,,,80-81
+Ranged,PointBlankArea1,no close range penalty,Area,12,15,1.5,2,0.5,1.25,0.5,15,,,,,,,,,,80-81
+Ranged,PointBlankSingle1,no close range penalty,Single,,,1.5,2,0.5,1.25,0.5,15,,,,,,,,,,80-81
+Ranged,SuppressionFire1,lowers posture,Single,,,1.5,1,1.75,1.25,0.5,25,,Down,,,,,,,,80-81
+Ranged,ThreatenShot,makes skittish things flee,Single,,,2,0.25,1,1,1,15,,,,,,,,,,80-81
+Ranged,WarningShot,makes things confused and unable to run to you,Single,,,2,0.25,1,1,1,15,,,,,,,,,,80-81
+Rifle,ConcealShot,no auto response attack,Single,,,2,0.75,0.5,0.5,1.5,5,,,,,,,,,,80-81
+Rifle,FlurryShot1,dizzies single,Single,,,2,1,0.5,0.5,1.5,5,,,85,Dizzy,45,,,,,80-81
+Rifle,FlurryShot2,dizzies cone,Cone,64,15,2,1.5,0.5,0.5,2,5,,,100,Dizzy,30,,,,,80-81
+Rifle,FlushingShot1,raises posture + stun,Single,,,2,1,0.5,0.5,1.5,5,,Up,100,Stunned,35,,,,,80-81
+Rifle,FlushingShot2,raises posture + stun,Cone,64,15,2,1.5,0.5,0.5,2,5,,Up,100,Stunned,35,,,,,80-81
+Rifle,HeadShot1,shoots head,Single,,,1.5,1,0.5,0.5,1,5,,,,,,,,,,80-81
+Rifle,HeadShot2,shoots head,Single,,,1.5,1.25,0.5,0.5,1.5,5,,,,,,,,,,80-81
+Rifle,HeadShot3,shoots head,Single,,,2,1.5,0.5,0.5,2.5,5,,,,,,,,,,82-83
+Rifle,MindShot1,damages mind drain/regen,Single,,,1,1,0.5,0.5,2,5,,,,,,,,,,82-83
+Rifle,MindShot2,damages mind drain/regen,Single,,,1.5,2,0.5,0.5,1.5,5,,,,,,,,,,82-83
+Rifle,SniperShot,ranged deathblow,Single,,,2,0.75,0.5,0.5,2,5,,,,,,,,,,82-83
+Rifle,StartleShot1,raises posture,Single,,,2,0.75,0.5,0.5,1.5,5,,Up,,,,,,,,82-83
+Rifle,StartleShot2,raises posture,Cone,64,15,2,1.25,0.5,0.5,2,5,,Up,,,,,,,,82-83
+Rifle,StrafeShot1,clears cover + adds delay,Single,,,2,0.5,0.5,0.5,1.5,5,,,,,,,,,,82-83
+Rifle,StrafeShot2,clears cover + adds delay,Cone,64,15,2,0.75,0.5,0.5,2,5,,,,,,,,,,82-83
+Rifle,SurpriseShot,"from cover, sneak attack",Single,,,2,2,0.5,0.5,1.5,5,,,,,,,,,,82-83
+Unarmed,Blind1,blind,Single,,,2,1.5,1.5,1.5,1.5,15,,,100,Blinded,50,,,,,82-83
+Unarmed,BodyHit1,bodyhit,Single,,,2,2.5,1.75,1.75,1.75,15,,,,,,,,,,82-83
+Unarmed,Combo1,head/body hit,Single,,,2,2,1.5,1.5,1.5,15,,,,,,,,,,82-83
+Unarmed,Combo2,head/body/leg hit,Single,,,4,3,2,2,2,15,,,,,,,,,,82-83
+Unarmed,Dizzy1,dizzy,Single,,,2,1.5,1.5,1.5,1.5,15,,,100,Dizzy,,,,,,82-83
+Unarmed,HeadHit1,headhit,Single,,,2,2.5,1.75,1.75,1.75,15,,,,,,,,,,82-83
+Unarmed,Hit1,damage,Single,,,1.5,2,1,1,1,15,,,,,,,,,,82-83
+Unarmed,Hit2,damage,Single,,,2.5,3,1.5,1.5,1.5,15,,,,,,,,,,82-83
+Unarmed,Hit3,damage + blind,Single,,,3,4,2,2,2,15,,,40,Blinded,30,,,,,82-83
+Unarmed,Knockdown1,knockdown,Single,,,1.5,1,1,1,1,15,,Knocked Down,,,,,,,,82-83
+Unarmed,Knockdown2,knockdown + dizzy,Single,,,2,1.5,1.5,1.5,1.5,15,,Knocked Down,75,Dizzy,40,,,,,82-83
+Unarmed,LegHit1,leghit,Single,,,2,2.5,1.75,1.75,1.75,15,,,,,,,,,,82-83
+Unarmed,Lunge1,single target lower posture,Single,,,1.5,2,1,1,1,15,,Down,,,,,,,,82-83
+Unarmed,Lunge2,"single target knockdown, ext range",Single,,,2,3,1.5,1.5,1.5,15,,Knocked Down,,,,,,,,82-83
+Unarmed,SpinAttack1,area attack,Area,weapon,,2,2,1.5,1.5,1.5,15,,,,,,,,,,82-83
+Unarmed,SpinAttack2,area attack,Area,weapon,,3,3,2,2,2,15,,,,,,,,,,82-83
+Unarmed,Stun1,stun,Single,,,2,1.25,1.5,1.5,1.5,15,,,100,Stunned,60,,,,,82-83

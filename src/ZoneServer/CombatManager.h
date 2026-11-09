@@ -113,6 +113,9 @@ private:
         uint64	expires;	// ms, Clock local time
     };
     std::vector<TimedState>	mTimedStates;
+    // A TimedState that stands a creature back up instead of ending a state.
+    static const uint64		kStandUp = 0;
+    void					_timeStandUp(CreatureObject* creature, uint64 when);
 
     static bool				mInsFlag;
     static CombatManager*	mSingleton;

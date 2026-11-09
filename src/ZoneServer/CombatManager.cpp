@@ -883,10 +883,14 @@ void CombatManager::_applyEffects(CreatureObject* defender, const CombatOutcome&
 		const std::string& name = outcome.effects[i].first;
 		uint64 durationMs = static_cast<uint64>(outcome.effects[i].second * 1000.0f);
 
+		LOG(INFO) << "Combat effect " << name << " on " << defender->getId() << " for " << outcome.effects[i].second
+		          << " s, posture " << static_cast<uint32>(defender->states.getPosture());
+
 		if (name == "knockdown")
 		{
 			gStateManager.setCurrentPostureState(defender, CreaturePosture_KnockedDown);
 			gStateManager.setCurrentLocomotionState(defender, CreatureLocomotion_KnockedDown);
+			_timeStandUp(defender, now + durationMs);
 
 			if(PlayerObject* player = dynamic_cast<PlayerObject*>(defender))
 			{
@@ -916,6 +920,10 @@ void CombatManager::_applyEffects(CreatureObject* defender, const CombatOutcome&
 				gStateManager.setCurrentPostureState(defender, CreaturePosture_Crouched);
 			else if (!down && posture == CreaturePosture_Crouched)
 				gStateManager.setCurrentPostureState(defender, CreaturePosture_Upright);
+			if (down)
+				_timeStandUp(defender, now + durationMs);
+			LOG(INFO) << "Combat effect " << name << " on " << defender->getId() << ": posture now "
+			          << static_cast<uint32>(defender->states.getPosture());
 			continue;
 		}
 
@@ -947,6 +955,25 @@ void CombatManager::_applyEffects(CreatureObject* defender, const CombatOutcome&
 	}
 }
 
+void CombatManager::_timeStandUp(CreatureObject* creature, uint64 when)
+{
+	// Players get up themselves.
+	if (creature->getType() == ObjType_Player)
+	{
+		return;
+	}
+	for (size_t j = 0; j < mTimedStates.size(); ++j)
+	{
+		if (mTimedStates[j].creatureId == creature->getId() && mTimedStates[j].state == kStandUp)
+		{
+			mTimedStates[j].expires = when;
+			return;
+		}
+	}
+	TimedState timed = { creature->getId(), kStandUp, when };
+	mTimedStates.push_back(timed);
+}
+
 bool CombatManager::_expireStates(uint64 callTime, void* ref)
 {
 	uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
@@ -958,7 +985,18 @@ bool CombatManager::_expireStates(uint64 callTime, void* ref)
 			continue;
 		}
 		CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(mTimedStates[i].creatureId));
-		if (creature && creature->states.checkState(static_cast<CreatureState>(mTimedStates[i].state)))
+		if (creature && mTimedStates[i].state == kStandUp)
+		{
+			// A creature knocked down or kneeling gets up again.
+			uint64 posture = creature->states.getPosture();
+			if (!creature->isDead() && !creature->isIncapacitated()
+			    && (posture == CreaturePosture_KnockedDown || posture == CreaturePosture_Crouched || posture == CreaturePosture_Prone))
+			{
+				gStateManager.setCurrentPostureState(creature, CreaturePosture_Upright);
+				gStateManager.setCurrentLocomotionState(creature, CreatureLocomotion_Standing);
+			}
+		}
+		else if (creature && creature->states.checkState(static_cast<CreatureState>(mTimedStates[i].state)))
 		{
 			gStateManager.removeActionState(creature, static_cast<CreatureState>(mTimedStates[i].state));
 		}

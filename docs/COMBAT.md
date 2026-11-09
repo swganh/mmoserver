@@ -151,6 +151,15 @@ and two-handed melee, polearm, unarmed, pistol, carbine, rifle and ranged;
 | defender's end posture | `knockdown_chance`, `posture_down_chance`, `posture_up_chance` | 100 where given: down is standing to kneeling to prone, up the reverse |
 | effects, chance, duration | `stun/dizzy/blind_chance`, `*_duration` (new) | rolled on a hit, less the defender's `stun_defense` etc.; the state ends after its duration |
 
+Bare hands, the server's default weapon, have no attack costs, so their
+specials would cost nothing: `rules.DEFAULT_ATTACK_COSTS` gives them the
+vibroknuckler's 15/25/15 (p. 390; reconstructed). A creature knocked down
+or brought down a posture gets up after `rules.POSTURE_EFFECT_DURATION`
+(5 s, reconstructed); players get up themselves. A posture change shows
+little on a four-legged creature: Lunge 1 brings the defender down a
+posture, and only Lunge 2 knocks it down. Each effect that lands is
+logged (`Combat effect ...`).
+
 Before: damage and time multipliers that matched neither the guide nor
 each other (Overcharge Shot 1: 5x damage, 2x time; the guide: 2x, 1.25x),
 cost multipliers of 1 that nothing read, and state chances applied on

@@ -326,6 +326,29 @@ TEST_F(CombatRulesTest, SpecialsCostTheWeaponsCostsTimesTheirModifiers) {
     EXPECT_EQ(5, mind);
 }
 
+TEST_F(CombatRulesTest, BareHandsCostTheDefaultUnarmedCosts) {
+    // Unarmed Lunge 1 (1, 1, 1; p. 82) with bare hands, which have no
+    // attack costs: the vibroknuckler's 15/25/15 (p. 390) stand in.
+    CombatAttack attack;
+    attack.weapon.group = "unarmed";
+    attack.special = true;
+    attack.healthCostMultiplier = 1;
+    attack.actionCostMultiplier = 1;
+    attack.mindCostMultiplier = 1;
+    int health = -1, action = -1, mind = -1;
+    ASSERT_TRUE(rules_.costs(attack, health, action, mind));
+    EXPECT_EQ(15, health);
+    EXPECT_EQ(25, action);
+    EXPECT_EQ(15, mind);
+}
+
+TEST_F(CombatRulesTest, PostureChangesLastFiveSeconds) {
+    run("a = { defender = {}, effects = { posture_down = { chance = 100, duration = 0 } } }");
+    run("landed = rules.effects(a, function() return 0.5 end)");
+    EXPECT_DOUBLE_EQ(1, eval("#landed"));
+    EXPECT_DOUBLE_EQ(5, eval("landed[1].duration"));
+}
+
 TEST_F(CombatRulesTest, AccuracyBonusAddsToTheModifier) {
     run(kCdefLua);
     run("a = { weapon = cdef, distance = 17, attacker = {}, defender = {}, accuracy_bonus = 15 }");

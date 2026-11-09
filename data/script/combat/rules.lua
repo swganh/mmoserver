@@ -148,6 +148,17 @@ rules.EFFECT_DEFENSE_MODS = {
 -- An effect the table gives no duration for lasts this long, in seconds:
 -- the table's usual duration.
 rules.DEFAULT_EFFECT_DURATION = 30
+-- A posture change the table gives no duration for: how long, in seconds,
+-- a creature stays down before it gets up. Players get up themselves.
+-- Reconstructed.
+rules.POSTURE_EFFECT_DURATION = 5
+rules.POSTURE_EFFECTS = { knockdown = true, posture_down = true, posture_up = true }
+-- What a special costs with a weapon that has no attack costs: bare hands
+-- (the server's default weapon has no attributes). The guide's only
+-- unarmed weapon, the vibroknuckler (p. 390), stands in. Reconstructed.
+rules.DEFAULT_ATTACK_COSTS = {
+  unarmed = { health = 15, action = 25, mind = 15 },
+}
 -- The order effects are tried in (the posture changes first).
 rules.EFFECT_ORDER = { "knockdown", "posture_down", "posture_up", "stun", "dizzy", "blind", "intimidate" }
 
@@ -356,7 +367,12 @@ function rules.costs(a)
   local function cost(base, multiplier)
     return math.floor((base or 0) * (multiplier or 0) + 0.5)
   end
-  return cost(weapon.health_cost, m.health), cost(weapon.action_cost, m.action), cost(weapon.mind_cost, m.mind)
+  local h, ac, mi = weapon.health_cost or 0, weapon.action_cost or 0, weapon.mind_cost or 0
+  local default = rules.DEFAULT_ATTACK_COSTS[weapon.group]
+  if h == 0 and ac == 0 and mi == 0 and default then
+    h, ac, mi = default.health, default.action, default.mind
+  end
+  return cost(h, m.health), cost(ac, m.action), cost(mi, m.mind)
 end
 
 -- An effect's chance against this defender, in percent.
@@ -377,7 +393,9 @@ function rules.effects(a, roll)
     if effect and (effect.chance or 0) > 0 then
       if roll() * 100 < rules.effectChance(a, name, effect.chance) then
         local duration = effect.duration
-        if not duration or duration <= 0 then
+        if (not duration or duration <= 0) and rules.POSTURE_EFFECTS[name] then
+          duration = rules.POSTURE_EFFECT_DURATION
+        elseif not duration or duration <= 0 then
           duration = rules.DEFAULT_EFFECT_DURATION
         end
         landed[#landed + 1] = { name = name, duration = duration }

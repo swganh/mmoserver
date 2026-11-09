@@ -155,10 +155,12 @@ Bare hands, the server's default weapon, have no attack costs, so their
 specials would cost nothing: `rules.DEFAULT_ATTACK_COSTS` gives them the
 vibroknuckler's 15/25/15 (p. 390; reconstructed). A creature knocked down
 or brought down a posture gets up after `rules.POSTURE_EFFECT_DURATION`
-(5 s, reconstructed); players get up themselves. A posture change shows
-little on a four-legged creature: Lunge 1 brings the defender down a
-posture, and only Lunge 2 knocks it down. Each effect that lands is
-logged (`Combat effect ...`).
+(5 s, reconstructed); players get up themselves. Lunge 1 brings the
+defender down a posture, and only Lunge 2 knocks it down. Tested in a
+duel: two one-handed Lunge 1 hits put a player kneeling, then prone. A
+womp rat's posture changes on the server but shows nothing in the client
+(no kneeling for it, we assume). Each effect that lands is logged
+(`Combat effect ...`).
 
 Before: damage and time multipliers that matched neither the guide nor
 each other (Overcharge Shot 1: 5x damage, 2x time; the guide: 2x, 1.25x),

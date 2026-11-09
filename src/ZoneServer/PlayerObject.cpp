@@ -1819,7 +1819,10 @@ void PlayerObject::clone(uint64 parentId, const glm::quat& dir, const glm::vec3&
     // Revive. The Dead posture refuses every transition out of it and locks
     // the state layers, so the clone sets it here; warpPlanet's
     // resetProperties then stands the player up and tells the client.
+    // Death's clearing of the action states (Combat...) was refused by the
+    // same lock, so clear them here too.
     states.unblock();
+    states.clearAllStates();
     states.setPosture(CreaturePosture_Upright);
     states.setLocomotion(CreatureLocomotion_Standing);
     mHam.restoreMainPools();

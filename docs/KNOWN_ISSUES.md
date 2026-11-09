@@ -702,4 +702,6 @@ the player up and the client kept getting posture Dead. HAM was never
 refilled either. The clone now unlocks the layers, sets posture Upright and
 locomotion Standing, and fills health, action and mind to their maximum less
 wounds (`Ham::restoreMainPools`). Tested on the VM: the clone stands with
-full HAM.
+full HAM. The clone also stayed in combat: death's clearing of the action
+states is refused by the same lock (`ActionState::CanTransition` checks
+`blockAction`), so the clone now clears them too (needs testing).

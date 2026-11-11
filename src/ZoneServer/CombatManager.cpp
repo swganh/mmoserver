@@ -648,7 +648,13 @@ bool CombatManager::handleBrawlerMove(PlayerObject* attacker, uint64 targetId, O
     else
     {
         CreatureObject* target = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
-        if (!target || target == attacker)
+        // Only someone the brawler may fight, as for an attack
+        // (_verifyCombatState): a live, attackable creature or a duel opponent.
+        PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(target);
+        bool eligible = target && target != attacker && !target->isDead() && !target->isIncapacitated()
+            && (targetPlayer ? (attacker->checkDuelList(targetPlayer) && targetPlayer->checkDuelList(attacker))
+                             : (target->getPvPStatus() & CreaturePvPStatus_Attackable) != 0);
+        if (!eligible)
         {
             gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "target_type_prohibited"), attacker);
             return false;
@@ -726,6 +732,20 @@ bool CombatManager::handleBrawlerMove(PlayerObject* attacker, uint64 targetId, O
         gMessageLib->SendSystemMessage(L"Your " + move + L" fails.", attacker);
     }
     return true;
+}
+
+void CombatManager::clearSelfBuffs(CreatureObject* creature)
+{
+    for (size_t i = 0; i < mBuffs.size(); )
+    {
+        if (mBuffs[i].creatureId == creature->getId())
+        {
+            mBuffs[i] = mBuffs.back();
+            mBuffs.pop_back();
+            continue;
+        }
+        ++i;
+    }
 }
 
 bool CombatManager::_payFlatCosts(CreatureObject* creature, ObjectControllerCmdProperties* cmdProperties)

@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "PlayerObject.h"
+#include "CombatManager.h"
 #include "Badge.h"
 #include "Bank.h"
 #include "Buff.h"
@@ -1827,6 +1828,11 @@ void PlayerObject::clone(uint64 parentId, const glm::quat& dir, const glm::vec3&
     // same lock, so clear them here too.
     states.unblock();
     states.clearAllStates();
+    // Berserk and Center of Being end with death too.
+    if (gCombatManager)
+    {
+        gCombatManager->clearSelfBuffs(this);
+    }
     states.setPosture(CreaturePosture_Upright);
     states.setLocomotion(CreatureLocomotion_Standing);
     mHam.restoreMainPools();

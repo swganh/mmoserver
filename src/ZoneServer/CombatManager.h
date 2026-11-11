@@ -76,6 +76,8 @@ public:
     bool					handleBrawlerMove(PlayerObject* attacker, uint64 targetId, ObjectControllerCmdProperties* cmdProperties);
     // Berserk and Center of Being: the rules decide (rules.selfBuff).
     bool					handleSelfBuff(PlayerObject* player, ObjectControllerCmdProperties* cmdProperties);
+    // Ends the creature's self buffs at once, without messages (cloning).
+    void					clearSelfBuffs(CreatureObject* creature);
 
     // The combat rules script, shared with NpcManager.
     CombatRules&			rules() { return mRules; }

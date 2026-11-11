@@ -416,6 +416,65 @@ TEST_F(CombatRulesTest, BrawlerMovesRollTheirChance) {
     EXPECT_FLOAT_EQ(40, chance);
 }
 
+TEST_F(CombatRulesTest, BerserkHitsHarderFasterAndIsEasierToHit) {
+    // Berserk 1: strength 10, + the berserk mod (Master Brawler 20).
+    run("a = { attacker = { skill_mods = { berserk = 20 } } }");
+    run("buff, strength, duration = rules.selfBuff('berserk1', a)");
+    EXPECT_EQ(1, eval("buff == 'berserk' and 1 or 0"));
+    EXPECT_DOUBLE_EQ(30, eval("strength"));
+    EXPECT_DOUBLE_EQ(20, eval("duration"));
+
+    run(kCdefLua);
+    run("b = { weapon = cdef, attacker = {}, defender = {} }");
+    double accuracy = eval("rules.accuracy(b)");
+    double delay = eval("rules.delay(b)");
+    double damage = eval("rules.damage(b, 1)");
+    run("b.attacker.buffs = { berserk = 30 }");
+    EXPECT_DOUBLE_EQ(accuracy + 30, eval("rules.accuracy(b)"));
+    EXPECT_NEAR(delay * 0.7, eval("rules.delay(b)"), 1e-9);
+    EXPECT_GT(eval("rules.damage(b, 1)"), damage);
+    // A berserk defender is easier to hit.
+    run("b.attacker.buffs = nil; b.defender.buffs = { berserk = 10 }");
+    EXPECT_DOUBLE_EQ(accuracy + 10, eval("rules.accuracy(b)"));
+}
+
+TEST_F(CombatRulesTest, CenterOfBeingNeedsMeleeAndRaisesDefence) {
+    // Novice Brawler: unarmed efficacy 10, duration 5.
+    run("a = { weapon = { group = 'unarmed' }, attacker = { skill_mods ="
+        " { unarmed_center_of_being_efficacy = 10, center_of_being_duration_unarmed = 5 } } }");
+    run("buff, strength, duration = rules.selfBuff('centerofbeing', a)");
+    EXPECT_EQ(1, eval("buff == 'center_of_being' and 1 or 0"));
+    EXPECT_DOUBLE_EQ(10, eval("strength"));
+    EXPECT_DOUBLE_EQ(15, eval("duration"));
+    run("a.weapon.group = 'pistol'");
+    run("buff, reason = rules.selfBuff('centerofbeing', a)");
+    EXPECT_EQ(1, eval("buff == nil and reason == 'melee' and 1 or 0"));
+
+    run("b = { attacker = {}, defender = { buffs = { center_of_being = 10 } } }");
+    double centered = eval("rules.accuracy(b)");
+    run("b.defender.buffs = nil");
+    EXPECT_DOUBLE_EQ(centered + 10, eval("rules.accuracy(b)"));
+
+    CombatAttack attack;
+    attack.weapon.group = "unarmed";
+    std::string buff, reason;
+    float strength = 0, duration = 0;
+    EXPECT_FALSE(rules_.selfBuff("centerofbeing", attack, buff, strength, duration, reason));
+    EXPECT_EQ("skill", reason);
+    attack.attacker.skillMods["berserk"] = 5;
+    ASSERT_TRUE(rules_.selfBuff("berserk2", attack, buff, strength, duration, reason));
+    EXPECT_EQ("berserk", buff);
+    EXPECT_FLOAT_EQ(25, strength);
+    // Buffs reach the rules from C++.
+    attack.weapon = noobCdef();
+    attack.distance = 15;
+    CombatOutcome plain = rules_.attack(attack);
+    attack.defender.buffs["center_of_being"] = 10;
+    CombatOutcome withBuff = rules_.attack(attack);
+    ASSERT_TRUE(plain.ok && withBuff.ok);
+    EXPECT_FLOAT_EQ(plain.chance - 10, withBuff.chance);
+}
+
 TEST_F(CombatRulesTest, IncapsGrowLongerAndTheThirdKills) {
     bool dies = true;
     int seconds = 0;

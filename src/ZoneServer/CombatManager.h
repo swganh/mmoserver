@@ -74,6 +74,8 @@ public:
     // Intimidate, Warcry and Taunt (rules.MOVES): their HAM cost, then a roll
     // against each target. False if the move could not be used.
     bool					handleBrawlerMove(PlayerObject* attacker, uint64 targetId, ObjectControllerCmdProperties* cmdProperties);
+    // Berserk and Center of Being: the rules decide (rules.selfBuff).
+    bool					handleSelfBuff(PlayerObject* player, ObjectControllerCmdProperties* cmdProperties);
 
     // The combat rules script, shared with NpcManager.
     CombatRules&			rules() { return mRules; }
@@ -118,6 +120,19 @@ private:
         uint64	expires;	// ms, Clock local time
     };
     std::vector<TimedState>	mTimedStates;
+    // Self buffs (berserk, Center of Being) and when they end.
+    struct TimedBuff
+    {
+        uint64		creatureId;
+        std::string	name;
+        float		strength;
+        uint64		expires;	// ms, Clock local time
+    };
+    std::vector<TimedBuff>	mBuffs;
+    // Charges a command's flat HAM costs; false (nothing charged) if the
+    // creature cannot pay them.
+    bool					_payFlatCosts(CreatureObject* creature, ObjectControllerCmdProperties* cmdProperties);
+
     // A TimedState that stands a creature back up instead of ending a state.
     static const uint64		kStandUp = 0;
     void					_timeStandUp(CreatureObject* creature, uint64 when);

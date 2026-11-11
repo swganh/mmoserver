@@ -188,6 +188,31 @@ rules.MIN_MOVE_CHANCE = 5
 rules.MAX_MOVE_CHANCE = 95
 
 
+-- Self buffs: Berserk and Center of Being -------------------------------------
+
+-- Berserk: to hit, speed and damage up, defence down (p. 46 of the 2004
+-- guide; states, p. 84). Its strength is the level's own plus the brawler's
+-- berserk skill mod (Master Brawler +20); duration in seconds. The guide
+-- gives no numbers: all reconstructed.
+rules.BERSERK = {
+  berserk1 = { strength = 10, duration = 20 },
+  berserk2 = { strength = 20, duration = 30 },
+}
+-- Per point of strength: to-hit gained, to-hit attackers gain against the
+-- berserker, damage added (fraction) and attack time taken off (fraction).
+rules.BERSERK_TO_HIT = 1
+rules.BERSERK_DEFENSE_PENALTY = 1
+rules.BERSERK_DAMAGE = 0.01
+rules.BERSERK_SPEED = 0.01
+-- Center of Being: defence up while fighting bare-handed or with a melee
+-- weapon. Its strength is the <group>_center_of_being_efficacy mod of the
+-- weapon held, its duration the center_of_being_duration_<group> mod times
+-- this many seconds. Not in the guide; the duration scale and the defence
+-- per point are reconstructed.
+rules.CENTER_OF_BEING_GROUPS = { unarmed = true, onehandmelee = true, twohandmelee = true, polearm = true }
+rules.CENTER_OF_BEING_SECONDS_PER_POINT = 3
+rules.CENTER_OF_BEING_DEFENSE = 1
+
 -- A hit wounds with the weapon's wound chance (p. 389: "Wound%"); a wound
 -- lowers the pool's maximum until healed (p. 86). The guide gives no wound
 -- size: a tenth of the damage, at least 1. Reconstructed.
@@ -296,6 +321,13 @@ function rules.accuracy(a)
   for state in pairs(defender.states or {}) do
     total = total + (rules.DEFENDER_STATE_MODS[state] or 0)
   end
+  -- Self buffs: the attacker's berserk; the defender's berserk and Center
+  -- of Being.
+  local attackerBuffs = attacker.buffs or {}
+  local defenderBuffs = defender.buffs or {}
+  total = total + (attackerBuffs.berserk or 0) * rules.BERSERK_TO_HIT
+  total = total + (defenderBuffs.berserk or 0) * rules.BERSERK_DEFENSE_PENALTY
+  total = total - (defenderBuffs.center_of_being or 0) * rules.CENTER_OF_BEING_DEFENSE
   return total
 end
 
@@ -347,6 +379,8 @@ function rules.damage(a, roll)
   if max < min then max = min end
   local damage = min + (max - min) * roll
   damage = damage * (a.damage_multiplier or 1)
+  local buffs = a.attacker and a.attacker.buffs or {}
+  damage = damage * (1 + (buffs.berserk or 0) * rules.BERSERK_DAMAGE)
   local defender = a.defender or {}
   damage = damage * rules.armorRatingFactor(weapon.armor_piercing, defender.armor_rating)
   damage = damage * rules.armorPassThrough(defender, weapon.damage_type)
@@ -387,6 +421,8 @@ function rules.delay(a)
     speed = speed * (1 - mods * rules.SPEED_PER_POINT)
   end
   speed = speed * (a.delay_multiplier or 1)
+  local buffs = a.attacker and a.attacker.buffs or {}
+  speed = speed * (1 - (buffs.berserk or 0) * rules.BERSERK_SPEED)
   if speed < rules.MIN_DELAY then
     speed = rules.MIN_DELAY
   end
@@ -510,6 +546,31 @@ function rules.move(name, a, roll)
   chance = math.max(rules.MIN_MOVE_CHANCE, math.min(rules.MAX_MOVE_CHANCE, chance))
   local duration = move.kind == "intimidate" and rules.INTIMIDATE_DURATION or 0
   return roll * 100 < chance, chance, duration
+end
+
+-- A self buff (Berserk, Center of Being) for a.attacker holding a.weapon:
+-- the buff ("berserk", "center_of_being"), its strength and its duration in
+-- seconds; or nil and why not ("melee": Center of Being needs bare hands or
+-- a melee weapon; "skill": no skill mods for it; "unknown").
+function rules.selfBuff(name, a)
+  local berserk = rules.BERSERK[name]
+  if berserk then
+    return "berserk", berserk.strength + sumMods(a.attacker, { "berserk" }), berserk.duration
+  end
+  if name == "centerofbeing" then
+    local group = a.weapon and a.weapon.group or "unarmed"
+    if not rules.CENTER_OF_BEING_GROUPS[group] then
+      return nil, "melee"
+    end
+    local mods = a.attacker and a.attacker.skill_mods or {}
+    local efficacy = mods[group .. "_center_of_being_efficacy"] or 0
+    local duration = (mods["center_of_being_duration_" .. group] or 0) * rules.CENTER_OF_BEING_SECONDS_PER_POINT
+    if efficacy <= 0 or duration <= 0 then
+      return nil, "skill"
+    end
+    return "center_of_being", efficacy, duration
+  end
+  return nil, "unknown"
 end
 
 -- The count-th incap within the window (1 for the first): whether it kills,

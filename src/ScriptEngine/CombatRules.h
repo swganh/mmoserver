@@ -50,6 +50,7 @@ struct CombatSide
     std::map<std::string, float>    armor;      // damage type -> effectiveness %
     float                           toHit;      // creature to-hit %, < 0 if unknown
     std::vector<std::string>        states;     // "intimidated", "stunned", ...
+    std::map<std::string, float>    buffs;      // "berserk", "center_of_being" -> strength
 };
 
 struct CombatWeapon
@@ -147,6 +148,11 @@ public:
     bool            moveReach(const std::string& name, std::string& kind, float& range, float& radius);
     bool            move(const std::string& name, const CombatAttack& attack, float baseChance,
                          bool& landed, float& chance, float& duration);
+    // A self buff (Berserk, Center of Being) for attack.attacker holding
+    // attack.weapon: the buff, its strength and duration in seconds. False
+    // if it cannot be used; reason says why ("melee", "skill", "unknown").
+    bool            selfBuff(const std::string& name, const CombatAttack& attack, std::string& buff,
+                             float& strength, float& duration, std::string& reason);
     // The fields of the WeaponRanges message: layout ("i" int32, "f" float
     // per field) and values. False if no rules, the script returns nothing
     // (send nothing then) or the layout is not valid.

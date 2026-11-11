@@ -146,6 +146,19 @@ not used, so in that respect players attack faster than they should).
   of the three moves: Warcry's and Taunt's chances and reaches, and the
   to-hit bonus, are reconstructed. Each roll is logged (`Brawler move ...`)
   and the brawler told whether it succeeded.
+- Berserk and Center of Being (`rules.selfBuff`;
+  `CombatManager::handleSelfBuff`): self buffs that cost their flat HAM
+  from the command table and run their course before they can be used
+  again. Berserk (strength 10, 20 for Berserk 2, plus the `berserk` mod;
+  20 s, 30 s for Berserk 2) gives a point of to-hit, 1% more damage and 1%
+  less attack time per point of strength, and attackers a point of to-hit
+  against the berserker (p. 46 of the 2004 guide: to hit, speed and damage
+  up, defence down; p. 84); it sets the Berserk state. Center of Being
+  needs bare hands or a melee weapon: it takes the held group's
+  `<group>_center_of_being_efficacy` off attackers' to-hit for
+  `center_of_being_duration_<group>` x 3 s (Novice Brawler unarmed: 10 for
+  15 s). It is not in the guide. All the numbers are reconstructed. Each
+  use is logged (`Self buff ...`).
 - Incapacitation from the combat rules (`rules.incap`, `rules.incapWindow`):
   three incaps within 10 minutes kill (p. 85); the first lasts 30 s, the
   second 60 s (`rules.INCAP_TIMES`, reconstructed: the guide's timer
@@ -305,8 +318,7 @@ against melee) is not known.
   fatigue does not yet hamper healing (p. 86): nothing heals wounds yet.
 - **Special attacks:** the attacker's end posture (Dive Shot prone, Kip Up
   Shot standing, Roll Shot kneeling), area and cone attacks (every special
-  hits its one target), and the special moves the guide's table does not
-  list (berserk, Center of Being).
+  hits its one target).
 - **States:** knockdown/dizzy interplay (a dizzy creature falling when it
   changes posture), knockdowns and posture changes have no duration.
 - **Creatures:** no special moves, no fleeing, no healing; no killers

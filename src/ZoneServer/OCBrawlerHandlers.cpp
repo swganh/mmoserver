@@ -48,6 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void ObjectController::_handleBerserk1(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
+    _selfBuff(cmdProperties);
 }
 
 //=============================================================================================================================
@@ -57,6 +58,7 @@ void ObjectController::_handleBerserk1(uint64 targetId,Message* message,ObjectCo
 
 void ObjectController::_handleCenterOfBeing(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
+    _selfBuff(cmdProperties);
 }
 
 //=============================================================================================================================
@@ -96,6 +98,7 @@ void ObjectController::_handleWarcry1(uint64 targetId,Message* message,ObjectCon
 
 void ObjectController::_handleBerserk2(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
+    _selfBuff(cmdProperties);
 }
 
 //=============================================================================================================================
@@ -133,5 +136,19 @@ void ObjectController::_brawlerMove(uint64 targetId, ObjectControllerCmdProperti
     if (player && cmdProperties && gCombatManager)
     {
         gCombatManager->handleBrawlerMove(player, targetId, cmdProperties);
+    }
+}
+
+//======================================================================================================================
+//
+// Berserk and Center of Being: the combat rules decide (rules.selfBuff).
+//
+
+void ObjectController::_selfBuff(ObjectControllerCmdProperties* cmdProperties)
+{
+    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    if (player && cmdProperties && gCombatManager)
+    {
+        gCombatManager->handleSelfBuff(player, cmdProperties);
     }
 }

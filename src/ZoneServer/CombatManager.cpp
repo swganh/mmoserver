@@ -508,6 +508,13 @@ CombatSide CombatManager::buildSide(CreatureObject* creature)
             side.states.push_back(kStates[i].name);
         }
     }
+    for (size_t i = 0; i < mBuffs.size(); ++i)
+    {
+        if (mBuffs[i].creatureId == creature->getId())
+        {
+            side.buffs[mBuffs[i].name] = mBuffs[i].strength;
+        }
+    }
 
     SkillModsList* mods = creature->getSkillMods();
     for (SkillModsList::iterator it = mods->begin(); it != mods->end(); ++it)
@@ -655,15 +662,10 @@ bool CombatManager::handleBrawlerMove(PlayerObject* attacker, uint64 targetId, O
     }
 
     // The move's flat HAM cost (command_table).
-    Ham* ham = attacker->getHam();
-    if (!ham->checkMainPools(cmdProperties->mHealthCost, cmdProperties->mActionCost, cmdProperties->mMindCost))
+    if (!_payFlatCosts(attacker, cmdProperties))
     {
-        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), attacker);
         return false;
     }
-    if (cmdProperties->mHealthCost) ham->updatePropertyValue(HamBar_Health, HamProperty_CurrentHitpoints, -cmdProperties->mHealthCost);
-    if (cmdProperties->mActionCost) ham->updatePropertyValue(HamBar_Action, HamProperty_CurrentHitpoints, -cmdProperties->mActionCost);
-    if (cmdProperties->mMindCost) ham->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, -cmdProperties->mMindCost);
 
     int landedCount = 0;
     for (size_t i = 0; i < targets.size(); ++i)
@@ -723,6 +725,94 @@ bool CombatManager::handleBrawlerMove(PlayerObject* attacker, uint64 targetId, O
     {
         gMessageLib->SendSystemMessage(L"Your " + move + L" fails.", attacker);
     }
+    return true;
+}
+
+bool CombatManager::_payFlatCosts(CreatureObject* creature, ObjectControllerCmdProperties* cmdProperties)
+{
+    Ham* ham = creature->getHam();
+    if (!ham->checkMainPools(cmdProperties->mHealthCost, cmdProperties->mActionCost, cmdProperties->mMindCost))
+    {
+        if (PlayerObject* player = dynamic_cast<PlayerObject*>(creature))
+        {
+            gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), player);
+        }
+        return false;
+    }
+    if (cmdProperties->mHealthCost) ham->updatePropertyValue(HamBar_Health, HamProperty_CurrentHitpoints, -cmdProperties->mHealthCost);
+    if (cmdProperties->mActionCost) ham->updatePropertyValue(HamBar_Action, HamProperty_CurrentHitpoints, -cmdProperties->mActionCost);
+    if (cmdProperties->mMindCost) ham->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, -cmdProperties->mMindCost);
+    return true;
+}
+
+bool CombatManager::handleSelfBuff(PlayerObject* player, ObjectControllerCmdProperties* cmdProperties)
+{
+    std::string name = lowerCase(cmdProperties->mCommandStr.getAnsi());
+    if (player->isIncapacitated() || player->isDead())
+    {
+        return false;
+    }
+
+    CombatAttack attack;
+    attack.attacker = buildSide(player);
+    Weapon* weapon = dynamic_cast<Weapon*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left));
+    if (weapon)
+    {
+        attack.weapon = buildWeapon(weapon);
+    }
+    else
+    {
+        attack.weapon.group = "unarmed";
+    }
+
+    std::string buff, reason;
+    float strength = 0, duration = 0;
+    if (!mRules.selfBuff(name, attack, buff, strength, duration, reason))
+    {
+        if (reason == "melee")
+        {
+            gMessageLib->SendSystemMessage(L"You must be unarmed or wielding a melee weapon to center your being.", player);
+        }
+        else if (reason == "skill")
+        {
+            gMessageLib->SendSystemMessage(L"You lack the skill to center your being with this weapon.", player);
+        }
+        else
+        {
+            LOG(WARNING) << "Self buff " << name << ": not in the combat rules (rules.selfBuff)";
+        }
+        return false;
+    }
+
+    // One at a time: it runs its course before it can be used again.
+    for (size_t i = 0; i < mBuffs.size(); ++i)
+    {
+        if (mBuffs[i].creatureId == player->getId() && mBuffs[i].name == buff)
+        {
+            gMessageLib->SendSystemMessage(buff == "berserk" ? L"You are already berserk." : L"Your being is already centered.", player);
+            return false;
+        }
+    }
+
+    if (!_payFlatCosts(player, cmdProperties))
+    {
+        return false;
+    }
+
+    uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
+    TimedBuff timed = { player->getId(), buff, strength, now + static_cast<uint64>(duration * 1000.0f) };
+    mBuffs.push_back(timed);
+    if (buff == "berserk")
+    {
+        gStateManager.setCurrentActionState(player, CreatureState_Berserk);
+        gMessageLib->SendSystemMessage(L"You go berserk!", player);
+    }
+    else
+    {
+        gMessageLib->SendSystemMessage(L"You center your being.", player);
+    }
+    LOG(INFO) << "Self buff " << name << " on " << player->getId() << ": " << buff << " " << strength
+              << " for " << duration << " s";
     return true;
 }
 
@@ -1170,6 +1260,31 @@ bool CombatManager::_expireStates(uint64 callTime, void* ref)
 		}
 		mTimedStates[i] = mTimedStates.back();
 		mTimedStates.pop_back();
+	}
+
+	for (size_t i = 0; i < mBuffs.size(); )
+	{
+		if (mBuffs[i].expires > now)
+		{
+			++i;
+			continue;
+		}
+		CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(mBuffs[i].creatureId));
+		if (creature)
+		{
+			bool berserk = (mBuffs[i].name == "berserk");
+			if (berserk && creature->states.checkState(CreatureState_Berserk))
+			{
+				gStateManager.removeActionState(creature, CreatureState_Berserk);
+			}
+			if (PlayerObject* player = dynamic_cast<PlayerObject*>(creature))
+			{
+				gMessageLib->SendSystemMessage(berserk ? L"You are no longer berserk." : L"Your being is no longer centered.", player);
+			}
+			LOG(INFO) << "Self buff " << mBuffs[i].name << " on " << mBuffs[i].creatureId << " ended";
+		}
+		mBuffs[i] = mBuffs.back();
+		mBuffs.pop_back();
 	}
 	return true;
 }

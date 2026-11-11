@@ -245,16 +245,33 @@ removed minutes later. Now a dead or incapacitated creature's AI moves to
 `State_Dead` and stops, and `_verifyCombatState` refuses attacks from a
 dead or incapacitated NPC.
 
-### 5j. Lairs never spawn — open
+### 5j. Lairs never spawn — fix needs testing
 
 Tatooine has lairs in the database (two with a count of 25, spawning
 anywhere in the region from about -2200,-4700 to -1500,-3950), and they are
-loaded and queued, but none ever appears: `LairObject::handleState` only
-counts down the initial spawn delay in `State_LairUnspawned` and nothing
-then calls `spawn()` or moves the lair on; `handleEvents` only handles
-death. The same kind of missing state machine as `AttackableCreature`
-(5f). For the combat and creature AI review; spawning up to 50 lairs and
-their creature waves needs the creature AI to work.
+loaded and queued, but none ever appeared: `LairObject::handleState` only
+counted down the initial spawn delay in `State_LairUnspawned`, and nothing
+then called `spawn()` or moved the lair on. Now, when the countdown runs
+out (3 to 6 minutes after the zone starts), the lair and its first wave of
+creatures go in the world (`Lair ... spawned` in the log). Locally 34 lairs
+had spawned after 7 minutes, without errors.
+
+The creature AI was the other half (5f): nothing ever moved a creature out
+of idle, so creatures never fought back, roamed or attacked. Now
+(`AttackableCreature::_think`, each tick):
+
+- attacked, a creature fights back: it runs at its target (its
+  `creature_stalking_speed`) and attacks in its weapon range;
+- an aggressive creature (`creature_is_aggressive`) attacks a player who
+  comes within `creature_attack_range`;
+- it gives up when its target dies, is incapacitated or is further from
+  its home than `creature_stalking_max_distance` (64 m without one) plus
+  its reach, then walks home and leaves the players alone on the way;
+- with players within 64 m it wakes up and roams (`creature_is_roaming`),
+  and dozes off again when they leave.
+
+The tutorial's bandit is left to its script. Log lines: `Creature ...
+fights ...`, `Creature ... gives up and goes home`.
 
 ### 5k. Travel tickets to points with an apostrophe were never created — fixed
 
@@ -672,3 +689,21 @@ womp rat: `res_meat` Carnivore Meat, `res_hide` Bristley Hide) with
 `harvest_qty` 0. The 2004 guide's creature tables give each creature's
 meat, hide, bone and milk type and quantity; harvesting belongs with the
 scout's review, and the quantities with the creature transcription.
+
+### 24. A cloned player stays a corpse — fixed
+
+Killed by womp rats near Bestine (three incaps inside the reset time, the
+`Player_Incapacitation` rule), the player cloned in Bestine but lay there as
+"corpse of ...", with empty HAM; `/stand` and `/kneel` answered "You cannot
+... while Standing". The Dead posture refuses every transition out of it
+(its deny list holds Dead itself) and locks the state layers, and
+`PlayerObject::clone` never left it, so `resetProperties` could not stand
+the player up and the client kept getting posture Dead. HAM was never
+refilled either. The clone now unlocks the layers, sets posture Upright and
+locomotion Standing, and fills health, action and mind to their maximum less
+wounds (`Ham::restoreMainPools`). Tested on the VM: the clone stands with
+full HAM. The clone also stayed in combat: death's clearing of the action
+states is refused by the same lock (`ActionState::CanTransition` checks
+`blockAction`), so the clone now clears them too (needs testing). The clone's 100 health
+wound was lost: a wound can't exceed the pool's current points and death
+leaves health at 0, so the pools are now filled before the clone's wounds.

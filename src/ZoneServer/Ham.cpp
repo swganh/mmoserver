@@ -733,6 +733,18 @@ void Ham::checkForRegen()
 
 //===========================================================================
 
+void Ham::restoreMainPools()
+{
+    HamProperty* pools[] = { &mHealth, &mAction, &mMind };
+    for (HamProperty* pool : pools)
+    {
+        pool->calcModifiedHitPoints();
+        pool->setCurrentHitPoints(pool->getModifiedHitPoints());
+    }
+}
+
+//===========================================================================
+
 void Ham::resetCounters()
 {
     mBaseHitpointsUpdateCounter			= 0;

@@ -49,6 +49,8 @@ struct CombatSide
     int                             armorRating; // 0-3
     std::map<std::string, float>    armor;      // damage type -> effectiveness %
     float                           toHit;      // creature to-hit %, < 0 if unknown
+    std::vector<std::string>        states;     // "intimidated", "stunned", ...
+    std::map<std::string, float>    buffs;      // "berserk", "center_of_being" -> strength
 };
 
 struct CombatWeapon
@@ -56,7 +58,7 @@ struct CombatWeapon
     CombatWeapon()
         : group("unarmed"), damageType("kinetic"), minDamage(1), maxDamage(1), speed(0)
         , zeroMod(0), midMod(0), maxMod(0), midRange(0), maxRange(0), armorPiercing(0)
-        , healthCost(0), actionCost(0), mindCost(0) {}
+        , healthCost(0), actionCost(0), mindCost(0), woundChance(0) {}
 
     std::string group;          // "pistol", "carbine", "rifle", "unarmed", ...
     std::string damageType;     // "energy", "kinetic", ...
@@ -72,6 +74,7 @@ struct CombatWeapon
     float       healthCost;     // the weapon's attack costs, for specials
     float       actionCost;
     float       mindCost;
+    float       woundChance;    // % chance a hit wounds, 0 if unknown
 };
 
 // An effect a special can apply: its chance (%) and duration (seconds).
@@ -107,7 +110,7 @@ struct CombatAttack
 
 struct CombatOutcome
 {
-    CombatOutcome() : ok(false), hit(false), chance(0), damage(0), pool("health"), delay(2.0f) {}
+    CombatOutcome() : ok(false), hit(false), chance(0), damage(0), pool("health"), delay(2.0f), wound(0), fatigue(0) {}
 
     bool        ok;         // false if the script failed; the rest are defaults then
     bool        hit;
@@ -115,6 +118,8 @@ struct CombatOutcome
     int         damage;
     std::string pool;       // "health", "action", "mind"
     float       delay;      // seconds to the next attack
+    int         wound;      // wound to the pool hit
+    int         fatigue;    // battle fatigue the defender gains
     // The effects that landed: name ("knockdown", "stun"...), seconds.
     std::vector<std::pair<std::string, float> > effects;
 };
@@ -133,6 +138,21 @@ public:
     bool            inRange(const CombatWeapon& weapon, float distance);
     // What a special costs (rules.costs); false (and 0s) if no rules.
     bool            costs(const CombatAttack& attack, int& health, int& action, int& mind);
+    // The count-th incap within the window (1 for the first): whether it
+    // kills, else its length in seconds; and the window's length in seconds.
+    bool            incap(int count, bool& dies, int& seconds);
+    bool            incapWindow(int& seconds);
+    // A brawler move (Intimidate, Warcry, Taunt): its kind ("intimidate",
+    // "taunt") and reach in metres; and whether it lands on attack.defender,
+    // its chance in % and its state's duration in seconds.
+    bool            moveReach(const std::string& name, std::string& kind, float& range, float& radius);
+    bool            move(const std::string& name, const CombatAttack& attack, float baseChance,
+                         bool& landed, float& chance, float& duration);
+    // A self buff (Berserk, Center of Being) for attack.attacker holding
+    // attack.weapon: the buff, its strength and duration in seconds. False
+    // if it cannot be used; reason says why ("melee", "skill", "unknown").
+    bool            selfBuff(const std::string& name, const CombatAttack& attack, std::string& buff,
+                             float& strength, float& duration, std::string& reason);
     // The fields of the WeaponRanges message: layout ("i" int32, "f" float
     // per field) and values. False if no rules, the script returns nothing
     // (send nothing then) or the layout is not valid.

@@ -431,6 +431,8 @@ private:
     // brawler
     void	_handleBerserk1(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
     void	_handleCenterOfBeing(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+    void	_brawlerMove(uint64 targetId, ObjectControllerCmdProperties* cmdProperties);
+    void	_selfBuff(ObjectControllerCmdProperties* cmdProperties);
     void	_handleIntimidate1(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
     void	_handleTaunt(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
     void	_handleWarcry1(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);

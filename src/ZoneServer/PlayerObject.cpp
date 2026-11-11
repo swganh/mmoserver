@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "PlayerObject.h"
+#include "CombatManager.h"
 #include "Badge.h"
 #include "Bank.h"
 #include "Buff.h"
@@ -1315,6 +1316,10 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,BString inputStr,UI
                         }
                         if (this->mNewPlayerExemptions == 0)
                         {
+                            // Fill the pools first: a wound can't exceed the
+                            // pool's current points, and death left health at 0.
+                            this->getHam()->restoreMainPools();
+
                             // Add wounds...
                             this->getHam()->updatePrimaryWounds(100);
 
@@ -1815,6 +1820,22 @@ void PlayerObject::clone(uint64 parentId, const glm::quat& dir, const glm::vec3&
     this->CleanUpBuffs();
     this->getHam()->resetModifiers();
     //TODO reset skillmodifiers
+
+    // Revive. The Dead posture refuses every transition out of it and locks
+    // the state layers, so the clone sets it here; warpPlanet's
+    // resetProperties then stands the player up and tells the client.
+    // Death's clearing of the action states (Combat...) was refused by the
+    // same lock, so clear them here too.
+    states.unblock();
+    states.clearAllStates();
+    // Berserk and Center of Being end with death too.
+    if (gCombatManager)
+    {
+        gCombatManager->clearSelfBuffs(this);
+    }
+    states.setPosture(CreaturePosture_Upright);
+    states.setLocomotion(CreatureLocomotion_Standing);
+    mHam.restoreMainPools();
     gMessageLib->sendCurrentHitpointDeltasCreo6_Full(this);
 
     // Handle free deaths for newbies.

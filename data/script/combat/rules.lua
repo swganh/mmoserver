@@ -162,6 +162,79 @@ rules.DEFAULT_ATTACK_COSTS = {
 -- The order effects are tried in (the posture changes first).
 rules.EFFECT_ORDER = { "knockdown", "posture_down", "posture_up", "stun", "dizzy", "blind", "intimidate" }
 
+-- Brawler moves: Intimidate, Warcry, Taunt -------------------------------------
+
+-- An intimidated creature is easier to hit (p. 47 of the 2004 guide); how
+-- much easier is reconstructed. Added to the attacker's to-hit.
+rules.DEFENDER_STATE_MODS = { intimidated = 10 }
+-- Each move: what it does ("intimidate" or "taunt"), its chance in percent
+-- (Intimidate's is the command table's intimidate_chance, 25 and 40), the
+-- attacker's skill mod that adds to it and the defender's that takes from
+-- it, and its reach: range to the target, or radius around the attacker for
+-- Warcry, which intimidates every enemy around. The guide describes none of
+-- the three moves; Warcry's and Taunt's chances and reaches are
+-- reconstructed, Intimidate's 15 m is the command table's.
+rules.MOVES = {
+  intimidate1 = { kind = "intimidate", chance = 25, mod = "intimidate", defense = "intimidate_defense", range = 15 },
+  intimidate2 = { kind = "intimidate", chance = 40, mod = "intimidate", defense = "intimidate_defense", range = 15 },
+  warcry1 = { kind = "intimidate", chance = 25, mod = "warcry", defense = "intimidate_defense", radius = 15 },
+  warcry2 = { kind = "intimidate", chance = 40, mod = "warcry", defense = "intimidate_defense", radius = 20 },
+  taunt = { kind = "taunt", chance = 50, mod = "taunt", range = 15 },
+}
+-- How long an intimidation lasts, in seconds (the effects' usual duration).
+rules.INTIMIDATE_DURATION = 30
+-- No move is certain, nor hopeless. Reconstructed.
+rules.MIN_MOVE_CHANCE = 5
+rules.MAX_MOVE_CHANCE = 95
+
+
+-- Self buffs: Berserk and Center of Being -------------------------------------
+
+-- Berserk: to hit, speed and damage up, defence down (p. 46 of the 2004
+-- guide; states, p. 84). Its strength is the level's own plus the brawler's
+-- berserk skill mod (Master Brawler +20); duration in seconds. The guide
+-- gives no numbers: all reconstructed.
+rules.BERSERK = {
+  berserk1 = { strength = 10, duration = 20 },
+  berserk2 = { strength = 20, duration = 30 },
+}
+-- Per point of strength: to-hit gained, to-hit attackers gain against the
+-- berserker, damage added (fraction) and attack time taken off (fraction).
+rules.BERSERK_TO_HIT = 1
+rules.BERSERK_DEFENSE_PENALTY = 1
+rules.BERSERK_DAMAGE = 0.01
+rules.BERSERK_SPEED = 0.01
+-- Center of Being: defence up while fighting bare-handed or with a melee
+-- weapon. Its strength is the <group>_center_of_being_efficacy mod of the
+-- weapon held, its duration the center_of_being_duration_<group> mod times
+-- this many seconds. Not in the guide; the duration scale and the defence
+-- per point are reconstructed.
+rules.CENTER_OF_BEING_GROUPS = { unarmed = true, onehandmelee = true, twohandmelee = true, polearm = true }
+rules.CENTER_OF_BEING_SECONDS_PER_POINT = 3
+rules.CENTER_OF_BEING_DEFENSE = 1
+
+-- A hit wounds with the weapon's wound chance (p. 389: "Wound%"); a wound
+-- lowers the pool's maximum until healed (p. 86). The guide gives no wound
+-- size: a tenth of the damage, at least 1. Reconstructed.
+rules.WOUND_FRACTION = 0.1
+-- The wound chance of a weapon without one, by group, in percent: bare
+-- hands use the vibroknuckler's 8% (p. 390). Reconstructed.
+rules.DEFAULT_WOUND_CHANCE = { unarmed = 8 }
+-- Battle fatigue is gained through combat; it does not affect combat but
+-- hampers the healing of wounds (p. 86). The guide gives no rate: each hit
+-- taken adds this much, out of 1000. Reconstructed.
+rules.FATIGUE_PER_HIT = 1
+
+
+-- Three incaps within any 10 minutes kill (p. 85).
+rules.INCAP_WINDOW = 600     -- seconds
+rules.INCAP_DEATH = 3        -- the incap in the window that kills
+-- How long each incap in the window lasts, in seconds; past the end of the
+-- list the last entry repeats. The guide's picture of the incap timer
+-- (p. 85) reads 52 s, so it is not a fixed 30 s; how it grows is
+-- reconstructed: the first incap is short, the next one longer.
+rules.INCAP_TIMES = { 30, 60 }
+
 -- Attack time ----------------------------------------------------------------
 
 -- Each point of speed mod takes this fraction off the weapon's attack
@@ -244,6 +317,17 @@ function rules.accuracy(a)
   total = total - sumMods(defender, ranged and rules.RANGED_DEFENSE_MODS or rules.MELEE_DEFENSE_MODS)
   -- A special's to-hit modifier (the special moves table, pp. 76-83).
   total = total + (a.accuracy_bonus or 0)
+  -- The defender's states (intimidated...).
+  for state in pairs(defender.states or {}) do
+    total = total + (rules.DEFENDER_STATE_MODS[state] or 0)
+  end
+  -- Self buffs: the attacker's berserk; the defender's berserk and Center
+  -- of Being.
+  local attackerBuffs = attacker.buffs or {}
+  local defenderBuffs = defender.buffs or {}
+  total = total + (attackerBuffs.berserk or 0) * rules.BERSERK_TO_HIT
+  total = total + (defenderBuffs.berserk or 0) * rules.BERSERK_DEFENSE_PENALTY
+  total = total - (defenderBuffs.center_of_being or 0) * rules.CENTER_OF_BEING_DEFENSE
   return total
 end
 
@@ -295,6 +379,8 @@ function rules.damage(a, roll)
   if max < min then max = min end
   local damage = min + (max - min) * roll
   damage = damage * (a.damage_multiplier or 1)
+  local buffs = a.attacker and a.attacker.buffs or {}
+  damage = damage * (1 + (buffs.berserk or 0) * rules.BERSERK_DAMAGE)
   local defender = a.defender or {}
   damage = damage * rules.armorRatingFactor(weapon.armor_piercing, defender.armor_rating)
   damage = damage * rules.armorPassThrough(defender, weapon.damage_type)
@@ -335,6 +421,8 @@ function rules.delay(a)
     speed = speed * (1 - mods * rules.SPEED_PER_POINT)
   end
   speed = speed * (a.delay_multiplier or 1)
+  local buffs = a.attacker and a.attacker.buffs or {}
+  speed = speed * (1 - (buffs.berserk or 0) * rules.BERSERK_SPEED)
   if speed < rules.MIN_DELAY then
     speed = rules.MIN_DELAY
   end
@@ -413,10 +501,91 @@ function rules.attack(a)
     result.damage = rules.damage(a, math.random())
     result.pool = rules.pool(a, math.random())
     result.effects = rules.effects(a, math.random)
+    result.wound = rules.wound(a, result.damage, math.random())
+    result.fatigue = rules.FATIGUE_PER_HIT
   else
     result.damage = 0
   end
   return result
+end
+
+-- The wound a hit for this much damage leaves, given a roll in [0, 1).
+function rules.wound(a, damage, roll)
+  local weapon = a.weapon or {}
+  local chance = weapon.wound_chance or 0
+  if chance <= 0 then
+    chance = rules.DEFAULT_WOUND_CHANCE[weapon.group] or 0
+  end
+  if damage <= 0 or roll * 100 >= chance then
+    return 0
+  end
+  return math.max(1, math.floor(damage * rules.WOUND_FRACTION))
+end
+
+-- A brawler move's kind ("intimidate", "taunt"), its range to the target
+-- and its radius around the attacker, in metres; nil for an unknown move.
+function rules.moveReach(name)
+  local move = rules.MOVES[name]
+  if not move then
+    return nil
+  end
+  return move.kind, move.range or 0, move.radius or 0
+end
+
+-- Whether a brawler move lands on a.defender, given a roll in [0, 1); its
+-- chance in percent; and how long, in seconds, its state lasts. a.base_chance
+-- (the command table's) replaces the move's own chance when set.
+function rules.move(name, a, roll)
+  local move = rules.MOVES[name]
+  if not move then
+    return false, 0, 0
+  end
+  local chance = (a.base_chance and a.base_chance > 0) and a.base_chance or move.chance
+  chance = chance + sumMods(a.attacker, move.mod and { move.mod })
+  chance = chance - sumMods(a.defender, move.defense and { move.defense })
+  chance = math.max(rules.MIN_MOVE_CHANCE, math.min(rules.MAX_MOVE_CHANCE, chance))
+  local duration = move.kind == "intimidate" and rules.INTIMIDATE_DURATION or 0
+  return roll * 100 < chance, chance, duration
+end
+
+-- A self buff (Berserk, Center of Being) for a.attacker holding a.weapon:
+-- the buff ("berserk", "center_of_being"), its strength and its duration in
+-- seconds; or nil and why not ("melee": Center of Being needs bare hands or
+-- a melee weapon; "skill": no skill mods for it; "unknown").
+function rules.selfBuff(name, a)
+  local berserk = rules.BERSERK[name]
+  if berserk then
+    return "berserk", berserk.strength + sumMods(a.attacker, { "berserk" }), berserk.duration
+  end
+  if name == "centerofbeing" then
+    local group = a.weapon and a.weapon.group or "unarmed"
+    if not rules.CENTER_OF_BEING_GROUPS[group] then
+      return nil, "melee"
+    end
+    local mods = a.attacker and a.attacker.skill_mods or {}
+    local efficacy = mods[group .. "_center_of_being_efficacy"] or 0
+    local duration = (mods["center_of_being_duration_" .. group] or 0) * rules.CENTER_OF_BEING_SECONDS_PER_POINT
+    if efficacy <= 0 or duration <= 0 then
+      return nil, "skill"
+    end
+    return "center_of_being", efficacy, duration
+  end
+  return nil, "unknown"
+end
+
+-- The count-th incap within the window (1 for the first): whether it kills,
+-- and if not, how many seconds it lasts.
+function rules.incap(count)
+  if count >= rules.INCAP_DEATH then
+    return true, 0
+  end
+  local times = rules.INCAP_TIMES
+  return false, times[math.min(count, #times)] or 30
+end
+
+-- How long, in seconds, incaps are counted for before the count starts again.
+function rules.incapWindow()
+  return rules.INCAP_WINDOW
 end
 
 return rules

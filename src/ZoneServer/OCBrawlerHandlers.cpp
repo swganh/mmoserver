@@ -35,6 +35,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DataBinding.h"
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageFactory.h"
+#include "CombatManager.h"
+#include "PlayerObject.h"
 
 
 
@@ -46,6 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void ObjectController::_handleBerserk1(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
+    _selfBuff(cmdProperties);
 }
 
 //=============================================================================================================================
@@ -55,6 +58,7 @@ void ObjectController::_handleBerserk1(uint64 targetId,Message* message,ObjectCo
 
 void ObjectController::_handleCenterOfBeing(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
+    _selfBuff(cmdProperties);
 }
 
 //=============================================================================================================================
@@ -64,6 +68,7 @@ void ObjectController::_handleCenterOfBeing(uint64 targetId,Message* message,Obj
 
 void ObjectController::_handleIntimidate1(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
+    _brawlerMove(targetId, cmdProperties);
 }
 
 //=============================================================================================================================
@@ -73,6 +78,7 @@ void ObjectController::_handleIntimidate1(uint64 targetId,Message* message,Objec
 
 void ObjectController::_handleTaunt(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
+    _brawlerMove(targetId, cmdProperties);
 }
 
 //=============================================================================================================================
@@ -82,6 +88,7 @@ void ObjectController::_handleTaunt(uint64 targetId,Message* message,ObjectContr
 
 void ObjectController::_handleWarcry1(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
+    _brawlerMove(targetId, cmdProperties);
 }
 
 //=============================================================================================================================
@@ -91,6 +98,7 @@ void ObjectController::_handleWarcry1(uint64 targetId,Message* message,ObjectCon
 
 void ObjectController::_handleBerserk2(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
+    _selfBuff(cmdProperties);
 }
 
 //=============================================================================================================================
@@ -100,6 +108,7 @@ void ObjectController::_handleBerserk2(uint64 targetId,Message* message,ObjectCo
 
 void ObjectController::_handleIntimidate2(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
+    _brawlerMove(targetId, cmdProperties);
 }
 
 //=============================================================================================================================
@@ -109,8 +118,37 @@ void ObjectController::_handleIntimidate2(uint64 targetId,Message* message,Objec
 
 void ObjectController::_handleWarcry2(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
+    _brawlerMove(targetId, cmdProperties);
 }
 
 //=============================================================================================================================
 
 
+
+//======================================================================================================================
+//
+// Intimidate, Warcry and Taunt: the combat rules decide (rules.MOVES).
+//
+
+void ObjectController::_brawlerMove(uint64 targetId, ObjectControllerCmdProperties* cmdProperties)
+{
+    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    if (player && cmdProperties && gCombatManager)
+    {
+        gCombatManager->handleBrawlerMove(player, targetId, cmdProperties);
+    }
+}
+
+//======================================================================================================================
+//
+// Berserk and Center of Being: the combat rules decide (rules.selfBuff).
+//
+
+void ObjectController::_selfBuff(ObjectControllerCmdProperties* cmdProperties)
+{
+    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    if (player && cmdProperties && gCombatManager)
+    {
+        gCombatManager->handleSelfBuff(player, cmdProperties);
+    }
+}

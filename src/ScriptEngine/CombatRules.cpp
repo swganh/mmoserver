@@ -76,6 +76,21 @@ void pushSide(lua_State* l, const CombatSide& side)
         setNumber(l, it->first.c_str(), it->second);
     }
     lua_setfield(l, -2, "armor");
+
+    lua_newtable(l);
+    for (std::vector<std::string>::const_iterator it = side.states.begin(); it != side.states.end(); ++it)
+    {
+        lua_pushboolean(l, 1);
+        lua_setfield(l, -2, it->c_str());
+    }
+    lua_setfield(l, -2, "states");
+
+    lua_newtable(l);
+    for (std::map<std::string, float>::const_iterator it = side.buffs.begin(); it != side.buffs.end(); ++it)
+    {
+        setNumber(l, it->first.c_str(), it->second);
+    }
+    lua_setfield(l, -2, "buffs");
 }
 
 void pushWeapon(lua_State* l, const CombatWeapon& weapon)
@@ -95,6 +110,7 @@ void pushWeapon(lua_State* l, const CombatWeapon& weapon)
     setNumber(l, "health_cost", weapon.healthCost);
     setNumber(l, "action_cost", weapon.actionCost);
     setNumber(l, "mind_cost", weapon.mindCost);
+    setNumber(l, "wound_chance", weapon.woundChance);
 }
 
 void pushAttack(lua_State* l, const CombatAttack& attack)
@@ -255,6 +271,14 @@ CombatOutcome CombatRules::attack(const CombatAttack& attack)
     }
     lua_pop(mState, 1);
 
+    lua_getfield(mState, -1, "wound");
+    outcome.wound = static_cast<int>(lua_tonumber(mState, -1));
+    lua_pop(mState, 1);
+
+    lua_getfield(mState, -1, "fatigue");
+    outcome.fatigue = static_cast<int>(lua_tonumber(mState, -1));
+    lua_pop(mState, 1);
+
     lua_getfield(mState, -1, "effects");
     if (lua_istable(mState, -1))
     {
@@ -295,6 +319,98 @@ bool CombatRules::costs(const CombatAttack& attack, int& health, int& action, in
     action = static_cast<int>(lua_tonumber(mState, -2));
     mind = static_cast<int>(lua_tonumber(mState, -1));
     lua_pop(mState, 3);
+    return true;
+}
+
+bool CombatRules::incap(int count, bool& dies, int& seconds)
+{
+    lua_pushnumber(mState, count);
+    if (!_call("incap", 1, 2))
+    {
+        return false;
+    }
+    dies = lua_toboolean(mState, -2) != 0;
+    seconds = static_cast<int>(lua_tonumber(mState, -1));
+    lua_pop(mState, 2);
+    return true;
+}
+
+bool CombatRules::moveReach(const std::string& name, std::string& kind, float& range, float& radius)
+{
+    lua_pushstring(mState, name.c_str());
+    if (!_call("moveReach", 1, 3))
+    {
+        return false;
+    }
+    bool known = lua_isstring(mState, -3) != 0;
+    if (known)
+    {
+        kind = lua_tostring(mState, -3);
+        range = static_cast<float>(lua_tonumber(mState, -2));
+        radius = static_cast<float>(lua_tonumber(mState, -1));
+    }
+    lua_pop(mState, 3);
+    return known;
+}
+
+bool CombatRules::move(const std::string& name, const CombatAttack& attack, float baseChance,
+                       bool& landed, float& chance, float& duration)
+{
+    lua_pushstring(mState, name.c_str());
+    pushAttack(mState, attack);
+    setNumber(mState, "base_chance", baseChance);
+    lua_getglobal(mState, "math");
+    lua_getfield(mState, -1, "random");
+    lua_remove(mState, -2);
+    if (lua_pcall(mState, 0, 1, 0) != 0)
+    {
+        lua_pop(mState, 3);
+        return false;
+    }
+    if (!_call("move", 3, 3))
+    {
+        return false;
+    }
+    landed = lua_toboolean(mState, -3) != 0;
+    chance = static_cast<float>(lua_tonumber(mState, -2));
+    duration = static_cast<float>(lua_tonumber(mState, -1));
+    lua_pop(mState, 3);
+    return true;
+}
+
+bool CombatRules::selfBuff(const std::string& name, const CombatAttack& attack, std::string& buff,
+                           float& strength, float& duration, std::string& reason)
+{
+    lua_pushstring(mState, name.c_str());
+    pushAttack(mState, attack);
+    if (!_call("selfBuff", 2, 3))
+    {
+        reason = "unknown";
+        return false;
+    }
+    bool ok = lua_isstring(mState, -3) != 0;
+    if (ok)
+    {
+        buff = lua_tostring(mState, -3);
+        strength = static_cast<float>(lua_tonumber(mState, -2));
+        duration = static_cast<float>(lua_tonumber(mState, -1));
+    }
+    else
+    {
+        reason = lua_isstring(mState, -2) ? lua_tostring(mState, -2) : "unknown";
+    }
+    lua_pop(mState, 3);
+    return ok;
+}
+
+bool CombatRules::incapWindow(int& seconds)
+{
+    if (!_call("incapWindow", 0, 1))
+    {
+        return false;
+    }
+    seconds = static_cast<int>(lua_tonumber(mState, -1));
+    lua_pop(mState, 1);
     return true;
 }
 

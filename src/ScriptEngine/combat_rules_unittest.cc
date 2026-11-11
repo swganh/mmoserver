@@ -349,6 +349,148 @@ TEST_F(CombatRulesTest, PostureChangesLastFiveSeconds) {
     EXPECT_DOUBLE_EQ(5, eval("landed[1].duration"));
 }
 
+TEST_F(CombatRulesTest, HitsWoundWithTheWeaponsWoundChance) {
+    // A dagger's 9% (p. 390): a roll under it wounds a tenth of the damage.
+    run("a = { weapon = { group = 'onehandmelee', wound_chance = 9 } }");
+    EXPECT_DOUBLE_EQ(5, eval("rules.wound(a, 50, 0.05)"));
+    EXPECT_DOUBLE_EQ(0, eval("rules.wound(a, 50, 0.5)"));
+    EXPECT_DOUBLE_EQ(1, eval("rules.wound(a, 4, 0.05)"));
+    EXPECT_DOUBLE_EQ(0, eval("rules.wound(a, 0, 0.05)"));
+    // Bare hands have no wound chance: the vibroknuckler's 8% (p. 390).
+    run("b = { weapon = { group = 'unarmed' } }");
+    EXPECT_DOUBLE_EQ(3, eval("rules.wound(b, 30, 0.07)"));
+    EXPECT_DOUBLE_EQ(0, eval("rules.wound(b, 30, 0.09)"));
+}
+
+TEST_F(CombatRulesTest, WoundsAndFatigueReachCpp) {
+    CombatAttack attack;
+    attack.weapon.group = "rifle";
+    attack.weapon.minDamage = 100;
+    attack.weapon.maxDamage = 100;
+    attack.weapon.woundChance = 100;
+    attack.accuracyBonus = 1000;
+    run("math.random = function(a) if a then return a end return 0 end");
+    CombatOutcome outcome = rules_.attack(attack);
+    ASSERT_TRUE(outcome.ok);
+    ASSERT_TRUE(outcome.hit);
+    EXPECT_EQ(outcome.damage / 10, outcome.wound);
+    EXPECT_GT(outcome.wound, 0);
+    EXPECT_EQ(1, outcome.fatigue);
+}
+
+TEST_F(CombatRulesTest, IntimidatedDefendersAreEasierToHit) {
+    run("a = { attacker = {}, defender = {} }");
+    double plain = eval("rules.accuracy(a)");
+    run("a.defender.states = { intimidated = true }");
+    EXPECT_DOUBLE_EQ(plain + 10, eval("rules.accuracy(a)"));
+}
+
+TEST_F(CombatRulesTest, BrawlerMovesRollTheirChance) {
+    // Intimidate 1: the command table's 25%, + the brawler's intimidate mod,
+    // - the defender's intimidate_defense.
+    run("a = { base_chance = 25, attacker = { skill_mods = { intimidate = 20 } },"
+        " defender = { skill_mods = { intimidate_defense = 5 } } }");
+    run("landed, chance, duration = rules.move('intimidate1', a, 0.39)");
+    EXPECT_DOUBLE_EQ(40, eval("chance"));
+    EXPECT_DOUBLE_EQ(1, eval("landed and 1 or 0"));
+    EXPECT_DOUBLE_EQ(30, eval("duration"));
+    run("landed = rules.move('intimidate1', a, 0.41)");
+    EXPECT_DOUBLE_EQ(0, eval("landed and 1 or 0"));
+    // Taunt has no state; no move is certain.
+    run("b = { attacker = { skill_mods = { taunt = 100 } }, defender = {} }");
+    run("landed, chance, duration = rules.move('taunt', b, 0)");
+    EXPECT_DOUBLE_EQ(95, eval("chance"));
+    EXPECT_DOUBLE_EQ(0, eval("duration"));
+
+    std::string kind;
+    float range = 0, radius = 0;
+    ASSERT_TRUE(rules_.moveReach("warcry1", kind, range, radius));
+    EXPECT_EQ("intimidate", kind);
+    EXPECT_FLOAT_EQ(15, radius);
+    EXPECT_FALSE(rules_.moveReach("berserk1", kind, range, radius));
+
+    CombatAttack attack;
+    bool landed = false;
+    float chance = 0, duration = 0;
+    ASSERT_TRUE(rules_.move("intimidate2", attack, 40, landed, chance, duration));
+    EXPECT_FLOAT_EQ(40, chance);
+}
+
+TEST_F(CombatRulesTest, BerserkHitsHarderFasterAndIsEasierToHit) {
+    // Berserk 1: strength 10, + the berserk mod (Master Brawler 20).
+    run("a = { attacker = { skill_mods = { berserk = 20 } } }");
+    run("buff, strength, duration = rules.selfBuff('berserk1', a)");
+    EXPECT_EQ(1, eval("buff == 'berserk' and 1 or 0"));
+    EXPECT_DOUBLE_EQ(30, eval("strength"));
+    EXPECT_DOUBLE_EQ(20, eval("duration"));
+
+    run(kCdefLua);
+    run("b = { weapon = cdef, attacker = {}, defender = {} }");
+    double accuracy = eval("rules.accuracy(b)");
+    double delay = eval("rules.delay(b)");
+    double damage = eval("rules.damage(b, 1)");
+    run("b.attacker.buffs = { berserk = 30 }");
+    EXPECT_DOUBLE_EQ(accuracy + 30, eval("rules.accuracy(b)"));
+    EXPECT_NEAR(delay * 0.7, eval("rules.delay(b)"), 1e-9);
+    EXPECT_GT(eval("rules.damage(b, 1)"), damage);
+    // A berserk defender is easier to hit.
+    run("b.attacker.buffs = nil; b.defender.buffs = { berserk = 10 }");
+    EXPECT_DOUBLE_EQ(accuracy + 10, eval("rules.accuracy(b)"));
+}
+
+TEST_F(CombatRulesTest, CenterOfBeingNeedsMeleeAndRaisesDefence) {
+    // Novice Brawler: unarmed efficacy 10, duration 5.
+    run("a = { weapon = { group = 'unarmed' }, attacker = { skill_mods ="
+        " { unarmed_center_of_being_efficacy = 10, center_of_being_duration_unarmed = 5 } } }");
+    run("buff, strength, duration = rules.selfBuff('centerofbeing', a)");
+    EXPECT_EQ(1, eval("buff == 'center_of_being' and 1 or 0"));
+    EXPECT_DOUBLE_EQ(10, eval("strength"));
+    EXPECT_DOUBLE_EQ(15, eval("duration"));
+    run("a.weapon.group = 'pistol'");
+    run("buff, reason = rules.selfBuff('centerofbeing', a)");
+    EXPECT_EQ(1, eval("buff == nil and reason == 'melee' and 1 or 0"));
+
+    run("b = { attacker = {}, defender = { buffs = { center_of_being = 10 } } }");
+    double centered = eval("rules.accuracy(b)");
+    run("b.defender.buffs = nil");
+    EXPECT_DOUBLE_EQ(centered + 10, eval("rules.accuracy(b)"));
+
+    CombatAttack attack;
+    attack.weapon.group = "unarmed";
+    std::string buff, reason;
+    float strength = 0, duration = 0;
+    EXPECT_FALSE(rules_.selfBuff("centerofbeing", attack, buff, strength, duration, reason));
+    EXPECT_EQ("skill", reason);
+    attack.attacker.skillMods["berserk"] = 5;
+    ASSERT_TRUE(rules_.selfBuff("berserk2", attack, buff, strength, duration, reason));
+    EXPECT_EQ("berserk", buff);
+    EXPECT_FLOAT_EQ(25, strength);
+    // Buffs reach the rules from C++.
+    attack.weapon = noobCdef();
+    attack.distance = 15;
+    CombatOutcome plain = rules_.attack(attack);
+    attack.defender.buffs["center_of_being"] = 10;
+    CombatOutcome withBuff = rules_.attack(attack);
+    ASSERT_TRUE(plain.ok && withBuff.ok);
+    EXPECT_FLOAT_EQ(plain.chance - 10, withBuff.chance);
+}
+
+TEST_F(CombatRulesTest, IncapsGrowLongerAndTheThirdKills) {
+    bool dies = true;
+    int seconds = 0;
+    ASSERT_TRUE(rules_.incap(1, dies, seconds));
+    EXPECT_FALSE(dies);
+    EXPECT_EQ(30, seconds);
+    ASSERT_TRUE(rules_.incap(2, dies, seconds));
+    EXPECT_FALSE(dies);
+    EXPECT_EQ(60, seconds);
+    ASSERT_TRUE(rules_.incap(3, dies, seconds));
+    EXPECT_TRUE(dies);
+    // Three incaps within any 10-minute span kill.
+    ASSERT_TRUE(rules_.incapWindow(seconds));
+    EXPECT_EQ(600, seconds);
+}
+
 TEST_F(CombatRulesTest, AccuracyBonusAddsToTheModifier) {
     run(kCdefLua);
     run("a = { weapon = cdef, distance = 17, attacker = {}, defender = {}, accuracy_bonus = 15 }");

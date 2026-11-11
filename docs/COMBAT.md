@@ -123,11 +123,55 @@ not used, so in that respect players attack faster than they should).
   states, defender lists, `/peace`.
 - Default attacks with any weapon; damage from the weapon's min/max.
 - HAM pools, incapacitation, death, clone selection, regeneration with
-  posture modifiers.
+  posture modifiers. Cloning revives the player with full health, action
+  and mind, less wounds (KNOWN_ISSUES #24).
+- Wounds and battle fatigue (`rules.wound`, `rules.FATIGUE_PER_HIT`): a
+  hit wounds the pool it hit with the weapon's wound chance (p. 389;
+  `cat_wpn_damage.wpn_wound_chance`, bare hands and creatures the
+  vibroknuckler's 8%, p. 390); the wound is a tenth of the damage, at least
+  1, and lowers the pool's maximum. Each hit a player takes adds 1 battle
+  fatigue (of 1000). Both sizes are reconstructed: the guide gives none.
+  Each wound is logged (`Combat wound ...`); the client shows it in the
+  character sheet's Wounds column and as "wounded" combat spam.
+- Intimidate, Warcry and Taunt (`rules.MOVES`, `rules.move`;
+  `CombatManager::handleBrawlerMove`): each costs its flat HAM from the
+  command table and starts the fight as an attack would. Intimidate (15 m,
+  the command table's 25% and 40%) and Warcry (every attackable creature
+  within 15 m, 20 m for Warcry 2) leave the target Intimidated for 30 s;
+  Taunt (15 m) makes a creature fight the taunter. The chance adds the
+  brawler's `intimidate`, `warcry` or `taunt` mod and takes away the
+  defender's `intimidate_defense`, 5-95%. An intimidated defender is 10
+  easier to hit (`rules.DEFENDER_STATE_MODS`; "Intimidated: increases
+  chance of being hit", p. 47 of the 2004 guide). The guide describes none
+  of the three moves: Warcry's and Taunt's chances and reaches, and the
+  to-hit bonus, are reconstructed. Each roll is logged (`Brawler move ...`)
+  and the brawler told whether it succeeded.
+- Berserk and Center of Being (`rules.selfBuff`;
+  `CombatManager::handleSelfBuff`): self buffs that cost their flat HAM
+  from the command table and run their course before they can be used
+  again. Berserk (strength 10, 20 for Berserk 2, plus the `berserk` mod;
+  20 s, 30 s for Berserk 2) gives a point of to-hit, 1% more damage and 1%
+  less attack time per point of strength, and attackers a point of to-hit
+  against the berserker (p. 46 of the 2004 guide: to hit, speed and damage
+  up, defence down; p. 84); it sets the Berserk state. Center of Being
+  needs bare hands or a melee weapon: it takes the held group's
+  `<group>_center_of_being_efficacy` off attackers' to-hit for
+  `center_of_being_duration_<group>` x 3 s (Novice Brawler unarmed: 10 for
+  15 s). It is not in the guide. All the numbers are reconstructed. Each
+  use is logged (`Self buff ...`).
+- Incapacitation from the combat rules (`rules.incap`, `rules.incapWindow`):
+  three incaps within 10 minutes kill (p. 85); the first lasts 30 s, the
+  second 60 s (`rules.INCAP_TIMES`, reconstructed: the guide's timer
+  picture on p. 85 reads 52 s, so it is not a fixed 30 s). The window
+  counts from the first incap. Without the rules, the server's
+  `Player_Incap_Time`, `Player_Incap_Reset` and `Player_Incapacitation`
+  settings apply. Each incap is logged (`Player ... incapacitated`).
 - Duels between players; death blows in a duel.
-- Creature AI: idle, roaming, aggro within `creature_aggro_range`,
-  stalking, attacking, assisting a lair; `State_Dead` (since the combat
-  branch: a dead creature stops attacking).
+- Creature AI (`AttackableCreature::_think`; KNOWN_ISSUES 5j): fight
+  back, aggressive creatures attack players within
+  `creature_attack_range`, chase within the leash, give up and walk home,
+  roam while players are near; `State_Dead` (a dead creature stops
+  attacking). Assisting other creatures or the lair is not wired yet.
 - XP by most damage, per weapon type, group split; loot rights.
 - Combat spam, fly text (miss, block, dodge, counter), animations.
 - Specials' HAM costs: their cost modifiers x the weapon's attack costs
@@ -270,14 +314,17 @@ against melee) is not known.
   the "no point blank attacks while prone" rule; creature to-hits are not
   in the database yet.
 - **Damage modifiers:** no skill or stat bonuses, players' worn armour,
-  vulnerabilities, wounds (weapons have a wound chance) or battle fatigue.
+  vulnerabilities. Wounds cause no bleeding yet (p. 389), and battle
+  fatigue does not yet hamper healing (p. 86): nothing heals wounds yet.
 - **Special attacks:** the attacker's end posture (Dive Shot prone, Kip Up
   Shot standing, Roll Shot kneeling), area and cone attacks (every special
-  hits its one target), and the special moves the guide's table does not
-  list (berserk, warcry, intimidate, taunt, Center of Being).
+  hits its one target).
 - **States:** knockdown/dizzy interplay (a dizzy creature falling when it
   changes posture), knockdowns and posture changes have no duration.
-- **Creatures:** no special moves, no fleeing, no healing; creature
+- **Creatures:** no special moves, no fleeing, no healing; no killers
+  (creatures that deathblow an incapacitated player, p. 73: every creature
+  only incapacitates) and no pack assist (p. 73), which wait for the
+  creature table; creature
   regeneration is a made-up rule; aggression ignores the player's level.
 - **Combat XP** rates and weapon XP split are placeholders ("a complete
   made up rule" in the code).

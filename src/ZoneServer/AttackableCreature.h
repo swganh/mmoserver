@@ -210,11 +210,26 @@ public:
     void	setLairId(uint64 lairId) {
         mLairId = lairId;
     }
+    // A brawler's Taunt landed: fight the taunter.
+    void	taunt(uint64 taunterId);
 
 
 private:
     // Default constructor, should not be used.
     AttackableCreature();
+
+    // The creature's decisions each tick (handleEvents): fight back, attack
+    // players that come close if aggressive, give up a fight too far from
+    // home, wake up and doze off as players come and go.
+    void	_think(void);
+    PlayerObject*	_nearestPlayer(float range);
+    uint64	_liveDefender(void);
+    bool	_withinLeash(CreatureObject* target) const;
+    float	_leash(void) const;
+    void	_startFight(uint64 targetId);
+    void	_endFight(void);
+    void	_chase(void);
+    void	_walkTo(const glm::vec3& destination, float speed, uint64 periodMs);
 
     bool	needAssist(void);
     void	executeAssist(void);

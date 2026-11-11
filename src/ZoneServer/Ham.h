@@ -172,6 +172,9 @@ public:
 
     void			resetCounters();
 
+    // fill health, action and mind up to their maximum less wounds (cloning)
+    void			restoreMainPools();
+
     TargetStats		mTargetStats;
 
     HamBars			mHamBars;

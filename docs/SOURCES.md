@@ -15,6 +15,8 @@ original game used. `tools/client/` reads them:
 | `datatable.py <file.iff>` | prints a datatable as CSV |
 | `stf.py <file.stf>` | prints a string file as `name<TAB>text` lines |
 | `city_regions_sql.py <planet> <clientregion/planet.iff>` | writes a migration with the client's city areas (as `003_tatooine_city_areas.sql`) |
+| `skills_compare.py <skill/skills.iff> [--sql]` | compares the client's skill table (Publish 14) with the database's skills; `--sql` writes the fix (as `008_skills_from_client.sql`) |
+| `commands_compare.py <command/command_table.iff> [--sql]` | compares the client's command table (Publish 14) with `command_table`: default times, combat queue use; `--sql` writes the fix (as `009_commands_from_client.sql`) |
 
 The extracted files themselves are not committed: keep them with your
 client. Generated data says which client file it came from.
@@ -28,6 +30,7 @@ in the data and scripts, with a citation so others can check them.
 
 | Guide | Era | Use it for | Don't use it for |
 |---|---|---|---|
+| Prima's Official Strategy Guide: *An Empire Divided* (2003, launch) | pre-CU, as the game shipped | combat rules, professions and skills, weapons, armour, creatures, the tutorial | later changes (publishes, the CU) |
 | Prima Official Game Guide (2004, the original) | pre-CU, the era this server recreates | creatures, mechanics, skills, planets | post-2004 content |
 | The Total Experience (Prima) | post-CU, includes Jump to Lightspeed | places, quests, theme parks, space | mechanics and numbers (changed by the CU and NGE) |
 
@@ -39,7 +42,13 @@ Sections of the 2004 guide (guide page numbers):
 | 118-159 | Planets and cities |
 | 170-208 | Creatures |
 
-In the PDF of the 2004 guide, the PDF page is the guide page + 1.
+In the PDF of the 2004 guide, the PDF page is the guide page + 1. In the PDF of
+*An Empire Divided* (498 pages), the PDF page is the guide page + 3.
+
+Sections of *An Empire Divided* (guide page numbers): New Player
+Introduction 5-16, Combat 65-86, Professions 105-320 (Brawler 123,
+Marksman 140), Planets 321-376 (Tatooine 324), PvP 377-386, Weapons table
+388, Armor table 394, Creature tables 396-483.
 
 ## Citing
 

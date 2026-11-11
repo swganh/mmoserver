@@ -20,7 +20,7 @@ def chunks(data, pos, end):
             yield ("FORM:" + data[body:body + 4].decode("ascii"), body + 4, body + size)
         else:
             yield (tag, body, body + size)
-        pos = body + size + (size & 1 if tag != "FORM" else 0)
+        pos = body + size  # SWG IFF chunks are not padded to even sizes
 
 
 def find(data, pos, end, path):

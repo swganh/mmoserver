@@ -67,6 +67,7 @@ enum object_controller_opcodes
     opCombatSpam						= 0x00000134,
     opSitOnObject						= 0x0000013B,
     opTeleportAck						= 0x0000013f,
+    opWeaponRanges						= 0x00000140,
     opMissionAbort						= 0x00000142,
     opObjectMenuRequest					= 0x00000146,
     opObjectMenuResponse				= 0x00000147,

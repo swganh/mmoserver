@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "BuildingObject.h"
 #include "EntertainerManager.h"
 #include "IncapRecoveryEvent.h"
+#include "CombatManager.h"
 #include "PlayerObject.h"
 #include "StateManager.h"
 #include "SpawnPoint.h"
@@ -713,7 +714,13 @@ void CreatureObject::incap()
             mFirstIncapTime = localTime;
         }
         // reset the counter if the reset time has passed
-        else if(mIncapCount != 0 && (localTime - mFirstIncapTime) >= gWorldConfig->getIncapResetTime() * 1000)
+        // (the combat rules' incap window, else the server's setting)
+        int incapWindow = 0;
+        if (!gCombatManager || !gCombatManager->rules().incapWindow(incapWindow) || incapWindow <= 0)
+        {
+            incapWindow = gWorldConfig->getIncapResetTime();
+        }
+        if(mIncapCount && (localTime - mFirstIncapTime) >= static_cast<uint64>(incapWindow) * 1000)
         {
             mIncapCount = 0;
             mFirstIncapTime = localTime;
@@ -741,16 +748,25 @@ void CreatureObject::incap()
 
         }
 
-        // advance incaps counter
-        uint32 configIncapCount = gWorldConfig->getConfiguration<uint32>("Player_Incapacitation",3);
-        if(++mIncapCount < (uint8)configIncapCount)
+        // advance incaps counter; the combat rules say whether this incap
+        // kills and how long it lasts, else the server's settings do
+        ++mIncapCount;
+        bool incapKills = false;
+        int incapSeconds = 0;
+        if (!gCombatManager || !gCombatManager->rules().incap(mIncapCount, incapKills, incapSeconds))
+        {
+            incapKills = mIncapCount >= (uint8)gWorldConfig->getConfiguration<uint32>("Player_Incapacitation",3);
+            incapSeconds = gWorldConfig->getBaseIncapTime();
+        }
+        if(!incapKills)
         {
             // update the posture and locomotion
             gStateManager.setCurrentPostureState(this, CreaturePosture_Incapacitated);
             gStateManager.setCurrentActionState(this, CreatureState_ClearState);
 
             // send timer updates
-            mCurrentIncapTime = gWorldConfig->getBaseIncapTime() * 1000;
+            mCurrentIncapTime = static_cast<uint64>(incapSeconds) * 1000;
+            LOG(INFO) << "Player " << getId() << " incapacitated (" << static_cast<int>(mIncapCount) << " in the window) for " << incapSeconds << " s";
             gMessageLib->sendIncapTimerUpdate(this);
 
             // schedule recovery event

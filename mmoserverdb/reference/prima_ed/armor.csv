@@ -1,0 +1,17 @@
+name,generic_effectiveness,heat,cold,electrical,acid,blast,energy,kinetic,stun,integrity_min,integrity_max,page
+Bone (0 layers),10,0,0,+,0,0,20,0,0,7500,12500,394
+Chitin (0 layers),15,0,0,0,+,+,+,25,0,15000,25000,394
+Composite (3 layers),20,+,+,+,+,+,+,+,0,30000,50000,394
+Mandalorian,25,+,0,+,+,35,+,+,0,30000,50000,394
+Marauder,15,+,0,0,+,+,+,25,0,22500,37500,394
+Marine,30,0,+,+,0,+,+,+,0,33750,56250,394
+Padded (2 layers),15,0,+,+,0,25,+,+,0,18750,31250,394
+Padded Impact,15,0,+,+,0,30,+,40,0,22500,37500,394
+Stormtrooper,30,+,0,0,+,+,+,+,0,33750,56250,394
+Stormtrooper Blast,10,+,0,0,+,45,+,+,0,33750,56250,394
+Tantel (1 layer),10,+,+,0,0,0,20,+,0,11250,18750,394
+Ubese (1 layer),15,0,0,+,+,+,+,20,0,15000,25000,394
+Zam Wesell,10,20,+,+,0,5,0,+,0,11250,18750,394
+Personal Shield Generator Mk.1,10,+,+,+,0,0,20,0,+,1875,3125,394
+Personal Shield Generator Mk.2,15,+,+,+,0,0,30,0,+,937.5,1562.5,394
+Personal Shield Generator Mk.3,20,+,+,+,0,0,40,0,+,468.75,781.25,394

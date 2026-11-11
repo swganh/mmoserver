@@ -65,6 +65,10 @@ prompt.
 
 ## Missing beats (from the client's files)
 
+- The `newbie_mail` prompt ("You've received a message...") after
+  arrival. The welcome and profession mails themselves are sent again
+  (KNOWN_ISSUES #22).
+
 - The CTRL-C status screen prompts (`open_status_prompt`,
   `close_status_prompt`, ...). Whether the client reports the status screen
   is not known yet.

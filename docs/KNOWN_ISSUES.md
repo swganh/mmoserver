@@ -215,7 +215,7 @@ first time.
 Confirmed with a client: the tutorial bandit appears, fights, and the
 script continues after his grenade.
 
-### 5i. Still in combat after the opponent dies — open (workaround: `/peace`)
+### 5i. Still in combat after the opponent dies — fix needs testing
 
 After killing the tutorial bandit the player stays in combat, which blocks
 leaving the tutorial. When a creature dies, `die()` makes peace with its
@@ -234,19 +234,44 @@ Not enough: on the VM the combat music still started as the bandit died
 *at* the death suggests something puts the player back into combat after
 `die()` (auto-attack firing again, the bandit's AI, or the grenade path,
 where `npcStopFight` does nothing), or the player was not in the bandit's
-defender list. For the combat review: log the player's states and defender
-list around a creature's death.
+defender list.
 
-### 5j. Lairs never spawn — open
+Found: a creature's AI never left combat, not even dead. `State_Dead`
+was never set, so the corpse's AI kept attacking every tick, and
+`NpcManager::_verifyCombatState` checked whether the target was dead but
+not the attacker: each attack put the player back into combat and back on
+the corpse's defender list, undoing the peace, until the corpse was
+removed minutes later. Now a dead or incapacitated creature's AI moves to
+`State_Dead` and stops, and `_verifyCombatState` refuses attacks from a
+dead or incapacitated NPC.
+
+### 5j. Lairs never spawn — fix needs testing
 
 Tatooine has lairs in the database (two with a count of 25, spawning
 anywhere in the region from about -2200,-4700 to -1500,-3950), and they are
-loaded and queued, but none ever appears: `LairObject::handleState` only
-counts down the initial spawn delay in `State_LairUnspawned` and nothing
-then calls `spawn()` or moves the lair on; `handleEvents` only handles
-death. The same kind of missing state machine as `AttackableCreature`
-(5f). For the combat and creature AI review; spawning up to 50 lairs and
-their creature waves needs the creature AI to work.
+loaded and queued, but none ever appeared: `LairObject::handleState` only
+counted down the initial spawn delay in `State_LairUnspawned`, and nothing
+then called `spawn()` or moved the lair on. Now, when the countdown runs
+out (3 to 6 minutes after the zone starts), the lair and its first wave of
+creatures go in the world (`Lair ... spawned` in the log). Locally 34 lairs
+had spawned after 7 minutes, without errors.
+
+The creature AI was the other half (5f): nothing ever moved a creature out
+of idle, so creatures never fought back, roamed or attacked. Now
+(`AttackableCreature::_think`, each tick):
+
+- attacked, a creature fights back: it runs at its target (its
+  `creature_stalking_speed`) and attacks in its weapon range;
+- an aggressive creature (`creature_is_aggressive`) attacks a player who
+  comes within `creature_attack_range`;
+- it gives up when its target dies, is incapacitated or is further from
+  its home than `creature_stalking_max_distance` (64 m without one) plus
+  its reach, then walks home and leaves the players alone on the way;
+- with players within 64 m it wakes up and roams (`creature_is_roaming`),
+  and dozes off again when they leave.
+
+The tutorial's bandit is left to its script. Log lines: `Creature ...
+fights ...`, `Creature ... gives up and goes home`.
 
 ### 5k. Travel tickets to points with an apostrophe were never created — fixed
 
@@ -274,8 +299,21 @@ was not affected.
 
 ### 5h. "Too many commands queued. A command was dropped." — open
 
-Seen repeatedly while fighting the tutorial bandit. The player's command
-queue overflows during auto-attack; check its limit and what fills it.
+Seen repeatedly while fighting the tutorial bandit and a rill on Tatooine.
+The command queue (30 entries) was strictly first in, first out: a combat
+command waiting for its cooldown at the front held up every command
+behind it, including the non-combat ones the client sends all the time in
+a fight, which should run at once. In a long fight they piled up past 30
+and were dropped. Now, while the front combat command cools down, the
+first non-combat command behind it runs; combat commands keep their order
+and cooldowns.
+
+Still seen on the VM with that change, with several Attacks in the
+client's queue: non-combat commands were already put ahead of combat ones
+when queued, so it is the attacks themselves. The zone now logs what fills
+the queue when it overflows (`Command queue full for ...`: how many are
+combat commands, the front one, the time to the next combat command, and
+whether the queue is scheduled). `docs/COMBAT.md` has the combat review.
 
 ### 5g. No explosion when the tutorial debris is destroyed — fix needs testing
 
@@ -458,7 +496,7 @@ match the client's messages, and the Lars homestead badge is awarded.
 Still to do: the other planets (their client files are needed), and the second circle the client draws for Mos Eisley
 and Mos Entha (the server has one area per city).
 
-### 17. Corpse loot can't be moved from the opened container — open
+### 17. Corpse loot can't be moved from the opened container — fixed
 
 Seen on the tutorial bandit. Loot all works; opening the corpse's
 container shows the items, but they can't be moved to the inventory. The
@@ -469,12 +507,58 @@ The events confirm it is the server: picking up items from the opened
 bandit corpse (`object_used menu_id=10`, three tries on two items) raised no
 `item_transferred`, so the transfer never completed.
 
-### 18. Tutorial combat is slow (debris, bandit) — open
+Cause: the transfer first asks whether the player may take things out of
+the item's container (`ObjectController::checkContainingContainer`). A
+creature's inventory is not in the world's object map, and that branch
+only accepted the player's own inventory, so every pick-up from a corpse
+was refused (loot all takes another path). It now also accepts a dead
+creature's inventory when the player has loot rights, the same check as
+the corpse's loot radial.
+
+Loot all then put the items in the inventory but left them showing on the
+corpse: the corpse's loot window sends its items to the player without
+registering the player as watching the corpse's inventory, and taking an
+item only told registered watchers. The looter is now told directly,
+for loot all and for single items. Others who had the corpse open (a
+group) still see the old contents until they reopen it. Confirmed on the VM:
+single items drag out of the bandit's corpse, and loot all empties it.
+
+Creature corpses (womp rats and the like) hold credits only: the server
+never puts items in them, and neither guide lists item loot for creatures
+(the 2003 tables have no loot column, the 2004 ones meat, hide and bone,
+which come from harvesting). `loot_groups` and `loot_templates` exist in
+the database but nothing reads them, and their rows are placeholders
+(group 1, used by the womp rats, holds Tusken boots). Credits are
+10-34 at random for every creature (`NonPersistentNpcFactory`), not from
+any source. Creatures did drop small amounts of credits pre-CU (as
+remembered by a player of the time), so the credits stay; the amounts are
+still to be sourced.
+
+### 18. Combat is slow (debris, bandit, Tatooine creatures) — partly fixed
 
 Destroying the debris and killing the bandit take much longer than in the
 original. Probably their HAM against a new character's damage with the
 limited combat we have; check the debris and bandit stats in the data
 against the client and recordings before changing them.
+
+Tatooine: the database had copied the womp rat's stats (1000 HAM, 90-110
+damage) onto its smaller relatives, so a novice fighting a lesser desert
+womp rat (Prima 2004 p. 180: level 5, 140-170 HAM, 45-50 damage) faced a
+creature six times too tough; the rill had 500 health (p. 182: 180-220).
+Migration 006 sets the womp rat (p. 184: level 10, 810-990 HAM, 90-110
+damage, 356 XP), the lesser desert womp rat and the rill from the guide.
+The womp rat itself was nearly right: it is a level 10 creature, a hard
+fight for a novice. Still to do: the other creatures as their pages come
+(greater desert and variegated womp rats are not in the pages at hand),
+and the tutorial's debris and bandit.
+
+The combat rules (`data/script/combat/rules.lua`, `docs/COMBAT.md`) replace
+the fixed 67% hit, the random pool and the 2 s attack: hit chance from the
+weapon's range modifiers, skill mods and postures; damage on one pool,
+mostly health; the weapon's own attack speed. Migration 007 gives the
+weapons their ranges in metres and new characters the noob CDEF (50-80,
+p. 392). Next test: a novice with the noob CDEF against a lesser desert womp
+rat and a womp rat, and the bandit.
 
 ### 19. The bandit survives his own grenade — fixed
 
@@ -509,6 +593,62 @@ for the trainer room's narration. Gates are now set on every tick from the
 room the player is in, whatever the script is doing, and a step the player
 has gone past stops waiting (`docs/TUTORIAL.md`).
 
+### 22. No welcome mail after the tutorial (and no mail from zones) — fixed
+
+The original sent new players a welcome letter and a letter for their
+starting profession (`newbie_tutorial/newbie_mail`). None arrived here.
+`Tutorial::sendStartingMails` sends them when the player picks a
+destination, to the ChatServer (`opIsmSendSystemMailMessage`), whose
+`_processSystemMailMessage` looked up the recipient's name with a query
+whose result nothing handled (`ChatQuery_QueryFirstName` had no case), so
+the mail was dropped. Every mail a zone sends went the same way: bank wire
+transfers (`sendBanktipMail`) and bazaar instant sales too. It now goes
+through `ChatManager::sendSystemMailMessage`, the path the ChatServer's
+own structure and auction mails use, which stores the mail and tells the
+player if online. Also fixed: the mail leaked when the recipient was not
+found, and `sendStartingMails` leaked its message object.
+
+Then the mails arrived with an empty body. A system mail's body is a
+reference into the client's string files, sent as binary out-of-band
+data in the mail's attachments, and those were stored in a `utf8mb3`
+`TEXT` column through a `TEXT` parameter of `sf_MailCreate`: bytes that
+are not valid UTF-8 (`FF FF` in the header) are refused or mangled.
+Attachments are now a `BLOB` (migration 005, the function, the schema),
+and the ChatServer sends them as `_binary` literals. Player mail with
+attachments (waypoints) went through the same column.
+
+Still empty after that: the body itself was built wrong. `atMacroString`
+writes the out-of-band package count as its internal counter, 0 for the
+first package (bytes `00 00` where the client needs `01 00`), plus 8 stray
+bytes at the end, so the client found no package to show. The newbie mails
+and the bank wire mails now use `common::OutOfBand`, the builder system
+messages use (and they display). Still on `atMacroString`: the bazaar
+mails, which carry a waypoint `common::OutOfBand` can't add yet; they need
+the same count fix or waypoint support in `common::OutOfBand`.
+
+And reading them back: the database layer copied raw fields (`DFT_raw`,
+the mail's attachments) with `strncpy`, which stops at the first zero
+byte, and UTF-16 has one in nearly every other byte. No attachment ever
+came back: not the system mails' bodies, not a waypoint a player attached
+(seen on the VM: plain player mail worked, the reply's attachment was
+missing). Raw fields are now copied whole, up to the field's size.
+
+And storing them: `escapeString` ignored its length and passed the bytes
+to the connector as a C string, so an attachment was stored as its first
+byte. Shown with the database layer and MariaDB: the welcome mail's body
+(124 bytes) came back as `01` and zeros; it now comes back identical. Only
+the mail attachments pass bytes with zeros; for every other caller (names,
+text) the result is the same as before. Mails stored before this fix stay
+empty; new ones open whole.
+
+Confirmed on the VM: a new character's welcome and profession mails show
+their full text, and a player's mail with a waypoint attached arrives with
+it. Still open: the bazaar mails (on `atMacroString`, see above) and the
+`newbie_mail` prompt on arrival.
+
+Still to add: the client's prompt for it, `system_messages:newbie_mail`
+("You've received a message.  Press the letter-icon..."), on arrival.
+
 ## Fixed while getting the servers running
 
 For reference; details are in the commit messages on `phase2-db-installer`.
@@ -538,3 +678,32 @@ For reference; details are in the commit messages on `phase2-db-installer`.
   over the drum: fly text cast its source to a creature (null for a
   container). Fly text in instances also only reached grouped players.
 - Missing `sp_DeleteMail`; SQL procedures broken by earlier bulk edits.
+
+### 23. Harvesting a creature corpse does nothing — open
+
+A Novice Scout (skill 31, `outdoors_scout_novice`) with loot rights gets
+"harvest corpse" and harvest meat, hide or bone on a creature's corpse
+(`AttackableCreature` radial), but `ScoutManager::handleHarvestCorpse` is
+empty: nothing is harvested. The creature data names the resources (the
+womp rat: `res_meat` Carnivore Meat, `res_hide` Bristley Hide) with
+`harvest_qty` 0. The 2004 guide's creature tables give each creature's
+meat, hide, bone and milk type and quantity; harvesting belongs with the
+scout's review, and the quantities with the creature transcription.
+
+### 24. A cloned player stays a corpse — fixed
+
+Killed by womp rats near Bestine (three incaps inside the reset time, the
+`Player_Incapacitation` rule), the player cloned in Bestine but lay there as
+"corpse of ...", with empty HAM; `/stand` and `/kneel` answered "You cannot
+... while Standing". The Dead posture refuses every transition out of it
+(its deny list holds Dead itself) and locks the state layers, and
+`PlayerObject::clone` never left it, so `resetProperties` could not stand
+the player up and the client kept getting posture Dead. HAM was never
+refilled either. The clone now unlocks the layers, sets posture Upright and
+locomotion Standing, and fills health, action and mind to their maximum less
+wounds (`Ham::restoreMainPools`). Tested on the VM: the clone stands with
+full HAM. The clone also stayed in combat: death's clearing of the action
+states is refused by the same lock (`ActionState::CanTransition` checks
+`blockAction`), so the clone now clears them too (needs testing). The clone's 100 health
+wound was lost: a wound can't exceed the pool's current points and death
+leaves health at 0, so the pools are now filled before the clone's wounds.

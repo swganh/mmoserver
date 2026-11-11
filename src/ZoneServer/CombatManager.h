@@ -33,6 +33,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/bstring.h"
 #include "Utils/typedefs.h"
 #include "DatabaseManager/DatabaseCallback.h"
+#include "ScriptEngine/CombatRules.h"
+
+#include <string>
+#include <vector>
 
 
 //=========================================================================================
@@ -44,6 +48,7 @@ class Weapon;
 class CreatureObject;
 class CMWeaponGroup;
 class ObjectControllerCmdProperties;
+class PlayerObject;
 
 typedef	std::vector<CMWeaponGroup*>	WeaponGroups;
 
@@ -63,7 +68,32 @@ public:
     uint32					getDefaultAttackAnimation(uint32 weaponGroup);
     BString					getDefaultSpam(uint32 weaponGroup);
 
-    bool					handleAttack(CreatureObject*  attacker,uint64 targetId,ObjectControllerCmdProperties* cmdProperties);
+    // delayMs, if given, gets the time to the attacker's next attack, from
+    // the combat rules (data/script/combat/rules.lua).
+    bool					handleAttack(CreatureObject*  attacker,uint64 targetId,ObjectControllerCmdProperties* cmdProperties, uint64* delayMs = 0);
+    // Intimidate, Warcry and Taunt (rules.MOVES): their HAM cost, then a roll
+    // against each target. False if the move could not be used.
+    bool					handleBrawlerMove(PlayerObject* attacker, uint64 targetId, ObjectControllerCmdProperties* cmdProperties);
+    // Berserk and Center of Being: the rules decide (rules.selfBuff).
+    bool					handleSelfBuff(PlayerObject* player, ObjectControllerCmdProperties* cmdProperties);
+    // Ends the creature's self buffs at once, without messages (cloning).
+    void					clearSelfBuffs(CreatureObject* creature);
+
+    // The combat rules script, shared with NpcManager.
+    CombatRules&			rules() { return mRules; }
+
+    // An attack as the rules see it, from the zone's objects.
+    CombatSide				buildSide(CreatureObject* creature);
+    CombatWeapon			buildWeapon(Weapon* weapon);
+
+    // Tells the player's client the range data of the weapon in hand, for
+    // the target window's accuracy display.
+    void					sendWeaponRanges(PlayerObject* player);
+
+    // Applies a hit's damage to the pool the rules chose.
+    void					applyDamage(CreatureObject* defender, const std::string& pool, int32 damage);
+    // The wound and battle fatigue a hit leaves (rules.wound, FATIGUE_PER_HIT).
+    void					applyWounds(CreatureObject* defender, const CombatOutcome& outcome);
 
     ~CombatManager();
 
@@ -74,15 +104,46 @@ private:
     // bool					_verifyCombatState(CreatureObject* attacker,CreatureObject* defender);
     bool					_verifyCombatState(CreatureObject* attacker, uint64 defenderId);
 
-    uint8					_executeAttack(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,Weapon* weapon);
-    uint8					_hitCheck(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,Weapon* weapon);
-    int32					_mitigateDamage(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,int32 oldDamage,Weapon* weapon);
-    uint8					_tryStateEffects(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,Weapon* weapon);
+    uint8					_executeAttack(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,Weapon* weapon, uint64* delayMs);
+    // The attack as the rules see it: the sides, the weapon and the command.
+    CombatAttack			_buildAttack(CreatureObject* attacker, CreatureObject* defender, ObjectControllerCmdProperties* cmdProperties, Weapon* weapon);
+    // Charges a special's HAM costs; false (nothing charged) if the attacker
+    // cannot pay them.
+    bool					_payCosts(CreatureObject* attacker, const CombatAttack& attack);
+    // Applies the effects that landed; timed states are removed again later.
+    void					_applyEffects(CreatureObject* defender, const CombatOutcome& outcome);
+    // Scheduler callback: removes timed states whose time is up.
+    bool					_expireStates(uint64 callTime, void* ref);
+
+    struct TimedState
+    {
+        uint64	creatureId;
+        uint64	state;
+        uint64	expires;	// ms, Clock local time
+    };
+    std::vector<TimedState>	mTimedStates;
+    // Self buffs (berserk, Center of Being) and when they end.
+    struct TimedBuff
+    {
+        uint64		creatureId;
+        std::string	name;
+        float		strength;
+        uint64		expires;	// ms, Clock local time
+    };
+    std::vector<TimedBuff>	mBuffs;
+    // Charges a command's flat HAM costs; false (nothing charged) if the
+    // creature cannot pay them.
+    bool					_payFlatCosts(CreatureObject* creature, ObjectControllerCmdProperties* cmdProperties);
+
+    // A TimedState that stands a creature back up instead of ending a state.
+    static const uint64		kStandUp = 0;
+    void					_timeStandUp(CreatureObject* creature, uint64 when);
 
     static bool				mInsFlag;
     static CombatManager*	mSingleton;
     Database*				mDatabase;
     WeaponGroups			mWeaponGroups;
+    CombatRules				mRules;
 };
 
 //=========================================================================================

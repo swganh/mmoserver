@@ -82,9 +82,8 @@ ChatManager::ChatManager(Database* database,MessageDispatch* dispatch) :
     mDatabase->executeProcedureAsync(this,asyncContainer,"CALL %s.sp_ReturnGalaxyName(2);",mDatabase->galaxy());
     
 
-    asyncContainer = new ChatAsyncContainer(ChatQuery_Channels);
-    mDatabase->executeProcedureAsync(this,asyncContainer,"CALL %s.sp_ReturnChatChannels();",mDatabase->galaxy());
-    
+    // The channels load once the galaxy name is in (ChatQuery_GalaxyName):
+    // their paths include it.
 
     asyncContainer = new ChatAsyncContainer(ChatQuery_PlanetNames);
     mDatabase->executeProcedureAsync(this,asyncContainer,"CALL %s.sp_ReturnChatPlanetNames();",mDatabase->galaxy());
@@ -427,17 +426,22 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         if (count == 0) {
             LOG(WARNING) << "Could not find Galaxy ";
-            return;
+        } else {
+            DataBinding* binding = mDatabase->createDataBinding(1);
+            binding->addField(DFT_bstring,0,64);
+
+            result->getNextRow(binding,&mGalaxyName);
+
+            DLOG(INFO) <<"Main: ["<<mMainCategory.getAnsi()<<"] Galaxy: ["<<mGalaxyName.getAnsi()<<"]";
+
+            mDatabase->destroyDataBinding(binding);
         }
 
-        DataBinding* binding = mDatabase->createDataBinding(1);
-        binding->addField(DFT_bstring,0,64);
-
-        result->getNextRow(binding,&mGalaxyName);
-
-        DLOG(INFO) <<"Main: ["<<mMainCategory.getAnsi()<<"] Galaxy: ["<<mGalaxyName.getAnsi()<<"]";
-
-        mDatabase->destroyDataBinding(binding);
+        // Only now: each channel's path includes the galaxy name. Loaded in
+        // parallel, the channels could come first and get an empty one
+        // ("SWG..corellia"), outside the galaxy in the Channel Browser.
+        ChatAsyncContainer* channelsContainer = new ChatAsyncContainer(ChatQuery_Channels);
+        mDatabase->executeProcedureAsync(this,channelsContainer,"CALL %s.sp_ReturnChatChannels();",mDatabase->galaxy());
     }
     break;
 

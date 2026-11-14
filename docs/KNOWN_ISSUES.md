@@ -126,6 +126,12 @@ now taken after the galaxy segment whatever it is called; an empty name is
 refused and logged; each create logs `Create chat room: path '...'`.
 Migration 015 removes rooms already created without a name.
 
+The likely cause: the ChatServer loaded the galaxy name and the channels
+with two queries at once, and when the channels came first their paths had
+an empty galaxy (`SWG..corellia`): the planet channels then showed outside
+the galaxy folder, and a room created under one got a path the old code
+could not cut. The channels now load after the galaxy name.
+
 ### 3a. Unknown usernames create accounts — fixed
 
 `sp_ReturnUserAccount` created an account for any username it didn't know,

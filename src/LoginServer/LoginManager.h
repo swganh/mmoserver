@@ -44,6 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class Database;
 class LoginClient;
+struct AccountData;
 class ServerData;
 class Message;
 
@@ -78,6 +79,9 @@ public:
     ~LoginManager(void);
 
     void                    Process(void);
+    // Whether an unknown username creates an account at login (the
+    // AutoCreateAccounts setting; off by default).
+    void                    setAutoCreateAccounts(bool create) { mAutoCreateAccounts = create; }
 
     // From NetworkCallback inheritance
     virtual NetworkClient*	handleSessionConnect(Session* session, Service* service);
@@ -89,12 +93,18 @@ public:
 
 private:
 
+    bool                    mAutoCreateAccounts = false;
+
     void                    _processDeleteCharacter(Message* message,LoginClient* client);
     void                    _sendDeleteCharacterReply(uint32 result,LoginClient* client);
 
 
     void                    _handleLoginClientId(LoginClient* client, Message* message);
     void                    _authenticateClient(LoginClient* client, DatabaseResult* result);
+    // Whether the client's password is the account's; stores an old one as
+    // an Argon2id hash.
+    bool                    _checkPassword(LoginClient* client, const AccountData& data);
+    void                    _sendLoginFailed(LoginClient* client);
     void                    _sendAuthSucceeded(LoginClient* client);
     void                    _sendCharacterList(LoginClient* client, DatabaseResult* result);
     void                    _sendServerList(LoginClient* client, DatabaseResult* result);

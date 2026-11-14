@@ -94,7 +94,8 @@ void PlanetMapHandler::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
     PlanetMapHandlerAsyncContainer* container = reinterpret_cast<PlanetMapHandlerAsyncContainer*>(ref);
     DispatchClient* client = reinterpret_cast<DispatchClient*>(container->mClient);
 
-    if(!client)
+    // No result: the query failed (logged).
+    if(!client || !result)
     {
         delete container;
         return;
@@ -161,7 +162,9 @@ void PlanetMapHandler::_processMapLocationsRequest(Message* message, DispatchCli
     message->getStringAnsi(container->mPlanetName);
 
     // Send our job in.
-    mDatabase->executeProcedureAsync(this, (void*)container, "CALL %s.sp_PlanetaryMapLocations('%s')", mDatabase->galaxy(),  container->mPlanetName.getAnsi());
+    // The planet name comes from the client: a bound value.
+    mDatabase->executePreparedAsync(this, (void*)container,
+        std::string("CALL ") + mDatabase->galaxy() + ".sp_PlanetaryMapLocations(?)", {container->mPlanetName.getAnsi()}, true);
     
 }
 

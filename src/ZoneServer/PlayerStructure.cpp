@@ -461,15 +461,10 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,BString inputStr
         // pull the db query
 
 
-        int8	sql[255],end[128],*sqlPointer;
-
-        sprintf(sql,"UPDATE %s.structures SET structures.name = '",gWorldManager->getDatabase()->galaxy());
-        sprintf(end,"' WHERE structures.ID = %" PRIu64 "",this->getId());
-        sqlPointer = sql + strlen(sql);
-        sqlPointer += gWorldManager->getDatabase()->escapeString(sqlPointer,inputStr.getAnsi(),inputStr.getLength());
-        strcat(sql,end);
-
-        gWorldManager->getDatabase()->executeSqlAsync(0,0,sql);
+        Database* db = gWorldManager->getDatabase();
+        db->executePreparedAsync(0, 0,
+            std::string("UPDATE ") + db->galaxy() + ".structures SET structures.name = ? WHERE structures.ID = " + std::to_string(this->getId()),
+            {inputStr.getAnsi()});
         
 
     }

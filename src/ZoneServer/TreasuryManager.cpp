@@ -362,11 +362,7 @@ void TreasuryManager::bankTipOffline(int32 amount,PlayerObject* playerObject,BSt
         return;
     }
     //now get the player
-    int8 name[50];
-    mDatabase->escapeString(name,targetName.getAnsi(),targetName.getLength());
-
-    int8 sql[256];
-    sprintf(sql,"SELECT id FROM %s.characters WHERE firstname like '%s'",mDatabase->galaxy(),name);
+    std::string sql = std::string("SELECT id FROM ") + mDatabase->galaxy() + ".characters WHERE firstname like ?";
 
     TreasuryManagerAsyncContainer* asyncContainer;
     asyncContainer = new TreasuryManagerAsyncContainer(TREMQuery_BankTipgetId,playerObject->getClient());
@@ -375,7 +371,7 @@ void TreasuryManager::bankTipOffline(int32 amount,PlayerObject* playerObject,BSt
     asyncContainer->targetName = targetName;
     asyncContainer->player = playerObject;
 
-    mDatabase->executeSqlAsync(this,asyncContainer,sql);
+    mDatabase->executePreparedAsync(this, asyncContainer, sql, {targetName.getAnsi()});
 }
 
 //======================================================================================================================
@@ -508,6 +504,12 @@ void TreasuryManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 {
     TreasuryManagerAsyncContainer* asynContainer = (TreasuryManagerAsyncContainer*)ref;
 
+    // A prepared statement that failed (logged) has no result.
+    if (!result)
+    {
+        delete(asynContainer);
+        return;
+    }
 
     switch(asynContainer->mQueryType)
     {

@@ -202,6 +202,8 @@ private:
     void			_processRequestPersistentMessage(Message* message,DispatchClient* client);
     void			_processDeletePersistentMessage(Message* message,DispatchClient* client);
     void			_PersistentMessagebySystem(Mail* mail,DispatchClient* client, BString sender);
+    // Stores a mail (sf_MailCreate), its text as bound values; the result goes to container.
+    void			_createMail(ChatAsyncContainer* container, const BString& sender, Mail* mail, uint64 receiverId);
     void			_processSystemMailMessage(Message* message,DispatchClient* client);
 
     // friendlist

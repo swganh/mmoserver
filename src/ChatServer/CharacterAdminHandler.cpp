@@ -215,81 +215,52 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
     else
         characterInfo.mStartCity = "default_location";
 
-    // Setup our statement
-    int8 sql[4096];
-
     // Convert our name strings to UTF8 so they can be put in the DB.
     characterInfo.mFirstName.convert(BSTRType_ANSI);
     characterInfo.mBiography.convert(BSTRType_ANSI);
-    
-    if(characterInfo.mLastName.getType() != BSTRType_ANSI && characterInfo.mLastName.getLength()) {
+
+    bool hasLastName = characterInfo.mLastName.getType() != BSTRType_ANSI && characterInfo.mLastName.getLength();
+    if (hasLastName) {
         characterInfo.mLastName.convert(BSTRType_ANSI);
-        
-        // Build our procedure call
-        sprintf(sql, "CALL %s.sp_CharacterCreate(%" PRIu32", 2,'%s','%s', '%s', '%s', %f",
-                database_->galaxy(),
-                client->getAccountId(),
-                database_->escapeString(characterInfo.mFirstName.getAnsi()).c_str(),
-                database_->escapeString(characterInfo.mLastName.getAnsi()).c_str(),
-                characterInfo.mProfession.getAnsi(),
-                characterInfo.mStartCity.getAnsi(),
-                characterInfo.mScale);
-    } else {
-        sprintf(sql, "CALL %s.sp_CharacterCreate(%" PRIu32", 2, '%s', NULL , '%s', '%s', %f",
-                database_->galaxy(),
-                client->getAccountId(),
-                database_->escapeString(characterInfo.mFirstName.getAnsi()).c_str(),
-                characterInfo.mProfession.getAnsi(),
-                characterInfo.mStartCity.getAnsi(),
-                characterInfo.mScale);
     }
 
-    int8 sql2[4096];
+    // Everything the client chose (names, profession, biography, hair and
+    // body models) is a bound value; the numbers go in the statement. An
+    // empty last name, biography or hair model is stored as NULL, as before.
+    DatabaseParams params = {
+        characterInfo.mFirstName.getAnsi(),
+        hasLastName ? characterInfo.mLastName.getAnsi() : "",
+        characterInfo.mProfession.getAnsi(),
+        characterInfo.mStartCity.getAnsi(),
+        bioSize ? characterInfo.mBiography.getAnsi() : "",
+    };
 
-    if(bioSize)
-    {
-        characterInfo.mBiography = strRep(std::string(characterInfo.mBiography.getAnsi()),"'","''").c_str();
-        characterInfo.mBiography = strRep(std::string(characterInfo.mBiography.getAnsi()),"\"","\"\"").c_str();
-        characterInfo.mBiography = strRep(std::string(characterInfo.mBiography.getAnsi()),"\\","\\\\").c_str();
-
-        sprintf(sql2,",'%s'",characterInfo.mBiography.getAnsi());
-        strcat(sql,sql2);
-    }
-    else
-        strcat(sql,",NULL");
+    std::string sql = std::string("CALL ") + database_->galaxy() + ".sp_CharacterCreate("
+        + std::to_string(client->getAccountId()) + ", 2, ?, NULLIF(?, ''), ?, ?, "
+        + boost::lexical_cast<std::string>(characterInfo.mScale) + ", NULLIF(?, '')";
 
     // Iterate our appearance and append as necessary.
     for (uint32 i = 0; i < 0x71; i++)
     {
-        strcat(sql, ", ");
-        strcat(sql, boost::lexical_cast<std::string>(characterInfo.mAppearance[i]).c_str());
+        sql += ", " + boost::lexical_cast<std::string>(characterInfo.mAppearance[i]);
     }
-    strcat(sql, ", ");
-    strcat(sql, boost::lexical_cast<std::string>(characterInfo.mAppearance[171]).c_str());
-    strcat(sql, ", ");
-    strcat(sql, boost::lexical_cast<std::string>(characterInfo.mAppearance[172]).c_str());
+    sql += ", " + boost::lexical_cast<std::string>(characterInfo.mAppearance[171]);
+    sql += ", " + boost::lexical_cast<std::string>(characterInfo.mAppearance[172]);
 
     if(characterInfo.mHairModel.getLength())
     {
-        sprintf(sql2,",'%s',%u,%u", characterInfo.mHairModel.getAnsi(),characterInfo.mHairCustomization[1],characterInfo.mHairCustomization[2]);
+        sql += ", ?, " + std::to_string(characterInfo.mHairCustomization[1]) + ", " + std::to_string(characterInfo.mHairCustomization[2]);
+        params.push_back(characterInfo.mHairModel.getAnsi());
     }
-
     else
     {
-        sprintf(sql2,",NULL,0,0");
-
+        sql += ", NULL, 0, 0";
     }
 
-    int8 sql3[128];
+    sql += ", ?)";
+    params.push_back(characterInfo.mBaseModel.getAnsi());
 
-    sprintf(sql3,",'%s');",characterInfo.mBaseModel.getAnsi());
-
-
-    strcat(sql2,sql3);
-    strcat(sql, sql2);
-
-    //Logging the character create sql for debugging purposes,beware this contains binary data
-    database_->executeAsyncProcedure(sql, [this, client] (DatabaseResult* result) {       
+    database_->executePreparedAsync(sql, params, [this, client] (DatabaseResult* result) {       
         // Vaalidate the input.
         if (! client || ! result) {
             return;
@@ -309,7 +280,7 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
         } else {
             _sendCreateCharacterFailed(static_cast<uint32>(query_result), client);
         }
-    });
+    }, true);
 }
 
 

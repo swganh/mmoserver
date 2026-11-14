@@ -352,18 +352,15 @@ bool	EntertainerManager::checkDenyServiceList(PlayerObject* audience, PlayerObje
 //======================================================================================================================
 void EntertainerManager::verifyOutcastName(PlayerObject* entertainer,BString outCastName)
 {
-    int8 sql[256], name[50];
-    mDatabase->escapeString(name,outCastName.getAnsi(),outCastName.getLength());
-
     //we'll need the id only
-    sprintf(sql,"SELECT id FROM %s.characters c WHERE c.firstname = '%s'",mDatabase->galaxy(),name);
+    std::string sql = std::string("SELECT id FROM ") + mDatabase->galaxy() + ".characters c WHERE c.firstname = ?";
 
 
     EntertainerManagerAsyncContainer* asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_DenyServiceFindName,0);
     asyncContainer->performer = entertainer;
     asyncContainer->outCastName = outCastName;
 
-    mDatabase->executeSqlAsync(this,asyncContainer,sql);
+    mDatabase->executePreparedAsync(this, asyncContainer, sql, {outCastName.getAnsi()});
 
 
 }
@@ -477,6 +474,13 @@ PerformanceStruct* EntertainerManager::getPerformance(BString performance)
 void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
     EntertainerManagerAsyncContainer* asynContainer = (EntertainerManagerAsyncContainer*)ref;
+
+    // A prepared statement that failed (logged) has no result.
+    if (!result)
+    {
+        SAFE_DELETE(asynContainer);
+        return;
+    }
 
     switch(asynContainer->mQueryType)
     {
@@ -713,7 +717,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
         else
         {
             int8 str[111];
-            sprintf(str,"'%s' does not exist in the known universe",asynContainer->outCastName.getAnsi());
+            snprintf(str,sizeof(str),"'%s' does not exist in the known universe",asynContainer->outCastName.getAnsi());
             BString sstr;
             sstr = BString(str);
             sstr.convert(BSTRType_Unicode16);

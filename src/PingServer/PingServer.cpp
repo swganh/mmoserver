@@ -54,7 +54,9 @@ PingServer::PingServer(int argc, char* argv[])
 	config_files.push_back("config/pingserver.cfg");
 	LoadOptions_(argc, argv, config_files);
 
-	boost::asio::ip::udp::endpoint endpoint(boost::asio::ip::udp::v4(), configuration_variables_map_["BindPort"].as<uint16_t>());
+	boost::asio::ip::udp::endpoint endpoint(
+		boost::asio::ip::make_address(configuration_variables_map_["PublicBindAddress"].as<std::string>()),
+		configuration_variables_map_["BindPort"].as<uint16_t>());
     socket_.open(endpoint.protocol());
     socket_.set_option(boost::asio::ip::udp::socket::reuse_address(true));
     socket_.bind(endpoint);

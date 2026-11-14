@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Service.h"
 
+#include <cstring>
+
 #include "Utils/logger.h"
 
 #include "NetworkCallback.h"
@@ -103,14 +105,30 @@ Service::Service(NetworkManager* networkManager, bool serverservice, uint32 id, 
     // Create our socket descriptors
     SOCKET mLocalSocket = socket(PF_INET, SOCK_DGRAM, 0);
 
-    // Bind to our listen port.
+    // Bind to our listen address and port. Every socket used to bind to
+    // INADDR_ANY whatever the address configured, so the internal cluster
+    // ports were open on every interface (KNOWN_ISSUES #3). 0.0.0.0 still
+    // means every interface; an address that does not parse falls back to
+    // it, with a warning.
     sockaddr_in   server;
     server.sin_family   = AF_INET;
     server.sin_port     = mLocalPort;
-    server.sin_addr.s_addr = INADDR_ANY;
+    server.sin_addr.s_addr = mLocalAddress;
+    if (mLocalAddress == INADDR_NONE && strcmp(localAddress, "255.255.255.255") != 0)
+    {
+        LOG(WARNING) << "Service: listen address '" << localAddress << "' is not an IPv4 address; listening on every interface";
+        server.sin_addr.s_addr = INADDR_ANY;
+    }
 
     // Attempt to bind to our socket
-    bind(mLocalSocket, (struct sockaddr*)&server, sizeof(server));
+    if (bind(mLocalSocket, (struct sockaddr*)&server, sizeof(server)) != 0)
+    {
+        LOG(ERR) << "Service: could not listen on " << localAddress << ":" << localPort;
+    }
+    else
+    {
+        LOG(INFO) << "Service listening on " << localAddress << ":" << localPort;
+    }
 
     // We need to call connect on the socket to an address before we can know which address we have.
     // The address specified in the connect call determines which interface our socket is associated with

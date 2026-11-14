@@ -182,9 +182,11 @@ void CloningTerminal::handleUIEvent(uint32 action,int32 element,BString inputStr
                 const glm::vec3& bindPosition = gWorldManager->getObjectById(playerObject->getPreDesignatedCloningFacilityId())->mPosition;
                 playerObject->setBindCoords(bindPosition);
 
-                int8 sql[128];
-                sprintf(sql,"call %s.sp_CharacterCreateClone(%" PRIu64 ",%" PRIu64 ")",gWorldManager->getDatabase(), playerObject->getId(),playerObject->getPreDesignatedCloningFacilityId());
-                (gWorldManager->getDatabase())->executeProcedureAsync(NULL, NULL, sql);
+                // The schema name, not the Database pointer: the pointer made
+                // the CALL invalid SQL, which stopped the server.
+                Database* db = gWorldManager->getDatabase();
+                db->executeProcedureAsync(NULL, NULL, "CALL %s.sp_CharacterCreateClone(%" PRIu64 ",%" PRIu64 ")",
+                                          db->galaxy(), playerObject->getId(), playerObject->getPreDesignatedCloningFacilityId());
 
 
                 // Clone location successfully updated

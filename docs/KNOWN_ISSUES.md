@@ -95,20 +95,116 @@ the null result. Connections idle for over 30 seconds are now checked
 before use and replaced if closed, and failed queries no longer crash.
 Reproduced and verified with `wait_timeout` set to 40 seconds.
 
-### 3a. Unknown usernames create accounts — open (security)
+### 3a. Unknown usernames create accounts — fixed
 
-`sp_ReturnUserAccount` creates an account for any username it doesn't know,
-with the password typed. Convenient on a test server; a public server needs
-it off. Make it a setting (default off for public installs).
+`sp_ReturnUserAccount` created an account for any username it didn't know,
+with the password typed. Convenient on a test server; on a public server
+anyone could take any name. Now it only does so when the LoginServer's
+`AutoCreateAccounts` setting is on (`config/loginserver.cfg`, off by
+default); otherwise an unknown username is refused like a wrong password,
+and accounts are made with `sudo ./mmoserverdb/setup.sh add-account NAME`.
+The LoginServer logs which at startup. Existing accounts are unaffected.
+Confirmed on the test VM: refused when off, created with `AutoCreateAccounts=1`.
+After pulling, `sudo ./mmoserverdb/setup.sh update` reloads the procedure
+(its new third argument): without it, every login fails.
 
-### 3. Servers listen on all interfaces — open (security)
+### 3. Servers listen on all interfaces — fixed
 
-`Service.cpp` binds every UDP socket to `INADDR_ANY`, whatever
-`BindAddress` says, so the internal cluster ports (ConnectionServer 5000,
-zones 50xx) are reachable from the network. Only 44990-44992 should be
-public. Until fixed, keep those internal ports closed in the firewall.
+`Service.cpp` bound every UDP socket to `INADDR_ANY`, whatever
+`BindAddress` said, so the internal cluster ports (ConnectionServer 5000,
+zones 50xx, chat 5200) were reachable from the network. Each socket now
+binds to its configured address:
+
+- the services game clients use (LoginServer 44990, ConnectionServer
+  44991, PingServer 44992) to `PublicBindAddress`, `0.0.0.0` (every
+  interface) by default, as before;
+- the ConnectionServer's cluster port to `ClusterBindAddress`
+  (`127.0.0.1`), zones and chat to `BindAddress` (`127.0.0.1`).
+
+Each service logs `Service listening on <address>:<port>`. Checked locally
+with `ss -ulnp`: 44990-44992 on 0.0.0.0, 5000 on 127.0.0.1. Servers split
+across machines set `BindAddress`/`ClusterBindAddress` to a LAN address
+(and the `config_process_list` addresses to match). A firewall on the
+internal ports is still good practice. Confirmed on the test VM.
+
+### 3b. Malformed packets could read past the end of a message — fixed
+
+`Message` reads (`getUint32`, `getStringAnsi`, ...) trusted the packet:
+a number read near the end, or a string whose length said more than the
+message carried, read whatever memory followed. A Unicode string length
+near 65535 also overflowed `BString`'s 16-bit allocation size, writing
+past the end of a heap buffer. Every read is now checked against the
+message size: a read past the end returns 0 or an empty string, the
+message is marked (`isOverrun()`), and the server logs
+`Message read past its end: ...` once per message. `Packet` reads are
+checked against the packet buffer the same way. Unit tests in
+`src/NetworkManager/message_unittest.cc`. Watch the logs for that warning
+in normal play: a well-formed client should never cause it.
+
+### 3c. Player text was built into SQL — fixed, needs testing
+
+Names, mail, biographies, chat channels, bazaar listings and the like
+were escaped into fixed-size stack buffers (a long enough name or mail
+overflowed them), and some were not escaped at all: the launcher login
+put the username and password into the SQL as sent (any account could
+be logged into), and the planet map, channel path, character-creation
+models, permission lists and image-design hair were unescaped. Player
+text is now bound as values of prepared statements
+(`Database::executePreparedAsync`/`executePrepared`): it cannot change a
+statement and has no length limit in the server. A database refusal (a
+name too long for its column, say) fails that one request and logs
+`Prepared statement failed`, instead of stopping the server.
+Transactions bind their queries too (a `%` in a bazaar description was
+read as a format directive). Checked against MariaDB: injection text in
+either login gets no account, a 70,000-character username is refused
+cleanly, binary mail attachments and transaction text round-trip
+exactly. Text the server itself holds (zone names, resource names,
+serial numbers) still goes into SQL as before.
+
+Along the way: player mail stored the sender's name twice, the bazaar's
+Offers window was a syntax error for every name, a debug line logged the
+launcher password, and every finished database job leaked its query
+string.
 
 ## Tutorial and gameplay
+
+### 3d. Two SQL statements had the wrong arguments — fix needs testing
+
+Found by the compiler's format checks:
+
+- Storing clone data at a cloning terminal passed the `Database` object
+  where the schema name belongs, so the `CALL` was invalid SQL, and an SQL
+  error stops the server. It now names the schema.
+- Retrieving a bazaar item passed the galaxy name twice, so the auction id
+  was never used. Fixed; but that handler (and the bazaar's cancel and
+  item-info handlers) return when the player *is* found, so they never
+  reach the query for a logged-in player. Left as it is until the bazaar
+  is looked at as a whole.
+
+### 3e. Passwords were stored as unsalted SHA-1 — fixed
+
+`account_password` held `SHA1(password)`, compared in the database: no
+salt, and fast to guess, so a leaked account table gave away most
+passwords. Passwords are now Argon2id hashes (libsodium, its interactive
+limits: about 64 MB and a few tens of milliseconds per check), checked
+by the LoginServer. The new `sp_AccountForLogin` returns the account
+whatever the password, with whether it matches an old SHA-1 one; that is
+accepted once and replaced by an Argon2id hash at that login (the log
+says `password now stored as an Argon2id hash`). A login to an unknown
+username spends the same time, so the reply time does not tell which
+usernames exist. `setup.sh add-account` stores Argon2id (from
+`LoginServer --hash-password`), or SHA-1 if no LoginServer is built yet.
+Migration 014 widens the column. Needs `libsodium-dev`. Confirmed on the
+test VM.
+
+Not done: login attempts are not rate-limited, and the check runs on the
+LoginServer's main thread. `sp_ReturnUserAccount` is no longer used (an
+older LoginServer still works with it until its account is re-hashed).
+
+While there: the launcher's session-key login read the session key as the
+account's CSR flag, and a `DFT_string` data binding copies the whole
+column whatever the field's size (the password field was sized for the
+hash; the other bindings are unchanged).
 
 ### 4. Debris blocking the tutorial path has no Attack option — fixed
 

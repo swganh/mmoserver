@@ -82,8 +82,13 @@ In this order (Nov 2026):
    the tables' resource quantities.
 3. **The rest of the specials**: the attacker's end posture, area and cone
    attacks, players' worn armour in combat.
-4. **Security** before a public server (phase 2): accounts created for
-   unknown usernames, servers listening on all interfaces.
+4. **Security** before a public server (phase 2): done on the `security`
+   branch (`KNOWN_ISSUES.md` #3-#3e), in testing.
+5. **Bazaar pass**: the item details, retrieve and cancel handlers give up
+   when they find the player (#3d), so a listing's details never load and
+   items cannot be retrieved; deeds show as "Unknown Object Type". Fix
+   those checks, then test listing, browsing, bidding, buying, retrieving
+   and cancelling end to end, as paths that have never run.
 
 Alongside: client tests of what is left in `docs/TEST_PLAN.md`; the medic
 professions reviewed as a whole (stimpacks share a skill mod bug fixed for
@@ -129,12 +134,14 @@ Remaining:
 - **Remote database access** for the Windows development setup: done,
   `setup.sh allow-host <address>` / `deny-host`, or an SSH tunnel
   (`docs/WINDOWS.md`).
-- **Security** (code review section 4, before any public server):
-  bounds-checked `Message` reads; player text out of fixed SQL buffers and
-  into prepared statements; hashed passwords (Argon2id or bcrypt) with
-  re-hash on next login; servers binding only to `BindAddress` instead of
-  every interface (`KNOWN_ISSUES.md` #3); unknown usernames no longer
-  creating accounts by default (#3a).
+- **Security** (code review section 4, before any public server): done,
+  in testing: servers binding only to `BindAddress` instead of every
+  interface (`KNOWN_ISSUES.md` #3); unknown usernames no longer creating
+  accounts by default (#3a); bounds-checked `Message` reads (#3b); player
+  text in prepared statements instead of fixed SQL buffers (#3c); Argon2id
+  password hashes, old ones replaced at the next login (#3e). Left: login
+  attempts are not rate-limited, and each check costs about 64 MB and a
+  few tens of milliseconds on the LoginServer's main thread.
 - **Character limits**: the per-account limit is `account_characters_allowed`
   (default 2), changed by hand in SQL today. `setup.sh` options for the
   default limit of new accounts and for one account's limit, so test servers

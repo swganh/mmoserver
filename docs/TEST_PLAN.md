@@ -37,12 +37,19 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 | T17 | Creatures | No pack assist | Attack one womp rat with others nearby | The other womp rats join; `tatooine.out`: `assists its pack against` |
 | T19 | Scout | Harvesting a corpse did nothing [23] | As a Novice Scout, kill a womp rat and use the corpse's radial: Harvest corpse, then on another corpse Harvest meat, hide and bone | "You harvest N units of <resource>." (about 4 meat, 3 hide, 2 bone for a womp rat); the resource in the inventory; scout XP; a second harvest of the same corpse is refused; `tatooine.out`: `Harvest by ...` |
 | T20 | Combat | Area and cone specials hit one target; Dive/Kip Up/Roll Shot kept the posture | `sudo ./mmoserverdb/setup.sh update`; with two or three womp rats close together use an unarmed Spin Attack (area), and with a carbine or rifle a cone special at a rat with others behind it; with a pistol Dive Shot | Every rat in reach takes a hit (`Special ... also hit N` in `tatooine.out`); Dive Shot leaves you prone, Roll Shot kneeling, Kip Up Shot standing |
+| T23 | Security | Malformed packets could read past a message's end [3b] | Play normally for a while: log in, chat, mail, trade, craft | Nothing new; no `Message read past its end` in any log |
+| T24 | Security | Player text built into SQL [3c] | Log in (client and launcher); create a character with a biography; send a mail with an attachment (a waypoint) to yourself; add and remove a friend; rename a waypoint; make and join a chat channel; list an item on the bazaar with a description containing `'` and `%`; tip someone at the bank; set your biography | Everything works as before; the bazaar description shows exactly as typed; no `Prepared statement failed` in the logs (if there is one, send it to me) |
+| T25 | Cloning | Storing clone data was invalid SQL [3d] | At a cloning terminal, store your clone data | "Clone data saved"; the zone keeps running; `tatooine.out` has no SQL error |
 | T18 | Creatures | No killers | Get incapacitated by a killer (none spawn on Tatooine yet; for now check that a womp rat leaves you incapacitated) | A womp rat does not deathblow; `deathblows` appears only for creatures marked Killer |
 
 ## Confirmed
 
 | Area | What was wrong | Confirmed by |
 |---|---|---|
+| Security | Passwords were unsalted SHA-1 [3e] | On the VM: existing accounts replaced by `$argon2id$` at their first login, a new `add-account` account stored as Argon2id, wrong passwords refused (Nov 2026) |
+| Security | Player text built into SQL [3c] (part) | On the VM: a mail to yourself with subject `%TEST%` and a waypoint attached arrived intact; a bazaar listing was created (Nov 2026). The rest of T24 still to do |
+| Security | Internal ports open to the network [3] | `ss -ulnp` on the VM: 44990-44992 on 0.0.0.0, internal ports on 127.0.0.1 (Nov 2026) |
+| Security | Unknown usernames created accounts [3a] | On the VM: refused by default, created with `AutoCreateAccounts=1` (Nov 2026) |
 | Mail | No welcome mail; empty bodies; lost attachments [22] | New character on the VM: the welcome and profession mails arrive with their full text; a mail with a waypoint attached arrives with it (Nov 2026) |
 | Tutorial | Parts 3-9: refusals, the oath, the grenade [19, 21] | Raced through on the VM: weapon, documents and Quartermaster first time, the oath, the bandit killed by his own grenade (Nov 2026). Still in combat after his death [5i] |
 | Tutorial | Racing ahead got parts 1-2 stuck [21] | New character raced through rooms 1-2 (chat, zoom, drum, food before the prompts) and on to the end of the tutorial, Nov 2026 |
@@ -100,7 +107,7 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 ## Known open issues (not tested)
 
 Tracked in `docs/KNOWN_ISSUES.md`; not expected to pass yet:
-servers listening on all interfaces [3], positions inside buildings
+positions inside buildings
 mirrored [5c], low sampling yield at low concentration [5d], tutorial
 prompts lagging behind [5e], no debris explosion [5g], unhandled opcodes
 [7], startup data warnings [8], garbage "MessageFactory Heap" log lines

@@ -42,7 +42,6 @@ Transaction::Transaction(Database* database, DatabaseCallback* callback, void* r
     , mReference(ref)
 {
     mQueries.flush();
-    mQueries << "CALL "<< mDatabase->galaxy()<<".sp_MultiTransaction(\"";
 }
 
 
@@ -54,21 +53,27 @@ Transaction::~Transaction() {
 void Transaction::addQuery(const char* query, ...) {
     va_list	args;
     va_start(args,query);
-    char localSql[2048], escapedSql[2500];
-    int32_t	len = vsnprintf(localSql, sizeof(localSql), query, args);
+    va_list copy;
+    va_copy(copy, args);
 
-    // need to escape
-    mDatabase->escapeString(escapedSql, localSql, len);
-
-    mQueries << escapedSql << "$$";
-
+    // Sized to the query: fixed buffers overflowed (escaping can double it).
+    int32_t	len = vsnprintf(nullptr, 0, query, copy);
+    va_end(copy);
+    std::string localSql(len > 0 ? len : 0, '\0');
+    if (len > 0) {
+        vsnprintf(&localSql[0], localSql.size() + 1, query, args);
+    }
     va_end(args);
+
+    // The queries are one value bound to sp_MultiTransaction: no escaping.
+    mQueries << localSql << "$$";
 }
 
 
 void Transaction::execute() {
-    mQueries << "\")";
-
-    mDatabase->executeProcedureAsync(mCallback, mReference, mQueries.str().c_str());
+    // Bound, not formatted: a % in player text was read as a format
+    // directive, and the text was cut at 20 KB.
+    mDatabase->executePreparedAsync(mCallback, mReference,
+        std::string("CALL ") + mDatabase->galaxy() + ".sp_MultiTransaction(?)", {mQueries.str()}, true);
     mDatabase->destroyTransaction(this);
 }

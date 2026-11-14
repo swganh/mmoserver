@@ -236,20 +236,15 @@ void ObjectController::_handleSetBiography(uint64 targetId,Message* message,Obje
 {
     PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
     BString			bio;
-    int8			sql[5000],end[64],*sqlPointer;
 
     message->getStringUnicode16(bio);
 
     player->setBiography(bio);
 
     bio.convert(BSTRType_ANSI);
-    sprintf(sql,"UPDATE %s.character_biography SET biography ='",mDatabase->galaxy());
-    sprintf(end,"' WHERE character_id = %" PRIu64 "",player->getId());
-    sqlPointer = sql + strlen(sql);
-    sqlPointer += mDatabase->escapeString(sqlPointer,bio.getAnsi(),bio.getLength());
-    strcat(sql,end);
-
-    mDatabase->executeAsyncSql(sql);
+    mDatabase->executePreparedAsync(NULL, NULL,
+        std::string("UPDATE ") + mDatabase->galaxy() + ".character_biography SET biography=? WHERE character_id = " + std::to_string(player->getId()),
+        {bio.getAnsi()});
     
 }
 

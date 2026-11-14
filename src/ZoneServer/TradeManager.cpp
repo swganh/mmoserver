@@ -148,6 +148,12 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
     TradeManagerAsyncContainer* asynContainer = (TradeManagerAsyncContainer*)ref;
 
+    // A statement that failed (logged) has no result.
+    if (!result)
+    {
+        delete(asynContainer);
+        return;
+    }
 
     switch(asynContainer->mQueryType)
     {
@@ -276,9 +282,16 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         mTransaction->addQuery(sql);
         sprintf(sql,"UPDATE %s.banks SET credits=credits-%i WHERE id=%" PRIu64 "",mDatabase->galaxy(),asyncContainer->amountbank, playerObject->getId()+BANK_OFFSET);
         mTransaction->addQuery(sql);
-        int8 query[2000];
-        sprintf(query,"INSERT INTO %s.commerce_auction SET auction_id = %" PRIu64 ", owner_id = %" PRIu64 ", bazaar_id = %" PRIu64 ", type = %u, start = %u ,premium = %u, category = 0, itemtype = %u, price = %u, name = '%s', description = '%s', region_id = 0, planet_id = 0, bidder_name = '', object_string = '%s'",mDatabase->galaxy(), asynContainer->tangible->getId(),playerObject->getId(),asynContainer->BazaarID,asynContainer->auctionType,asynContainer->time,asynContainer->premium,asynContainer->itemType,asynContainer->price, asynContainer->name.getAnsi(),asynContainer->description.getAnsi(),asynContainer->tang.getAnsi());
-        mTransaction->addQuery(query);
+        // name and description were escaped when the listing was made (no
+        // fixed-size buffers); the query is an argument, not the format.
+        std::string query = std::string("INSERT INTO ") + mDatabase->galaxy() + ".commerce_auction SET auction_id = " + std::to_string(asynContainer->tangible->getId())
+            + ", owner_id = " + std::to_string(playerObject->getId()) + ", bazaar_id = " + std::to_string(asynContainer->BazaarID)
+            + ", type = " + std::to_string(asynContainer->auctionType) + ", start = " + std::to_string(asynContainer->time)
+            + ", premium = " + std::to_string(asynContainer->premium) + ", category = 0, itemtype = " + std::to_string(asynContainer->itemType)
+            + ", price = " + std::to_string(asynContainer->price) + ", name = '" + asynContainer->name.getAnsi()
+            + "', description = '" + asynContainer->description.getAnsi() + "', region_id = 0, planet_id = 0, bidder_name = '', object_string = '"
+            + mDatabase->escapeString(asynContainer->tang.getAnsi()) + "'";
+        mTransaction->addQuery("%s", query.c_str());
         mTransaction->execute();
        
 
@@ -603,8 +616,7 @@ void TradeManager::_HandleAuctionCreateMessage(Message* message,DispatchClient* 
     if(Description.getLength() >= 1024)
         Description.setLength(1024);
 
-    int8 theDescription[1028];
-    mDatabase->escapeString(theDescription,Description.getAnsi(),Description.getLength());
+    std::string theDescription = mDatabase->escapeString(Description.getAnsi());
 
 
     TangibleObject*		requestedObject		= dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ItemID));
@@ -649,8 +661,7 @@ void TradeManager::_HandleAuctionCreateMessage(Message* message,DispatchClient* 
         name = customName ;
     }
 
-    int8 theName[128];
-    mDatabase->escapeString(theName,name.getAnsi(),name.getLength());
+    std::string theName = mDatabase->escapeString(name.getAnsi());
 
     itemType	= requestedObject->getTangibleGroup();
     tang		= requestedObject->getBazaarTang();
@@ -715,8 +726,8 @@ void TradeManager::_HandleAuctionCreateMessage(Message* message,DispatchClient* 
     asyncContainer->premium		= premium;
     asyncContainer->itemType	= itemType;
     asyncContainer->price		= price;
-    asyncContainer->name		= theName;
-    asyncContainer->description	= theDescription;
+    asyncContainer->name		= theName.c_str();
+    asyncContainer->description	= theDescription.c_str();
     asyncContainer->tang		= tang;
 
 

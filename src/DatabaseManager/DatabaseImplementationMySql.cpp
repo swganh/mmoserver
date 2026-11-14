@@ -49,6 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <cppconn/exception.h>
 #include <cppconn/statement.h>
+#include <cppconn/prepared_statement.h>
 #include <cppconn/resultset.h>
 
 #include "Utils/bstring.h"
@@ -144,6 +145,33 @@ DatabaseResult* DatabaseImplementationMySql::executeSql(const std::string& sql, 
         result = new(ResultPool::ordered_malloc()) DatabaseResult(*this, statement, result_set, procedure);
     } catch(const sql::SQLException& e) {
         LOG(FATAL) << e.what();
+    }
+
+    return result;
+}
+
+
+DatabaseResult* DatabaseImplementationMySql::executePrepared(const std::string& sql, const std::vector<std::string>& params, bool procedure) {
+    DatabaseResult* result = nullptr;
+
+    reconnectIfIdleTooLong_();
+
+    try {
+        std::unique_ptr<sql::PreparedStatement> statement(connection_->prepareStatement(sql));
+        for (size_t i = 0; i < params.size(); ++i) {
+            statement->setString(static_cast<unsigned int>(i + 1), params[i]);
+        }
+        statement->execute();
+
+        sql::ResultSet* result_set = statement->getResultSet();
+
+        // A PreparedStatement is a Statement: the result owns and frees it.
+        result = new(ResultPool::ordered_malloc()) DatabaseResult(*this, statement.release(), result_set, procedure);
+    } catch(const sql::SQLException& e) {
+        // The values come from players: a value the database refuses (too
+        // long for its column, say) fails this query, not the server.
+        LOG(ERR) << "Prepared statement failed: " << e.what() << " (MySQL error "
+                 << e.getErrorCode() << "): " << sql;
     }
 
     return result;

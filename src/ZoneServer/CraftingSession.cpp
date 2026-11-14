@@ -137,6 +137,13 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 {
     CraftSessionQueryContainer* qContainer = reinterpret_cast<CraftSessionQueryContainer*>(ref);
 
+    // A statement that failed (logged) has no result.
+    if (!result)
+    {
+        delete(qContainer);
+        return;
+    }
+
     switch(qContainer->mQType)
     {
         //get the skillmod for experimentation
@@ -930,21 +937,20 @@ void CraftingSession::createPrototype(uint32 noPractice,uint32 counter)
 {
     if(noPractice)
     {
-        int8 sql[1024],restStr[128],*sqlPointer;
-
         Transaction* t = mDatabase->startTransaction(this,new CraftSessionQueryContainer(CraftSessionQuery_Prototype,static_cast<uint8>(counter)));
 
         // we need to alter / add attributes affected by attributes of components
 
 
         // update the custom name and parent
-        sprintf(sql,"UPDATE %s.items SET parent_id=%" PRIu64 ", customName='",mDatabase->galaxy(),mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId());
-        sqlPointer = sql + strlen(sql);
-        sqlPointer += mDatabase->escapeString(sqlPointer,mItem->getCustomName().getAnsi(),mItem->getCustomName().getLength());
-        sprintf(restStr,"' WHERE id=%" PRIu64 " ",mItem->getId());
-        strcat(sql,restStr);
+        // The name is the player's: escaped without a fixed-size buffer
+        // (a transaction runs its queries as text, so it cannot bind values).
+        std::string sql = std::string("UPDATE ") + mDatabase->galaxy() + ".items SET parent_id="
+            + std::to_string(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId())
+            + ", customName='" + mDatabase->escapeString(mItem->getCustomName().getAnsi())
+            + "' WHERE id=" + std::to_string(mItem->getId());
 
-        t->addQuery(sql);
+        t->addQuery("%s", sql.c_str());
         t->execute();
         
 

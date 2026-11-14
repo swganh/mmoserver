@@ -30,7 +30,7 @@ Ubuntu 26.04:
 
 ```bash
 sudo apt install build-essential cmake ninja-build \
-    libboost-all-dev libtbb-dev libmysqlcppconn-dev liblua5.1-0-dev \
+    libboost-all-dev libtbb-dev libmysqlcppconn-dev libsodium-dev liblua5.1-0-dev \
     libnoise-dev libglm-dev libgtest-dev libmysqlclient-dev zlib1g-dev
 ```
 

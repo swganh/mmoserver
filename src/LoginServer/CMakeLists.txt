@@ -6,4 +6,6 @@ AddMMOServerExecutable(LoginServer
         Common
         DatabaseManager
         NetworkManager
+    LIBRARIES
+        mmo::sodium
 )

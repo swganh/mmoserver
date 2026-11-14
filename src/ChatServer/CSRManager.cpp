@@ -283,14 +283,11 @@ void CSRManager::_processCreateTicketMessage( Message* message, DispatchClient* 
     CSRAsyncContainer* asyncContainer = new CSRAsyncContainer(CSRQuery_NewTicket);
     asyncContainer->mClient = client;
 
-    int8 cleanPlayer[4000], cleanComment[4000], cleanInfo[4000], cleanHarrasser[4000], cleanLanguage[4000];
-    mDatabase->escapeString(cleanPlayer, playername.getAnsi(), playername.getLength());
-    mDatabase->escapeString(cleanInfo, info.getAnsi(), info.getLength());
-    mDatabase->escapeString(cleanComment, comment.getAnsi(), comment.getLength());
-    mDatabase->escapeString(cleanHarrasser, harrassinguser.getAnsi(), harrassinguser.getLength());
-    mDatabase->escapeString(cleanLanguage, language.getAnsi(), language.getLength());
-
-    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL %s.sp_CSRTicketAdd('%s', %u, %u, '%s', '%s', '%s', '%s', %d);", mDatabase->galaxy(),  cleanPlayer, category, subcategory, cleanComment, cleanInfo, cleanHarrasser, cleanLanguage, bugreport);
+    // The ticket's text is the player's: bound values, not SQL.
+    mDatabase->executePreparedAsync(this, asyncContainer,
+        std::string("CALL ") + mDatabase->galaxy() + ".sp_CSRTicketAdd(?, " + std::to_string(category) + ", "
+            + std::to_string(subcategory) + ", ?, ?, ?, ?, " + std::to_string(bugreport) + ")",
+        {playername.getAnsi(), comment.getAnsi(), info.getAnsi(), harrassinguser.getAnsi(), language.getAnsi()}, true);
     
 }
 
@@ -361,19 +358,19 @@ void CSRManager::_processSearchKnowledgeBaseMessage(Message *message, DispatchCl
     search.split(splitstring, ' ');
     BStringVector::iterator iter = splitstring.begin();
 
-    BString sql = "%";
+    // %word%word%: the search words, bound as one value.
+    std::string pattern = "%";
     while (iter != splitstring.end())
     {
-        int8 cleanSearchString[4000];
-        mDatabase->escapeString(cleanSearchString, (*iter).getAnsi(), (*iter).getLength());
-        sql << cleanSearchString;
-        sql << "%";
+        pattern += DatabaseParam((*iter).getAnsi()).value;
+        pattern += "%";
         ++iter;
     }
 
     CSRAsyncContainer* asynccontainer = new CSRAsyncContainer(CSRQuery_SearchKB);
     asynccontainer->mClient = client;
-    mDatabase->executeProcedureAsync(this, asynccontainer, "CALL %s.sp_CSRKnowledgeBaseArticleFind ('%s');", mDatabase->galaxy(),  sql.getAnsi());
+    mDatabase->executePreparedAsync(this, asynccontainer,
+        std::string("CALL ") + mDatabase->galaxy() + ".sp_CSRKnowledgeBaseArticleFind(?)", {pattern}, true);
     
 }
 
@@ -382,6 +379,13 @@ void CSRManager::_processSearchKnowledgeBaseMessage(Message *message, DispatchCl
 void CSRManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
     CSRAsyncContainer* asyncContainer = (CSRAsyncContainer*)ref;
+
+    // The query failed (logged): nothing to send.
+    if (!result)
+    {
+        SAFE_DELETE(asyncContainer);
+        return;
+    }
 
     switch (asyncContainer->mQueryType)
     {

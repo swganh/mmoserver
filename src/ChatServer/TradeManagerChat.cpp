@@ -249,6 +249,13 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
         }
     }
 
+    // A prepared statement that failed (logged) has no result.
+    if (!result)
+    {
+        SAFE_DELETE(asynContainer);
+        return;
+    }
+
     switch(asynContainer->mQueryType)
     {
 
@@ -983,18 +990,12 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
             //_processAuctionBid(AuctionTemp,asynContainer,player);
             TradeManagerAsyncContainer* asyncContainer;
 
-            int8 name[40],*sqlPointer;
-            sqlPointer = name;
-            sqlPointer += mDatabase->escapeString(name,AuctionTemp->bidder_name,strlen(AuctionTemp->bidder_name));
-            *sqlPointer++ = '\0';
-
-            int8 sql[390];
-            sprintf(sql,"SELECT cbh.proxy_bid, cbh.max_bid, c.id FROM %s.characters AS c INNER JOIN %s.commerce_bidhistory AS cbh ON c.firstname = '%s' WHERE cbh.auction_id = %" PRIu64 " AND cbh.bidder_name = '",mDatabase->galaxy(),mDatabase->galaxy(),name,AuctionTemp->ItemID);
-
-            sqlPointer = sql + strlen(sql);
-            sqlPointer += mDatabase->escapeString(sqlPointer,AuctionTemp->bidder_name, strlen(AuctionTemp->bidder_name));
-            *sqlPointer++ = '\'';
-            *sqlPointer++ = '\0';
+            // The bidder's name is a bound value (names are not limited to
+            // letters, and escaped into a 40-byte buffer they overflowed it).
+            std::string galaxy = mDatabase->galaxy();
+            std::string sql = "SELECT cbh.proxy_bid, cbh.max_bid, c.id FROM " + galaxy + ".characters AS c INNER JOIN " + galaxy
+                + ".commerce_bidhistory AS cbh ON c.firstname = ? WHERE cbh.auction_id = " + std::to_string(AuctionTemp->ItemID)
+                + " AND cbh.bidder_name = ?";
 
             asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ProcessBidAuction,asynContainer->mClient);
             asyncContainer->MyBid = asynContainer->MyBid;
@@ -1004,7 +1005,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
             asyncContainer->BuyerID = player->getCharId();
             asyncContainer->BazaarID = 0;//
             asyncContainer->AuctionTemp = AuctionTemp;
-            mDatabase->executeSqlAsync(this,asyncContainer,sql);
+            mDatabase->executePreparedAsync(this, asyncContainer, sql, {AuctionTemp->bidder_name, AuctionTemp->bidder_name});
             
             break;
         }
@@ -1209,11 +1210,9 @@ void TradeManagerChatHandler::processAuctionEMails(AuctionItem* auctionTemp)
 void TradeManagerChatHandler::processAuctionBid(TradeManagerAsyncContainer* asynContainer, Player* player)
 {
 //auction ...
-    int8 sql[250], PlayerName[40],*sqlPointer;
-
-    sqlPointer = PlayerName;
-    sqlPointer += mDatabase->escapeString(sqlPointer,player->getName().getAnsi(),player->getName().getLength());
-    *sqlPointer++ = '\0';
+    // The bidder's name is a bound value in each statement below.
+    std::string sql;
+    const std::string PlayerName = DatabaseParam(player->getName().getAnsi()).value;
 
     //Check the current add depending on the price
 
@@ -1243,13 +1242,14 @@ void TradeManagerChatHandler::processAuctionBid(TradeManagerAsyncContainer* asyn
         {
 
             //just update the high proxy
-            sprintf(sql,"UPDATE %s.commerce_bidhistory SET proxy_bid = '%" PRIu32"'WHERE auction_id = '%" PRIu64 "' AND bidder_name = '%s'",mDatabase->galaxy(), asynContainer->MyProxy, asynContainer->AuctionTemp->ItemID, PlayerName);
+            sql = std::string("UPDATE ") + mDatabase->galaxy() + ".commerce_bidhistory SET proxy_bid = " + std::to_string(asynContainer->MyProxy)
+                + " WHERE auction_id = " + std::to_string(asynContainer->AuctionTemp->ItemID) + " AND bidder_name = ?";
 
             TradeManagerAsyncContainer* asyncContainer;
             asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ACKRetrieval,asynContainer->mClient);
 
             asyncContainer->AuctionID = asynContainer->AuctionTemp->ItemID;
-            mDatabase->executeSqlAsync(this,asyncContainer,sql);
+            mDatabase->executePreparedAsync(this, asyncContainer, sql, {PlayerName});
             
 
             return;
@@ -1305,20 +1305,22 @@ void TradeManagerChatHandler::processAuctionBid(TradeManagerAsyncContainer* asyn
         // what do we do if this is our first bid and we are NOT the high bidder?
         // sf_BidAuction only updates the bid of the high bidder
 
-        sprintf(sql, "SELECT %s.sf_BidUpdate ('%" PRIu64 "','%" PRIu32"','%" PRIu32"','%s')", mDatabase->galaxy(),  asynContainer->AuctionTemp->ItemID, asynContainer->MyBid, asynContainer->MyProxy, PlayerName);
+        sql = std::string("SELECT ") + mDatabase->galaxy() + ".sf_BidUpdate(" + std::to_string(asynContainer->AuctionTemp->ItemID) + ", "
+            + std::to_string(asynContainer->MyBid) + ", " + std::to_string(asynContainer->MyProxy) + ", ?)";
         TradeManagerAsyncContainer* asyncContainer;
         asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ACKRetrieval, asynContainer->mClient);
-        mDatabase->executeSqlAsync(this, asyncContainer, sql);
+        mDatabase->executePreparedAsync(this, asyncContainer, sql, {PlayerName});
         
 
     }
 
-    sprintf(sql, "SELECT %s.sf_BidAuction ('%" PRIu64 "','%" PRIu32"','%" PRIu32"','%s')", mDatabase->galaxy(),  asynContainer->AuctionTemp->ItemID, TheBid, TheProxy, PlayerName);
+    sql = std::string("SELECT ") + mDatabase->galaxy() + ".sf_BidAuction(" + std::to_string(asynContainer->AuctionTemp->ItemID) + ", "
+        + std::to_string(TheBid) + ", " + std::to_string(TheProxy) + ", ?)";
     TradeManagerAsyncContainer* asyncContainer;
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ACKRetrieval,asynContainer->mClient);
 
     asyncContainer->AuctionID = asynContainer->AuctionTemp->ItemID;
-    mDatabase->executeSqlAsync(this,asyncContainer,sql);
+    mDatabase->executePreparedAsync(this, asyncContainer, sql, {PlayerName});
     
 }
 
@@ -1380,7 +1382,7 @@ void TradeManagerChatHandler::processRetrieveAuctionItemMessage(Message* message
     uint64	TerminalID	= message->getUint64();
 
     int8 sql[200];
-    sprintf(sql,"SELECT auction_id, bazaar_id, itemtype FROM %s.commerce_auction c  WHERE c.auction_id = %" PRIu64 "",mDatabase->galaxy(),mDatabase->galaxy(), ItemID);
+    sprintf(sql,"SELECT auction_id, bazaar_id, itemtype FROM %s.commerce_auction c  WHERE c.auction_id = %" PRIu64 "",mDatabase->galaxy(), ItemID);
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_RetrieveAuction, client);
     asyncContainer->BazaarID = TerminalID;
     mDatabase->executeSqlAsync(this, asyncContainer, sql);
@@ -1604,7 +1606,9 @@ void TradeManagerChatHandler::processHandleopAuctionQueryHeadersMessage(Message*
     break;
     case TRMVendor_Offers:
     {
-        sprintf(query.WindowQuery," (c.type = %" PRIu32") AND (c.bidder_name = %s) AND (c.bazaar_id = %" PRIu64 ")",TRMVendor_Offer,player->getName().getAnsi(),query.vendorID);
+        // The name was neither quoted nor escaped: a syntax error for every
+        // name. Names are at most 32 characters, so escaped they fit.
+        sprintf(query.WindowQuery," (c.type = %" PRIu32") AND (c.bidder_name = '%s') AND (c.bazaar_id = %" PRIu64 ")",TRMVendor_Offer,mDatabase->escapeString(player->getName().getAnsi()).c_str(),query.vendorID);
 
 
     }

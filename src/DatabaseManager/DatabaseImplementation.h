@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_DATABASEMANAGER_DATABASEIMPLEMENTATION_H
 
 #include <cstdint>
+#include <string>
+#include <vector>
 
 #include <boost/pool/singleton_pool.hpp>
 
@@ -55,6 +57,15 @@ public:
     *   a multi-result statement.
     */
     virtual DatabaseResult* executeSql(const std::string& sql, bool procedure = false) = 0;
+
+    /*! Executes a prepared statement: each ? in sql is bound, in order, to
+    * one of params as a string. The values never become part of the sql.
+    *
+    * \param sql The sql, with a ? for each value.
+    * \param params The values.
+    * \param procedure Whether the statement is a CALL (multi-result).
+    */
+    virtual DatabaseResult* executePrepared(const std::string& sql, const std::vector<std::string>& params, bool procedure = false) = 0;
 
     /*! Destroys the requested database result.
     *

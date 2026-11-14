@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_NETWORKMANAGER_PACKET_H
 #define ANH_NETWORKMANAGER_PACKET_H
 
+#include <cstring>
 #include "Utils/typedefs.h"
 #include <memory.h>   //really hate doing this, but I don't think this one file should cause much trouble.
 //  And with that comment, I just cursed us all.
@@ -216,95 +217,106 @@ public:
         assert(mSize <= mMaxPayLoad && "Packet size larger than MaxPayLoad");
     }
 
+    // Reads stay inside the packet's buffer: one past its end returns 0
+    // and leaves the index where it is.
     int8                          getInt8(void)                       {
-        int8 value = *(int8*)&mData[mReadIndex];
-        mReadIndex += sizeof(int8);
+        int8 value = peekInt8();
+        if (static_cast<uint32>(mReadIndex) + sizeof(int8) <= MAX_SERVER_PACKET_SIZE) mReadIndex += sizeof(int8);
         return value;
     }
-    uint8                         getUint8(void)                      {
-        uint8 value = *(uint8*)&mData[mReadIndex];
-        mReadIndex += sizeof(uint8);
+    uint8                         getUint8(void)                       {
+        uint8 value = peekUint8();
+        if (static_cast<uint32>(mReadIndex) + sizeof(uint8) <= MAX_SERVER_PACKET_SIZE) mReadIndex += sizeof(uint8);
         return value;
     }
-    int16                         getInt16(void)                      {
-        int16 value = *(int16*)&mData[mReadIndex];
-        mReadIndex += sizeof(int16);
+    int16                         getInt16(void)                       {
+        int16 value = peekInt16();
+        if (static_cast<uint32>(mReadIndex) + sizeof(int16) <= MAX_SERVER_PACKET_SIZE) mReadIndex += sizeof(int16);
         return value;
     }
-    uint16                        getUint16(void)                     {
-        uint16 value = *(uint16*)&mData[mReadIndex];
-        mReadIndex += sizeof(uint16);
+    uint16                        getUint16(void)                       {
+        uint16 value = peekUint16();
+        if (static_cast<uint32>(mReadIndex) + sizeof(uint16) <= MAX_SERVER_PACKET_SIZE) mReadIndex += sizeof(uint16);
         return value;
     }
-    int32                         getInt32(void)                      {
-        int32 value = *(int32*)&mData[mReadIndex];
-        mReadIndex += sizeof(int32);
+    int32                         getInt32(void)                       {
+        int32 value = peekInt32();
+        if (static_cast<uint32>(mReadIndex) + sizeof(int32) <= MAX_SERVER_PACKET_SIZE) mReadIndex += sizeof(int32);
         return value;
     }
-    uint32                        getUint32(void)                     {
-        uint32 value = *(uint32*)&mData[mReadIndex];
-        mReadIndex += sizeof(uint32);
+    uint32                        getUint32(void)                       {
+        uint32 value = peekUint32();
+        if (static_cast<uint32>(mReadIndex) + sizeof(uint32) <= MAX_SERVER_PACKET_SIZE) mReadIndex += sizeof(uint32);
         return value;
     }
-    int64                         getInt64(void)                      {
-        int64 value = *(int64*)&mData[mReadIndex];
-        mReadIndex += sizeof(int64);
+    int64                         getInt64(void)                       {
+        int64 value = peekInt64();
+        if (static_cast<uint32>(mReadIndex) + sizeof(int64) <= MAX_SERVER_PACKET_SIZE) mReadIndex += sizeof(int64);
         return value;
     }
-    uint64                        getUint64(void)                     {
-        uint64 value = *(uint64*)&mData[mReadIndex];
-        mReadIndex += sizeof(uint64);
+    uint64                        getUint64(void)                       {
+        uint64 value = peekUint64();
+        if (static_cast<uint32>(mReadIndex) + sizeof(uint64) <= MAX_SERVER_PACKET_SIZE) mReadIndex += sizeof(uint64);
         return value;
     }
-    float                         getFloat(void)                      {
-        float value = *(float*)&mData[mReadIndex];
-        mReadIndex += sizeof(float);
+    float                         getFloat(void)                       {
+        float value = peekFloat();
+        if (static_cast<uint32>(mReadIndex) + sizeof(float) <= MAX_SERVER_PACKET_SIZE) mReadIndex += sizeof(float);
         return value;
     }
-    double                        getDouble(void)                     {
-        double value = *(double*)&mData[mReadIndex];
-        mReadIndex += sizeof(double);
+    double                        getDouble(void)                       {
+        double value = peekDouble();
+        if (static_cast<uint32>(mReadIndex) + sizeof(double) <= MAX_SERVER_PACKET_SIZE) mReadIndex += sizeof(double);
         return value;
     }
-
     int8                          peekInt8(void)                      {
-        int8 value = *(int8*)&mData[mReadIndex];
+        int8 value = int8();
+        if (static_cast<uint32>(mReadIndex) + sizeof(int8) <= MAX_SERVER_PACKET_SIZE) memcpy(&value, &mData[mReadIndex], sizeof(int8));
         return value;
     }
-    uint8                         peekUint8(void)                     {
-        uint8 value = *(uint8*)&mData[mReadIndex];
+    uint8                         peekUint8(void)                      {
+        uint8 value = uint8();
+        if (static_cast<uint32>(mReadIndex) + sizeof(uint8) <= MAX_SERVER_PACKET_SIZE) memcpy(&value, &mData[mReadIndex], sizeof(uint8));
         return value;
     }
-    int16                         peekInt16(void)                     {
-        int16 value = *(int16*)&mData[mReadIndex];
+    int16                         peekInt16(void)                      {
+        int16 value = int16();
+        if (static_cast<uint32>(mReadIndex) + sizeof(int16) <= MAX_SERVER_PACKET_SIZE) memcpy(&value, &mData[mReadIndex], sizeof(int16));
         return value;
     }
-    uint16                        peekUint16(void)                    {
-        uint16 value = *(uint16*)&mData[mReadIndex];
+    uint16                        peekUint16(void)                      {
+        uint16 value = uint16();
+        if (static_cast<uint32>(mReadIndex) + sizeof(uint16) <= MAX_SERVER_PACKET_SIZE) memcpy(&value, &mData[mReadIndex], sizeof(uint16));
         return value;
     }
-    int32                         peekInt32(void)                     {
-        int32 value = *(int32*)&mData[mReadIndex];
+    int32                         peekInt32(void)                      {
+        int32 value = int32();
+        if (static_cast<uint32>(mReadIndex) + sizeof(int32) <= MAX_SERVER_PACKET_SIZE) memcpy(&value, &mData[mReadIndex], sizeof(int32));
         return value;
     }
-    uint32                        peekUint32(void)                    {
-        uint32 value = *(uint32*)&mData[mReadIndex];
+    uint32                        peekUint32(void)                      {
+        uint32 value = uint32();
+        if (static_cast<uint32>(mReadIndex) + sizeof(uint32) <= MAX_SERVER_PACKET_SIZE) memcpy(&value, &mData[mReadIndex], sizeof(uint32));
         return value;
     }
-    int64                         peekInt64(void)                     {
-        int64 value = *(int64*)&mData[mReadIndex];
+    int64                         peekInt64(void)                      {
+        int64 value = int64();
+        if (static_cast<uint32>(mReadIndex) + sizeof(int64) <= MAX_SERVER_PACKET_SIZE) memcpy(&value, &mData[mReadIndex], sizeof(int64));
         return value;
     }
-    uint64                        peekUint64(void)                    {
-        uint64 value = *(uint64*)&mData[mReadIndex];
+    uint64                        peekUint64(void)                      {
+        uint64 value = uint64();
+        if (static_cast<uint32>(mReadIndex) + sizeof(uint64) <= MAX_SERVER_PACKET_SIZE) memcpy(&value, &mData[mReadIndex], sizeof(uint64));
         return value;
     }
-    float                         peekFloat(void)                     {
-        float value = *(float*)&mData[mReadIndex];
+    float                         peekFloat(void)                      {
+        float value = float();
+        if (static_cast<uint32>(mReadIndex) + sizeof(float) <= MAX_SERVER_PACKET_SIZE) memcpy(&value, &mData[mReadIndex], sizeof(float));
         return value;
     }
-    double                        peekDouble(void)                    {
-        double value = *(double*)&mData[mReadIndex];
+    double                        peekDouble(void)                      {
+        double value = double();
+        if (static_cast<uint32>(mReadIndex) + sizeof(double) <= MAX_SERVER_PACKET_SIZE) memcpy(&value, &mData[mReadIndex], sizeof(double));
         return value;
     }
 

@@ -192,14 +192,10 @@ void TangibleObject::buildTanoCustomization(uint8 len)
 void TangibleObject::setCustomNameIncDB(const int8* name)
 {
     mCustomName = name;
-    int8 sql[1024],restStr[128],*sqlPointer;
-    sprintf(sql,"UPDATE %s.items SET customName='",gWorldManager->getDatabase()->galaxy());
-    sqlPointer = sql + strlen(sql);
-    sqlPointer += gWorldManager->getDatabase()->escapeString(sqlPointer,mCustomName.getAnsi(),mCustomName.getLength());
-    sprintf(restStr,"' WHERE id=%" PRIu64 " ",this->getId());
-
-    strcat(sql,restStr);
-    gWorldManager->getDatabase()->executeSqlAsync(0,0,sql);
+    Database* db = gWorldManager->getDatabase();
+    db->executePreparedAsync(0, 0,
+        std::string("UPDATE ") + db->galaxy() + ".items SET customName=? WHERE id=" + std::to_string(this->getId()),
+        {mCustomName.getAnsi()});
 }
 
 //=============================================================================

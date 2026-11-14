@@ -110,7 +110,7 @@ ConnectionServer::ConnectionServer(int argc, char* argv[]) :
 
     // Create our status service
     //clientservice
-    mClientService = mNetworkManager->GenerateService((char*)configuration_variables_map_["BindAddress"].as<std::string>().c_str(), configuration_variables_map_["BindPort"].as<uint16_t>(),configuration_variables_map_["ClientServiceMessageHeap"].as<uint32_t>()*1024, false);//,5);
+    mClientService = mNetworkManager->GenerateService((char*)configuration_variables_map_["PublicBindAddress"].as<std::string>().c_str(), configuration_variables_map_["BindPort"].as<uint16_t>(),configuration_variables_map_["ClientServiceMessageHeap"].as<uint32_t>()*1024, false);//,5);
     //serverservice
     mServerService = mNetworkManager->GenerateService((char*)configuration_variables_map_["ClusterBindAddress"].as<std::string>().c_str(), configuration_variables_map_["ClusterBindPort"].as<uint16_t>(),configuration_variables_map_["ServerServiceMessageHeap"].as<uint32_t>()*1024, true);//,15);
 

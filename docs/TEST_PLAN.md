@@ -46,6 +46,7 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 
 | Area | What was wrong | Confirmed by |
 |---|---|---|
+| Bazaar | Listings showed "Unknown Object Type"; listing deleted the item; a purchase crashed the zone [2i, 2j, 2k] | On the VM: a melon and a house deed listed with their types (food, building deed) and kept in `items`; the melon bought by the other character reached their inventory (Nov 2026). Still to test: details, retrieving, cancelling |
 | Chat | Rooms without names; planet channels outside the galaxy [2g] | On the VM: planets inside SWGANH - Test Center, a new room under dathomir/Chat keeps its name (Nov 2026) |
 | Chat | Friends shown offline; no online notice [2f] | On the VM: "brawler ... is online at ..." when Brawler logs in, his status online (Nov 2026) |
 | Zone | Crash after a player search with another player nearby [2e] | On the VM under gdb: the backtrace found it; after the fix, a search with two characters nearby works (Nov 2026) |

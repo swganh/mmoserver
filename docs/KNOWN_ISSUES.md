@@ -151,7 +151,7 @@ the galaxy folder, and a room created under one got a path the old code
 could not cut. The channels now load after the galaxy name. Confirmed on the test VM:
 the planet channels sit inside the galaxy, and a new room keeps its name.
 
-### 2i. Bazaar handlers worked from a stale copy of the logged-in players — fix needs testing
+### 2i. Bazaar handlers worked from a stale copy of the logged-in players — fixed
 
 The ChatServer's bazaar and structure handlers copied the list of logged-in
 players once, at startup (empty), and refreshed it only in some handlers.
@@ -164,7 +164,7 @@ listings already made (seen on the test VM: a house deed listed with
 category, region and planet 0). The details, retrieve and cancel handlers also returned when they
 did find the player (#3d); those checks are the right way round.
 
-### 2j. Listing an item on the bazaar deleted it — fix needs testing
+### 2j. Listing an item on the bazaar deleted it — fixed
 
 After a listing was created, the ZoneServer moved the item to the bazaar and
 then removed it from the zone with `ContainerManager::deleteObject`, which
@@ -174,7 +174,7 @@ test VM: a house deed listed, then no row in `items`). The item is now
 removed from the zone only. Migration 017 removes the listings already left
 without their item, with their bids; those items cannot be recovered.
 
-### 2k. Zone crashed when a bazaar purchase reached the buyer — fix needs testing
+### 2k. Zone crashed when a bazaar purchase reached the buyer — fixed
 
 `ObjectFactory::requestTanoNewParent`, which moves a bought item into the
 buyer's inventory (and a manufacturing schematic from a factory into the
@@ -183,7 +183,9 @@ result set, and the zone crashed (found on the test VM with
 `server.sh debug -g`; the item was already in the buyer's inventory in the
 database). It now loads the object by its id once the parent is set. The
 handler that calls it looked up the buyer's inventory before checking the
-buyer was still there.
+buyer was still there. Confirmed on the test VM: a melon listed by one
+character and bought by another reached the buyer's inventory, and a house
+deed bought before the fix was in the buyer's inventory at the next login.
 
 ### 3a. Unknown usernames create accounts — fixed
 

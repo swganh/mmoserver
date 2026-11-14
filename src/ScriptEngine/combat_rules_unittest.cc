@@ -258,6 +258,18 @@ TEST_F(CombatRulesTest, AttackFromCpp) {
     }
 }
 
+TEST_F(CombatRulesTest, MaxRangeFromCpp) {
+    // Area specials reach the weapon's max range: the CDEF's 64 m, bare
+    // hands the group default.
+    float range = 0;
+    ASSERT_TRUE(rules_.maxRange(noobCdef(), range));
+    EXPECT_FLOAT_EQ(64, range);
+    CombatWeapon hands;
+    hands.group = "unarmed";
+    ASSERT_TRUE(rules_.maxRange(hands, range));
+    EXPECT_GT(range, 0);
+}
+
 TEST_F(CombatRulesTest, InRangeFromCpp) {
     CombatWeapon cdef = noobCdef();
     EXPECT_TRUE(rules_.inRange(cdef, 64));
@@ -375,7 +387,21 @@ TEST_F(CombatRulesTest, WoundsAndFatigueReachCpp) {
     ASSERT_TRUE(outcome.hit);
     EXPECT_EQ(outcome.damage / 10, outcome.wound);
     EXPECT_GT(outcome.wound, 0);
-    EXPECT_EQ(1, outcome.fatigue);
+    EXPECT_FLOAT_EQ(0.25f, outcome.fatigue);
+    // The wound makes the pool bleed: half the wound every 5 s for 30 s.
+    EXPECT_EQ(outcome.wound / 2, outcome.bleed);
+    EXPECT_FLOAT_EQ(5, outcome.bleedInterval);
+    EXPECT_FLOAT_EQ(30, outcome.bleedDuration);
+}
+
+TEST_F(CombatRulesTest, OnlyWoundsBleed) {
+    run("a = {}");
+    run("bleed, interval, duration = rules.bleed(a, 'health', 0)");
+    EXPECT_DOUBLE_EQ(0, eval("bleed"));
+    run("bleed, interval, duration = rules.bleed(a, 'mind', 1)");
+    EXPECT_DOUBLE_EQ(1, eval("bleed"));
+    EXPECT_DOUBLE_EQ(5, eval("interval"));
+    EXPECT_DOUBLE_EQ(30, eval("duration"));
 }
 
 TEST_F(CombatRulesTest, IntimidatedDefendersAreEasierToHit) {
@@ -473,6 +499,21 @@ TEST_F(CombatRulesTest, CenterOfBeingNeedsMeleeAndRaisesDefence) {
     CombatOutcome withBuff = rules_.attack(attack);
     ASSERT_TRUE(plain.ok && withBuff.ok);
     EXPECT_FLOAT_EQ(plain.chance - 10, withBuff.chance);
+}
+
+TEST_F(CombatRulesTest, HarvestGivesTheTableQuantityPlusSkill) {
+    int amount = 0, xp = 0;
+    // Womp rat meat (4) by a Novice Scout (creature_harvesting 15).
+    ASSERT_TRUE(rules_.harvest(4, 15, amount, xp));
+    EXPECT_EQ(4, amount);
+    EXPECT_EQ(4, xp);
+    // Bantha meat (450) by a master (+80 or so).
+    ASSERT_TRUE(rules_.harvest(450, 80, amount, xp));
+    EXPECT_EQ(810, amount);
+    // Nothing in the table, nothing harvested.
+    ASSERT_TRUE(rules_.harvest(0, 15, amount, xp));
+    EXPECT_EQ(0, amount);
+    EXPECT_EQ(0, xp);
 }
 
 TEST_F(CombatRulesTest, IncapsGrowLongerAndTheThirdKills) {

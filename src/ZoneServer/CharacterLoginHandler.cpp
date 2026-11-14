@@ -146,7 +146,11 @@ void CharacterLoginHandler::_processCmdSceneReady(Message* message, DispatchClie
 
         // Some info about the current build
         std::stringstream ss;
-        ss << "Running build " << GetBuildNumber() << " created " << GetBuildTime();
+        ss << "Running build " << GetBuildNumber();
+        if (!GetBuildTime().empty())
+        {
+            ss << " (committed " << GetBuildTime() << ")";
+        }
         std::string tmp(ss.str());
 
         gMessageLib->SendSystemMessage(std::wstring(tmp.begin(), tmp.end()), player);

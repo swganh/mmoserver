@@ -66,7 +66,6 @@ void ObjectController::_handleAddFriend(uint64 targetId,Message* message,ObjectC
         player->setContactListUpdatePending(true);
 
     BString	friendName;
-    int8	sql[1024],end[16],*sqlPointer;
 
     message->getStringUnicode16(friendName);
     friendName.convert(BSTRType_ANSI);
@@ -116,13 +115,9 @@ void ObjectController::_handleAddFriend(uint64 targetId,Message* message,ObjectC
     ObjControllerAsyncContainer* asyncContainer = new(mDBAsyncContainerPool.malloc()) ObjControllerAsyncContainer(OCQuery_AddFriend);
     asyncContainer->mString = friendName.getAnsi();
 
-    sprintf(sql, "SELECT %s.sf_addFriend(%" PRIu64 ",'", mDatabase->galaxy(), player->getId());
-    sprintf(end,"')");
-    sqlPointer = sql + strlen(sql);
-    sqlPointer += mDatabase->escapeString(sqlPointer,friendName.getAnsi(),friendName.getLength());
-    strcat(sql,end);
-
-    mDatabase->executeSqlAsync(this,asyncContainer,sql);
+    mDatabase->executePreparedAsync(this, asyncContainer,
+        std::string("SELECT ") + mDatabase->galaxy() + ".sf_addFriend(" + std::to_string(player->getId()) + ", ?)",
+        {friendName.getAnsi()});
     
 }
 
@@ -141,7 +136,6 @@ void ObjectController::_handleRemoveFriend(uint64 targetId,Message* message,Obje
         player->setContactListUpdatePending(true);
 
     BString	friendName;
-    int8	sql[1024],end[16],*sqlPointer;
 
     message->getStringUnicode16(friendName);
     friendName.convert(BSTRType_ANSI);
@@ -166,13 +160,9 @@ void ObjectController::_handleRemoveFriend(uint64 targetId,Message* message,Obje
     ObjControllerAsyncContainer* asyncContainer = new(mDBAsyncContainerPool.malloc()) ObjControllerAsyncContainer(OCQuery_RemoveFriend);
     asyncContainer->mString = friendName.getAnsi();
 
-    sprintf(sql, "SELECT %s.sf_removeFriend(%" PRIu64 ",'", mDatabase->galaxy(), player->getId());
-    sprintf(end,"')");
-    sqlPointer = sql + strlen(sql);
-    sqlPointer += mDatabase->escapeString(sqlPointer,friendName.getAnsi(),friendName.getLength());
-    strcat(sql,end);
-
-    mDatabase->executeSqlAsync(this,asyncContainer,sql);
+    mDatabase->executePreparedAsync(this, asyncContainer,
+        std::string("SELECT ") + mDatabase->galaxy() + ".sf_removeFriend(" + std::to_string(player->getId()) + ", ?)",
+        {friendName.getAnsi()});
     
 
 }
@@ -196,7 +186,6 @@ void ObjectController::_handleAddIgnore(uint64 targetId,Message* message,ObjectC
     }
 
     BString	ignoreName;
-    int8	sql[2048],end[16],*sqlPointer;
 
     message->getStringUnicode16(ignoreName);
     ignoreName.convert(BSTRType_ANSI);
@@ -244,13 +233,9 @@ void ObjectController::_handleAddIgnore(uint64 targetId,Message* message,ObjectC
     ObjControllerAsyncContainer* asyncContainer = new(mDBAsyncContainerPool.malloc()) ObjControllerAsyncContainer(OCQuery_AddIgnore);
     asyncContainer->mString = ignoreName.getAnsi();
 
-    sprintf(sql, "SELECT %s.sf_addIgnore(%" PRIu64 ",'", mDatabase->galaxy(), player->getId());
-    sprintf(end,"')");
-    sqlPointer = sql + strlen(sql);
-    sqlPointer += mDatabase->escapeString(sqlPointer,ignoreName.getAnsi(),ignoreName.getLength());
-    strcat(sql,end);
-
-    mDatabase->executeSqlAsync(this,asyncContainer,sql);
+    mDatabase->executePreparedAsync(this, asyncContainer,
+        std::string("SELECT ") + mDatabase->galaxy() + ".sf_addIgnore(" + std::to_string(player->getId()) + ", ?)",
+        {ignoreName.getAnsi()});
     
 
 }
@@ -270,7 +255,6 @@ void ObjectController::_handleRemoveIgnore(uint64 targetId,Message* message,Obje
         player->setContactListUpdatePending(true);
 
     BString	ignoreName;
-    int8	sql[2048],end[16],*sqlPointer;
 
     message->getStringUnicode16(ignoreName);
     ignoreName.convert(BSTRType_ANSI);
@@ -295,13 +279,9 @@ void ObjectController::_handleRemoveIgnore(uint64 targetId,Message* message,Obje
     ObjControllerAsyncContainer* asyncContainer = new(mDBAsyncContainerPool.malloc()) ObjControllerAsyncContainer(OCQuery_RemoveIgnore);
     asyncContainer->mString = ignoreName.getAnsi();
 
-    sprintf(sql, "SELECT %s.sf_removeIgnore(%" PRIu64 ",'", mDatabase->galaxy(), player->getId());
-    sprintf(end,"')");
-    sqlPointer = sql + strlen(sql);
-    sqlPointer += mDatabase->escapeString(sqlPointer,ignoreName.getAnsi(),ignoreName.getLength());
-    strcat(sql,end);
-
-    mDatabase->executeSqlAsync(this,asyncContainer,sql);
+    mDatabase->executePreparedAsync(this, asyncContainer,
+        std::string("SELECT ") + mDatabase->galaxy() + ".sf_removeIgnore(" + std::to_string(player->getId()) + ", ?)",
+        {ignoreName.getAnsi()});
     
 }
 

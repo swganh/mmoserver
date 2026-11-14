@@ -29,11 +29,31 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 | T3 | Login | Refusals were silent [6] | If anything is refused at the galaxy screen | `connection.out` has a `Refusing account N: <reason>` line; send it to me |
 | T4 | Script events | New | `sudo ./mmoserverdb/setup.sh update`, then on Tatooine: log in, walk into Mos Eisley, talk to an NPC and pick an option, use a radial menu item, kill a creature, log out. Watch `tail -f tatooine.out \| grep 'event:'` | one `event:` line per action, with the player's id as `source` |
 | T5 | Scripts | `print` output was lost [15] | Start Tatooine | `tatooine.out` has `[script] WeatherController v.0.2` and `[script] event_logger: listening to 9 events` |
+| T12 | Combat | Incaps all lasted 30 s | Get incapacitated twice within 10 minutes | The first incap lasts 30 s, the second 60 s, the third kills; `tatooine.out`: `incapacitated (N in the window) for S s` |
+| T13 | Combat | Taunt never switched a creature's target | With a second player fighting a creature, Taunt it | The creature turns on the taunter; `tatooine.out`: `Creature ... taunted by ...` |
+| T14 | Creatures | Lairs never spawned [5j] | Wait 3-6 minutes after Tatooine starts, then visit a lair region (about -2200,-4700 to -1500,-3950) | Lairs with creatures; `tatooine.out`: `Lair ... spawned` |
+| T15 | Combat | Still in combat after the opponent dies [5i] | Kill a creature that was your only opponent | Combat music and state end without `/peace` |
+| T16 | Creatures | Stats from the creature tables (migration 011) | `sudo ./mmoserverdb/setup.sh update`, then near Bestine walk up to womp rats and rills | They no longer attack on sight; attacked, they fight back; womp rats hit less often than before (28%) |
+| T17 | Creatures | No pack assist | Attack one womp rat with others nearby | The other womp rats join; `tatooine.out`: `assists its pack against` |
+| T19 | Scout | Harvesting a corpse did nothing [23] | As a Novice Scout, kill a womp rat and use the corpse's radial: Harvest corpse, then on another corpse Harvest meat, hide and bone | "You harvest N units of <resource>." (about 4 meat, 3 hide, 2 bone for a womp rat); the resource in the inventory; scout XP; a second harvest of the same corpse is refused; `tatooine.out`: `Harvest by ...` |
+| T20 | Combat | Area and cone specials hit one target; Dive/Kip Up/Roll Shot kept the posture | `sudo ./mmoserverdb/setup.sh update`; with two or three womp rats close together use an unarmed Spin Attack (area), and with a carbine or rifle a cone special at a rat with others behind it; with a pistol Dive Shot | Every rat in reach takes a hit (`Special ... also hit N` in `tatooine.out`); Dive Shot leaves you prone, Roll Shot kneeling, Kip Up Shot standing |
+| T23 | Security | Malformed packets could read past a message's end [3b] | Play normally for a while: log in, chat, mail, trade, craft | Nothing new; no `Message read past its end` in any log |
+| T24 | Security | Player text built into SQL [3c] | Log in (client and launcher); create a character with a biography; send a mail with an attachment (a waypoint) to yourself; add and remove a friend; rename a waypoint; make and join a chat channel; list an item on the bazaar with a description containing `'` and `%`; tip someone at the bank; set your biography | Everything works as before; the bazaar description shows exactly as typed; no `Prepared statement failed` in the logs (if there is one, send it to me) |
+| T25 | Cloning | Storing clone data was invalid SQL [3d] | At a cloning terminal, store your clone data | "Clone data saved"; the zone keeps running; `tatooine.out` has no SQL error |
+| T18 | Creatures | No killers | Get incapacitated by a killer (none spawn on Tatooine yet; for now check that a womp rat leaves you incapacitated) | A womp rat does not deathblow; `deathblows` appears only for creatures marked Killer |
 
 ## Confirmed
 
 | Area | What was wrong | Confirmed by |
 |---|---|---|
+| Chat | Rooms without names; planet channels outside the galaxy [2g] | On the VM: planets inside SWGANH - Test Center, a new room under dathomir/Chat keeps its name (Nov 2026) |
+| Chat | Friends shown offline; no online notice [2f] | On the VM: "brawler ... is online at ..." when Brawler logs in, his status online (Nov 2026) |
+| Zone | Crash after a player search with another player nearby [2e] | On the VM under gdb: the backtrace found it; after the fix, a search with two characters nearby works (Nov 2026) |
+| Security | Player text built into SQL [3c] (more) | On the VM: friend added with the comment `he is %friends` stored as typed, ignore list, biography (Nov 2026) |
+| Security | Passwords were unsalted SHA-1 [3e] | On the VM: existing accounts replaced by `$argon2id$` at their first login, a new `add-account` account stored as Argon2id, wrong passwords refused (Nov 2026) |
+| Security | Player text built into SQL [3c] (part) | On the VM: a mail to yourself with subject `%TEST%` and a waypoint attached arrived intact; a bazaar listing was created (Nov 2026). The rest of T24 still to do |
+| Security | Internal ports open to the network [3] | `ss -ulnp` on the VM: 44990-44992 on 0.0.0.0, internal ports on 127.0.0.1 (Nov 2026) |
+| Security | Unknown usernames created accounts [3a] | On the VM: refused by default, created with `AutoCreateAccounts=1` (Nov 2026) |
 | Mail | No welcome mail; empty bodies; lost attachments [22] | New character on the VM: the welcome and profession mails arrive with their full text; a mail with a waypoint attached arrives with it (Nov 2026) |
 | Tutorial | Parts 3-9: refusals, the oath, the grenade [19, 21] | Raced through on the VM: weapon, documents and Quartermaster first time, the oath, the bandit killed by his own grenade (Nov 2026). Still in combat after his death [5i] |
 | Tutorial | Racing ahead got parts 1-2 stuck [21] | New character raced through rooms 1-2 (chat, zoom, drum, food before the prompts) and on to the end of the tutorial, Nov 2026 |
@@ -75,21 +95,28 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 | Windows | Servers on Windows | All servers started with `server.ps1` against the database on the Linux VM; logged in and played in Bestine on Tatooine (after fixing the grid crash, KNOWN_ISSUES #11) |
 | Linux | No regression from the Windows changes | `windows-dev-env` built and played on the Ubuntu VM |
 | Stability | Idle memory | 22 hours with no client: every server at its fresh size (tutorial 116 MB, Tatooine 274 MB, ConnectionServer 137 MB), heaptrack peaks only startup allocations |
+| Creatures | Creatures never fought back, roamed or aggroed [5f] | Womp rats near Bestine attack on sight, fight back and change stance under Unarmed Lunge (Nov 2026) |
+| Death | A cloned player stayed a corpse [24] | Killed and cloned in Bestine: standing, full HAM (Nov 2026) |
+| Combat | No wounds or battle fatigue | The character sheet shows wounds and battle fatigue after fights (Nov 2026) |
+| Combat | Brawler moves did nothing | Intimidate, Warcry and Taunt roll and report; Berserk and Center of Being start and wear off (`Brawler move`, `Self buff` in the log, Nov 2026) |
+| Combat | No bleeding | Wounds bleed on players and creatures, on health, action and mind, and stop after 30 s; First Aid stops a bleed (`Bleeding ...` in the log, Nov 2026) |
+| Healing | Entertainers never healed; medic skill mods ignored [25] | A dancer in a Bestine cantina healed a watcher's mind wounds and battle fatigue; `/tendwound` healed health and action wounds (Nov 2026) |
 
 ## Not implemented yet
 
 | Test | Why |
 |---|---|
-| T7, lair creatures on Tatooine | No lair ever spawns: their state machine is stripped (KNOWN_ISSUES 5j). Deferred to the combat and creature AI review |
+| Scout harvesting of corpses | Not implemented [23]; waits on the creature tables |
 
 ## Known open issues (not tested)
 
 Tracked in `docs/KNOWN_ISSUES.md`; not expected to pass yet:
-servers listening on all interfaces [3], positions inside buildings
+positions inside buildings
 mirrored [5c], low sampling yield at low concentration [5d], tutorial
-prompts lagging behind [5e], no debris explosion [5g], "Too many commands
-queued" [5h], unhandled opcodes [7], startup data warnings [8], garbage
-"MessageFactory Heap" log lines [9], creature AI largely missing.
+prompts lagging behind [5e], no debris explosion [5g], unhandled opcodes
+[7], startup data warnings [8], garbage "MessageFactory Heap" log lines
+[9]. Killer creatures, pack assist and creature stats wait on the creature
+tables (`docs/COMBAT.md`).
 
 ## Recording results
 

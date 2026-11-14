@@ -236,20 +236,15 @@ void ObjectController::_handleSetBiography(uint64 targetId,Message* message,Obje
 {
     PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
     BString			bio;
-    int8			sql[5000],end[64],*sqlPointer;
 
     message->getStringUnicode16(bio);
 
     player->setBiography(bio);
 
     bio.convert(BSTRType_ANSI);
-    sprintf(sql,"UPDATE %s.character_biography SET biography ='",mDatabase->galaxy());
-    sprintf(end,"' WHERE character_id = %" PRIu64 "",player->getId());
-    sqlPointer = sql + strlen(sql);
-    sqlPointer += mDatabase->escapeString(sqlPointer,bio.getAnsi(),bio.getLength());
-    strcat(sql,end);
-
-    mDatabase->executeAsyncSql(sql);
+    mDatabase->executePreparedAsync(NULL, NULL,
+        std::string("UPDATE ") + mDatabase->galaxy() + ".character_biography SET biography=? WHERE character_id = " + std::to_string(player->getId()),
+        {bio.getAnsi()});
     
 }
 
@@ -272,7 +267,6 @@ void ObjectController::_handleRequestCharacterMatch(uint64 targetId,Message* mes
     PlayerObject*	player			= dynamic_cast<PlayerObject*>(mObject);
 	BString			dataStr;
 	PlayerList		playersMatched;
-	PlayerList*		matchReference;
 	uint32			masksCount		= 0;
 	uint32			playerFlags		= 0;
 	uint32			mask2			= 0;
@@ -290,7 +284,8 @@ void ObjectController::_handleRequestCharacterMatch(uint64 targetId,Message* mes
     message->getStringUnicode16(dataStr);
 
     if(dataStr.getLength())
-        elementCount = swscanf(dataStr.getUnicode16().c_str(),L"%u %u %u %u %u %u %i %s %s",&masksCount,&playerFlags,&mask2,&mask3,&mask4,&factionCrc,&raceId,titleStr,unknown);
+        // The two strings are bounded to their buffers (they overflowed them).
+        elementCount = swscanf(dataStr.getUnicode16().c_str(),L"%u %u %u %u %u %u %i %127s %63s",&masksCount,&playerFlags,&mask2,&mask3,&mask4,&factionCrc,&raceId,titleStr,unknown);
 
     if(elementCount != 9)
     {
@@ -314,6 +309,10 @@ void ObjectController::_handleRequestCharacterMatch(uint64 targetId,Message* mes
 	playersMatched.push_back(player);
 	
 	//for our practical purpose were not sending to them but merely iterating through them
+	// Matches go into playersMatched: this pushed them through an
+	// uninitialised pointer, corrupting memory whenever another player in
+	// range matched ("free(): invalid pointer" later on).
+	PlayerList* matchReference = &playersMatched;
 	gContainerManager->sendToRegisteredPlayers(player,[playerFlags, raceId, factionCrc, skill, pTitle, matchReference, this] ( PlayerObject* const inRangePlayer) 
 		{
 			
@@ -327,8 +326,11 @@ void ObjectController::_handleRequestCharacterMatch(uint64 targetId,Message* mes
 				}
 				else
 				{
-					if((skill->mIsProfession && strstr(inRangePlayer->getTitle().getAnsi(),pTitle))
-						|| (strcmp(pTitle,inRangePlayer->getTitle().getAnsi()) == 0))
+					// getTitle() returns a copy: keep it while its text is used.
+					const BString titleCopy = inRangePlayer->getTitle();
+					const char* title = titleCopy.getAnsi() ? titleCopy.getAnsi() : "";   // null if not ANSI
+					if((skill->mIsProfession && strstr(title,pTitle))
+						|| (strcmp(pTitle,title) == 0))
 					{
 						matchReference->push_back(inRangePlayer);
 					}

@@ -2019,7 +2019,7 @@ EMLocationType PlayerObject::getPlayerLocation()
     else
     {
         // we are not in a cell but maybe in a camp
-        if(!gStructureManager->checkinCamp(this))
+        if(gStructureManager->checkinCamp(this))
         {
             return EMLocation_Camp;
         }

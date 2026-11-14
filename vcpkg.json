@@ -18,6 +18,7 @@
     "glm",
     "gtest",
     "libnoise",
+    "libsodium",
     "lua51",
     {
       "name": "mysql-connector-cpp",

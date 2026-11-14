@@ -84,6 +84,17 @@ Untested edge case: if the old character is still *connected* (not
 link-dead) when the account selects another, both share one client object,
 and removing the old character deletes it.
 
+### 2e. Zone crashed with "free(): invalid pointer" after a player search — fixed
+
+The player search (the client's character match request) added each
+matching player in range through a pointer it never set, so with a second
+player nearby it wrote into stray memory; the zone aborted soon after
+(`free(): invalid pointer` in `_handleRequestCharacterMatch`, found with
+`server.sh debug -g` on the test VM). It now adds them to its own list.
+The two strings it reads from the request are bounded to their buffers,
+and a player whose title is not plain text no longer crashes the match.
+Confirmed on the test VM: a search with two characters nearby works.
+
 ### 2d. Servers crashed after a long idle period — fix needs testing
 
 Left running for a day with no players, the ConnectionServer died with
@@ -95,20 +106,161 @@ the null result. Connections idle for over 30 seconds are now checked
 before use and replaced if closed, and failed queries no longer crash.
 Reproduced and verified with `wait_timeout` set to 40 seconds.
 
-### 3a. Unknown usernames create accounts — open (security)
+### 2f. Friends shown offline; no message when a friend comes online — fixed
 
-`sp_ReturnUserAccount` creates an account for any username it doesn't know,
-with the password typed. Convenient on a test server; a public server needs
-it off. Make it a setting (default off for public installs).
+A friend who was already logged in showed as offline in the Community
+window's Friends List: `ChatManager::checkOnlineFriends`, which tells a
+player at login which friends are online, was commented out. It runs again
+at scene ready. The "friend has come online" message did not appear either,
+even with "System message of online status" ticked (the client shows it
+when the status update matches a name on the list). The update sent the
+friend's name as written ("Brawler") while the list holds it in lower case
+("brawler"): it now sends the lower-case name. At login the friends
+online are sent (only those: the client announces every status it gets,
+so sending the offline ones too printed "... has gone offline" for each
+at every login). Adding or removing a friend sends the list before the
+statuses (the list, sent last, reset them to offline). Left: a client that
+relogs without restarting keeps the statuses it had, so a friend who logged
+out meanwhile shows online until they next log in or out. The
+notification box is kept by the client (it survives a restart).
+Confirmed on the test VM: a friend logging in shows online with
+"... is online at ...", and one already online shows online at login.
 
-### 3. Servers listen on all interfaces — open (security)
+### 2h. ChatServer read past the end of the first connect message — fixed
 
-`Service.cpp` binds every UDP socket to `INADDR_ANY`, whatever
-`BindAddress` says, so the internal cluster ports (ConnectionServer 5000,
-zones 50xx) are reachable from the network. Only 44990-44992 should be
-public. Until fixed, keep those internal ports closed in the firewall.
+The connect the ConnectionServer sends before a character is chosen holds
+only a character id of 0; the ChatServer read a planet id after it before
+checking, which the bounds checks (#3b) logged as
+`Message read past its end: 4 bytes at 12 of 12` at every login. It reads
+the planet id only for a real character.
+
+### 2g. Chat rooms created with no name, listed again on every refresh — fixed
+
+The ChatServer cut a new room's name out of the client's path
+(`SWG.<galaxy>.<name>`) at 5 + the length of its own galaxy name. With the
+client using a different galaxy name, the name came out empty, and the
+Channel Browser added the nameless room again on every refresh. The name is
+now taken after the galaxy segment whatever it is called; an empty name is
+refused and logged; each create logs `Create chat room: path '...'`.
+Migration 015 removes rooms already created without a name.
+
+The likely cause: the ChatServer loaded the galaxy name and the channels
+with two queries at once, and when the channels came first their paths had
+an empty galaxy (`SWG..corellia`): the planet channels then showed outside
+the galaxy folder, and a room created under one got a path the old code
+could not cut. The channels now load after the galaxy name. Confirmed on the test VM:
+the planet channels sit inside the galaxy, and a new room keeps its name.
+
+### 3a. Unknown usernames create accounts — fixed
+
+`sp_ReturnUserAccount` created an account for any username it didn't know,
+with the password typed. Convenient on a test server; on a public server
+anyone could take any name. Now it only does so when the LoginServer's
+`AutoCreateAccounts` setting is on (`config/loginserver.cfg`, off by
+default); otherwise an unknown username is refused like a wrong password,
+and accounts are made with `sudo ./mmoserverdb/setup.sh add-account NAME`.
+The LoginServer logs which at startup. Existing accounts are unaffected.
+Confirmed on the test VM: refused when off, created with `AutoCreateAccounts=1`.
+After pulling, `sudo ./mmoserverdb/setup.sh update` reloads the procedure
+(its new third argument): without it, every login fails.
+
+### 3. Servers listen on all interfaces — fixed
+
+`Service.cpp` bound every UDP socket to `INADDR_ANY`, whatever
+`BindAddress` said, so the internal cluster ports (ConnectionServer 5000,
+zones 50xx, chat 5200) were reachable from the network. Each socket now
+binds to its configured address:
+
+- the services game clients use (LoginServer 44990, ConnectionServer
+  44991, PingServer 44992) to `PublicBindAddress`, `0.0.0.0` (every
+  interface) by default, as before;
+- the ConnectionServer's cluster port to `ClusterBindAddress`
+  (`127.0.0.1`), zones and chat to `BindAddress` (`127.0.0.1`).
+
+Each service logs `Service listening on <address>:<port>`. Checked locally
+with `ss -ulnp`: 44990-44992 on 0.0.0.0, 5000 on 127.0.0.1. Servers split
+across machines set `BindAddress`/`ClusterBindAddress` to a LAN address
+(and the `config_process_list` addresses to match). A firewall on the
+internal ports is still good practice. Confirmed on the test VM.
+
+### 3b. Malformed packets could read past the end of a message — fixed
+
+`Message` reads (`getUint32`, `getStringAnsi`, ...) trusted the packet:
+a number read near the end, or a string whose length said more than the
+message carried, read whatever memory followed. A Unicode string length
+near 65535 also overflowed `BString`'s 16-bit allocation size, writing
+past the end of a heap buffer. Every read is now checked against the
+message size: a read past the end returns 0 or an empty string, the
+message is marked (`isOverrun()`), and the server logs
+`Message read past its end: ...` once per message. `Packet` reads are
+checked against the packet buffer the same way. Unit tests in
+`src/NetworkManager/message_unittest.cc`. Watch the logs for that warning
+in normal play: a well-formed client should never cause it.
+
+### 3c. Player text was built into SQL — fixed, needs testing
+
+Names, mail, biographies, chat channels, bazaar listings and the like
+were escaped into fixed-size stack buffers (a long enough name or mail
+overflowed them), and some were not escaped at all: the launcher login
+put the username and password into the SQL as sent (any account could
+be logged into), and the planet map, channel path, character-creation
+models, permission lists and image-design hair were unescaped. Player
+text is now bound as values of prepared statements
+(`Database::executePreparedAsync`/`executePrepared`): it cannot change a
+statement and has no length limit in the server. A database refusal (a
+name too long for its column, say) fails that one request and logs
+`Prepared statement failed`, instead of stopping the server.
+Transactions bind their queries too (a `%` in a bazaar description was
+read as a format directive). Checked against MariaDB: injection text in
+either login gets no account, a 70,000-character username is refused
+cleanly, binary mail attachments and transaction text round-trip
+exactly. Text the server itself holds (zone names, resource names,
+serial numbers) still goes into SQL as before.
+
+Along the way: player mail stored the sender's name twice, the bazaar's
+Offers window was a syntax error for every name, a debug line logged the
+launcher password, and every finished database job leaked its query
+string.
 
 ## Tutorial and gameplay
+
+### 3d. Two SQL statements had the wrong arguments — fix needs testing
+
+Found by the compiler's format checks:
+
+- Storing clone data at a cloning terminal passed the `Database` object
+  where the schema name belongs, so the `CALL` was invalid SQL, and an SQL
+  error stops the server. It now names the schema.
+- Retrieving a bazaar item passed the galaxy name twice, so the auction id
+  was never used. Fixed; but that handler (and the bazaar's cancel and
+  item-info handlers) return when the player *is* found, so they never
+  reach the query for a logged-in player. Left as it is until the bazaar
+  is looked at as a whole.
+
+### 3e. Passwords were stored as unsalted SHA-1 — fixed
+
+`account_password` held `SHA1(password)`, compared in the database: no
+salt, and fast to guess, so a leaked account table gave away most
+passwords. Passwords are now Argon2id hashes (libsodium, its interactive
+limits: about 64 MB and a few tens of milliseconds per check), checked
+by the LoginServer. The new `sp_AccountForLogin` returns the account
+whatever the password, with whether it matches an old SHA-1 one; that is
+accepted once and replaced by an Argon2id hash at that login (the log
+says `password now stored as an Argon2id hash`). A login to an unknown
+username spends the same time, so the reply time does not tell which
+usernames exist. `setup.sh add-account` stores Argon2id (from
+`LoginServer --hash-password`), or SHA-1 if no LoginServer is built yet.
+Migration 014 widens the column. Needs `libsodium-dev`. Confirmed on the
+test VM.
+
+Not done: login attempts are not rate-limited, and the check runs on the
+LoginServer's main thread. `sp_ReturnUserAccount` is no longer used (an
+older LoginServer still works with it until its account is re-hashed).
+
+While there: the launcher's session-key login read the session key as the
+account's CSR flag, and a `DFT_string` data binding copies the whole
+column whatever the field's size (the password field was sized for the
+hash; the other bindings are unchanged).
 
 ### 4. Debris blocking the tutorial path has no Attack option — fixed
 
@@ -297,7 +449,7 @@ unknown travel point) now log the reason and tell the player instead of
 doing nothing. The tutorial's travel uses a different, synchronous path and
 was not affected.
 
-### 5h. "Too many commands queued. A command was dropped." — open
+### 5h. "Too many commands queued. A command was dropped." — expected
 
 Seen repeatedly while fighting the tutorial bandit and a rill on Tatooine.
 The command queue (30 entries) was strictly first in, first out: a combat
@@ -314,6 +466,11 @@ when queued, so it is the attacks themselves. The zone now logs what fills
 the queue when it overflows (`Command queue full for ...`: how many are
 combat commands, the front one, the time to the next combat command, and
 whether the queue is scheduled). `docs/COMBAT.md` has the combat review.
+
+Not seen since the combat rework (Nov 2026). When it was seen, the attack
+queue was being spammed on purpose: past 30 queued commands the client is
+told one was dropped, which is the queue's limit working, not a bug. The
+log line stays for diagnosis.
 
 ### 5g. No explosion when the tutorial debris is destroyed — fix needs testing
 
@@ -679,7 +836,7 @@ For reference; details are in the commit messages on `phase2-db-installer`.
   container). Fly text in instances also only reached grouped players.
 - Missing `sp_DeleteMail`; SQL procedures broken by earlier bulk edits.
 
-### 23. Harvesting a creature corpse does nothing — open
+### 23. Harvesting a creature corpse does nothing — fix needs testing
 
 A Novice Scout (skill 31, `outdoors_scout_novice`) with loot rights gets
 "harvest corpse" and harvest meat, hide or bone on a creature's corpse
@@ -689,6 +846,28 @@ womp rat: `res_meat` Carnivore Meat, `res_hide` Bristley Hide) with
 `harvest_qty` 0. The 2004 guide's creature tables give each creature's
 meat, hide, bone and milk type and quantity; harvesting belongs with the
 scout's review, and the quantities with the creature transcription.
+
+Now (`ScoutManager::handleHarvestCorpse`): a Novice Scout with loot rights,
+within 10 m, harvests the corpse once. Harvest meat, hide or bone takes
+that part; Harvest corpse takes one the creature has, at random. The
+amount is the creature table's quantity (migration 011:
+`creature_meat_qty`, `creature_hide_qty`, `creature_bone_qty`) plus 1% per
+point of the `creature_harvesting` skill mod, and earns as much scout XP
+(`rules.harvest`, reconstructed). It goes into the inventory as the
+planet's current spawn of that type (wild meat on Tatooine:
+`meat_wild_tatooine`), topping up a container of the same resource first.
+The radial's harvest meat/hide/bone entries now hang under Harvest corpse
+(their parent index pointed at a missing entry). The greater desert and
+variegated womp rats have no quantities yet (the 2003 table lists no
+resources), so they yield nothing. Milking is not done.
+
+### 26. Sampling into a full resource container records the wrong amount — open
+
+`ArtisanManager` (sampling): when a sample overflows a container of the
+same resource, the container is filled to its maximum and the rest goes in
+a new one, but the database update writes the overflowing total, not the
+maximum, so the container holds more than it can after a reload. Found
+while writing the scout harvest, which does not share the bug.
 
 ### 24. A cloned player stays a corpse — fixed
 
@@ -707,3 +886,33 @@ states is refused by the same lock (`ActionState::CanTransition` checks
 `blockAction`), so the clone now clears them too (needs testing). The clone's 100 health
 wound was lost: a wound can't exceed the pool's current points and death
 leaves health at 0, so the pools are now filled before the clone's wounds.
+
+### 25. Entertainers never heal; medics' healing skill does nothing — fixed
+
+Found while adding bleeding:
+
+- `EntertainerManager::heal` returned when the entertainer was not in a
+  cantina, *or* not in a camp, *or* not in a player structure: always.
+  Nobody watching a dance or listening to music had a mind wound or battle
+  fatigue healed, nor did the entertainer. It now heals in a cantina, camp
+  or player structure; battle fatigue still only in a cantina.
+- `PlayerObject::getPlayerLocation` called a player outside a building a
+  camp when they were *not* in a camp region; now when they are.
+- The heal's audience loop only advanced past players: a non-player in the
+  list would have looped forever.
+- Heal amounts used integer division, `base * ((100 + mod) / 100)`, so any
+  skill mod under +100 did nothing: the entertainers' wound and shock
+  healing mods and the medics' `healing_wound_treatment` (Tend Wound and
+  Heal Wound). The stimpack heals (`HealDamage`, `HealDamageRanged`) have
+  the same bug; left for the review of the medic professions.
+- `MedicManager::CalculateBF` tested battle fatigue over 500 before over
+  750, so the "high" message never showed.
+
+Tested on the VM (Nov 2026): an entertainer dancing in a Bestine cantina
+healed a watching brawler's mind wounds and battle fatigue, and a medic's
+`/tendwound health` and `/tendwound action` healed wounds.
+
+Still open: the entertainer group-buff code (`EntertainerManager.cpp`, the
+two `loc != ... || loc != ...` checks next to `dance_watch_stop_self` and
+the music equivalent) has the same always-true location test and drops
+buffs; buffs are their own pass.

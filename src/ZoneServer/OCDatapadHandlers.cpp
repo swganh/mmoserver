@@ -208,7 +208,6 @@ void ObjectController::_handleSetWaypointName(uint64 targetId,Message* message,O
     BString			name;
     Datapad* datapad			= player->getDataPad();
     WaypointObject*	waypoint	= datapad->getWaypointById(targetId);
-    int8			sql[1024],restStr[64],*sqlPointer;
 
     if(waypoint == NULL)
     {
@@ -225,13 +224,9 @@ void ObjectController::_handleSetWaypointName(uint64 targetId,Message* message,O
 
     name.convert(BSTRType_ANSI);
 
-    sprintf(sql,"UPDATE %s.waypoints SET name='",mDatabase->galaxy());
-    sqlPointer = sql + strlen(sql);
-    sqlPointer += mDatabase->escapeString(sqlPointer,name.getAnsi(),name.getLength());
-    sprintf(restStr,"' WHERE waypoint_id=%" PRIu64 "",targetId);
-    strcat(sql,restStr);
-
-    mDatabase->executeSqlAsync(NULL,NULL,sql);
+    mDatabase->executePreparedAsync(NULL, NULL,
+        std::string("UPDATE ") + mDatabase->galaxy() + ".waypoints SET name=? WHERE waypoint_id=" + std::to_string(targetId),
+        {name.getAnsi()});
     
 
     gMessageLib->sendUpdateWaypoint(waypoint,ObjectUpdateChange,player);

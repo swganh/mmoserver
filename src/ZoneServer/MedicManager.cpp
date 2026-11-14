@@ -859,20 +859,20 @@ int32 MedicManager::CalculateBF(PlayerObject* Medic, PlayerObject* Target, int32
         maxhealamount -= (maxhealamount * (BF-250) / 1000);
         if (Target && Medic->getId() != Target->getId())
         {
-            if(BF > 500) {
-                gMessageLib->SendSystemMessage(::common::OutOfBand("healing", "shock_effect_medium_target"), Target);
-            } else if(BF > 750) {
+            if(BF > 750) {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("healing", "shock_effec_high_target"), Target);
+            } else if(BF > 500) {
+                gMessageLib->SendSystemMessage(::common::OutOfBand("healing", "shock_effect_medium_target"), Target);
             } else {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("healing", "shock_effect_low_target"), Target);
             }
         }
         else
         {
-            if(BF > 500) {
-                gMessageLib->SendSystemMessage(::common::OutOfBand("healing", "shock_effect_medium"), Medic);
-            } else if(BF > 750) {
+            if(BF > 750) {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("healing", "shoc_effect_high"), Medic);
+            } else if(BF > 500) {
+                gMessageLib->SendSystemMessage(::common::OutOfBand("healing", "shock_effect_medium"), Medic);
             } else {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("healing", "shock_effect_low"), Medic);
             }
@@ -921,7 +921,7 @@ int32 MedicManager::CalculateHealWound(PlayerObject* Medic, PlayerObject* Target
     {
         TargetWounds = ham->mAction.getWounds();
         maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
-        maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
+        maxwoundheal = static_cast<int32>(maxwoundheal * (100.0f + healingskill) / 100.0f);
         maxwoundheal = std::min(maxwoundheal, TargetWounds);
         ham->updatePropertyValue(HamBar_Action, HamProperty_Wounds, -maxwoundheal);
         if (maxwoundheal > 0)
@@ -939,7 +939,7 @@ int32 MedicManager::CalculateHealWound(PlayerObject* Medic, PlayerObject* Target
     {
         TargetWounds = ham->mConstitution.getWounds();
         maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
-        maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
+        maxwoundheal = static_cast<int32>(maxwoundheal * (100.0f + healingskill) / 100.0f);
         maxwoundheal = std::min(maxwoundheal, TargetWounds);
         ham->updatePropertyValue(HamBar_Constitution ,HamProperty_Wounds, -maxwoundheal);
         if (maxwoundheal > 0)
@@ -957,7 +957,7 @@ int32 MedicManager::CalculateHealWound(PlayerObject* Medic, PlayerObject* Target
     {
         TargetWounds = ham->mHealth.getWounds();
         maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
-        maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
+        maxwoundheal = static_cast<int32>(maxwoundheal * (100.0f + healingskill) / 100.0f);
         maxwoundheal = std::min(maxwoundheal, TargetWounds);
         ham->updatePropertyValue(HamBar_Health ,HamProperty_Wounds, -maxwoundheal);
         if (maxwoundheal > 0)
@@ -975,7 +975,7 @@ int32 MedicManager::CalculateHealWound(PlayerObject* Medic, PlayerObject* Target
     {
         TargetWounds = ham->mQuickness.getWounds();
         maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
-        maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
+        maxwoundheal = static_cast<int32>(maxwoundheal * (100.0f + healingskill) / 100.0f);
         maxwoundheal = std::min(maxwoundheal, TargetWounds);
         ham->updatePropertyValue(HamBar_Quickness ,HamProperty_Wounds, -maxwoundheal);
         if (maxwoundheal > 0)
@@ -993,7 +993,7 @@ int32 MedicManager::CalculateHealWound(PlayerObject* Medic, PlayerObject* Target
     {
         TargetWounds = ham->mStamina.getWounds();
         maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
-        maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
+        maxwoundheal = static_cast<int32>(maxwoundheal * (100.0f + healingskill) / 100.0f);
         maxwoundheal = std::min(maxwoundheal, TargetWounds);
         ham->updatePropertyValue(HamBar_Stamina ,HamProperty_Wounds, -maxwoundheal);
         if (maxwoundheal > 0)
@@ -1011,7 +1011,7 @@ int32 MedicManager::CalculateHealWound(PlayerObject* Medic, PlayerObject* Target
     {
         TargetWounds = ham->mStrength.getWounds();
         maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
-        maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
+        maxwoundheal = static_cast<int32>(maxwoundheal * (100.0f + healingskill) / 100.0f);
         maxwoundheal = std::min(maxwoundheal, TargetWounds);
         ham->updatePropertyValue(HamBar_Strength ,HamProperty_Wounds, -maxwoundheal);
         if (maxwoundheal > 0)

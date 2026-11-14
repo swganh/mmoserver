@@ -413,6 +413,11 @@ bool ObjectController::_processCommandQueue()
                     }
                 }
                 break;
+                // Area attacks (command group 2: Point Blank Area, the spin
+                // attacks, the cones...) are attacks too; their area or cone
+                // comes from command_table.area_shape (CombatManager). They
+                // fell to the default case and were dropped without a word.
+                case ObjControllerCmdGroup_Area_Attack:
                 case ObjControllerCmdGroup_Attack:
                 {
                     // If player activated combat or me returning fire, the peace is ended, and auto-attack allowed.
@@ -464,7 +469,8 @@ bool ObjectController::_processCommandQueue()
 
                 default:
                 {
-					DLOG(WARNING) << "ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0"<<cmdProperties->mCmdGroup <<" for "<<mObject->getId();
+					LOG(WARNING) << "ObjectController::processCommandQueue: command group " << static_cast<uint32>(cmdProperties->mCmdGroup)
+					             << " not handled, command 0x" << std::hex << command << std::dec << " from " << mObject->getId();
                 }
                 break;
                 }
@@ -943,7 +949,8 @@ bool ObjectController::_validateProcessCommand(uint32 &reply1,uint32 &reply2,uin
             }
             // we still failed the check but we're not sending anything back
             // send this generic message
-            if(! (reply1 && reply2) )
+            // (the HAM check tells the player itself)
+            if(! (reply1 && reply2) && !dynamic_cast<PVHam*>(*it))
                 gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), player);
             return(false);
         }

@@ -8,24 +8,21 @@ local wm = WorldManager:getSingletonPtr();
 while (1) do
   LuaScriptEngine.WaitMSec(updateInterval);
 
-  cloudX = math.random();
-  cloudY = math.random();
-  cloudZ = math.random();
-  
-  tempVal = math.random(0, 5);
-  
-  if tempVal == 5 then
-	type = math.random(1,5);
+  -- Locals: scripts share one Lua state, and a global named "type"
+  -- replaced Lua's type() for every other script (the event logger broke
+  -- ten minutes after start).
+  local cloudX = math.random();
+  local cloudY = math.random();
+  local cloudZ = math.random();
+
+  local weather;
+  if math.random(0, 5) == 5 then
+	weather = math.random(1,5);
 	updateInterval = 60000;
   else
-	type = 0;
+	weather = 0;
 	updateInterval = 600000;
   end;
-  
 
-  wm:updateWeather(cloudX,cloudY,cloudZ,type);
+  wm:updateWeather(cloudX,cloudY,cloudZ,weather);
 end;
-
-
-
-

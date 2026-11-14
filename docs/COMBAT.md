@@ -72,7 +72,7 @@ where it does not:
 | Accuracy modifier | the weapon's range curve (point blank at 0 m, ideal at its ideal range, max at its max range, straight lines between) + the weapon group's accuracy skill mods + postures - the defender's ranged or melee defence | p. 66, p. 73, p. 145 |
 | Postures | attacker kneeling +10, prone +20; a kneeling/prone target -10/-20 against ranged attacks, +10/+20 against melee | p. 73; sizes reconstructed |
 | Chance to hit | 50% + 1% per point of accuracy modifier, 5-95% | reconstructed |
-| Creatures | their own to-hit replaces the 50% when known | creature tables |
+| Creatures | their own to-hit (`creature_tohit`, migration 011) replaces the 50% | 2004 guide pp. 172-207; An Empire Divided pp. 396-483 |
 | Damage | uniform in the weapon's range x the special's multiplier x armour rating (+25% per level the weapon is above the armour, -50% per level below) x (1 - armour effectiveness for the damage type) | p. 388, pp. 394-395 |
 | Pool | the special's, else health 50%, action 30%, mind 20% | reconstructed |
 | Attack time | the weapon's attack speed x (1 - 1% per point of speed mod) x the special's delay multiplier, at least 1 s | p. 389, p. 145; the 1% reconstructed |
@@ -125,14 +125,31 @@ not used, so in that respect players attack faster than they should).
 - HAM pools, incapacitation, death, clone selection, regeneration with
   posture modifiers. Cloning revives the player with full health, action
   and mind, less wounds (KNOWN_ISSUES #24).
-- Wounds and battle fatigue (`rules.wound`, `rules.FATIGUE_PER_HIT`): a
+- Wounds and battle fatigue (`rules.wound`, `rules.FATIGUE_PER_HIT`,
+  `rules.FATIGUE_MODIFIER`): a
   hit wounds the pool it hit with the weapon's wound chance (p. 389;
   `cat_wpn_damage.wpn_wound_chance`, bare hands and creatures the
   vibroknuckler's 8%, p. 390); the wound is a tenth of the damage, at least
-  1, and lowers the pool's maximum. Each hit a player takes adds 1 battle
-  fatigue (of 1000). Both sizes are reconstructed: the guide gives none.
+  1, and lowers the pool's maximum. Each hit a player takes adds a quarter
+  of a battle fatigue point (four hits make 1, of 1000), times
+  `rules.FATIGUE_MODIFIER` for servers that want it faster or slower. Both
+  sizes are reconstructed: the guide gives none.
   Each wound is logged (`Combat wound ...`); the client shows it in the
   character sheet's Wounds column and as "wounded" combat spam.
+- Bleeding (`rules.bleed`; `CombatManager::_tickBleeding`): every wound
+  makes the wounded pool bleed (p. 75), players and creatures alike.
+  Bleeding drains half the wound, at least 1, every 5 s for 30 s, and can
+  incapacitate (p. 85); the amounts are reconstructed. A new wound to a pool
+  that is already bleeding keeps the stronger bleed and the longer time.
+  It sets the Bleeding state and ends at incapacitation or death. The
+  Medic's First Aid (Injury Treatment II, the command table's 140 mind)
+  stops it on the medic or their target within 6 m. Logged as
+  `Bleeding ...`.
+- Wound healing: a medic's Tend Wound and Heal Wound (`MedicManager`)
+  heal wounds; entertainers heal mind wounds, and in a cantina battle
+  fatigue, for their audience and themselves (`EntertainerManager::heal`).
+  Battle fatigue over 250 shrinks a medic's wound heal (p. 86: it hampers
+  the curing of wounds). Wounds never regenerate on their own (p. 86).
 - Intimidate, Warcry and Taunt (`rules.MOVES`, `rules.move`;
   `CombatManager::handleBrawlerMove`): each costs its flat HAM from the
   command table and starts the fight as an attack would. Intimidate (15 m,
@@ -159,6 +176,16 @@ not used, so in that respect players attack faster than they should).
   `center_of_being_duration_<group>` x 3 s (Novice Brawler unarmed: 10 for
   15 s). It is not in the guide. All the numbers are reconstructed. Each
   use is logged (`Self buff ...`).
+- Creatures from the guides' creature tables (migration 011,
+  `mmoserverdb/reference/prima_2004/` and `prima_ed/`): level, to-hit,
+  damage, XP, the behaviour flags, social group, and meat, hide and bone
+  with their quantities. Each spawn rolls its health, action and mind in
+  the guide's HAM range. **Killers** (p. 73) deathblow the player they
+  incapacitated; other creatures leave them incapacitated. **Pack**
+  creatures (p. 73) bring the idle members of their social group within
+  45 m into a fight. Neither guide marks the womp rats or the rill
+  aggressive, so they no longer attack on sight. Logged as `Creature ...
+  deathblows ...` and `... assists its pack against ...`.
 - Incapacitation from the combat rules (`rules.incap`, `rules.incapWindow`):
   three incaps within 10 minutes kill (p. 85); the first lasts 30 s, the
   second 60 s (`rules.INCAP_TIMES`, reconstructed: the guide's timer
@@ -174,6 +201,30 @@ not used, so in that respect players attack faster than they should).
   attacking). Assisting other creatures or the lair is not wired yet.
 - XP by most damage, per weapon type, group split; loot rights.
 - Combat spam, fly text (miss, block, dodge, counter), animations.
+- Area and cone specials (migration 012, `tools/reference/special_areas_sql.py`):
+  "Area affects all targets within the melee weapon's range. Cone affects
+  all targets with the ranged weapon's cone of fire" (p. 75). An area also
+  hits every creature the attacker may fight within the weapon's max range
+  around the attacker (PointBlankArea1: 12 m); a cone, every one within
+  64 m along the line to the target, widening to 15 m at its end (the
+  table's size for all ten cones). The extra targets cost and delay
+  nothing more; each rolls its own hit. Logged as `Special ... also hit N`.
+- Corrections from the client (migration 013,
+  `tools/reference/specials_vs_client.py`): where the client's own command
+  descriptions (Publish 14, `string/en/cmd_d.stf`) contradict the guide's
+  table, the client wins: Two-Hand Area 3 blinds (the table: dizzy), Burst
+  Shot 2 and Point Blank Area 2 are areas, and Charge Shot 2 (with a
+  knockdown), Wild Shot 2 and the two Multi-Target Shots are cones (the
+  table: single targets).
+- Area attacks reach the combat code at all: the command table puts them
+  in command group 2 (area attack), which the command queue dropped
+  without a word, so no area or cone special ever ran. Group 2 now runs as
+  an attack. Its commands without an area or cone in our data (Fan Shot,
+  the flamethrower and acid/lightning cones, the saber spins and Dervish,
+  Two-Hand Sweep 1, One-Hand Blind Hit 1) hit their one target until their
+  shapes are added.
+- The attacker's end posture (migration 012): Dive Shot leaves the attacker
+  prone, Kip Up Shot standing, Roll Shot kneeling (pp. 80-81).
 - Specials' HAM costs: their cost modifiers x the weapon's attack costs
   (`rules.costs`), charged when the special is used; a special the
   attacker cannot pay for is refused. (The flat `healthcost` etc. columns
@@ -314,23 +365,18 @@ against melee) is not known.
   the "no point blank attacks while prone" rule; creature to-hits are not
   in the database yet.
 - **Damage modifiers:** no skill or stat bonuses, players' worn armour,
-  vulnerabilities. Wounds cause no bleeding yet (p. 389), and battle
-  fatigue does not yet hamper healing (p. 86): nothing heals wounds yet.
-- **Special attacks:** the attacker's end posture (Dive Shot prone, Kip Up
-  Shot standing, Roll Shot kneeling), area and cone attacks (every special
-  hits its one target).
+  vulnerabilities. Bleeding only from wounds, not from
+  weapons that bleed on any hit (p. 85); no bleed resistance.
 - **States:** knockdown/dizzy interplay (a dizzy creature falling when it
   changes posture), knockdowns and posture changes have no duration.
-- **Creatures:** no special moves, no fleeing, no healing; no killers
-  (creatures that deathblow an incapacitated player, p. 73: every creature
-  only incapacitates) and no pack assist (p. 73), which wait for the
-  creature table; creature
-  regeneration is a made-up rule; aggression ignores the player's level.
+- **Creatures:** no special moves (the tables name them: stun, blind,
+  dizzy, intimidation, posture down, poison, disease, ranged spit), no
+  stalking (stalkers should follow and attack later, p. 73), no herding,
+  no fleeing, no healing; creature regeneration is a made-up rule;
+  aggression ignores the player's level. Only the spawned Tatooine
+  creatures have their table values so far.
 - **Combat XP** rates and weapon XP split are placeholders ("a complete
   made up rule" in the code).
-- **"Too many commands queued"** (KNOWN_ISSUES #5h): still seen with
-  attacks queued. The server now logs what fills the queue when it
-  overflows (`Command queue full for ...` in the zone log).
 
 ## Where each part should live
 
@@ -483,21 +529,25 @@ and the point blank modifier of most pistols (0 for -5 to -20).
 | Armour rating and effectiveness | creatures' (rules.lua); not players' worn armour |
 | Specials: time, damage, cost and to-hit from the weapon | 4 combat specials in `command_table`; costs fixed, not from the weapon |
 | Effects rolled per effect, with durations | always applied, no duration |
-| Bleeding, wounds, battle fatigue | not in combat |
+| Bleeding, wounds, battle fatigue | wounds and bleeding from the combat rules; medics and entertainers heal them |
 | Three incaps in 10 minutes means death | `IncapResetTime` is configurable; to check against the 10 minutes |
 | Prone: no attacking at point blank | no |
 | Con colour by weapon skill | client side; the server sends levels |
 
 ## Order of work
 
-1. Find what overflows the command queue (the new log line, next fight).
+1. Find what overflows the command queue: done. It only overflowed with
+   the attack queue spammed on purpose, the queue limit working
+   (`KNOWN_ISSUES.md` 5h); not seen since the combat rework.
 2. Read the original rules: done (both guides' combat chapters, the
    Marksman and Brawler chapters). The numbers behind accuracy are in
    neither guide: measure the client's accuracy display instead.
 3. To-hit and damage from those rules: done, in `combat/rules.lua`; the
    weapons' ranges and the noob CDEF: migration 007. Next: tune the
    reconstructed numbers in play.
-4. Creature regeneration and to-hit from the creature tables.
+4. Creature to-hit, HAM, killers and pack assist from the creature
+   tables: done for the spawned creatures (migration 011). Next: their
+   special attacks and stalking, then regeneration.
 5. Specials as data: done for the 134 moves of the special moves table
    (migration 010), with costs, to-hit, posture changes and timed effects
    in the rules. Next: attacker postures, areas and cones.

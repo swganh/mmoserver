@@ -42,13 +42,17 @@ DROP PROCEDURE IF EXISTS `sp_ReturnUserAccount`;
 DELIMITER $$
 
 /*!50003 SET @TEMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */ $$
-CREATE PROCEDURE `sp_ReturnUserAccount`(IN usrName CHAR(255),IN pwrd CHAR(255)) SQL SECURITY INVOKER
+CREATE PROCEDURE `sp_ReturnUserAccount`(IN usrName CHAR(255),IN pwrd CHAR(255),IN createUnknown TINYINT) SQL SECURITY INVOKER
 BEGIN
 
   ##
   ## Stored Procedure
   ##
-  ## Use: CALL sp_ReturnUserAccount(username, password);
+  ## Use: CALL sp_ReturnUserAccount(username, password, createUnknown);
+  ##
+  ## createUnknown: 1 creates an account for an unknown username with the
+  ## password given (the LoginServer's AutoCreateAccounts setting, for test
+  ## servers); 0 refuses it (public servers: setup.sh add-account).
   ##
   ## Returns: (server global tick)
   
@@ -78,7 +82,7 @@ SELECT account_id
   INTO id;
   
   
-IF id  IS NULL THEN 
+IF id IS NULL AND createUnknown = 1 THEN 
 	  
 SELECT MAX(account_id) + 1 FROM swganh.account INTO mAccount_id FOR UPDATE;
 

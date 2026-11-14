@@ -26,9 +26,16 @@ Reference data: migrations take their values from here and cite the page.
   to-hit is printed 15 where the other polearm moves have 10; kept as
   printed.
 
+- `creatures.csv` (creature tables, pp. 396-483, each row across a page
+  pair: `page` the names and stats, `facing` the to-hit, XP and flags):
+  only the creatures the server spawns that the 2004 guide's table leaves
+  out (it stops at level 11; `../prima_2004/`). HAM is per pool here,
+  one range for the three in 2004.
+
 Used by: migrations 007 (`tools/reference/weapons_sql.py`, from
 `weapons.csv`) and 010 (`tools/reference/specials_sql.py`, from
-`specials.csv`) and the combat rules (`data/script/combat/rules.lua`).
+`specials.csv`), 011 (`tools/reference/creatures_sql.py`, with
+`../prima_2004/creatures.csv`) and the combat rules (`data/script/combat/rules.lua`).
 
 Not transcribed yet: the crafting ranges (pp. 391, 393; the range of each
 stat a crafted weapon can have) and the armour's per-piece HAM costs

@@ -48,6 +48,45 @@ PostureState::~PostureState(void)
 void PostureState::Enter(CreatureObject* obj)
 {
     obj->states.setPosture(mStateID);
+
+    // Keep the locomotion in step: a locomotion that does not belong to the
+    // new posture becomes the posture's resting one. Nothing did this, so a
+    // player stood up from an incap or a knockdown kept a stale locomotion,
+    // and the commands' locomotion checks (EVState) refused them ("You
+    // cannot Mount while Standing").
+    uint32 loco = obj->states.getLocomotion();
+    switch (mStateID)
+    {
+    case CreaturePosture_Upright:
+        if (loco != CreatureLocomotion_Standing && loco != CreatureLocomotion_Walking && loco != CreatureLocomotion_Running)
+            obj->states.setLocomotion(CreatureLocomotion_Standing);
+        break;
+    case CreaturePosture_Crouched:
+        if (loco != CreatureLocomotion_Kneeling && loco != CreatureLocomotion_CrouchWalking && loco != CreatureLocomotion_CrouchSneaking)
+            obj->states.setLocomotion(CreatureLocomotion_Kneeling);
+        break;
+    case CreaturePosture_Prone:
+        if (loco != CreatureLocomotion_Prone && loco != CreatureLocomotion_Crawling)
+            obj->states.setLocomotion(CreatureLocomotion_Prone);
+        break;
+    case CreaturePosture_Sneaking:
+        obj->states.setLocomotion(CreatureLocomotion_Sneaking);
+        break;
+    case CreaturePosture_Sitting:
+        obj->states.setLocomotion(CreatureLocomotion_Sitting);
+        break;
+    case CreaturePosture_KnockedDown:
+        obj->states.setLocomotion(CreatureLocomotion_KnockedDown);
+        break;
+    case CreaturePosture_Incapacitated:
+        obj->states.setLocomotion(CreatureLocomotion_Incapacitated);
+        break;
+    case CreaturePosture_Dead:
+        obj->states.setLocomotion(CreatureLocomotion_Dead);
+        break;
+    default:
+        break;
+    }
 }
 void PostureState::Exit(CreatureObject* obj)
 {
@@ -130,7 +169,7 @@ void PostureUpright::Enter(CreatureObject* obj)
     actionMap[CreatureState_SittingOnChair]->Exit(obj);
     actionMap[CreatureState_Tumbling]->Exit(obj);
 
-    obj->states.setPosture(mStateID);
+    PostureState::Enter(obj);
 }
 
 //	Posture Crouched
@@ -164,7 +203,7 @@ void PostureCrouched::Enter(CreatureObject* obj)
     actionMap[CreatureState_SittingOnChair]->Exit(obj);
     actionMap[CreatureState_Tumbling]->Exit(obj);
     
-    obj->states.setPosture(mStateID);
+    PostureState::Enter(obj);
 }
 //	Posture Prone
 PostureProne::PostureProne(StateManager* const sm) : PostureState(sm)
@@ -197,7 +236,7 @@ void PostureProne::Enter(CreatureObject* obj)
     actionMap[CreatureState_SittingOnChair]->Exit(obj);
     actionMap[CreatureState_Tumbling]->Exit(obj);
     
-    obj->states.setPosture(mStateID);
+    PostureState::Enter(obj);
 }
 //	Posture Sneaking
 PostureSneaking::PostureSneaking(StateManager* const sm) : PostureState(sm)
@@ -268,7 +307,7 @@ void PostureLyingDown::Enter(CreatureObject* obj)
     actionMap[CreatureState_SittingOnChair]->Exit(obj);
     actionMap[CreatureState_Tumbling]->Exit(obj);
     
-    obj->states.setPosture(mStateID);
+    PostureState::Enter(obj);
 }
 //	Posture Sitting
 PostureSitting::PostureSitting(StateManager* const sm) : PostureState(sm)
@@ -301,7 +340,7 @@ void PostureSitting::Enter(CreatureObject* obj)
     actionMap[CreatureState_Tumbling]->Exit(obj);
     actionMap[CreatureState_Swimming]->Exit(obj);
     
-    obj->states.setPosture(mStateID);
+    PostureState::Enter(obj);
 }
 //	Posture Skill Animating
 PostureSkillAnimating::PostureSkillAnimating(StateManager* const sm) : PostureState(sm)
@@ -332,7 +371,7 @@ void PostureSkillAnimating::Enter(CreatureObject* obj)
     actionMap[CreatureState_RidingMount]->Exit(obj);
     actionMap[CreatureState_Cover]->Exit(obj);
     
-    obj->states.setPosture(mStateID);
+    PostureState::Enter(obj);
 }
 //	Posture Driving Vehicle
 PostureDrivingVehicle::PostureDrivingVehicle(StateManager* const sm) : PostureState(sm)
@@ -364,7 +403,7 @@ void PostureDrivingVehicle::Enter(CreatureObject* obj)
     actionMap[CreatureState_SittingOnChair]->Exit(obj);
     actionMap[CreatureState_Tumbling]->Exit(obj);
     
-    obj->states.setPosture(mStateID);
+    PostureState::Enter(obj);
 }
 //	Posture Riding Creature
 PostureRidingCreature::PostureRidingCreature(StateManager* const sm) : PostureState(sm)
@@ -396,7 +435,7 @@ void PostureRidingCreature::Enter(CreatureObject* obj)
     actionMap[CreatureState_SittingOnChair]->Exit(obj);
     actionMap[CreatureState_Tumbling]->Exit(obj);
     
-    obj->states.setPosture(mStateID);
+    PostureState::Enter(obj);
 }
 //	Posture Knocked Down
 PostureKnockedDown::PostureKnockedDown(StateManager* const sm) : PostureState(sm)
@@ -429,7 +468,7 @@ void PostureKnockedDown::Enter(CreatureObject* obj)
     actionMap[CreatureState_SittingOnChair]->Exit(obj);
     actionMap[CreatureState_Tumbling]->Exit(obj);
     
-    obj->states.setPosture(mStateID);
+    PostureState::Enter(obj);
 }
 //	Posture Incapacitated
 PostureIncapacitated::PostureIncapacitated(StateManager* const sm) : PostureState(sm)
@@ -444,7 +483,7 @@ PostureIncapacitated::PostureIncapacitated(StateManager* const sm) : PostureStat
 void PostureIncapacitated::Enter(CreatureObject* obj)
 {  
     obj->states.blockLayers();
-    obj->states.setPosture(mStateID);
+    PostureState::Enter(obj);
     // clear all states
     obj->states.toggleActionOn(CreatureState_ClearState);
 }
@@ -459,7 +498,7 @@ PostureDead::PostureDead(StateManager* const sm) : PostureState(sm)
 void PostureDead::Enter(CreatureObject* obj)
 {
     obj->states.blockLayers();
-    obj->states.setPosture(mStateID);
+    PostureState::Enter(obj);
     // clear all states
     obj->states.toggleActionOn(CreatureState_ClearState);
 }

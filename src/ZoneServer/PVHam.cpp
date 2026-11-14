@@ -30,6 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Ham.h"
 #include "ObjectController.h"
 #include "ObjectControllerCommandMap.h"
+#include "PlayerObject.h"
+#include "MessageLib/MessageLib.h"
 
 PVHam::PVHam(ObjectController* controller)
     : ProcessValidator(controller)
@@ -53,6 +55,11 @@ bool PVHam::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 opc
                     reply1 = 0;
                     reply2 = 0;
 
+                    // Say why, rather than the generic "current state".
+                    if (PlayerObject* player = dynamic_cast<PlayerObject*>(creature))
+                    {
+                        gMessageLib->SendSystemMessage(L"You do not have enough health, action or mind to do that.", player);
+                    }
                     return false;
                 }
             }

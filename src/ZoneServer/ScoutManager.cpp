@@ -41,6 +41,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "AttackableCreature.h"
 #include "Inventory.h"
 #include "GroupManager.h"
+#include "CombatManager.h"
+#include "Resource.h"
+#include "ResourceContainer.h"
+#include "ResourceManager.h"
+#include "ResourceType.h"
+#include "DatabaseManager/Database.h"
+#include "SkillManager.h"
+#include "SkillEnums.h"
+#include <algorithm>
+#include <cctype>
+#include <sstream>
 
 #include "MessageLib/MessageLib.h"
 #include "Utils/rand.h"
@@ -420,8 +431,175 @@ void ScoutManager::successForage(PlayerObject* player)
 //================================================================================
 //Harvesting!
 //================================================================================
+namespace {
+// How close a scout must stand to harvest a corpse, in metres.
+const float kHarvestRange = 10.0f;
+
+// "Wild Meat" -> "meat_wild_tatooine": the planet's resource type of a
+// creature's meat, hide or bone (resource_template.type_swg).
+std::string resourceTypeKey(const std::string& kind, const std::string& value, const std::string& planet)
+{
+    std::string word = value.substr(0, value.find(' '));
+    std::transform(word.begin(), word.end(), word.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+    if (word == "domestic." || word == "domestic")
+    {
+        word = "domesticated";
+    }
+    return kind + "_" + word + "_" + planet;
+}
+
+// The planet's current spawn of a resource type, if any.
+Resource* currentResource(const std::string& typeKey)
+{
+    ResourceIdMap* resources = gResourceManager->getResourceIdMap();
+    for (ResourceIdMap::iterator it = resources->begin(); it != resources->end(); ++it)
+    {
+        Resource* resource = it->second;
+        if (resource && resource->getCurrent() && resource->getType()
+                && typeKey == resource->getType()->getDescriptor().getAnsi())
+        {
+            return resource;
+        }
+    }
+    return NULL;
+}
+
+// Whether the amount fits in containers of this resource already in the
+// inventory; if not, a new container needs a free inventory slot.
+bool fitsInExistingContainers(PlayerObject* player, Resource* resource, uint32 amount)
+{
+    ObjectIDList* objects = player->getInventory()->getObjects();
+    uint32 room = 0;
+    for (ObjectIDList::iterator it = objects->begin(); it != objects->end(); ++it)
+    {
+        ResourceContainer* container = dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById(*it));
+        if (container && container->getResourceId() == resource->getId() && container->getAmount() < container->getMaxAmount())
+        {
+            room += container->getMaxAmount() - container->getAmount();
+        }
+    }
+    return room >= amount;
+}
+
+// Puts an amount of a resource in the player's inventory: tops up a
+// container of the same resource, then starts new ones.
+void addToInventory(PlayerObject* player, Resource* resource, uint32 amount)
+{
+    Inventory* inventory = player->getInventory();
+    ObjectIDList* objects = inventory->getObjects();
+    for (ObjectIDList::iterator it = objects->begin(); it != objects->end() && amount > 0; ++it)
+    {
+        ResourceContainer* container = dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById(*it));
+        if (!container || container->getResourceId() != resource->getId() || container->getAmount() >= container->getMaxAmount())
+        {
+            continue;
+        }
+        uint32 add = std::min(amount, container->getMaxAmount() - container->getAmount());
+        container->setAmount(container->getAmount() + add);
+        amount -= add;
+        gMessageLib->sendResourceContainerUpdateAmount(container, player);
+        std::stringstream query;
+        query << "UPDATE " << gWorldManager->getDatabase()->galaxy() << ".resource_containers SET amount="
+              << container->getAmount() << " WHERE id=" << container->getId();
+        gWorldManager->getDatabase()->executeAsyncSql(query);
+    }
+    if (amount > 0)
+    {
+        gObjectFactory->requestNewResourceContainer(inventory, resource->getId(), inventory->getId(), 99, amount);
+    }
+}
+}
+
+// A scout harvests a corpse's meat, hide or bone (or whichever it has, for
+// "harvest corpse"): the creature table's quantity (creature_meat_qty...)
+// plus the creature_harvesting skill mod (rules.harvest), as the planet's
+// current spawn of that resource type. Once per corpse.
 void ScoutManager::handleHarvestCorpse(PlayerObject* player, CreatureObject* target, HarvestSelection harvest)
 {
+    AttackableCreature* creature = dynamic_cast<AttackableCreature*>(target);
+    if (!player || !creature || player->isDead() || player->isIncapacitated())
+    {
+        return;
+    }
+    if (!creature->isDead() || !player->checkSkill(31) || !creature->allowedToLoot(player->getId(), player->getGroupId()))
+    {
+        return;
+    }
+    if (glm::distance(player->mPosition, creature->mPosition) > kHarvestRange)
+    {
+        gMessageLib->SendSystemMessage(L"You are too far away to harvest that corpse.", player);
+        return;
+    }
+    if (creature->isHarvested())
+    {
+        gMessageLib->SendSystemMessage(L"That corpse has already been harvested.", player);
+        return;
+    }
+
+    struct Part { HarvestSelection selection; const char* kind; const char* attribute; const char* quantity; };
+    const Part parts[] = {
+        { HARVEST_MEAT, "meat", "res_meat", "creature_meat_qty" },
+        { HARVEST_HIDE, "hide", "res_hide", "creature_hide_qty" },
+        { HARVEST_BONE, "bone", "res_bone", "creature_bone_qty" },
+    };
+    std::vector<const Part*> available;
+    for (const Part& part : parts)
+    {
+        if ((harvest == HARVEST_ANY || harvest == part.selection) && creature->hasAttribute(part.attribute)
+                && creature->hasInternalAttribute(part.quantity) && creature->getInternalAttribute<int32>(part.quantity) > 0)
+        {
+            available.push_back(&part);
+        }
+    }
+    if (available.empty())
+    {
+        gMessageLib->SendSystemMessage(L"There is nothing of that kind to harvest from this corpse.", player);
+        return;
+    }
+    const Part* part = available[gRandom->getRand() % available.size()];
+
+    std::string typeKey = resourceTypeKey(part->kind, creature->getAttribute<std::string>(part->attribute),
+                                          gWorldManager->getPlanetNameThis());
+    Resource* resource = currentResource(typeKey);
+    if (!resource)
+    {
+        LOG(WARNING) << "Harvest: no current spawn of " << typeKey;
+        gMessageLib->SendSystemMessage(L"There is nothing of that kind to harvest from this corpse.", player);
+        return;
+    }
+
+    int32 quantity = creature->getInternalAttribute<int32>(part->quantity);
+    int32 skill = player->getSkillModValue(SMod_creature_harvesting);
+    int amount = quantity, xp = quantity;
+    if (gCombatManager)
+    {
+        gCombatManager->rules().harvest(quantity, skill, amount, xp);
+    }
+    if (amount <= 0)
+    {
+        gMessageLib->SendSystemMessage(L"There is nothing of that kind to harvest from this corpse.", player);
+        return;
+    }
+
+    // No room for a new container: nothing is harvested (checkCapacity tells
+    // the player the inventory is full).
+    if (!fitsInExistingContainers(player, resource, static_cast<uint32>(amount))
+            && !player->getInventory()->checkCapacity(1, player))
+    {
+        return;
+    }
+
+    creature->setHarvested();
+    addToInventory(player, resource, static_cast<uint32>(amount));
+    if (xp > 0)
+    {
+        gSkillManager->addExperience(XpType_scout, xp, player);
+    }
+    std::string name = resource->getName().getAnsi();
+    gMessageLib->SendSystemMessage(L"You harvest " + std::to_wstring(amount) + L" units of "
+        + std::wstring(name.begin(), name.end()) + L".", player);
+    LOG(INFO) << "Harvest by " << player->getId() << " from " << creature->getId() << ": " << amount
+              << " " << typeKey << " (" << resource->getName().getAnsi() << "), " << xp << " scout XP";
 }
 
 uint32 ScoutManager::getHarvestSkillFactor(CreatureObject* object)

@@ -222,8 +222,21 @@ rules.WOUND_FRACTION = 0.1
 rules.DEFAULT_WOUND_CHANCE = { unarmed = 8 }
 -- Battle fatigue is gained through combat; it does not affect combat but
 -- hampers the healing of wounds (p. 86). The guide gives no rate: each hit
--- taken adds this much, out of 1000. Reconstructed.
-rules.FATIGUE_PER_HIT = 1
+-- taken adds FATIGUE_PER_HIT (a quarter: four hits make 1, out of 1000)
+-- times FATIGUE_MODIFIER. The server keeps the fractions. Reconstructed;
+-- FATIGUE_MODIFIER is the knob for a server that wants it faster (2) or
+-- slower (0.5), 0 turns it off.
+rules.FATIGUE_PER_HIT = 0.25
+rules.FATIGUE_MODIFIER = 1
+-- Every wound makes the wounded pool bleed ("All moves that cause Health,
+-- Action, or Mind wounds also cause bleeding to the affected stat", p. 75).
+-- Bleeding slowly drains the pool until it is cured or runs its course,
+-- and can incapacitate (p. 85). The guide gives no amounts: every
+-- BLEED_INTERVAL seconds for BLEED_DURATION seconds the pool loses
+-- BLEED_FRACTION of the wound, at least 1. Reconstructed.
+rules.BLEED_FRACTION = 0.5
+rules.BLEED_INTERVAL = 5
+rules.BLEED_DURATION = 30
 
 
 -- Three incaps within any 10 minutes kill (p. 85).
@@ -502,7 +515,8 @@ function rules.attack(a)
     result.pool = rules.pool(a, math.random())
     result.effects = rules.effects(a, math.random)
     result.wound = rules.wound(a, result.damage, math.random())
-    result.fatigue = rules.FATIGUE_PER_HIT
+    result.bleed, result.bleed_interval, result.bleed_duration = rules.bleed(a, result.pool, result.wound)
+    result.fatigue = rules.FATIGUE_PER_HIT * rules.FATIGUE_MODIFIER
   else
     result.damage = 0
   end
@@ -546,6 +560,35 @@ function rules.move(name, a, roll)
   chance = math.max(rules.MIN_MOVE_CHANCE, math.min(rules.MAX_MOVE_CHANCE, chance))
   local duration = move.kind == "intimidate" and rules.INTIMIDATE_DURATION or 0
   return roll * 100 < chance, chance, duration
+end
+
+-- The bleeding a wound causes: what the pool loses per tick, the seconds
+-- between ticks and how long it lasts. No wound, no bleeding.
+function rules.bleed(a, pool, wound)
+  if not wound or wound <= 0 then
+    return 0, 0, 0
+  end
+  return math.max(1, math.floor(wound * rules.BLEED_FRACTION)), rules.BLEED_INTERVAL, rules.BLEED_DURATION
+end
+
+-- Scout harvesting ------------------------------------------------------------
+
+-- A corpse yields the creature table's quantity of the meat, hide or bone
+-- picked (both guides' tables; mmoserverdb/reference/). Each point of the
+-- scout's creature_harvesting skill mod adds HARVEST_PER_POINT of it (Novice
+-- Scout has 15); a harvest earns HARVEST_XP_PER_UNIT scout XP per unit.
+-- Neither is in the guides at hand: reconstructed.
+rules.HARVEST_PER_POINT = 0.01
+rules.HARVEST_XP_PER_UNIT = 1
+
+-- How many units a harvest of a table quantity gives, and the scout XP.
+function rules.harvest(quantity, skill)
+  if not quantity or quantity <= 0 then
+    return 0, 0
+  end
+  local amount = math.floor(quantity * (1 + (skill or 0) * rules.HARVEST_PER_POINT))
+  amount = math.max(1, amount)
+  return amount, amount * rules.HARVEST_XP_PER_UNIT
 end
 
 -- A self buff (Berserk, Center of Being) for a.attacker holding a.weapon:

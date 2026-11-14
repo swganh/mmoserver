@@ -1,0 +1,684 @@
+page,facing,section,name,level,location,social_group,ham_min,ham_max,to_hit,damage_min,damage_max,xp,meat,meat_qty,hide,hide_qty,bone,bone_qty,milk,pvp_faction,weapons,notes
+172,173,Creatures,acicular defender,8,Corellia,Paralope,410,500,27,70,75,235,herbivore,5,wooly,3,mammal,2,,,,"Aggro, Pack, Herd, Tamable, Blind attack"
+172,173,Creatures,agrilat rasp,8,Corellia,Rasp,180,220,27,90,110,187,avian,3,,,avian,2,,,,Tamable
+172,173,Creatures,angler (bio-engineered),1,Yavin 4,Angler,45,55,20,30,40,40,,,,,,,,,,"Aggro, Stalker, Pack"
+172,173,Creatures,angler hatchling,8,Yavin 4,Angler,410,500,27,70,75,235,insect,2,,,,,,,,"Aggro, Stalker, Pack, Mild poison attack, Posture down attack"
+172,173,Creatures,baby bol,10,Dantooine,Bol,810,990,28,90,110,292,herbivore,,leathery,300,mammal,180,milk,,,Herd
+172,173,Creatures,bageraset,10,Corellia,Bageraset,810,990,28,90,110,292,herbivore,230,leathery,130,mammal,80,milk (wild),,,"Herd, Tamable, Intimidation atk, Ranged atk (spit)"
+172,173,Creatures,bageraset (bio-engineered),1,Corellia,Bageraset,45,55,20,30,40,30,,,,,,,milk,,,Herd
+172,173,Creatures,bantha (bio-engineered),1,Tatooine,Bantha,45,55,20,30,40,30,,,,,,,milk,,,Herd
+172,173,Creatures,bantha E3,10,Tatooine,Bantha,810,990,28,90,110,292,herbivore,450,wooly,325,mammal,250,milk (wild),,,"Herd, Tamable, Dizzy attack"
+172,173,Creatures,bark mite,10,Rori,Bark Mite,810,990,28,90,110,356,insect,5,scaley,4,mammal,3,,,,"Pack, Tamable, Blind attack"
+172,173,Creatures,bark mite hatchling,9,Rori,Bark Mite,680,830,27,80,90,292,insect,5,,,,,,,,"Pack, Herd, Stun attack"
+172,173,Creatures,bearded jax,11,Rori,Jax,810,990,28,90,110,430,herbivore,15,bristley,15,mammal,10,,,,"Stalker, Pack, Tamable, Intimidation attack"
+172,173,Creatures,bearded jax (bio-engineered),1,Rori,Jax,45,55,20,30,40,40,,,,,,,,,,"Stalker, Pack"
+172,173,Creatures,bloated gubber,6,Corellia,Gubbur,180,220,25,50,55,113,carnivore,4,leathery,3,mammal,3,,,,Herd
+172,173,Creatures,blurrg (bio-engineered),1,Endor,Blurrg,45,55,20,30,40,40,,,,,,,,,,Pack
+172,173,Creatures,boar wolf (bio-engineered),1,Endor,Boar Wolf,45,55,20,30,40,40,,,,,,,,,,"Aggro, Pack"
+172,173,Creatures,bocatt (bio-engineered),1,Tatooine,Bocatt,45,55,20,30,40,40,,,,,,,,,,"Aggro, Stalker, Pack"
+172,173,Creatures,bol (bio-engineered),1,Dantooine,Bol,45,55,20,30,40,40,,,,,,,milk,,,"Pack, Herd"
+172,173,Creatures,bolle bol (bio-engineered),1,Naboo,Bolle Bol,45,55,20,30,40,40,,,,,,,milk,,,"Pack, Herd"
+172,173,Creatures,bolma (bio-engineered),1,Dathomir,Bolma,45,55,20,30,40,40,,,,,,,milk,,,"Pack, Herd"
+172,173,Creatures,bordok (bio-engineered),1,Endor,Bordok,45,55,20,30,40,45,,,,,,,milk,,,"Aggro, Killer, Pack"
+172,173,Creatures,brackaset (bio-engineered),1,Dathomir,Brackaset,45,55,20,30,40,40,,,,,,,milk,,,"Pack, Herd"
+172,173,Creatures,canoid,10,Corellia,Canoid,810,990,28,120,130,356,carnivore,65,bristley,35,mammal,30,,,,"Pack, Herd, Tamable, Stun attack"
+172,173,Creatures,capper spineflap,6,Naboo,Capper Spineflap,180,220,25,50,55,147,insect,3,scaley,5,avian,3,,,,"Pack, Tamable"
+172,173,Creatures,capper spineflap drone,6,Naboo,Capper Spineflap,180,220,25,50,55,147,insect,6,scaley,10,avian,6,,,,"Pack, Tamable"
+172,173,Creatures,carrion spat,10,Corellia,Carrion Spat,990,1200,28,90,110,292,avian,260,,,avian,180,,,,"Tamable, Stun attack"
+172,173,Creatures,carrion spat (bio-engineered),1,Corellia,Carrion Spat,45,55,20,30,40,30,,,,,,,,,,
+172,173,Creatures,cavern spider broodling,8,Dathomir,Spider Nightsister,410,500,27,70,75,292,insect,15,,,,,,,,"Aggro, Killer, Stalker, Pack, Spider Nightsider (PvP)"
+174,175,Creatures,choku (bio-engineered),1,Yavin 4,Choku,45,55,20,30,40,40,,,,,,,,,,"Aggro, Stalker, Pack"
+174,175,Creatures,choku pup,8,Yavin 4,Choku,410,500,27,70,75,235,avian,7,,,avian,5,,,,"Aggro, Stalker, Pack"
+174,175,Creatures,chuba,5,Naboo,Chuba,140,170,25,45,50,85,herbivore,5,leathery,3,,,,,,"Herd, Tamable"
+174,175,Creatures,clipped fynock,9,Talus,Fynock,680,830,27,80,90,292,avian,20,leathery,30,avian,7,,,,"Pack, Stun attack"
+174,175,Creatures,confused wood mite hatchling,9,Rori,Bark Mite,680,830,27,80,90,292,insect,5,,,,,,,,"Pack, Herd, Stun attack"
+174,175,Creatures,corellian butterfly drone (large),5,Corellia,Corellian Butterfly,140,170,25,45,50,85,insect,3,scaley,4,,,,,,
+174,175,Creatures,corellian butterfly drone,5,Corellia,Corellian Butterfly,140,170,25,45,50,85,insect,3,scaley,4,,,,,,
+174,175,Creatures,corellian butterfly worker,9,Corellia,Corellian Butterfly,680,830,27,80,90,292,insect,8,scaley,8,,,,,,"Pack, Herd, Tamable, Intimidation attack"
+174,175,Creatures,corellian butterfly,7,Corellia,Corellian Butterfly,270,330,26,55,65,147,insect,3,scaley,4,,,,,,Tamable
+174,175,Creatures,crazed durni,10,Corellia,Crazed Durni,680,830,28,120,130,292,herbivore,5,wooly,3,mammal,2,,,,"Aggro, Tamable, Posture down attack"
+174,175,Creatures,crescent rasp,7,Rori,Rasp,140,170,26,80,90,147,avian,10,,,avian,2,,,,Herd
+174,175,Creatures,cu pa (bio-engineered),1,Tatooine,Cu Pa,45,55,20,30,40,30,,,,,,,milk,,,Herd
+174,175,Creatures,cu pa,11,Tatooine,Cu Pa,990,1200,29,120,130,356,reptilian,215,bristley,100,mammal,115,milk (wild),,,"Herd, Tamable, Stun attack, Ranged attack (spit)"
+174,175,Creatures,dalyrake (bio-engineered),1,Corellia,Dalyrake,45,55,20,30,40,40,,,,,,,,,,Pack
+174,175,Creatures,dalyrake,9,Corellia,Dalyrake,680,830,27,80,90,292,insect,25,scaley,45,,,,,,"Pack, Tamable, Intimidation attack"
+174,175,Creatures,death kreetle,9,Tatooine,Uber Kreetle,270,330,27,130,140,356,insect,3,scaley,4,,,,,,"Aggro, Killer, Pack, Herd, Stun attack"
+174,175,Creatures,decay mite,9,Talus,Decay Mite,680,830,27,80,90,292,insect,4,scaley,3,,,,,,"Pack, Herd, Tamable, Posture down attack"
+174,175,Creatures,dewback (bio-engineered),1,Tatooine,Dewback,45,55,20,30,40,40,,,,,,,,,,Pack
+174,175,Creatures,diminutive bounding jax,7,Endor,Jax,68,83,27,80,90,187,herbivore,,bristley,35,mammal,25,,,,"Aggro, Pack, Tamable"
+174,175,Creatures,diseased bocatt,8,Tatooine,Bocatt,410,500,27,70,75,235,wild,6,leathery,5,mammal,4,,,,"Aggro, Stalker, Pack, Intimidation attack, Mild disease attack"
+174,175,Creatures,diseased nuna,6,Naboo,Diseased Nuna,180,220,25,50,55,113,avian,3,leathery,4,avian,2,,,,Mild disease attack
+174,175,Creatures,diseased vrelt matriarch,11,Corellia,Vrelt,810,990,28,90,110,514,carnivore,10,bristley,10,mammal,10,,,,"Aggro, Killer, Pack, Herd, Tamable, Mild disease attack, Posture down attack, Ranged attack (spit)"
+174,175,Creatures,diseased vrelt,8,Corellia,Vrelt,410,500,27,70,75,187,wild,4,leathery,3,mammal,2,,,,"Aggro, Tamable, Mild disease attack"
+174,175,Creatures,docile kahmurra,10,Talus,Docile Kahmurra,990,1200,28,80,90,292,herbivore,45,bristley,27,mammal,32,milk,,,
+174,175,Creatures,domestic bageraset,8,Corellia,Domestic Bageraset,680,830,27,55,65,187,herbivore,240,leathery,145,mammal,104,milk,,,Stun attack
+174,175,Creatures,domestic bearded jax,5,Rori,Narmle,140,170,25,45,50,85,domestic.,11,bristley,16,mammal,11,,,,"Stalker, Herd"
+174,175,Creatures,domestic eopie,4,Tatooine,Eopie,110,140,24,40,45,62,domestic.,335,leathery,260,mammal,190,milk,,,Herd
+174,175,Creatures,domestic humbaba,7,Corellia,Domestic Humbaba,270,330,26,55,65,147,domestic.,215,leathery,115,mammal,65,milk,,,"Herd, Posture down attack"
+174,175,Creatures,domestic krahbu,7,Corellia,Domestic Krahbu,410,500,26,50,55,147,herbivore,230,bristley,160,mammal,145,milk,,,Herd
+174,175,Creatures,domesticated mott,5,Naboo,Naboo,140,170,25,45,50,85,domestic.,95,leathery,65,mammal,30,,,,Herd
+174,175,Creatures,drooling nuna,6,Tatooine,Dwarf Nuna,140,170,25,80,90,147,avian,2,leathery,3,avian,1,,,,"Aggro, Pack, Herd, Tamable"
+174,175,Creatures,dune lizard (bio-engineered),1,Tatooine,Dune Lizard,45,55,20,30,40,40,,,,,,,,,,"Aggro, Killer, Stalker, Herd"
+174,175,Creatures,durni (bio-engineered),1,Corellia,Durni,45,55,20,30,40,30,,,,,,,,,,
+174,175,Creatures,durni,7,Corellia,Durni,270,330,26,55,65,147,herbivore,5,wooly,3,mammal,2,,,,Tamable
+174,175,Creatures,dwarf bantha,11,Tatooine,Bantha,1200,1400,29,90,110,356,herbivore,300,wooly,200,mammal,100,milk,,,"Herd, Stun attack"
+174,175,Creatures,dwarf eopie,3,Tatooine,Eopie,90,110,23,35,45,62,herbivore,230,leathery,180,mammal,110,milk (wild),,,Pack
+174,175,Creatures,dwarf nuna,5,Tatooine,Dwarf Nuna,140,170,25,45,50,85,avian,2,leathery,3,avian,1,,,,"Herd, Tamable"
+174,175,Creatures,elder squall,9,Endor,Squall,680,830,27,80,90,292,herbivore,,bristley,12,mammal,8,,,,"Pack, Herd"
+176,177,Creatures,eopie (bio-engineered),1,Tatooine,Eopie,45,55,20,30,40,30,,,,,,,milk,,,Herd
+176,177,Creatures,eopie herdmaster,9,Tatooine,Eopie,810,990,27,55,65,292,herbivore,315,leathery,250,mammal,150,,,,"Aggro, Pack, Herd, Tamable"
+176,177,Creatures,eopie,7,Tatooine,Eopie,410,500,26,45,50,147,herbivore,315,leathery,250,mammal,150,milk (wild),,,"Herd, Tamable"
+176,177,Creatures,falumpaset (bio-engineered),1,Naboo,Falumpaset,45,55,20,30,40,30,,,,,,,milk,,,Herd
+176,177,Creatures,fambaa (bio-engineered),1,Naboo,Fambaa,45,55,20,30,40,40,,,,,,,milk,,,"Pack, Herd"
+176,177,Creatures,fanned rawl,10,Naboo,Fanned Rawl,810,990,28,90,110,356,reptilian,25,scaley,15,mammal,7,,,,"Pack, Tamable, Posture down atk, Mild poison atk"
+176,177,Creatures,feared fynock youth,7,Talus,Fynock,270,330,25,80,90,147,avian,3,,,avian,3,,,,Herd
+176,177,Creatures,fearful fynock youth,5,Talus,Fynock,140,170,25,45,50,85,avian,1,,,avian,1,,,,Herd
+176,177,Creatures,feeble kima,11,Talus,Kima,990,1200,29,120,130,356,herbivore,5,bristley,7,mammal,5,,,,"Herd, Stun attack"
+176,177,Creatures,female dire cat,10,Corellia,Dire Cat,680,830,28,120,130,430,carnivore,65,bristley,35,mammal,30,,,,"Aggro, Killer, Pack, Herd, Tamable, Intimidation atk"
+176,177,Creatures,female forest slice hound,10,Corellia,Forest Slice Hound,680,830,28,130,140,356,carnivore,65,bristley,35,mammal,30,,,,"Pack, Herd, Tamable, Posture down attack"
+176,177,Creatures,female Kwi,11,Dathomir,Kwi,410,500,28,120,130,430,herbivore,100,leathery,86,mammal,76,,,,"Pack, Herd, Intimidation atk, Ranged attack (spit)"
+176,177,Creatures,female slice hound,8,Corellia,Slice Hound,270,330,27,80,90,235,carnivore,65,bristley,35,mammal,30,,,,"Pack, Herd, Tamable, Intimidation attack"
+176,177,Creatures,female squall,10,Rori,Squall,810,990,28,90,110,356,herbivore,8,bristley,12,mammal,8,,,,"Pack, Herd, Tamable"
+176,177,Creatures,flesh eating chuba,6,Naboo,Flesh Eating Chuba,180,220,25,50,55,113,carnivore,4,leathery,3,,,,,,Tamable
+176,177,Creatures,flewt leviathan,9,Naboo,Flewt,410,500,28,90,110,292,insect,3,scaley,5,avian,3,,,,"Aggro, Pack, Herd, Tamable, Dizzy attack"
+176,177,Creatures,flewt,7,Naboo,Flewt,270,330,26,55,65,147,insect,3,scaley,5,avian,3,,,,"Herd, Tamable"
+176,177,Creatures,flit bloodsucker,9,Lok,Flit,680,830,27,80,90,292,avian,9,,,avian,10,,,,"Aggro, Pack, Tamable, Intimidation attack"
+176,177,Creatures,flit harasser,10,Lok,Flit,810,990,28,90,110,356,avian,9,,,avian,10,,,,"Aggro, Pack, Tamable, Intimidation attack"
+176,177,Creatures,flit youth,6,Lok,Flit,180,220,25,50,55,147,avian,5,,,avian,5,,,,"Aggro, Pack"
+176,177,Creatures,flit,8,Lok,Flit,410,500,27,70,75,235,avian,9,,,avian,10,,,,"Aggro, Pack, Tamable, Stun attack"
+176,177,Creatures,flite rasp (large),8,Talus,Rasp,410,500,27,70,75,235,avian,19,,,avian,9,,,,"Pack, Herd"
+176,177,Creatures,flite rasp,8,Talus,Rasp,410,500,27,70,75,235,avian,11,,,avian,3,,,,"Pack, Herd"
+176,177,Creatures,frail squall,6,Rori,Squall,180,220,25,50,55,113,herbivore,4,bristley,3,mammal,3,,,,Tamable
+176,177,Creatures,frightened borgle,8,Rori,Borgle,410,500,27,80,90,187,carnivore,5,leathery,5,avian,5,,,,"Herd, Tamable, Intimidation attack"
+176,177,Creatures,frightened young flewt,6,Naboo,Flewt,180,220,25,50,55,147,avian,1,leathery,1,avian,1,,,,"Pack, Herd"
+176,177,Creatures,gackle bat,10,Yavin 4,Gacklebat,410,500,28,120,130,356,carnivore,4,bristley,2,mammal,3,,,,"Aggro, Pack, Tamable, Intimidation attack"
+176,177,Creatures,gaping spider broodling,8,Dathomir,Gaping,410,500,27,70,75,235,insect,5,,,,,,,,"Aggro, Stalker, Pack, Mild poison attack"
+176,177,Creatures,giant decay mite hatchling,7,Talus,Decay Mite,110,140,25,50,55,187,insect,5,,,,,,,,"Aggro, Pack, Mild disease attack"
+176,177,Creatures,giant gubbur,9,Corellia,Gubbur,680,830,27,70,75,235,carnivore,10,leathery,15,mammal,15,,,,"Aggro, Herd"
+176,177,Creatures,giant horned krevol,11,Corellia,Horned Krevol,810,990,28,90,110,430,insect,10,,,,,,,,"Aggro, Stalker, Pack, Herd, Tamable, Stun attack, Ranged attack (spit)"
+176,177,Creatures,giant pharple,7,Lok,Pharple,270,330,26,55,65,187,avian,21,bristley,12,avian,9,,,,"Pack, Herd"
+176,177,Creatures,giga flite rasp,11,Talus,Rasp,810,990,29,130,140,430,avian,20,,,avian,6,,,,"Pack, Herd, Posture down attack"
+176,177,Creatures,gnort (bio-engineered),1,Naboo,Gnort,45,55,20,30,40,30,,,,,,,,,,Herd
+176,177,Creatures,gnort,4,Naboo,Gnort,110,140,24,40,45,62,herbivore,6,leathery,4,mammal,3,,,,"Herd, Tamable"
+176,177,Creatures,gorg glutton,7,Tatooine,Gorg,410,500,25,50,55,147,herbivore,12,leathery,9,mammal,8,,,,Herd
+176,177,Creatures,gorg,6,Tatooine,Gorg,180,220,25,50,55,113,herbivore,5,leathery,3,mammal,2,,,,Herd
+176,177,Creatures,graul (bio-engineered),1,Dantooine,Graul,45,55,20,30,40,40,,,,,,,,,,"Aggro, Pack"
+176,177,Creatures,gronda (bio-engineered),1,Corellia,Gronda,45,55,20,30,40,40,,,,,,,,,,"Pack, Herd"
+178,179,Creatures,gualama (bio-engineered),1,Naboo,Gualama,45,55,20,30,40,30,,,,,,,milk,,,Herd
+178,179,Creatures,gubbur,6,Corellia,Gubbur,180,220,25,50,55,113,carnivore,4,leathery,3,mammal,3,,,,"Herd, Tamable"
+178,179,Creatures,guf drolg (bio-engineered),1,Talus,Guf Drolg,45,55,20,30,40,40,,,,,,,,,,"Stalker, Pack"
+178,179,Creatures,gurnaset (bio-engineered),1,Lok,Gurnaset,45,55,20,30,40,40,,,,,,,milk,,,"Pack, Herd"
+178,179,Creatures,gurnaset hatchling,5,Lok,Gurnaset,140,170,25,45,50,85,herbivore,351,leathery,278,mammal,303,,,,Herd
+178,179,Creatures,gurrcat (bio-engineered),1,Naboo,Tusk Cat,45,55,20,30,40,40,,,,,,,,,,Pack
+178,179,Creatures,gurrcat,10,Corellia,Gurrcat,810,990,28,90,110,356,carnivore,65,bristley,35,mammal,30,,,,"Pack, Herd, Intimidation attack"
+178,179,Creatures,gurreck (bio-engineered),1,Endor,Gurreck,45,55,20,30,40,40,,,,,,,,,,Pack
+178,179,Creatures,hermit spider (bio-engineered),1,Naboo,Hermit Spider,45,55,20,30,40,30,,,,,,,,,,Stalker
+178,179,Creatures,hermit spider guard,10,Naboo,Hermit Spider,680,830,27,80,90,356,insect,9,,,,,,,,"Aggro, Pack, Herd, Stun attack, Mild poison attack"
+178,179,Creatures,hermit spider queen,11,Naboo,Hermit Spider,680,830,28,80,90,514,insect,10,,,,,,,,"Aggro, Killer, Pack, Herd, Mild poison attack, Blind attack, Ranged attack (spit)"
+178,179,Creatures,hermit spider,7,Naboo,Hermit Spider,270,330,26,55,65,147,insect,60,,,,,,,,"Stalker, Tamable"
+178,179,Creatures,horned krevol,6,Naboo,Horned Krevol,180,220,25,50,55,147,reptilian,3,scaley,15,mammal,7,,,,"Pack, Stun attack"
+178,179,Creatures,horned rasp,6,Rori,Rasp,180,220,25,50,55,147,avian,8,,,avian,1,,,,"Pack, Herd, Tamable"
+178,179,Creatures,howling plumed rasp (large),4,Corellia,Rasp,110,140,24,40,45,85,avian,3,,,avian,2,,,,"Aggro, Pack"
+178,179,Creatures,howling plumed rasp,4,Corellia,Rasp,110,140,24,40,45,85,avian,3,,,avian,2,,,,"Aggro, Pack"
+178,179,Creatures,huf dun (bio-engineered),1,Talus,Huf Dun,45,55,20,30,40,30,,,,,,,,,,Herd
+178,179,Creatures,huurton (bio-engineered),1,Dantooine,Huurton,45,55,20,30,40,40,,,,,,,,,,"Aggro, Pack, Herd"
+178,179,Creatures,huurton pup,2,Dantooine,Huurton,68,83,21,35,40,45,wild,10,wooly,,mammal,5,,,,"Pack, Herd"
+178,179,Creatures,ikopi (bio-engineered),1,Naboo,Ikopi,45,55,20,30,40,30,,,,,,,milk,,,Herd
+178,179,Creatures,ikopi,7,Naboo,Ikopi,410,500,26,50,55,147,wild,70,bristley,60,mammal,45,milk (wild),,,"Herd, Tamable"
+178,179,Creatures,infant brackaset,6,Dathomir,Brackaset,140,170,25,55,65,113,wild,75,leathery,65,mammal,60,,,,Herd
+178,179,Creatures,injured Kwi,8,Dathomir,Kwi,410,500,27,70,75,187,herbivore,100,leathery,85,mammal,75,,,,"Herd, Posture down attack"
+178,179,Creatures,injured verne,6,Dathomir,Verne,180,220,25,50,55,113,wild,30,leathery,25,mammal,22,,,,Herd
+178,179,Creatures,irate flewt matriarch,8,Naboo,Flewt,410,500,27,70,75,235,avian,4,leathery,4,avian,4,,,,"Aggro, Pack, Herd"
+178,179,Creatures,jundland eopie,10,Tatooine,Jundland Eopie,680,830,27,80,90,292,herbivore,300,leathery,225,mammal,115,milk (wild),,,"Herd, Tamable, Stun attack"
+178,179,Creatures,juvenile langlatch,8,Lok,Langlatch,410,500,27,70,75,235,carnivore,7,wooly,6,mammal,6,,,,"Aggro, Pack, Posture down attack"
+178,179,Creatures,kaadu (bio-engineered),1,Naboo,Kaadu,45,55,20,30,40,30,,,,,,,milk,,,Herd
+178,179,Creatures,kaadu,10,Naboo,Kaadu,810,990,28,90,110,292,avian,120,leathery,85,avian,70,milk (wild),,,"Herd, Tamable"
+178,179,Creatures,kahmurra (bio-engineered),1,Corellia,Murra,45,55,20,30,40,30,,,,,,,milk,,,Herd
+178,179,Creatures,kima (bio-engineered),1,Talus,Kima,45,55,20,30,40,40,,,,,,,,,,Pack
+178,179,Creatures,kimogila (bio-engineered),1,Lok,Kimogila,45,55,20,30,40,45,,,,,,,,,,"Aggro, Killer, Pack"
+178,179,Creatures,kliknik (bio-engineered),1,Yavin 4,Kliknik,45,55,20,30,40,40,,,,,,,,,,"Aggro, Pack"
+178,179,Creatures,krahbu (bio-engineered),1,Corellia,Krahbu,45,55,20,30,40,30,,,,,,,milk,,,Herd
+178,179,Creatures,krahbu,10,Corellia,Krahbu,990,1200,27,80,90,292,herbivore,210,bristley,135,mammal,120,milk (wild),,,"Herd, Tamable, Intimidation attack"
+178,179,Creatures,kreetle swarmling,6,Tatooine,Uber Kreetle,110,140,25,50,55,147,insect,1,scaley,2,,,,,,"Aggro, Pack, Herd, Posture down attack"
+178,179,Creatures,kreetle,3,Tatooine,Kreetle,90,110,23,35,45,45,insect,1,scaley,2,,,,,,"Aggro, Herd, Tamable"
+178,179,Creatures,kusak (bio-engineered),1,Lok,Kusak,45,55,20,30,40,40,,,,,,,,,,"Aggro, Stalker, Pack"
+178,179,Creatures,kusak pup,8,Lok,Kusak,410,500,27,70,75,235,carnivore,10,bristley,7,mammal,5,,,,"Aggro, Stalker, Pack, Blind attack"
+180,181,Creatures,kwi (bio-engineered),1,Dathomir,Kwi,45,55,20,30,40,40,,,,,,,,,,"Pack, Herd"
+180,181,Creatures,kwi,10,Dathomir,Kwi,270,330,27,90,110,356,herbivore,100,leathery,85,mammal,75,,,,"Pack, Herd, Tamable, Intimidation attack"
+180,181,Creatures,langlatch (bio-engineered),1,Lok,Langlatch,45,55,20,30,40,40,,,,,,,,,,"Aggro, Pack"
+180,181,Creatures,langlatch hatchling,4,Lok,Langlatch,110,140,24,40,45,85,carnivore,5,wooly,3,mammal,3,,,,"Aggro, Pack, Posture down attack"
+180,181,Creatures,large chuba,5,Naboo,Chuba,140,170,25,45,50,85,herbivore,10,leathery,6,,,,,,"Herd, Tamable"
+180,181,Creatures,lesser desert womp rat,5,Tatooine,Lesser Desert Womprat,140,170,25,45,50,85,wild,2,leathery,2,mammal,1,,,,"Herd, Tamable"
+180,181,Creatures,lesser dewback,9,Tatooine,Lesser Dewback,810,990,27,50,55,292,reptilian,175,leathery,125,mammal,100,,,,"Pack, Tamable, Stun attack"
+180,181,Creatures,lesser plains bol,10,Dantooine,Bol,810,990,28,90,110,292,herbivore,,leathery,300,mammal,180,milk,,,"Herd, Tamable"
+180,181,Creatures,lowland brackaset,10,Dathomir,Brackaset,680,830,28,120,130,292,wild,75,leathery,65,mammal,60,milk (wild),,,"Herd, Tamable"
+180,181,Creatures,male squall,11,Rori,Squall,990,1200,29,120,130,356,herbivore,10,bristley,15,mammal,10,,,,"Herd, Tamable, Stun attack"
+180,181,Creatures,malkloc (bio-engineered),1,Dathomir,Malkloc,45,55,20,30,40,40,,,,,,,,,,"Pack, Herd"
+180,181,Creatures,mamien youth,9,Yavin 4,Marnien,680,830,27,80,90,235,wild,35,wooly,20,mammal,20,,,,Intimidation attack
+180,181,Creatures,massive gnort,4,Naboo,Gnort,110,140,24,40,45,62,herbivore,12,leathery,8,mammal,6,,,,Herd
+180,181,Creatures,mawgax (bio-engineered),1,Yavin 4,Mawgax,45,55,20,30,40,40,,,,,,,,,,"Pack, Herd"
+180,181,Creatures,meek avenging squall,6,Rori,Squall,180,220,25,50,55,113,herbivore,12,bristley,9,mammal,9,,,,
+180,181,Creatures,merek (bio-engineered),1,Endor,Merek,45,55,20,30,40,40,,,,,,,,,,Pack
+180,181,Creatures,minor gubbur,4,Corellia,Gubbur,110,140,24,40,45,62,carnivore,3,leathery,2,mammal,2,,,,Herd
+180,181,Creatures,minor guf drolg,9,Talus,Guf Drolg,680,830,27,80,90,292,reptilian,300,leathery,240,mammal,170,,,,"Pack, Tamable, Posture down attack"
+180,181,Creatures,minor sludge panther,10,Talus,Sludge Panther,810,990,28,90,110,356,carnivore,20,leathery,27,mammal,27,,,,"Pack, Tamable, Intimidation attack"
+180,181,Creatures,minor worrt,5,Tatooine,Minor Worrt,140,170,25,45,50,85,reptilian,3,leathery,3,mammal,1,,,,"Herd, Tamable"
+180,181,Creatures,motley kaadu,8,Naboo,Kaadu,410,500,27,70,75,187,avian,120,leathery,75,avian,65,milk,,,Herd
+180,181,Creatures,mott (bio-engineered),1,Naboo,Mott,45,55,20,30,40,30,,,,,,,,,,Herd
+180,181,Creatures,mott bull,11,Naboo,Mott,810,990,29,130,140,430,herbivore,100,leathery,65,mammal,40,,,,"Pack, Tamable, Intimidation attack"
+180,181,Creatures,mott calf,4,Naboo,Mott,110,140,24,40,45,85,herbivore,45,leathery,30,mammal,15,,,,Pack
+180,181,Creatures,mott,8,Naboo,Mott,410,500,27,70,75,187,herbivore,85,leathery,60,mammal,25,,,,"Herd, Tamable, Posture down attack"
+180,181,Creatures,mound mite,9,Tatooine,Mound Mite,680,830,27,80,90,292,insect,3,scaley,4,,,,,,"Pack, Tamable, Stun attack"
+180,181,Creatures,murra,10,Corellia,Murra,810,990,27,80,90,292,herbivore,55,bristley,35,mammal,32,milk (wild),,,"Herd, Tamable, Posture down attack"
+180,181,Creatures,mutant bark mite hatchling,10,Rori,Mutant Bark Mite,1500,1900,27,80,90,430,insect,10,bristley,8,,,,,,"Aggro, Killer, Pack, Herd, Blind attack"
+180,181,Creatures,mutated krevol clicker,10,Corellia,Horned Krevol,810,990,28,90,110,356,insect,10,,,,,,,,"Aggro, Pack, Herd, Tamable, Stun attack, Blind attack, Ranged attack (spit)"
+180,181,Creatures,narglatch (bio-engineered),1,Naboo,Narglatch,45,55,20,30,40,40,,,,,,,,,,"Aggro, Stalker, Pack"
+180,181,Creatures,narglatch cub,8,Naboo,Narglatch,410,500,27,70,75,235,carnivore,30,bristley,25,mammal,20,,,,"Stalker, Pack"
+180,181,Creatures,nightspider aggressor,9,Naboo,Nightspider,680,830,27,80,90,292,insect,5,,,,,,,,"Aggro, Stalker, Pack, Herd, Posture down attack, Mild poison attack"
+180,181,Creatures,nightspider poison spitter,11,Naboo,Nightspider,810,990,29,130,140,430,insect,7,,,,,,,,"Aggro, Stalker, Pack, Herd, Stun attack, Mild poison attack"
+180,181,Creatures,nightspider,7,Naboo,Nightspider,270,330,26,55,65,147,insect,60,,,,,,,,"Posture down attack, Mild poison attack"
+180,181,Creatures,noxious vrelt scavenger,10,Corellia,Vrelt,810,990,28,90,110,356,carnivore,10,bristley,10,mammal,10,,,,"Aggro, Stalker, Pack, Herd, Tamable, Stun attack, Mild disease attack, Ranged attack (spit)"
+180,181,Creatures,nuna,10,Naboo,Nuna,810,990,28,90,110,292,avian,3,leathery,4,avian,2,,,,"Herd, Tamable"
+182,183,Creatures,paralope,6,Corellia,Paralope,180,220,25,50,55,113,herbivore,5,wooly,3,mammal,2,milk (wild),,,"Herd, Tamable"
+182,183,Creatures,pharple,5,Lok,Pharple,140,170,25,45,50,113,avian,18,bristley,10,avian,7,,,,"Pack, Herd"
+182,183,Creatures,pigmy pugoriss,8,Rori,Pugoriss,180,220,27,90,110,187,carnivore,300,leathery,350,mammal,300,,,,"Herd, Stun attack"
+182,183,Creatures,piket (bio-engineered),1,Dantooine,Piket,45,55,20,30,40,40,,,,,,,milk,,,"Pack, Herd"
+182,183,Creatures,plodding falumpaset,10,Naboo,Naboo,1200,1400,28,80,90,292,domestic.,230,leathery,130,mammal,80,milk,,,"Herd, Stun attack, Ranged attack (spit)"
+182,183,Creatures,plumed rasp,7,Corellia,Rasp,140,170,26,80,90,147,avian,3,,,avian,2,,,,Tamable
+182,183,Creatures,pudgy nudfuh,9,Rori,Nudfuh,680,830,27,80,90,235,herbivore,900,leathery,1000,mammal,900,,,,"Herd, Intimidation attack"
+182,183,Creatures,pugoriss (bio-engineered),1,Rori,Pugoriss,45,55,20,30,40,30,,,,,,,,,,Herd
+182,183,Creatures,puny gackle bat,6,Yavin 4,Gacklebat,180,220,25,50,55,147,carnivore,2,bristley,1,mammal,1,,,,"Aggro, Pack, Stun attack"
+182,183,Creatures,puny stintaril,9,Yavin 4,Stinaril,680,830,27,80,90,292,carnivore,2,bristley,1,mammal,1,,,,"Pack, Stun attack"
+182,183,Creatures,puny tanc mite,2,Yavin 4,Tancmite,68,83,21,35,40,45,insect,2,,,,,,,,"Pack, Herd, Tamable"
+182,183,Creatures,putrid decay mite hatchling (large),7,Talus,Decay Mite,270,330,26,55,65,147,insect,12,,,,,,,,"Herd, Mild disease attack"
+182,183,Creatures,putrid decay mite hatchling,7,Talus,Decay Mite,270,330,26,55,65,147,insect,4,,,,,,,,"Herd, Mild disease attack"
+182,183,Creatures,rabid shaupaut,9,Naboo,Rabid Shaupaut,680,830,27,80,90,292,wild,4,bristley,3,mammal,3,,,,"Stalker, Pack, Intimidation atk, Mild disease attack"
+182,183,Creatures,rabid squall,9,Endor,Rabid Squall,680,830,27,80,90,292,herbivore,,bristley,12,mammal,8,,,,"Pack, Tamable, Mild disease attack"
+182,183,Creatures,rancor (bio-engineered),1,Dathomir,Rancor,45,55,20,30,40,45,,,,,,,,,,"Aggro, Killer, Stalker, Pack"
+182,183,Creatures,razor cat (bio-engineered),1,Corellia,Sand Panther,45,55,20,30,40,40,,,,,,,,,,"Pack, Herd"
+182,183,Creatures,razor cat cub,10,Corellia,Sand Panther,810,990,28,90,110,356,carnivore,25,bristley,14,mammal,12,,,,"Pack, Stun attack"
+182,183,Creatures,repugnant dung mite crawler,7,Talus,Decay Mite,140,170,26,80,90,187,insect,9,scaley,6,,,,,,"Aggro, Pack, Herd, Tamable, Dizzy attack"
+182,183,Creatures,rill,6,Tatooine,Rill,180,220,25,50,55,113,carnivore,35,bristley,20,mammal,15,,,,Tamable
+182,183,Creatures,roba (bio-engineered),1,Endor,Roba,45,55,20,30,40,40,,,,,,,,,,Pack
+182,183,Creatures,rockmite,8,Tatooine,Rockmite,410,500,27,70,75,187,insect,3,scaley,4,,,,,,"Herd, Tamable"
+182,183,Creatures,ronto (bio-engineered),1,Tatooine,Ronto,45,55,20,30,40,30,,,,,,,milk,,,Herd
+182,183,Creatures,rot mite,11,Talus,Decay Mite,990,1200,29,120,130,430,insect,3,scaley,2,,,,,,"Pack, Herd, Tamable, Stun attack"
+182,183,Creatures,runty pharple,3,Lok,Pharple,90,110,23,35,45,62,avian,15,bristley,7,avian,5,,,,"Pack, Herd"
+182,183,Creatures,savage flewt queen,10,Naboo,Flewt,810,990,28,90,110,356,avian,6,leathery,6,avian,6,,,,"Aggro, Pack, Herd, Stun attack, Mild poison attack"
+182,183,Creatures,scavenger rat,8,Corellia,Scavenger Rat,410,500,27,70,75,187,wild,4,leathery,3,mammal,2,,,,
+182,183,Creatures,scorched krevol,8,Rori,Krevol,410,500,27,70,75,235,insect,10,scaley,10,,,,,,"Pack, Tamable, Stun attack"
+182,183,Creatures,sentry hermit spider,10,Naboo,Hermit Spider,410,500,27,70,75,430,insect,9,,,,,,,,"Aggro, Killer, Stalker, Pack, Herd, Intimidation attack, Mild poison attack"
+182,183,Creatures,sevorrt,7,Tatooine,Sevorrt,270,330,26,55,65,147,reptilian,10,leathery,10,mammal,4,,,,"Aggro, Stalker, Tamable, Intimidation attack"
+182,183,Creatures,sharnaff (bio-engineered),1,Corellia,Sharnaff,45,55,20,30,40,30,,,,,,,milk,,,
+182,183,Creatures,shaupaut,7,Naboo,Shaupaut,270,330,26,55,65,187,carnivore,6,bristley,4,mammal,4,,,,"Stalker, Pack, Tamable, Stun attack"
+182,183,Creatures,shear mite (bio-engineered),1,Dathomir,Shearmite,45,55,20,30,40,40,,,,,,,,,,"Aggro, Stalker, Pack"
+182,183,Creatures,shear mite broodling,8,Dathomir,Shearmite,410,500,27,70,75,235,insect,15,scaley,3,,,,,,"Aggro, Stalker, Pack, Tamable, Posture down attack"
+182,183,Creatures,sickle rasp,8,Rori,Rasp,180,220,27,90,110,235,avian,15,,,avian,5,,,,"Pack, Herd, Mild poison attack, Posture down attack"
+182,183,Creatures,skreeg infant,4,Yavin 4,Skreeg,110,140,24,40,45,85,herbivore,15,bristley,9,mammal,7,,,,"Aggro, Pack"
+182,183,Creatures,slice hound (bio-engineered),1,Corellia,Slice Hound,45,55,20,30,40,40,,,,,,,,,,"Pack, Herd"
+182,183,Creatures,slice hound (warren),9,Dantooine,Slice Hound,410,500,27,120,130,292,carnivore,65,bristley,35,mammal,30,,,,"Pack, Herd, Intimidation attack, Can’t be harmed"
+182,183,Creatures,slice hound,9,Corellia,Slice Hound,410,500,27,120,130,292,carnivore,65,bristley,35,mammal,30,,,,"Pack, Herd, Tamable, Intimidation attack"
+184,185,Creatures,slum rat,6,Tatooine,Lesser Desert Womprat,180,220,25,50,55,113,wild,7,leathery,7,mammal,3,,,,"Herd, Tamable"
+184,185,Creatures,snorbal (bio-engineered),1,Lok,Snorbal,45,55,20,30,40,40,,,,,,,milk,,,"Pack, Herd"
+184,185,Creatures,song rasp,10,Talus,Rasp,810,990,28,90,110,356,avian,10,,,avian,3,,,,Pack
+184,185,Creatures,spiked krevol,10,Naboo,Horned Krevol,810,990,28,90,110,356,reptilian,25,scaley,15,mammal,7,,,,"Pack, Tamable, Posture down attack"
+184,185,Creatures,spineflap gatherer,9,Naboo,Capper Spineflap,680,830,27,80,90,292,insect,,scaley,5,avian,3,,,,"Pack, Tamable"
+184,185,Creatures,squall (bio-engineered),1,Endor,Squall,45,55,20,30,40,40,,,,,,,,,,"Pack, Herd"
+184,185,Creatures,squall,6,Endor,Squall,180,220,25,50,55,147,herbivore,,bristley,12,mammal,8,,,,"Pack, Herd, Tamable"
+184,185,Creatures,stintaril scavenger,11,Yavin 4,Stinaril,990,1200,29,120,130,430,carnivore,5,bristley,3,mammal,2,,,,"Pack, Tamable, Posture down attack"
+184,185,Creatures,stout ikopi buck,9,Naboo,Ikopi,680,830,27,80,90,292,wild,70,bristley,60,mammal,45,,,,"Aggro, Pack, Herd, Tamable, Stun attack, Posture down attack"
+184,185,Creatures,stunted huf dun,9,Talus,Huf Dun,680,830,27,90,110,235,herbivore,775,leathery,800,mammal,775,,,,"Herd, Intimidation attack"
+184,185,Creatures,swarming kliknik,10,Yavin 4,Kliknik,680,830,27,170,180,356,carnivore,5,scaley,4,,,,,,"Aggro, Pack, Tamable, Posture down attack, Ranged attack (spit)"
+184,185,Creatures,swirl prong (bio-engineered),1,Endor,Swirl Prong,45,55,20,30,40,40,,,,,,,milk,,,Pack
+184,185,Creatures,tabage,11,Corellia,Tabage,990,1200,29,120,130,356,carnivore,18,bristley,24,mammal,7,,,,"Aggro, Tamable, Posture down attack"
+184,185,Creatures,tamed gurrcat,7,anywhere,Rebel,270,330,26,55,65,187,carnivore,65,bristley,35,mammal,30,,,,"Stalker, Pack, Intimidation attack, Rebel (PvP)"
+184,185,Creatures,tamed slice hound,7,anywhere,Rebel,270,330,26,55,65,187,carnivore,65,bristley,35,mammal,30,,,,"Pack, Posture down attack, Rebel (PvP)"
+184,185,Creatures,tanc mite,9,Yavin 4,Tancmite,680,830,27,80,90,292,insect,4,,,,,,,,"Pack, Herd, Tamable, Intimidation attack"
+184,185,Creatures,Tatooine mynock,3,Tatooine,Tatooine Mynock,90,110,23,35,45,45,herbivore,50,leathery,70,mammal,20,,,,"Stalker, Tamable"
+184,185,Creatures,tempest rill,9,Tatooine,Rill,270,330,28,90,110,292,carnivore,35,bristley,20,mammal,15,,,,"Aggro, Pack, Tamable"
+184,185,Creatures,thune (bio-engineered),1,Dantooine,Thune,45,55,20,30,40,40,,,,,,,milk,,,"Pack, Herd"
+184,185,Creatures,timid vir vur,8,Rori,Vir Vur,410,500,27,70,75,187,avian,6,wooly,,mammal,1,,,,"Tamable, Stun attack"
+184,185,Creatures,torton (bio-engineered),1,Rori,Torton,45,55,20,30,40,40,,,,,,,,,,"Pack, Herd"
+184,185,Creatures,tybis (bio-engineered),1,Yavin 4,Tybis,45,55,20,30,40,40,,,,,,,milk,,,"Pack, Herd"
+184,185,Creatures,veermok (bio-engineered),1,Naboo,Veermok,45,55,20,30,40,40,,,,,,,,,,Pack
+184,185,Creatures,veermok sentry (cave),9,Naboo,Veermok,410,500,27,70,75,292,carnivore,150,bristley,150,mammal,60,,,,"Aggro, Pack, Tamable, Stun attack"
+184,185,Creatures,veermok sentry,9,Naboo,Veermok,410,500,27,70,75,292,carnivore,150,bristley,150,mammal,60,,,,"Pack, Tamable, Stun attack"
+184,185,Creatures,vehement warrior,9,Corellia,Durni,680,830,26,80,90,292,herbivore,5,wooly,3,mammal,2,,,,"Pack, Tamable, Intimidation attack"
+184,185,Creatures,verne (bio-engineered),1,Dathomir,Verne,45,55,20,30,40,40,,,,,,,milk,,,"Pack, Herd"
+184,185,Creatures,vesp (bio-engineered),1,Lok,Vesp,45,55,20,30,40,40,,,,,,,,,,"Aggro, Pack"
+184,185,Creatures,vir vur (bio-engineered),1,Rori,Vir Vur,45,55,20,30,40,30,,,,,,,,,,"Stalker, Herd"
+184,185,Creatures,vir vur,10,Rori,Vir Vur,810,990,28,90,110,292,avian,10,wooly,,mammal,4,,,,"Stalker, Herd, Tamable"
+184,185,Creatures,vrelt,6,Corellia,Vrelt,180,220,25,50,55,113,wild,4,leathery,3,mammal,2,,,,
+184,185,Creatures,vrobalet,8,Rori,Vrobal,410,500,27,70,75,235,carnivore,10,leathery,17,mammal,11,,,,"Pack, Tamable, Posture down attack"
+184,185,Creatures,vynock,9,Corellia,Vynock,680,830,27,80,90,235,herbivore,50,leathery,70,mammal,20,,,,"Tamable, Stun attack"
+184,185,Creatures,whisper bird hatchling,7,Yavin 4,Whisperbird,270,330,26,55,65,187,avian,55,,,avian,30,,,,"Pack, Herd"
+184,185,Creatures,womp rat,10,Tatooine,Womprat,810,990,28,90,110,356,wild,4,leathery,3,mammal,2,,,,"Pack, Herd, Tamable, Intimidation attack"
+184,185,Creatures,wooded paralope,7,Corellia,Wooded Paralope,270,330,26,55,65,147,herbivore,5,wooly,3,mammal,2,,,,"Herd, Tamable"
+184,185,Creatures,woolamander (bio-engineered),1,Yavin 4,Woolamander,45,55,20,30,40,40,,,,,,,,,,"Aggro, Pack, Herd"
+184,185,Creatures,wormed vrobal,11,Rori,Wormed Vrobal,990,1200,29,120,130,356,carnivore,13,leathery,20,mammal,15,,,,"Aggro, Tamable, Intimidation attack"
+186,187,Creatures,worrt,6,Tatooine,Worrt,180,220,25,50,55,113,reptilian,5,leathery,5,mammal,2,,,,Tamable
+186,187,Creatures,young borgle gruntling,6,Rori,Borgle,140,170,25,45,50,147,carnivore,10,leathery,10,avian,10,,,,"Pack, Posture down attack"
+186,187,Creatures,young borgle,6,Rori,Borgle,140,170,25,45,50,147,carnivore,5,leathery,5,avian,5,,,,"Pack, Posture down attack"
+186,187,Creatures,young mountain squill,10,Tatooine,Mountain Squill,810,990,28,90,110,356,carnivore,2,leathery,2,mammal,1,,,,"Aggro, Pack, Herd"
+186,187,Creatures,young reptilian flier,10,Dathomir,Reptilian Flier,990,1200,28,90,110,356,avian,120,leathery,75,avian,70,,,,"Aggro, Pack, Intimidation attack"
+186,187,Creatures,young spined snake,11,Lok,Spinesnake,990,1200,29,120,130,430,reptilian,7,leathery,2,,,,,,"Aggro, Pack, Mild poison attack"
+186,187,Creatures,zucca boar (bio-engineered),1,Tatooine,Zucca Boar,45,55,20,30,40,40,,,,,,,,,,Pack
+186,187,Creatures,zucca boar,10,Tatooine,Zucca Boar,680,830,28,120,130,356,herbivore,65,leathery,40,mammal,25,,,,"Pack, Tamable, Stun attack"
+186,187,Androids & Droids,Crackdown Dark Trooper (android),1,anywhere,Imperial,8600,10500,40,305,320,45,,,,,,,,Imperial,Stormtrooper weapons,"Killer, Pack"
+186,187,Androids & Droids,Crackdown Elite Dk. Troop. (android),1,anywhere,Imperial,11000,14000,64,465,640,45,,,,,,,,Imperial,Stormtrooper weapons,"Killer, Pack"
+186,187,Androids & Droids,2-1B surgical droid,1,anywhere,Surgicaldroid,45,55,20,30,40,30,,,,,,,,,,
+186,187,Androids & Droids,3PO protocol droid,1,anywhere,Protocoldroid,45,55,20,30,40,30,,,,,,,,,,
+186,187,Androids & Droids,3PO protocol droid (crafted),1,anywhere,Protocoldroid,45,55,20,30,40,30,,,,,,,,,,
+186,187,Androids & Droids,3PO protocol droid (red),1,anywhere,Protocoldroid,45,55,20,30,40,30,,,,,,,,,,
+186,187,Androids & Droids,3PO protocol droid (silver),1,anywhere,Protocoldroid,45,55,20,30,40,30,,,,,,,,,,
+186,187,Androids & Droids,astromech waiter,7,anywhere,Astromech,270,330,26,55,65,147,,,,,,,,,,
+186,187,Androids & Droids,Bomarr monk,3,Tatooine,Spiderdroid,90,110,23,35,45,62,,,,,,,,,,Pack
+186,187,Androids & Droids,Bomarr monk healer,5,Tatooine,Spiderdroid,140,170,25,45,50,85,,,,,,,,,,Herd
+186,187,Androids & Droids,Bomarr monk initiate,2,Tatooine,Spiderdroid,68,83,21,35,40,40,,,,,,,,,,Herd
+186,187,Androids & Droids,Darth Maul probe droid,1,anywhere,Maul Probe Droid,45,55,20,30,40,30,,,,,,,,,,Stalker
+186,187,Androids & Droids,EG-6 power droid,1,anywhere,Powerdroid,45,55,20,30,40,30,,,,,,,,,,
+186,187,Androids & Droids,EG-6 power droid (crafted),1,anywhere,Powerdroid,45,55,20,30,40,30,,,,,,,,,,
+186,187,Androids & Droids,EV-9D9,6,anywhere,Ev 9D9,180,220,25,50,55,113,,,,,,,,,,Can’t be harmed
+186,187,Androids & Droids,helper R2 unit,7,anywhere,Astromech,270,330,26,55,65,147,,,,,,,,,,Can’t be harmed
+186,187,Androids & Droids,ITO interrogator,4,anywhere,Interrogator,110,140,24,40,45,62,,,,,,,,,,
+186,187,Androids & Droids,LIN demolition mech,5,anywhere,Demolitionmech,140,170,25,45,50,85,,,,,,,,,,
+186,187,Androids & Droids,MSE-6 “Mouse” droid,1,anywhere,Mousedroid,45,55,20,30,40,30,,,,,,,,,,
+186,187,Androids & Droids,MSE-6 “Mouse” droid (crafted),1,anywhere,Mousedroid,45,55,20,30,40,30,,,,,,,,,,
+186,187,Androids & Droids,probot drone,8,anywhere,Imperial,680,830,27,70,75,235,,,,,,,,Imperial,Droid ranged weapons,"Stalker, Pack"
+186,187,Androids & Droids,probot seeker,9,anywhere,Imperial,680,830,27,80,90,292,,,,,,,,Imperial,Droid ranged weapons,"Stalker, Pack"
+186,187,Androids & Droids,R2 unit,7,anywhere,Astromech,270,330,26,55,65,147,,,,,,,,,,
+186,187,Androids & Droids,R2D2,7,anywhere,Astromech,270,330,26,55,65,147,,,,,,,,,,
+186,187,Androids & Droids,R3 unit,7,anywhere,Astromech,270,330,26,55,65,147,,,,,,,,,,
+186,187,Androids & Droids,R4 unit,7,anywhere,Astromech,270,330,26,55,65,147,,,,,,,,,,
+186,187,Androids & Droids,R5 unit,7,anywhere,Astromech,270,330,26,55,65,147,,,,,,,,,,
+188,189,Androids & Droids,RA-7 “Bug” droid,5,anywhere,Bugdroid,140,170,25,45,50,85,,,,,,,,,,
+188,189,Androids & Droids,Robo bartender,5,anywhere,Bartenderdroid,140,170,25,45,50,85,,,,,,,,,,
+188,189,Androids & Droids,training remote,1,anywhere,Jeditrainer,45,55,20,30,40,30,,,,,,,,,,
+188,189,Androids & Droids,TT8L “Tattletale” droid,3,anywhere,Tattletaledroid,90,110,23,35,45,45,,,,,,,,,,
+188,189,Androids & Droids,TT8L-Y7 “Tattletale” droid,6,anywhere,Doordroid,180,220,25,50,55,113,,,,,,,,,,
+188,189,Androids & Droids,WED Treadwell droid,1,anywhere,Treadwell,45,55,20,30,40,30,,,,,,,,,,
+188,189,NPCs,Aa’kuan follower,11,Talus,Aakuans,990,1200,29,120,130,430,,,,,,,,Aakuans,general melee weapons,Pack
+188,189,NPCs,Aaph Koden,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,Pirate weapons (medium),"Pack, Can’t be harmed"
+188,189,NPCs,Afarathu brute,11,Corellia,Afarathu,810,990,28,90,110,514,,,,,,,,Afarathu,Pirate weapons (medium),"Aggro, Killer, Pack"
+188,189,NPCs,Afarathu cult follower,5,Corellia,Afarathu,140,170,25,45,50,113,,,,,,,,Afarathu,Pirate weapons (light),"Aggro, Pack"
+188,189,NPCs,Afarathu ruffian,5,Corellia,Afarathu,140,170,25,45,50,113,,,,,,,,Afarathu,Pirate weapons (light),"Aggro, Pack"
+188,189,NPCs,Afarathu savage,7,Corellia,Afarathu,180,220,26,70,75,187,,,,,,,,Afarathu,Pirate weapons (light),"Aggro, Pack"
+188,189,NPCs,agriculturalist,10,anywhere,Townsperson,810,990,28,90,110,292,,,,,,,,Townsperson,Rebel weapons (light),"Herd, Offers missions"
+188,189,NPCs,Ankura Gungan,8,Naboo,Gungan,410,500,27,70,75,235,,,,,,,,Gungan,Rebel weapons (light),"Pack, Offers missions"
+188,189,NPCs,Ankura gungan (mission),8,Naboo,Gungan,410,500,27,70,75,235,,,,,,,,Gungan,Rebel weapons (light),Pack
+188,189,NPCs,artisan,4,anywhere,Townsperson,110,140,24,40,45,62,,,,,,,,Townsperson,Rebel weapons (light),Offers missions
+188,189,NPCs,bandit,8,anywhere,Bandit,410,500,27,70,75,235,,,,,,,,Bandit,Pirate weapons (light),"Stalker, Pack"
+188,189,NPCs,Barada,5,,Jabba,140,170,25,45,50,113,,,,,,,,Jabba,,"Pack, Can’t be harmed"
+188,189,NPCs,bartender,4,anywhere,Townsperson,110,140,24,40,45,62,,,,,,,,Townsperson,Rebel weapons (light),Offers missions
+188,189,NPCs,Binayre hooligan,9,Talus,Binayre,680,830,27,80,90,292,,,,,,,,Binayre,Pirate weapons (light),"Aggro, Pack"
+188,189,NPCs,Binayre scalawag,11,Talus,Binayre,990,1200,29,120,130,430,,,,,,,,Binayre,Pirate weapons (light),"Aggro, Pack"
+188,189,NPCs,Binna Jode,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,Pirate weapons (medium),"Pack, Can’t be harmed"
+188,189,NPCs,Bith musician,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,"Pack, Can’t be harmed, Offers missions"
+188,189,NPCs,Bith sniper,9,anywhere,Bith,410,500,27,90,110,292,,,,,,,,,ranged weapons,Pack
+188,189,NPCs,Blerx Tango,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,Pirate weapons (medium),"Pack, Can’t be harmed"
+188,189,NPCs,bodyguard,7,anywhere,Mercenary,270,330,26,55,65,187,,,,,,,,,Rebel weapons (light),Pack
+188,189,NPCs,Borvos soldier,10,Naboo,Borvo,810,990,28,90,110,356,,,,,,,,Borvo,ranged weapons,"Stalker, Pack"
+188,189,NPCs,Boshek,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,Pirate weapons (medium),"Pack, Can’t be harmed"
+188,189,NPCs,Bothan diplomat,3,anywhere,Spynet,90,110,23,35,45,45,,,,,,,,,Rebel weapons (light),Offers missions
+188,189,NPCs,Bothan information broker,3,anywhere,Spynet,90,110,23,35,45,45,,,,,,,,,Rebel weapons (light),"Stalker, Offers missions"
+188,189,NPCs,brawler,6,anywhere,Mercenary,180,220,25,50,55,147,,,,,,,,,Pirate weapons (light),"Stalker, Pack"
+188,189,NPCs,Brea Tonnika,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,Pirate weapons (medium),"Pack, Can’t be harmed"
+188,189,NPCs,brigand,4,anywhere,Brigand,110,140,24,40,45,85,,,,,,,,,Pirate weapons (light),"Aggro, Stalker, Pack"
+188,189,NPCs,businessman,4,anywhere,Townsperson,110,140,24,40,45,62,,,,,,,,Townsperson,Rebel weapons (light),Offers missions
+188,189,NPCs,cannibal,7,Tatooine,Cannibal,270,330,26,55,65,147,,,,,,,,,,Stalker
+190,191,NPCs,cannibal (mission),6,Tatooine,Cannibal,180,220,25,50,55,113,,,,,,,,,,
+190,191,NPCs,Capt Loftus,10,Tatooine,Townsperson,680,830,28,120,130,356,,,,,,,,,Pirate weapons (hard),"Pack, Can’t be harmed"
+190,191,NPCs,Chadra Fan female,6,Nowhere,Chadra Fan,180,220,25,50,55,113,,,,,,,,,Rebel weapons (light),
+190,191,NPCs,Chadra Fan male,6,Nowhere,Chadra Fan,180,220,25,50,55,113,,,,,,,,,Rebel weapons (light),
+190,191,NPCs,Chadra Fan thief,8,anywhere,Chadra Fan,410,500,27,70,75,187,,,,,,,,,Pirate weapons (medium),Stalker
+190,191,NPCs,Chunker braggart,8,Talus,Chunker Gang,410,500,27,70,75,235,,,,,,,,,Pirate weapons (light),"Aggro, Pack"
+190,191,NPCs,Chunker bruiser,11,Talus,Chunker Gang,990,1200,29,120,130,514,,,,,,,,,ranged weapons,"Aggro, Killer, Pack"
+190,191,NPCs,Chunker bully,10,Talus,Chunker Gang,810,990,28,90,110,356,,,,,,,,,ranged weapons,"Stalker, Pack"
+190,191,NPCs,Chunker creep,9,Talus,Chunker Gang,680,830,27,80,90,292,,,,,,,,,Pirate weapons (light),"Aggro, Pack"
+190,191,NPCs,Chunker goon,7,Talus,Chunker Gang,270,330,26,55,65,147,,,,,,,,,Pirate weapons (light),Aggro
+190,191,NPCs,Chunker mooch,7,Talus,Chunker Gang,270,330,26,55,65,187,,,,,,,,,Pirate weapons (light),Pack
+190,191,NPCs,Chunker nitwit,5,Talus,Chunker Gang,140,170,25,45,50,85,,,,,,,,,Pirate weapons (light),
+190,191,NPCs,Chunker pest,6,Talus,Chunker Gang,180,220,25,50,55,147,,,,,,,,,Pirate weapons (light),"Stalker, Pack"
+190,191,NPCs,Chunker punk,6,Talus,Chunker Gang,180,220,25,50,55,113,,,,,,,,,Pirate weapons (light),
+190,191,NPCs,Chunker swindler,8,Talus,Chunker Gang,410,500,27,70,75,235,,,,,,,,,Pirate weapons (light),Pack
+190,191,NPCs,civil patrol captain,9,anywhere,Imperial,680,830,27,80,90,292,,,,,,,,Imperial,ranged weapons,Pack
+190,191,NPCs,civil patrol commander,10,anywhere,Imperial,810,990,28,90,110,356,,,,,,,,Imperial,ranged weapons,Pack
+190,191,NPCs,civil patrol corporal,7,anywhere,Imperial,270,330,26,55,65,187,,,,,,,,Imperial,Imperial weapons (light),Pack
+190,191,NPCs,civil patrol sergeant,8,anywhere,Imperial,410,500,27,70,75,235,,,,,,,,Imperial,Imperial weapons (light),Pack
+190,191,NPCs,civilian patrolman,6,anywhere,Imperial,180,220,25,50,55,147,,,,,,,,Imperial,Imperial weapons (light),Pack
+190,191,NPCs,Coa2 Imperial slicer gang,11,anywhere,Rebel,990,1200,29,120,130,514,,,,,,,,,Pirate weapons (hard),"Killer, Pack"
+190,191,NPCs,Coa2 Lyda thugs,11,anywhere,Thug,990,1200,29,120,130,514,,,,,,,,,Pirate weapons (medium),"Aggro, Killer, Pack"
+190,191,NPCs,Cobral hooligan,10,Rori,Cobral,810,990,28,90,110,356,,,,,,,,Cobral,Pirate weapons (light),Pack
+190,191,NPCs,Cobral mugger,9,Rori,Cobral,680,830,27,80,90,235,,,,,,,,Cobral,Pirate weapons (light),
+190,191,NPCs,common thief,11,anywhere,Thug,990,1200,29,120,130,356,,,,,,,,Thug,Pirate weapons (medium),
+190,191,NPCs,commoner,4,anywhere,Townsperson,110,140,24,40,45,62,,,,,,,,Townsperson,Rebel weapons (light),"Herd, Offers missions"
+190,191,NPCs,Corellia Times investigator,10,Corellia,Corellia Times,810,990,28,90,110,356,,,,,,,,,Pirate weapons (light),"Pack, Offers missions"
+190,191,NPCs,Corellia Times reporter,7,Corellia,Corellia Times,270,330,26,55,65,187,,,,,,,,,Pirate weapons (light),"Pack, Offers missions"
+190,191,NPCs,CorSec deserter,9,Corellia,Rogue Corsec,680,830,27,80,90,292,,,,,,,,Rogue CorSec,ranged weapons,"Aggro, Pack"
+190,191,NPCs,Crackdown Comm Operator,1,anywhere,Imperial,2000,2400,30,150,160,40,,,,,,,,Imperial,Imperial weapons (light),Pack
+190,191,NPCs,Crackdown Command Security Guard,1,anywhere,Imperial,2400,3000,31,160,170,40,,,,,,,,Imperial,Imperial weapons (light),Pack
+190,191,NPCs,Crackdown Elite Sand Trooper,1,anywhere,Imperial,9700,11900,47,370,450,45,,,,,,,,Imperial,Stormtrooper weapons,"Killer, Pack"
+190,191,NPCs,Crackdown Imperial Army Captain,1,anywhere,Imperial,5400,6600,34,200,210,45,,,,,,,,Imperial,Imperial weapons (hard),"Killer, Pack"
+190,191,NPCs,Crackdown Imperial Colonel,1,anywhere,Imperial,6300,7700,35,220,230,45,,,,,,,,Imperial,Imperial weapons (hard),"Killer, Pack"
+190,191,NPCs,Crackdown Imperial Corporal,1,anywhere,Imperial,2900,3500,31,170,180,40,,,,,,,,Imperial,Imperial weapons (medium),Pack
+190,191,NPCs,Crackdown Imperial Exterminator,1,Naboo,Imperial,7700,9400,37,290,300,45,,,,,,,,Imperial,Imperial weapons (hard),"Killer, Pack"
+190,191,NPCs,Crackdown Imperial First Lieutenant,1,anywhere,Imperial,5000,6100,33,190,200,45,,,,,,,,Imperial,Imperial weapons (medium),"Killer, Pack"
+190,191,NPCs,Crackdown Imperial Master Sergeant,1,anywhere,Imperial,4100,5000,32,170,180,45,,,,,,,,Imperial,Imperial weapons (medium),"Killer, Stalker, Pack"
+190,191,NPCs,Crackdown Imperial Medic,1,anywhere,Imperial,2900,3500,31,170,180,40,,,,,,,,Imperial,Imperial weapons (hard),"Pack, Healer"
+190,191,NPCs,Crackdown Imperial Noncom,1,anywhere,Imperial,2000,2400,30,150,160,40,,,,,,,,Imperial,Imperial weapons (light),"Stalker, Pack"
+192,193,NPCs,Crackdown Imperial Sergeant,1,anywhere,Imperial,2900,3500,31,170,180,40,,,,,,,,Imperial,Imperial weapons (medium),Pack
+192,193,NPCs,Crackdown Imperial Sharpshooter,1,anywhere,Imperial,3500,4300,32,160,170,40,,,,,,,,Imperial,ranged weapons,Pack
+192,193,NPCs,Crackdown Imperial Warrant Officer,1,anywhere,Imperial,4100,5000,32,170,180,45,,,,,,,,Imperial,Imperial weapons (medium),"Killer, Pack"
+192,193,NPCs,Crackdown Rebel Commando,1,anywhere,Rebel,7200,8800,36,240,250,45,,,,,,,,Rebel,Rebel weapons (hard),"Killer, Pack"
+192,193,NPCs,Crackdown Sand Trooper,1,anywhere,Imperial,7200,8800,36,240,250,45,,,,,,,,Imperial,Stormtrooper weapons,"Killer, Pack"
+192,193,NPCs,Crackdown Scout Trooper,1,anywhere,Imperial,6300,7700,35,220,230,30,,,,,,,,Imperial,Imperial weapons (hard),
+192,193,NPCs,Crackdown Specialist Noncom,1,anywhere,Imperial,1500,1900,30,140,150,40,,,,,,,,Imperial,Imperial weapons (light),Pack
+192,193,NPCs,Crackdown Storm Commando,1,anywhere,Imperial,8300,10100,38,280,290,45,,,,,,,,Imperial,Stormtrooper weapons,"Killer, Stalker, Pack"
+192,193,NPCs,Crackdown Stormtrooper,1,anywhere,Imperial,7200,8800,36,240,250,45,,,,,,,,Imperial,Stormtrooper weapons,"Killer, Pack"
+192,193,NPCs,Crackd. Stormtrooper Bombardier,1,anywhere,Imperial,5900,7200,36,270,280,45,,,,,,,,Imperial,Stormtrooper bombardier,"Killer, Pack"
+192,193,NPCs,Crackdown Stormtrooper Captain,1,anywhere,Imperial,8300,10100,38,280,290,45,,,,,,,,Imperial,Stormtrooper weapons,"Killer, Pack"
+192,193,NPCs,Crackdown Stormtrooper Medic,1,anywhere,Imperial,7200,8800,36,240,250,45,,,,,,,,Imperial,Stormtrooper weapons,"Killer, Pack, Healer"
+192,193,NPCs,Crackdown Stormtrooper Rifleman,1,anywhere,Imperial,7200,8800,36,240,250,45,,,,,,,,Imperial,Stormtrooper rifleman,"Killer, Pack"
+192,193,NPCs,Crackdown Stormtrooper Sniper,1,anywhere,Imperial,6800,8300,36,250,260,45,,,,,,,,Imperial,Stormtrooper sniper,"Killer, Pack"
+192,193,NPCs,Crackd. Stormtrooper Squad Leader,1,anywhere,Imperial,8100,9900,37,260,270,45,,,,,,,,Imperial,Stormtrooper weapons,"Killer, Pack"
+192,193,NPCs,Crackdown Swamp Trooper,1,Naboo,Imperial,7200,8800,36,240,250,45,,,,,,,,Imperial,Stormtrooper weapons,"Killer, Pack"
+192,193,NPCs,crazed scientist,10,Dantooine,Warren Imperial Worker Crazed,810,990,28,90,110,292,,,,,,,,,,Aggro
+192,193,NPCs,criminal,7,anywhere,Thug,270,330,26,55,65,187,,,,,,,,Thug,Pirate weapons (light),"Stalker, Pack, Offers missions"
+192,193,NPCs,criminal (mission),7,anywhere,Thug,270,330,26,55,65,187,,,,,,,,Thug,Pirate weapons (light),"Stalker, Pack"
+192,193,NPCs,Darklighter guard,9,anywhere,Darklighter,680,830,27,80,90,292,,,,,,,,,Rebel weapons (light),Pack
+192,193,NPCs,dervish,9,Tatooine,Dervish,270,330,27,90,110,292,,,,,,,,,Pirate weapons (medium),"Aggro, Stalker, Pack"
+192,193,NPCs,Desert Demon,9,Tatooine,Desert Demon,680,830,27,80,90,292,,,,,,,,Desert Demon,Pirate weapons (light),Pack
+192,193,NPCs,desert swooper,6,Tatooine,Swoop,180,220,25,50,55,113,,,,,,,,Swoop,Pirate weapons (light),"Stalker, Herd"
+192,193,NPCs,desert swooper leader,7,Tatooine,Swoop,270,330,26,55,65,147,,,,,,,,Swoop,Pirate weapons (light),Stalker
+192,193,NPCs,Dim-U abbot,11,Tatooine,Dim-U,990,1200,29,120,130,356,,,,,,,,,,Herd
+192,193,NPCs,Dim-U cleric,9,Tatooine,Dim-U,680,830,27,80,90,292,,,,,,,,,,Pack
+192,193,NPCs,Dim-U monastery nun,6,Tatooine,Dim-U,180,220,25,50,55,113,,,,,,,,,,Herd
+192,193,NPCs,Dim-U monk,6,Tatooine,Dim-U,180,220,25,50,55,113,,,,,,,,,,Herd
+192,193,NPCs,Dim-U preacher,8,Tatooine,Dim-U,410,500,27,70,75,187,,,,,,,,,,Herd
+192,193,NPCs,Dim-U priestess,8,Tatooine,Dim-U,410,500,27,70,75,187,,,,,,,,,,"Herd, Healer"
+192,193,NPCs,Drall guard,11,Corellia,Drall,990,1200,29,120,130,430,,,,,,,,Drall,Pirate weapons (medium),Pack
+192,193,NPCs,Drall patriot,11,Corellia,Drall,990,1200,29,120,130,430,,,,,,,,Drall,Pirate weapons (medium),Pack
+192,193,NPCs,Drall sentry,8,Corellia,Drall,410,500,27,70,75,235,,,,,,,,Drall,Rebel weapons (medium),Pack
+192,193,NPCs,droid corps junior technician,10,anywhere,Imperial,810,990,28,90,110,356,,,,,,,,Imperial,Imperial weapons (light),"Stalker, Pack"
+192,193,NPCs,Dune Stalker,8,Tatooine,Dune Stalker,410,500,27,70,75,235,,,,,,,,,Tusken weapons,"Aggro, Stalker, Pack"
+192,193,NPCs,Dune Stalker scavenger,10,Tatooine,Dune Stalker,810,990,28,90,110,356,,,,,,,,,Tusken weapons,"Aggro, Stalker, Pack"
+192,193,NPCs,eerie Pubam spiritmaster,10,Endor,Pubam,680,830,28,130,140,430,,,,,,,,Pubam,,"Aggro, Killer, Pack"
+192,193,NPCs,enraged Pubam,10,Endor,Pubam,680,830,28,130,140,430,,,,,,,,Pubam,,"Aggro, Killer, Pack"
+192,193,NPCs,entertainer,4,anywhere,Townsperson,110,140,24,40,45,62,,,,,,,,Townsperson,Rebel weapons (light),"Herd, Offers missions"
+194,195,NPCs,evil hermit,6,Tatooine,Evil,180,220,25,50,55,147,,,,,,,,,Rebel weapons (light),"Aggro, Pack"
+194,195,NPCs,evil nomad,7,Tatooine,Evil,270,330,26,55,65,187,,,,,,,,,Rebel weapons (light),"Aggro, Pack"
+194,195,NPCs,evil settler,5,Tatooine,Evil,140,170,25,45,50,113,,,,,,,,,Rebel weapons (light),"Aggro, Pack"
+194,195,NPCs,explorer,7,anywhere,Mercenary,270,330,26,55,65,147,,,,,,,,,Rebel weapons (light),Offers missions
+194,195,NPCs,Farious Gletch,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,"Pack, Can’t be harmed"
+194,195,NPCs,farmer,4,anywhere,Townsperson,110,140,24,40,45,62,,,,,,,,Townsperson,Rebel weapons (light),"Herd, Offers missions"
+194,195,NPCs,farmer (moisture),4,Tatooine,Townsperson,110,140,24,40,45,62,,,,,,,,Townsperson,Rebel weapons (light),Offers missions
+194,195,NPCs,Fed-Dub patrolman,9,Talus,Fed Dub,680,830,27,80,90,292,,,,,,,,Fed Dub,Rebel weapons (medium),"Pack, Herd"
+194,195,NPCs,Fed-Dub supporter,8,Talus,Fed Dub,410,500,27,70,75,235,,,,,,,,Fed Dub,Rebel weapons (medium),"Pack, Herd"
+194,195,NPCs,Figrin Dan,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,"Pack, Can’t be harmed"
+194,195,NPCs,First Brigade gunner,9,Rori,Restuss,680,830,27,80,90,292,,,,,,,,Restuss,Rebel weapons (medium),"Pack, Herd"
+194,195,NPCs,First Brigade scout,7,Rori,Restuss,270,330,26,55,65,187,,,,,,,,Restuss,Rebel weapons (medium),"Pack, Herd"
+194,195,NPCs,First Brigade sergeant,10,Rori,Restuss,810,990,28,90,110,356,,,,,,,,Restuss,Rebel weapons (medium),"Pack, Herd"
+194,195,NPCs,First Brigade technician,11,Rori,Restuss,990,1200,29,120,130,430,,,,,,,,Restuss,Rebel weapons (light),"Pack, Herd"
+194,195,NPCs,First Brigade trooper,6,Rori,Restuss,180,220,25,50,55,147,,,,,,,,Restuss,Rebel weapons (medium),"Pack, Herd"
+194,195,NPCs,fixer,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,"Pack, Can’t be harmed"
+194,195,NPCs,foot of Solitude,9,Corellia,Solitude,680,830,27,80,90,292,,,,,,,,Rebel,Rebel weapons (medium),Pack
+194,195,NPCs,fringer,7,anywhere,Mercenary,270,330,26,55,65,147,,,,,,,,,Pirate weapons (light),
+194,195,NPCs,fugitive,7,Tatooine,Thug,270,330,26,55,65,147,,,,,,,,Thug,Pirate weapons (light),
+194,195,NPCs,gambler,7,anywhere,Mercenary,270,330,26,55,65,147,,,,,,,,,Pirate weapons (light),"Stalker, Offers missions"
+194,195,NPCs,gambler (mission),8,anywhere,Thug,410,500,27,70,75,187,,,,,,,,Thug,Pirate weapons (light),"Stalker, Offers missions"
+194,195,NPCs,Gamorrean guard,10,Tatooine,Jabba,810,990,28,90,110,430,,,,,,,,Jabba,Pirate weapons (light),"Killer, Pack, Can’t be harmed"
+194,195,NPCs,Garyn prowler,11,Rori,Garyn,990,1200,29,120,130,356,,,,,,,,Garyn,Pirate weapons (light),Aggro
+194,195,NPCs,Gondula cub,5,Endor,Gondula Tribe,140,170,25,45,50,113,,,,,,,,Gondula Tribe,Ewok weapons,Pack
+194,195,NPCs,Gondula tribesman,11,Endor,Gondula Tribe,810,990,28,90,110,430,,,,,,,,Gondula Tribe,Ewok weapons,Pack
+194,195,NPCs,governor,9,Naboo,Naboo,680,830,27,80,90,235,,,,,,,,Naboo,Imperial weapons (medium),"Herd, Offers missions"
+194,195,NPCs,Greck’s assassin,11,Corellia,Olag Greck,680,830,29,140,150,514,,,,,,,,Olag Greck,ranged weapons,"Killer, Pack"
+194,195,NPCs,Greck’s henchman,6,Corellia,Olag Greck,180,220,25,50,55,147,,,,,,,,Olag Greck,Pirate weapons (medium),Pack
+194,195,NPCs,Greck’s mugger,9,Corellia,Olag Greck,680,830,27,80,90,292,,,,,,,,Olag Greck,Pirate weapons (medium),Pack
+194,195,NPCs,Greck’s smuggler,7,Corellia,Olag Greck,270,330,26,55,65,187,,,,,,,,Olag Greck,ranged weapons,Pack
+194,195,NPCs,Gundark desperado,8,Rori,Gundark Gang,410,500,27,70,75,187,,,,,,,,Thug,Pirate weapons (light),Stalker
+194,195,NPCs,Gundark hooligan,6,Rori,Gundark Gang,180,220,25,50,55,113,,,,,,,,Thug,Pirate weapons (light),
+194,195,NPCs,Gundark raider,9,Rori,Gundark Gang,680,830,27,80,90,292,,,,,,,,Thug,Pirate weapons (medium),Pack
+194,195,NPCs,Gundark rogue,7,Rori,Gundark Gang,270,330,26,55,65,187,,,,,,,,Thug,Pirate weapons (light),Pack
+194,195,NPCs,Gundark ruffian,9,Rori,Gundark Gang,680,830,27,80,90,292,,,,,,,,Thug,Pirate weapons (light),Pack
+194,195,NPCs,Gundarkcrook,5,Rori,Gundark Gang,140,170,25,45,50,85,,,,,,,,Thug,Pirate weapons (light),
+194,195,NPCs,Gungan hermit,7,Naboo,Gungan,270,330,26,55,65,147,,,,,,,,Gungan,Rebel weapons (medium),
+194,195,NPCs,Gungan outcast,9,Naboo,Gungan Outcast,680,830,27,80,90,292,,,,,,,,,Rebel weapons (medium),"Aggro, Killer, Stalker"
+194,195,NPCs,Gungan priest,9,Naboo,Gungan,680,830,27,80,90,235,,,,,,,,Gungan,Rebel weapons (medium),Herd
+194,195,NPCs,gunrunner (mission),10,Tatooine,Mercenary,810,990,28,90,110,292,,,,,,,,,Pirate weapons (medium),
+196,197,NPCs,Hedon Istee,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,"Pack, Can’t be harmed"
+196,197,NPCs,hermit,4,Tatooine,Townsperson,110,140,24,40,45,62,,,,,,,,Townsperson,Rebel weapons (light),
+196,197,NPCs,Hidden Daggers activist,9,Corellia,Hidden Daggers,680,830,27,80,90,292,,,,,,,,Hidden Daggers,Rebel weapons (light),Pack
+196,197,NPCs,Hidden Daggers dissident,11,Corellia,Hidden Daggers,990,1200,29,120,130,430,,,,,,,,Hidden Daggers,Pirate weapons (medium),Pack
+196,197,NPCs,highwayman,10,anywhere,Brigand,810,990,28,90,110,430,,,,,,,,,Pirate weapons (light),"Aggro, Killer, Pack"
+196,197,NPCs,hunter,9,anywhere,Mercenary,680,830,27,80,90,292,,,,,,,,,Rebel weapons (light),"Stalker, Pack"
+196,197,NPCs,hunter (mission),8,anywhere,Mercenary,410,500,27,70,75,235,,,,,,,,,Rebel weapons (light),"Stalker, Pack"
+196,197,NPCs,Ikka Gesul,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,"Pack, Can’t be harmed"
+196,197,NPCs,Imperial cadet,9,anywhere,Imperial,680,830,27,80,90,292,,,,,,,,Imperial,ranged weapons,Pack
+196,197,NPCs,Imperial cadet squadleader,11,anywhere,Imperial,990,1200,29,120,130,430,,,,,,,,Imperial,ranged weapons,Pack
+196,197,NPCs,Imperial senior cadet,10,anywhere,Imperial,810,990,28,90,110,356,,,,,,,,Imperial,ranged weapons,Pack
+196,197,NPCs,industrial spy,9,anywhere,Mercenary,680,830,27,80,90,292,,,,,,,,,Rebel weapons (light),Pack
+196,197,NPCs,industrial spy (mission),8,anywhere,Mercenary,410,500,27,70,75,235,,,,,,,,,Rebel weapons (light),Pack
+196,197,NPCs,information broker,5,anywhere,Mercenary,140,170,25,45,50,85,,,,,,,,,Rebel weapons (light),"Stalker, Offers missions"
+196,197,NPCs,insane kitonak,4,Tatooine,Insane Kitonak,110,140,24,40,45,62,,,,,,,,,Rebel weapons (light),Stalker
+196,197,NPCs,Insane Miner,9,Rori,Enraged Miner,680,830,27,80,90,356,,,,,,,,,Pirate weapons (medium),"Aggro, Killer, Pack, Herd"
+196,197,NPCs,Ithorian musician,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,Pack
+196,197,NPCs,Jabba’s henchman,10,Tatooine,Jabba,810,990,28,90,110,356,,,,,,,,Jabba,Pirate weapons (medium),"Stalker, Pack"
+196,197,NPCs,Jabba’s scout,8,Tatooine,Jabba,410,500,27,70,75,187,,,,,,,,Jabba,Pirate weapons (light),
+196,197,NPCs,Jabba’s scout (mission),8,Tatooine,Jabba,410,500,27,70,75,235,,,,,,,,Jabba,Pirate weapons (light),Pack
+196,197,NPCs,Jabba’s swooper,8,Tatooine,Jabba,410,500,27,70,75,187,,,,,,,,Jabba,Pirate weapons (light),Stalker
+196,197,NPCs,Jabba’s swooper (mission),8,Tatooine,Jabba,410,500,27,70,75,235,,,,,,,,Jabba,Pirate weapons (light),"Stalker, Pack"
+196,197,NPCs,Jabba’s swooper leader,8,Tatooine,Jabba,410,500,27,70,75,235,,,,,,,,Jabba,ranged weapons,"Stalker, Pack"
+196,197,NPCs,Jabba’s swooper leader (mission),8,Tatooine,Jabba,410,500,27,70,75,235,,,,,,,,Jabba,Pirate weapons (light),"Stalker, Pack"
+196,197,NPCs,Jabba’s thief,9,Tatooine,Jabba,680,830,27,80,90,292,,,,,,,,Jabba,Pirate weapons (light),Pack
+196,197,NPCs,Jabba’s thug,9,Tatooine,Jabba,680,830,27,80,90,292,,,,,,,,Jabba,Pirate weapons (light),Pack
+196,197,NPCs,Jawa,6,Tatooine,Jawa,180,220,25,50,55,147,,,,,,,,Jawa,Rebel weapons (light),"Stalker, Pack"
+196,197,NPCs,Jawa engineer,10,Tatooine,Jawa,810,990,28,90,110,292,,,,,,,,Jawa,Rebel weapons (light),Herd
+196,197,NPCs,Jawa healer,10,Tatooine,Jawa,810,990,28,90,110,356,,,,,,,,Jawa,Rebel weapons (light),"Pack, Herd, Healer"
+196,197,NPCs,Jawa henchman,6,Tatooine,Jawa,180,220,25,50,55,147,,,,,,,,Jawa,Pirate weapons (light),"Stalker, Pack"
+196,197,NPCs,Jawa leader,10,Tatooine,Jawa,680,830,28,90,110,356,,,,,,,,Jawa,Rebel weapons (medium),"Stalker, Pack"
+196,197,NPCs,Jawa smuggler,6,Tatooine,Jawa,180,220,25,50,55,147,,,,,,,,Jawa,Pirate weapons (light),Pack
+196,197,NPCs,Jawa thief,9,Tatooine,Jawa,680,830,27,80,90,235,,,,,,,,Jawa,Pirate weapons (light),Herd
+196,197,NPCs,Jilljoo Jab,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,"Pack, Can’t be harmed"
+196,197,NPCs,Jinda cub,5,Endor,Jinda Tribe,140,170,25,45,50,113,,,,,,,,Jinda Tribe,,"Stalker, Pack"
+196,197,NPCs,Junk Dealer,4,anywhere,Townsperson,110,140,24,40,45,62,,,,,,,,Townsperson,Rebel weapons (light),Herd
+196,197,NPCs,Kaeline Ungasan,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,"Pack, Can’t be harmed"
+196,197,NPCs,kahmurra bio engineer,5,Talus,Kahmurra,140,170,25,45,50,85,,,,,,,,,Rebel weapons (light),
+196,197,NPCs,Kitster Banai,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,"Pack, Can’t be harmed"
+196,197,NPCs,Kobola miner,8,Rori,Kobola,410,500,27,70,75,187,,,,,,,,Kobola,Pirate weapons (medium),Herd
+198,199,NPCs,Kobola smuggler,10,Rori,Kobola,810,990,28,90,110,356,,,,,,,,Kobola,Pirate weapons (medium),"Stalker, Pack"
+198,199,NPCs,Kobola thief,9,Rori,Kobola,410,500,27,90,110,292,,,,,,,,Kobola,Pirate weapons (medium),"Stalker, Pack"
+198,199,NPCs,Korga adept,10,Endor,Korga Tribe,680,830,28,120,130,430,,,,,,,,Korga Tribe,,"Aggro, Killer, Pack"
+198,199,NPCs,Korga cub,5,Endor,Korga Tribe,140,170,25,45,50,113,,,,,,,,Korga Tribe,,"Aggro, Pack"
+198,199,NPCs,Kormund Thrylle,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,"Pack, Can’t be harmed"
+198,199,NPCs,Librarian,6,anywhere,Townsperson,180,220,25,50,55,113,,,,,,,,Townsperson,Rebel weapons (light),"Herd, Offers missions"
+198,199,NPCs,Lilas Dinhint,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,"Pack, Can’t be harmed"
+198,199,NPCs,Lost Aqualish lookout,10,Talus,Lost Aqualish Regiment,810,990,28,90,110,356,,,,,,,,Lost Aqualish,Pirate weapons (medium),"Aggro, Pack, Herd"
+198,199,NPCs,Lost Aqualish scout,9,Talus,Lost Aqualish Regiment,680,830,27,80,90,292,,,,,,,,Lost Aqualish,Pirate weapons (medium),"Aggro, Pack, Herd"
+198,199,NPCs,Lost Aqualish soldier,11,Talus,Lost Aqualish Regiment,990,1200,29,120,130,430,,,,,,,,Lost Aqualish,Pirate weapons (medium),"Aggro, Pack, Herd"
+198,199,NPCs,Lt Harburik,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,"Pack, Can’t be harmed"
+198,199,NPCs,masterful Ewok warrior,11,Endor,Gondula Tribe,810,990,28,90,110,514,,,,,,,,Gondula Tribe,Ewok weapons,"Killer, Pack"
+198,199,NPCs,Mat Rags,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,"Pack, Can’t be harmed"
+198,199,NPCs,Mauler apprentice,11,Naboo,Mauler,810,990,29,130,140,514,,,,,,,,,Pirate weapons (light),"Aggro, Killer, Pack"
+198,199,NPCs,mayor,7,Naboo,Naboo,270,330,26,55,65,147,,,,,,,,Naboo,Pirate weapons (medium),"Herd, Offers missions"
+198,199,NPCs,mayor (mission),7,Naboo,Naboo,270,330,26,55,65,147,,,,,,,,Naboo,Imperial weapons (medium),"Herd, Offers missions"
+198,199,NPCs,Meatlump buffoon,5,Corellia,Meatlump,140,170,25,45,50,85,,,,,,,,Meatlump,Pirate weapons (light),Herd
+198,199,NPCs,Meatlump clod,8,Corellia,Meatlump,410,500,27,70,75,235,,,,,,,,Meatlump,Pirate weapons (light),Pack
+198,199,NPCs,Meatlump cretin,9,Corellia,Meatlump,680,830,27,80,90,292,,,,,,,,Meatlump,Pirate weapons (light),Pack
+198,199,NPCs,Meatlump fool,6,Corellia,Meatlump,180,220,25,50,55,113,,,,,,,,Meatlump,Pirate weapons (light),Herd
+198,199,NPCs,Meatlump loon,10,Corellia,Meatlump,810,990,28,90,110,356,,,,,,,,Meatlump,Pirate weapons (light),Pack
+198,199,NPCs,Meatlump oaf,9,Corellia,Meatlump,680,830,27,80,90,292,,,,,,,,Meatlump,Pirate weapons (light),Pack
+198,199,NPCs,Meatlump stooge,7,Corellia,Meatlump,270,330,26,55,65,187,,,,,,,,Meatlump,Pirate weapons (light),Pack
+198,199,NPCs,medic,7,anywhere,Townsperson,270,330,26,55,65,147,,,,,,,,Townsperson,Rebel weapons (light),"Herd, Healer, Offers missions"
+198,199,NPCs,Melios Purl,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,"Pack, Can’t be harmed"
+198,199,NPCs,Mikos Denari,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,"Pack, Can’t be harmed"
+198,199,NPCs,miner,5,anywhere,Townsperson,140,170,25,45,50,85,,,,,,,,Townsperson,Rebel weapons (light),Offers missions
+198,199,NPCs,moisture farmer (mission),4,Tatooine,Townsperson,110,140,24,40,45,62,,,,,,,,Townsperson,Rebel weapons (light),Offers missions
+198,199,NPCs,moisture thief (mission),6,Tatooine,Thug,180,220,25,50,55,113,,,,,,,,Thug,Rebel weapons (light),
+198,199,NPCs,Monumenter bandit,11,Corellia,Monumenter,990,1200,29,120,130,430,,,,,,,,Monumenter,Pirate weapons (medium),Pack
+198,199,NPCs,mountain vesp (mission),4,Naboo,Mountain Villager,110,140,24,40,45,62,,,,,,,,,Rebel weapons (light),
+198,199,NPCs,mountain villager,4,Naboo,Mountain Villager,110,140,24,40,45,62,,,,,,,,,Rebel weapons (light),
+198,199,NPCs,Mummer bully,8,Naboo,Mummer Gang,410,500,27,70,75,187,,,,,,,,Thug,Pirate weapons (light),Herd
+198,199,NPCs,Mummer punk,8,Naboo,Mummer Gang,410,500,27,70,75,235,,,,,,,,Thug,Pirate weapons (light),Pack
+198,199,NPCs,Mummer ruffian,9,Naboo,Mummer Gang,680,830,27,80,90,292,,,,,,,,Thug,Pirate weapons (light),"Pack, Herd"
+198,199,NPCs,Mummer thug,7,Naboo,Mummer Gang,270,330,26,55,65,147,,,,,,,,Thug,Pirate weapons (light),Herd
+198,199,NPCs,Naboo dissident,7,Naboo,Thug,270,330,26,55,65,147,,,,,,,,Thug,Pirate weapons (light),Herd
+198,199,NPCs,Naboo dissident (mission),7,Naboo,Thug,270,330,26,55,65,147,,,,,,,,Thug,Rebel weapons (medium),Herd
+198,199,NPCs,Naboo gunrunner,11,Naboo,Mercenary,990,1200,29,120,130,356,,,,,,,,,ranged weapons,Aggro
+198,199,NPCs,Naboo holy man,5,Naboo,Naboo,140,170,25,45,50,85,,,,,,,,Naboo,Rebel weapons (light),Herd
+200,201,NPCs,Naboo monk,4,Naboo,Naboo Religious,110,140,24,40,45,62,,,,,,,,,,Herd
+200,201,NPCs,Naboo nomad,6,Naboo,Naboo Nomad,180,220,25,50,55,147,,,,,,,,,Pirate weapons (light),Pack
+200,201,NPCs,Naboo pirate crewman,10,Naboo,Naboo Pirates,680,830,28,90,110,356,,,,,,,,Naboo Pirate,Pirate weapons (hard),"Aggro, Pack"
+200,201,NPCs,naboo pirate cuttroat,11,Naboo,Naboo Pirates,990,1200,29,120,130,430,,,,,,,,Naboo Pirate,Pirate weapons (hard),"Aggro, Stalker, Pack"
+200,201,NPCs,Naboo police (mission),8,Naboo,RSF,410,500,27,70,75,235,,,,,,,,Naboo Security Force,Rebel weapons (medium),Pack
+200,201,NPCs,Naboo police chief,10,Naboo,RSF,810,990,28,90,110,356,,,,,,,,Naboo Security Force,Rebel weapons (hard),Pack
+200,201,NPCs,Naboo police chief (mission),10,Naboo,RSF,810,990,28,90,110,356,,,,,,,,Naboo Security Force,Imperial weapons (medium),Pack
+200,201,NPCs,Naboo police officer,8,Naboo,RSF,410,500,27,70,75,235,,,,,,,,Naboo Security Force,Rebel weapons (medium),Pack
+200,201,NPCs,naive Gondula workling,9,Endor,Gondula Tribe,410,500,27,70,75,292,,,,,,,,Gondula Tribe,Ewok weapons,Pack
+200,201,NPCs,naive Jinda workling,10,Endor,Jinda Tribe,810,990,28,90,110,356,,,,,,,,Jinda Tribe,,Pack
+200,201,NPCs,naive Panshee workling,10,Endor,Panshee Tribe,680,830,27,80,90,356,,,,,,,,Panshee Tribe,Ewok weapons,Pack
+200,201,NPCs,Narmle Militia Ensign,5,Rori,Narmle,140,170,25,45,50,113,,,,,,,,Narmle,Rebel weapons (medium),"Pack, Herd"
+200,201,NPCs,Narmle Militia grenadier,11,Rori,Narmle,990,1200,29,120,130,430,,,,,,,,Narmle,Rebel weapons (medium),"Pack, Herd"
+200,201,NPCs,Narmle Militia guard,7,Rori,Narmle,270,330,26,55,65,187,,,,,,,,Narmle,Rebel weapons (medium),"Pack, Herd"
+200,201,NPCs,Narmle Militia Lieutenant,9,Rori,Narmle,680,830,27,80,90,292,,,,,,,,Narmle,Rebel weapons (medium),"Pack, Herd"
+200,201,NPCs,Nightsister slave,10,Dathomir,Nightsister,410,500,28,130,140,292,,,,,,,,Nightsister,,Aggro
+200,201,NPCs,Nitra Vendallan,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,"Pack, Can’t be harmed"
+200,201,NPCs,noble,6,anywhere,Townsperson,180,220,25,50,55,113,,,,,,,,Townsperson,Rebel weapons (light),"Herd, Offers missions"
+200,201,NPCs,nomad,5,Tatooine,Townsperson,140,170,25,45,50,113,,,,,,,,Townsperson,Rebel weapons (light),Pack
+200,201,NPCs,nomad chief,8,Naboo,Naboo Nomad,410,500,27,70,75,235,,,,,,,,,Rebel weapons (medium),"Stalker, Pack"
+200,201,NPCs,novice creature handler,8,anywhere,Rebel,410,500,27,70,75,235,,,,,,,,Rebel,Rebel weapons (light),Pack
+200,201,NPCs,Nym’s guard,9,anywhere,Nym,680,830,27,80,90,356,,,,,,,,,Pirate weapons (medium),"Killer, Pack"
+200,201,NPCs,official,5,Naboo,Naboo,140,170,25,45,50,85,,,,,,,,Naboo,Pirate weapons (medium),"Herd, Offers missions"
+200,201,NPCs,Om Aynat,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,"Pack, Can’t be harmed"
+200,201,NPCs,Otolla gungan,10,Naboo,Gungan,810,990,28,90,110,356,,,,,,,,Gungan,Rebel weapons (light),Pack
+200,201,NPCs,outlaw,7,anywhere,Thug,270,330,26,55,65,187,,,,,,,,Thug,Pirate weapons (light),"Stalker, Pack"
+200,201,NPCs,Outrider,10,anywhere,Wilder,810,990,28,90,110,356,,,,,,,,,Rebel weapons (medium),Pack
+200,201,NPCs,Panshee cub,5,Endor,Panshee Tribe,140,170,25,45,50,113,,,,,,,,Panshee Tribe,Ewok weapons,Pack
+200,201,NPCs,Pfilbee Jhorn,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,"Pack, Can’t be harmed"
+200,201,NPCs,philosopher,4,Naboo,Townsperson,110,140,24,40,45,62,,,,,,,,Townsperson,Pirate weapons (light),"Herd, Offers missions"
+200,201,NPCs,philosopher (mission),4,Naboo,Townsperson,110,140,24,40,45,62,,,,,,,,Townsperson,Rebel weapons (light),"Herd, Offers missions"
+200,201,NPCs,Phinea Shantee,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,"Pack, Can’t be harmed"
+200,201,NPCs,pilot,9,anywhere,Mercenary,680,830,27,80,90,292,,,,,,,,,Rebel weapons (light),Pack
+200,201,NPCs,pirate crewman,6,anywhere,Pirate,180,220,25,50,55,147,,,,,,,,,Pirate weapons (light),Pack
+200,201,NPCs,pirate cutthroat,8,anywhere,Pirate,410,500,27,70,75,292,,,,,,,,,Pirate weapons (light),"Killer, Stalker, Pack"
+200,201,NPCs,pirate privateer,10,anywhere,Pirate,810,990,28,90,110,430,,,,,,,,,ranged weapons,"Killer, Pack"
+200,201,NPCs,pirate squab,4,anywhere,Pirate,110,140,24,40,45,85,,,,,,,,,Pirate weapons (light),"Stalker, Pack"
+200,201,NPCs,plague victim,6,Tatooine,Townsperson,180,220,25,50,55,113,,,,,,,,Townsperson,Rebel weapons (light),
+200,201,NPCs,plainsfolk,5,Naboo,Townsperson,140,170,25,45,50,113,,,,,,,,Townsperson,Pirate weapons (light),"Pack, Offers missions"
+200,201,NPCs,plasma bandit,8,Naboo,Plasma Theif,410,500,27,70,75,235,,,,,,,,Bandit,Pirate weapons (light),Pack
+202,203,NPCs,plasma thief,7,Naboo,Plasma Thief,270,330,26,55,65,187,,,,,,,,Plasma Thief,Pirate weapons (light),Pack
+202,203,NPCs,plasma thief (mission),3,Naboo,Plasma Thief,90,110,23,35,45,62,,,,,,,,Plasma Thief,Pirate weapons (light),Pack
+202,203,NPCs,plasma thief leader,9,Naboo,Plasma Thief,680,830,27,80,90,292,,,,,,,,Plasma Thief,ranged weapons,Pack
+202,203,NPCs,Pubam cub,5,Endor,Pubam,140,170,25,45,50,113,,,,,,,,Pubam,,"Aggro, Pack"
+202,203,NPCs,Pubam spiritmaster,5,Endor,Pubam,140,170,25,45,50,113,,,,,,,,Pubam,,"Aggro, Pack"
+202,203,NPCs,Ragtag kook,5,Corellia,Ragtag Gang,140,170,25,45,50,85,,,,,,,,Thug,Pirate weapons (light),Herd
+202,203,NPCs,Ragtag loon,6,Corellia,Ragtag Gang,180,220,25,50,55,113,,,,,,,,Thug,Pirate weapons (light),Stalker
+202,203,NPCs,Ragtag lunatic,7,Corellia,Ragtag Gang,270,330,26,55,65,187,,,,,,,,Thug,Pirate weapons (medium),Pack
+202,203,NPCs,Ragtag maniac,8,Corellia,Ragtag Gang,410,500,27,70,75,235,,,,,,,,Thug,Pirate weapons (medium),Pack
+202,203,NPCs,Rakir Banai,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,"Pack, Can’t be harmed"
+202,203,NPCs,Rebel resistance agitator,7,anywhere,Rebel,270,330,26,55,65,187,,,,,,,,Rebel,Rebel weapons (light),Pack
+202,203,NPCs,Rebel resistance anarchist,9,anywhere,Rebel,680,830,27,80,90,292,,,,,,,,Rebel,Rebel weapons (light),Pack
+202,203,NPCs,Rebel resistance dissident,6,anywhere,Rebel,180,220,25,50,55,147,,,,,,,,Rebel,Rebel weapons (light),Pack
+202,203,NPCs,Rebel resistance leader,10,anywhere,Rebel,810,990,28,90,110,356,,,,,,,,Rebel,Rebel weapons (light),Pack
+202,203,NPCs,Rebel resistance separatist,8,anywhere,Rebel,410,500,27,70,75,235,,,,,,,,Rebel,Rebel weapons (light),Pack
+202,203,NPCs,Ris inventor,4,anywhere,Townsperson,110,140,24,40,45,62,,,,,,,,,,Can’t be harmed
+202,203,NPCs,Rodian clan captain,11,Tatooine,Rodian,990,1200,29,120,130,514,,,,,,,,,Rebel weapons (hard),"Killer, Pack"
+202,203,NPCs,Rodian clan medic,7,Tatooine,Rodian,270,330,26,55,65,147,,,,,,,,,Rebel weapons (medium),"Herd, Healer"
+202,203,NPCs,Rodian gladiator,6,Tatooine,Rodian,180,220,25,50,55,147,,,,,,,,,Pirate weapons (medium),Pack
+202,203,NPCs,Rodian thug,3,anywhere,Rodian,90,110,23,35,45,62,,,,,,,,,Pirate weapons (light),Pack
+202,203,NPCs,rogue,9,anywhere,Thug,680,830,27,80,90,235,,,,,,,,Thug,Pirate weapons (light),Stalker
+202,203,NPCs,rogue CorSec trooper,7,Corellia,Rogue Corsec,270,330,26,55,65,187,,,,,,,,Rogue CorSec,ranged weapons,"Aggro, Pack"
+202,203,NPCs,roughneck,7,anywhere,Thug,270,330,26,55,65,187,,,,,,,,Thug,Pirate weapons (light),Pack
+202,203,NPCs,RSF security guard,8,Naboo,RSF,410,500,27,70,75,235,,,,,,,,Naboo Security Force,Rebel weapons (light),Pack
+202,203,NPCs,RSF security guard (mission),8,Naboo,RSF,410,500,27,70,75,235,,,,,,,,Naboo Security Force,Imperial weapons (medium),Pack
+202,203,NPCs,scavenger,7,Tatooine,Thug,270,330,26,55,65,147,,,,,,,,Thug,Rebel weapons (light),
+202,203,NPCs,scientist,4,anywhere,Townsperson,110,140,24,40,45,62,,,,,,,,Townsperson,Rebel weapons (light),Offers missions
+202,203,NPCs,scientist (warren),10,Dantooine,Warren Scientist,810,990,28,90,110,292,,,,,,,,Warren Scientist,,Herd
+202,203,NPCs,scoundrel,7,anywhere,Thug,270,330,26,55,65,147,,,,,,,,Thug,Pirate weapons (light),Stalker
+202,203,NPCs,Scrib Leras,4,Tatooine,Townsperson,110,140,24,40,45,62,,,,,,,,Townsperson,Pirate weapons (light),Stalker
+202,203,NPCs,Selonian assassin,9,Corellia,Selonian,270,330,27,120,130,356,,,,,,,,,Pirate weapons (medium),"Killer, Stalker, Pack"
+202,203,NPCs,Selonian healer,7,Corellia,Selonian,410,500,26,55,65,187,,,,,,,,,Rebel weapons (light),"Pack, Healer"
+202,203,NPCs,Selonian hunter,8,Corellia,Selonian,680,830,27,70,75,235,,,,,,,,,Imperial weapons (medium),Pack
+202,203,NPCs,Selonian raider,11,Corellia,Selonian,990,1200,29,120,130,514,,,,,,,,,Rebel weapons (hard),"Killer, Pack"
+202,203,NPCs,Selonian scout,5,Corellia,Selonian,140,170,25,45,50,113,,,,,,,,,Rebel weapons (medium),Pack
+202,203,NPCs,Selonian sentinel,9,Corellia,Selonian,810,990,27,70,75,356,,,,,,,,,Pirate weapons (medium),"Killer, Pack"
+202,203,NPCs,Selonian separatist,7,Corellia,Selonian,270,330,26,70,75,187,,,,,,,,,Rebel weapons (medium),Pack
+202,203,NPCs,Selonian Separatist recruit,6,Corellia,Selonian,180,220,25,50,55,147,,,,,,,,,Pirate weapons (medium),Pack
+202,203,NPCs,Selonian Separatist soldier,10,Corellia,Selonian,810,990,28,90,110,430,,,,,,,,,Rebel weapons (medium),"Killer, Pack"
+202,203,NPCs,Selonian thief,6,Corellia,Selonian,180,220,25,50,55,113,,,,,,,,,Pirate weapons (medium),
+204,205,NPCs,Senni Tonnika,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,"Pack, Can’t be harmed"
+204,205,NPCs,servant of Lord Nyax,8,Corellia,Followers Of Lord Nyax,410,500,27,70,75,235,,,,,,,,Followers Of Lord,Nyax Pirate weapons (medium),"Aggro, Pack"
+204,205,NPCs,settler,4,Tatooine,Townsperson,110,140,24,40,45,62,,,,,,,,Townsperson,Rebel weapons (light),Offers missions
+204,205,NPCs,settler (mission),6,Tatooine,Thug,180,220,25,50,55,113,,,,,,,,Thug,Rebel weapons (light),Offers missions
+204,205,NPCs,Shaggy Pubam youth,5,Endor,Pubam,140,170,25,45,50,113,,,,,,,,Pubam,,"Aggro, Pack"
+204,205,NPCs,Singing Mountain clan slave,10,Dathomir,Mtn Clan,410,500,28,130,140,292,,,,,,,,Mtn Clan,,Aggro
+204,205,NPCs,Skaak Tipper bandit,8,Naboo,Skaak Tipper Gang,410,500,27,70,75,187,,,,,,,,Thug,Pirate weapons (light),Herd
+204,205,NPCs,Skaak Tipper crook,10,Naboo,Skaak Tipper Gang,810,990,28,90,110,356,,,,,,,,Thug,Pirate weapons (light),"Stalker, Pack"
+204,205,NPCs,Skaak Tipper mugger,6,Naboo,Skaak Tipper Gang,180,220,25,50,55,113,,,,,,,,Thug,Pirate weapons (light),
+204,205,NPCs,Skaak Tipper prowler,5,Naboo,Skaak Tipper Gang,140,170,25,45,50,85,,,,,,,,Thug,Pirate weapons (light),
+204,205,NPCs,Skaak Tipper swindler,11,Naboo,Skaak Tipper Gang,990,1200,29,120,130,430,,,,,,,,Thug,Pirate weapons (medium),"Stalker, Pack, Herd"
+204,205,NPCs,slave,4,anywhere,Townsperson,110,140,24,40,45,62,,,,,,,,Townsperson,Rebel weapons (light),
+204,205,NPCs,slavemaster,4,anywhere,Slaver,110,140,24,40,45,62,,,,,,,,,Pirate weapons (light),
+204,205,NPCs,slaver,4,Tatooine,Slaver,110,140,24,40,45,85,,,,,,,,,Pirate weapons (light),Pack
+204,205,NPCs,Sleemo delinquent,7,Talus,Sleemo Gang,270,330,26,55,65,187,,,,,,,,,Pirate weapons (light),"Pack, Herd"
+204,205,NPCs,Sleemo hoodlum,6,Talus,Sleemo Gang,180,220,25,50,55,113,,,,,,,,,Pirate weapons (light),Herd
+204,205,NPCs,Sleemo punk,6,Talus,Sleemo Gang,180,220,25,50,55,113,,,,,,,,,Pirate weapons (light),"Stalker, Herd"
+204,205,NPCs,Sleemo scamp,8,Talus,Sleemo Gang,410,500,27,70,75,235,,,,,,,,,Pirate weapons (light),"Pack, Herd"
+204,205,NPCs,Sleemo vandal,9,Talus,Sleemo Gang,680,830,27,80,90,292,,,,,,,,,Pirate weapons (medium),"Pack, Herd"
+204,205,NPCs,slicer,6,anywhere,Thug,180,220,25,50,55,113,,,,,,,,Thug,Pirate weapons (light),Stalker
+204,205,NPCs,slicer (Jabba),6,anywhere,Jabba,180,220,25,50,55,113,,,,,,,,Jabba,Pirate weapons (light),Stalker
+204,205,NPCs,smashball bully,7,Corellia,Smashball,180,220,26,70,75,187,,,,,,,,Smashball,Pirate weapons (medium),Pack
+204,205,NPCs,smashball degenerate,9,Corellia,Smashball,410,500,27,90,110,292,,,,,,,,Smashball,Pirate weapons (hard),Pack
+204,205,NPCs,smashball thug,5,Corellia,Smashball,140,170,25,45,50,113,,,,,,,,Smashball,Pirate weapons (light),Pack
+204,205,NPCs,spacer,7,anywhere,Thug,270,330,26,55,65,187,,,,,,,,Thug,Pirate weapons (light),Pack
+204,205,NPCs,Spice Collective courier,10,Rori,Spice Collective,810,990,28,90,110,356,,,,,,,,Spice Collective,Pirate weapons (medium),Pack
+204,205,NPCs,Spice Collective miner,9,Rori,Spice Collective,680,830,27,80,90,292,,,,,,,,Spice Collective,Pirate weapons (medium),"Pack, Herd"
+204,205,NPCs,Spice Collective workchief,11,Rori,Spice Collective,990,1200,29,120,130,430,,,,,,,,Spice Collective,ranged weapons,"Pack, Herd"
+204,205,NPCs,spice fiend (mission),8,Tatooine,Thug,410,500,27,70,75,187,,,,,,,,Thug,Pirate weapons (light),Stalker
+204,205,NPCs,squatter,4,Tatooine,Townsperson,110,140,24,40,45,62,,,,,,,,Townsperson,Rebel weapons (light),
+204,205,NPCs,Sulfur Lake Pirate Crewman,6,anywhere,Pirate,180,220,25,50,55,147,,,,,,,,,Pirate weapons (light),"Aggro, Pack"
+204,205,NPCs,Sulfur Lake Pirate Cutthroat,8,anywhere,Pirate,410,500,27,70,75,292,,,,,,,,,Pirate weapons (light),"Aggro, Killer, Stalker, Pack"
+204,205,NPCs,Sulfur Lake Pirate Initiate,4,anywhere,Pirate,110,140,24,40,45,85,,,,,,,,,Pirate weapons (light),"Aggro, Stalker, Pack"
+204,205,NPCs,Sulfur Lake Pirate Lieutenant,10,anywhere,Pirate,810,990,28,90,110,430,,,,,,,,,ranged weapons,"Aggro, Killer, Pack"
+204,205,NPCs,swamp rat,10,Naboo,Swamp Rat,680,830,27,90,110,430,,,,,,,,Swamp Rat,Pirate weapons (medium),"Aggro, Killer, Stalker, Pack"
+204,205,NPCs,swamp villager,7,Naboo,Swamp Villager,270,330,26,55,65,187,,,,,,,,,Pirate weapons (medium),Pack
+204,205,NPCs,swooper,8,Corellia,Swoop,410,500,27,70,75,187,,,,,,,,Cor Swoop,Pirate weapons (light),
+204,205,NPCs,swooper (mission),2,Tatooine,Swoop,68,83,21,35,40,45,,,,,,,,Swoop,Pirate weapons (light),"Stalker, Pack"
+204,205,NPCs,swooper gangmember,9,Corellia,Swoop,680,830,27,80,90,235,,,,,,,,Cor Swoop,Pirate weapons (light),Stalker
+204,205,NPCs,swooper leader (mission),2,Tatooine,Swoop,68,83,21,35,40,45,,,,,,,,Swoop,Pirate weapons (light),"Stalker, Pack"
+206,207,NPCs,Talus Liberation Party loyalist,9,Talus,Liberation Party,680,830,27,80,90,292,,,,,,,,Liberation Party,Pirate weapons (light),"Pack, Herd"
+206,207,NPCs,Talus Liberation Party volunteer,8,Talus,Liberation Party,410,500,27,70,75,235,,,,,,,,Liberation Party,Pirate weapons (light),"Pack, Herd"
+206,207,NPCs,Tatooine militiaman,5,Tatooine,Townsperson,140,170,25,45,50,113,,,,,,,,Townsperson,Rebel weapons (light),Pack
+206,207,NPCs,technician,5,anywhere,Townsperson,140,170,25,45,50,113,,,,,,,,Townsperson,Rebel weapons (light),"Pack, Offers missions"
+206,207,NPCs,Tekil Barje,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,"Pack, Can’t be harmed"
+206,207,NPCs,thief (moisture),10,Tatooine,Thug,810,990,28,90,110,292,,,,,,,,Thug,Rebel weapons (light),
+206,207,NPCs,thug,7,anywhere,Thug,270,330,26,55,65,187,,,,,,,,Thug,Pirate weapons (light),Pack
+206,207,NPCs,Tiem Rutnar,4,anywhere,Townsperson,110,140,24,40,45,62,,,,,,,,Townsperson,Rebel weapons (light),Offers missions
+206,207,NPCs,Tour Aryon,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,"Pack, Can’t be harmed"
+206,207,NPCs,trade federation pirate,10,Naboo,Trade Federation,810,990,28,90,110,356,,,,,,,,Trade Federation,Pirate weapons (light),"Aggro, Pack"
+206,207,NPCs,Trandosian slavemaster,11,Tatooine,Slaver,990,1200,29,120,130,430,,,,,,,,,Pirate weapons (medium),Pack
+206,207,NPCs,Trandosian slavemaster (mission),7,Tatooine,Slaver,270,330,26,55,65,187,,,,,,,,,Pirate weapons (medium),Pack
+206,207,NPCs,Trandosian slaver,9,Tatooine,Slaver,680,830,27,80,90,292,,,,,,,,,Pirate weapons (light),Pack
+206,207,NPCs,Trandosian slaver (mission),5,Tatooine,Slaver,140,170,25,45,50,113,,,,,,,,,Pirate weapons (light),Pack
+206,207,NPCs,traveller,4,anywhere,Wilder,110,140,24,40,45,85,,,,,,,,,Rebel weapons (medium),"Stalker, Pack, Offers missions"
+206,207,NPCs,Twi’lek slave,7,anywhere,Townsperson,270,330,26,55,65,147,,,,,,,,Townsperson,Rebel weapons (light),
+206,207,NPCs,Valarian’s henchman,9,Tatooine,Valarian,680,830,27,80,90,292,,,,,,,,Valarian,Pirate weapons (light),Pack
+206,207,NPCs,Valarian’s scout,9,Tatooine,Valarian,680,830,27,80,90,235,,,,,,,,Valarian,Pirate weapons (light),Herd
+206,207,NPCs,Valarian’s scout (mission),9,Tatooine,Valarian,680,830,27,80,90,292,,,,,,,,Valarian,Pirate weapons (light),Pack
+206,207,NPCs,Valarian’s swooper,10,Tatooine,Valarian,810,990,28,90,110,292,,,,,,,,Valarian,Pirate weapons (light),
+206,207,NPCs,Valarian’s swooper (mission),10,Tatooine,Valarian,810,990,28,90,110,356,,,,,,,,Valarian,Pirate weapons (light),Pack
+206,207,NPCs,Valarian’s thief,10,Tatooine,Valarian,810,990,28,90,110,356,,,,,,,,Valarian,Pirate weapons (light),"Stalker, Pack"
+206,207,NPCs,Valarian’s thief (mission),10,Tatooine,Valarian,810,990,28,90,110,356,,,,,,,,Valarian,Pirate weapons (light),Pack
+206,207,NPCs,Valarian’s thug,11,Tatooine,Valarian,990,1200,29,120,130,430,,,,,,,,Valarian,Pirate weapons (light),Pack
+206,207,NPCs,Vardias Tyne,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,"Pack, Can’t be harmed"
+206,207,NPCs,vendor,4,anywhere,Townsperson,110,140,24,40,45,62,,,,,,,,Townsperson,Rebel weapons (light),Herd
+206,207,NPCs,Vetran explorer,8,anywhere,Wilder,410,500,27,70,75,235,,,,,,,,,Rebel weapons (medium),"Stalker, Pack, Offers missions"
+206,207,NPCs,wandering kitonak,6,Tatooine,Kitonak,180,220,25,50,55,147,,,,,,,,,,"Stalker, Pack"
+206,207,NPCs,wastrel,6,anywhere,Thug,180,220,25,50,55,113,,,,,,,,Thug,Pirate weapons (light),
+206,207,NPCs,water bug,7,Tatooine,Thug,270,330,26,55,65,147,,,,,,,,Thug,Pirate weapons (light),
+206,207,NPCs,Weequay soldier,10,Tatooine,Weequay,810,990,28,90,110,430,,,,,,,,,Rebel weapons (medium),"Killer, Pack"
+206,207,NPCs,Weequay thug,9,Tatooine,Weequay,680,830,27,80,90,356,,,,,,,,,Pirate weapons (medium),"Killer, Pack"
+206,207,NPCs,Weequay zealot,11,Tatooine,Weequay,680,830,29,140,150,514,,,,,,,,,Rebel weapons (hard),"Killer, Stalker, Pack"
+206,207,NPCs,Wilhalm Skrim,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,"Pack, Can’t be harmed"
+206,207,NPCs,Windom Starkiller,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,"Pack, Can’t be harmed"
+206,207,NPCs,Wookiee brawler,7,anywhere,Mercenary,270,330,26,55,65,147,,,,,,,,,Pirate weapons (light),
+206,207,NPCs,Wuher,10,Tatooine,Townsperson,810,990,28,90,110,356,,,,,,,,,,"Pack, Can’t be harmed"

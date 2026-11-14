@@ -124,6 +124,10 @@ public:
     void sendIsmIsGroupLeaderResponse(Player* player, uint64 requestId, bool isLeader);
 
     void sendFriendOnlineStatus(Player* player,Player* playerFriend,uint8 status, BString category, BString name) const;
+
+    // A friend by name (lower-cased), online or offline.
+
+    void				sendFriendStatus(Player* player,BString friendName,uint8 status, BString category, BString name) const;
     void sendFindFriendCreateWaypoint(DispatchClient* client, Player* player, Player* friendPlayer) const;
     void sendFindFriendRequestPosition(DispatchClient* client, Player* playerFriend, Player* player) const;
 

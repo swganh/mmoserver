@@ -94,6 +94,10 @@ public:
     void					applyDamage(CreatureObject* defender, const std::string& pool, int32 damage);
     // The wound and battle fatigue a hit leaves (rules.wound, FATIGUE_PER_HIT).
     void					applyWounds(CreatureObject* defender, const CombatOutcome& outcome);
+    // Whether the creature is bleeding; stopBleeding cures it (First Aid)
+    // and returns false if it was not bleeding.
+    bool					isBleeding(CreatureObject* creature) const;
+    bool					stopBleeding(CreatureObject* creature);
 
     ~CombatManager();
 
@@ -104,7 +108,18 @@ private:
     // bool					_verifyCombatState(CreatureObject* attacker,CreatureObject* defender);
     bool					_verifyCombatState(CreatureObject* attacker, uint64 defenderId);
 
-    uint8					_executeAttack(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,Weapon* weapon, uint64* delayMs);
+    // secondary: another target of an area or cone special, which costs and
+    // delays nothing more. Returns 0 hit, 1 miss, kNotPaid if the attacker
+    // could not pay for the special.
+    static const uint8		kNotPaid = 2;
+    uint8					_executeAttack(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,Weapon* weapon, uint64* delayMs, bool secondary = false);
+    // An area or cone special also hits every other target it reaches.
+    void					_attackArea(CreatureObject* attacker, CreatureObject* defender, ObjectControllerCmdProperties* cmdProperties, Weapon* weapon);
+    // The posture a special leaves the attacker in (Dive Shot: prone...).
+    void					_setAttackerEndPosture(CreatureObject* attacker, ObjectControllerCmdProperties* cmdProperties);
+    // Whether the attacker may fight this creature: alive, and an attackable
+    // creature or a player duelling the attacker.
+    bool					_canFight(CreatureObject* attacker, CreatureObject* target);
     // The attack as the rules see it: the sides, the weapon and the command.
     CombatAttack			_buildAttack(CreatureObject* attacker, CreatureObject* defender, ObjectControllerCmdProperties* cmdProperties, Weapon* weapon);
     // Charges a special's HAM costs; false (nothing charged) if the attacker
@@ -131,6 +146,23 @@ private:
         uint64		expires;	// ms, Clock local time
     };
     std::vector<TimedBuff>	mBuffs;
+    // Bleeding: one per creature and pool.
+    struct Bleed
+    {
+        uint64		creatureId;
+        uint8		bar;		// HamBar_Health, _Action, _Mind
+        int32		perTick;
+        uint64		interval;	// ms
+        uint64		nextTick;	// ms, Clock local time
+        uint64		expires;	// ms, Clock local time
+    };
+    std::vector<Bleed>		mBleeds;
+    // Each player's battle fatigue not yet whole (the rules give fractions).
+    std::map<uint64, float>	mFatigueCarry;
+    void					_startBleeding(CreatureObject* creature, uint8 bar, int32 perTick, float interval, float duration);
+    void					_tickBleeding(uint64 now);
+    // Removes the Bleeding state and tells a player, once no pool bleeds.
+    void					_bleedingEnded(uint64 creatureId);
     // Charges a command's flat HAM costs; false (nothing charged) if the
     // creature cannot pay them.
     bool					_payFlatCosts(CreatureObject* creature, ObjectControllerCmdProperties* cmdProperties);

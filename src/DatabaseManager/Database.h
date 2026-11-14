@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <memory>
 #include <queue>
 #include <string>
+#include <vector>
 
 #include <boost/noncopyable.hpp>
 #include <boost/pool/pool.hpp>
@@ -53,6 +54,18 @@ class DatabaseResult;
 class Transaction;
 
 typedef tbb::concurrent_queue<DatabaseJob*> DatabaseJobQueue;
+
+/*! A value bound to a prepared statement. A null C string, which is what
+* BString::getAnsi() returns for a string that is not ANSI, is bound as
+* empty text, as escapeString always treated it (a null std::string throws).
+*/
+struct DatabaseParam {
+    DatabaseParam(const char* text) : value(text ? text : "") {}
+    DatabaseParam(const std::string& text) : value(text) {}
+    DatabaseParam(std::string&& text) : value(std::move(text)) {}
+    std::string value;
+};
+typedef std::vector<DatabaseParam> DatabaseParams;
 typedef tbb::concurrent_queue<DatabaseWorkerThread*> DatabaseWorkerThreadQueue;
 
 /*! An encapsulation of a connection to a database.
@@ -164,6 +177,28 @@ public:
     */
     void executeProcedureAsync(DatabaseCallback* callback, void* ref, const char* sql, ...);
 
+    /*! Executes a prepared statement asynchronously. Each ? in sql is bound,
+    * in order, to one of params. Text from players goes in params, never in
+    * sql: it cannot change the statement, and has no length limit here.
+    *
+    * \param callback Receives the result (nullptr if the statement failed).
+    * \param procedure Whether the statement is a CALL (multi-result).
+    */
+    void executePreparedAsync(DatabaseCallback* callback, void* ref, const std::string& sql,
+                              const DatabaseParams& params, bool procedure = false);
+
+    /*! As above, with the result passed to callback (nullptr if the
+    * statement failed).
+    */
+    void executePreparedAsync(const std::string& sql, const DatabaseParams& params,
+                              AsyncDatabaseCallback callback, bool procedure = false);
+
+    /*! Executes a prepared statement and waits for the result (nullptr if it
+    * failed); see executePreparedAsync.
+    */
+    DatabaseResult* executePrepared(const std::string& sql, const DatabaseParams& params,
+                                    bool procedure = false);
+
     /*! Escapes a string to prepare for storage in a database.
     *
     * \param target The container to hold the escaped string.
@@ -182,6 +217,9 @@ public:
     * \return Returns the escaped string.
     */
     std::string escapeString(const std::string& source);
+
+    /*! As above; a null source (a BString that is not ANSI) is empty. */
+    std::string escapeString(const char* source) { return escapeString(std::string(source ? source : "")); }
 
     /*! Destroys the requested database result.
     *

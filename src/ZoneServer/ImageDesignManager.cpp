@@ -525,6 +525,17 @@ void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
 {
 	int8 sql[1024];
 
+	// The hair template comes from the client: it must be at least the
+	// "object/tangible/hair/<species>/" prefix (its file name is read from
+	// after it) and short enough for the model string.
+	const uint32 hairPrefix = 22 + customer->getSpeciesString().getLength();
+	if(newHairString.getLength() && (newHairString.getLength() <= hairPrefix || newHairString.getLength() > 100))
+	{
+		LOG(WARNING) << "Image design: refused hair template of " << newHairString.getLength() << " characters";
+		return;
+	}
+
+
 	//the reason the hair is unequipped when wearing a helmet is because otherwise parts of the hair looked out of the helmet, which plainly looks stupid
 
 	//hark the equiplist might contain a helmet at this spot
@@ -576,7 +587,7 @@ void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
 		customer->setHair(playerHair);
 
 		int8 tmpHair[128];
-		sprintf(tmpHair,"object/tangible/hair/%s/shared_%s",customer->getSpeciesString().getAnsi(),&newHairString.getAnsi()[22 + customer->getSpeciesString().getLength()]);
+		snprintf(tmpHair,sizeof(tmpHair),"object/tangible/hair/%s/shared_%s",customer->getSpeciesString().getAnsi(),&newHairString.getAnsi()[hairPrefix]);
 		playerHair->setId(customer->getId() + 8);
 		playerHair->setParentId(customer->getId());
 		playerHair->setModelString(tmpHair);
@@ -589,8 +600,9 @@ void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
 
 
 		// update the db
-		sprintf(sql,"UPDATE %s.character_appearance set hair = '%s' where character_id = '%" PRIu64 "'",mDatabase->galaxy(),newHairString.getAnsi(),customer->getId());
-		mDatabase->executeSqlAsync(NULL,NULL,sql);
+		mDatabase->executePreparedAsync(NULL, NULL,
+			std::string("UPDATE ") + mDatabase->galaxy() + ".character_appearance set hair = ? where character_id = " + std::to_string(customer->getId()),
+			{newHairString.getAnsi()});
 
 		// now update the modelstring in the creo6 equipped list and the corresponding tano
 		//are we wearing a helmet ? if not we need to update the world

@@ -38,12 +38,13 @@ struct AccountData
 {
     uint64_t            mId;
     int8                  mUsername[32];
-    int8                  mPassword[32];
+    int8                  mPassword[128];   // Argon2id hash (or old SHA-1 hex)
     uint32                mAccountId;
     int8                  mBanned;
     int8                  mActive;
     uint32                mCharsAllowed;
     int8					mCsr;
+    int8                  mLegacyMatch;     // the password matches an old SHA-1 one
 };
 
 

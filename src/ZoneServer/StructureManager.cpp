@@ -182,21 +182,14 @@ void StructureManager::checkNameOnPermissionList(uint64 structureId, uint64 play
 
     asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Check_Permission, 0);
 
-    int8 sql[512],*sqlPointer,restStr[128];
-//	int8 sql[1024]
-    sprintf(sql, "select %s.sf_CheckPermissionList(%" PRIu64 ",'", mDatabase->galaxy(), structureId);
-
-    sqlPointer = sql + strlen(sql);
-    sqlPointer += gWorldManager->getDatabase()->escapeString(sqlPointer,name.getAnsi(),name.getLength());
-    sprintf(restStr,"','%s')",list.getAnsi());
-    strcat(sql,restStr);
-
-    gWorldManager->getDatabase()->executeSqlAsync(this,asyncContainer,sql);
-
     asyncContainer->mStructureId = structureId;
     asyncContainer->mPlayerId = playerId;
     asyncContainer->command = command;
-    sprintf(asyncContainer->name,"%s",name.getAnsi());
+    snprintf(asyncContainer->name, sizeof(asyncContainer->name), "%s", name.getAnsi());
+
+    mDatabase->executePreparedAsync(this, asyncContainer,
+        std::string("SELECT ") + mDatabase->galaxy() + ".sf_CheckPermissionList(" + std::to_string(structureId) + ", ?, ?)",
+        {name.getAnsi(), list.getAnsi()});
 
 
     // 0 is Name on list
@@ -211,18 +204,16 @@ void StructureManager::checkNameOnPermissionList(uint64 structureId, uint64 play
 //=======================================================================================================================
 void StructureManager::removeNamefromPermissionList(uint64 structureId, uint64 playerId, BString name, BString list)
 {
-    int8 playerName[64];
-
-    mDatabase->escapeString(playerName,name.getAnsi(),name.getLength());
-
     StructureManagerAsyncContainer* asyncContainer;
 
     asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Remove_Permission, 0);
-    mDatabase->executeSqlAsync(this,asyncContainer,"select %s.sf_RemovePermissionList(%" PRIu64 ",'%s','%s')",mDatabase->galaxy(),structureId,playerName,list.getAnsi());
-
     asyncContainer->mStructureId = structureId;
     asyncContainer->mPlayerId = playerId;
-    sprintf(asyncContainer->name,"%s",name.getAnsi());
+    snprintf(asyncContainer->name, sizeof(asyncContainer->name), "%s", name.getAnsi());
+
+    mDatabase->executePreparedAsync(this, asyncContainer,
+        std::string("SELECT ") + mDatabase->galaxy() + ".sf_RemovePermissionList(" + std::to_string(structureId) + ", ?, ?)",
+        {name.getAnsi(), list.getAnsi()});
 
     // 0 is sucess
     // 1 name doesnt exist
@@ -237,20 +228,19 @@ void StructureManager::removeNamefromPermissionList(uint64 structureId, uint64 p
 //=======================================================================================================================
 void StructureManager::addNametoPermissionList(uint64 structureId, uint64 playerId, BString name, BString list)
 {
-    int8 playerName[64];
     //we have shown that we are on the admin list, so the name we proposed now will get added
 
     StructureManagerAsyncContainer* asyncContainer;
 
     asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Add_Permission, 0);
     
-    mDatabase->escapeString(playerName,name.getAnsi(),name.getLength());
-
     asyncContainer->mStructureId = structureId;
     asyncContainer->mPlayerId = playerId;
-    sprintf(asyncContainer->name,"%s",name.getAnsi());
+    snprintf(asyncContainer->name, sizeof(asyncContainer->name), "%s", name.getAnsi());
 
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT %s.sf_AddPermissionList(%" PRIu64 ",'%s','%s')",mDatabase->galaxy(),structureId,playerName,list.getAnsi());
+    mDatabase->executePreparedAsync(this, asyncContainer,
+        std::string("SELECT ") + mDatabase->galaxy() + ".sf_AddPermissionList(" + std::to_string(structureId) + ", ?, ?)",
+        {name.getAnsi(), list.getAnsi()});
 
 
     // 0 is sucess

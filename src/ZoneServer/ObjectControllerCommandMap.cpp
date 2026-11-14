@@ -68,7 +68,8 @@ ObjectControllerCommandMap::ObjectControllerCommandMap(Database* database) :
                                "knockdown_chance,dizzy_chance,blind_chance,stun_chance,intimidate_chance,"
                                "posture_down_chance,extended_range,damage_multiplier,delay_multiplier,deny_in_locomotion,"
                                "accuracy_bonus,healthcost_multiplier,actioncost_multiplier,mindcost_multiplier,"
-                               "posture_up_chance,stun_duration,dizzy_duration,blind_duration"
+                               "posture_up_chance,stun_duration,dizzy_duration,blind_duration,"
+                               "area_shape,area_length,area_width,attacker_end_posture"
                                " FROM command_table");
    
 }
@@ -111,7 +112,7 @@ void ObjectControllerCommandMap::handleDatabaseJobComplete(void* ref,DatabaseRes
 {
     ObjectControllerCmdProperties* commandProperties;
 
-    DataBinding* binding = mDatabase->createDataBinding(37);
+    DataBinding* binding = mDatabase->createDataBinding(41);
     binding->addField(DFT_bstring,offsetof(ObjectControllerCmdProperties,mCommandStr),64,0);
     binding->addField(DFT_bstring,offsetof(ObjectControllerCmdProperties,mAbilityStr),64,1);
     binding->addField(DFT_uint64,offsetof(ObjectControllerCmdProperties,mStates),8,2);
@@ -149,6 +150,10 @@ void ObjectControllerCommandMap::handleDatabaseJobComplete(void* ref,DatabaseRes
     binding->addField(DFT_float,offsetof(ObjectControllerCmdProperties,mStunDuration),4,34);
     binding->addField(DFT_float,offsetof(ObjectControllerCmdProperties,mDizzyDuration),4,35);
     binding->addField(DFT_float,offsetof(ObjectControllerCmdProperties,mBlindDuration),4,36);
+    binding->addField(DFT_bstring,offsetof(ObjectControllerCmdProperties,mAreaShape),16,37);
+    binding->addField(DFT_float,offsetof(ObjectControllerCmdProperties,mAreaLength),4,38);
+    binding->addField(DFT_float,offsetof(ObjectControllerCmdProperties,mAreaWidth),4,39);
+    binding->addField(DFT_bstring,offsetof(ObjectControllerCmdProperties,mAttackerEndPosture),16,40);
 
     uint64 count = result->getRowCount();
 

@@ -1,0 +1,3 @@
+name,level,social_group,pvp_faction,health_min,health_max,action_min,action_max,mind_min,mind_max,damage_min,damage_max,ranged_attack,to_hit,xp,killer,stalker,pack,herd,aggro,can_tame,invulnerable,special_attack_1,special_attack_2,page,facing
+greater desert womprat,16,greater desert womprat,,1200,2000,1200,2000,1200,2000,85,90,yes,35,1355,no,yes,no,no,no,yes,no,BlindAttack,StunAttack,472,473
+variegated womprat,14,variegated womprat,,1050,1750,1050,1750,1050,1750,75,80,no,30,1085,no,no,no,yes,no,yes,no,,StunAttack,478,479

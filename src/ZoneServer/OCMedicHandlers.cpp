@@ -40,6 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageFactory.h"
 #include "NetworkManager/Message.h"
 #include "ForageManager.h"
+#include "CombatManager.h"
 
 //consts
 const char* const woundpack = "woundpack";
@@ -213,10 +214,52 @@ void ObjectController::_handleTendWound(uint64 targetId,Message* message,ObjectC
 // firstaid
 //
 
+// Stops bleeding (Medic, Injury Treatment II). The guide says bleeding runs
+// "until it is cured" (p. 85) without naming the cure; First Aid is the
+// medic's command for it.
 void ObjectController::_handleFirstAid(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    //PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
-    //gMessageLib->sendSystemMessage(Medic, "First Aid has not been implemented yet. Sorry.");
+    PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
+    if (!Medic || !gCombatManager)
+    {
+        return;
+    }
+    PlayerObject* Target = dynamic_cast<PlayerObject*>(Medic->getHealingTarget(Medic));
+    if (!Target)
+    {
+        Target = Medic;
+    }
+    bool isSelf = (Target == Medic);
+    if (!Medic->verifyAbility(cmdProperties->mAbilityCrc))
+    {
+        gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "cannot_heal"), Medic);
+        return;
+    }
+    if (!gMedicManager->CheckMedicRange(Medic, Target, 6.0f))
+    {
+        return;
+    }
+    if (!gCombatManager->isBleeding(Target))
+    {
+        gMessageLib->SendSystemMessage(isSelf ? L"You are not bleeding." : L"Your target is not bleeding.", Medic);
+        return;
+    }
+    Ham* ham = Medic->getHam();
+    if (!ham->checkMainPools(cmdProperties->mHealthCost, cmdProperties->mActionCost, cmdProperties->mMindCost))
+    {
+        gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "not_enough_mind"), Medic);
+        return;
+    }
+    if (cmdProperties->mMindCost)
+    {
+        ham->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, -cmdProperties->mMindCost);
+    }
+    gMessageLib->sendCreatureAnimation(Medic, BString(isSelf ? "heal_self" : "heal_other"));
+    gCombatManager->stopBleeding(Target);
+    if (!isSelf)
+    {
+        gMessageLib->SendSystemMessage(L"You stop your target's bleeding.", Medic);
+    }
 }
 
 //=============================================================================================================================

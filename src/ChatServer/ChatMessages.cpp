@@ -502,11 +502,22 @@ void ChatMessageLib::sendGroupSystemMessage(BString name, BString pointer, Playe
 
 void ChatMessageLib::sendFriendOnlineStatus(Player* player,Player* playerFriend,uint8 status, BString category, BString name) const
 {
+    sendFriendStatus(player, playerFriend->getName(), status, category, name);
+}
+
+//======================================================================================================================
+
+void ChatMessageLib::sendFriendStatus(Player* player,BString friendName,uint8 status, BString category, BString name) const
+{
     gMessageFactory->StartMessage();
     gMessageFactory->addUint32(opChatFriendlistUpdate);
     gMessageFactory->addString(category);
     gMessageFactory->addString(name);
-    gMessageFactory->addString(playerFriend->getName());
+    // Lower case, as the friends list holds it (sendFriendList): the client
+    // matched "Brawler" to no "brawler" on the list, so showed no status
+    // change and no online message.
+    friendName.toLower();
+    gMessageFactory->addString(friendName);
     gMessageFactory->addUint8(status);
 
     Message* newMessage = gMessageFactory->EndMessage();

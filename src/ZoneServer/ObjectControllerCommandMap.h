@@ -164,6 +164,14 @@ public:
     float	mStunDuration = 0;
     float	mDizzyDuration = 0;
     float	mBlindDuration = 0;
+    // A special's reach (migration 012): "single", "area" (radius around the
+    // attacker) or "cone" (towards the target); length 0 = the weapon's max
+    // range; width = a cone's width at its far end. And the posture the
+    // attacker ends in ("prone", "kneeling", "standing"), empty if unchanged.
+    BString	mAreaShape;
+    float	mAreaLength = 0;
+    float	mAreaWidth = 0;
+    BString	mAttackerEndPosture;
 };
 
 //======================================================================================================================

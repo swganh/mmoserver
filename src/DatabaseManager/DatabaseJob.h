@@ -30,6 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <stdlib.h>
 #include <cstring>
+#include <string>
+#include <vector>
 
 #include <boost/optional.hpp>
 
@@ -52,6 +54,9 @@ public:
     DatabaseResult* result;
     void* client_reference;
     std::string query;
+    // Values for the query's ? placeholders: run as a prepared statement.
+    std::vector<std::string> params;
+    bool prepared = false;
     bool multi_job;
 };
 

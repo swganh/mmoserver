@@ -203,9 +203,53 @@ void Database::process() {
 
             // Free the result and the job
             destroyResult(job->result);
+            job->~DatabaseJob();
             job_pool_.ordered_free(job);
         }
     }
+}
+
+
+static std::vector<std::string> values_(const DatabaseParams& params) {
+    std::vector<std::string> values;
+    values.reserve(params.size());
+    for (const DatabaseParam& p : params) {
+        values.push_back(p.value);
+    }
+    return values;
+}
+
+
+void Database::executePreparedAsync(DatabaseCallback* callback, void* ref, const std::string& sql,
+                                    const DatabaseParams& params, bool procedure) {
+    DatabaseJob* job = new(job_pool_.ordered_malloc()) DatabaseJob();
+    job->old_callback = callback;
+    job->client_reference = ref;
+    job->query = sql;
+    job->params = values_(params);
+    job->prepared = true;
+    job->multi_job = procedure;
+
+    job_pending_queue_.push(job);
+}
+
+
+void Database::executePreparedAsync(const std::string& sql, const DatabaseParams& params,
+                                    AsyncDatabaseCallback callback, bool procedure) {
+    DatabaseJob* job = new(job_pool_.ordered_malloc()) DatabaseJob();
+    job->callback = callback;
+    job->query = sql;
+    job->params = values_(params);
+    job->prepared = true;
+    job->multi_job = procedure;
+
+    job_pending_queue_.push(job);
+}
+
+
+DatabaseResult* Database::executePrepared(const std::string& sql, const DatabaseParams& params,
+                                          bool procedure) {
+    return database_impl_->executePrepared(sql, values_(params), procedure);
 }
 
 

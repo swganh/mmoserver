@@ -82,9 +82,8 @@ ChatManager::ChatManager(Database* database,MessageDispatch* dispatch) :
     mDatabase->executeProcedureAsync(this,asyncContainer,"CALL %s.sp_ReturnGalaxyName(2);",mDatabase->galaxy());
     
 
-    asyncContainer = new ChatAsyncContainer(ChatQuery_Channels);
-    mDatabase->executeProcedureAsync(this,asyncContainer,"CALL %s.sp_ReturnChatChannels();",mDatabase->galaxy());
-    
+    // The channels load once the galaxy name is in (ChatQuery_GalaxyName):
+    // their paths include it.
 
     asyncContainer = new ChatAsyncContainer(ChatQuery_PlanetNames);
     mDatabase->executeProcedureAsync(this,asyncContainer,"CALL %s.sp_ReturnChatPlanetNames();",mDatabase->galaxy());
@@ -351,6 +350,21 @@ void ChatManager::_unregisterCallbacks()
 
 //======================================================================================================================
 
+void ChatManager::_createMail(ChatAsyncContainer* container, const BString& sender, Mail* mail, uint64 receiverId)
+{
+    // Subject and text come from players, the attachments are binary
+    // (UTF-16 out-of-band data): all bound values, none of them SQL.
+    BString senderName = sender;
+    const uint32 attachmentBytes = mail->mAttachments.getLength() << 1;
+    mDatabase->executePreparedAsync(this, container,
+        std::string("SELECT ") + mDatabase->galaxy() + ".sf_MailCreate(?, " + std::to_string(receiverId) + ", ?, ?, ?, "
+            + std::to_string(attachmentBytes) + ", " + std::to_string(mail->mTime) + ")",
+        {senderName.getAnsi() ? senderName.getAnsi() : "", mail->mSubject.getAnsi(), mail->mText.getAnsi(),
+         std::string(mail->mAttachments.getRawData(), attachmentBytes)});
+}
+
+//======================================================================================================================
+
 void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
     ChatAsyncContainer* asyncContainer = (ChatAsyncContainer*)ref;
@@ -364,9 +378,11 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         binding->addField(DFT_uint64,0,8);
 
         uint64	ret		= 0;
-        uint64	count	= result->getRowCount();
+        // No result: the lookup failed (logged); not found.
+        uint64	count	= result ? result->getRowCount() : 0;
 
-        result->getNextRow(binding,&ret);
+        if (result)
+            result->getNextRow(binding,&ret);
         if(count == 1)
             count = ret;
 
@@ -410,17 +426,22 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         if (count == 0) {
             LOG(WARNING) << "Could not find Galaxy ";
-            return;
+        } else {
+            DataBinding* binding = mDatabase->createDataBinding(1);
+            binding->addField(DFT_bstring,0,64);
+
+            result->getNextRow(binding,&mGalaxyName);
+
+            DLOG(INFO) <<"Main: ["<<mMainCategory.getAnsi()<<"] Galaxy: ["<<mGalaxyName.getAnsi()<<"]";
+
+            mDatabase->destroyDataBinding(binding);
         }
 
-        DataBinding* binding = mDatabase->createDataBinding(1);
-        binding->addField(DFT_bstring,0,64);
-
-        result->getNextRow(binding,&mGalaxyName);
-
-        DLOG(INFO) <<"Main: ["<<mMainCategory.getAnsi()<<"] Galaxy: ["<<mGalaxyName.getAnsi()<<"]";
-
-        mDatabase->destroyDataBinding(binding);
+        // Only now: each channel's path includes the galaxy name. Loaded in
+        // parallel, the channels could come first and get an empty one
+        // ("SWG..corellia"), outside the galaxy in the Channel Browser.
+        ChatAsyncContainer* channelsContainer = new ChatAsyncContainer(ChatQuery_Channels);
+        mDatabase->executeProcedureAsync(this,channelsContainer,"CALL %s.sp_ReturnChatChannels();",mDatabase->galaxy());
     }
     break;
 
@@ -431,7 +452,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint64,0,8);
 
-        if(result->getRowCount())
+        if(result && result->getRowCount())
         {
             result->getNextRow(binding,&receiverId);
 
@@ -441,38 +462,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             asContainer->mSender = asyncContainer->mSender;
             asContainer->mReceiverId = receiverId;
 
-            int8 sql[20000],*sqlPointer;
-            int8 footer[64];
-            int8 receiverStr[64];
-            sprintf(receiverStr,"',%" PRIu64 ",'",receiverId);
-            sprintf(footer,",%u,%" PRIu32")",(asyncContainer->mMail->mAttachments.getLength() << 1),asyncContainer->mMail->mTime);
-            sprintf(sql,"SELECT %s.sf_MailCreate('",mDatabase->galaxy());
-
-            sqlPointer = sql + strlen(sql);
-
-            //if a system send Mail, the sender may be NULL
-
-
-            sqlPointer += mDatabase->escapeString(sqlPointer,asyncContainer->mMail->getSender().getAnsi(),asyncContainer->mMail->getSender().getLength());
-
-            strcat(sql,receiverStr);
-            sqlPointer = sql + strlen(sql);
-            sqlPointer += mDatabase->escapeString(sqlPointer,asyncContainer->mMail->mSubject.getAnsi(),asyncContainer->mMail->mSubject.getLength());
-            *sqlPointer++ = '\'';
-            *sqlPointer++ = ',';
-            *sqlPointer++ = '\'';
-            sqlPointer += mDatabase->escapeString(sqlPointer,asyncContainer->mMail->mText.getAnsi(),asyncContainer->mMail->mText.getLength());
-            *sqlPointer++ = '\'';
-            *sqlPointer++ = ',';
-            // The attachments are binary (UTF-16 out-of-band data): not text.
-            sqlPointer += sprintf(sqlPointer, "_binary");
-            *sqlPointer++ = '\'';
-            sqlPointer += mDatabase->escapeString(sqlPointer,asyncContainer->mMail->mAttachments.getRawData(),(asyncContainer->mMail->mAttachments.getLength() << 1));
-            *sqlPointer++ = '\'';
-            *sqlPointer++ = '\0';
-            strcat(sql,footer);
-
-            mDatabase->executeSqlAsync(this,asContainer,sql);
+            _createMail(asContainer, asyncContainer->mMail->getSender(), asyncContainer->mMail, receiverId);
         }
         else
         {
@@ -489,6 +479,17 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
     case ChatQuery_CreateMail:
     {
+        // The mail was not stored (logged): tell the sender, as for an
+        // unknown recipient.
+        if (!result)
+        {
+            if(asyncContainer->mSender)
+                gChatMessageLib->sendChatonPersistantMessage((asyncContainer->mSender)->getClient(),asyncContainer->mMailCounter);
+
+            SAFE_DELETE(asyncContainer->mMail);
+            break;
+        }
+
         uint32 dbMailId = 0;
         DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint32,0,4);
@@ -658,8 +659,12 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         // We are actually sending this info from CharacterLoginHandler::handleDispatchMessage at the opCmdSceneReady event.
         // updateFriendsOnline(player,true);
 
-        // We should not send any info to self about all the friend in MY friends list.
-        // checkOnlineFriends(player);
+        // The friends' statuses go at scene ready (_processWhenLoaded); if the
+        // scene was ready before this list loaded, send them now.
+        if (!player->getAddPending())
+        {
+            checkOnlineFriends(player);
+        }
 
         // query ignoreslist
         ChatAsyncContainer* asContainer = new ChatAsyncContainer(ChatQuery_PlayerIgnores);
@@ -805,6 +810,11 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
     case ChatQuery_AddChannel:
     {
+        // The statement failed (logged): no room is made.
+        if (!result || result->getRowCount() == 0)
+        {
+            break;
+        }
         uint64 count = result->getRowCount();
         assert(count == 1); //There should only be one Id
 
@@ -859,15 +869,18 @@ void ChatManager::_processClusterClientConnect(Message* message,DispatchClient* 
 {
     uint32 accountId = message->getAccountId();
     uint64 charId = message->getUint64();
-    uint32 planetId = message->getUint32();
 
     // @NOTE this is a hack that is needed for the time being. Currently the MessageDispatch
     // handles these opClusterClientConnect messages however messages coming from a zone
     // server require additional extra processing. To ensure this is only handled at the
     // appropriate time check to see if a character id has been set as only the zone server sets this.
+    // The connect sent before a character is chosen has no planet id: read
+    // it only after this check (it was read past the message's end).
     if (charId == 0) {
         return;
     }
+
+    uint32 planetId = message->getUint32();
 
     Player* player = new Player(charId,client,planetId);
 
@@ -1038,8 +1051,10 @@ void ChatManager::_processWhenLoaded(Message* message,DispatchClient* client)
                 asContainer->mClient = client;
                 asContainer->mReceiver = (*accIt).second;
 
-                // Update friends list
+                // Update friends list: tell this player's friends they are
+                // online, and this player which friends already are.
                 updateFriendsOnline(asContainer->mReceiver,true);
+                checkOnlineFriends(asContainer->mReceiver);
 
                 mDatabase->executeProcedureAsync(this,asContainer,"CALL %s.sp_ReturnChatMailHeaders(%" PRIu64 ");",mDatabase->galaxy(),asContainer->mReceiver->getCharId());
                 
@@ -1143,13 +1158,33 @@ void ChatManager::_processCreateRoom(Message* message,DispatchClient* client)
     message->getStringAnsi(title);
     uint32 requestId = message->getUint32();
 
-    uint32 index = 5 + mGalaxyName.getLength();
-    BString modpath;
-    path.substring(modpath, static_cast<uint16>(index), path.getLength());
+    // The client sends "SWG.<galaxy>.<name>". The name was cut at
+    // 5 + the length of this server's galaxy name: when the client's galaxy
+    // name differed, the room got no name (and the client listed it again on
+    // every refresh). Take what follows the galaxy, whatever it is called.
+    const std::string fullPath = path.getAnsi() ? path.getAnsi() : "";
+    const std::string prefix = "SWG.";
+    const std::string ourGalaxy = prefix + (mGalaxyName.getAnsi() ? mGalaxyName.getAnsi() : "") + ".";
+    std::string roomName = fullPath;
+    if (fullPath.compare(0, ourGalaxy.size(), ourGalaxy) == 0)
+    {
+        roomName = fullPath.substr(ourGalaxy.size());
+    }
+    else if (fullPath.compare(0, prefix.size(), prefix) == 0)
+    {
+        size_t dot = fullPath.find('.', prefix.size());
+        roomName = (dot == std::string::npos) ? std::string() : fullPath.substr(dot + 1);
+    }
 
-    // modpath.toLower();
+    LOG(INFO) << "Create chat room: path '" << fullPath << "', name '" << roomName << "', galaxy '" << mGalaxyName.getAnsi() << "'";
 
-    DLOG(INFO) << "Attempting to create channel "<< title.getAnsi() << " at " << modpath.getAnsi();
+    if (roomName.empty())
+    {
+        LOG(WARNING) << "Refused a chat room with no name (path '" << fullPath << "')";
+        return;
+    }
+
+    BString modpath = roomName.c_str();
 
     ChannelList::iterator iter = mvChannels.begin();
     while (iter != mvChannels.end())
@@ -1192,12 +1227,10 @@ void ChatManager::_processCreateRoom(Message* message,DispatchClient* client)
     asyncContainer->mRequestId = requestId;
     asyncContainer->mChannel = channel;
     // Lowercase mDatabase->ExecuteSqlAsync(this, asyncContainer, "SELECT %s.sf_CreateChannel('%s', %u, %u, '%s', '%s');", mDatabase->galaxy(),  modpath.getAnsi(), channel->isPrivate(), moderatedFlag, player->getName().getAnsi(), title.getAnsi());
-    int8 sql[128];
-    mDatabase->escapeString(sql, playername.getAnsi(), playername.getLength());
-
-    int8 sql_2[128];
-    mDatabase->escapeString(sql_2, title.getAnsi(), title.getLength());
-    mDatabase->executeSqlAsync(this, asyncContainer, "SELECT %s.sf_CreateChannel('%s', %u, %u, '%s', '%s');", mDatabase->galaxy(),  modpath.getAnsi(), channel->isPrivate(), moderatedFlag, sql /* playername->getAnsi() */, sql_2 /* title.getAnsi()*/ );
+    // The path and title come from the client: bound values, not SQL.
+    mDatabase->executePreparedAsync(this, asyncContainer,
+        std::string("SELECT ") + mDatabase->galaxy() + ".sf_CreateChannel(?, " + std::to_string(channel->isPrivate()) + ", " + std::to_string(moderatedFlag) + ", ?, ?)",
+        {modpath.getAnsi(), playername.getAnsi(), title.getAnsi()});
     
 
     // TEST
@@ -1608,10 +1641,8 @@ void ChatManager::_processAddModeratorToRoom(Message* message,DispatchClient* cl
     else
     {
         channel->addModerator(playerName);
-        int8 sql[128];
-        mDatabase->escapeString(sql, realPlayerName.getAnsi(), realPlayerName.getLength());
 
-        mDatabase->executeProcedureAsync(NULL, NULL, "CALL %s.sp_ChatRoomModeratorAdd(%u, '%s');", mDatabase->galaxy(),  channel->getId(), sql);
+        mDatabase->executePreparedAsync(NULL, NULL, std::string("CALL ") + mDatabase->galaxy() + ".sp_ChatRoomModeratorAdd(" + std::to_string(channel->getId()) + ", ?)", {realPlayerName.getAnsi()}, true);
         
 
         gChatMessageLib->sendChatOnAddModeratorToRoom(client, mGalaxyName, realSenderName, realPlayerName, channel, requestId);
@@ -1712,10 +1743,8 @@ void ChatManager::_processInviteAvatarToRoom(Message* message,DispatchClient* cl
     else
     {
         channel->addInvitedUser(playerName);
-        int8 sql[128];
-        mDatabase->escapeString(sql, playerName.getAnsi(), playerName.getLength());
 
-        mDatabase->executeProcedureAsync(NULL, NULL, "CALL %s.sp_ChatRoomUserInvite(%u, '%s');", mDatabase->galaxy(),  channel->getId(), sql);
+        mDatabase->executePreparedAsync(NULL, NULL, std::string("CALL ") + mDatabase->galaxy() + ".sp_ChatRoomUserInvite(" + std::to_string(channel->getId()) + ", ?)", {playerName.getAnsi()}, true);
         
         gChatMessageLib->sendChatOnInviteToRoom(client, mGalaxyName, realSenderName, realPlayerName, channel, requestId);
         gChatMessageLib->sendChatQueryRoomResults(client, channel, 0);
@@ -1817,10 +1846,8 @@ void ChatManager::_processUninviteAvatarFromRoom(Message* message, DispatchClien
     {
         (void)channel->removeInvitedUser(playerName);
 
-        int8 sql[128];
-        mDatabase->escapeString(sql, playerName.getAnsi(), playerName.getLength());
 
-        mDatabase->executeProcedureAsync(NULL, NULL, "CALL %s.sp_ChatRoomUserUnInvite(%u, '%s');", mDatabase->galaxy(),  channel->getId(), sql);
+        mDatabase->executePreparedAsync(NULL, NULL, std::string("CALL ") + mDatabase->galaxy() + ".sp_ChatRoomUserUnInvite(" + std::to_string(channel->getId()) + ", ?)", {playerName.getAnsi()}, true);
         
         gChatMessageLib->sendChatOnUninviteFromRoom(client, mGalaxyName, realSenderName, realPlayerName, channel, requestId);
         gChatMessageLib->sendChatQueryRoomResults(client, channel, 0);
@@ -1930,10 +1957,8 @@ void ChatManager::_processRemoveModFromRoom(Message* message,DispatchClient* cli
     else
     {
         (void)channel->removeModerator(playerName);
-        int8 sql[128];
-        mDatabase->escapeString(sql, playerName.getAnsi(), playerName.getLength());
 
-        mDatabase->executeProcedureAsync(NULL, NULL, "CALL %s.sp_ChatRoomModeratorRemove(%u, '%s');", mDatabase->galaxy(),  channel->getId(), sql);
+        mDatabase->executePreparedAsync(NULL, NULL, std::string("CALL ") + mDatabase->galaxy() + ".sp_ChatRoomModeratorRemove(" + std::to_string(channel->getId()) + ", ?)", {playerName.getAnsi()}, true);
         
         gChatMessageLib->sendChatOnRemoveModeratorFromRoom(client, mGalaxyName, realSenderName, realPlayerName, channel, requestId);
     }
@@ -2080,21 +2105,18 @@ void ChatManager::_processBanAvatarFromRoom(Message* message,DispatchClient* cli
             channel->removeUser(playerName);
         }
 
-        int8 sql[128];
         // Un-invite player if invited.
         if (channel->isPrivate() && channel->isInvited(playerName))
         {
             (void)channel->removeInvitedUser(playerName);
-            mDatabase->escapeString(sql, playerName.getAnsi(), playerName.getLength());
 
-            mDatabase->executeProcedureAsync(NULL, NULL, "CALL %s.sp_ChatRoomUserUnInvite(%u, '%s');", mDatabase->galaxy(),  channel->getId(), sql);
+            mDatabase->executePreparedAsync(NULL, NULL, std::string("CALL ") + mDatabase->galaxy() + ".sp_ChatRoomUserUnInvite(" + std::to_string(channel->getId()) + ", ?)", {playerName.getAnsi()}, true);
         }
 
         // Get the ban-stick in ready position
         channel->banUser(playerName);
-        mDatabase->escapeString(sql, playerName.getAnsi(), playerName.getLength());
         
-        mDatabase->executeProcedureAsync(NULL, NULL, "CALL %s.sp_ChatRoomUserBan(%u, '%s');", mDatabase->galaxy(),  channel->getId(), sql);
+        mDatabase->executePreparedAsync(NULL, NULL, std::string("CALL ") + mDatabase->galaxy() + ".sp_ChatRoomUserBan(" + std::to_string(channel->getId()) + ", ?)", {playerName.getAnsi()}, true);
 
         gChatMessageLib->sendChatOnBanAvatarFromRoom(client, mGalaxyName, realSenderName, realPlayerName, channel, requestId);
         gChatMessageLib->sendChatQueryRoomResults(client, channel, 0);
@@ -2185,10 +2207,8 @@ void ChatManager::_processUnbanAvatarFromRoom(Message* message,DispatchClient* c
     else
     {
         (void)channel->unBanUser(playerName);
-        int8 sql[128];
-        mDatabase->escapeString(sql, playerName.getAnsi(), playerName.getLength());
 
-        mDatabase->executeProcedureAsync(NULL, NULL, "CALL %s.sp_ChatRoomUserUnBan(%u, '%s');", mDatabase->galaxy(),  channel->getId(), sql);
+        mDatabase->executePreparedAsync(NULL, NULL, std::string("CALL ") + mDatabase->galaxy() + ".sp_ChatRoomUserUnBan(" + std::to_string(channel->getId()) + ", ?)", {playerName.getAnsi()}, true);
 
         gChatMessageLib->sendChatOnUnBanAvatarFromRoom(client, mGalaxyName, realSenderName, realPlayerName, channel, requestId);
     }
@@ -2298,32 +2318,7 @@ void ChatManager::_PersistentMessagebySystem(Mail* mail,DispatchClient* client, 
         asyncContainer->mMailCounter = mailId;
         asyncContainer->mReceiverId = receiver->getCharId();
 
-        int8 sql[20000],*sqlPointer;
-        int8 footer[64];
-        int8 receiverStr[64];
-        sprintf(receiverStr,"',%" PRIu64 ",'",receiver->getCharId());
-        sprintf(footer,",%u,%" PRIu32")",(mail->mAttachments.getLength() << 1),mail->mTime);
-        sprintf(sql,"SELECT %s.sf_MailCreate('",mDatabase->galaxy());
-        sqlPointer = sql + strlen(sql);
-        sqlPointer += mDatabase->escapeString(sqlPointer,mail->getSender().getAnsi(),mail->getSender().getLength());
-        strcat(sql,receiverStr);
-        sqlPointer = sql + strlen(sql);
-        sqlPointer += mDatabase->escapeString(sqlPointer,mail->mSubject.getAnsi(),mail->mSubject.getLength());
-        *sqlPointer++ = '\'';
-        *sqlPointer++ = ',';
-        *sqlPointer++ = '\'';
-        sqlPointer += mDatabase->escapeString(sqlPointer,mail->mText.getAnsi(),mail->mText.getLength());
-        *sqlPointer++ = '\'';
-        *sqlPointer++ = ',';
-        // The attachments are binary (UTF-16 out-of-band data): not text.
-        sqlPointer += sprintf(sqlPointer, "_binary");
-        *sqlPointer++ = '\'';
-        sqlPointer += mDatabase->escapeString(sqlPointer,mail->mAttachments.getRawData(),(mail->mAttachments.getLength() << 1));
-        *sqlPointer++ = '\'';
-        *sqlPointer++ = '\0';
-        strcat(sql,footer);
-
-        mDatabase->executeSqlAsyncNoArguments(this, asyncContainer, sql);
+        _createMail(asyncContainer, mail->getSender(), mail, receiver->getCharId());
 
     }
     else
@@ -2334,14 +2329,9 @@ void ChatManager::_PersistentMessagebySystem(Mail* mail,DispatchClient* client, 
         asyncContainer->mSender = sender;
         asyncContainer->mMailCounter = mailId;
 
-        int8 sql[256],*sqlPointer;
-        sprintf(sql,"SELECT id FROM %s.characters WHERE LOWER(firstname) LIKE '", mDatabase->galaxy());
-        sqlPointer = sql + strlen(sql);
-        sqlPointer += mDatabase->escapeString(sqlPointer, receiverStr.getAnsi(), receiverStr.getLength());
-        *sqlPointer++ = '\'';
-        *sqlPointer++ = '\0';
-
-        mDatabase->executeSqlAsyncNoArguments(this, asyncContainer, sql);
+        mDatabase->executePreparedAsync(this, asyncContainer,
+            std::string("SELECT id FROM ") + mDatabase->galaxy() + ".characters WHERE LOWER(firstname) LIKE ?",
+            {receiverStr.getAnsi()});
     }
 }
 
@@ -2410,32 +2400,7 @@ void ChatManager::_processPersistentMessageToServer(Message* message,DispatchCli
         asyncContainer->mMailCounter = mailId;
         asyncContainer->mReceiverId = receiver->getCharId();
 
-        int8 sql[20000],*sqlPointer;
-        int8 footer[64];
-        int8 receiverStr[64];
-        sprintf(receiverStr,"',%" PRIu64 ",'",receiver->getCharId());
-        sprintf(footer,",%u,%" PRIu32")",(mail->mAttachments.getLength() << 1),mail->mTime);
-        sprintf(sql, "SELECT %s.sf_MailCreate('%s", mDatabase->galaxy(), sender->getName().getAnsi());
-        sqlPointer = sql + strlen(sql);
-        sqlPointer += mDatabase->escapeString(sqlPointer,sender->getName().getAnsi(),sender->getName().getLength());
-        strcat(sql,receiverStr);
-        sqlPointer = sql + strlen(sql);
-        sqlPointer += mDatabase->escapeString(sqlPointer,mail->mSubject.getAnsi(),mail->mSubject.getLength());
-        *sqlPointer++ = '\'';
-        *sqlPointer++ = ',';
-        *sqlPointer++ = '\'';
-        sqlPointer += mDatabase->escapeString(sqlPointer,mail->mText.getAnsi(),mail->mText.getLength());
-        *sqlPointer++ = '\'';
-        *sqlPointer++ = ',';
-        // The attachments are binary (UTF-16 out-of-band data): not text.
-        sqlPointer += sprintf(sqlPointer, "_binary");
-        *sqlPointer++ = '\'';
-        sqlPointer += mDatabase->escapeString(sqlPointer,mail->mAttachments.getRawData(),(mail->mAttachments.getLength() << 1));
-        *sqlPointer++ = '\'';
-        *sqlPointer++ = '\0';
-        strcat(sql,footer);
-
-        mDatabase->executeSqlAsync(this,asyncContainer,sql);
+        _createMail(asyncContainer, sender->getName(), mail, receiver->getCharId());
     }
     else
     {
@@ -2444,14 +2409,9 @@ void ChatManager::_processPersistentMessageToServer(Message* message,DispatchCli
         asyncContainer->mSender = sender;
         asyncContainer->mMailCounter = mailId;
 
-        int8 sql[256],*sqlPointer;
-        sprintf(sql,"SELECT id FROM %s.characters WHERE LOWER(firstname) LIKE '", mDatabase->galaxy());
-        sqlPointer = sql + strlen(sql);
-        sqlPointer += mDatabase->escapeString(sqlPointer,targetName.getAnsi(),targetName.getLength());
-        *sqlPointer++ = '\'';
-        *sqlPointer++ = '\0';
-
-        mDatabase->executeSqlAsync(this,asyncContainer,sql);
+        mDatabase->executePreparedAsync(this, asyncContainer,
+            std::string("SELECT id FROM ") + mDatabase->galaxy() + ".characters WHERE LOWER(firstname) LIKE ?",
+            {targetName.getAnsi()});
     }
 }
 
@@ -2555,15 +2515,10 @@ void ChatManager::_processNotifyChatAddFriend(Message* message,DispatchClient* c
     {
         player->addFriend(name.getAnsi());
 
-        // check if he's online
-        Player* target = getPlayerByName(name.getAnsi());
-
-        if(target)
-        {
-            gChatMessageLib->sendFriendOnlineStatus(player,target,FriendStatus_Online,mMainCategory,mGalaxyName);
-        }
-
+        // The list first: the client replaces its own with it, so a status
+        // sent before it was lost (a friend just added showed offline).
         sendFriendList(player);
+        checkOnlineFriends(player);
     }
     else
     {
@@ -2587,6 +2542,7 @@ void ChatManager::_processNotifyChatRemoveFriend(Message* message,DispatchClient
         player->removeFriend(name.getCrc());
 
         sendFriendList(player);
+        checkOnlineFriends(player);
     }
     else
     {
@@ -2679,25 +2635,24 @@ void ChatManager::sendIgnoreList(Player* player)
 
 void ChatManager::checkOnlineFriends(Player* player)
 {
-    /*
-        ContactMap* friendList	= player->getFriendsList();
-        ContactMap::iterator it	= friendList->begin();
+    // Tells the player which friends are online: the list showed them
+    // offline. Online only: the client announces every status it is sent
+    // ("... has gone offline at ...") when notification is on, so sending
+    // the offline ones too announced each of them at every login.
+    ContactMap* friendList	= player->getFriendsList();
+    ContactMap::iterator it	= friendList->begin();
 
-        while(it != friendList->end())
+    while(it != friendList->end())
+    {
+        Player* theFriend = getPlayerByName((*it).second);
+
+        if(theFriend && theFriend != player)
         {
-            Player* theFriend = getPlayerByName((*it).second);
-
-            if(theFriend)
-            {
-                gChatMessageLib->sendFriendOnlineStatus(player,theFriend,FriendStatus_Online,mMainCategory,mGalaxyName);
-            }
-            else
-            {
-            }
-
-            ++it;
+            gChatMessageLib->sendFriendStatus(player,(*it).second,FriendStatus_Online,mMainCategory,mGalaxyName);
         }
-    */
+
+        ++it;
+    }
 }
 
 //======================================================================================================================
@@ -2828,8 +2783,6 @@ void ChatManager::_processFindFriendMessage(Message* message,DispatchClient* cli
     BString friendName(BSTRType_Unicode16,128);
     message->getStringUnicode16(friendName);
 
-    int8			sql[1024],end[16],*sqlPointer;
-
     Player* playerObject = getPlayerByAccId(message->getAccountId());
     BString unicodeName = friendName;
     friendName.convert(BSTRType_ANSI);
@@ -2838,13 +2791,9 @@ void ChatManager::_processFindFriendMessage(Message* message,DispatchClient* cli
     asyncContainer->mName = friendName.getAnsi();
     asyncContainer->mSender = playerObject;
 
-    sprintf(sql,"SELECT id FROM %s.characters WHERE firstname LIKE '",mDatabase->galaxy());
-    sprintf(end,"'");
-    sqlPointer = sql + strlen(sql);
-    sqlPointer += mDatabase->escapeString(sqlPointer,friendName.getAnsi(),friendName.getLength());
-    strcat(sql,end);
-
-    mDatabase->executeSqlAsync(this,asyncContainer,sql);
+    mDatabase->executePreparedAsync(this, asyncContainer,
+        std::string("SELECT id FROM ") + mDatabase->galaxy() + ".characters WHERE firstname LIKE ?",
+        {friendName.getAnsi()});
 
 
 }
@@ -2934,12 +2883,9 @@ void ChatManager::_handleFindFriendDBReply(Player* player,uint64 retCode,BString
 
 bool ChatManager::isValidName(BString name)
 {
-    int8 sql[128];
-    mDatabase->escapeString(sql, name.getAnsi(), name.getLength());
+    DatabaseResult* result = mDatabase->executePrepared(std::string("SELECT id FROM ") + mDatabase->galaxy() + ".characters WHERE LCASE(firstname) = ?", {name.getAnsi()});
 
-    DatabaseResult* result = mDatabase->executeSynchSql("SELECT id FROM %s.characters WHERE LCASE(firstname) = '%s';",mDatabase->galaxy(), sql);
-
-    bool valid = (result->getRowCount() == 1);
+    bool valid = (result && result->getRowCount() == 1);
     mDatabase->destroyResult(result);
 
     return valid;
@@ -2950,11 +2896,9 @@ bool ChatManager::isValidName(BString name)
 
 bool ChatManager::isValidExactName(BString name)
 {
-    int8 sql[128];
-    mDatabase->escapeString(sql, name.getAnsi(), name.getLength());
-    DatabaseResult* result = mDatabase->executeSynchSql("SELECT id FROM %s.characters WHERE BINARY firstname = '%s';",mDatabase->galaxy(), sql);
+    DatabaseResult* result = mDatabase->executePrepared(std::string("SELECT id FROM ") + mDatabase->galaxy() + ".characters WHERE BINARY firstname = ?", {name.getAnsi()});
 
-    bool valid = (result->getRowCount() == 1);
+    bool valid = (result && result->getRowCount() == 1);
     mDatabase->destroyResult(result);
 
     return valid;
@@ -2981,11 +2925,9 @@ BString* ChatManager::getFirstName(BString& name)
         myName = new BString();
         DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_bstring,0,64);
-        int8 sql[128];
-        mDatabase->escapeString(sql, name.getAnsi(), name.getLength());
-        DatabaseResult* result = mDatabase->executeSynchSql("SELECT firstname FROM %s.characters WHERE LCASE(firstname)= '%s';",mDatabase->galaxy(), sql);
+        DatabaseResult* result = mDatabase->executePrepared(std::string("SELECT firstname FROM ") + mDatabase->galaxy() + ".characters WHERE LCASE(firstname) = ?", {name.getAnsi()});
 
-        if (result->getRowCount() == 1)
+        if (result && result->getRowCount() == 1)
         {
             // We found a username that matched the input.
             // string theName;

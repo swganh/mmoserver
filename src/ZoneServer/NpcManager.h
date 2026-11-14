@@ -67,6 +67,11 @@ public:
 class NpcManager  : public ObjectFactoryCallback, public DatabaseCallback
 {
 public:
+    // A creature starts a fight: both sides go on each other's defender
+    // lists and into combat now, not at the creature's first hit.
+    bool	engage(CreatureObject* attacker, uint64 defenderId) {
+        return _verifyCombatState(attacker, defenderId);
+    }
 
     static NpcManager* Instance(void);
 

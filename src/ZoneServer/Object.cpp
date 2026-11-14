@@ -364,16 +364,11 @@ void Object::setAttributeIncDB(BString key,std::string value)
         return;
     }
 
-    int8 sql[512],*sqlPointer,restStr[128];
-//	int8 sql[1024]
-    sprintf(sql,"UPDATE %s.item_attributes SET value='",gWorldManager->getDatabase()->galaxy());
-
-    sqlPointer = sql + strlen(sql);
-    sqlPointer += gWorldManager->getDatabase()->escapeString(sqlPointer,value.c_str(),value.length());
-    sprintf(restStr,"'WHERE item_id=%" PRIu64 " AND attribute_id=%u",this->getId(),attributeID);
-    strcat(sql,restStr);
-
-    gWorldManager->getDatabase()->executeSqlAsync(0,0,sql);
+    Database* db = gWorldManager->getDatabase();
+    db->executePreparedAsync(0, 0,
+        std::string("UPDATE ") + db->galaxy() + ".item_attributes SET value=? WHERE item_id=" + std::to_string(this->getId())
+            + " AND attribute_id=" + std::to_string(attributeID),
+        {value});
 
 }
 
@@ -407,16 +402,11 @@ void Object::addAttributeIncDB(BString key,std::string value)
         DLOG(INFO) << "Object::addAttribute DB: no such attribute in the attribute table : " << key.getAnsi();
         return;
     }
-    int8 sql[512],*sqlPointer,restStr[128];
-
-    sprintf(sql,"INSERT INTO %s.item_attributes VALUES(%" PRIu64 ",%u,'",gWorldManager->getDatabase()->galaxy(),this->getId(),attributeID);
-
-    sqlPointer = sql + strlen(sql);
-    sqlPointer += gWorldManager->getDatabase()->escapeString(sqlPointer,value.c_str(),value.length());
-    sprintf(restStr,"',%u,0)",static_cast<uint32>(this->getAttributeMap()->size()));
-    strcat(sql,restStr);
-
-    gWorldManager->getDatabase()->executeSqlAsync(0,0,sql);
+    Database* db = gWorldManager->getDatabase();
+    db->executePreparedAsync(0, 0,
+        std::string("INSERT INTO ") + db->galaxy() + ".item_attributes VALUES(" + std::to_string(this->getId()) + ", "
+            + std::to_string(attributeID) + ", ?, " + std::to_string(static_cast<uint32>(this->getAttributeMap()->size())) + ", 0)",
+        {value});
 }
 
 //=============================================================================
@@ -470,16 +460,11 @@ void Object::setInternalAttributeIncDB(BString key,std::string value)
         return;
     }
 
-    int8 sql[512],*sqlPointer,restStr[128];
-//	int8 sql[1024]
-    sprintf(sql,"UPDATE %s.item_attributes SET value='",gWorldManager->getDatabase()->galaxy());
-
-    sqlPointer = sql + strlen(sql);
-    sqlPointer += gWorldManager->getDatabase()->escapeString(sqlPointer,value.c_str(),value.length());
-    sprintf(restStr,"'WHERE item_id=%" PRIu64 " AND attribute_id=%u",this->getId(),attributeID);
-    strcat(sql,restStr);
-
-    gWorldManager->getDatabase()->executeSqlAsync(0,0,sql);
+    Database* db = gWorldManager->getDatabase();
+    db->executePreparedAsync(0, 0,
+        std::string("UPDATE ") + db->galaxy() + ".item_attributes SET value=? WHERE item_id=" + std::to_string(this->getId())
+            + " AND attribute_id=" + std::to_string(attributeID),
+        {value});
 
 }
 
@@ -515,16 +500,11 @@ void Object::addInternalAttributeIncDB(BString key,std::string value)
         DLOG(INFO) << "Object::addAttribute DB: no such attribute in the attribute table : " << key.getAnsi();
         return;
     }
-    int8 sql[512],*sqlPointer,restStr[128];
-//	int8 sql[1024]
-    sprintf(sql,"INSERT INTO %s.item_attributes VALUES(%" PRIu64 ",%u,'",gWorldManager->getDatabase()->galaxy() ,this->getId(), attributeID);
-
-    sqlPointer = sql + strlen(sql);
-    sqlPointer += gWorldManager->getDatabase()->escapeString(sqlPointer, value.c_str(), value.length());
-    sprintf(restStr,"',%u,0)",static_cast<uint32>(this->mInternalAttributeMap.size()));
-    strcat(sql,restStr);
-
-    gWorldManager->getDatabase()->executeSqlAsync(0, 0, sql);
+    Database* db = gWorldManager->getDatabase();
+    db->executePreparedAsync(0, 0,
+        std::string("INSERT INTO ") + db->galaxy() + ".item_attributes VALUES(" + std::to_string(this->getId()) + ", "
+            + std::to_string(attributeID) + ", ?, " + std::to_string(static_cast<uint32>(this->mInternalAttributeMap.size())) + ", 0)",
+        {value});
 }
 
 

@@ -47,6 +47,13 @@ void ObjectController::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 {
     ObjControllerAsyncContainer* asyncContainer = reinterpret_cast<ObjControllerAsyncContainer*>(ref);
 
+    // A prepared statement that failed (logged) has no result.
+    if (!result)
+    {
+        mDBAsyncContainerPool.free(asyncContainer);
+        return;
+    }
+
     switch(asyncContainer->mQueryType)
     {
     case OCQuery_StatRead:

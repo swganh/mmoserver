@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include <boost/noncopyable.hpp>
 
@@ -52,6 +53,7 @@ public:
     ~DatabaseImplementationMySql();
 
     DatabaseResult* executeSql(const std::string& sql, bool procedure = false);
+    DatabaseResult* executePrepared(const std::string& sql, const std::vector<std::string>& params, bool procedure = false);
     void destroyResult(DatabaseResult* result);
 
     void getNextRow(DatabaseResult* result, DataBinding* binding, void* object) const;

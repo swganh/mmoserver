@@ -1016,7 +1016,8 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
     StructureManagerCommandMap::iterator it = gStructureManagerCmdMap.find(asynContainer->mQueryType);
 
-    if(it != gStructureManagerCmdMap.end())
+    // A prepared statement that failed (logged) has no result.
+    if(result && it != gStructureManagerCmdMap.end())
     {
         (this->*((*it).second))(asynContainer, result);
     }

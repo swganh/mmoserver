@@ -110,7 +110,8 @@ struct CombatAttack
 
 struct CombatOutcome
 {
-    CombatOutcome() : ok(false), hit(false), chance(0), damage(0), pool("health"), delay(2.0f), wound(0), fatigue(0) {}
+    CombatOutcome() : ok(false), hit(false), chance(0), damage(0), pool("health"), delay(2.0f), wound(0), fatigue(0)
+        , bleed(0), bleedInterval(0), bleedDuration(0) {}
 
     bool        ok;         // false if the script failed; the rest are defaults then
     bool        hit;
@@ -119,7 +120,10 @@ struct CombatOutcome
     std::string pool;       // "health", "action", "mind"
     float       delay;      // seconds to the next attack
     int         wound;      // wound to the pool hit
-    int         fatigue;    // battle fatigue the defender gains
+    float       fatigue;    // battle fatigue the defender gains (fractions add up)
+    int         bleed;          // the wounded pool loses this per tick...
+    float       bleedInterval;  // ...every this many seconds...
+    float       bleedDuration;  // ...for this many seconds
     // The effects that landed: name ("knockdown", "stun"...), seconds.
     std::vector<std::pair<std::string, float> > effects;
 };
@@ -136,6 +140,8 @@ public:
 
     CombatOutcome   attack(const CombatAttack& attack);
     bool            inRange(const CombatWeapon& weapon, float distance);
+    // The weapon's max range in metres (rules.ranges), for area specials.
+    bool            maxRange(const CombatWeapon& weapon, float& range);
     // What a special costs (rules.costs); false (and 0s) if no rules.
     bool            costs(const CombatAttack& attack, int& health, int& action, int& mind);
     // The count-th incap within the window (1 for the first): whether it
@@ -153,6 +159,9 @@ public:
     // if it cannot be used; reason says why ("melee", "skill", "unknown").
     bool            selfBuff(const std::string& name, const CombatAttack& attack, std::string& buff,
                              float& strength, float& duration, std::string& reason);
+    // A scout's harvest of a creature table quantity with the given
+    // creature_harvesting skill mod: units and scout XP.
+    bool            harvest(int quantity, int skill, int& amount, int& xp);
     // The fields of the WeaponRanges message: layout ("i" int32, "f" float
     // per field) and values. False if no rules, the script returns nothing
     // (send nothing then) or the layout is not valid.

@@ -16,6 +16,7 @@ original game used. `tools/client/` reads them:
 | `stf.py <file.stf>` | prints a string file as `name<TAB>text` lines |
 | `city_regions_sql.py <planet> <clientregion/planet.iff>` | writes a migration with the client's city areas (as `003_tatooine_city_areas.sql`) |
 | `skills_compare.py <skill/skills.iff> [--sql]` | compares the client's skill table (Publish 14) with the database's skills; `--sql` writes the fix (as `008_skills_from_client.sql`) |
+| `../reference/specials_vs_client.py <cmd_d.txt>` | compares the special moves table (An Empire Divided) with the client's command descriptions (`string/en/cmd_d.stf` through `stf.py`); the contradictions became migration 013 |
 | `commands_compare.py <command/command_table.iff> [--sql]` | compares the client's command table (Publish 14) with `command_table`: default times, combat queue use; `--sql` writes the fix (as `009_commands_from_client.sql`) |
 
 The extracted files themselves are not committed: keep them with your
@@ -49,6 +50,15 @@ Sections of *An Empire Divided* (guide page numbers): New Player
 Introduction 5-16, Combat 65-86, Professions 105-320 (Brawler 123,
 Marksman 140), Planets 321-376 (Tatooine 324), PvP 377-386, Weapons table
 388, Armor table 394, Creature tables 396-483.
+
+## Transcribed reference data
+
+`mmoserverdb/reference/` holds the guides' tables in our own columns, one
+row per entry with its printed page, for migrations to take values from:
+`prima_ed/` (An Empire Divided: weapons, armour, specials, a few
+creatures) and `prima_2004/` (the 2004 guide's creature, droid and NPC
+tables, read from the PDF by `tools/reference/prima2004_tables.py`). Each
+folder's README says what was transcribed and how it was checked.
 
 ## Citing
 

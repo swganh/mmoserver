@@ -84,7 +84,7 @@ Untested edge case: if the old character is still *connected* (not
 link-dead) when the account selects another, both share one client object,
 and removing the old character deletes it.
 
-### 2e. Zone crashed with "free(): invalid pointer" after a player search — fix needs testing
+### 2e. Zone crashed with "free(): invalid pointer" after a player search — fixed
 
 The player search (the client's character match request) added each
 matching player in range through a pointer it never set, so with a second
@@ -93,6 +93,7 @@ player nearby it wrote into stray memory; the zone aborted soon after
 `server.sh debug -g` on the test VM). It now adds them to its own list.
 The two strings it reads from the request are bounded to their buffers,
 and a player whose title is not plain text no longer crashes the match.
+Confirmed on the test VM: a search with two characters nearby works.
 
 ### 2d. Servers crashed after a long idle period — fix needs testing
 
@@ -104,6 +105,14 @@ asynchronous query then crashed the server: `Database::destroyResult` read
 the null result. Connections idle for over 30 seconds are now checked
 before use and replaced if closed, and failed queries no longer crash.
 Reproduced and verified with `wait_timeout` set to 40 seconds.
+
+### 2f. Friends list slow to show friends online — open
+
+A friend who is logged in and standing next to you shows as offline in the
+Community window's Friends List for a while. Seen on the test VM (Nov
+2026). The online notice ("System message of online status") also did not
+appear; that box was unticked for the friend, so it needs testing again
+with it ticked.
 
 ### 3a. Unknown usernames create accounts — fixed
 

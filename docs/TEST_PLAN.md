@@ -46,6 +46,8 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 
 | Area | What was wrong | Confirmed by |
 |---|---|---|
+| Zone | Crash after a player search with another player nearby [2e] | On the VM under gdb: the backtrace found it; after the fix, a search with two characters nearby works (Nov 2026) |
+| Security | Player text built into SQL [3c] (more) | On the VM: friend added with the comment `he is %friends` stored as typed, ignore list, biography (Nov 2026) |
 | Security | Passwords were unsalted SHA-1 [3e] | On the VM: existing accounts replaced by `$argon2id$` at their first login, a new `add-account` account stored as Argon2id, wrong passwords refused (Nov 2026) |
 | Security | Player text built into SQL [3c] (part) | On the VM: a mail to yourself with subject `%TEST%` and a waypoint attached arrived intact; a bazaar listing was created (Nov 2026). The rest of T24 still to do |
 | Security | Internal ports open to the network [3] | `ss -ulnp` on the VM: 44990-44992 on 0.0.0.0, internal ports on 127.0.0.1 (Nov 2026) |

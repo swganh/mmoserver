@@ -159,7 +159,9 @@ Any other bazaar reply for a player who logged in after the last refresh was
 dropped (`Error getting player from account map`): item details never
 loaded ("Waiting for details download"), and a new listing's category, set
 after it is created, stayed 0 ("Unknown Object Type"). They use the live
-list now. The details, retrieve and cancel handlers also returned when they
+list now; migration 016 fills in the category, region and planet of
+listings already made (seen on the test VM: a house deed listed with
+category, region and planet 0). The details, retrieve and cancel handlers also returned when they
 did find the player (#3d); those checks are the right way round.
 
 ### 3a. Unknown usernames create accounts — fixed

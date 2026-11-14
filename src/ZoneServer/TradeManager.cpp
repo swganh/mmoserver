@@ -564,12 +564,15 @@ void TradeManager::_processCreateItemMessage(Message* message,DispatchClient* cl
     uint64			ItemID			= message->getUint64();
     uint32			Group			= message->getUint32();
     PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(PlayerID));
-    Inventory*		inventory		= dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
-
+    // The buyer may have left: look for the inventory only once they are here.
     if(playerObject && playerObject->isConnected())
     {
-        gObjectFactory->requestTanoNewParent(inventory,ItemID,inventory->getId(),(TangibleGroup)Group);
+        Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+        if (inventory)
+        {
+            gObjectFactory->requestTanoNewParent(inventory,ItemID,inventory->getId(),(TangibleGroup)Group);
+        }
     }
 }
 

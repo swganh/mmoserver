@@ -84,6 +84,17 @@ Untested edge case: if the old character is still *connected* (not
 link-dead) when the account selects another, both share one client object,
 and removing the old character deletes it.
 
+### 2e. Zone crashed with "free(): invalid pointer" after a player search — fixed
+
+The player search (the client's character match request) added each
+matching player in range through a pointer it never set, so with a second
+player nearby it wrote into stray memory; the zone aborted soon after
+(`free(): invalid pointer` in `_handleRequestCharacterMatch`, found with
+`server.sh debug -g` on the test VM). It now adds them to its own list.
+The two strings it reads from the request are bounded to their buffers,
+and a player whose title is not plain text no longer crashes the match.
+Confirmed on the test VM: a search with two characters nearby works.
+
 ### 2d. Servers crashed after a long idle period — fix needs testing
 
 Left running for a day with no players, the ConnectionServer died with
@@ -94,6 +105,51 @@ asynchronous query then crashed the server: `Database::destroyResult` read
 the null result. Connections idle for over 30 seconds are now checked
 before use and replaced if closed, and failed queries no longer crash.
 Reproduced and verified with `wait_timeout` set to 40 seconds.
+
+### 2f. Friends shown offline; no message when a friend comes online — fixed
+
+A friend who was already logged in showed as offline in the Community
+window's Friends List: `ChatManager::checkOnlineFriends`, which tells a
+player at login which friends are online, was commented out. It runs again
+at scene ready. The "friend has come online" message did not appear either,
+even with "System message of online status" ticked (the client shows it
+when the status update matches a name on the list). The update sent the
+friend's name as written ("Brawler") while the list holds it in lower case
+("brawler"): it now sends the lower-case name. At login the friends
+online are sent (only those: the client announces every status it gets,
+so sending the offline ones too printed "... has gone offline" for each
+at every login). Adding or removing a friend sends the list before the
+statuses (the list, sent last, reset them to offline). Left: a client that
+relogs without restarting keeps the statuses it had, so a friend who logged
+out meanwhile shows online until they next log in or out. The
+notification box is kept by the client (it survives a restart).
+Confirmed on the test VM: a friend logging in shows online with
+"... is online at ...", and one already online shows online at login.
+
+### 2h. ChatServer read past the end of the first connect message — fixed
+
+The connect the ConnectionServer sends before a character is chosen holds
+only a character id of 0; the ChatServer read a planet id after it before
+checking, which the bounds checks (#3b) logged as
+`Message read past its end: 4 bytes at 12 of 12` at every login. It reads
+the planet id only for a real character.
+
+### 2g. Chat rooms created with no name, listed again on every refresh — fixed
+
+The ChatServer cut a new room's name out of the client's path
+(`SWG.<galaxy>.<name>`) at 5 + the length of its own galaxy name. With the
+client using a different galaxy name, the name came out empty, and the
+Channel Browser added the nameless room again on every refresh. The name is
+now taken after the galaxy segment whatever it is called; an empty name is
+refused and logged; each create logs `Create chat room: path '...'`.
+Migration 015 removes rooms already created without a name.
+
+The likely cause: the ChatServer loaded the galaxy name and the channels
+with two queries at once, and when the channels came first their paths had
+an empty galaxy (`SWG..corellia`): the planet channels then showed outside
+the galaxy folder, and a room created under one got a path the old code
+could not cut. The channels now load after the galaxy name. Confirmed on the test VM:
+the planet channels sit inside the galaxy, and a new room keeps its name.
 
 ### 3a. Unknown usernames create accounts — fixed
 

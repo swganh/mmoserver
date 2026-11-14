@@ -82,9 +82,8 @@ ChatManager::ChatManager(Database* database,MessageDispatch* dispatch) :
     mDatabase->executeProcedureAsync(this,asyncContainer,"CALL %s.sp_ReturnGalaxyName(2);",mDatabase->galaxy());
     
 
-    asyncContainer = new ChatAsyncContainer(ChatQuery_Channels);
-    mDatabase->executeProcedureAsync(this,asyncContainer,"CALL %s.sp_ReturnChatChannels();",mDatabase->galaxy());
-    
+    // The channels load once the galaxy name is in (ChatQuery_GalaxyName):
+    // their paths include it.
 
     asyncContainer = new ChatAsyncContainer(ChatQuery_PlanetNames);
     mDatabase->executeProcedureAsync(this,asyncContainer,"CALL %s.sp_ReturnChatPlanetNames();",mDatabase->galaxy());
@@ -427,17 +426,22 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         if (count == 0) {
             LOG(WARNING) << "Could not find Galaxy ";
-            return;
+        } else {
+            DataBinding* binding = mDatabase->createDataBinding(1);
+            binding->addField(DFT_bstring,0,64);
+
+            result->getNextRow(binding,&mGalaxyName);
+
+            DLOG(INFO) <<"Main: ["<<mMainCategory.getAnsi()<<"] Galaxy: ["<<mGalaxyName.getAnsi()<<"]";
+
+            mDatabase->destroyDataBinding(binding);
         }
 
-        DataBinding* binding = mDatabase->createDataBinding(1);
-        binding->addField(DFT_bstring,0,64);
-
-        result->getNextRow(binding,&mGalaxyName);
-
-        DLOG(INFO) <<"Main: ["<<mMainCategory.getAnsi()<<"] Galaxy: ["<<mGalaxyName.getAnsi()<<"]";
-
-        mDatabase->destroyDataBinding(binding);
+        // Only now: each channel's path includes the galaxy name. Loaded in
+        // parallel, the channels could come first and get an empty one
+        // ("SWG..corellia"), outside the galaxy in the Channel Browser.
+        ChatAsyncContainer* channelsContainer = new ChatAsyncContainer(ChatQuery_Channels);
+        mDatabase->executeProcedureAsync(this,channelsContainer,"CALL %s.sp_ReturnChatChannels();",mDatabase->galaxy());
     }
     break;
 
@@ -655,8 +659,12 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         // We are actually sending this info from CharacterLoginHandler::handleDispatchMessage at the opCmdSceneReady event.
         // updateFriendsOnline(player,true);
 
-        // We should not send any info to self about all the friend in MY friends list.
-        // checkOnlineFriends(player);
+        // The friends' statuses go at scene ready (_processWhenLoaded); if the
+        // scene was ready before this list loaded, send them now.
+        if (!player->getAddPending())
+        {
+            checkOnlineFriends(player);
+        }
 
         // query ignoreslist
         ChatAsyncContainer* asContainer = new ChatAsyncContainer(ChatQuery_PlayerIgnores);
@@ -861,15 +869,18 @@ void ChatManager::_processClusterClientConnect(Message* message,DispatchClient* 
 {
     uint32 accountId = message->getAccountId();
     uint64 charId = message->getUint64();
-    uint32 planetId = message->getUint32();
 
     // @NOTE this is a hack that is needed for the time being. Currently the MessageDispatch
     // handles these opClusterClientConnect messages however messages coming from a zone
     // server require additional extra processing. To ensure this is only handled at the
     // appropriate time check to see if a character id has been set as only the zone server sets this.
+    // The connect sent before a character is chosen has no planet id: read
+    // it only after this check (it was read past the message's end).
     if (charId == 0) {
         return;
     }
+
+    uint32 planetId = message->getUint32();
 
     Player* player = new Player(charId,client,planetId);
 
@@ -1040,8 +1051,10 @@ void ChatManager::_processWhenLoaded(Message* message,DispatchClient* client)
                 asContainer->mClient = client;
                 asContainer->mReceiver = (*accIt).second;
 
-                // Update friends list
+                // Update friends list: tell this player's friends they are
+                // online, and this player which friends already are.
                 updateFriendsOnline(asContainer->mReceiver,true);
+                checkOnlineFriends(asContainer->mReceiver);
 
                 mDatabase->executeProcedureAsync(this,asContainer,"CALL %s.sp_ReturnChatMailHeaders(%" PRIu64 ");",mDatabase->galaxy(),asContainer->mReceiver->getCharId());
                 
@@ -1145,13 +1158,33 @@ void ChatManager::_processCreateRoom(Message* message,DispatchClient* client)
     message->getStringAnsi(title);
     uint32 requestId = message->getUint32();
 
-    uint32 index = 5 + mGalaxyName.getLength();
-    BString modpath;
-    path.substring(modpath, static_cast<uint16>(index), path.getLength());
+    // The client sends "SWG.<galaxy>.<name>". The name was cut at
+    // 5 + the length of this server's galaxy name: when the client's galaxy
+    // name differed, the room got no name (and the client listed it again on
+    // every refresh). Take what follows the galaxy, whatever it is called.
+    const std::string fullPath = path.getAnsi() ? path.getAnsi() : "";
+    const std::string prefix = "SWG.";
+    const std::string ourGalaxy = prefix + (mGalaxyName.getAnsi() ? mGalaxyName.getAnsi() : "") + ".";
+    std::string roomName = fullPath;
+    if (fullPath.compare(0, ourGalaxy.size(), ourGalaxy) == 0)
+    {
+        roomName = fullPath.substr(ourGalaxy.size());
+    }
+    else if (fullPath.compare(0, prefix.size(), prefix) == 0)
+    {
+        size_t dot = fullPath.find('.', prefix.size());
+        roomName = (dot == std::string::npos) ? std::string() : fullPath.substr(dot + 1);
+    }
 
-    // modpath.toLower();
+    LOG(INFO) << "Create chat room: path '" << fullPath << "', name '" << roomName << "', galaxy '" << mGalaxyName.getAnsi() << "'";
 
-    DLOG(INFO) << "Attempting to create channel "<< title.getAnsi() << " at " << modpath.getAnsi();
+    if (roomName.empty())
+    {
+        LOG(WARNING) << "Refused a chat room with no name (path '" << fullPath << "')";
+        return;
+    }
+
+    BString modpath = roomName.c_str();
 
     ChannelList::iterator iter = mvChannels.begin();
     while (iter != mvChannels.end())
@@ -2482,15 +2515,10 @@ void ChatManager::_processNotifyChatAddFriend(Message* message,DispatchClient* c
     {
         player->addFriend(name.getAnsi());
 
-        // check if he's online
-        Player* target = getPlayerByName(name.getAnsi());
-
-        if(target)
-        {
-            gChatMessageLib->sendFriendOnlineStatus(player,target,FriendStatus_Online,mMainCategory,mGalaxyName);
-        }
-
+        // The list first: the client replaces its own with it, so a status
+        // sent before it was lost (a friend just added showed offline).
         sendFriendList(player);
+        checkOnlineFriends(player);
     }
     else
     {
@@ -2514,6 +2542,7 @@ void ChatManager::_processNotifyChatRemoveFriend(Message* message,DispatchClient
         player->removeFriend(name.getCrc());
 
         sendFriendList(player);
+        checkOnlineFriends(player);
     }
     else
     {
@@ -2606,25 +2635,24 @@ void ChatManager::sendIgnoreList(Player* player)
 
 void ChatManager::checkOnlineFriends(Player* player)
 {
-    /*
-        ContactMap* friendList	= player->getFriendsList();
-        ContactMap::iterator it	= friendList->begin();
+    // Tells the player which friends are online: the list showed them
+    // offline. Online only: the client announces every status it is sent
+    // ("... has gone offline at ...") when notification is on, so sending
+    // the offline ones too announced each of them at every login.
+    ContactMap* friendList	= player->getFriendsList();
+    ContactMap::iterator it	= friendList->begin();
 
-        while(it != friendList->end())
+    while(it != friendList->end())
+    {
+        Player* theFriend = getPlayerByName((*it).second);
+
+        if(theFriend && theFriend != player)
         {
-            Player* theFriend = getPlayerByName((*it).second);
-
-            if(theFriend)
-            {
-                gChatMessageLib->sendFriendOnlineStatus(player,theFriend,FriendStatus_Online,mMainCategory,mGalaxyName);
-            }
-            else
-            {
-            }
-
-            ++it;
+            gChatMessageLib->sendFriendStatus(player,(*it).second,FriendStatus_Online,mMainCategory,mGalaxyName);
         }
-    */
+
+        ++it;
+    }
 }
 
 //======================================================================================================================

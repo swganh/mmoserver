@@ -114,7 +114,6 @@ TradeManagerChatHandler::TradeManagerChatHandler(Database* database, MessageDisp
     mDatabase = database;
     mChatManager = chatManager;
     mMessageDispatch = dispatch;
-    mPlayerAccountMap = mChatManager->getPlayerAccountMap();
     TradeManagerAsyncContainer* asyncContainer;
 
     mMessageDispatch->RegisterMessageCallback(opIsVendorMessage,std::bind(&TradeManagerChatHandler::processHandleIsVendorMessage, this, std::placeholders::_1, std::placeholders::_2));
@@ -238,9 +237,9 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
     Player* player(0);
     if (asynContainer->mClient) {
 
-        PlayerAccountMap::iterator accIt = mPlayerAccountMap.find(asynContainer->mClient->getAccountId());
+        PlayerAccountMap::iterator accIt = mChatManager->getPlayerAccountMap().find(asynContainer->mClient->getAccountId());
 
-        if(accIt != mPlayerAccountMap.end())
+        if(accIt != mChatManager->getPlayerAccountMap().end())
             player = (*accIt).second;
         else
         {
@@ -1329,9 +1328,9 @@ void TradeManagerChatHandler::ProcessCreateAuction(Message* message,DispatchClie
 {
     //we got a packet from zone concerning a started auction...
     Player* player;
-    PlayerAccountMap::iterator accIt = mPlayerAccountMap.find(client->getAccountId());
+    PlayerAccountMap::iterator accIt = mChatManager->getPlayerAccountMap().find(client->getAccountId());
 
-    if(accIt != mPlayerAccountMap.end())
+    if(accIt != mChatManager->getPlayerAccountMap().end())
         player = (*accIt).second;
     else
     {
@@ -1369,9 +1368,10 @@ void TradeManagerChatHandler::ProcessCreateAuction(Message* message,DispatchClie
 void TradeManagerChatHandler::processRetrieveAuctionItemMessage(Message* message,DispatchClient* client)
 {
     TradeManagerAsyncContainer* asyncContainer;
-    PlayerAccountMap::iterator accIt = mPlayerAccountMap.find(client->getAccountId());
+    PlayerAccountMap::iterator accIt = mChatManager->getPlayerAccountMap().find(client->getAccountId());
 
-    if(accIt != mPlayerAccountMap.end()) {
+    // Only for a player logged in (this returned for every one of them).
+    if(accIt == mChatManager->getPlayerAccountMap().end()) {
 		return;
     }
 
@@ -1395,9 +1395,9 @@ void TradeManagerChatHandler::processBidAuctionMessage(Message* message,Dispatch
     TradeManagerAsyncContainer* asyncContainer;
 
     Player* player;
-    PlayerAccountMap::iterator accIt = mPlayerAccountMap.find(client->getAccountId());
+    PlayerAccountMap::iterator accIt = mChatManager->getPlayerAccountMap().find(client->getAccountId());
 
-    if(accIt != mPlayerAccountMap.end())
+    if(accIt != mChatManager->getPlayerAccountMap().end())
         player = (*accIt).second;
     else
     {
@@ -1442,9 +1442,10 @@ void TradeManagerChatHandler::processCancelLiveAuctionMessage(Message* message,D
 {
     TradeManagerAsyncContainer* asyncContainer;
 
-    PlayerAccountMap::iterator accIt = mPlayerAccountMap.find(client->getAccountId());
+    PlayerAccountMap::iterator accIt = mChatManager->getPlayerAccountMap().find(client->getAccountId());
 
-    if(accIt != mPlayerAccountMap.end()) {
+    // Only for a player logged in (this returned for every one of them).
+    if(accIt == mChatManager->getPlayerAccountMap().end()) {
 		return;
     }
 
@@ -1466,9 +1467,10 @@ void TradeManagerChatHandler::processGetAuctionDetails(Message* message,Dispatch
 {
     TradeManagerAsyncContainer* asyncContainer;
 
-    PlayerAccountMap::iterator accIt = mPlayerAccountMap.find(client->getAccountId());
+    PlayerAccountMap::iterator accIt = mChatManager->getPlayerAccountMap().find(client->getAccountId());
 
-    if(accIt != mPlayerAccountMap.end()) {
+    // Only for a player logged in (this returned for every one of them).
+    if(accIt == mChatManager->getPlayerAccountMap().end()) {
 		return;
     }
 
@@ -1493,9 +1495,9 @@ void TradeManagerChatHandler::processHandleopAuctionQueryHeadersMessage(Message*
     sprintf(sql,"SELECT c.auction_id, owner_id, c.bazaar_id, type, start, premium, category, itemtype, price, name, description, c.region_id, c.bidder_name, c.planet_id, firstname, bazaar_string, cbh.proxy_bid, cbh.max_bid FROM %s.commerce_auction c INNER JOIN %s.characters ch on (c.owner_id = ch.id) INNER join %s.commerce_bazaar cb ON (cb.bazaar_id = c.bazaar_id) left join %s.commerce_bidhistory cbh ON (cbh.bidder_name = c.bidder_name AND cbh.auction_id = c.auction_id) AND c.owner_id = ch.id  WHERE",mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy());
 
     Player* player;
-    PlayerAccountMap::iterator accIt = mPlayerAccountMap.find(client->getAccountId());
+    PlayerAccountMap::iterator accIt = mChatManager->getPlayerAccountMap().find(client->getAccountId());
 
-    if(accIt != mPlayerAccountMap.end())
+    if(accIt != mChatManager->getPlayerAccountMap().end())
         player = (*accIt).second;
     else
     {
@@ -1711,13 +1713,12 @@ void TradeManagerChatHandler::ProcessRequestTypeList(Message* message,DispatchCl
 {
     /*
     TradeManagerAsyncContainer* asyncContainer;
-    mPlayerAccountMap = mChatManager->getPlayerAccountMap();
 
     Player* player;
 
-    PlayerAccountMap::iterator accIt = mPlayerAccountMap.find(client->getAccountId());
+    PlayerAccountMap::iterator accIt = mChatManager->getPlayerAccountMap().find(client->getAccountId());
 
-    if(accIt != mPlayerAccountMap.end())
+    if(accIt != mChatManager->getPlayerAccountMap().end())
         player = (*accIt).second;
     else
     {
@@ -1768,13 +1769,12 @@ void TradeManagerChatHandler::ProcessRequestTypeList(Message* message,DispatchCl
 //=======================================================================================================================
 void TradeManagerChatHandler::processHandleIsVendorMessage(Message* message,DispatchClient* client)
 {
-    mPlayerAccountMap = mChatManager->getPlayerAccountMap();
 
     Player* player;
 
-    PlayerAccountMap::iterator accIt = mPlayerAccountMap.find(client->getAccountId());
+    PlayerAccountMap::iterator accIt = mChatManager->getPlayerAccountMap().find(client->getAccountId());
 
-    if(accIt != mPlayerAccountMap.end())
+    if(accIt != mChatManager->getPlayerAccountMap().end())
         player = (*accIt).second;
     else
     {
@@ -1891,11 +1891,10 @@ void TradeManagerChatHandler::Process()
 //=======================================================================================================================
 void TradeManagerChatHandler::ProcessBankTip(Message* message,DispatchClient* client)
 {
-    mPlayerAccountMap = mChatManager->getPlayerAccountMap();
     Player* player;
-    PlayerAccountMap::iterator accIt = mPlayerAccountMap.find(client->getAccountId());
+    PlayerAccountMap::iterator accIt = mChatManager->getPlayerAccountMap().find(client->getAccountId());
 
-    if(accIt != mPlayerAccountMap.end())
+    if(accIt != mChatManager->getPlayerAccountMap().end())
         player = (*accIt).second;
     else
     {

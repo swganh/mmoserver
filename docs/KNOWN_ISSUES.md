@@ -151,6 +151,17 @@ the galaxy folder, and a room created under one got a path the old code
 could not cut. The channels now load after the galaxy name. Confirmed on the test VM:
 the planet channels sit inside the galaxy, and a new room keeps its name.
 
+### 2i. Bazaar handlers worked from a stale copy of the logged-in players — fix needs testing
+
+The ChatServer's bazaar and structure handlers copied the list of logged-in
+players once, at startup (empty), and refreshed it only in some handlers.
+Any other bazaar reply for a player who logged in after the last refresh was
+dropped (`Error getting player from account map`): item details never
+loaded ("Waiting for details download"), and a new listing's category, set
+after it is created, stayed 0 ("Unknown Object Type"). They use the live
+list now. The details, retrieve and cancel handlers also returned when they
+did find the player (#3d); those checks are the right way round.
+
 ### 3a. Unknown usernames create accounts — fixed
 
 `sp_ReturnUserAccount` created an account for any username it didn't know,

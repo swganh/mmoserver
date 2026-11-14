@@ -324,9 +324,12 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         TangibleObject* container = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(asynContainer->tangible->getParentId()));
         
-		//now remove it from the zone
+		// Now remove it from the zone, but not from the database: it belongs
+		// to the bazaar until it is bought or retrieved. deleteObject also
+		// deleted its row, so a listed item was gone for good.
 		if(container)        {
-            gContainerManager->deleteObject(asynContainer->tangible,container);
+            gContainerManager->removeObject(asynContainer->tangible,container);
+            gWorldManager->destroyObject(asynContainer->tangible);
         }
 
         gMessageFactory->StartMessage();

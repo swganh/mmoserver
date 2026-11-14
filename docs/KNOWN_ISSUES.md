@@ -164,6 +164,16 @@ listings already made (seen on the test VM: a house deed listed with
 category, region and planet 0). The details, retrieve and cancel handlers also returned when they
 did find the player (#3d); those checks are the right way round.
 
+### 2j. Listing an item on the bazaar deleted it — fix needs testing
+
+After a listing was created, the ZoneServer moved the item to the bazaar and
+then removed it from the zone with `ContainerManager::deleteObject`, which
+also deletes its database row: the listing named an item that no longer
+existed, so it could never be shown in detail, sold or retrieved (seen on the
+test VM: a house deed listed, then no row in `items`). The item is now
+removed from the zone only. Migration 016 removes the listings already left
+without their item, with their bids; those items cannot be recovered.
+
 ### 3a. Unknown usernames create accounts — fixed
 
 `sp_ReturnUserAccount` created an account for any username it didn't know,

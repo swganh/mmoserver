@@ -115,7 +115,19 @@ at scene ready. The "friend has come online" message did not appear either,
 even with "System message of online status" ticked (the client shows it
 when the status update matches a name on the list). The update sent the
 friend's name as written ("Brawler") while the list holds it in lower case
-("brawler"): it now sends the lower-case name.
+("brawler"): it now sends the lower-case name. A client that relogs keeps
+the statuses it had (a friend who logged out meanwhile stayed "online"
+until the client restarted), so at login every friend's status is sent,
+offline as well as online; adding or removing a friend sends the list
+before the statuses (the list, sent last, reset them to offline).
+
+### 2h. ChatServer read past the end of the first connect message — fixed
+
+The connect the ConnectionServer sends before a character is chosen holds
+only a character id of 0; the ChatServer read a planet id after it before
+checking, which the bounds checks (#3b) logged as
+`Message read past its end: 4 bytes at 12 of 12` at every login. It reads
+the planet id only for a real character.
 
 ### 2g. Chat rooms created with no name, listed again on every refresh — fix needs testing
 

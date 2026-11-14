@@ -659,8 +659,12 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         // We are actually sending this info from CharacterLoginHandler::handleDispatchMessage at the opCmdSceneReady event.
         // updateFriendsOnline(player,true);
 
-        // We should not send any info to self about all the friend in MY friends list.
-        // checkOnlineFriends(player);
+        // The friends' statuses go at scene ready (_processWhenLoaded); if the
+        // scene was ready before this list loaded, send them now.
+        if (!player->getAddPending())
+        {
+            checkOnlineFriends(player);
+        }
 
         // query ignoreslist
         ChatAsyncContainer* asContainer = new ChatAsyncContainer(ChatQuery_PlayerIgnores);
@@ -865,15 +869,18 @@ void ChatManager::_processClusterClientConnect(Message* message,DispatchClient* 
 {
     uint32 accountId = message->getAccountId();
     uint64 charId = message->getUint64();
-    uint32 planetId = message->getUint32();
 
     // @NOTE this is a hack that is needed for the time being. Currently the MessageDispatch
     // handles these opClusterClientConnect messages however messages coming from a zone
     // server require additional extra processing. To ensure this is only handled at the
     // appropriate time check to see if a character id has been set as only the zone server sets this.
+    // The connect sent before a character is chosen has no planet id: read
+    // it only after this check (it was read past the message's end).
     if (charId == 0) {
         return;
     }
+
+    uint32 planetId = message->getUint32();
 
     Player* player = new Player(charId,client,planetId);
 
@@ -2628,8 +2635,9 @@ void ChatManager::sendIgnoreList(Player* player)
 
 void ChatManager::checkOnlineFriends(Player* player)
 {
-    // Tells the player which of their friends are already online: the list
-    // showed them offline until they next logged in.
+    // Tells the player each friend's status, online or offline: the list
+    // showed friends already online as offline, and a client relogging kept
+    // the statuses it had before (a friend who left meanwhile stayed online).
     ContactMap* friendList	= player->getFriendsList();
     ContactMap::iterator it	= friendList->begin();
 
@@ -2637,9 +2645,10 @@ void ChatManager::checkOnlineFriends(Player* player)
     {
         Player* theFriend = getPlayerByName((*it).second);
 
-        if(theFriend && theFriend != player)
+        if(theFriend != player)
         {
-            gChatMessageLib->sendFriendOnlineStatus(player,theFriend,FriendStatus_Online,mMainCategory,mGalaxyName);
+            gChatMessageLib->sendFriendStatus(player,(*it).second,
+                theFriend ? FriendStatus_Online : FriendStatus_Offline,mMainCategory,mGalaxyName);
         }
 
         ++it;

@@ -112,9 +112,10 @@ A friend who was already logged in showed as offline in the Community
 window's Friends List: `ChatManager::checkOnlineFriends`, which tells a
 player at login which friends are online, was commented out. It runs again
 at scene ready. The "friend has come online" message did not appear either,
-even with "System message of online status" ticked; its update carries the
-galaxy name, so it may be the galaxy name mismatch of #2g (the ChatServer
-logs the client's room path to check).
+even with "System message of online status" ticked (the client shows it
+when the status update matches a name on the list). The update sent the
+friend's name as written ("Brawler") while the list holds it in lower case
+("brawler"): it now sends the lower-case name.
 
 ### 2g. Chat rooms created with no name, listed again on every refresh — fix needs testing
 

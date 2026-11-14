@@ -506,7 +506,12 @@ void ChatMessageLib::sendFriendOnlineStatus(Player* player,Player* playerFriend,
     gMessageFactory->addUint32(opChatFriendlistUpdate);
     gMessageFactory->addString(category);
     gMessageFactory->addString(name);
-    gMessageFactory->addString(playerFriend->getName());
+    // Lower case, as the friends list holds it (sendFriendList): the client
+    // matched "Brawler" to no "brawler" on the list, so showed no status
+    // change and no online message.
+    BString friendName = playerFriend->getName();
+    friendName.toLower();
+    gMessageFactory->addString(friendName);
     gMessageFactory->addUint8(status);
 
     Message* newMessage = gMessageFactory->EndMessage();

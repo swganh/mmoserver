@@ -1040,8 +1040,10 @@ void ChatManager::_processWhenLoaded(Message* message,DispatchClient* client)
                 asContainer->mClient = client;
                 asContainer->mReceiver = (*accIt).second;
 
-                // Update friends list
+                // Update friends list: tell this player's friends they are
+                // online, and this player which friends already are.
                 updateFriendsOnline(asContainer->mReceiver,true);
+                checkOnlineFriends(asContainer->mReceiver);
 
                 mDatabase->executeProcedureAsync(this,asContainer,"CALL %s.sp_ReturnChatMailHeaders(%" PRIu64 ");",mDatabase->galaxy(),asContainer->mReceiver->getCharId());
                 
@@ -1145,13 +1147,33 @@ void ChatManager::_processCreateRoom(Message* message,DispatchClient* client)
     message->getStringAnsi(title);
     uint32 requestId = message->getUint32();
 
-    uint32 index = 5 + mGalaxyName.getLength();
-    BString modpath;
-    path.substring(modpath, static_cast<uint16>(index), path.getLength());
+    // The client sends "SWG.<galaxy>.<name>". The name was cut at
+    // 5 + the length of this server's galaxy name: when the client's galaxy
+    // name differed, the room got no name (and the client listed it again on
+    // every refresh). Take what follows the galaxy, whatever it is called.
+    const std::string fullPath = path.getAnsi() ? path.getAnsi() : "";
+    const std::string prefix = "SWG.";
+    const std::string ourGalaxy = prefix + (mGalaxyName.getAnsi() ? mGalaxyName.getAnsi() : "") + ".";
+    std::string roomName = fullPath;
+    if (fullPath.compare(0, ourGalaxy.size(), ourGalaxy) == 0)
+    {
+        roomName = fullPath.substr(ourGalaxy.size());
+    }
+    else if (fullPath.compare(0, prefix.size(), prefix) == 0)
+    {
+        size_t dot = fullPath.find('.', prefix.size());
+        roomName = (dot == std::string::npos) ? std::string() : fullPath.substr(dot + 1);
+    }
 
-    // modpath.toLower();
+    LOG(INFO) << "Create chat room: path '" << fullPath << "', name '" << roomName << "', galaxy '" << mGalaxyName.getAnsi() << "'";
 
-    DLOG(INFO) << "Attempting to create channel "<< title.getAnsi() << " at " << modpath.getAnsi();
+    if (roomName.empty())
+    {
+        LOG(WARNING) << "Refused a chat room with no name (path '" << fullPath << "')";
+        return;
+    }
+
+    BString modpath = roomName.c_str();
 
     ChannelList::iterator iter = mvChannels.begin();
     while (iter != mvChannels.end())
@@ -2606,25 +2628,22 @@ void ChatManager::sendIgnoreList(Player* player)
 
 void ChatManager::checkOnlineFriends(Player* player)
 {
-    /*
-        ContactMap* friendList	= player->getFriendsList();
-        ContactMap::iterator it	= friendList->begin();
+    // Tells the player which of their friends are already online: the list
+    // showed them offline until they next logged in.
+    ContactMap* friendList	= player->getFriendsList();
+    ContactMap::iterator it	= friendList->begin();
 
-        while(it != friendList->end())
+    while(it != friendList->end())
+    {
+        Player* theFriend = getPlayerByName((*it).second);
+
+        if(theFriend && theFriend != player)
         {
-            Player* theFriend = getPlayerByName((*it).second);
-
-            if(theFriend)
-            {
-                gChatMessageLib->sendFriendOnlineStatus(player,theFriend,FriendStatus_Online,mMainCategory,mGalaxyName);
-            }
-            else
-            {
-            }
-
-            ++it;
+            gChatMessageLib->sendFriendOnlineStatus(player,theFriend,FriendStatus_Online,mMainCategory,mGalaxyName);
         }
-    */
+
+        ++it;
+    }
 }
 
 //======================================================================================================================

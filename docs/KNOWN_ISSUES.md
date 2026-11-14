@@ -106,13 +106,25 @@ the null result. Connections idle for over 30 seconds are now checked
 before use and replaced if closed, and failed queries no longer crash.
 Reproduced and verified with `wait_timeout` set to 40 seconds.
 
-### 2f. Friends list slow to show friends online — open
+### 2f. Friends shown offline; no message when a friend comes online — fix needs testing
 
-A friend who is logged in and standing next to you shows as offline in the
-Community window's Friends List for a while. Seen on the test VM (Nov
-2026). The online notice ("System message of online status") also did not
-appear; that box was unticked for the friend, so it needs testing again
-with it ticked.
+A friend who was already logged in showed as offline in the Community
+window's Friends List: `ChatManager::checkOnlineFriends`, which tells a
+player at login which friends are online, was commented out. It runs again
+at scene ready. The "friend has come online" message did not appear either,
+even with "System message of online status" ticked; its update carries the
+galaxy name, so it may be the galaxy name mismatch of #2g (the ChatServer
+logs the client's room path to check).
+
+### 2g. Chat rooms created with no name, listed again on every refresh — fix needs testing
+
+The ChatServer cut a new room's name out of the client's path
+(`SWG.<galaxy>.<name>`) at 5 + the length of its own galaxy name. With the
+client using a different galaxy name, the name came out empty, and the
+Channel Browser added the nameless room again on every refresh. The name is
+now taken after the galaxy segment whatever it is called; an empty name is
+refused and logged; each create logs `Create chat room: path '...'`.
+Migration 015 removes rooms already created without a name.
 
 ### 3a. Unknown usernames create accounts — fixed
 

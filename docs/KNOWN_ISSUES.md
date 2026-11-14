@@ -84,6 +84,16 @@ Untested edge case: if the old character is still *connected* (not
 link-dead) when the account selects another, both share one client object,
 and removing the old character deletes it.
 
+### 2e. Zone crashed with "free(): invalid pointer" after a player search — fix needs testing
+
+The player search (the client's character match request) added each
+matching player in range through a pointer it never set, so with a second
+player nearby it wrote into stray memory; the zone aborted soon after
+(`free(): invalid pointer` in `_handleRequestCharacterMatch`, found with
+`server.sh debug -g` on the test VM). It now adds them to its own list.
+The two strings it reads from the request are bounded to their buffers,
+and a player whose title is not plain text no longer crashes the match.
+
 ### 2d. Servers crashed after a long idle period — fix needs testing
 
 Left running for a day with no players, the ConnectionServer died with

@@ -2508,15 +2508,10 @@ void ChatManager::_processNotifyChatAddFriend(Message* message,DispatchClient* c
     {
         player->addFriend(name.getAnsi());
 
-        // check if he's online
-        Player* target = getPlayerByName(name.getAnsi());
-
-        if(target)
-        {
-            gChatMessageLib->sendFriendOnlineStatus(player,target,FriendStatus_Online,mMainCategory,mGalaxyName);
-        }
-
+        // The list first: the client replaces its own with it, so a status
+        // sent before it was lost (a friend just added showed offline).
         sendFriendList(player);
+        checkOnlineFriends(player);
     }
     else
     {
@@ -2540,6 +2535,7 @@ void ChatManager::_processNotifyChatRemoveFriend(Message* message,DispatchClient
         player->removeFriend(name.getCrc());
 
         sendFriendList(player);
+        checkOnlineFriends(player);
     }
     else
     {

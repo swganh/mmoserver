@@ -171,7 +171,7 @@ then removed it from the zone with `ContainerManager::deleteObject`, which
 also deletes its database row: the listing named an item that no longer
 existed, so it could never be shown in detail, sold or retrieved (seen on the
 test VM: a house deed listed, then no row in `items`). The item is now
-removed from the zone only. Migration 016 removes the listings already left
+removed from the zone only. Migration 017 removes the listings already left
 without their item, with their bids; those items cannot be recovered.
 
 ### 3a. Unknown usernames create accounts — fixed

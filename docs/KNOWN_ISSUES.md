@@ -115,11 +115,14 @@ at scene ready. The "friend has come online" message did not appear either,
 even with "System message of online status" ticked (the client shows it
 when the status update matches a name on the list). The update sent the
 friend's name as written ("Brawler") while the list holds it in lower case
-("brawler"): it now sends the lower-case name. A client that relogs keeps
-the statuses it had (a friend who logged out meanwhile stayed "online"
-until the client restarted), so at login every friend's status is sent,
-offline as well as online; adding or removing a friend sends the list
-before the statuses (the list, sent last, reset them to offline).
+("brawler"): it now sends the lower-case name. At login the friends
+online are sent (only those: the client announces every status it gets,
+so sending the offline ones too printed "... has gone offline" for each
+at every login). Adding or removing a friend sends the list before the
+statuses (the list, sent last, reset them to offline). Left: a client that
+relogs without restarting keeps the statuses it had, so a friend who logged
+out meanwhile shows online until they next log in or out. The
+notification box is kept by the client (it survives a restart).
 
 ### 2h. ChatServer read past the end of the first connect message — fixed
 

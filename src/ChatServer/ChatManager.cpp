@@ -2635,9 +2635,10 @@ void ChatManager::sendIgnoreList(Player* player)
 
 void ChatManager::checkOnlineFriends(Player* player)
 {
-    // Tells the player each friend's status, online or offline: the list
-    // showed friends already online as offline, and a client relogging kept
-    // the statuses it had before (a friend who left meanwhile stayed online).
+    // Tells the player which friends are online: the list showed them
+    // offline. Online only: the client announces every status it is sent
+    // ("... has gone offline at ...") when notification is on, so sending
+    // the offline ones too announced each of them at every login.
     ContactMap* friendList	= player->getFriendsList();
     ContactMap::iterator it	= friendList->begin();
 
@@ -2645,10 +2646,9 @@ void ChatManager::checkOnlineFriends(Player* player)
     {
         Player* theFriend = getPlayerByName((*it).second);
 
-        if(theFriend != player)
+        if(theFriend && theFriend != player)
         {
-            gChatMessageLib->sendFriendStatus(player,(*it).second,
-                theFriend ? FriendStatus_Online : FriendStatus_Offline,mMainCategory,mGalaxyName);
+            gChatMessageLib->sendFriendStatus(player,(*it).second,FriendStatus_Online,mMainCategory,mGalaxyName);
         }
 
         ++it;

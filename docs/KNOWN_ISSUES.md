@@ -106,7 +106,7 @@ the null result. Connections idle for over 30 seconds are now checked
 before use and replaced if closed, and failed queries no longer crash.
 Reproduced and verified with `wait_timeout` set to 40 seconds.
 
-### 2f. Friends shown offline; no message when a friend comes online — fix needs testing
+### 2f. Friends shown offline; no message when a friend comes online — fixed
 
 A friend who was already logged in showed as offline in the Community
 window's Friends List: `ChatManager::checkOnlineFriends`, which tells a
@@ -123,6 +123,8 @@ statuses (the list, sent last, reset them to offline). Left: a client that
 relogs without restarting keeps the statuses it had, so a friend who logged
 out meanwhile shows online until they next log in or out. The
 notification box is kept by the client (it survives a restart).
+Confirmed on the test VM: a friend logging in shows online with
+"... is online at ...", and one already online shows online at login.
 
 ### 2h. ChatServer read past the end of the first connect message — fixed
 
@@ -132,7 +134,7 @@ checking, which the bounds checks (#3b) logged as
 `Message read past its end: 4 bytes at 12 of 12` at every login. It reads
 the planet id only for a real character.
 
-### 2g. Chat rooms created with no name, listed again on every refresh — fix needs testing
+### 2g. Chat rooms created with no name, listed again on every refresh — fixed
 
 The ChatServer cut a new room's name out of the client's path
 (`SWG.<galaxy>.<name>`) at 5 + the length of its own galaxy name. With the
@@ -146,7 +148,8 @@ The likely cause: the ChatServer loaded the galaxy name and the channels
 with two queries at once, and when the channels came first their paths had
 an empty galaxy (`SWG..corellia`): the planet channels then showed outside
 the galaxy folder, and a room created under one got a path the old code
-could not cut. The channels now load after the galaxy name.
+could not cut. The channels now load after the galaxy name. Confirmed on the test VM:
+the planet channels sit inside the galaxy, and a new room keeps its name.
 
 ### 3a. Unknown usernames create accounts — fixed
 

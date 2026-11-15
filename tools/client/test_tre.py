@@ -104,6 +104,21 @@ class TreTest(unittest.TestCase):
         self.assertEqual(tre.read_list(cfg), ["bottom.tre", "data_sku1_00.tre", "patch_11_00.tre",
                                               "patch_11_01.tre", "patch_14_00.tre"])
 
+    def test_cfgs_that_disagree_need_archives(self):
+        write_tre(os.path.join(self.folder, "a.tre"), {"x.iff": b"a"})
+        write_tre(os.path.join(self.folder, "b.tre"), {"x.iff": b"b"})
+        with open(os.path.join(self.folder, "live.cfg"), "w") as f:
+            f.write("searchTree_00_2=a.tre\nsearchTree_00_1=b.tre\n")
+        with open(os.path.join(self.folder, "user.cfg"), "w") as f:
+            f.write("[ClientGame]\n")  # no searchTree lines: ignored
+        self.assertEqual(tre.Client(self.folder).read("x.iff"), b"a")
+        with open(os.path.join(self.folder, "other.cfg"), "w") as f:
+            f.write("searchTree_00_1=a.tre\nsearchTree_00_2=b.tre\n")
+        with self.assertRaises(SystemExit):
+            tre.Client(self.folder)
+        self.assertEqual(tre.Client(self.folder, tre.read_list(os.path.join(self.folder, "other.cfg")))
+                         .read("x.iff"), b"b")
+
     def test_rejects_other_files(self):
         path = os.path.join(self.folder, "bad.tre")
         with open(path, "wb") as f:

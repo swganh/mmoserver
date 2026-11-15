@@ -104,12 +104,22 @@ def cfg_load_order(path):
 
 
 def _priorities(folder):
-    """Load position of each archive named in the folder's .cfg files."""
-    found = {}
-    for cfg in glob.glob(os.path.join(folder, "*.cfg")):
-        for position, name in enumerate(cfg_load_order(cfg)):
-            found[name.lower()] = position
-    return found
+    """Load position of each archive named in the folder's .cfg file.
+
+    Positions from different cfgs can't be compared, so only one is used:
+    the cfg with searchTree lines. If several have them and they disagree,
+    stop and ask for --archives.
+    """
+    orders = {}
+    for cfg in sorted(glob.glob(os.path.join(folder, "*.cfg"))):
+        order = [name.lower() for name in cfg_load_order(cfg)]
+        if order:
+            orders[os.path.basename(cfg)] = order
+    if len({tuple(o) for o in orders.values()}) > 1:
+        raise SystemExit("%s give different archive orders; choose one with --archives <cfg>"
+                         % ", ".join(sorted(orders)))
+    order = next(iter(orders.values()), [])
+    return {name: position for position, name in enumerate(order)}
 
 
 def read_list(path):

@@ -85,9 +85,10 @@ and friends (#21).
    confirmed; next, a listing's details, retrieving and cancelling, then
    bidding. Then the pull request.
 2. **Test pass of what is built but never played** (the audit's "Code"
-   rows): crafting and experimentation, harvesters and factories, housing
-   and permissions, mission terminals, groups, vehicles, image design. Each
-   confirmed or turned into issues; it may find working systems before any
+   rows; tests T27-T40 in `docs/TEST_PLAN.md`): crafting and
+   experimentation, harvesters and factories, housing and permissions,
+   mission terminals, groups, vehicles, image design. Each confirmed or
+   turned into issues; it may find working systems before any
    new work starts.
 3. **Fill the world**: creature spawns and lairs on every planet, from
    the Prima tables and the client's data (today: around Bestine only).

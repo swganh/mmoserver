@@ -950,6 +950,18 @@ two suitable NPCs were near the terminal, a division by zero for a
 terminal without destroy missions, and shuttles' start-up timing always
 0. All fixed.
 
+Two more switched-off pieces:
+- Looting with a destroy mission in the datapad hung the zone: what was
+  left of the old "loot near the target completes the mission" code looped
+  over the missions without ever moving past a destroy mission. Removed.
+- Talking to a deliver or crafting mission's NPC did nothing: the check
+  was commented out of the conversation handler. It runs again.
+
+Still open: **destroy missions spawn nothing** at their waypoint, so they
+can't be completed. Pre-CU (as remembered): the waypoint is near the
+target, an update with the exact location comes as the player gets close,
+and the mission's lair is there to destroy.
+
 ### 31. Harvesters extract per hour, not per minute — to check
 
 Found in the step 2 test pass (T29, Nov 2026): after about 20 minutes, a

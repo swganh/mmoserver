@@ -939,6 +939,17 @@ and the survey check that calls it is guarded. Mission names
 (`mission_names`) exist for Tatooine only; the mission givers are still
 the original placeholder list in `MissionManager.cpp`.
 
+With the manager back, missions listed, showed their details and were
+accepted to the datapad with a waypoint, but every distance was thousands
+of kilometres. The random offset divided `rand()` by 32767, MSVC's
+`RAND_MAX`; glibc's is 2147483647, so on Linux "50 to 500 m" reached about
+29,000 km. It uses `RAND_MAX` now. The same search found the NPC choice of
+deliver, entertainer and survey missions always rolling 1 and testing it
+with `=` (so always the first NPC), loops that never ended when fewer than
+two suitable NPCs were near the terminal, a division by zero for a
+terminal without destroy missions, and shuttles' start-up timing always
+0. All fixed.
+
 ### 31. Harvesters extract per hour, not per minute — to check
 
 Found in the step 2 test pass (T29, Nov 2026): after about 20 minutes, a

@@ -73,8 +73,10 @@ namespace {
 glm::vec3 randomGroundOffset(float min_distance, float max_distance)
 {
     const float two_pi = 6.2831853f;
-    float angle = two_pi * (gRandom->getRand() / 32768.0f);
-    float distance = min_distance + (max_distance - min_distance) * (gRandom->getRand() / 32767.0f);
+    // rand() goes up to RAND_MAX: 32767 with MSVC, 2147483647 with glibc.
+    // Dividing by 32767 sent Linux missions thousands of kilometres away.
+    float angle = static_cast<float>(two_pi * (gRandom->getRand() / (RAND_MAX + 1.0)));
+    float distance = static_cast<float>(min_distance + (max_distance - min_distance) * (gRandom->getRand() / static_cast<double>(RAND_MAX)));
 
     return glm::vec3(std::cos(angle) * distance, 0.0f, std::sin(angle) * distance);
 }
@@ -1030,6 +1032,10 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 
         //now get the amount of stfs and get one per chance
         uint32 amount = terminal->list.size();
+        if(amount == 0)
+        {
+            return NULL;
+        }
         uint32 chosen = gRandom->getRand() % amount;
 
         DLOG(INFO) << "MissionManager : random : " <<  chosen;
@@ -1055,6 +1061,12 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 
             }
             it = terminal->list.begin();
+
+            // this terminal offers no destroy missions
+            if(!found && counter > 2 * amount + 2)
+            {
+                break;
+            }
 
         }
 
@@ -1202,6 +1214,13 @@ MissionObject* MissionManager::generateDeliverMission(MissionObject* mission)
     while(!found && !inRangeNPCs.empty())
     {
         count ++;
+        // Fewer than two suitable NPCs (or resources) in range: give up rather
+        // than loop for ever.
+        if(count > 4 * inRangeNPCs.size() + 8)
+        {
+            DLOG(INFO) << "MissionManager: nothing suitable in range for this mission";
+            return NULL;
+        }
         ++it;
         if(it == inRangeNPCs.end())
             it = inRangeNPCs.begin();
@@ -1209,8 +1228,8 @@ MissionObject* MissionManager::generateDeliverMission(MissionObject* mission)
         NPCObject* npc = dynamic_cast<NPCObject*>(*it);
         if(npc->getNpcFamily() == NpcFamily_Filler)
         {
-            uint32 roll		= (gRandom->getRand() / (RAND_MAX  + 1ul) * (9 - 1) + 1);
-            if((roll = 5)||(count > inRangeNPCs.size()))
+            uint32 roll		= static_cast<uint32>(gRandom->getRand() / (RAND_MAX + 1.0) * (9 - 1) + 1);
+            if((roll == 5)||(count > inRangeNPCs.size()))
             {
                 if(mission_dest.Coordinates.x == 0)
                 {
@@ -1284,6 +1303,13 @@ MissionObject* MissionManager::generateEntertainerMission(MissionObject* mission
     while(!found && !inRangeNPCs.empty())
     {
         cntLoop++;
+        // Fewer than two suitable NPCs (or resources) in range: give up rather
+        // than loop for ever.
+        if(cntLoop > 4 * inRangeNPCs.size() + 8)
+        {
+            DLOG(INFO) << "MissionManager: nothing suitable in range for this mission";
+            return NULL;
+        }
         ++it;
         if(it == inRangeNPCs.end())
             it = inRangeNPCs.begin();
@@ -1291,8 +1317,8 @@ MissionObject* MissionManager::generateEntertainerMission(MissionObject* mission
         NPCObject* npc = dynamic_cast<NPCObject*>(*it);
         if(npc->getNpcFamily() == NpcFamily_Filler)
         {
-            uint32 roll		= (gRandom->getRand() / (RAND_MAX  + 1ul) * (9 - 1) + 1);
-            if((roll = 5)||(cntLoop > inRangeNPCs.size()))
+            uint32 roll		= static_cast<uint32>(gRandom->getRand() / (RAND_MAX + 1.0) * (9 - 1) + 1);
+            if((roll == 5)||(cntLoop > inRangeNPCs.size()))
             {
                 if(mission_dest.Coordinates.x == 0 && mission->getDestinationNPC() != npc)
                 {
@@ -1375,6 +1401,13 @@ MissionObject* MissionManager::generateSurveyMission(MissionObject* mission)
     while(!found && !rtMap->empty())//?????
     {
         cntLoop ++;
+        // Fewer than two suitable NPCs (or resources) in range: give up rather
+        // than loop for ever.
+        if(cntLoop > 4 * rtMap->size() + 8)
+        {
+            DLOG(INFO) << "MissionManager: nothing suitable in range for this mission";
+            return NULL;
+        }
 
         ++it;
         if(it == rtMap->end())
@@ -1383,7 +1416,7 @@ MissionObject* MissionManager::generateSurveyMission(MissionObject* mission)
         if(!strcmp((*it->second).getResourceType().getRawData(),"mineral_resource"))/* ||
 		   !strcmp((*(*it).second).getResourceType().getRawData(),"energy_resource")) */
         {
-            uint32 roll		= (gRandom->getRand() / (RAND_MAX  + 1ul) * (9 - 1) + 1);
+            uint32 roll		= static_cast<uint32>(gRandom->getRand() / (RAND_MAX + 1.0) * (9 - 1) + 1);
 
             if((roll == 5)||(cntLoop > rtMap->size()))
             {
@@ -1450,6 +1483,13 @@ MissionObject* MissionManager::generateCraftingMission(MissionObject* mission)
     while(!found && !inRangeNPCs.empty())
     {
         cntLoop++;
+        // Fewer than two suitable NPCs (or resources) in range: give up rather
+        // than loop for ever.
+        if(cntLoop > 4 * inRangeNPCs.size() + 8)
+        {
+            DLOG(INFO) << "MissionManager: nothing suitable in range for this mission";
+            return NULL;
+        }
         ++it;
 
         if(it == inRangeNPCs.end())
@@ -1458,8 +1498,8 @@ MissionObject* MissionManager::generateCraftingMission(MissionObject* mission)
         NPCObject* npc = dynamic_cast<NPCObject*>(*it);
         if(npc->getNpcFamily() == NpcFamily_Filler)
         {
-            uint32 roll		= (gRandom->getRand() / (RAND_MAX  + 1ul) * (9 - 1) + 1);
-            if((roll = 5)||(cntLoop > inRangeNPCs.size()))
+            uint32 roll		= static_cast<uint32>(gRandom->getRand() / (RAND_MAX + 1.0) * (9 - 1) + 1);
+            if((roll == 5)||(cntLoop > inRangeNPCs.size()))
             {
                 if(mission_dest.Coordinates.x == 0)
                 {

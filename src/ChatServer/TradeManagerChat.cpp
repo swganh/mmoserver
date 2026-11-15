@@ -264,6 +264,13 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
         binding->addField(DFT_uint64,offsetof(AuctionItem,ItemID),8,0);
         binding->addField(DFT_uint64,offsetof(AuctionItem,BazaarID),8,1);
         binding->addField(DFT_uint32,offsetof(AuctionItem,ItemTyp),4,2);
+        if (result->getRowCount() == 0) {
+            // Not this player's listing, or gone already.
+            LOG(WARNING) << "Retrieve refused: auction " << asynContainer->AuctionID << " is not owned by " << player->getCharId();
+            gChatMessageLib->SendRetrieveAuctionItemResponseMessage(asynContainer->mClient, asynContainer->AuctionID, 1);
+            mDatabase->destroyDataBinding(binding);
+            break;
+        }
         AuctionItem AuctionTemp;
         result->getNextRow(binding,&AuctionTemp);
         //can we retrieve the item from our terminal???
@@ -535,15 +542,22 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
         binding->addField(DFT_uint32,offsetof(AuctionItem, HighProxy), 4, 2);
 
         uint64 count = result->getRowCount();
-        if (count >= 1)	{
-            //the Query actually only yields a result when we are dealing with an auction
-            for(uint16 i=0; i <count; i++) {
-                result->getNextRow(binding,&Item);
-                gChatMessageLib->sendBidderCancelAuctionMail(asynContainer->mClient, player->getCharId(), Item.BidderID, Item.Name);
-
-                //TODO
-                //refund the bidders
+        if (count == 0) {
+            // Not this player's listing, or gone already.
+            LOG(WARNING) << "Cancel refused: auction " << asynContainer->AuctionID << " is not owned by " << player->getCharId();
+            gChatMessageLib->sendCanceLiveAuctionResponseMessage(asynContainer->mClient, 1, asynContainer->AuctionID);
+            mDatabase->destroyDataBinding(binding);
+            break;
+        }
+        for(uint64 i = 0; i < count; i++) {
+            result->getNextRow(binding,&Item);
+            if (Item.BidderID == 0) {
+                continue;  // the row of a listing without bids
             }
+            gChatMessageLib->sendBidderCancelAuctionMail(asynContainer->mClient, player->getCharId(), Item.BidderID, Item.Name);
+
+            //TODO
+            //refund the bidders
         }
         int8 sql[100];
         sprintf(sql, "SELECT %s.sf_CancelLiveAuction ('%" PRIu64 "')", mDatabase->galaxy(),  asynContainer->AuctionID);
@@ -1381,9 +1395,12 @@ void TradeManagerChatHandler::processRetrieveAuctionItemMessage(Message* message
     uint64	ItemID		= message->getUint64();
     uint64	TerminalID	= message->getUint64();
 
-    int8 sql[200];
-    sprintf(sql,"SELECT auction_id, bazaar_id, itemtype FROM %s.commerce_auction c  WHERE c.auction_id = %" PRIu64 "",mDatabase->galaxy(), ItemID);
+    // Only the listing's owner: the seller, or the winner once an auction
+    // has ended (the Available Items and My Sales windows list by owner).
+    int8 sql[256];
+    sprintf(sql,"SELECT auction_id, bazaar_id, itemtype FROM %s.commerce_auction c  WHERE c.auction_id = %" PRIu64 " AND c.owner_id = %" PRIu64 "",mDatabase->galaxy(), ItemID, (*accIt).second->getCharId());
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_RetrieveAuction, client);
+    asyncContainer->AuctionID = ItemID;
     asyncContainer->BazaarID = TerminalID;
     mDatabase->executeSqlAsync(this, asyncContainer, sql);
     
@@ -1454,8 +1471,10 @@ void TradeManagerChatHandler::processCancelLiveAuctionMessage(Message* message,D
 
     //get all the bids on the auction and refunf the affected players
     //send the EMails
-    int8 sql[300];
-    sprintf(sql,"SELECT ch.id, ca.name, cbh.proxy_bid FROM %s.commerce_auction AS ca INNER JOIN %s.commerce_bidhistory AS cbh ON (cbh.bidder_name = ca.bidder_name)  INNER JOIN %s.characters AS ch ON (cbh.bidder_name = ch.firstname)  WHERE ca.auction_id = %" PRIu64 "",mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),ItemID);
+    // Only the listing's owner. One row per bid, or one row with bidder 0
+    // when there are none; no row when the player doesn't own the listing.
+    int8 sql[512];
+    sprintf(sql,"SELECT COALESCE(ch.id, 0), ca.name, COALESCE(cbh.proxy_bid, 0) FROM %s.commerce_auction AS ca LEFT JOIN %s.commerce_bidhistory AS cbh ON (cbh.auction_id = ca.auction_id AND cbh.bidder_name = ca.bidder_name) LEFT JOIN %s.characters AS ch ON (cbh.bidder_name = ch.firstname) WHERE ca.auction_id = %" PRIu64 " AND ca.owner_id = %" PRIu64 "",mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),ItemID,(*accIt).second->getCharId());
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_CancelAuction_BidderMail, client);
     asyncContainer->AuctionID = ItemID;
     mDatabase->executeSqlAsync(this,asyncContainer,sql);

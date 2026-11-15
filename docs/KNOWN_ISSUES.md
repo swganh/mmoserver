@@ -167,6 +167,12 @@ did find the player (#3d); those checks are the right way round.
 Confirmed on the VM (Nov 2026): listing, details, bidding, buying,
 retrieving and cancelling all work, with `'` and `"` in descriptions.
 
+With the handlers working, retrieve and cancel took any listing id a client
+sent: another player could take or cancel someone else's listing (found by
+review of obi-two/mmoserver#23). Both are now for the listing's owner only
+(the seller, or the winner of an ended auction), and a cancel mails only
+that auction's bidders, not every bid its bidder ever made.
+
 ### 2j. Listing an item on the bazaar deleted it — fixed
 
 After a listing was created, the ZoneServer moved the item to the bazaar and

@@ -40,6 +40,7 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 | T23 | Security | Malformed packets could read past a message's end [3b] | Play normally for a while: log in, chat, mail, trade, craft | Nothing new; no `Message read past its end` in any log |
 | T24 | Security | Player text built into SQL [3c] | Log in (client and launcher); create a character with a biography; send a mail with an attachment (a waypoint) to yourself; add and remove a friend; rename a waypoint; make and join a chat channel; list an item on the bazaar with a description containing `'` and `%`; tip someone at the bank; set your biography | Everything works as before; the bazaar description shows exactly as typed; no `Prepared statement failed` in the logs (if there is one, send it to me) |
 | T25 | Cloning | Storing clone data was invalid SQL [3d] | At a cloning terminal, store your clone data | "Clone data saved"; the zone keeps running; `tatooine.out` has no SQL error |
+| T41 | Bazaar | Retrieve and cancel worked on anyone's listing | Normal use still works (sending another player's listing id needs a modified client): retrieve and cancel your own listings; with the second character bid on an auction, then cancel it as its seller | Your own listings retrieve and cancel as before; the bidder gets one cancellation mail; `chat.out` has no `refused` lines |
 | T18 | Creatures | No killers | Get incapacitated by a killer (none spawn on Tatooine yet; for now check that a womp rat leaves you incapacitated) | A womp rat does not deathblow; `deathblows` appears only for creatures marked Killer |
 
 ## Step 2: built but never played
@@ -76,9 +77,10 @@ Credits). Run with `./server.sh debug -g`, so a crash leaves a backtrace.
 | Step 2 | Trading between players (T40) | Items and credits traded between two characters (Nov 2026) |
 | Step 2 | Bank credits, tipping (T40) | Joined a bank, deposited and withdrew credits; tipping works. Items can't be banked [27] (Nov 2026) |
 | Step 2 | Vehicles (T37) | A speeder from the character builder: called, mounted, driven, dismounted, stored. Calling one in a city takes a moment longer (Nov 2026) |
-| Step 2 | Groups (T36) | Formed and disbanded a group, teaching works. The radial has no Make Leader; `/makeleader` exists to try (Nov 2026) |
+| Step 2 | Groups (T36) | Formed and disbanded a group, teaching works. No Make Leader on the radial; `/makeleader` works (Nov 2026) |
 | Step 2 | Crafting (T27, T28) | Crafted items; experimentation offered at a crafting station (Nov 2026). Experimenting itself still to try |
 | Tools | New: the Jump to Lightspeed inventory (T26) | Run on the Windows PC against the test client's folder: 50 Publish 14 archives read, the later ones left out, 125,572 files; summary in `docs/JTL.md` (Nov 2026) |
+| Bazaar | Listings showed "Unknown Object Type"; listing deleted the item; a purchase crashed the zone [2i, 2j, 2k] | On the VM: a melon and a house deed listed with their types (food, building deed) and kept in `items`; the melon bought by the other character reached their inventory; an instant sale and an auction with `'` and `"` in their descriptions listed, their details shown, bid on, retrieved and cancelled (Nov 2026) |
 | Chat | Rooms without names; planet channels outside the galaxy [2g] | On the VM: planets inside SWGANH - Test Center, a new room under dathomir/Chat keeps its name (Nov 2026) |
 | Chat | Friends shown offline; no online notice [2f] | On the VM: "brawler ... is online at ..." when Brawler logs in, his status online (Nov 2026) |
 | Zone | Crash after a player search with another player nearby [2e] | On the VM under gdb: the backtrace found it; after the fix, a search with two characters nearby works (Nov 2026) |

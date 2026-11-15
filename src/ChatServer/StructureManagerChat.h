@@ -139,7 +139,6 @@ private:
 
     Database*					mDatabase;
     MessageDispatch*			mMessageDispatch;
-    PlayerAccountMap			mPlayerAccountMap;
 
     ChatManager*				mChatManager;
 

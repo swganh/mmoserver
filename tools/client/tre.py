@@ -1,8 +1,14 @@
 #!/usr/bin/env python3
 """Read the client's .tre archives directly, without extracting them.
 
-    python3 -I tools/client/tre.py list   <client folder> [pattern]
-    python3 -I tools/client/tre.py extract <client folder> <pattern> <out folder>
+    python3 -I tools/client/tre.py list   <client folder> [pattern] [--archives LIST]
+    python3 -I tools/client/tre.py extract <client folder> <pattern> <out folder> [--archives LIST]
+
+--archives LIST reads only the archives named in the text file LIST, one
+file name per line, in the order the client loads them (later lines win).
+Use it to read a client as it was at one publish, e.g. the Publish 14
+archives only, leaving out any added later. Blank lines and lines starting
+with # are ignored. Without it, every .tre in the folder is read.
 
 `pattern` is a shell pattern over the file names inside the archives, e.g.
 'datatables/space/*'. When a file is in more than one archive, the one the
@@ -89,15 +95,35 @@ def _priorities(folder):
     return found
 
 
-class Client:
-    """Every .tre archive in a client folder, the last loaded winning."""
+def read_list(path):
+    """Archive names from a list file, in load order."""
+    with open(path, encoding="latin-1") as f:
+        names = [line.strip() for line in f]
+    return [n for n in names if n and not n.startswith("#")]
 
-    def __init__(self, folder):
-        paths = sorted(glob.glob(os.path.join(folder, "*.tre")), key=lambda p: os.path.basename(p).lower())
-        if not paths:
-            raise SystemExit("no .tre files in %s" % folder)
-        priority = _priorities(folder)
-        paths.sort(key=lambda p: priority.get(os.path.basename(p).lower(), -1))
+
+class Client:
+    """The .tre archives of a client folder, the last loaded winning.
+
+    With `archives` (names in load order), only those are read, and a
+    missing one is an error. Otherwise every .tre in the folder is read.
+    """
+
+    def __init__(self, folder, archives=None):
+        on_disk = {os.path.basename(p).lower(): p for p in glob.glob(os.path.join(folder, "*.tre"))}
+        if archives is not None:
+            missing = [a for a in archives if a.lower() not in on_disk]
+            if missing:
+                raise SystemExit("not in %s: %s" % (folder, ", ".join(missing)))
+            paths = [on_disk[a.lower()] for a in archives]
+            self.skipped = sorted(set(on_disk) - {a.lower() for a in archives})
+        else:
+            if not on_disk:
+                raise SystemExit("no .tre files in %s" % folder)
+            paths = sorted(on_disk.values(), key=lambda p: os.path.basename(p).lower())
+            priority = _priorities(folder)
+            paths.sort(key=lambda p: priority.get(os.path.basename(p).lower(), -1))
+            self.skipped = []
         self.archives = [Archive(p) for p in paths]
         self.files = {}
         for archive in self.archives:  # later archives replace earlier ones
@@ -111,13 +137,24 @@ class Client:
         return self.files[name].read(name)
 
 
+def split_archives_option(argv):
+    """argv without --archives LIST, and the archive names (or None)."""
+    if "--archives" not in argv:
+        return argv, None
+    i = argv.index("--archives")
+    if i + 1 >= len(argv):
+        raise SystemExit("--archives needs a file")
+    return argv[:i] + argv[i + 2:], read_list(argv[i + 1])
+
+
 def main(argv):
+    argv, archives = split_archives_option(argv)
     if len(argv) >= 2 and argv[0] == "list":
-        client = Client(argv[1])
+        client = Client(argv[1], archives)
         for name in client.names(argv[2] if len(argv) > 2 else "*"):
             print("%s\t%s" % (name, os.path.basename(client.files[name].path)))
     elif len(argv) == 4 and argv[0] == "extract":
-        client = Client(argv[1])
+        client = Client(argv[1], archives)
         out = os.path.abspath(argv[3])
         for name in client.names(argv[2]):
             target = os.path.abspath(os.path.join(out, name))

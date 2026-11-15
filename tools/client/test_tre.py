@@ -76,6 +76,22 @@ class TreTest(unittest.TestCase):
             f.write("[SharedFile]\n\tsearchTree_00_20=data_01.tre\n\tsearchTree_00_10=patch_01.tre\n")
         self.assertEqual(tre.Client(self.folder).read("a.iff"), b"old")  # by priority
 
+    def test_only_the_listed_archives_are_read(self):
+        write_tre(os.path.join(self.folder, "data_00.tre"), {"a.iff": b"p14", "b.iff": b"b"})
+        write_tre(os.path.join(self.folder, "patch_30.tre"), {"a.iff": b"later", "c.iff": b"c"})
+        listed = os.path.join(self.folder, "publish14.txt")
+        with open(listed, "w") as f:
+            f.write("# Publish 14\n\nDATA_00.tre\n")
+        client = tre.Client(self.folder, tre.read_list(listed))
+        self.assertEqual(client.read("a.iff"), b"p14")
+        self.assertEqual(client.names(), ["a.iff", "b.iff"])
+        self.assertEqual(client.skipped, ["patch_30.tre"])
+        out = io.StringIO()
+        jtl_inventory.report(client, out)
+        self.assertIn("Left out: `patch_30.tre`.", out.getvalue())
+        with self.assertRaises(SystemExit):
+            tre.Client(self.folder, ["data_00.tre", "missing.tre"])
+
     def test_rejects_other_files(self):
         path = os.path.join(self.folder, "bad.tre")
         with open(path, "wb") as f:

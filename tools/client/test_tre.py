@@ -138,7 +138,7 @@ class TreTest(unittest.TestCase):
         out = io.StringIO()
         jtl_inventory.report(tre.Client(self.folder), out)
         text = out.getvalue()
-        self.assertIn("| Space zones (terrain) | 1 | 0 |", text)
+        self.assertIn("| Space zones (terrain) | 1 | `data.tre` 1 |", text)
         self.assertIn("`datatables/space/ship_chassis.iff`: 2 rows; name, mass", text)
         self.assertIn("- `object/ship/shared_xwing.iff`", text)
         self.assertIn("- `misc/`: 1", text)

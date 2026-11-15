@@ -119,7 +119,7 @@ when it unblocks the current step.
 
 | What | Why parked | Groundwork done |
 |---|---|---|
-| **Jump to Lightspeed** (space, ships, pilots, shipwright) | Needs factions (step 4) and pets (step 6); about as large as the ground game so far (`docs/PRECU_AUDIT.md`) | `tools/client/jtl_inventory.py` lists the expansion's content in a client (`docs/JTL.md` once run). Still to do: document the ship messages, try a ZoneServer on a space scene |
+| **Jump to Lightspeed** (space, ships, pilots, shipwright) | Needs factions (step 4) and pets (step 6); about as large as the ground game so far (`docs/PRECU_AUDIT.md`) | `tools/client/jtl_inventory.py` lists the expansion's content in a client; `docs/JTL.md` has the Publish 14 client's (16 space zones, 313 ship chassis, 1,115 components, 320 schematics, 752 space quests). Still to do: document the ship messages, try a ZoneServer on a space scene |
 | Login rate limiting | Before a public server, not needed on a test server | |
 | Per-planet MOTD | Cosmetic | |
 | Sampling into a full container (#26) | Rare, small | |

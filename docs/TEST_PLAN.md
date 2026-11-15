@@ -41,7 +41,6 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 | T24 | Security | Player text built into SQL [3c] | Log in (client and launcher); create a character with a biography; send a mail with an attachment (a waypoint) to yourself; add and remove a friend; rename a waypoint; make and join a chat channel; list an item on the bazaar with a description containing `'` and `%`; tip someone at the bank; set your biography | Everything works as before; the bazaar description shows exactly as typed; no `Prepared statement failed` in the logs (if there is one, send it to me) |
 | T25 | Cloning | Storing clone data was invalid SQL [3d] | At a cloning terminal, store your clone data | "Clone data saved"; the zone keeps running; `tatooine.out` has no SQL error |
 | T18 | Creatures | No killers | Get incapacitated by a killer (none spawn on Tatooine yet; for now check that a womp rat leaves you incapacitated) | A womp rat does not deathblow; `deathblows` appears only for creatures marked Killer |
-| T26 | Tools | New: the Jump to Lightspeed inventory | On the Windows PC with Python 3, on the `precu-audit` branch: `python -I tools\client\jtl_inventory.py "<folder with the .tre files>" --archives tools\client\publish14_archives.txt > jtl_inventory.md` (the list is from your live.cfg; the cfg itself also works as `--archives`) | A report of the 50 archives read, and the space zones, ships and datatables, most from the `*sku1*` archives; send me the file. If it stops with an error, send that instead |
 
 ## Step 2: built but never played
 
@@ -74,6 +73,7 @@ Credits). Run with `./server.sh debug -g`, so a crash leaves a backtrace.
 
 | Area | What was wrong | Confirmed by |
 |---|---|---|
+| Tools | New: the Jump to Lightspeed inventory (T26) | Run on the Windows PC against the test client's folder: 50 Publish 14 archives read, the later ones left out, 125,572 files; summary in `docs/JTL.md` (Nov 2026) |
 | Chat | Rooms without names; planet channels outside the galaxy [2g] | On the VM: planets inside SWGANH - Test Center, a new room under dathomir/Chat keeps its name (Nov 2026) |
 | Chat | Friends shown offline; no online notice [2f] | On the VM: "brawler ... is online at ..." when Brawler logs in, his status online (Nov 2026) |
 | Zone | Crash after a player search with another player nearby [2e] | On the VM under gdb: the backtrace found it; after the fix, a search with two characters nearby works (Nov 2026) |

@@ -11,7 +11,8 @@ and those left out.
 Reads the client's .tre archives (tools/client/tre.py) and reports, by
 area, how many files of the expansion the client has: space zones, ship
 and component object templates, schematics, datatables (with their row
-counts and columns), string files and space quests. Anything with
+counts and columns), string files and space quests, and which archives
+supply each area. Anything with
 "space" or "ship" in its path that fits no area is listed at the end, so
 nothing is missed.
 
@@ -33,13 +34,15 @@ AREAS = [
     ("Space zones (terrain)", ["terrain/space_*"]),
     ("Space zone buildouts and snapshots", ["datatables/buildout/space_*", "snapshot/space_*"]),
     ("Ship datatables", ["datatables/ship/*", "datatables/space/*", "datatables/space_*/*"]),
-    ("Space quest datatables", ["datatables/spacequest/*", "datatables/space_quest/*"]),
+    ("Space quest datatables", ["datatables/spacequest/*", "datatables/space_quest/*",
+                                "datatables/questlist/spacequest/*", "datatables/questtask/spacequest/*"]),
     ("Space mobiles and AI", ["datatables/space_mobile/*", "datatables/space_ai/*", "datatables/space_content/*"]),
     ("Ship object templates", ["object/ship/*"]),
     ("Ship component and part templates", ["object/tangible/ship/*"]),
     ("Ship control devices", ["object/intangible/ship/*"]),
     ("Ship schematics", ["object/draft_schematic/space/*", "object/draft_schematic/ship/*"]),
     ("Space stations and space buildings", ["object/static/space/*", "object/building/*space*"]),
+    ("Space items (tangible)", ["object/tangible/space/*", "object/tangible/shipcontrol/*"]),
     ("Ship strings", ["string/en/space/*", "string/en/ship*"]),
     ("Space quest strings", ["string/en/spacequest/*", "string/en/space_quest/*"]),
     ("Pilot and shipwright skill data", ["datatables/skill/*pilot*", "datatables/skill/*shipwright*",
@@ -77,7 +80,7 @@ def report(client, out):
         if area:
             areas[area].append(name)
         elif ("space" in name or "ship" in name) and name.endswith(KINDS) \
-                and not name.startswith(("appearance/", "sound/", "texture/", "shader/", "effect/")):
+                and not name.startswith(("appearance/", "sound/", "texture/", "shader/", "effect/", "string/ja/")):
             other[subfolder(name, 3)] += 1
 
     out.write("# Jump to Lightspeed in the client\n\n")
@@ -87,12 +90,15 @@ def report(client, out):
               % ", ".join("`%s`" % os.path.basename(a.path) for a in client.archives))
     if client.skipped:
         out.write("Left out: %s.\n\n" % ", ".join("`%s`" % n for n in client.skipped))
-    def expansion(name):  # SKU 1 archives are Jump to Lightspeed's
-        return "sku1" in os.path.basename(client.files[name].path).lower()
+    def suppliers(names):
+        """The archives the area's files come from (the last loaded wins)."""
+        counts = collections.Counter(os.path.basename(client.files[n].path) for n in names)
+        return ", ".join("`%s` %d" % (a, c) for a, c in counts.most_common(4)) + \
+            (", ..." if len(counts) > 4 else "")
 
-    out.write("| Area | Files | From the expansion's archives (`*sku1*`) |\n|---|---|---|\n")
+    out.write("| Area | Files | Supplied by (archive, files) |\n|---|---|---|\n")
     for area, names in areas.items():
-        out.write("| %s | %d | %d |\n" % (area, len(names), sum(1 for n in names if expansion(n))))
+        out.write("| %s | %d | %s |\n" % (area, len(names), suppliers(names)))
     out.write("| Other paths with space or ship | %d | |\n" % sum(other.values()))
 
     for area, names in areas.items():

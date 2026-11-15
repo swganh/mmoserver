@@ -978,8 +978,8 @@ bugs, for every lair, not just missions' (fixed, to retest):
   now calls its living creatures that aren't fighting, as a pack does.
 - Lairs took combat states (knockdown, stun, blind, intimidate, posture
   changes). Attackable objects (lairs, debris) take none now.
-The combat music after the lair died is to retest with these: the
-player's combat ends only once no opponent is left.
+Retested on the VM (Nov 2026): the lair's creatures came to defend it, and
+the combat music stopped once they were dead.
 
 ### 31. Harvesters extract per hour, not per minute — to check
 
@@ -990,7 +990,7 @@ rate units per hour. Pre-CU harvesters' extraction rates were, as far as
 we remember, units per minute, which would make harvesting 60 times too
 slow. To check against a source before changing.
 
-### 29. Houses could not be renamed from their terminal — fix needs testing
+### 29. Houses could not be renamed from their terminal — fixed
 
 Found in the step 2 test pass (T31, Nov 2026). The house terminal's
 Structure Management menu had no way to name the house (harvesters and
@@ -1000,6 +1000,8 @@ The terminal now offers Name Structure, and `/nameStructure` also works
 with the terminal targeted from the same room. The command also read the
 typed name with `sscanf` into an unsized buffer; it now only checks its
 length (the name is entered in the rename window).
+
+Confirmed on the VM (Nov 2026): a house renamed from its terminal.
 
 ### 30. No sign outside a placed house — open
 

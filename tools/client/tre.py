@@ -4,8 +4,9 @@
     python3 -I tools/client/tre.py list   <client folder> [pattern] [--archives LIST]
     python3 -I tools/client/tre.py extract <client folder> <pattern> <out folder> [--archives LIST]
 
---archives LIST reads only the archives named in the text file LIST, one
-file name per line, in the order the client loads them (later lines win).
+--archives LIST reads only the archives named in LIST: a text file with one
+file name per line, in the order the client loads them (later lines win),
+or a client .cfg (its searchTree lines, by priority).
 Use it to read a client as it was at one publish, e.g. the Publish 14
 archives only, leaving out any added later. Blank lines and lines starting
 with # are ignored. Without it, every .tre in the folder is read.
@@ -83,22 +84,47 @@ class Archive:
             return _inflate(f.read(compressed if compressor else length), compressor, length)
 
 
+def cfg_load_order(path):
+    """Archive names from a client .cfg's searchTree lines, in load order.
+
+    Lines look like searchTree_00_23="C:\\SWG\\patch_14_00.tre" (quoted or
+    not, any path). The last number is the priority: the client loads the
+    lowest first and the highest last, so a higher one wins. Several lines
+    can share a priority; the cfgs list those highest first (patch_11_01
+    before patch_11_00), so a tie keeps the earlier line as the winner.
+    """
+    found = []
+    with open(path, encoding="latin-1") as f:
+        for index, line in enumerate(f):
+            m = re.match(r'\s*searchTree_\d+_(\d+)\s*=\s*"?([^"\r\n]+?)"?\s*$', line)
+            if m:
+                name = m.group(2).replace("\\", "/").rsplit("/", 1)[-1]
+                found.append((int(m.group(1)), -index, name))
+    return [name for _, _, name in sorted(found)]
+
+
 def _priorities(folder):
-    """searchTree_XX_N=archive.tre lines of the client's .cfg files."""
+    """Load position of each archive named in the folder's .cfg files."""
     found = {}
     for cfg in glob.glob(os.path.join(folder, "*.cfg")):
-        with open(cfg, encoding="latin-1") as f:
-            for line in f:
-                m = re.match(r"\s*searchTree_\d+_(\d+)\s*=\s*(\S+)", line)
-                if m:
-                    found[os.path.basename(m.group(2)).lower()] = int(m.group(1))
+        for position, name in enumerate(cfg_load_order(cfg)):
+            found[name.lower()] = position
     return found
 
 
 def read_list(path):
-    """Archive names from a list file, in load order."""
+    """Archive names in load order, from a list file or a client .cfg.
+
+    A list file has one archive name per line, the first loaded first;
+    blank lines and lines starting with # are ignored. A .cfg is read by
+    its searchTree lines (cfg_load_order); only the file names count, so it
+    works wherever the archives were when it was written.
+    """
     with open(path, encoding="latin-1") as f:
-        names = [line.strip() for line in f]
+        text = f.read()
+    if re.search(r"^\s*searchTree_", text, re.M):
+        return cfg_load_order(path)
+    names = [line.strip() for line in text.splitlines()]
     return [n for n in names if n and not n.startswith("#")]
 
 

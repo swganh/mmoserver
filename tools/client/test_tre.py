@@ -92,6 +92,18 @@ class TreTest(unittest.TestCase):
         with self.assertRaises(SystemExit):
             tre.Client(self.folder, ["data_00.tre", "missing.tre"])
 
+    def test_load_order_from_a_client_cfg(self):
+        cfg = os.path.join(self.folder, "live.cfg")
+        with open(cfg, "w") as f:
+            f.write('[SharedFile]\n\tmaxSearchPriority=26\n'
+                    '\tsearchTree_00_23="G:\\SWG\\a client\\patch_14_00.tre"\n'
+                    '\tsearchTree_00_14="G:\\SWG\\a client\\patch_11_01.tre"\n'
+                    '\tsearchTree_00_14="G:\\SWG\\a client\\patch_11_00.tre"\n'
+                    '\tsearchTree_01_13=data_sku1_00.tre\n'
+                    '\tsearchTree_00_0="G:\\SWG\\a client\\bottom.tre"\n')
+        self.assertEqual(tre.read_list(cfg), ["bottom.tre", "data_sku1_00.tre", "patch_11_00.tre",
+                                              "patch_11_01.tre", "patch_14_00.tre"])
+
     def test_rejects_other_files(self):
         path = os.path.join(self.folder, "bad.tre")
         with open(path, "wb") as f:
@@ -111,7 +123,7 @@ class TreTest(unittest.TestCase):
         out = io.StringIO()
         jtl_inventory.report(tre.Client(self.folder), out)
         text = out.getvalue()
-        self.assertIn("| Space zones (terrain) | 1 |", text)
+        self.assertIn("| Space zones (terrain) | 1 | 0 |", text)
         self.assertIn("`datatables/space/ship_chassis.iff`: 2 rows; name, mass", text)
         self.assertIn("- `object/ship/shared_xwing.iff`", text)
         self.assertIn("- `misc/`: 1", text)

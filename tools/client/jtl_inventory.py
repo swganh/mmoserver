@@ -87,10 +87,13 @@ def report(client, out):
               % ", ".join("`%s`" % os.path.basename(a.path) for a in client.archives))
     if client.skipped:
         out.write("Left out: %s.\n\n" % ", ".join("`%s`" % n for n in client.skipped))
-    out.write("| Area | Files |\n|---|---|\n")
+    def expansion(name):  # SKU 1 archives are Jump to Lightspeed's
+        return "sku1" in os.path.basename(client.files[name].path).lower()
+
+    out.write("| Area | Files | From the expansion's archives (`*sku1*`) |\n|---|---|---|\n")
     for area, names in areas.items():
-        out.write("| %s | %d |\n" % (area, len(names)))
-    out.write("| Other paths with space or ship | %d |\n" % sum(other.values()))
+        out.write("| %s | %d | %d |\n" % (area, len(names), sum(1 for n in names if expansion(n))))
+    out.write("| Other paths with space or ship | %d | |\n" % sum(other.values()))
 
     for area, names in areas.items():
         if not names:

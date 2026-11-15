@@ -44,6 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "HouseObject.h"
 #include "CellObject.h"
 #include "PlayerStructure.h"
+#include "PlayerStructureTerminal.h"
 #include "PlayerObject.h"
 #include "Inventory.h"
 #include "Item.h"
@@ -270,10 +271,25 @@ void	ObjectController::_handleNameStructure(uint64 targetId,Message* message,Obj
         return;
     }
 
-    //do we have a valid structure ??? check our target first
+    //do we have a valid structure ??? check our target first: the
+    //structure itself, or (inside a house) its structure terminal
     uint64 id = player->getTargetId();
     Object* object = gWorldManager->getObjectById(id);
     PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object);
+    bool viaTerminal = false;
+
+    if(!structure)
+    {
+        if(PlayerStructureTerminal* terminal = dynamic_cast<PlayerStructureTerminal*>(object))
+        {
+            // the terminal must be in the room the player stands in
+            if(terminal->getParentId() != 0 && terminal->getParentId() == player->getParentId())
+            {
+                structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(terminal->getStructure()));
+                viaTerminal = (structure != NULL);
+            }
+        }
+    }
 
     if(!structure)
     {
@@ -281,25 +297,19 @@ void	ObjectController::_handleNameStructure(uint64 targetId,Message* message,Obj
         return;
     }
 
-    //is the structure in Range???
+    //is the structure (or its terminal) in Range???
     float fTransferDistance = gWorldConfig->getConfiguration<float>("Player_Structure_Operate_Distance",(float)10.0);
-    if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
+    if(!viaTerminal && glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "command_no_building"), player);
         return;
     }
 
-    //find out where our structure is
-    BString dataStr;
-    message->getStringUnicode16(dataStr);
-
-    BString nameStr;
-
-    dataStr.convert(BSTRType_ANSI);
-
-    sscanf(dataStr.getAnsi(),"%s",nameStr.getAnsi());
-
-    if(nameStr.getLength() > 68)
+    // The name itself is asked for in the rename window; a name typed after
+    // the command is only checked for length. (This used to sscanf it into
+    // an unsized buffer.)
+    std::u16string typed = message->getStringUnicode16();
+    if(typed.length() > 68)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "not_valid_name"), player);
         return;

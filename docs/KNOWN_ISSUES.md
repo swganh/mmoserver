@@ -869,6 +869,26 @@ a new one, but the database update writes the overflowing total, not the
 maximum, so the container holds more than it can after a reload. Found
 while writing the scout harvest, which does not share the bug.
 
+### 29. Houses could not be renamed from their terminal — fix needs testing
+
+Found in the step 2 test pass (T31, Nov 2026). The house terminal's
+Structure Management menu had no way to name the house (harvesters and
+factories have Set Name on their own radial), and `/nameStructure` only
+took the building itself as target, which can't be targeted from inside.
+The terminal now offers Name Structure, and `/nameStructure` also works
+with the terminal targeted from the same room. The command also read the
+typed name with `sscanf` into an unsized buffer; it now only checks its
+length (the name is entered in the rename window).
+
+### 30. No sign outside a placed house — open
+
+Found in the step 2 test pass (T31, Nov 2026). Pre-CU houses had a sign by
+the door showing the house's name. The code that made one is commented out
+in `StructureManager::_handleStructureObjectTimers`: it put a street sign
+at a fixed offset from the house whatever its rotation, and the sign was
+not saved, so it would be gone after a restart. A proper sign needs each
+house type's sign position and model, saved with the house.
+
 ### 24. A cloned player stays a corpse — fixed
 
 Killed by womp rats near Bestine (three incaps inside the reset time, the

@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
 #include "PlayerObject.h"
+#include "WorldConfig.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -38,6 +39,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 
+
+//=============================================================================================================================
+//
+// Missions were switched off by the original team, with no reason recorded.
+// Missions_Enabled (zone config, default on) switches them off again.
+//
+namespace {
+bool missionsEnabled(PlayerObject* player)
+{
+    if(!player) {
+        return false;
+    }
+    if(gWorldConfig->getConfiguration<bool>("Missions_Enabled", true)) {
+        return true;
+    }
+    gMessageLib->SendSystemMessage(L"Missions are currently disabled on this server.", player);
+    return false;
+}
+}
+
 //=============================================================================================================================
 //
 // mission list request
@@ -46,8 +67,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 void ObjectController::handleMissionListRequest(Message* message)
 {
     PlayerObject*   player  = dynamic_cast<PlayerObject*>(mObject);
-    gMessageLib->SendSystemMessage(L"Missions are currently disabled, do not report this as a bug",player);
-    return;
+    if(!missionsEnabled(player)) {
+        return;
+    }
 
     /*uint8           unknown     = */
     message->getUint8();
@@ -63,8 +85,9 @@ void ObjectController::handleMissionListRequest(Message* message)
 void ObjectController::handleMissionDetailsRequest(Message* message)
 {
     PlayerObject*   player  = dynamic_cast<PlayerObject*>(mObject);
-    gMessageLib->SendSystemMessage(L"Missions are currently disabled, do not report this as a bug",player);
-    return;
+    if(!missionsEnabled(player)) {
+        return;
+    }
 
     gMissionManager->detailsRequest(player);
 
@@ -76,8 +99,9 @@ void ObjectController::handleMissionDetailsRequest(Message* message)
 void ObjectController::handleMissionCreateRequest(Message* message)
 {
     PlayerObject*   player  = dynamic_cast<PlayerObject*>(mObject);
-    gMessageLib->SendSystemMessage(L"Missions are currently disabled, do not report this as a bug",player);
-    return;
+    if(!missionsEnabled(player)) {
+        return;
+    }
 
     gMissionManager->createRequest(player);
 
@@ -88,8 +112,9 @@ void ObjectController::handleMissionCreateRequest(Message* message)
 void ObjectController::handleGenericMissionRequest(Message* message)
 {
     PlayerObject*   player  = dynamic_cast<PlayerObject*>(mObject);
-    gMessageLib->SendSystemMessage(L"Missions are currently disabled, do not report this as a bug",player);
-    return;
+    if(!missionsEnabled(player)) {
+        return;
+    }
     uint64 mission_id = message->getUint64();
 
     gMissionManager->missionRequest(player, mission_id);
@@ -101,8 +126,9 @@ void ObjectController::handleGenericMissionRequest(Message* message)
 void ObjectController::handleMissionAbort(Message* message)
 {
     PlayerObject*   player  = dynamic_cast<PlayerObject*>(mObject);
-    gMessageLib->SendSystemMessage(L"Missions are currently disabled, do not report this as a bug",player);
-    return;
+    if(!missionsEnabled(player)) {
+        return;
+    }
     uint64 mission_id = message->getUint64();
 
     gMissionManager->missionAbort(player, mission_id);

@@ -922,13 +922,25 @@ deposit container) does nothing: `TreasuryManager::bankOpenSafetyDepositContaine
 is empty. Pre-CU banks stored items as well as credits. Needs the bank's
 container opened for the player and items kept in it, as an inventory is.
 
-### 28. Mission terminals give no missions — to investigate
+### 28. Missions were switched off — back on, needs testing
 
-Found in the step 2 test pass (T33-T35, Nov 2026): missions "seem to be
-disabled". The terminals and mission generation exist
-(`MissionManager.cpp`: destroy, deliver, survey, crafting, entertainer,
-recon), so what the client shows is needed first: an empty list, no
-radial option, or a message.
+Found in the step 2 test pass (T33-T35, Nov 2026): the terminals answered
+"Missions are currently disabled, do not report this as a bug". The
+original team had made every mission handler (`OCMissionHandlers.cpp`)
+send that message and return before the mission code, with no reason
+recorded. They run again, with checks added where the code assumed a
+terminal, mission bag, datapad or bank existed. Setting `Missions_Enabled`
+to `0` in `config_server` switches them off again.
+
+### 31. Harvesters extract per hour, not per minute — to check
+
+Found in the step 2 test pass (T29, Nov 2026): after about 20 minutes, a
+harvester with a rate of 1.87 held 0.65 units, so its hopper still looked
+empty. `sf_HarvestResource` adds `rate / 60` every minute, which makes the
+rate units per hour. Pre-CU harvesters' extraction rates were, as far as
+we remember, units per minute, which would make harvesting 60 times too
+slow. To check against a source before changing.
+
 ### 29. Houses could not be renamed from their terminal — fix needs testing
 
 Found in the step 2 test pass (T31, Nov 2026). The house terminal's

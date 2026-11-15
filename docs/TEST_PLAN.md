@@ -42,6 +42,7 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 | T25 | Cloning | Storing clone data was invalid SQL [3d] | At a cloning terminal, store your clone data | "Clone data saved"; the zone keeps running; `tatooine.out` has no SQL error |
 | T41 | Bazaar | Retrieve and cancel worked on anyone's listing | Normal use still works (sending another player's listing id needs a modified client): retrieve and cancel your own listings; with the second character bid on an auction, then cancel it as its seller | Your own listings retrieve and cancel as before; the bidder gets one cancellation mail; `chat.out` has no `refused` lines |
 | T42 | Housing | No way to rename a house from its terminal [29] | Inside your house: the terminal's radial, Structure Management > Name Structure; enter a name. Then target the terminal and type `/nameStructure` | The rename window opens both ways; the new name shows on the terminal and in Status; nothing in `tatooine.out` but the rename |
+| T43 | Missions | Switched off by the original team [28] | At a mission terminal in Bestine: Refresh, then each mission's details; accept a destroy and a deliver mission and do them; at the artisan, entertainer and scout terminals, see what lists. Run under `debug -g` | Which kinds list, accept and pay; a crash gives a backtrace; send `tatooine.out` lines with `Mission` |
 | T18 | Creatures | No killers | Get incapacitated by a killer (none spawn on Tatooine yet; for now check that a womp rat leaves you incapacitated) | A womp rat does not deathblow; `deathblows` appears only for creatures marked Killer |
 
 ## Step 2: built but never played
@@ -75,7 +76,7 @@ Credits). Run with `./server.sh debug -g`, so a crash leaves a backtrace.
 
 | Area | What was wrong | Confirmed by |
 |---|---|---|
-| Step 2 | Harvesters (T29) | A mineral and a moisture harvester placed and working (Nov 2026). Retrieving from the hopper still to check |
+| Step 2 | Harvesters (T29) | A mineral and a moisture harvester placed and extracting: 0.65 units after about 20 minutes at rate 1.87 (Nov 2026). Too slow to show in the hopper [31] |
 | Step 2 | Trading between players (T40) | Items and credits traded between two characters (Nov 2026) |
 | Step 2 | Bank credits, tipping (T40) | Joined a bank, deposited and withdrew credits; tipping works. Items can't be banked [27] (Nov 2026) |
 | Step 2 | Vehicles (T37) | A speeder from the character builder: called, mounted, driven, dismounted, stored. Calling one in a city takes a moment longer (Nov 2026) |

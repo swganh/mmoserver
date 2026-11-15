@@ -427,6 +427,11 @@ void MissionManager::listRequest(PlayerObject* player, uint64 terminal_id,uint8 
 {
     Terminal*	terminal		= dynamic_cast<Terminal*> (gWorldManager->getObjectById(terminal_id));
     //uint32		terminal_type	= terminal->getTerminalType();
+    if(!terminal)
+    {
+        LOG(WARNING) << "Mission list: " << terminal_id << " is not a terminal";
+        return;
+    }
 
     int8		terminal_name[255];
     strcpy(terminal_name,terminal->getName().getAnsi());
@@ -434,6 +439,11 @@ void MissionManager::listRequest(PlayerObject* player, uint64 terminal_id,uint8 
     int count = 0;
     int len = strlen(terminal_name);
     MissionBag* mission_bag = dynamic_cast<MissionBag*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Mission));
+    if(!mission_bag)
+    {
+        LOG(WARNING) << "Mission list: player " << player->getId() << " has no mission bag";
+        return;
+    }
 
     MissionList::iterator it = mission_bag->getMissions()->begin();
     while(it != mission_bag->getMissions()->end())
@@ -501,6 +511,11 @@ void MissionManager::missionRequest(PlayerObject* player, uint64 mission_id)
 
     //Move the mission from the player's mission bag to his datapad.
     MissionBag* mission_bag = dynamic_cast<MissionBag*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Mission));
+    if(!mission_bag || !datapad)
+    {
+        LOG(WARNING) << "Mission accept: player " << player->getId() << " has no mission bag or datapad";
+        return;
+    }
     MissionObject* mission =  mission_bag->getMissionById(mission_id);
     if(mission == NULL)
     {
@@ -592,7 +607,14 @@ void MissionManager::missionComplete(PlayerObject* player, MissionObject* missio
     gMessageLib->sendPlayMusicMessage(2501,player); //sound/music_mission_complete.snd
     gMessageLib->sendMissionComplete(player);
     Bank* bank = dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
-    bank->updateCredits(mission->getReward());
+    if(bank)
+    {
+        bank->updateCredits(mission->getReward());
+    }
+    else
+    {
+        LOG(WARNING) << "Mission complete: player " << player->getId() << " has no bank for the reward";
+    }
 
     return;
 }
@@ -639,6 +661,10 @@ void MissionManager::missionCompleteEntertainer(PlayerObject* player,Buff* timer
 void MissionManager::missionAbort(PlayerObject* player, uint64 mission_id)
 {
     Datapad* datapad			= player->getDataPad();
+    if(!datapad)
+    {
+        return;
+    }
 
     MissionObject* mission = datapad->getMissionById(mission_id);
     if(mission)

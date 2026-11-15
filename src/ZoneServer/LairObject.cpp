@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "LairObject.h"
+#include "MissionManager.h"
 #include "AttackableCreature.h"
 #include "CellObject.h"
 #include "NonPersistentNpcFactory.h"
@@ -57,6 +58,8 @@ LairObject::LairObject(uint64 templateId) : AttackableStaticNpc()
     , mInitialized(false)
     , mSpawned(false)
     , mSpawnPositionFixed(true)
+    , mMissionId(0)
+    , mMissionOwnerId(0)
 {
     mNpcFamily	= NpcFamily_NaturalLairs;
     mType = ObjType_Lair;
@@ -416,6 +419,16 @@ void LairObject::killEvent(void)
     // One lair less in the system.
     gLairDeathCounter++;
 
+    if (this->isMissionLair())
+    {
+        // A destroy mission's target: tell the mission, never respawn.
+        if (gMissionManager)
+        {
+            gMissionManager->missionLairDestroyed(mMissionId, mMissionOwnerId);
+        }
+        return;
+    }
+
     if (this->getRespawnDelay() != 0)
     {
         uint64 npcNewId = gWorldManager->getRandomNpNpcIdSequence();
@@ -444,6 +457,11 @@ void LairObject::respawn(void)
         if (this->hasInternalAttribute("lair_fix_position"))
         {
             this->mSpawnPositionFixed = this->getInternalAttribute<bool>("lair_fix_position");
+        }
+        if (this->isMissionLair())
+        {
+            // placed at the mission's destination
+            this->mSpawnPositionFixed = true;
         }
         // We only support lair spawning outside, for now.
         this->mSpawnCell = 0;
@@ -611,6 +629,11 @@ void LairObject::respawn(void)
         // Put the lair in the Dormant queue.
         // I do not want all lair running at same respawn period to do their initial spawn at the same time.
         this->mInitialSpawnDelay = (int64)this->getRespawnDelay() + (int64)(((uint64)gRandom->getRand() * 1000) % (this->getRespawnDelay() + 1));
+        if (this->isMissionLair())
+        {
+            // the player is on the way: spawn on the next dormant tick
+            this->mInitialSpawnDelay = 0;
+        }
 
         // When spawning, the lair awaits activation in the dormant queue, so we load the lair instantly and have a wait timer running before the spawn.
         // Since we can force a lair (any object) out of the dormant queue, we have to do the actual spwan countdown with a created object.

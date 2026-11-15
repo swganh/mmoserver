@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "MissionManager.h"
+#include "NonPersistentNpcFactory.h"
+#include "LairObject.h"
 
 #include "Bank.h"
 #include "Buff.h"
@@ -555,6 +557,13 @@ void MissionManager::missionRequest(PlayerObject* player, uint64 mission_id)
             updater->getWaypoint()->setCoords(mission->getStart().Coordinates);
             updater->getWaypoint()->setPlanetCRC(mission->getStart().PlanetCRC);
         }
+        else if(mission->getMissionType() == destroy && mission->getLairsTypeId() != 0)
+        {
+            // Near the target, not on it: the exact location comes as the
+            // player gets close (checkDestroyMission).
+            updater->getWaypoint()->setCoords(mission->getDestination().Coordinates + randomGroundOffset(20.0f, 60.0f));
+            updater->getWaypoint()->setPlanetCRC(mission->getDestination().PlanetCRC);
+        }
         else
         {
             updater->getWaypoint()->setCoords(mission->getDestination().Coordinates);
@@ -580,6 +589,10 @@ void MissionManager::missionRequest(PlayerObject* player, uint64 mission_id)
     delete updater;
 
     if(mission->getMissionType() == recon)	mission->setTaskId(gWorldManager->addMissionToProcess(mission));
+    if(mission->getMissionType() == destroy && mission->getLairsTypeId() != 0)
+    {
+        mission->setTaskId(gWorldManager->addMissionToProcess(mission));
+    }
 
 
     //check if we need to inform our group
@@ -1014,6 +1027,108 @@ bool MissionManager::checkReconMission(MissionObject* mission)
 //======================================================================================================================
 
 
+bool MissionManager::checkDestroyMission(MissionObject* mission)
+{
+    PlayerObject* owner = mission->getOwner();
+    if(mission->getMissionType() != destroy || mission->getLairsTypeId() == 0 || !owner)
+    {
+        mission->setTaskId(0);	// the scheduler drops the task
+        return false;
+    }
+
+    // keep checking until the owner is close (outside, positions are world)
+    if(owner->getParentId() != 0 ||
+       glm::distance(owner->mPosition, mission->getDestination().Coordinates) > 128.0f)
+    {
+        return true;
+    }
+
+    uint64 lairId = gWorldManager->getRandomNpNpcIdSequence();
+    if(lairId == 0)
+    {
+        return true;	// no id free now, try again next time
+    }
+
+    PendingLair pending;
+    pending.missionId = mission->getId();
+    pending.ownerId = owner->getId();
+    pending.position = mission->getDestination().Coordinates;
+    mPendingLairs[lairId] = pending;
+    mission->setLairId(lairId);
+    gNonPersistentNpcFactory->requestLairObject(this, mission->getLairsTypeId(), lairId);
+
+    // The exact location.
+    MissionObject* updater = new MissionObject();
+    updater->clear();
+    updater->setId(mission->getId());
+    updater->getWaypoint()->setId(mission->getId()+1);
+    updater->getWaypoint()->setCoords(mission->getDestination().Coordinates);
+    updater->getWaypoint()->setPlanetCRC(mission->getDestination().PlanetCRC);
+    char name[150];
+    sprintf(name, "@%s:%s",mission->getTitleFile().getRawData(),mission->getTitle().getRawData());
+    updater->getWaypoint()->setName(name);
+    updater->getWaypoint()->setActive(true);
+    gMessageLib->sendMISO_Delta(updater, owner);
+    delete updater;
+
+    LOG(INFO) << "Destroy mission " << mission->getId() << ": lair " << lairId << " (lairs " << mission->getLairsTypeId()
+              << ") requested at " << pending.position.x << ", " << pending.position.z;
+
+    mission->setTaskId(0);	// done: the scheduler drops the task
+    return false;
+}
+
+//======================================================================================================================
+
+void MissionManager::handleObjectReady(Object* object)
+{
+    LairObject* lair = dynamic_cast<LairObject*>(object);
+    if(!lair)
+    {
+        return;
+    }
+
+    std::map<uint64, PendingLair>::iterator it = mPendingLairs.find(lair->getId());
+    if(it == mPendingLairs.end())
+    {
+        LOG(WARNING) << "Mission lair " << lair->getId() << " has no mission";
+        lair->respawn();
+        return;
+    }
+    PendingLair pending = it->second;
+    mPendingLairs.erase(it);
+
+    lair->setMission(pending.missionId, pending.ownerId);
+    lair->mPosition.x = pending.position.x;
+    lair->mPosition.z = pending.position.z;
+    lair->mPosition.y = lair->getHeightAt2DPosition(pending.position.x, pending.position.z, true);
+    lair->respawn();
+}
+
+//======================================================================================================================
+
+void MissionManager::missionLairDestroyed(uint64 missionId, uint64 ownerId)
+{
+    PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(ownerId));
+    if(!player)
+    {
+        return;	// logged off: the mission went with the datapad
+    }
+    Datapad* datapad = player->getDataPad();
+    MissionObject* mission = datapad ? datapad->getMissionById(missionId) : NULL;
+    if(!mission || mission->getMissionType() != destroy)
+    {
+        return;	// aborted meanwhile
+    }
+
+    LOG(INFO) << "Destroy mission " << missionId << " completed by " << ownerId;
+    missionComplete(player, mission);
+    datapad->removeMission(mission);
+    delete mission;
+}
+
+//======================================================================================================================
+
 MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, uint64 terminal)
 {
 
@@ -1119,6 +1234,23 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
     //Randomly choose a target
     int target = gRandom->getRand() % 4;
 
+    // Lairs that destroy missions can spawn: rows of `lairs` with a fixed
+    // position and no natural spawns (count 0), on Tatooine only for now.
+    // More come with the lairs of every planet (roadmap step 3).
+    struct MissionLair { uint64 lairsId; const char* name; const char* model; };
+    static const MissionLair kMissionLairs[2] =
+    {
+        {1, "@lair_n:rocks", "object/tangible/lair/base/shared_poi_all_lair_rocks_small.iff"},	// womp rats
+        {2, "@lair_n:nest",  "object/tangible/lair/base/shared_poi_all_lair_nest_small.iff"},	// rills
+    };
+    const MissionLair* missionLair = NULL;
+    mission->setLairsTypeId(0);
+    if(gWorldManager->getZoneId() == 8)	// Tatooine
+    {
+        missionLair = &kMissionLairs[gRandom->getRand() % 2];
+        mission->setLairsTypeId(missionLair->lairsId);
+    }
+
     //END TEMP
 
     //Position
@@ -1161,8 +1293,16 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
     mission->setReward((gRandom->getRand() % 10000)+1000);
 
     //Target
-    mission->setTargetModel(missionTarget[target].crc);
-    mission->setTarget(missionTarget[target].name);
+    if(missionLair)
+    {
+        mission->setTargetModel(BString(missionLair->model).getCrc());
+        mission->setTarget(missionLair->name);
+    }
+    else
+    {
+        mission->setTargetModel(missionTarget[target].crc);
+        mission->setTarget(missionTarget[target].name);
+    }
 
     return mission;
 }

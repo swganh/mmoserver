@@ -957,10 +957,17 @@ Two more switched-off pieces:
 - Talking to a deliver or crafting mission's NPC did nothing: the check
   was commented out of the conversation handler. It runs again.
 
-Still open: **destroy missions spawn nothing** at their waypoint, so they
-can't be completed. Pre-CU (as remembered): the waypoint is near the
-target, an update with the exact location comes as the player gets close,
-and the mission's lair is there to destroy.
+Destroy missions spawned nothing at their waypoint, so they could not be
+completed. They now work as remembered from pre-CU: the waypoint is 20-60 m
+from the target; within 128 m of it, the mission's lair spawns and the
+waypoint moves to the exact location; destroying the lair completes the
+mission and pays its owner. The lair does not respawn. The lairs are the
+two fixed-position templates in `lairs` (1, womp rat rocks; 2, rill nest),
+so this works on Tatooine only until step 3 adds lairs for every planet;
+elsewhere destroy missions still have no target. Not done: credit for the
+owner's group, and a mission lair matched to the mission's difficulty.
+Missions also clear their scheduled check when deleted: an aborted recon
+mission left the scheduler calling a deleted mission.
 
 ### 31. Harvesters extract per hour, not per minute — to check
 

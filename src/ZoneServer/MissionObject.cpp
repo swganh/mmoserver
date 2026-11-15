@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "MissionObject.h"
+#include "WorldManager.h"
 #include "MissionManager.h" //circular dependency ohmy!
 #include "NPCObject.h"
 #include "PlayerObject.h"
@@ -73,6 +74,9 @@ MissionObject::MissionObject() : Object(0,0,"object/mission/shared_mission_objec
 
     mInProgress	= false;
     mEntertainingTimer = NULL;
+    mTaskId = 0;
+    mLairsTypeId = 0;
+    mLairId = 0;
 }
 
 //=============================================================================
@@ -116,12 +120,22 @@ MissionObject::MissionObject(PlayerObject * owner, uint64 parent_id) : Object(
     mDestinationNPC	 = NULL;
 
     mInProgress	= false;
+    mEntertainingTimer = NULL;
+    mTaskId = 0;
+    mLairsTypeId = 0;
+    mLairId = 0;
 }
 //=============================================================================
 
 
 MissionObject::~MissionObject()
 {
+    // A scheduled check (recon, destroy) must not outlive its mission.
+    if(mTaskId != 0 && gWorldManager->checkForMissionProcess(mTaskId))
+    {
+        gWorldManager->removeMissionFromProcess(mTaskId);
+    }
+
     if(!external)
     {
         freeMissionId(mOwner->getMissionIdMask(), mOwner->getId());
@@ -158,6 +172,8 @@ void MissionObject::clear()
     mDestinationNPC	= NULL;
 
     mInProgress		=	false;
+    mLairsTypeId	=	0;
+    mLairId			=	0;
 
     return;
 }
@@ -223,6 +239,14 @@ void MissionObject::sendAttributes(PlayerObject* playerObject)
 */
 bool MissionObject::check(uint64 callTime, void *)
 {
+    if(!gMissionManager)
+    {
+        return false;
+    }
+    if(mMissionType == destroy)
+    {
+        return gMissionManager->checkDestroyMission(this);
+    }
     return gMissionManager->checkReconMission(this);
 }
 

@@ -59,6 +59,16 @@ public:
     LairObject(uint64 templateId);
     virtual ~LairObject();
 
+    // The target of a destroy mission: spawns where it was put, at once,
+    // reports its destruction to the mission, and does not respawn.
+    void	setMission(uint64 missionId, uint64 ownerId) {
+        mMissionId = missionId;
+        mMissionOwnerId = ownerId;
+    }
+    bool	isMissionLair(void) const {
+        return mMissionId != 0;
+    }
+
     virtual void prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 
     virtual void	addKnownObject(Object* object);
@@ -112,6 +122,8 @@ private:
     int32	mPassiveWaves;
     int32	mWaveSize;
     bool	mInitialized;
+    uint64	mMissionId;
+    uint64	mMissionOwnerId;
     bool	mSpawned;
     bool	mSpawnPositionFixed;
 };

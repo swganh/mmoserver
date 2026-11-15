@@ -243,6 +243,21 @@ public:
         mTaskId = task_id;
     }
 
+    // Destroy missions: the lairs row used as the target's template, the
+    // spawned lair's object id, and whether it has been asked for.
+    uint64				getLairsTypeId() {
+        return mLairsTypeId;
+    }
+    void				setLairsTypeId(uint64 id) {
+        mLairsTypeId = id;
+    }
+    uint64				getLairId() {
+        return mLairId;
+    }
+    void				setLairId(uint64 id) {
+        mLairId = id;
+    }
+
 
 protected:
 
@@ -283,6 +298,8 @@ protected:
     bool					mInProgress;			//set to true when the player starts the buff used in entertainer missions
 
     uint64					mTaskId;
+    uint64					mLairsTypeId;
+    uint64					mLairId;
 
 private:
 

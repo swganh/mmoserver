@@ -34,6 +34,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/bstring.h"
 #include "Utils/typedefs.h"
 #include "DatabaseManager/DatabaseCallback.h"
+#include "ObjectFactoryCallback.h"
+#include <glm/glm.hpp>
 
 //======================================================================================================================
 
@@ -185,7 +187,7 @@ public:
 ///
 /// This class processes Player mission actions.
 
-class MissionManager : public DatabaseCallback
+class MissionManager : public DatabaseCallback, public ObjectFactoryCallback
 {
 public:     // methods
     MissionManager(Database* database, uint32 zone);
@@ -238,6 +240,15 @@ public:     // methods
     bool	checkCraftingMission(PlayerObject* player,NPCObject* npc);
     bool	checkReconMission(MissionObject* mission);
 
+    // Destroy missions: every 10 s until the owner is near the target, then
+    // spawn its lair and send the exact location. Returns false when done.
+    bool	checkDestroyMission(MissionObject* mission);
+    // A mission's lair was destroyed: complete the mission if its owner
+    // still has it.
+    void	missionLairDestroyed(uint64 missionId, uint64 ownerId);
+    // A mission's lair has been created by the npc factory.
+    virtual void handleObjectReady(Object* object);
+
 
 
     //Mission Generation Functions
@@ -256,6 +267,14 @@ private:
     MissionMap				mMissionMap;
     TerminalMap				mTerminalMap;
     NameMap					mNameMap;
+
+    struct PendingLair
+    {
+        uint64		missionId;
+        uint64		ownerId;
+        glm::vec3	position;
+    };
+    std::map<uint64, PendingLair>	mPendingLairs;	// by the lair's new object id
 };
 
 #endif

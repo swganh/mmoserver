@@ -932,6 +932,13 @@ recorded. They run again, with checks added where the code assumed a
 terminal, mission bag, datapad or bank existed. Setting `Missions_Enabled`
 to `0` in `config_server` switches them off again.
 
+The first test crashed the zone at the first mission list: the mission
+manager itself was never created, its `Init` commented out in
+`WorldManager.cpp`. It is created again on every zone but the tutorial,
+and the survey check that calls it is guarded. Mission names
+(`mission_names`) exist for Tatooine only; the mission givers are still
+the original placeholder list in `MissionManager.cpp`.
+
 ### 31. Harvesters extract per hour, not per minute — to check
 
 Found in the step 2 test pass (T29, Nov 2026): after about 20 minutes, a

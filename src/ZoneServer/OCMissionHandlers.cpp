@@ -51,7 +51,8 @@ bool missionsEnabled(PlayerObject* player)
     if(!player) {
         return false;
     }
-    if(gWorldConfig->getConfiguration<bool>("Missions_Enabled", true)) {
+    // gMissionManager is not created in the tutorial
+    if(gMissionManager && gWorldConfig->getConfiguration<bool>("Missions_Enabled", true)) {
         return true;
     }
     gMessageLib->SendSystemMessage(L"Missions are currently disabled on this server.", player);

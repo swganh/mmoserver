@@ -528,34 +528,13 @@ REPEAT
 		generated_planet_id,
     		generated_bazaar_catid;
 
-	-- Names are random and must be unique: a duplicate is skipped by the
-	-- 1062 handler, which then breaks the spawn config insert below.
-	name_loop1: LOOP
-	-- Names are random and must be unique: a duplicate is skipped by the
-	-- 1062 handler, which then breaks the spawn config insert below.
-	name_loop2: LOOP
-	-- Names are random and must be unique: a duplicate is skipped by the
-	-- 1062 handler, which then breaks the spawn config insert below.
-	name_loop3: LOOP
-	-- Names are random and must be unique: a duplicate is skipped by the
-	-- 1062 handler, which then breaks the spawn config insert below.
-	name_loop4: LOOP
-	SELECT name FROM resource_name_begin ORDER BY RAND() limit 1 INTO begin_name;
-	SELECT name FROM resource_name_end ORDER BY RAND() limit 1 INTO end_name;
-
-	SET final_name = CONCAT(begin_name,end_name);
-	IF NOT EXISTS (SELECT 1 FROM swganh.resources WHERE name = final_name) THEN LEAVE name_loop4;
-	END IF;
-	END LOOP name_loop4;
-	IF NOT EXISTS (SELECT 1 FROM swganh.resources WHERE name = final_name) THEN LEAVE name_loop3;
-	END IF;
-	END LOOP name_loop3;
-	IF NOT EXISTS (SELECT 1 FROM swganh.resources WHERE name = final_name) THEN LEAVE name_loop2;
-	END IF;
-	END LOOP name_loop2;
-	IF NOT EXISTS (SELECT 1 FROM swganh.resources WHERE name = final_name) THEN LEAVE name_loop1;
-	END IF;
-	END LOOP name_loop1;
+	-- Names are random and unique: a duplicate would be skipped by the 1062
+	-- handler and break the spawn config insert after it.
+	REPEAT
+		SELECT name FROM resource_name_begin ORDER BY RAND() limit 1 INTO begin_name;
+		SELECT name FROM resource_name_end ORDER BY RAND() limit 1 INTO end_name;
+		SET final_name = CONCAT(begin_name,end_name);
+	UNTIL NOT EXISTS (SELECT 1 FROM swganh.resources WHERE name = final_name) END REPEAT;
 	SET final_er = rand() * (generated_er_max - generated_er_min) + generated_er_min;
 	SET final_cr = rand() * (generated_cr_max - generated_cr_min) + generated_cr_min;
 	SET final_cd = rand() * (generated_cd_max - generated_cd_min) + generated_cd_min;
@@ -668,10 +647,13 @@ REPEAT
     generated_bazaar_catid;
 
 		
-	SELECT name FROM resource_name_begin ORDER BY RAND() limit 1 INTO begin_name;
-	SELECT name FROM resource_name_end ORDER BY RAND() limit 1 INTO end_name;
-
-	SET final_name = CONCAT(begin_name,end_name);
+	-- Names are random and unique: a duplicate would be skipped by the 1062
+	-- handler and break the spawn config insert after it.
+	REPEAT
+		SELECT name FROM resource_name_begin ORDER BY RAND() limit 1 INTO begin_name;
+		SELECT name FROM resource_name_end ORDER BY RAND() limit 1 INTO end_name;
+		SET final_name = CONCAT(begin_name,end_name);
+	UNTIL NOT EXISTS (SELECT 1 FROM swganh.resources WHERE name = final_name) END REPEAT;
 	SET final_er = rand() * (generated_er_max - generated_er_min) + generated_er_min;
 	SET final_cr = rand() * (generated_cr_max - generated_cr_min) + generated_cr_min;
 	SET final_cd = rand() * (generated_cd_max - generated_cd_min) + generated_cd_min;
@@ -815,10 +797,13 @@ REPEAT
     generated_bazaar_catid;
 
 
-	SELECT name FROM resource_name_begin ORDER BY RAND() limit 1 INTO begin_name;
-	SELECT name FROM resource_name_end ORDER BY RAND() limit 1 INTO end_name;
-
-	SET final_name = CONCAT(begin_name,end_name);
+	-- Names are random and unique: a duplicate would be skipped by the 1062
+	-- handler and break the spawn config insert after it.
+	REPEAT
+		SELECT name FROM resource_name_begin ORDER BY RAND() limit 1 INTO begin_name;
+		SELECT name FROM resource_name_end ORDER BY RAND() limit 1 INTO end_name;
+		SET final_name = CONCAT(begin_name,end_name);
+	UNTIL NOT EXISTS (SELECT 1 FROM swganh.resources WHERE name = final_name) END REPEAT;
 	SET final_er = rand() * (generated_er_max - generated_er_min) + generated_er_min;
 	SET final_cr = rand() * (generated_cr_max - generated_cr_min) + generated_cr_min;
 	SET final_cd = rand() * (generated_cd_max - generated_cd_min) + generated_cd_min;
@@ -961,10 +946,13 @@ REPEAT
     	generated_bazaar_catid;
 
 		
-	SELECT name FROM resource_name_begin ORDER BY RAND() limit 1 INTO begin_name;
-	SELECT name FROM resource_name_end ORDER BY RAND() limit 1 INTO end_name;
-
-	SET final_name = CONCAT(begin_name,end_name);
+	-- Names are random and unique: a duplicate would be skipped by the 1062
+	-- handler and break the spawn config insert after it.
+	REPEAT
+		SELECT name FROM resource_name_begin ORDER BY RAND() limit 1 INTO begin_name;
+		SELECT name FROM resource_name_end ORDER BY RAND() limit 1 INTO end_name;
+		SET final_name = CONCAT(begin_name,end_name);
+	UNTIL NOT EXISTS (SELECT 1 FROM swganh.resources WHERE name = final_name) END REPEAT;
 	SET final_er = rand() * (generated_er_max - generated_er_min) + generated_er_min;
 	SET final_cr = rand() * (generated_cr_max - generated_cr_min) + generated_cr_min;
 	SET final_cd = rand() * (generated_cd_max - generated_cd_min) + generated_cd_min;

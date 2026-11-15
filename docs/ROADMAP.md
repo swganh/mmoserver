@@ -1,7 +1,8 @@
 # Roadmap
 
 Where the revival of MMOServer (pre-CU SWG server) stands and where it is
-going. It extends the plan in section 6 of `docs/CODE_REVIEW_2026.md`; open
+going. It extends the plan in section 6 of `docs/CODE_REVIEW_2026.md`; what
+exists against the pre-CU game is in `docs/PRECU_AUDIT.md`; open
 bugs are in `docs/KNOWN_ISSUES.md`, and the scripting plan is in
 `docs/SCRIPTING.md`.
 

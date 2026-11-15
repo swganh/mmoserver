@@ -69,6 +69,10 @@ public:
         return mMissionId != 0;
     }
 
+    // Attacked: its creatures that are alive and not fighting come for the
+    // attacker.
+    void	defend(uint64 attackerId) const;
+
     virtual void prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 
     virtual void	addKnownObject(Object* object);

@@ -232,6 +232,22 @@ bool LairObject::requestAssistance(uint64 targetId, uint64 sourceId) const
 //
 //	Request assistance from creatures.
 //
+void LairObject::defend(uint64 attackerId) const
+{
+    for (int32 i = 0; i < this->mWaveSize; i++)
+    {
+        // assistPack checks the creature is alive, spawned, not already
+        // fighting and the attacker within its leash, and starts the fight.
+        // (assistLair only set a field that nothing read.)
+        if (AttackableCreature* creature = dynamic_cast<AttackableCreature*>(gWorldManager->getObjectById(this->mCreatureId[i])))
+        {
+            creature->assistPack(attackerId);
+        }
+    }
+}
+
+//=============================================================================
+
 void LairObject::requestLairAssistance(void) const
 {
     // All creatures will assist.

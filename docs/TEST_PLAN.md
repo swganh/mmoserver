@@ -76,6 +76,7 @@ Credits). Run with `./server.sh debug -g`, so a crash leaves a backtrace.
 
 | Area | What was wrong | Confirmed by |
 |---|---|---|
+| Step 2 | Destroy missions (T43) | Accepted and aborted one; another's waypoint moved to the rill nest as the player came close, destroying it completed the mission and paid 3,546 credits (Nov 2026). Lair creatures not defending and lair states fixed after, to retest |
 | Step 2 | Harvesters (T29) | A mineral and a moisture harvester placed and extracting: 0.65 units after about 20 minutes at rate 1.87 (Nov 2026). Too slow to show in the hopper [31] |
 | Step 2 | Trading between players (T40) | Items and credits traded between two characters (Nov 2026) |
 | Step 2 | Bank credits, tipping (T40) | Joined a bank, deposited and withdrew credits; tipping works. Items can't be banked [27] (Nov 2026) |

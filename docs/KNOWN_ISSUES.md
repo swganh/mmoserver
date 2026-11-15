@@ -969,6 +969,18 @@ owner's group, and a mission lair matched to the mission's difficulty.
 Missions also clear their scheduled check when deleted: an aborted recon
 mission left the scheduler calling a deleted mission.
 
+Confirmed on the VM (Nov 2026): a destroy mission's waypoint moved to the
+lair as the player came close, the rill nest was there, destroying it
+completed the mission and paid 3,546 credits. The test showed two lair
+bugs, for every lair, not just missions' (fixed, to retest):
+- Attacking a lair never called its creatures: `requestLairAssistance`
+  and the creatures' lair-assist code were never called. An attacked lair
+  now calls its living creatures that aren't fighting, as a pack does.
+- Lairs took combat states (knockdown, stun, blind, intimidate, posture
+  changes). Attackable objects (lairs, debris) take none now.
+The combat music after the lair died is to retest with these: the
+player's combat ends only once no opponent is left.
+
 ### 31. Harvesters extract per hour, not per minute — to check
 
 Found in the step 2 test pass (T29, Nov 2026): after about 20 minutes, a

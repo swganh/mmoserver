@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "CombatManager.h"
+#include "LairObject.h"
 
 #include "AttackableCreature.h"
 #include "CMWeaponGroup.h"
@@ -1222,6 +1223,12 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 	// 0 hit, 1 miss: what the fly text and the combat spam below expect.
 	uint8 attackResult = outcome.hit ? 0 : 1;
 
+	// An attacked lair calls its creatures to defend it.
+	if (LairObject* lair = dynamic_cast<LairObject*>(defender))
+	{
+		lair->defend(attacker->getId());
+	}
+
 	// only proceed, if so
 	if(!attackResult)
 	{
@@ -1395,6 +1402,13 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 
 void CombatManager::_applyEffects(CreatureObject* defender, const CombatOutcome& outcome)
 {
+	// Lairs and other attackable objects (debris) have no postures or
+	// states: they can't be knocked down, stunned, blinded or intimidated.
+	if (defender->getCreoGroup() == CreoGroup_AttackableObject)
+	{
+		return;
+	}
+
 	uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
 
 	for (size_t i = 0; i < outcome.effects.size(); ++i)

@@ -43,10 +43,43 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 | T41 | Bazaar | Retrieve and cancel worked on anyone's listing | Normal use still works (sending another player's listing id needs a modified client): retrieve and cancel your own listings; with the second character bid on an auction, then cancel it as its seller | Your own listings retrieve and cancel as before; the bidder gets one cancellation mail; `chat.out` has no `refused` lines |
 | T18 | Creatures | No killers | Get incapacitated by a killer (none spawn on Tatooine yet; for now check that a womp rat leaves you incapacitated) | A womp rat does not deathblow; `deathblows` appears only for creatures marked Killer |
 
+## Step 2: built but never played
+
+Roadmap step 2 (`docs/PRECU_AUDIT.md`, the "Code" rows): systems whose
+code is there but that no one has played on this server. The point is to
+find out what works, so for each test note what happened, even when it
+fails part way; a failure here is an issue to file, not a bug in a fix.
+Items, professions, resources and credits come from the character builder
+terminal (Manage Professions, Manage Items, Manage Resources, Manage
+Credits). Run with `./server.sh debug -g`, so a crash leaves a backtrace.
+
+| # | System | How to test | Note |
+|---|---|---|---|
+| T27 | Crafting | Master Artisan from the terminal; get a Crafting Tool (the terminal's Tools menu) and resources (Manage Resources: a metal, a mineral, a chemical). Use the tool on a simple schematic (a survey tool or a generic item); assemble; experiment with a few points; create the item; then make a prototype and a manufacturing schematic | Each window opens; the assembly result (success or failure message); experimentation changes the numbers; the item lands in the inventory with its attributes; the schematic is in the datapad; crafting XP |
+| T28 | Crafting stations | With a crafting tool, craft next to a public crafting station (in a city), then away from it | Schematics needing a station only appear near one; any difference in the result |
+| T29 | Harvesters | Get a Mineral Harvester deed (the terminal's Harvesters menu) and credits. Survey for a good mineral spot, place it, then from its radial: deposit power and maintenance, choose the resource, turn it on. Come back after 10-20 minutes | Placing works (deed used, structure appears, lot count); the status window; the hopper fills; Retrieve puts resources in the inventory; maintenance and power go down |
+| T30 | Factories | Get a Food or Equipment Factory deed, place it, pay maintenance and power. Put a manufacturing schematic from T27 in it with the resources it needs in its input hopper, set a run and start it | The schematic is accepted; crates appear in the output hopper; they can be taken out and opened |
+| T31 | Housing | Get a Tatooine Small house deed, place it outside a city's no-build zone. Enter it; open the structure terminal: name it, pay maintenance, add your other character to the entry list, then to the ban list; put a piece of furniture (Furniture menu) inside, move and rotate it, pick it up. Finally redeed or destroy the house | Placement and its countdown; doors open for the owner; the other character can enter or not as the lists say; furniture placed, moved, picked up; redeed gives the deed back; lots freed. Positions inside may be mirrored [5c] |
+| T32 | Guild hall placement | Get a Tatooine Guild Hall deed and place it | Placement works; a guild terminal inside (guilds themselves are not implemented) |
+| T33 | Missions: destroy | At a mission terminal in Bestine, take a destroy mission, go to the waypoint and destroy the lair | The list fills; the waypoint; the lair spawns; reward credits when it is destroyed |
+| T34 | Missions: deliver | Take a deliver mission, collect the package from the first NPC and bring it to the second | Both NPCs appear and talk; the package; the reward |
+| T35 | Missions: survey, crafting, entertainer, recon | As a surveyor, artisan, dancer or musician, and scout, take one mission of each from the matching terminals and do it | Which kinds list; which complete and pay. Recon: reach the waypoint |
+| T36 | Groups | With the second character: invite, accept, group chat, make the other leader, kick, disband; kill a creature together | Group window; chat in the group channel; XP split; loot permission on the corpse |
+| T37 | Vehicles | Get a Swoop and a Speederbike from the terminal (Vehicles menu). Call one from the datapad, mount, drive, dismount, store it; call it inside a building | Calling, mounting and storing work; speed; refused indoors; the other character sees you riding |
+| T38 | Image design | Image Designer from the terminal; with the second character as the target, open the design window, change a hair style and a colour, both accept | The window opens on both clients; the change applies and stays after relogging |
+| T39 | Camps | Novice Scout; get a Basic Camp (Camps menu), place it in the wild, sit in it and wait with some wounds | The camp appears with its terminal; wounds and battle fatigue heal faster inside; it goes away after its time |
+| T40 | Bank and trading | Deposit and withdraw at a bank terminal; then trade an item and some credits with the second character through the trade window | Credits move as shown; the item changes owner and stays after relogging |
+
 ## Confirmed
 
 | Area | What was wrong | Confirmed by |
 |---|---|---|
+| Step 2 | Trading between players (T40) | Items and credits traded between two characters (Nov 2026) |
+| Step 2 | Bank credits, tipping (T40) | Joined a bank, deposited and withdrew credits; tipping works. Items can't be banked [27] (Nov 2026) |
+| Step 2 | Vehicles (T37) | A speeder from the character builder: called, mounted, driven, dismounted, stored. Calling one in a city takes a moment longer (Nov 2026) |
+| Step 2 | Groups (T36) | Formed and disbanded a group, teaching works. No Make Leader on the radial; `/makeleader` works (Nov 2026) |
+| Step 2 | Crafting (T27, T28) | Crafted items; experimentation offered at a crafting station (Nov 2026). Experimenting itself still to try |
+| Tools | New: the Jump to Lightspeed inventory (T26) | Run on the Windows PC against the test client's folder: 50 Publish 14 archives read, the later ones left out, 125,572 files; summary in `docs/JTL.md` (Nov 2026) |
 | Bazaar | Listings showed "Unknown Object Type"; listing deleted the item; a purchase crashed the zone [2i, 2j, 2k] | On the VM: a melon and a house deed listed with their types (food, building deed) and kept in `items`; the melon bought by the other character reached their inventory; an instant sale and an auction with `'` and `"` in their descriptions listed, their details shown, bid on, retrieved and cancelled (Nov 2026) |
 | Chat | Rooms without names; planet channels outside the galaxy [2g] | On the VM: planets inside SWGANH - Test Center, a new room under dathomir/Chat keeps its name (Nov 2026) |
 | Chat | Friends shown offline; no online notice [2f] | On the VM: "brawler ... is online at ..." when Brawler logs in, his status online (Nov 2026) |

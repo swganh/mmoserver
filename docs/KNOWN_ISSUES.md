@@ -164,6 +164,9 @@ listings already made (seen on the test VM: a house deed listed with
 category, region and planet 0). The details, retrieve and cancel handlers also returned when they
 did find the player (#3d); those checks are the right way round.
 
+Confirmed on the VM (Nov 2026): listing, details, bidding, buying,
+retrieving and cancelling all work, with `'` and `"` in descriptions.
+
 ### 2j. Listing an item on the bazaar deleted it — fixed
 
 After a listing was created, the ZoneServer moved the item to the bazaar and

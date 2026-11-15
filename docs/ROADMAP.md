@@ -90,9 +90,14 @@ and friends (#21).
    mission terminals, groups, vehicles, image design. Each confirmed or
    turned into issues; it may find working systems before any
    new work starts.
-3. **Fill the world**: creature spawns and lairs on every planet, from
-   the Prima tables and the client's data (today: around Bestine only).
-   Exercises the AI and combat already built.
+3. **Fill the world**: creature spawns and lairs on every planet (today:
+   around Bestine only). Exercises the AI and combat already built. The
+   client has no spawn or lair tables (those were the server's), so the
+   sources are: the 2004 guide's creature tables, already transcribed (683
+   creatures and NPCs, each with its planet), and its planet chapters (pp.
+   118-159) for where they live; the client's `clientregion` tables (city
+   areas, to keep spawns out), `clientpoi` (points of interest) and
+   `object/mobile/` templates (which creatures it can draw).
 4. **Factions and the Galactic Civil War**: joining, rank and recruiters,
    overt and covert, TEF, faction kills and points. Needed by PvP, the
    theme parks and the pilot professions.

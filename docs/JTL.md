@@ -25,6 +25,10 @@ client's contents. To see a file, extract it from your own client with
 | Space quests | 752 quest lists, 752 task tables, 754 string files | 18 kinds: assassinate, convoy, delivery (with and without pickup), destroy, destroy duty, surprise attack, escort, escort duty, inspect, patrol, recovery, recovery duty, rescue, rescue duty, space battle, survival |
 | Space mission strings | 45 | `string/en/space/`, including NPC pilots' taunts |
 
+These files come from the general patches, not the expansion's own
+`data_sku1_*` archives (which hold its art): patch 11 (the expansion's
+release) supplies most of them, patches 12-14 the rest.
+
 The pilot and shipwright skill boxes are in the general skill table
 (`datatables/skill/skills.iff`), which migration 008 already matches.
 

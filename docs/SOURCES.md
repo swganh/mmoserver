@@ -18,6 +18,8 @@ original game used. `tools/client/` reads them:
 | `skills_compare.py <skill/skills.iff> [--sql]` | compares the client's skill table (Publish 14) with the database's skills; `--sql` writes the fix (as `008_skills_from_client.sql`) |
 | `../reference/specials_vs_client.py <cmd_d.txt>` | compares the special moves table (An Empire Divided) with the client's command descriptions (`string/en/cmd_d.stf` through `stf.py`); the contradictions became migration 013 |
 | `commands_compare.py <command/command_table.iff> [--sql]` | compares the client's command table (Publish 14) with `command_table`: default times, combat queue use; `--sql` writes the fix (as `009_commands_from_client.sql`) |
+| `tre.py list <client folder> [pattern]`, `tre.py extract <client folder> <pattern> <out folder>` | reads the client's `.tre` archives directly (the archive loaded last wins, by the `.cfg` search order); `extract` writes the matching files to a folder outside the repository, for the other tools |
+| `jtl_inventory.py <client folder>` | lists the Jump to Lightspeed content in the client as Markdown: space zones, ship and component templates, schematics, datatables with row counts and columns, strings (for `docs/JTL.md`) |
 
 The extracted files themselves are not committed: keep them with your
 client. Generated data says which client file it came from.

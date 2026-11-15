@@ -179,10 +179,10 @@ building.
 Groundwork that does not wait on the ground game, and that helps it as
 well:
 
-- **Client data inventory.** Extend `tools/client/` to list the JTL
-  datatables and templates (ship chassis, components, space zones,
-  pilot quests) in the Publish 14 client, so the size of the content is
-  known.
+- **Client data inventory.** `tools/client/jtl_inventory.py` lists the
+  JTL datatables and templates (ship chassis, components, space zones,
+  pilot quests) in a client's archives, so the size of the content is
+  known; its report goes in `docs/JTL.md`.
 - **Message research.** Document the ship object and its movement messages
   from the client, in `docs/`, with sources.
 - **Space zone smoke test.** Start a ZoneServer on a space scene and see

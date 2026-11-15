@@ -72,29 +72,58 @@ and what still needs a client test is in `docs/TEST_PLAN.md`.
 
 ## Next steps
 
-In this order (Nov 2026):
+**This list is what we work on, in this order.** Something new that comes
+up goes under "Parked" below with a line on why, not into the current
+work. The order comes from `docs/PRECU_AUDIT.md`, which says what exists
+against the pre-CU game; update both when a step is done.
 
-1. **Creature tables** from the creature chapters of both Prima guides:
-   each creature's level, HAM, to-hit, damage, armour, aggression, killer
-   and pack flags, and its meat, hide and bone, in our own form with page
-   citations. They unlock killers' deathblows and pack assist (p. 73) and
-   creatures' own to-hit, damage and armour in combat.
-2. **Scout harvesting** of creature corpses (`KNOWN_ISSUES.md` #23), from
-   the tables' resource quantities.
-3. **The rest of the specials**: the attacker's end posture, area and cone
-   attacks, players' worn armour in combat.
-4. **Security** before a public server (phase 2): done on the `security`
-   branch (`KNOWN_ISSUES.md` #3-#3e), in testing.
-5. **Bazaar pass**: the item details, retrieve and cancel handlers give up
-   when they find the player (#3d), so a listing's details never load and
-   items cannot be retrieved; deeds show as "Unknown Object Type". Fix
-   those checks, then test listing, browsing, bidding, buying, retrieving
-   and cancelling end to end, as paths that have never run.
+Done (Nov 2026): creature tables from both Prima guides (#17 on the fork),
+scout harvesting (#18), specials (#19), security (#20), player search, chat
+and friends (#21).
 
-Alongside: client tests of what is left in `docs/TEST_PLAN.md`; the medic
-professions reviewed as a whole (stimpacks share a skill mod bug fixed for
-wound healing, `KNOWN_ISSUES.md` #25); then refactoring, scripts first
-(phase 3).
+1. **Bazaar pass** (in progress, `bazaar` branch): listing and buying
+   confirmed; next, a listing's details, retrieving and cancelling, then
+   bidding. Then the pull request.
+2. **Test pass of what is built but never played** (the audit's "Code"
+   rows): crafting and experimentation, harvesters and factories, housing
+   and permissions, mission terminals, groups, vehicles, image design. Each
+   confirmed or turned into issues; it may find working systems before any
+   new work starts.
+3. **Fill the world**: creature spawns and lairs on every planet, from
+   the Prima tables and the client's data (today: around Bestine only).
+   Exercises the AI and combat already built.
+4. **Factions and the Galactic Civil War**: joining, rank and recruiters,
+   overt and covert, TEF, faction kills and points. Needed by PvP, the
+   theme parks and the pilot professions.
+5. **Finish the combat professions**: players' worn armour (2004 guide,
+   pp. 168-169), encumbrance, the remaining states, poison and disease, the
+   medic review (stimpacks, `KNOWN_ISSUES.md` #25), the elites and cones;
+   then the professions with commands but no effects (squad leader,
+   commando, bounty hunter with bounty missions, smuggler, ranger).
+6. **Pets**: creature handler (taming, commands), droids, creature mounts,
+   bio-engineer.
+7. **Communities**: guilds, player vendors and merchants, player cities
+   and politicians.
+8. **Content** (phase 4, on the script API from phase 3): quests, theme
+   parks, points of interest, dungeons.
+9. **Jedi**, last, as in the game.
+
+Refactoring, scripts first (phase 3), comes in where a step needs it:
+content (step 8) waits on the script API.
+
+### Parked
+
+Worth doing, not now. Pick one up only when the list above reaches it, or
+when it unblocks the current step.
+
+| What | Why parked | Groundwork done |
+|---|---|---|
+| **Jump to Lightspeed** (space, ships, pilots, shipwright) | Needs factions (step 4) and pets (step 6); about as large as the ground game so far (`docs/PRECU_AUDIT.md`) | `tools/client/jtl_inventory.py` lists the expansion's content in a client (`docs/JTL.md` once run). Still to do: document the ship messages, try a ZoneServer on a space scene |
+| Login rate limiting | Before a public server, not needed on a test server | |
+| Per-planet MOTD | Cosmetic | |
+| Sampling into a full container (#26) | Rare, small | |
+| T24 leftovers (waypoint rename, bank tip), T25 clone data | Tests of the security work, low risk | |
+| Management portal, load testing (Tools, below) | After the gameplay steps | |
 
 ## Database
 
@@ -201,18 +230,21 @@ templates).
 database tables, so servers don't need the client files at runtime and the
 data can be traced to the client. Each row records which client files and
 version it came from. This also lets communities add content from the
-expansions (Jump to Lightspeed, Rage of the Wookiees, Trials of Obi-Wan),
-with one limit: the server can only use what the players' installed client
-has, since the client draws everything itself. Content from a later client
-than the one the server supports also needs that client's protocol changes,
-so it is a per-server choice, not a default.
+expansions, with one limit: the server can only use what the players'
+installed client has, since the client draws everything itself. Jump to
+Lightspeed (2003) is pre-CU and in the Publish 14 client (parked, see "Next
+steps"); Rage of the Wookiees and Trials of Obi-Wan came after the CU and
+need a later client and its protocol changes, so they are a per-server
+choice, not a default. `tools/client/tre.py` already reads the archives.
 
 ## Phase 5: pre-CU gameplay
 
-From the code review: combat first (the heart of pre-CU; under way, see
-the status above and `docs/COMBAT.md`), then factions and the GCW, loot, guilds, vendors and the bazaar, vehicles
-and pets, then Jedi. Crafting and the entertainer systems show what a
-complete system looks like in this codebase.
+Combat first (the heart of pre-CU; under way, see the status above and
+`docs/COMBAT.md`), then the order in "Next steps": the world's creatures,
+factions and the GCW, the rest of the combat professions, pets,
+communities, content, then Jedi. `docs/PRECU_AUDIT.md` has the state of
+each system. Crafting and the entertainer systems show what a complete
+system looks like in this codebase.
 
 ## Tools
 

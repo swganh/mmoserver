@@ -158,7 +158,8 @@ public:
     void				sendSystemMailMessage(Mail* mail,uint64 recipient);
 
 
-    PlayerAccountMap	getPlayerAccountMap() {
+    // The live map: a copy is out of date as soon as someone logs in.
+    PlayerAccountMap&	getPlayerAccountMap() {
         return mPlayerAccountMap;
     }
 

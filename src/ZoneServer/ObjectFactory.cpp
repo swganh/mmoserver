@@ -725,18 +725,15 @@ void ObjectFactory::requestTanoNewParent(ObjectFactoryCallback* ofCallback,uint6
     }
     }
 
+    // An UPDATE returns no rows: reading one dereferenced a null result set
+    // and crashed the zone (a bazaar purchase). Once the new parent is set,
+    // load the object by its id.
     mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
         if (!result) {
+            LOG(WARNING) << "Could not give object " << ObjectId << " its new parent " << parentId;
             return;
         }
-
-        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-
-        if (!result_set->next()) {
-            LOG(WARNING) << "Create item failed";
-            return;
-        }
-        mTangibleFactory->requestObject(ofCallback,result_set->getUInt64(1), Group, 0, 0);
+        mTangibleFactory->requestObject(ofCallback, ObjectId, Group, 0, 0);
     });
 }
 

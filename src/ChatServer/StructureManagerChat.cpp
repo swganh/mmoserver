@@ -72,7 +72,6 @@ StructureManagerChatHandler::StructureManagerChatHandler(Database* database, Mes
     mDatabase = database;
     mChatManager = chatManager;
     mMessageDispatch = dispatch;
-    mPlayerAccountMap = mChatManager->getPlayerAccountMap();
     //StructureManagerAsyncContainer* asyncContainer;
 
     mMessageDispatch->RegisterMessageCallback(opIsmHarvesterUpdate,std::bind(&StructureManagerChatHandler::ProcessAddHarvesterHopperUpdate, this, std::placeholders::_1, std::placeholders::_2));
@@ -839,7 +838,6 @@ void StructureManagerChatHandler::Process()
 //
 void StructureManagerChatHandler::ProcessAddHarvesterHopperUpdate(Message* message,DispatchClient* client)
 {
-    mPlayerAccountMap = mChatManager->getPlayerAccountMap();
 
     uint64	harvesterID		= message->getUint64();
     uint8   activation		= message->getUint8();

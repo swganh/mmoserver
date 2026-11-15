@@ -114,7 +114,6 @@ TradeManagerChatHandler::TradeManagerChatHandler(Database* database, MessageDisp
     mDatabase = database;
     mChatManager = chatManager;
     mMessageDispatch = dispatch;
-    mPlayerAccountMap = mChatManager->getPlayerAccountMap();
     TradeManagerAsyncContainer* asyncContainer;
 
     mMessageDispatch->RegisterMessageCallback(opIsVendorMessage,std::bind(&TradeManagerChatHandler::processHandleIsVendorMessage, this, std::placeholders::_1, std::placeholders::_2));
@@ -238,9 +237,9 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
     Player* player(0);
     if (asynContainer->mClient) {
 
-        PlayerAccountMap::iterator accIt = mPlayerAccountMap.find(asynContainer->mClient->getAccountId());
+        PlayerAccountMap::iterator accIt = mChatManager->getPlayerAccountMap().find(asynContainer->mClient->getAccountId());
 
-        if(accIt != mPlayerAccountMap.end())
+        if(accIt != mChatManager->getPlayerAccountMap().end())
             player = (*accIt).second;
         else
         {
@@ -265,6 +264,13 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
         binding->addField(DFT_uint64,offsetof(AuctionItem,ItemID),8,0);
         binding->addField(DFT_uint64,offsetof(AuctionItem,BazaarID),8,1);
         binding->addField(DFT_uint32,offsetof(AuctionItem,ItemTyp),4,2);
+        if (result->getRowCount() == 0) {
+            // Not this player's listing, or gone already.
+            LOG(WARNING) << "Retrieve refused: auction " << asynContainer->AuctionID << " is not owned by " << player->getCharId();
+            gChatMessageLib->SendRetrieveAuctionItemResponseMessage(asynContainer->mClient, asynContainer->AuctionID, 1);
+            mDatabase->destroyDataBinding(binding);
+            break;
+        }
         AuctionItem AuctionTemp;
         result->getNextRow(binding,&AuctionTemp);
         //can we retrieve the item from our terminal???
@@ -536,15 +542,22 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
         binding->addField(DFT_uint32,offsetof(AuctionItem, HighProxy), 4, 2);
 
         uint64 count = result->getRowCount();
-        if (count >= 1)	{
-            //the Query actually only yields a result when we are dealing with an auction
-            for(uint16 i=0; i <count; i++) {
-                result->getNextRow(binding,&Item);
-                gChatMessageLib->sendBidderCancelAuctionMail(asynContainer->mClient, player->getCharId(), Item.BidderID, Item.Name);
-
-                //TODO
-                //refund the bidders
+        if (count == 0) {
+            // Not this player's listing, or gone already.
+            LOG(WARNING) << "Cancel refused: auction " << asynContainer->AuctionID << " is not owned by " << player->getCharId();
+            gChatMessageLib->sendCanceLiveAuctionResponseMessage(asynContainer->mClient, 1, asynContainer->AuctionID);
+            mDatabase->destroyDataBinding(binding);
+            break;
+        }
+        for(uint64 i = 0; i < count; i++) {
+            result->getNextRow(binding,&Item);
+            if (Item.BidderID == 0) {
+                continue;  // the row of a listing without bids
             }
+            gChatMessageLib->sendBidderCancelAuctionMail(asynContainer->mClient, player->getCharId(), Item.BidderID, Item.Name);
+
+            //TODO
+            //refund the bidders
         }
         int8 sql[100];
         sprintf(sql, "SELECT %s.sf_CancelLiveAuction ('%" PRIu64 "')", mDatabase->galaxy(),  asynContainer->AuctionID);
@@ -1329,9 +1342,9 @@ void TradeManagerChatHandler::ProcessCreateAuction(Message* message,DispatchClie
 {
     //we got a packet from zone concerning a started auction...
     Player* player;
-    PlayerAccountMap::iterator accIt = mPlayerAccountMap.find(client->getAccountId());
+    PlayerAccountMap::iterator accIt = mChatManager->getPlayerAccountMap().find(client->getAccountId());
 
-    if(accIt != mPlayerAccountMap.end())
+    if(accIt != mChatManager->getPlayerAccountMap().end())
         player = (*accIt).second;
     else
     {
@@ -1369,9 +1382,10 @@ void TradeManagerChatHandler::ProcessCreateAuction(Message* message,DispatchClie
 void TradeManagerChatHandler::processRetrieveAuctionItemMessage(Message* message,DispatchClient* client)
 {
     TradeManagerAsyncContainer* asyncContainer;
-    PlayerAccountMap::iterator accIt = mPlayerAccountMap.find(client->getAccountId());
+    PlayerAccountMap::iterator accIt = mChatManager->getPlayerAccountMap().find(client->getAccountId());
 
-    if(accIt != mPlayerAccountMap.end()) {
+    // Only for a player logged in (this returned for every one of them).
+    if(accIt == mChatManager->getPlayerAccountMap().end()) {
 		return;
     }
 
@@ -1381,9 +1395,12 @@ void TradeManagerChatHandler::processRetrieveAuctionItemMessage(Message* message
     uint64	ItemID		= message->getUint64();
     uint64	TerminalID	= message->getUint64();
 
-    int8 sql[200];
-    sprintf(sql,"SELECT auction_id, bazaar_id, itemtype FROM %s.commerce_auction c  WHERE c.auction_id = %" PRIu64 "",mDatabase->galaxy(), ItemID);
+    // Only the listing's owner: the seller, or the winner once an auction
+    // has ended (the Available Items and My Sales windows list by owner).
+    int8 sql[256];
+    sprintf(sql,"SELECT auction_id, bazaar_id, itemtype FROM %s.commerce_auction c  WHERE c.auction_id = %" PRIu64 " AND c.owner_id = %" PRIu64 "",mDatabase->galaxy(), ItemID, (*accIt).second->getCharId());
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_RetrieveAuction, client);
+    asyncContainer->AuctionID = ItemID;
     asyncContainer->BazaarID = TerminalID;
     mDatabase->executeSqlAsync(this, asyncContainer, sql);
     
@@ -1395,9 +1412,9 @@ void TradeManagerChatHandler::processBidAuctionMessage(Message* message,Dispatch
     TradeManagerAsyncContainer* asyncContainer;
 
     Player* player;
-    PlayerAccountMap::iterator accIt = mPlayerAccountMap.find(client->getAccountId());
+    PlayerAccountMap::iterator accIt = mChatManager->getPlayerAccountMap().find(client->getAccountId());
 
-    if(accIt != mPlayerAccountMap.end())
+    if(accIt != mChatManager->getPlayerAccountMap().end())
         player = (*accIt).second;
     else
     {
@@ -1442,9 +1459,10 @@ void TradeManagerChatHandler::processCancelLiveAuctionMessage(Message* message,D
 {
     TradeManagerAsyncContainer* asyncContainer;
 
-    PlayerAccountMap::iterator accIt = mPlayerAccountMap.find(client->getAccountId());
+    PlayerAccountMap::iterator accIt = mChatManager->getPlayerAccountMap().find(client->getAccountId());
 
-    if(accIt != mPlayerAccountMap.end()) {
+    // Only for a player logged in (this returned for every one of them).
+    if(accIt == mChatManager->getPlayerAccountMap().end()) {
 		return;
     }
 
@@ -1453,8 +1471,10 @@ void TradeManagerChatHandler::processCancelLiveAuctionMessage(Message* message,D
 
     //get all the bids on the auction and refunf the affected players
     //send the EMails
-    int8 sql[300];
-    sprintf(sql,"SELECT ch.id, ca.name, cbh.proxy_bid FROM %s.commerce_auction AS ca INNER JOIN %s.commerce_bidhistory AS cbh ON (cbh.bidder_name = ca.bidder_name)  INNER JOIN %s.characters AS ch ON (cbh.bidder_name = ch.firstname)  WHERE ca.auction_id = %" PRIu64 "",mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),ItemID);
+    // Only the listing's owner. One row per bid, or one row with bidder 0
+    // when there are none; no row when the player doesn't own the listing.
+    int8 sql[512];
+    sprintf(sql,"SELECT COALESCE(ch.id, 0), ca.name, COALESCE(cbh.proxy_bid, 0) FROM %s.commerce_auction AS ca LEFT JOIN %s.commerce_bidhistory AS cbh ON (cbh.auction_id = ca.auction_id AND cbh.bidder_name = ca.bidder_name) LEFT JOIN %s.characters AS ch ON (cbh.bidder_name = ch.firstname) WHERE ca.auction_id = %" PRIu64 " AND ca.owner_id = %" PRIu64 "",mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),ItemID,(*accIt).second->getCharId());
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_CancelAuction_BidderMail, client);
     asyncContainer->AuctionID = ItemID;
     mDatabase->executeSqlAsync(this,asyncContainer,sql);
@@ -1466,9 +1486,10 @@ void TradeManagerChatHandler::processGetAuctionDetails(Message* message,Dispatch
 {
     TradeManagerAsyncContainer* asyncContainer;
 
-    PlayerAccountMap::iterator accIt = mPlayerAccountMap.find(client->getAccountId());
+    PlayerAccountMap::iterator accIt = mChatManager->getPlayerAccountMap().find(client->getAccountId());
 
-    if(accIt != mPlayerAccountMap.end()) {
+    // Only for a player logged in (this returned for every one of them).
+    if(accIt == mChatManager->getPlayerAccountMap().end()) {
 		return;
     }
 
@@ -1493,9 +1514,9 @@ void TradeManagerChatHandler::processHandleopAuctionQueryHeadersMessage(Message*
     sprintf(sql,"SELECT c.auction_id, owner_id, c.bazaar_id, type, start, premium, category, itemtype, price, name, description, c.region_id, c.bidder_name, c.planet_id, firstname, bazaar_string, cbh.proxy_bid, cbh.max_bid FROM %s.commerce_auction c INNER JOIN %s.characters ch on (c.owner_id = ch.id) INNER join %s.commerce_bazaar cb ON (cb.bazaar_id = c.bazaar_id) left join %s.commerce_bidhistory cbh ON (cbh.bidder_name = c.bidder_name AND cbh.auction_id = c.auction_id) AND c.owner_id = ch.id  WHERE",mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy());
 
     Player* player;
-    PlayerAccountMap::iterator accIt = mPlayerAccountMap.find(client->getAccountId());
+    PlayerAccountMap::iterator accIt = mChatManager->getPlayerAccountMap().find(client->getAccountId());
 
-    if(accIt != mPlayerAccountMap.end())
+    if(accIt != mChatManager->getPlayerAccountMap().end())
         player = (*accIt).second;
     else
     {
@@ -1711,13 +1732,12 @@ void TradeManagerChatHandler::ProcessRequestTypeList(Message* message,DispatchCl
 {
     /*
     TradeManagerAsyncContainer* asyncContainer;
-    mPlayerAccountMap = mChatManager->getPlayerAccountMap();
 
     Player* player;
 
-    PlayerAccountMap::iterator accIt = mPlayerAccountMap.find(client->getAccountId());
+    PlayerAccountMap::iterator accIt = mChatManager->getPlayerAccountMap().find(client->getAccountId());
 
-    if(accIt != mPlayerAccountMap.end())
+    if(accIt != mChatManager->getPlayerAccountMap().end())
         player = (*accIt).second;
     else
     {
@@ -1768,13 +1788,12 @@ void TradeManagerChatHandler::ProcessRequestTypeList(Message* message,DispatchCl
 //=======================================================================================================================
 void TradeManagerChatHandler::processHandleIsVendorMessage(Message* message,DispatchClient* client)
 {
-    mPlayerAccountMap = mChatManager->getPlayerAccountMap();
 
     Player* player;
 
-    PlayerAccountMap::iterator accIt = mPlayerAccountMap.find(client->getAccountId());
+    PlayerAccountMap::iterator accIt = mChatManager->getPlayerAccountMap().find(client->getAccountId());
 
-    if(accIt != mPlayerAccountMap.end())
+    if(accIt != mChatManager->getPlayerAccountMap().end())
         player = (*accIt).second;
     else
     {
@@ -1891,11 +1910,10 @@ void TradeManagerChatHandler::Process()
 //=======================================================================================================================
 void TradeManagerChatHandler::ProcessBankTip(Message* message,DispatchClient* client)
 {
-    mPlayerAccountMap = mChatManager->getPlayerAccountMap();
     Player* player;
-    PlayerAccountMap::iterator accIt = mPlayerAccountMap.find(client->getAccountId());
+    PlayerAccountMap::iterator accIt = mChatManager->getPlayerAccountMap().find(client->getAccountId());
 
-    if(accIt != mPlayerAccountMap.end())
+    if(accIt != mChatManager->getPlayerAccountMap().end())
         player = (*accIt).second;
     else
     {

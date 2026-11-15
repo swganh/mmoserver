@@ -73,6 +73,11 @@ Credits). Run with `./server.sh debug -g`, so a crash leaves a backtrace.
 
 | Area | What was wrong | Confirmed by |
 |---|---|---|
+| Step 2 | Trading between players (T40) | Items and credits traded between two characters (Nov 2026) |
+| Step 2 | Bank credits, tipping (T40) | Joined a bank, deposited and withdrew credits; tipping works. Items can't be banked [27] (Nov 2026) |
+| Step 2 | Vehicles (T37) | A speeder from the character builder: called, mounted, driven, dismounted, stored. Calling one in a city takes a moment longer (Nov 2026) |
+| Step 2 | Groups (T36) | Formed and disbanded a group, teaching works. The radial has no Make Leader; `/makeleader` exists to try (Nov 2026) |
+| Step 2 | Crafting (T27, T28) | Crafted items; experimentation offered at a crafting station (Nov 2026). Experimenting itself still to try |
 | Tools | New: the Jump to Lightspeed inventory (T26) | Run on the Windows PC against the test client's folder: 50 Publish 14 archives read, the later ones left out, 125,572 files; summary in `docs/JTL.md` (Nov 2026) |
 | Chat | Rooms without names; planet channels outside the galaxy [2g] | On the VM: planets inside SWGANH - Test Center, a new room under dathomir/Chat keeps its name (Nov 2026) |
 | Chat | Friends shown offline; no online notice [2f] | On the VM: "brawler ... is online at ..." when Brawler logs in, his status online (Nov 2026) |

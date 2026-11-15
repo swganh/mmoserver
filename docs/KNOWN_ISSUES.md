@@ -869,6 +869,22 @@ a new one, but the database update writes the overflowing total, not the
 maximum, so the container holds more than it can after a reload. Found
 while writing the scout harvest, which does not share the bug.
 
+### 27. Items can't be put in the bank — open
+
+Found in the step 2 test pass (T40, Nov 2026). Joining a bank, depositing
+and withdrawing credits work, but the bank terminal's item box (the safety
+deposit container) does nothing: `TreasuryManager::bankOpenSafetyDepositContainer`
+is empty. Pre-CU banks stored items as well as credits. Needs the bank's
+container opened for the player and items kept in it, as an inventory is.
+
+### 28. Mission terminals give no missions — to investigate
+
+Found in the step 2 test pass (T33-T35, Nov 2026): missions "seem to be
+disabled". The terminals and mission generation exist
+(`MissionManager.cpp`: destroy, deliver, survey, crafting, entertainer,
+recon), so what the client shows is needed first: an empty list, no
+radial option, or a message.
+
 ### 24. A cloned player stays a corpse — fixed
 
 Killed by womp rats near Bestine (three incaps inside the reset time, the

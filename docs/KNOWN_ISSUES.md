@@ -998,6 +998,12 @@ mission, and no deliver missions. Two causes (fixed, to retest):
   uninitialised (glm does not zero a vec3), so it never picked one. It
   worked at the first terminal by luck. Crafting and entertainer missions
   had the same fault.
+Confirmed on the VM (Nov 2026): a deliver mission listed in Bestine, picked
+up and delivered. For later: its NPCs are any outdoor townsfolk, so they
+don't fit the mission's text (an Imperial officer's cake went to a Jabba
+thug); pre-CU deliver missions spawned their own NPCs for the mission.
+Still to check: the accepted mission's datapad entry showed payment 0 and
+no description.
 A mission that can't be generated is now left out of the list (an old
 refresh count) instead of showing stale text.
 

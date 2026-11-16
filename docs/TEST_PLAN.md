@@ -76,6 +76,7 @@ Credits). Run with `./server.sh debug -g`, so a crash leaves a backtrace.
 | Area | What was wrong | Confirmed by |
 |---|---|---|
 | Step 2 | Destroy missions (T43) | Accepted and aborted one; another's waypoint moved to the rill nest as the player came close, destroying it completed the mission and paid 3,546 credits; after the lair fixes, its creatures defended it and the combat music stopped when they died (Nov 2026) |
+| Step 2 | Deliver missions (T43) | Listed at the Bestine terminal after the fixes in [28]; picked up from one NPC and delivered to the other, mission completed (Nov 2026). Refinement for later: the NPCs are any townsfolk, so the people don't match the mission's text (a birthday cake from an Imperial officer delivered to a Jabba thug) |
 | Step 2 | House rename (T42) | Renamed from the terminal's Name Structure (Nov 2026). No sign outside [30] |
 | Step 2 | Harvesters (T29) | A mineral and a moisture harvester placed and extracting: 0.65 units after about 20 minutes at rate 1.87 (Nov 2026). Too slow to show in the hopper [31] |
 | Step 2 | Trading between players (T40) | Items and credits traded between two characters (Nov 2026) |

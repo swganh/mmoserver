@@ -992,7 +992,12 @@ mission, and no deliver missions. Two causes (fixed, to retest):
   crafting missions do. The spatial index's range search turned out to
   stop at about 150 m (three grid cells) whatever range it is given, so
   deliver, crafting and entertainer missions now go through the zone's
-  NPCs instead, taking outdoor townsfolk only.
+  NPCs instead, taking outdoor townsfolk only. The log then showed 127
+  candidates and still no mission: the loop that picks the two NPCs tests
+  whether a position is still (0,0,0), and the position started
+  uninitialised (glm does not zero a vec3), so it never picked one. It
+  worked at the first terminal by luck. Crafting and entertainer missions
+  had the same fault.
 A mission that can't be generated is now left out of the list (an old
 refresh count) instead of showing stale text.
 

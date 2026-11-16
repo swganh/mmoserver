@@ -456,26 +456,34 @@ void MissionManager::listRequest(PlayerObject* player, uint64 terminal_id,uint8 
         mission->clear();
         mission->setIssuingTerminal(terminal);
         mission->setRefreshCount(refresh_count);
+        MissionObject* generated = NULL;
         switch(len)
         {
         case 16: //terminal_mission
-            count < 5 ? generateDestroyMission(mission,terminal_id) : generateDeliverMission(mission);
+            generated = count < 5 ? generateDestroyMission(mission,terminal_id) : generateDeliverMission(mission);
             break;
         case 22: //terminal_mission_scout
-            if (count < 5) {
-                mission->setRefreshCount(0);
-            } else {
-                generateReconMission(mission);
+            if (count >= 5) {
+                generated = generateReconMission(mission);
             }
             break;
         case 24: //terminal_mission_artisan
-            count < 5 ? generateCraftingMission(mission) : generateSurveyMission(mission);
-
+            generated = count < 5 ? generateCraftingMission(mission) : generateSurveyMission(mission);
             break;
         case 28: //terminal_mission_entertainer
-            generateEntertainerMission(mission,count);
+            generated = generateEntertainerMission(mission,count);
             break;
         default:
+            break;
+        }
+
+        // A mission that could not be generated keeps an old refresh count,
+        // so the client leaves it out of this list. Otherwise it showed with
+        // the previous list's title and creator: the delta below sends only
+        // the fields that are set.
+        if(!generated)
+        {
+            mission->clear();
             mission->setRefreshCount(0);
         }
 
@@ -1332,7 +1340,9 @@ MissionObject* MissionManager::generateDeliverMission(MissionObject* mission)
 
     ObjectSet inRangeNPCs;
 
-    gSpatialIndexManager->getObjectsInRange(mission->getOwner(),&inRangeNPCs,ObjType_Creature,30.0,true);
+    // The pickup and drop-off NPCs are townsfolk within reach, as for
+    // crafting missions; 30 m around the terminal rarely held two.
+    gSpatialIndexManager->getObjectsInRange(mission->getOwner(),&inRangeNPCs,ObjType_NPC,1500,false);
     ObjectSet::iterator it = inRangeNPCs.begin();
 
     //Start & End
@@ -1610,6 +1620,18 @@ MissionObject* MissionManager::generateCraftingMission(MissionObject* mission)
     int target_num = gRandom->getRand() % 8;
 
     //END TEMP
+
+    // Title, description and creator: mission_npc_crafting_neutral_easy has
+    // m1t-m50t (title) and m1d-m50d (description) in the Publish 14 client.
+    int mission_num = (gRandom->getRand() % 50)+1;
+    mission->setNum(mission_num);
+    mission->setCreator(creators[gRandom->getRand() % 9]);
+    sprintf(mt,"m%dt",mission_num);
+    mission->setTitleFile("mission/mission_npc_crafting_neutral_easy");
+    mission->setTitle(mt);
+    sprintf(md,"m%dd",mission_num);
+    mission->setDetailFile("mission/mission_npc_crafting_neutral_easy");
+    mission->setDetail(md);
 
     ObjectSet inRangeNPCs;
     gSpatialIndexManager->getObjectsInRange(mission->getOwner(),&inRangeNPCs,ObjType_NPC,1500,false);

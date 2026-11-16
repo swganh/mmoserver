@@ -981,6 +981,18 @@ bugs, for every lair, not just missions' (fixed, to retest):
 Retested on the VM (Nov 2026): the lair's creatures came to defend it, and
 the combat music stopped once they were dead.
 
+The next test (Nov 2026) found every terminal listing the same kind of
+mission, and no deliver missions. Two causes (fixed, to retest):
+- Crafting missions were given no title, description or creator. The
+  mission delta sends only the fields that are set, so the client kept the
+  previous list's text: crafting missions showed as destroy missions. They
+  now take theirs from `mission_npc_crafting_neutral_easy` (50 missions).
+- Deliver missions looked for two NPCs within 30 m of the player, which a
+  terminal rarely has, and gave up. They now look within 1,500 m, as
+  crafting missions do.
+A mission that can't be generated is now left out of the list (an old
+refresh count) instead of showing stale text.
+
 ### 31. Harvesters extract per hour, not per minute — to check
 
 Found in the step 2 test pass (T29, Nov 2026): after about 20 minutes, a

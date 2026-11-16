@@ -130,6 +130,7 @@ when it unblocks the current step.
 | Sampling into a full container (#26) | Rare, small | |
 | T24 leftovers (waypoint rename, bank tip), T25 clone data | Tests of the security work, low risk | |
 | Management portal, load testing (Tools, below) | After the gameplay steps | |
+| Deleting test characters in bulk | The test server has about 40 test characters; the character select screen's Delete removes them properly, one at a time. A `tools/` script through the same deletion procedure would do a list | |
 
 ## Database
 

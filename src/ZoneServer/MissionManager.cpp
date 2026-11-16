@@ -502,6 +502,8 @@ void MissionManager::listRequest(PlayerObject* player, uint64 terminal_id,uint8 
         // the fields that are set.
         if(!generated)
         {
+            LOG(INFO) << "Mission list: terminal " << terminal_id << " (" << terminal_name
+                      << ") could not generate mission " << count;
             mission->clear();
             mission->setRefreshCount(0);
         }
@@ -1375,7 +1377,10 @@ MissionObject* MissionManager::generateDeliverMission(MissionObject* mission)
     //get a list containing all suitable npcs and generate a random number corresponding to one of the npcs
 
     if(inRangeNPCs.size() < 2)
+    {
+        LOG(INFO) << "Deliver mission: " << inRangeNPCs.size() << " townsfolk within 1500 m of the player";
         return NULL;
+    }
 
 
     uint32 count = 0;
@@ -1387,7 +1392,7 @@ MissionObject* MissionManager::generateDeliverMission(MissionObject* mission)
         // than loop for ever.
         if(count > 4 * inRangeNPCs.size() + 8)
         {
-            DLOG(INFO) << "MissionManager: nothing suitable in range for this mission";
+            LOG(INFO) << "MissionManager: nothing suitable in range for this mission (" << inRangeNPCs.size() << " candidates)";
             return NULL;
         }
         ++it;
@@ -1478,7 +1483,7 @@ MissionObject* MissionManager::generateEntertainerMission(MissionObject* mission
         // than loop for ever.
         if(cntLoop > 4 * inRangeNPCs.size() + 8)
         {
-            DLOG(INFO) << "MissionManager: nothing suitable in range for this mission";
+            LOG(INFO) << "MissionManager: nothing suitable in range for this mission (" << inRangeNPCs.size() << " candidates)";
             return NULL;
         }
         ++it;
@@ -1578,7 +1583,7 @@ MissionObject* MissionManager::generateSurveyMission(MissionObject* mission)
         // than loop for ever.
         if(cntLoop > 4 * rtMap->size() + 8)
         {
-            DLOG(INFO) << "MissionManager: nothing suitable in range for this mission";
+            LOG(INFO) << "MissionManager: nothing suitable in range for this mission (" << rtMap->size() << " candidates)";
             return NULL;
         }
 
@@ -1672,7 +1677,7 @@ MissionObject* MissionManager::generateCraftingMission(MissionObject* mission)
         // than loop for ever.
         if(cntLoop > 4 * inRangeNPCs.size() + 8)
         {
-            DLOG(INFO) << "MissionManager: nothing suitable in range for this mission";
+            LOG(INFO) << "MissionManager: nothing suitable in range for this mission (" << inRangeNPCs.size() << " candidates)";
             return NULL;
         }
         ++it;

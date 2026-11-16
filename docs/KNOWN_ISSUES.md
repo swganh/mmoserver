@@ -1039,6 +1039,23 @@ at a fixed offset from the house whatever its rotation, and the sign was
 not saved, so it would be gone after a restart. A proper sign needs each
 house type's sign position and model, saved with the house.
 
+### 32. Zone and chat servers crashed after "Lost connection to MySQL server" — fixed, to retest
+
+The chat server crashed overnight (Nov 2026), and a ZoneServer crashed
+when a manufacturing schematic was made for a factory (T30). Both
+backtraces end in `Database::process` freeing a query's result, the zone's
+inside `mysql_stmt_close` in libssl after "Lost connection to MySQL server
+during query".
+
+The cause was ours, from the change to prepared statements (#24): each
+database worker thread has its own connection, but results are freed on
+the main thread after the worker has moved on to its next query. Freeing
+a prepared statement's result sends the server a close over that
+connection, so two threads used one connection at once, which garbled it
+and crashed. Plain queries' results don't talk to the server when freed.
+A prepared statement's result now keeps its worker, and its connection,
+until it is freed, as multi-result (stored procedure) results already did.
+
 ### 24. A cloned player stays a corpse — fixed
 
 Killed by womp rats near Bestine (three incaps inside the reset time, the

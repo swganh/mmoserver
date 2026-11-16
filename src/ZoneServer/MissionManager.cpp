@@ -83,6 +83,25 @@ glm::vec3 randomGroundOffset(float min_distance, float max_distance)
     return glm::vec3(std::cos(angle) * distance, 0.0f, std::sin(angle) * distance);
 }
 
+// Outdoor townsfolk (filler NPCs) within `range` of `from`. The spatial
+// index's range query covers only three grid cells (about 150 m) whatever
+// range it is given, which at many terminals held fewer than the two NPCs a
+// deliver mission needs, so this goes through the zone's objects instead.
+void townsfolkInRange(const Object* from, float range, ObjectSet* result)
+{
+    const glm::vec3 position = from->getWorldPosition();
+    ObjectMap* objects = gWorldManager->getWorldObjectMap();
+    for(ObjectMap::iterator it = objects->begin(); it != objects->end(); ++it)
+    {
+        NPCObject* npc = dynamic_cast<NPCObject*>(it->second);
+        if(npc && npc->getParentId() == 0 && npc->getNpcFamily() == NpcFamily_Filler
+                && glm::distance(position, npc->mPosition) <= range)
+        {
+            result->insert(npc);
+        }
+    }
+}
+
 }
 
 bool MissionManager::mInsFlag = false;
@@ -1342,7 +1361,7 @@ MissionObject* MissionManager::generateDeliverMission(MissionObject* mission)
 
     // The pickup and drop-off NPCs are townsfolk within reach, as for
     // crafting missions; 30 m around the terminal rarely held two.
-    gSpatialIndexManager->getObjectsInRange(mission->getOwner(),&inRangeNPCs,ObjType_NPC,1500,false);
+    townsfolkInRange(mission->getOwner(),1500,&inRangeNPCs);
     ObjectSet::iterator it = inRangeNPCs.begin();
 
     //Start & End
@@ -1446,7 +1465,7 @@ MissionObject* MissionManager::generateEntertainerMission(MissionObject* mission
 
     ObjectSet inRangeNPCs;
 
-    gSpatialIndexManager->getObjectsInRange(mission->getOwner(),&inRangeNPCs,ObjType_NPC,3000,false);
+    townsfolkInRange(mission->getOwner(),3000,&inRangeNPCs);
     //Start
     uint32 cntLoop = 0;
     bool found = false;
@@ -1638,7 +1657,7 @@ MissionObject* MissionManager::generateCraftingMission(MissionObject* mission)
     mission->setDetail(md);
 
     ObjectSet inRangeNPCs;
-    gSpatialIndexManager->getObjectsInRange(mission->getOwner(),&inRangeNPCs,ObjType_NPC,1500,false);
+    townsfolkInRange(mission->getOwner(),1500,&inRangeNPCs);
 
     uint32 cntLoop = 0;
     //Start & End

@@ -989,7 +989,10 @@ mission, and no deliver missions. Two causes (fixed, to retest):
   now take theirs from `mission_npc_crafting_neutral_easy` (50 missions).
 - Deliver missions looked for two NPCs within 30 m of the player, which a
   terminal rarely has, and gave up. They now look within 1,500 m, as
-  crafting missions do.
+  crafting missions do. The spatial index's range search turned out to
+  stop at about 150 m (three grid cells) whatever range it is given, so
+  deliver, crafting and entertainer missions now go through the zone's
+  NPCs instead, taking outdoor townsfolk only.
 A mission that can't be generated is now left out of the list (an old
 refresh count) instead of showing stale text.
 

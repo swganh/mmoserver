@@ -1369,7 +1369,15 @@ MissionObject* MissionManager::generateDeliverMission(MissionObject* mission)
     //Start & End
     bool found = false;
     Location mission_start;
+    // glm leaves a vec3 uninitialised: the loop below tests for x == 0.
+    mission_start.Coordinates = glm::vec3(0.0f);
+    mission_start.CellID = 0;
+    mission_start.PlanetCRC = 0;
     Location mission_dest;
+    // glm leaves a vec3 uninitialised: the loop below tests for x == 0.
+    mission_dest.Coordinates = glm::vec3(0.0f);
+    mission_dest.CellID = 0;
+    mission_dest.PlanetCRC = 0;
 
     //we may stall the main thread with the way it was done ???? however often enough the mission generation never finished!!!!!!!!!!!!!!!
 
@@ -1475,6 +1483,10 @@ MissionObject* MissionManager::generateEntertainerMission(MissionObject* mission
     uint32 cntLoop = 0;
     bool found = false;
     Location mission_dest;
+    // glm leaves a vec3 uninitialised: the loop below tests for x == 0.
+    mission_dest.Coordinates = glm::vec3(0.0f);
+    mission_dest.CellID = 0;
+    mission_dest.PlanetCRC = 0;
     ObjectSet::iterator it = inRangeNPCs.begin();
     while(!found && !inRangeNPCs.empty())
     {
@@ -1668,7 +1680,15 @@ MissionObject* MissionManager::generateCraftingMission(MissionObject* mission)
     //Start & End
     bool found = false;
     Location mission_start;
+    // glm leaves a vec3 uninitialised: the loop below tests for x == 0.
+    mission_start.Coordinates = glm::vec3(0.0f);
+    mission_start.CellID = 0;
+    mission_start.PlanetCRC = 0;
     Location mission_dest;
+    // glm leaves a vec3 uninitialised: the loop below tests for x == 0.
+    mission_dest.Coordinates = glm::vec3(0.0f);
+    mission_dest.CellID = 0;
+    mission_dest.PlanetCRC = 0;
     ObjectSet::iterator it = inRangeNPCs.begin();
     while(!found && !inRangeNPCs.empty())
     {

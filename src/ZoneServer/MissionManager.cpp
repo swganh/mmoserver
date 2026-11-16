@@ -1375,8 +1375,10 @@ MissionObject* MissionManager::generateDeliverMission(MissionObject* mission)
         if(it == inRangeNPCs.end())
             it = inRangeNPCs.begin();
 
+        // Outdoor townsfolk only: an NPC in a building has its position in
+        // the room's coordinates, which would put the waypoint elsewhere.
         NPCObject* npc = dynamic_cast<NPCObject*>(*it);
-        if(npc->getNpcFamily() == NpcFamily_Filler)
+        if(npc && npc->getParentId() == 0 && npc->getNpcFamily() == NpcFamily_Filler)
         {
             uint32 roll		= static_cast<uint32>(gRandom->getRand() / (RAND_MAX + 1.0) * (9 - 1) + 1);
             if((roll == 5)||(count > inRangeNPCs.size()))
@@ -1464,8 +1466,10 @@ MissionObject* MissionManager::generateEntertainerMission(MissionObject* mission
         if(it == inRangeNPCs.end())
             it = inRangeNPCs.begin();
 
+        // Outdoor townsfolk only: an NPC in a building has its position in
+        // the room's coordinates, which would put the waypoint elsewhere.
         NPCObject* npc = dynamic_cast<NPCObject*>(*it);
-        if(npc->getNpcFamily() == NpcFamily_Filler)
+        if(npc && npc->getParentId() == 0 && npc->getNpcFamily() == NpcFamily_Filler)
         {
             uint32 roll		= static_cast<uint32>(gRandom->getRand() / (RAND_MAX + 1.0) * (9 - 1) + 1);
             if((roll == 5)||(cntLoop > inRangeNPCs.size()))
@@ -1657,8 +1661,10 @@ MissionObject* MissionManager::generateCraftingMission(MissionObject* mission)
         if(it == inRangeNPCs.end())
             it = inRangeNPCs.begin();
 
+        // Outdoor townsfolk only: an NPC in a building has its position in
+        // the room's coordinates, which would put the waypoint elsewhere.
         NPCObject* npc = dynamic_cast<NPCObject*>(*it);
-        if(npc->getNpcFamily() == NpcFamily_Filler)
+        if(npc && npc->getParentId() == 0 && npc->getNpcFamily() == NpcFamily_Filler)
         {
             uint32 roll		= static_cast<uint32>(gRandom->getRand() / (RAND_MAX + 1.0) * (9 - 1) + 1);
             if((roll == 5)||(cntLoop > inRangeNPCs.size()))

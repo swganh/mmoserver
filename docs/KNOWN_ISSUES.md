@@ -1116,10 +1116,17 @@ Confirmed on the VM (Nov 2026): the schematic linked, the factory ran and
 its output hopper held a crate of 4 small glasses a few minutes later.
 
 Still open:
-- **List ingredients** on the factory's menu has no handler: the menu
-  offers it and nothing answers.
-- `sf_FactoryCreateItem` adds items to crates without taking anything from
-  the input hopper.
+- **Factories don't use ingredients.** A manufacturing schematic's
+  ingredients are never stored: `manufactureschematic` holds the amount,
+  complexity, serial and prototype item only. So `sf_FactoryCreateItem`
+  makes items whatever the input hopper holds (confirmed: emptying it
+  doesn't stop the factory), and **List ingredients** on the factory's
+  menu has nothing to show (it has no handler either). To build: save each
+  slot's resource or component and quantity when the manufacturing
+  schematic is made (a migration for the table), check and take them from
+  the input hopper before each item and stop the factory with a message
+  when one is missing, and list them for List ingredients. Planned after
+  the step 2 test pass, with the other fixes it found.
 - The factory functions turn a factory off without a word when something
   they need is missing (return 3), and the chat server ignores the return
   code.

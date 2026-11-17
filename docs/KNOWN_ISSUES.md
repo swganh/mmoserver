@@ -1112,6 +1112,9 @@ the world may not have kept their place across a restart on Linux.
 
 Also fixed: the message now names the schematic (`%TT` was never filled).
 
+Confirmed on the VM (Nov 2026): the schematic linked, the factory ran and
+its output hopper held a crate of 4 small glasses a few minutes later.
+
 Still open:
 - **List ingredients** on the factory's menu has no handler: the menu
   offers it and nothing answers.

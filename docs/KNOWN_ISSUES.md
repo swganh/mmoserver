@@ -1122,10 +1122,22 @@ dangling pointer, and the new hair, often at the same address, was
 "already known". `applyHair` now unregisters the old hair from every
 watcher (which also destroys it on their clients) before deleting it.
 
-Also seen in the session, to check against the guides before changing:
+The retest showed the fee never worked: with a fee set, the designer's
+Commit stayed greyed out, because the customer's offer never reached the
+designer (their window showed Offered Credits 0, and the client only
+enables Commit once the offer covers the fee). The server sent every
+update to the customer, the customer's own included, and built it from the
+receiver's change list, which is kept on the customer. Updates now go to
+the other side of the session, built from the customer's changes (fixed,
+to retest). Without a fee, the session completed and the credits offered
+were paid.
+
+Also seen, to check against the guides before changing:
 - `/imagedesign` opens the window with no prompt to the other player.
-- Changes can only be committed inside an image designer's tent.
-- Setting a fee greys out the designer's Accept button.
+- Changes can only be committed inside an image designer's tent. That is
+  the client's rule; the server doesn't check it.
+- "Time until committable" reads Ready at once: the session timer isn't
+  sent.
 
 ### 36. Factories never got their schematic on Linux — fixed, to retest
 

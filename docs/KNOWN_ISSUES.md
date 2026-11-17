@@ -1141,6 +1141,22 @@ customer straight away shows them bald in the designer's preview, with
 reuses the old hair's object ID (customer + 8), which the designer's
 client may still hold as destroyed; to look at if it matters.
 
+### 39. Structures are barely charged maintenance — open
+
+Found in the step 2 test pass (T30, Nov 2026): a factory ran for hours,
+filling four crates of small glasses, and its maintenance pool stayed at
+the 50 credits put in ("50/hr" on the status window). The chat server
+charges every structure (houses, harvesters, factories) hourly with
+`sf_HarvesterUseMaintenance`, which takes `maint_cost_wk / 336` each time,
+as if the rate were per week and charged every half hour; the status
+window shows the same column as a rate per hour. At 50 that is about 0.15
+credits an hour, which rounds to nothing. `sf_FactoryUseMaintenance` and
+`sf_FactoryUsePower` are never called, so factories use no power either.
+To settle from the guides: whether the rate is per hour or per week, how
+often it is charged, and whether factories use power. Then charge each
+kind of structure with its own function. With #34 (factories count
+condition the other way) and #36 (ingredients).
+
 Also seen, to check against the guides before changing:
 - `/imagedesign` opens the window with no prompt to the other player.
 - Changes can only be committed inside an image designer's tent. That is

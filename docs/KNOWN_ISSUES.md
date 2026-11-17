@@ -1109,6 +1109,24 @@ now treats OK with no valid row as Cancel, before any handler sees it,
 except for the factory's Remove Schematic (a third button that needs no
 row) and the structure status window (its OK is Refresh).
 
+### 38. Image design session crashed the zone on a new hairstyle — fixed, to retest
+
+Found in the step 2 test pass (T38, Nov 2026): the changes went through,
+then the ZoneServer aborted on `assert(false)` in
+`ContainerManager::registerPlayerToContainer`, from
+`EntertainerManager::applyHair`. The old hair was removed with
+`destroyObjectToRegisteredPlayers`, which looks the object up in the
+world's object map; hair isn't there, so no watcher was unregistered from
+it. The old hair was then deleted, leaving the watching players with a
+dangling pointer, and the new hair, often at the same address, was
+"already known". `applyHair` now unregisters the old hair from every
+watcher (which also destroys it on their clients) before deleting it.
+
+Also seen in the session, to check against the guides before changing:
+- `/imagedesign` opens the window with no prompt to the other player.
+- Changes can only be committed inside an image designer's tent.
+- Setting a fee greys out the designer's Accept button.
+
 ### 36. Factories never got their schematic on Linux — fixed, to retest
 
 Found in the step 2 test pass (T30, Nov 2026): a factory said "Schematic

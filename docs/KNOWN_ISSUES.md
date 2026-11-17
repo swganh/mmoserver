@@ -1132,6 +1132,15 @@ the other side of the session, built from the customer's changes (fixed,
 to retest). Without a fee, the session completed and the credits offered
 were paid.
 
+Retested on the VM (Nov 2026): a new hairstyle with a 50-credit fee; the
+offer showed on both sides, the designer committed, the customer accepted,
+the hair changed, no crash, and the designer got 50 Image Designer
+experience. Still open, minor: opening a second session on the same
+customer straight away shows them bald in the designer's preview, with
+"You are already in the process of an Image Design action". The new hair
+reuses the old hair's object ID (customer + 8), which the designer's
+client may still hold as destroyed; to look at if it matters.
+
 Also seen, to check against the guides before changing:
 - `/imagedesign` opens the window with no prompt to the other player.
 - Changes can only be committed inside an image designer's tent. That is

@@ -1655,12 +1655,12 @@ void Session::_resendData()
         }
         else
         {
-            //gLogger->log(LogManager::WARNING, "_resendData WaitTime : %I64u; Packets send %u", waitTime, packetsSend);
+            //gLogger->log(LogManager::WARNING, "_resendData WaitTime : %" PRIu64 "; Packets send %u", waitTime, packetsSend);
             return;
         }
     }
 
-    //gLogger->log(LogManager::WARNING, "_resendData WaitTime : %I64u; Packets send %u", waitTime, packetsSend);
+    //gLogger->log(LogManager::WARNING, "_resendData WaitTime : %" PRIu64 "; Packets send %u", waitTime, packetsSend);
 }
 
 

@@ -772,7 +772,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			//set to private
 			if(house->getPublic())
 			{
-				mDatabase->executeSqlAsync(0,0,"UPDATE %s.houses h SET h.private = 0 WHERE h.ID = %I64u",mDatabase->galaxy(),command.StructureId);
+				mDatabase->executeSqlAsync(0,0,"UPDATE %s.houses h SET h.private = 0 WHERE h.ID = %" PRIu64 "",mDatabase->galaxy(),command.StructureId);
 				house->setPublic(false);
 				gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure","structure_now_private"),player);
 				updateKownPlayerPermissions(house);
@@ -781,7 +781,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
 			house->setPublic(true);
 			gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure","structure_now_public"),player);
-			mDatabase->executeSqlAsync(0,0,"UPDATE %s.houses h SET h.private = 1 WHERE h.ID = %I64u",mDatabase->galaxy(),command.StructureId);
+			mDatabase->executeSqlAsync(0,0,"UPDATE %s.houses h SET h.private = 1 WHERE h.ID = %" PRIu64 "",mDatabase->galaxy(),command.StructureId);
 			updateKownPlayerPermissions(house);
 		}
 		break;
@@ -800,7 +800,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			factory->setActive(false);
 
 			//now turn the factory on - in db and otherwise
-			mDatabase->executeSqlAsync(0,0,"UPDATE %s.factories f SET f.active = 0 WHERE f.ID = %I64u",mDatabase->galaxy(),command.StructureId);
+			mDatabase->executeSqlAsync(0,0,"UPDATE %s.factories f SET f.active = 0 WHERE f.ID = %" PRIu64 "",mDatabase->galaxy(),command.StructureId);
 			gMessageLib->SendUpdateFactoryWorkAnimation(factory);
 
 		}
@@ -827,7 +827,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			factory->setActive(true);
 
 			//now turn the factory on - in db and otherwise
-			mDatabase->executeSqlAsync(0,0,"UPDATE %s.factories f SET f.active = 1 WHERE f.ID = %I64u",mDatabase->galaxy(),command.StructureId);
+			mDatabase->executeSqlAsync(0,0,"UPDATE %s.factories f SET f.active = 1 WHERE f.ID = %" PRIu64 "",mDatabase->galaxy(),command.StructureId);
 			gMessageLib->SendUpdateFactoryWorkAnimation(factory);
 
 		}
@@ -917,7 +917,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			
 			//change the ManSchems Owner ID and load it into the datapad
 			gObjectFactory->requestTanoNewParent(datapad,factory->getManSchemID() ,datapad->getId(),TanGroup_ManufacturingSchematic);
-			mDatabase->executeSqlAsync(0,0,"UPDATE %s.factories SET ManSchematicID = 0 WHERE ID = %I64u",mDatabase->galaxy(),command.StructureId);
+			mDatabase->executeSqlAsync(0,0,"UPDATE %s.factories SET ManSchematicID = 0 WHERE ID = %" PRIu64 "",mDatabase->galaxy(),command.StructureId);
 
 			//finally reset the schem ID in the factory
 			factory->setManSchemID(0);
@@ -979,10 +979,18 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			}
 
 			factory->setManSchemID(command.SchematicId);
+
+			// The schematic's name, for the message below; read it before the
+			// datapad lets go of the schematic.
+			const std::string schematicNameFile = tO->getNameFile().getAnsi();
+			const std::string schematicName = tO->getName().getAnsi();
+			BString custom = tO->getCustomName();
+			custom.convert(BSTRType_Unicode16);
+			const std::wstring schematicCustomName = custom.getLength() ? std::wstring(custom.getUnicode16()) : std::wstring();
 			
 			//link the schematic to the factory in the db
-			mDatabase->executeSqlAsync(0,0,"UPDATE %s.factories SET ManSchematicID = %I64u WHERE ID = %I64u",mDatabase->galaxy(),command.SchematicId,command.StructureId);
-			mDatabase->executeSqlAsync(0,0,"UPDATE %s.items SET parent_id = %I64u WHERE ID = %I64u",mDatabase->galaxy(),command.StructureId,command.SchematicId);
+			mDatabase->executeSqlAsync(0,0,"UPDATE %s.factories SET ManSchematicID = %" PRIu64 " WHERE ID = %" PRIu64 "",mDatabase->galaxy(),command.SchematicId,command.StructureId);
+			mDatabase->executeSqlAsync(0,0,"UPDATE %s.items SET parent_id = %" PRIu64 " WHERE ID = %" PRIu64 "",mDatabase->galaxy(),command.StructureId,command.SchematicId);
 			
 			//remove the schematic from the player
 			
@@ -991,7 +999,11 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			gMessageLib->sendDestroyObject(command.SchematicId,player);
 
 			
-			gMessageLib->SendSystemMessage(common::OutOfBand("manf_station","schematic_added"),player);
+			// "Schematic %TT has been inserted into the station": TT is the
+			// schematic's name (its custom name if it has one).
+			gMessageLib->SendSystemMessage(common::OutOfBand("manf_station", "schematic_added",
+				0, "", "", L"",
+				0, schematicNameFile, schematicName, schematicCustomName), player);
 			//gMessageLib->sendSystemMessage(player,
 			
 			//remove the added Manufacturing schematic
@@ -1009,9 +1021,9 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			asyncContainer->mPlayerId		= command.PlayerId;
 			asyncContainer->command			= command;
 			mDatabase->executeSqlAsync(this,asyncContainer,
-				 "		(SELECT \'schematicCustom\', i.customName FROM %s.factories f INNER JOIN %s.items i ON (i.id = f.ManSchematicID) WHERE f.ID = %I64u)"
-				 "UNION (SELECT \'schematicName\', it.stf_name FROM %s.factories f INNER JOIN %s.items i ON (i.id = f.ManSchematicID) INNER JOIN %s.item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)"
-				 "UNION (SELECT \'schematicFile\', it.stf_file FROM %s.factories f INNER JOIN %s.items i ON (i.id = f.ManSchematicID) INNER JOIN %s.item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)",
+				 "		(SELECT \'schematicCustom\', i.customName FROM %s.factories f INNER JOIN %s.items i ON (i.id = f.ManSchematicID) WHERE f.ID = %" PRIu64 ")"
+				 "UNION (SELECT \'schematicName\', it.stf_name FROM %s.factories f INNER JOIN %s.items i ON (i.id = f.ManSchematicID) INNER JOIN %s.item_types it ON (i.item_type = it.id) WHERE f.ID = %" PRIu64 ")"
+				 "UNION (SELECT \'schematicFile\', it.stf_file FROM %s.factories f INNER JOIN %s.items i ON (i.id = f.ManSchematicID) INNER JOIN %s.item_types it ON (i.item_type = it.id) WHERE f.ID = %" PRIu64 ")",
 				mDatabase->galaxy(),mDatabase->galaxy(),command.StructureId,
                 mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),command.StructureId,
                 mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),command.StructureId);
@@ -1140,7 +1152,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			asyncContainer = new StructureManagerAsyncContainer(Structure_HopperDiscard, 0);
 			asyncContainer->mStructureId	= command.StructureId;
 			asyncContainer->mPlayerId		= command.PlayerId;
-			mDatabase->executeSqlAsync(harvester,asyncContainer,"select %s.sf_DiscardHopper(%I64u)",mDatabase->galaxy(),command.StructureId);
+			mDatabase->executeSqlAsync(harvester,asyncContainer,"select %s.sf_DiscardHopper(%" PRIu64 ")",mDatabase->galaxy(),command.StructureId);
 
 		}
 		break;	 

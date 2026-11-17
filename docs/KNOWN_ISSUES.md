@@ -1094,6 +1094,33 @@ server status reads online as soon as the login server is up, even while
 the zones are still loading and a login would fail or wait. It should say
 the galaxy is loading until the zones are ready. For later.
 
+### 36. Factories never got their schematic on Linux — fixed, to retest
+
+Found in the step 2 test pass (T30, Nov 2026): a factory said "Schematic
+%TT has been inserted into the station", started, and made nothing; in the
+database both factories had `ManSchematicID = 0` and were switched off.
+
+The factory commands built their SQL with `%I64u`, Microsoft's printf
+notation for a 64-bit number. glibc reads it as a 32-bit `%u` 64 characters
+wide, so only the low half of each ID reached the database: inserting a
+schematic updated no factory, and starting or stopping one changed nothing.
+Sixteen uses, all now `PRIu64`: the factory commands (start, stop, insert
+and remove a schematic, the schematic's details, discarding a hopper),
+making a house private or public, and saving where a moved item or
+resource container was put (`OCCommonHandlers.cpp`), so items moved in
+the world may not have kept their place across a restart on Linux.
+
+Also fixed: the message now names the schematic (`%TT` was never filled).
+
+Still open:
+- **List ingredients** on the factory's menu has no handler: the menu
+  offers it and nothing answers.
+- `sf_FactoryCreateItem` adds items to crates without taking anything from
+  the input hopper.
+- The factory functions turn a factory off without a word when something
+  they need is missing (return 3), and the chat server ignores the return
+  code.
+
 ### 24. A cloned player stays a corpse — fixed
 
 Killed by womp rats near Bestine (three incaps inside the reset time, the

@@ -917,10 +917,17 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			
 			//change the ManSchems Owner ID and load it into the datapad
 			gObjectFactory->requestTanoNewParent(datapad,factory->getManSchemID() ,datapad->getId(),TanGroup_ManufacturingSchematic);
-			mDatabase->executeSqlAsync(0,0,"UPDATE %s.factories SET ManSchematicID = 0 WHERE ID = %" PRIu64 "",mDatabase->galaxy(),command.StructureId);
+			// A factory without a schematic can't run: stop it as Stop
+			// Manufacturing does (it kept showing as running before).
+			mDatabase->executeSqlAsync(0,0,"UPDATE %s.factories SET ManSchematicID = 0, active = 0 WHERE ID = %" PRIu64 "",mDatabase->galaxy(),command.StructureId);
 
 			//finally reset the schem ID in the factory
 			factory->setManSchemID(0);
+			if(factory->getActive())
+			{
+				factory->setActive(false);
+				gMessageLib->SendUpdateFactoryWorkAnimation(factory);
+			}
 			gMessageLib->SendSystemMessage(L"",player,"manf_station","schematic_removed");
 			
 		}

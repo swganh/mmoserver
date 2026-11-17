@@ -1121,7 +1121,13 @@ crashed the client, with no crash log. That window adds a third button
 were declared with one value but written with one per button number (two
 for Use, three for Remove), so the client read the rest of the window out
 of step. Never seen before because no factory had held a schematic on
-Linux. Each property now has its one value (fixed, to retest).
+Linux. Each property now has its one value. Confirmed on the VM: the
+window opens, and Remove Schematic returns the schematic to the datapad.
+
+Removing the schematic didn't stop the factory: the zone kept it running
+(the database switched it off at its next step, silently, for want of a
+schematic). Removing it now stops the factory as Stop Manufacturing does
+(fixed, to retest).
 
 Still open:
 - **Factories don't use ingredients.** A manufacturing schematic's

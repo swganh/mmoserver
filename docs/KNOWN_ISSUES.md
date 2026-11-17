@@ -1097,6 +1097,18 @@ server status reads online as soon as the login server is up, even while
 the zones are still loading and a login would fail or wait. It should say
 the galaxy is loading until the zones are ready. For later.
 
+### 37. OK on a list window with nothing selected crashed the zone — fixed, to retest
+
+Found in the step 2 test pass (Nov 2026), teaching another character: OK on
+the teaching window with no skill picked sent row -1, and
+`PlayerObject::handleUIEvent` looked it up unchecked (`std::out_of_range`,
+the ZoneServer aborted). About fifteen list windows index their rows the
+same way (teaching, travel and ticket collectors, insurance, dances and
+music, the character builder, the factory's schematic list). `UIListBox`
+now treats OK with no valid row as Cancel, before any handler sees it,
+except for the factory's Remove Schematic (a third button that needs no
+row) and the structure status window (its OK is Refresh).
+
 ### 36. Factories never got their schematic on Linux — fixed, to retest
 
 Found in the step 2 test pass (T30, Nov 2026): a factory said "Schematic

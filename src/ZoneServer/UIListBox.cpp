@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "UIListBox.h"
+
+#include <cstring>
 #include "PlayerObject.h"
 #include "UIButton.h"
 #include "UICallback.h"
@@ -86,6 +88,23 @@ void UIListBox::handleEvent(Message* message)
 
         if(items >= 4)
             message->getStringUnicode16(mOption4);
+    }
+
+    // OK with no row selected (or a row the list doesn't have) is a cancel.
+    // The handlers index their lists with the row unchecked: OK on the
+    // teaching window with nothing picked looked up row -1 and crashed the
+    // zone. Windows with a third button (the factory's Remove Schematic)
+    // report it in mOption3, and that needs no row, so leave those alone;
+    // so is the structure status window, whose OK button is Refresh.
+    if(action == 0 && mLbType != SUI_LB_CANCELREFRESH
+            && (selectedItem < 0 || static_cast<size_t>(selectedItem) >= mDataItems.size()))
+    {
+        BString other = mOption3;
+        other.convert(BSTRType_ANSI);
+        if(strcmp(other.getAnsi(), "true") != 0)
+        {
+            action = 1;
+        }
     }
 
     if(mUICallback != NULL)

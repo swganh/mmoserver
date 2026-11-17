@@ -1115,6 +1115,14 @@ Also fixed: the message now names the schematic (`%TT` was never filled).
 Confirmed on the VM (Nov 2026): the schematic linked, the factory ran and
 its output hopper held a crate of 4 small glasses a few minutes later.
 
+Opening the schematic slot of a factory that holds a schematic then
+crashed the client, with no crash log. That window adds a third button
+(Remove Schematic), and the buttons' PackSize and PackLocation properties
+were declared with one value but written with one per button number (two
+for Use, three for Remove), so the client read the rest of the window out
+of step. Never seen before because no factory had held a schematic on
+Linux. Each property now has its one value (fixed, to retest).
+
 Still open:
 - **Factories don't use ingredients.** A manufacturing schematic's
   ingredients are never stored: `manufactureschematic` holds the amount,

@@ -1056,6 +1056,9 @@ and crashed. Plain queries' results don't talk to the server when freed.
 A prepared statement's result now keeps its worker, and its connection,
 until it is freed, as multi-result (stored procedure) results already did.
 
+Retested on the VM (Nov 2026): all the servers ran through a day of
+testing and an idle afternoon without a crash.
+
 ### 33. Chat server crashed when a harvester's maintenance ran out — fixed, to retest
 
 Found on the VM (Nov 2026): the chat server crashed in

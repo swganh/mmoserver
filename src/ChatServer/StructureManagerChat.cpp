@@ -142,6 +142,14 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 {
     StructureManagerAsyncContainer* asynContainer = (StructureManagerAsyncContainer*)ref;
 
+    // A failed query (logged when it ran) has no result. The maintenance
+    // timers run again at their next interval.
+    if (!result)
+    {
+        SAFE_DELETE(asynContainer);
+        return;
+    }
+
     switch(asynContainer->mQueryType)
     {
 

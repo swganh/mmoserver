@@ -1056,6 +1056,44 @@ and crashed. Plain queries' results don't talk to the server when freed.
 A prepared statement's result now keeps its worker, and its connection,
 until it is freed, as multi-result (stored procedure) results already did.
 
+### 33. Chat server crashed when a harvester's maintenance ran out — fixed, to retest
+
+Found on the VM (Nov 2026): the chat server crashed in
+`StructureManagerChatHandler::handleDatabaseJobComplete` after logging
+"Out of range value for column 'condition'". A harvester had run out of
+maintenance and its owner's bank couldn't cover it, so
+`sf_HarvesterUseMaintenance` lowered the structure's `condition` below
+zero. The column is unsigned, so the update failed, the query returned no
+result, and the handler read the row count of a result it didn't have.
+
+- `sf_HarvesterUseMaintenance` stops `condition` at 0 (run
+  `mmoserverdb/setup.sh update-procedures`).
+- The chat server's structure handler skips a failed query, as the
+  zone's handlers that use prepared statements already do. Other handlers
+  that don't check for a failed query remain; each would crash the same way
+  if its query failed.
+
+The log also showed "Record has changed since last read in table
+'structure_attributes'": MariaDB 11.8's snapshot isolation refusing an
+update to a row another server changed in the same moment. That query
+fails and runs again at the next maintenance interval.
+
+### 34. Factories count condition the other way — open
+
+Found while fixing #33. `sf_FactoryUseMaintenance` treats a structure's
+`condition` as damage, rising to the maximum ("condition is actually
+damage"), while the C++ (`PlayerStructure`), the chat server's mails and
+`sf_HarvesterUseMaintenance` treat it as health falling to 0. A factory
+left without maintenance would show as healthier as it decays, and be
+condemned at full condition. To fix before relying on factory decay.
+
+### 35. Character select shows a galaxy as online while its zones load — open
+
+Raised in the step 2 test pass (Nov 2026): the character select screen's
+server status reads online as soon as the login server is up, even while
+the zones are still loading and a login would fail or wait. It should say
+the galaxy is loading until the zones are ready. For later.
+
 ### 24. A cloned player stays a corpse — fixed
 
 Killed by womp rats near Bestine (three incaps inside the reset time, the

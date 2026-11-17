@@ -149,7 +149,10 @@ BEGIN
 --
 
     SELECT (cr/(rate/100)) INTO percent;
-    UPDATE structures s SET s.condition = (s.condition -(decayrate*percent)) WHERE s.ID =hID;
+    -- condition is unsigned: stop at 0 rather than fail the whole update
+    -- ("Out of range value for column 'condition'"), which also crashed
+    -- the chat server (#33).
+    UPDATE structures s SET s.condition = GREATEST(0, CAST(s.condition AS SIGNED) - (decayrate*percent)) WHERE s.ID =hID;
 
 --
 -- damage the structures Condition

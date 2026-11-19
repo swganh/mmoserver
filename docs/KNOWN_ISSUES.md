@@ -1157,6 +1157,17 @@ often it is charged, and whether factories use power. Then charge each
 kind of structure with its own function. With #34 (factories count
 condition the other way) and #36 (ingredients).
 
+### 40. Idle servers use a lot of CPU — open
+
+Found on the VM (Nov 2026, `sar` over a night with no players): about 25%
+of four cores went to kernel time and 9-10% to user time, flat, with the
+servers running under `debug -g` and nobody logged in. Most likely the
+servers' main loops poll their sockets with very short sleeps instead of
+waiting for packets. To measure per server (`pidstat -u -p <pid> 60`) and
+fix after the step 2 pass. Not the cause of the VM freeze on 18 November:
+memory, swap and CPU were flat up to the last sample at 04:00, which
+points to the Hyper-V host (an update restart or sleep around 04:04).
+
 Also seen, to check against the guides before changing:
 - `/imagedesign` opens the window with no prompt to the other player.
 - Changes can only be committed inside an image designer's tent. That is

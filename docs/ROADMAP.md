@@ -130,6 +130,7 @@ when it unblocks the current step.
 | Sampling into a full container (#26) | Rare, small | |
 | T24 leftovers (waypoint rename, bank tip), T25 clone data | Tests of the security work, low risk | |
 | Management portal, load testing (Tools, below) | After the gameplay steps | |
+| A long run on a rented cloud VM (Azure, AWS or similar) | The test VM froze once overnight with memory, swap and CPU flat, put down to the host PC (KNOWN_ISSUES #40); a cloud VM would rule the host out, and is a step towards a public server | |
 | Deleting test characters in bulk | The test server has about 40 test characters; the character select screen's Delete removes them properly, one at a time. A `tools/` script through the same deletion procedure would do a list | |
 
 ## Database

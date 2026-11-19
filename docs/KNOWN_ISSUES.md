@@ -1165,8 +1165,9 @@ servers running under `debug -g` and nobody logged in. Most likely the
 servers' main loops poll their sockets with very short sleeps instead of
 waiting for packets. To measure per server (`pidstat -u -p <pid> 60`) and
 fix after the step 2 pass. Not the cause of the VM freeze on 18 November:
-memory, swap and CPU were flat up to the last sample at 04:00, which
-points to the Hyper-V host (an update restart or sleep around 04:04).
+memory, swap and CPU were flat up to the last sample at 04:00, so it is
+put down to the host PC (the VM runs in VirtualBox on it). A long run on a
+rented cloud VM would rule the host out (ROADMAP, Parked).
 
 Also seen, to check against the guides before changing:
 - `/imagedesign` opens the window with no prompt to the other player.

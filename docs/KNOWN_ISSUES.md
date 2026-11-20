@@ -1169,6 +1169,25 @@ memory, swap and CPU were flat up to the last sample at 04:00, so it is
 put down to the host PC (the VM runs in VirtualBox on it). A long run on a
 rented cloud VM would rule the host out (ROADMAP, Parked).
 
+### 41. Crafted values don't become the item's stats — open
+
+Found in the step 2 test pass (T27, Nov 2026): two CDEF carbines, one
+assembled only and one after a failed experiment. Each tooltip shows the
+template's stats (Damage 25-50, Attack Speed 3.5, Condition 100/100),
+identical on both, and below them the crafted results as extra attributes
+(Minimum and Maximum Damage, Attack Speed, Wound Chance, Condition
+1000/1000, the special move costs), which differ. So crafting and
+experimenting compute values but don't apply them to the item's real
+attributes; combat most likely uses the template's. The crafted values
+also look unscaled (Attack Speed 35.78 for 3.578 s). To fix: map each
+crafted attribute onto the item's own (damage, speed, range, wound chance,
+condition, costs) with its scale, and drop the duplicates. To check from
+the guides: a plain experiment failure lowered the values here; pre-CU, as
+far as we remember, only a critical failure did.
+
+Experimenting itself works: with Engineering I and the matching station,
+the experimentation step came up after assembly.
+
 Also seen, to check against the guides before changing:
 - `/imagedesign` opens the window with no prompt to the other player.
 - Changes can only be committed inside an image designer's tent. That is

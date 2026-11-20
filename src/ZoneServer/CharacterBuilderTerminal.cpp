@@ -25,6 +25,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "CharacterBuilderTerminal.h"
+
+#include <algorithm>
+#include <cstdio>
 #include "Bank.h"
 
 #include "PlayerObject.h"
@@ -40,6 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Buff.h"
 #include "ResourceType.h"
 #include "ResourceCategory.h"
+#include "Resource.h"
 #include "Inventory.h"
 #include "ObjectFactory.h"
 
@@ -57,6 +61,9 @@ CharacterBuilderTerminal::CharacterBuilderTerminal() : Terminal(), mSortedList(N
 //=============================================================================
 void CharacterBuilderTerminal::InitMenus()
 {
+    // First in both main menus: what the current test pass needs.
+    mMainMenu.push_back("Currently testing");
+    mMainCsrMenu.push_back("Currently testing");
     mMainMenu.push_back("Manage Experience");
     mMainMenu.push_back("Manage Credits");
     mMainMenu.push_back("Manage Buffs");
@@ -74,6 +81,31 @@ void CharacterBuilderTerminal::InitMenus()
     mMainCsrMenu.push_back("Manage Wounds");
     mMainCsrMenu.push_back("Manage States");
     mMainCsrMenu.push_back("Teleport X,Y");
+
+    // Step 2 test pass (docs/TEST_PLAN.md): experimenting needs a crafting
+    // tool with its station within 25 m (the generic tool has no station),
+    // then guild halls and camps. Frog item ids.
+    const std::pair<const char*, uint32> testKit[] = {
+        {"Food crafting tool", 14},
+        {"Food crafting station", 30},
+        {"Clothing and armor crafting tool", 11},
+        {"Clothing and armor crafting station", 19},
+        {"Weapon crafting tool", 13},
+        {"Weapon crafting station", 23},
+        {"Structure crafting tool", 15},
+        {"Structure crafting station", 24},
+        {"Generic crafting tool (no station)", 12},
+        {"Mineral survey tool", 7},
+        {"Generic guild hall deed", 1598},
+        {"Tatooine guild hall deed", 1600},
+        {"Basic camp kit", 1970},
+        {"Improved camp kit", 1972},
+    };
+    for (const auto& entry : testKit)
+    {
+        mTestKitMenu.push_back(entry.first);
+        mTestKitItems.push_back(entry.second);
+    }
 
     InitExperience();
     InitProfessions();
@@ -633,47 +665,79 @@ void CharacterBuilderTerminal::SendXPMenu(PlayerObject* playerObject, uint32 act
     }
     else
     {
-        gUIManager->createNewListBox(this,"handleGetXp","Select Xp Type","Select from the list below.", availableXpTypes, playerObject, SUI_Window_CharacterBuilder_ListBox_ExperienceMenu);
+        _openList(playerObject,"handleGetXp","Select Xp Type","Select from the list below.",availableXpTypes,SUI_Window_CharacterBuilder_ListBox_ExperienceMenu);
     }
 }
+// The resource groups (Mineral, Chemical, Flora...) a resource type's
+// category belongs to: the categories two levels below the root (1).
+static uint32 resourceGroupOf(uint32 categoryId)
+{
+    uint32 id = categoryId;
+    for (int depth = 0; depth < 16; ++depth)
+    {
+        ResourceCategory* category = gResourceManager->getResourceCategoryById(id);
+        if (!category)
+            return 0;
+        ResourceCategory* parent = gResourceManager->getResourceCategoryById(category->getParentId());
+        if (!parent || parent->getParentId() == 0)
+            return 0;
+        if (parent->getParentId() == 1)
+            return id;
+        id = parent->getId();
+    }
+    return 0;
+}
+
+// Resources: the groups that have a resource spawned now. The old menus
+// walked the whole category tree, much of it with nothing spawned.
 void CharacterBuilderTerminal::SendResourcesMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
-    if(playerObject->isConnected())
+    if(!playerObject->isConnected())
+        return;
+
+    std::map<uint32, uint32> spawnedPerGroup;
+    ResourceCRCNameMap* resources = gResourceManager->getResourceCRCNameMap();
+    for (ResourceCRCNameMap::iterator it = resources->begin(); it != resources->end(); ++it)
     {
-        ResourceTypeMap*				rtMap				= gResourceManager->getResourceTypeMap();
-        ResourceCategoryMap*			rcMap				= gResourceManager->getResourceCategoryMap();
-        ResourceCategoryMap::iterator	rcIt				= rcMap->begin();
-        BStringVector					resourceNameList;
-        ResourceIdList					resourceIdList;
-        //uint32							counter = 0;
-
-        while(rcIt != rcMap->end())
-        {
-            ResourceTypeMap::iterator rtIt = rtMap->begin();
-
-            while(rtIt != rtMap->end())
-            {
-                //we want only parent ==1 to begin with
-                uint32 parentId = (*(*rcIt).second).getParentId();
-                if(parentId == 1)
-                {
-                    resourceIdList.push_back((*rcIt).first);
-                    resourceNameList.push_back((*(*rcIt).second).getName());
-                    break;
-                }
-
-                ++rtIt;
-            }
-
-            ++rcIt;
-        }
-
-        gUIManager->createNewResourceSelectListBox(this,"handleResourcesMenu","Resources","Select",resourceNameList,resourceIdList,playerObject,SUI_Window_CharacterBuilder_ListBox_ResourceMenu);
+        Resource* resource = it->second;
+        if (!resource || !resource->getCurrent() || !resource->getType())
+            continue;
+        if (uint32 group = resourceGroupOf(resource->getType()->getCategoryId()))
+            ++spawnedPerGroup[group];
     }
+
+    BStringVector names;
+    std::vector<uint64> ids;
+    for (std::map<uint32, uint32>::iterator it = spawnedPerGroup.begin(); it != spawnedPerGroup.end(); ++it)
+    {
+        ResourceCategory* group = gResourceManager->getResourceCategoryById(it->first);
+        char label[128];
+        snprintf(label, sizeof(label), "%s (%u spawned)", group->getName().getAnsi(), it->second);
+        names.push_back(label);
+        ids.push_back(it->first);
+    }
+
+    if (names.empty())
+    {
+        gMessageLib->SendSystemMessage(L"No resources are spawned right now.", playerObject);
+        return;
+    }
+    _openResourceList(playerObject, "Resources", names, ids, SUI_Window_CharacterBuilder_ListBox_ResourceMenu);
 }
 
 void CharacterBuilderTerminal::_handleMainMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
+    // A new visit: start the trail of menus again.
+    mMenuTrail[playerObject->getId()].clear();
+
+    if (element == 0)
+    {
+        _openList(playerObject,"handleTestKitMenu","Currently testing","Items for the current test pass.",mTestKitMenu,SUI_Window_CharacterBuilder_ListBox_TestKitMenu);
+        return;
+    }
+    // The other entries keep their old numbers.
+    element -= 1;
+
     // Check if the player is a csr and handle the menu appropriately.
     if (playerObject->getCsrTag())
         return _handleMainCsrMenu(playerObject, action, element, inputStr, window);
@@ -686,19 +750,19 @@ void CharacterBuilderTerminal::_handleMainMenu(PlayerObject* playerObject, uint3
     case 1://Credits
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleCreditsMenu","Credits","Select a category.",mCreditMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_CreditMenu);
+            _openList(playerObject,"handleCreditsMenu","Credits","Select a category.",mCreditMenu,SUI_Window_CharacterBuilder_ListBox_CreditMenu);
         }
         break;
     case 2://Buffs
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleAttributesMenu","Attributes","Select a Buff.",mBuffMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_BuffMenu);
+            _openList(playerObject,"handleAttributesMenu","Attributes","Select a Buff.",mBuffMenu,SUI_Window_CharacterBuilder_ListBox_BuffMenu);
         }
         break;
     case 3://Items
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleItemsMenu","Items","Select a Category.",mItemMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_ItemMenu);
+            _openList(playerObject,"handleItemsMenu","Items","Select a Category.",mItemMenu,SUI_Window_CharacterBuilder_ListBox_ItemMenu);
         }
         break;
     case 4://Resources
@@ -707,7 +771,7 @@ void CharacterBuilderTerminal::_handleMainMenu(PlayerObject* playerObject, uint3
     case 5: //Professions
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleGetProf","Select Profession to Master","Select from the list below.",mProfessionMenu,playerObject,SUI_Window_CharacterBuilderProfessionMastery_ListBox);
+            _openList(playerObject,"handleGetProf","Select Profession to Master","Select from the list below.",mProfessionMenu,SUI_Window_CharacterBuilderProfessionMastery_ListBox);
         }
         break;
     default:
@@ -731,19 +795,19 @@ void CharacterBuilderTerminal::_handleMainCsrMenu(PlayerObject* playerObject, ui
     case 2://Credits
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleCreditsMenu","Credits","Select a category.",mCreditMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_CreditMenu);
+            _openList(playerObject,"handleCreditsMenu","Credits","Select a category.",mCreditMenu,SUI_Window_CharacterBuilder_ListBox_CreditMenu);
         }
         break;
     case 3://Buffs
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleAttributesMenu","Attributes","Select a Buff.",mBuffMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_BuffMenu);
+            _openList(playerObject,"handleAttributesMenu","Attributes","Select a Buff.",mBuffMenu,SUI_Window_CharacterBuilder_ListBox_BuffMenu);
         }
         break;
     case 4://Items
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleItemsMenu","Items","Select a Category.",mItemMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_ItemMenu);
+            _openList(playerObject,"handleItemsMenu","Items","Select a Category.",mItemMenu,SUI_Window_CharacterBuilder_ListBox_ItemMenu);
         }
         break;
     case 5://Resources
@@ -759,19 +823,19 @@ void CharacterBuilderTerminal::_handleMainCsrMenu(PlayerObject* playerObject, ui
     case 7: //Professions
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleGetProf","Select Profession to Master","Select from the list below.",mProfessionMenu,playerObject,SUI_Window_CharacterBuilderProfessionMastery_ListBox);
+            _openList(playerObject,"handleGetProf","Select Profession to Master","Select from the list below.",mProfessionMenu,SUI_Window_CharacterBuilderProfessionMastery_ListBox);
         }
         break;
     case 8: //Wounds
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleWoundMenu","Wounds","Select a Wound.",mWoundMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_WoundMenu);
+            _openList(playerObject,"handleWoundMenu","Wounds","Select a Wound.",mWoundMenu,SUI_Window_CharacterBuilder_ListBox_WoundMenu);
         }
         break;
     case 9: //States
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleStateMenu","States","Select a State.",mStatesMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_StateMenu);
+            _openList(playerObject,"handleStateMenu","States","Select a State.",mStatesMenu,SUI_Window_CharacterBuilder_ListBox_StateMenu);
         }
         break;
     case 10:
@@ -838,7 +902,7 @@ void CharacterBuilderTerminal::_handleProfessionMenu(PlayerObject* playerObject,
         gMessageLib->SendSystemMessage(L"Sorry. That profession is only available to Jedi Enabled Accounts", playerObject);
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleGetProf","Select Profession to Master","Select from the list below.",mProfessionMenu,playerObject,SUI_Window_CharacterBuilderProfessionMastery_ListBox);
+            _openList(playerObject,"handleGetProf","Select Profession to Master","Select from the list below.",mProfessionMenu,SUI_Window_CharacterBuilderProfessionMastery_ListBox);
         }
     } else {
         gSkillManager->learnSkillLine((*newSkill)->mId, playerObject, false);
@@ -1056,201 +1120,85 @@ void CharacterBuilderTerminal::_handleItemMenu(PlayerObject* playerObject, uint3
     case 0: //structures
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleStructureMenu","Structure","Select a category.",mStructureMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_StructureMenu);
+            _openList(playerObject,"handleStructureMenu","Structure","Select a category.",mStructureMenu,SUI_Window_CharacterBuilder_ListBox_StructureMenu);
         }
         break;
     case 1://Furniture
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleFurnitureMenu","Furniture","Select a category.",mFurnitureMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_FurnitureMenu);
+            _openList(playerObject,"handleFurnitureMenu","Furniture","Select a category.",mFurnitureMenu,SUI_Window_CharacterBuilder_ListBox_FurnitureMenu);
         }
         break;
     case 2://Vehicles
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleVehicleMenu","Vehicle","Select a category.",mVehicleMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_VehicleMenu);
+            _openList(playerObject,"handleVehicleMenu","Vehicle","Select a category.",mVehicleMenu,SUI_Window_CharacterBuilder_ListBox_VehicleMenu);
         }
         break;
     case 3://Instruments
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleInstrumentMenu","Instrument","Select a category.",mInstrumentMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_InstrumentMenu);
+            _openList(playerObject,"handleInstrumentMenu","Instrument","Select a category.",mInstrumentMenu,SUI_Window_CharacterBuilder_ListBox_InstrumentMenu);
         }
         break;
     case 4://Tools
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleToolMenu","Tool","Select a category.",mToolMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_ToolMenu);
+            _openList(playerObject,"handleToolMenu","Tool","Select a category.",mToolMenu,SUI_Window_CharacterBuilder_ListBox_ToolMenu);
         }
         break;
     case 5://Weapons
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleWeaponMenu","Weapon","Select a category.",mWeaponMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_WeaponMenu);
+            _openList(playerObject,"handleWeaponMenu","Weapon","Select a category.",mWeaponMenu,SUI_Window_CharacterBuilder_ListBox_WeaponMenu);
         }
         break;
     case 6://Armor
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleArmorMenu","Armor","Select a category.",mArmorMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_ArmorMenu);
+            _openList(playerObject,"handleArmorMenu","Armor","Select a category.",mArmorMenu,SUI_Window_CharacterBuilder_ListBox_ArmorMenu);
         }
         break;
     default:
         break;
     }
 }
+// A resource group was picked: list its spawned resources, by type.
 void CharacterBuilderTerminal::_handleResourceMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
-    ResourceIdList resourceIdList = dynamic_cast<UIResourceSelectListBox*>(window)->getResourceIdList();
-    ResourceTypeMap*				rtMap				= gResourceManager->getResourceTypeMap();
-
-    if(element > (int32)resourceIdList.size()||element < 0)
-    {
+    UIResourceSelectListBox* listBox = dynamic_cast<UIResourceSelectListBox*>(window);
+    if (!listBox)
         return;
-    }
+    ResourceIdList groups = listBox->getResourceIdList();
+    if (element < 0 || element >= static_cast<int32>(groups.size()))
+        return;
+    const uint32 group = static_cast<uint32>(groups[element]);
 
-    uint64							catId				= resourceIdList[element];
-    ResourceCategory*				rParent				= gResourceManager->getResourceCategoryById((uint32)catId);
-
-    resourceIdList.clear();
-    if(rParent)
+    std::vector<std::pair<std::string, uint64> > found;
+    ResourceCRCNameMap* resources = gResourceManager->getResourceCRCNameMap();
+    for (ResourceCRCNameMap::iterator it = resources->begin(); it != resources->end(); ++it)
     {
-        BStringVector					resourceNameList;
-        ResourceIdList					resourceIdList;
-
-        //do we have children categories or children resources?
-        if(rParent->getChildren()->size())
-        {
-            //iterate through the children categories and display them
-            ResourceCategoryList*			rcList				= rParent->getChildren();
-            ResourceCategoryList::iterator	rcIt				= rcList->begin();
-
-            //bool found = false;
-            //iterate through the children and add them as necessary
-            while(rcIt != rcList->end())
-            {
-                if((*(*rcIt)).getChildren()->size())
-                {
-                    resourceIdList.push_back((*(*rcIt)).getId());
-                    resourceNameList.push_back((*(*rcIt)).getName());
-                    rcIt++;
-                    continue;
-                }
-                ResourceTypeMap::iterator rtIt = rtMap->begin();
-                while(rtIt != rtMap->end())
-                {
-                    if(rcIt == rcList->end())
-                        break;
-
-                    ResourceType *rt = (*rtIt).second;
-                    if(!rt)
-                    {
-                        rtIt++;
-                        continue;
-                    }
-
-                    // the resources category id is equal to the category id we are about to display!
-                    // ie it is not empty - add it
-                    if(rt->getCategoryId() == (*(*rcIt)).getId())
-                    {
-                        resourceIdList.push_back((*(*rcIt)).getId());
-                        resourceNameList.push_back((*(*rcIt)).getName());
-                        rtIt++;
-                        //only one of each
-                        break;
-
-                    }
-
-                    if((*(*rcIt)).getParentId() == rParent->getId())
-                    {
-                        resourceIdList.push_back((*(*rcIt)).getId());
-                        resourceNameList.push_back((*(*rcIt)).getName());
-                        rtIt++;
-                        //only one of each
-                        break;
-                        //}
-                    }
-
-                    ++rtIt;
-                }
-                if(rcIt != rcList->end())
-                    rcIt++;
-            }
-            gUIManager->createNewResourceSelectListBox(this,"handleResourcesMenu","Resources","Select",resourceNameList,resourceIdList,playerObject,SUI_Window_CharacterBuilder_ListBox_ResourceMenu);
-        }
-        else//if(rParent->getChildren()->size())
-        {   //it was a resource - create
-
-            ResourceIdList resourceIdList = dynamic_cast<UIResourceSelectListBox*>(window)->getResourceIdList();
-
-            if(element > (int32)resourceIdList.size()|| element < 0)
-            {
-                resourceIdList.clear();
-                return;
-            }
-
-            ResourceCRCNameMap*				rCRCMap				= gResourceManager->getResourceCRCNameMap();
-            ResourceCRCNameMap::iterator	rCrcMapIt;
-
-            ResourceTypeMap::iterator		rtIt				= rtMap->begin();
-            uint32							catId				= static_cast<uint32>(resourceIdList[element]);
-            //ResourceCategory*				rCategory			= gResourceManager->getResourceCategoryById(catId);
-            BStringVector					resourceNameList;
-
-            resourceIdList.clear();
-
-            //no iterate through all the types and check for those containing resis
-            while(rtIt != rtMap->end())
-            {
-                if((*(*rtIt).second).getCategoryId() == catId)
-                {
-                    // check whether we have associated resources
-
-                    rCrcMapIt	= rCRCMap->begin();
-                    while(rCrcMapIt != rCRCMap->end())
-                    {
-                        if((*(*rCrcMapIt).second).getTypeId() == (*(*rtIt).second).getId())
-                        {
-                            resourceNameList.push_back((*(*rtIt).second).getName());
-                            resourceIdList.push_back((*rtIt).first);
-
-                            break;
-                        }
-
-                        ++rCrcMapIt;
-                    }
-                }
-
-                ++rtIt;
-            }
-
-            // is the list filled? if not we might have resources already on our hand!
-            if(resourceIdList.size())
-            {
-                gUIManager->createNewResourceSelectListBox(this,"handleResourcesMenu","Resources","Select",resourceNameList,resourceIdList,playerObject,SUI_Window_CharacterBuilderResourcesTypesMenu_ListBox);
-                return;
-            }
-            else
-            {
-                //as no types are available anymore it might be resources!
-
-                rCrcMapIt	= rCRCMap->begin();
-                while(rCrcMapIt != rCRCMap->end())
-                {
-                    if((*(*rCrcMapIt).second).getTypeId() == catId)
-                    {
-                        resourceNameList.push_back((*(*rCrcMapIt).second).getName());
-                        resourceIdList.push_back((*rCrcMapIt).first);
-                    }
-
-                    ++rCrcMapIt;
-                }
-
-                gUIManager->createNewResourceSelectListBox(this,"handleResourcesMenu","Resources","Select",resourceNameList,resourceIdList,playerObject,SUI_Window_CharacterBuilderResourcesCRCMenu_ListBox);
-            }
-        }
+        Resource* resource = it->second;
+        if (!resource || !resource->getCurrent() || !resource->getType())
+            continue;
+        if (resourceGroupOf(resource->getType()->getCategoryId()) != group)
+            continue;
+        std::string label = std::string(resource->getType()->getName().getAnsi()) + ": " + resource->getName().getAnsi();
+        found.push_back(std::make_pair(label, static_cast<uint64>(it->first)));
     }
+    std::sort(found.begin(), found.end());
+
+    BStringVector names;
+    std::vector<uint64> ids;
+    for (size_t k = 0; k < found.size() && k < 250; ++k)
+    {
+        names.push_back(found[k].first.c_str());
+        ids.push_back(found[k].second);
+    }
+    ResourceCategory* category = gResourceManager->getResourceCategoryById(group);
+    _openResourceList(playerObject, category ? category->getName().getAnsi() : "Resources", names, ids, SUI_Window_CharacterBuilderResourcesCRCMenu_ListBox);
 }
+
 void CharacterBuilderTerminal::_handleResourcesCRC(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
     if(element < 0)
@@ -1550,31 +1498,31 @@ void CharacterBuilderTerminal::_handleStructureMenu(PlayerObject* playerObject, 
     case 0: //Factories
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleFactoryMenu","Factory","Select a category.",mFactoryMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_FactoryMenu);
+            _openList(playerObject,"handleFactoryMenu","Factory","Select a category.",mFactoryMenu,SUI_Window_CharacterBuilder_ListBox_FactoryMenu);
         }
         break;
     case 1: //Harvesters
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleHarvesterMenu","Harvester","Select a category.",mHarvesterMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_HarvesterMenu);
+            _openList(playerObject,"handleHarvesterMenu","Harvester","Select a category.",mHarvesterMenu,SUI_Window_CharacterBuilder_ListBox_HarvesterMenu);
         }
         break;
     case 2: //Camps
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleCampMenu","Camp","Select a category.",mCampMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_CampMenu);
+            _openList(playerObject,"handleCampMenu","Camp","Select a category.",mCampMenu,SUI_Window_CharacterBuilder_ListBox_CampMenu);
         }
         break;
     case 3: //Houses
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleHouseMenu","House","Select a category.",mHouseMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_HouseMenu);
+            _openList(playerObject,"handleHouseMenu","House","Select a category.",mHouseMenu,SUI_Window_CharacterBuilder_ListBox_HouseMenu);
         }
         break;
     case 4:
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this, "handleCivicMenu", "Civic", "Select a category.", mCivicMenu, playerObject, SUI_Window_CharacterBuilder_ListBox_CivicMenu);
+            _openList(playerObject,"handleCivicMenu","Civic","Select a category.",mCivicMenu,SUI_Window_CharacterBuilder_ListBox_CivicMenu);
         }
     default:
         break;
@@ -1587,37 +1535,37 @@ void CharacterBuilderTerminal::_handleFurnitureMenu(PlayerObject* playerObject, 
     case 0: //rugs
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleRugsMenu","Rugs","Select a category.",mRugMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_RugMenu);
+            _openList(playerObject,"handleRugsMenu","Rugs","Select a category.",mRugMenu,SUI_Window_CharacterBuilder_ListBox_RugMenu);
         }
         break;
     case 1: //Plant
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handlePlantMenu","Plant","Select a category.",mPlantMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_PlantMenu);
+            _openList(playerObject,"handlePlantMenu","Plant","Select a category.",mPlantMenu,SUI_Window_CharacterBuilder_ListBox_PlantMenu);
         }
         break;
     case 2: //Elegant
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleElegantMenu","Elegant","Select a category.",mElegantMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_ElegantMenu);
+            _openList(playerObject,"handleElegantMenu","Elegant","Select a category.",mElegantMenu,SUI_Window_CharacterBuilder_ListBox_ElegantMenu);
         }
         break;
     case 3: //Modern
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleModernMenu","Modern","Select a category.",mModernMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_ModernMenu);
+            _openList(playerObject,"handleModernMenu","Modern","Select a category.",mModernMenu,SUI_Window_CharacterBuilder_ListBox_ModernMenu);
         }
         break;
     case 4://Plain
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handlePlainMenu","Plain","Select a category.",mPlainMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_PlainMenu);
+            _openList(playerObject,"handlePlainMenu","Plain","Select a category.",mPlainMenu,SUI_Window_CharacterBuilder_ListBox_PlainMenu);
         }
         break;
     case 5://Cheap
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleCheapMenu","Cheap","Select a category.",mCheapMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_CheapMenu);
+            _openList(playerObject,"handleCheapMenu","Cheap","Select a category.",mCheapMenu,SUI_Window_CharacterBuilder_ListBox_CheapMenu);
         }
         break;
     default:
@@ -1669,13 +1617,13 @@ void CharacterBuilderTerminal::_handleToolMenu(PlayerObject* playerObject, uint3
     case 0://SurveyTool
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleSurveyToolMenu","Survey Tool","Select a category.",mSurveyToolMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_SurveyToolMenu);
+            _openList(playerObject,"handleSurveyToolMenu","Survey Tool","Select a category.",mSurveyToolMenu,SUI_Window_CharacterBuilder_ListBox_SurveyToolMenu);
         }
         break;
     case 1://CraftingTool
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleCraftingToolMenu","Crafting Tool","Select a category.",mCraftingToolMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_CraftingToolMenu);
+            _openList(playerObject,"handleCraftingToolMenu","Crafting Tool","Select a category.",mCraftingToolMenu,SUI_Window_CharacterBuilder_ListBox_CraftingToolMenu);
         }
         break;
     default:
@@ -1689,13 +1637,13 @@ void CharacterBuilderTerminal::_handleWeaponMenu(PlayerObject* playerObject, uin
     case 0://Melee
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleMeleeMenu","Melee","Select a category.",mMeleeMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_MeleeMenu);
+            _openList(playerObject,"handleMeleeMenu","Melee","Select a category.",mMeleeMenu,SUI_Window_CharacterBuilder_ListBox_MeleeMenu);
         }
         break;
     case 1://Ranged
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleRangedMenu","Ranged","Select a category.",mRangedMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_RangedMenu);
+            _openList(playerObject,"handleRangedMenu","Ranged","Select a category.",mRangedMenu,SUI_Window_CharacterBuilder_ListBox_RangedMenu);
         }
         break;
     default:
@@ -1709,19 +1657,19 @@ void CharacterBuilderTerminal::_handleArmorMenu(PlayerObject* playerObject, uint
     case 0://Bone
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleBoneArmorMenu","Bone Armor","Select a category.",mBoneArmorMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_BoneArmorMenu);
+            _openList(playerObject,"handleBoneArmorMenu","Bone Armor","Select a category.",mBoneArmorMenu,SUI_Window_CharacterBuilder_ListBox_BoneArmorMenu);
         }
         break;
     case 1://CompositeArmor
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleCompositeArmorMenu","Composite Armor","Select a category.",mCompositeArmorMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_CompositeArmorMenu);
+            _openList(playerObject,"handleCompositeArmorMenu","Composite Armor","Select a category.",mCompositeArmorMenu,SUI_Window_CharacterBuilder_ListBox_CompositeArmorMenu);
         }
         break;
     case 2://UbeseArmor
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleUbeseArmorMenu","Ubese Armor","Select a category.",mUbeseArmorMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_UbeseArmorMenu);
+            _openList(playerObject,"handleUbeseArmorMenu","Ubese Armor","Select a category.",mUbeseArmorMenu,SUI_Window_CharacterBuilder_ListBox_UbeseArmorMenu);
         }
         break;
     default:
@@ -1735,31 +1683,31 @@ void CharacterBuilderTerminal::_handleHarvesterMenu(PlayerObject* playerObject, 
     case 0:
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleFloraMenu","Flora","Select a category.",mFloraMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_FloraMenu);
+            _openList(playerObject,"handleFloraMenu","Flora","Select a category.",mFloraMenu,SUI_Window_CharacterBuilder_ListBox_FloraMenu);
         }
         break;
     case 1:
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleGasMenu","Gas","Select a category.",mGasMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_GasMenu);
+            _openList(playerObject,"handleGasMenu","Gas","Select a category.",mGasMenu,SUI_Window_CharacterBuilder_ListBox_GasMenu);
         }
         break;
     case 2:
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleChemicalMenu","Chemical","Select a category.",mChemicalMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_ChemicalMenu);
+            _openList(playerObject,"handleChemicalMenu","Chemical","Select a category.",mChemicalMenu,SUI_Window_CharacterBuilder_ListBox_ChemicalMenu);
         }
         break;
     case 3:
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleWaterMenu","Water","Select a category.",mWaterMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_WaterMenu);
+            _openList(playerObject,"handleWaterMenu","Water","Select a category.",mWaterMenu,SUI_Window_CharacterBuilder_ListBox_WaterMenu);
         }
         break;
     case 4:
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleMineralMenu","Mineral","Select a category.",mMineralMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_MineralMenu);
+            _openList(playerObject,"handleMineralMenu","Mineral","Select a category.",mMineralMenu,SUI_Window_CharacterBuilder_ListBox_MineralMenu);
         }
         break;
     default:
@@ -1773,13 +1721,13 @@ void CharacterBuilderTerminal::_handleHouseMenu(PlayerObject* playerObject, uint
     case 0:
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleGenericMenu","Generic","Select a category.",mGenericMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_GenericMenu);
+            _openList(playerObject,"handleGenericMenu","Generic","Select a category.",mGenericMenu,SUI_Window_CharacterBuilder_ListBox_GenericMenu);
         }
         break;
     case 1:
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleTatooineMenu","Tatooine","Select a category.",mTatooineMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_TatooineMenu);
+            _openList(playerObject,"handleTatooineMenu","Tatooine","Select a category.",mTatooineMenu,SUI_Window_CharacterBuilder_ListBox_TatooineMenu);
         }
         break;
     default:
@@ -1971,43 +1919,43 @@ void CharacterBuilderTerminal::_handleMeleeMenu(PlayerObject* playerObject, uint
     case 0://OneHandSword
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleOneHandSwordMenu","One Hand Sword","Select a category.",mOneHandSwordMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_OneHandSwordMenu);
+            _openList(playerObject,"handleOneHandSwordMenu","One Hand Sword","Select a category.",mOneHandSwordMenu,SUI_Window_CharacterBuilder_ListBox_OneHandSwordMenu);
         }
         break;
     case 1://TwoHandSword
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleTwoHandSwordMenu","Two Hand Sword","Select a category.",mTwoHandSwordMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_TwoHandSwordMenu);
+            _openList(playerObject,"handleTwoHandSwordMenu","Two Hand Sword","Select a category.",mTwoHandSwordMenu,SUI_Window_CharacterBuilder_ListBox_TwoHandSwordMenu);
         }
         break;
     case 2://Axe
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleAxeMenu","Axe","Select a category.",mAxeMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_AxeMenu);
+            _openList(playerObject,"handleAxeMenu","Axe","Select a category.",mAxeMenu,SUI_Window_CharacterBuilder_ListBox_AxeMenu);
         }
         break;
     case 3://Baton
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleBatonMenu","Baton","Select a category.",mBatonMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_BatonMenu);
+            _openList(playerObject,"handleBatonMenu","Baton","Select a category.",mBatonMenu,SUI_Window_CharacterBuilder_ListBox_BatonMenu);
         }
         break;
     case 4://Polearm
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handlePolearmMenu","Polearm","Select a category.",mPolearmMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_PolearmMenu);
+            _openList(playerObject,"handlePolearmMenu","Polearm","Select a category.",mPolearmMenu,SUI_Window_CharacterBuilder_ListBox_PolearmMenu);
         }
         break;
     case 5://Knife
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleKnifeMenu","Knife","Select a category.",mKnifeMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_KnifeMenu);
+            _openList(playerObject,"handleKnifeMenu","Knife","Select a category.",mKnifeMenu,SUI_Window_CharacterBuilder_ListBox_KnifeMenu);
         }
         break;
     case 6://Unarmed
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"UnarmedMenu","Unarmed","Select a category.",mUnarmedMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_UnarmedMenu);
+            _openList(playerObject,"UnarmedMenu","Unarmed","Select a category.",mUnarmedMenu,SUI_Window_CharacterBuilder_ListBox_UnarmedMenu);
         }
         break;
     default:
@@ -2021,31 +1969,31 @@ void CharacterBuilderTerminal::_handleRangedMenu(PlayerObject* playerObject, uin
     case 0://Carbine
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleCarbineMenu","Carbine","Select a category.",mCarbineMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_CarbineMenu);
+            _openList(playerObject,"handleCarbineMenu","Carbine","Select a category.",mCarbineMenu,SUI_Window_CharacterBuilder_ListBox_CarbineMenu);
         }
         break;
     case 1://Thrown
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleThrownMenu","Thrown","Select a category.",mThrownMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_ThrownMenu);
+            _openList(playerObject,"handleThrownMenu","Thrown","Select a category.",mThrownMenu,SUI_Window_CharacterBuilder_ListBox_ThrownMenu);
         }
         break;
     case 2://Heavy
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleHeavyMenu","Heavy","Select a category.",mHeavyMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_HeavyMenu);
+            _openList(playerObject,"handleHeavyMenu","Heavy","Select a category.",mHeavyMenu,SUI_Window_CharacterBuilder_ListBox_HeavyMenu);
         }
         break;
     case 3://Pistol
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handlePistolMenu","Pistol","Select a category.",mPistolMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_PistolMenu);
+            _openList(playerObject,"handlePistolMenu","Pistol","Select a category.",mPistolMenu,SUI_Window_CharacterBuilder_ListBox_PistolMenu);
         }
         break;
     case 4://Rifle
         if(playerObject->isConnected())
         {
-            gUIManager->createNewListBox(this,"handleRifleMenu","Rifle","Select a category.",mRifleMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_RifleMenu);
+            _openList(playerObject,"handleRifleMenu","Rifle","Select a category.",mRifleMenu,SUI_Window_CharacterBuilder_ListBox_RifleMenu);
         }
         break;
     default:
@@ -2575,12 +2523,7 @@ void CharacterBuilderTerminal::handleObjectMenuSelect(uint8 messageType,Object* 
                 return;
             }
 
-            if(playerObject->getCsrTag() > 0)
-            {
-                gUIManager->createNewListBox(this,"handleMainMenu","Main menu","Select a category.", mMainCsrMenu,playerObject,SUI_Window_CharacterBuilderMainMenu_ListBox,SUI_LB_OK,this->getId());
-            } else {
-                gUIManager->createNewListBox(this,"handleMainMenu","Main menu","Select a category.", mMainMenu,playerObject,SUI_Window_CharacterBuilderMainMenu_ListBox,SUI_LB_OK,this->getId());
-            }
+            _sendMainMenu(playerObject);
         }
     }
 }
@@ -2590,13 +2533,36 @@ void  CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,BStrin
 {
     PlayerObject* playerObject = window->getOwner();
 
-    if(!playerObject || action || playerObject->getSurveyState() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead())
+    if(!playerObject || playerObject->getSurveyState() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead())
     {
         return;
     }
 
+    // Back (or Cancel, or OK with nothing picked): the menu before this one.
+    if(action)
+    {
+        _goBack(playerObject, window->getWindowType());
+        return;
+    }
+
+    // If the choice opened no new window (it gave an item, or did what it
+    // does), show this menu again so more can be picked.
+    const size_t windowsBefore = playerObject->getUIWindowList()->size();
+    _dispatchUIEvent(playerObject, action, element, inputStr, window);
+    if(playerObject->getUIWindowList()->size() == windowsBefore
+            && window->getWindowType() != SUI_Window_CharacterBuilderMainMenu_ListBox)
+    {
+        _reopenCurrent(playerObject);
+    }
+}
+
+void CharacterBuilderTerminal::_dispatchUIEvent(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
+{
     switch(window->getWindowType())
     {
+    case SUI_Window_CharacterBuilder_ListBox_TestKitMenu:
+        _handleTestKitMenu(playerObject, action, element, inputStr, window);
+        break;
     case SUI_Window_CharacterBuilderMainMenu_ListBox:
         _handleMainMenu(playerObject, action, element, inputStr, window);
         break;
@@ -2792,10 +2758,10 @@ void CharacterBuilderTerminal::_handleCivicMenu(PlayerObject* player, uint32 act
     switch(element)
     {
     case 0:
-        gUIManager->createNewListBox(this,"handleGuildHalls","Guild Halls","Select a category.", mGuildHallMenu,player,SUI_Window_CharacterBuilder_ListBox_GuildHallMenu);
+        _openList(player,"handleGuildHalls","Guild Halls","Select a category.",mGuildHallMenu,SUI_Window_CharacterBuilder_ListBox_GuildHallMenu);
         break;
     case 1:
-        gUIManager->createNewListBox(this,"handleCityHalls","City Halls","Select a category.", mCityHallMenu,player,SUI_Window_CharacterBuilder_ListBox_CityHallMenu);
+        _openList(player,"handleCityHalls","City Halls","Select a category.",mCityHallMenu,SUI_Window_CharacterBuilder_ListBox_CityHallMenu);
         break;
     default:
         break;
@@ -2839,4 +2805,91 @@ void CharacterBuilderTerminal::_handleCityMenu(PlayerObject* player, uint32 acti
     default:
         break;
     }
+}
+
+
+//=============================================================================
+// Frog menus: OK and Back, and a trail of the menus opened so Back can
+// return to the one before.
+
+void CharacterBuilderTerminal::_sendMainMenu(PlayerObject* player)
+{
+    mMenuTrail[player->getId()].clear();
+    gUIManager->createNewListBox(this,"handleMainMenu","Main menu","Select a category.",
+        player->getCsrTag() > 0 ? mMainCsrMenu : mMainMenu,
+        player,SUI_Window_CharacterBuilderMainMenu_ListBox,SUI_LB_OK,this->getId());
+}
+
+void CharacterBuilderTerminal::_showMenu(PlayerObject* player, const OpenMenu& menu)
+{
+    if (menu.resourceList)
+    {
+        ResourceIdList ids(menu.resourceIds.begin(), menu.resourceIds.end());
+        gUIManager->createNewResourceSelectListBox(this,"handleResourcesMenu",menu.caption.c_str(),"Select",
+            menu.items,ids,player,menu.windowType,SUI_LB_OKBACK);
+    }
+    else
+    {
+        gUIManager->createNewListBox(this,menu.event.c_str(),BString(menu.caption.c_str()),BString(menu.prompt.c_str()),
+            menu.items,player,static_cast<ui_window_types>(menu.windowType),SUI_LB_OKBACK);
+    }
+}
+
+void CharacterBuilderTerminal::_openList(PlayerObject* player, const char* event, const char* caption, const char* prompt, const BStringVector& items, uint8 windowType)
+{
+    OpenMenu menu;
+    menu.event = event;
+    menu.caption = caption;
+    menu.prompt = prompt;
+    menu.items = items;
+    menu.resourceList = false;
+    menu.windowType = windowType;
+    mMenuTrail[player->getId()].push_back(menu);
+    _showMenu(player, menu);
+}
+
+void CharacterBuilderTerminal::_openResourceList(PlayerObject* player, const char* caption, const BStringVector& items, const std::vector<uint64>& ids, uint8 windowType)
+{
+    OpenMenu menu;
+    menu.event = "handleResourcesMenu";
+    menu.caption = caption;
+    menu.prompt = "Select";
+    menu.items = items;
+    menu.resourceIds = ids;
+    menu.resourceList = true;
+    menu.windowType = windowType;
+    mMenuTrail[player->getId()].push_back(menu);
+    _showMenu(player, menu);
+}
+
+void CharacterBuilderTerminal::_goBack(PlayerObject* player, uint8 windowType)
+{
+    // Back on the main menu closes the frog.
+    if (windowType == SUI_Window_CharacterBuilderMainMenu_ListBox)
+        return;
+
+    std::vector<OpenMenu>& trail = mMenuTrail[player->getId()];
+    // An input box (credits, teleport) isn't on the trail: its Cancel
+    // returns to the menu that opened it.
+    if (!trail.empty() && trail.back().windowType == windowType)
+        trail.pop_back();
+
+    if (trail.empty())
+        _sendMainMenu(player);
+    else
+        _showMenu(player, trail.back());
+}
+
+void CharacterBuilderTerminal::_reopenCurrent(PlayerObject* player)
+{
+    std::vector<OpenMenu>& trail = mMenuTrail[player->getId()];
+    if (!trail.empty())
+        _showMenu(player, trail.back());
+}
+
+void CharacterBuilderTerminal::_handleTestKitMenu(PlayerObject* player, uint32 action, int32 element, BString inputStr, UIWindow* window)
+{
+    if (element < 0 || element >= static_cast<int32>(mTestKitItems.size()))
+        return;
+    GiveItem(player, mTestKitItems[element]);
 }

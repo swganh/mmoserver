@@ -50,6 +50,13 @@ Roadmap step 2 (`docs/PRECU_AUDIT.md`, the "Code" rows): systems whose
 code is there but that no one has played on this server. The point is to
 find out what works, so for each test note what happened, even when it
 fails part way; a failure here is an issue to file, not a bug in a fix.
+
+The character builder terminal (the frog) has a **Currently testing** menu
+at the top with what this pass needs: each crafting tool with its station
+(experimenting needs both, within 25 m; the generic tool has no station),
+guild hall deeds and camp kits. Its menus have a Back button, picking an
+item keeps the menu open, and Manage Resources lists only resources
+spawned now, by group (Mineral, Chemical, Flora...).
 Items, professions, resources and credits come from the character builder
 terminal (Manage Professions, Manage Items, Manage Resources, Manage
 Credits). Run with `./server.sh debug -g`, so a crash leaves a backtrace.

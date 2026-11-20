@@ -174,6 +174,7 @@ unsigned int
     SUI_Window_CharacterBuilder_ListBox_WoundMenu,
     SUI_Window_CharacterBuilder_ListBox_StateMenu,
     SUI_Window_CharacterBuilder_ListBox_PersonalFrogMenu,
+    SUI_Window_CharacterBuilder_ListBox_TestKitMenu,
 
     //trade
     SUI_Window_Trade_BankTip_ConfirmSurcharge
@@ -198,7 +199,8 @@ enum ui_lb_types
     SUI_LB_CANCELREFRESH				= 3,
     SUI_LB_CANCEL_SCHEMATIC_REMOVEUSE	= 4,
     SUI_LB_CANCEL_SCHEMATIC_USE			= 5,
-    SUI_LB_YESNO						= 6
+    SUI_LB_YESNO						= 6,
+    SUI_LB_OKBACK						= 7
 };
 
 //================================================================================

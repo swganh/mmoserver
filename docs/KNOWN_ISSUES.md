@@ -1031,7 +1031,13 @@ The other kinds, tested in the step 2 pass (T43, Nov 2026):
   first retest ran 15 minutes without completing: the timer has icon 0,
   like other internal buffs, and `AddBuff` deletes a buff whose icon the
   player already has unless it is stackable, so the timer was thrown away
-  at once. It is added as stackable now (fixed, to retest).
+  at once. It is added as stackable now (fixed, to retest). The next retest
+  started the timer, but the musician ran out of action ("You are too
+  tired to continue playing music") in the same second the 10 minutes
+  ended, and the mission, which required the player to be performing at
+  that moment, didn't complete. Now stopping early cancels the timer at
+  once (with a message), and at the end the mission completes if the
+  player is still at the spot; a stop in the last two seconds still counts.
 - Entertainer missions put their spot on a random outdoor townsfolk NPC
   (the generator borrows an NPC's position), so every one lands on or
   next to someone. Pre-CU sent the entertainer to a venue or a spot in
@@ -1289,6 +1295,14 @@ without its defaults if a query fails, instead of crashing.
 The instrument's default attributes in the database are placeholders:
 condition "###/###" and an owner of "Players Name here (Needs code)". Small
 data to fix with a migration.
+
+### 47. A musician doesn't hear their own music — open
+
+Found in the step 2 test pass (Nov 2026): playing the Nalargon, the
+musician's own client plays no music; another character listening hears
+it. Pre-CU, the performer heard their own performance. Most likely the
+performer's own client isn't sent what the listeners get (the performance
+id, or listening to themselves). To look at.
 
 ### 46. /tip bank refused with "bank" first — fixed, to retest
 

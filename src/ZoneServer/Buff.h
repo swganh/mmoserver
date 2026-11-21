@@ -150,11 +150,14 @@ private:
     ///////////////////////////////////////////////////////////////////////////////////////////////
     int32					ModifyAttribute(uint64 Type, int32 Value, bool damage = false, bool debuff = false);//returns the amount of the buff that got applied
     void					IncrementTick();
-    uint64					GetRemainingTime(uint64 CurrentTime);
     bool					UpdateTick(uint64 CurrentTime);
     void					FinalChanges();		//last change of a buff before deletion
     void					InitialChanges();	//resend icons and attribute changes
     void					InitializeIcons();	//just resend the icons when we rezone before char delete
+
+public:
+    // Time left before the buff ends (entertainer missions read it).
+    uint64					GetRemainingTime(uint64 CurrentTime);
 
 protected:
     ///////////////////////////////////////////////////////////////////////////////////////////////

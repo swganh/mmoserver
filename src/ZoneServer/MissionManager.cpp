@@ -668,6 +668,33 @@ void MissionManager::missionComplete(PlayerObject* player, MissionObject* missio
 //======================================================================================================================
 
 
+void MissionManager::entertainerStopped(PlayerObject* player)
+{
+    Datapad* datapad = player ? player->getDataPad() : NULL;
+    if(!datapad || !datapad->hasMission())
+        return;
+
+    MissionList::iterator it = datapad->getMissions()->begin();
+    for(; it != datapad->getMissions()->end(); ++it)
+    {
+        MissionObject* mission = dynamic_cast<MissionObject*>(*it);
+        if(!mission || !mission->getInProgress()
+                || (mission->getMissionType() != dancer && mission->getMissionType() != musician))
+            continue;
+
+        Buff* timer = mission->getEntertainingTimer();
+        // In its last seconds the timer is as good as done: let it end.
+        if(timer && timer->GetRemainingTime(gWorldManager->GetCurrentGlobalTick()) <= 2000)
+            continue;
+
+        // The timer buff runs on and ends unmatched (the mission no longer
+        // points at it).
+        mission->setInProgress(false);
+        mission->setEntertainingTimer(NULL);
+        gMessageLib->SendSystemMessage(L"You stopped performing before your mission's time was up. Perform at the mission's location again to start over.", player);
+    }
+}
+
 void MissionManager::missionCompleteEntertainer(PlayerObject* player,Buff* timer)
 {
     // Buffs also end when a player logs out: only a connected player with a
@@ -689,13 +716,13 @@ void MissionManager::missionCompleteEntertainer(PlayerObject* player,Buff* timer
             }
             if(mission->getMissionType() == dancer || mission->getMissionType() == musician)
             {
-                // Only this mission's own timer ending counts.
+                // Only this mission's own timer ending counts. Stopping
+                // early already cancelled it (entertainerStopped), so the
+                // player performed the whole time; a stop in the last
+                // seconds (out of action as the timer ended) still counts.
                 if(mission->getEntertainingTimer() != timer) { ++it; continue; }
 
-                const bool performing = (mission->getMissionType() == dancer)
-                    ? player->getPerformingState() == PlayerPerformance_Dance
-                    : player->getPerformingState() == PlayerPerformance_Music;
-                if(performing && glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
+                if(glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
                 {
                     missionComplete(player,mission);
                     datapad->removeMission(mission);
@@ -703,11 +730,10 @@ void MissionManager::missionCompleteEntertainer(PlayerObject* player,Buff* timer
                     return;
                 }
 
-                // Stopped, or moved away: the performance doesn't count.
-                // Performing at the spot again starts a new timer.
+                // Moved away: the performance doesn't count.
                 mission->setInProgress(false);
                 mission->setEntertainingTimer(NULL);
-                gMessageLib->SendSystemMessage(L"You must keep performing at the mission's location for the whole time. Start again there to try once more.", player);
+                gMessageLib->SendSystemMessage(L"You must stay at the mission's location to complete it. Perform there again to try once more.", player);
                 return;
             }
             ++it;

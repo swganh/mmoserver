@@ -1002,6 +1002,10 @@ void EntertainerManager::stopEntertaining(PlayerObject* entertainer)
     if(entertainer->getPerformingState() == PlayerPerformance_None)
         return;
 
+    // Stopping early cancels an entertainer mission's timer.
+    if(gMissionManager)
+        gMissionManager->entertainerStopped(entertainer);
+
     //remove us from the scheduler
     gWorldManager->removeEntertainerToProcess(entertainer->getEntertainerTaskId());
 

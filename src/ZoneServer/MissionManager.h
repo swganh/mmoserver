@@ -228,6 +228,9 @@ public:     // methods
     void	missionRequest(PlayerObject* player, uint64 mission_id);
     void    missionComplete(PlayerObject* player, MissionObject* mission);
     void	missionCompleteEntertainer(PlayerObject* player,Buff* timer);
+    // The player stopped performing: cancel an entertainer mission's timer
+    // that still has time to run.
+    void	entertainerStopped(PlayerObject* player);
     void	missionAbort(PlayerObject* player, uint64 mission_id);
     void	missionFailed(PlayerObject* player, MissionObject* mission);
     void	missionFailedEntertainer(PlayerObject* player);

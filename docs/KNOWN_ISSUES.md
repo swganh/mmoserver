@@ -1222,8 +1222,20 @@ were server data pre-CU, so a screenshot of each camp type is the best
 source), and the character sat on the chair oddly (it may be placed as a
 decoration rather than as a seat).
 
+A look through the client found no template named for a camp terminal.
+To settle before building: what pre-CU camps offered for status and
+disbanding (a terminal under another name, or the camp's own menu).
+
 The guild hall (T32) placed; it has no guild terminal because guilds
 aren't built (roadmap step 7).
+
+### 44. A vehicle mounted while sitting or kneeling won't move — fixed, to retest
+
+Seen twice in the step 2 pass (Nov 2026), the second time after sitting
+in a camp: the player mounted the speeder and it stayed put, with the
+HUD's posture icon not standing. `VehicleController::MountPlayer` set the
+riding state but left the posture as it was, and the client doesn't drive
+a seated or kneeling rider. Mounting now stands the player up first.
 
 Also seen, to check against the guides before changing:
 - `/imagedesign` opens the window with no prompt to the other player.

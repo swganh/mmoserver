@@ -285,6 +285,13 @@ void VehicleController::MountPlayer()
     body_->states.toggleActionOn(CreatureState_MountedCreature);
     gMessageLib->sendStateUpdate(body_);
 
+    // Stand up first: mounted while sitting or kneeling (by a campfire, after
+    // a fight), the client won't drive and the vehicle stays put (#44).
+    if (owner_->states.getPosture() != CreaturePosture_Upright)
+    {
+        gStateManager.setCurrentPostureState(owner_, CreaturePosture_Upright);
+    }
+
     gStateManager.setCurrentActionState(owner_,CreatureState_RidingMount);
     //gStateManager.setCurrentPostureState(owner_,CreaturePosture_DrivingVehicle);
     //gStateManager.setCurrentLocomotionState(owner_,CreatureLocomotion_DrivingVehicle);

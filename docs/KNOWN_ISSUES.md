@@ -1267,6 +1267,14 @@ without its defaults if a query fails, instead of crashing.
 The instrument's default attributes in the database are placeholders:
 condition "###/###" and an owner of "Players Name here (Needs code)". Small
 data to fix with a migration.
+
+### 46. /tip bank refused with "bank" first — fixed, to retest
+
+Found in the step 2 test pass (Nov 2026): `/tip bank Obitwo 100`, and
+`/tip bank 100` with the player targeted, both answered "You may only /tip
+or /tip bank to other players". The handler only recognised "bank" as the
+last word (`/tip Obitwo 100 bank`, pre-CU's own order). It now accepts it
+anywhere.
 Storing the speeder and calling it again freed it (the player was
 standing by then), which fits.
 

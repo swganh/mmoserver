@@ -1205,6 +1205,26 @@ checked the size before taking the lock, so the loop could take a message
 that wasn't there. Both now hold the session's lock, and the loop stops at
 an empty queue. The same code runs in every server.
 
+### 43. Camps have no terminal, and their layout and chair look wrong — open
+
+Found in the step 2 test pass (T39, Nov 2026): a basic camp placed with
+its tent, torches, decorative campfire and chair, but no camp terminal,
+so it can't be checked or disbanded. The code is there (`CampTerminal`,
+with Status and Disband, spawned by `ScoutManager::createCamp` from the
+camp's rows in `structure_item_template` marked as a terminal); the data
+isn't: no camp has a terminal row, and `terminal_types` has no camp
+terminal. To fix with a migration: the camp terminal's template (its name
+from the client: `tools/client/tre.py list <client>
+'object/tangible/terminal/*camp*'`) in `terminal_types`, and a terminal
+row in each of the six camps' layouts. The layout itself looked off (a
+basic camp lists only the campfire and the chair; the furniture positions
+were server data pre-CU, so a screenshot of each camp type is the best
+source), and the character sat on the chair oddly (it may be placed as a
+decoration rather than as a seat).
+
+The guild hall (T32) placed; it has no guild terminal because guilds
+aren't built (roadmap step 7).
+
 Also seen, to check against the guides before changing:
 - `/imagedesign` opens the window with no prompt to the other player.
 - Changes can only be committed inside an image designer's tent. That is

@@ -1236,6 +1236,8 @@ in a camp: the player mounted the speeder and it stayed put, with the
 HUD's posture icon not standing. `VehicleController::MountPlayer` set the
 riding state but left the posture as it was, and the client doesn't drive
 a seated or kneeling rider. Mounting now stands the player up first.
+Storing the speeder and calling it again freed it (the player was
+standing by then), which fits.
 
 Also seen, to check against the guides before changing:
 - `/imagedesign` opens the window with no prompt to the other player.

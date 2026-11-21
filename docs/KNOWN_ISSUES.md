@@ -1027,7 +1027,11 @@ The other kinds, tested in the step 2 pass (T43, Nov 2026):
   minute), and when it ends the mission completes if the player is still
   performing there; otherwise it says so, and performing there again
   starts a new timer. The timer buff has no icon, so a system message now says when it
-  starts. Missions in the datapad don't survive a server restart.
+  starts. Missions in the datapad don't survive a server restart. The
+  first retest ran 15 minutes without completing: the timer has icon 0,
+  like other internal buffs, and `AddBuff` deletes a buff whose icon the
+  player already has unless it is stackable, so the timer was thrown away
+  at once. It is added as stackable now (fixed, to retest).
 - Survey missions show "Unknown Planet" in the mission list's Start
   column (other kinds show a distance and direction). Cosmetic; to look at.
 The accepted mission's datapad entry (description, creator, payment,

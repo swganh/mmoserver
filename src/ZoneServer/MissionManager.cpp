@@ -907,7 +907,11 @@ void MissionManager::checkMusicianMission(PlayerObject* player)
                     // 10 minutes, as the missions say (it was 1 for music).
                     Buff* timer = Buff::SimpleBuff(player, player, 600000, 0, gWorldManager->GetCurrentGlobalTick());
                     timer->AddAttribute(performance_timer);
-                    player->AddBuff(timer);
+                    // Stackable: the timer has no icon (0), like other
+                    // internal buffs, and AddBuff deleted a second icon-0
+                    // buff as a duplicate, leaving the mission with a
+                    // deleted timer that never ended.
+                    player->AddBuff(timer, true);
                     mission->setEntertainingTimer(timer);
                     // The timer buff has no icon: say that it started.
                     gMessageLib->SendSystemMessage(L"You start performing for your mission. Keep it up here for 10 minutes.", player);
@@ -942,7 +946,11 @@ void MissionManager::checkDancerMission(PlayerObject* player)
                     BuffAttribute* performance_timer = new BuffAttribute(time_remaining, 0,0,0);
                     Buff* timer = Buff::SimpleBuff(player, player, 600000, 0, gWorldManager->GetCurrentGlobalTick());
                     timer->AddAttribute(performance_timer);
-                    player->AddBuff(timer);
+                    // Stackable: the timer has no icon (0), like other
+                    // internal buffs, and AddBuff deleted a second icon-0
+                    // buff as a duplicate, leaving the mission with a
+                    // deleted timer that never ended.
+                    player->AddBuff(timer, true);
                     mission->setEntertainingTimer(timer);
                     // The timer buff has no icon: say that it started.
                     gMessageLib->SendSystemMessage(L"You start performing for your mission. Keep it up here for 10 minutes.", player);

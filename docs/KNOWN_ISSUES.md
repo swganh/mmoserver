@@ -1032,6 +1032,11 @@ The other kinds, tested in the step 2 pass (T43, Nov 2026):
   like other internal buffs, and `AddBuff` deletes a buff whose icon the
   player already has unless it is stackable, so the timer was thrown away
   at once. It is added as stackable now (fixed, to retest).
+- Entertainer missions put their spot on a random outdoor townsfolk NPC
+  (the generator borrows an NPC's position), so every one lands on or
+  next to someone. Pre-CU sent the entertainer to a venue or a spot in
+  town ("the patrons at this establishment"). With the deliver missions'
+  NPCs, for later.
 - Survey missions show "Unknown Planet" in the mission list's Start
   column (other kinds show a distance and direction). Cosmetic; to look at.
 The accepted mission's datapad entry (description, creator, payment,

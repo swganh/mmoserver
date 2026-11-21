@@ -296,6 +296,8 @@ void Service::Process()
             for(uint32 j = 0; j < messageCount; j++)
             {
                 Message* message = session->getIncomingQueueMessage();
+                if(!message)
+                    break;
                 message->setPendingDelete(true);
             }
         }
@@ -304,6 +306,8 @@ void Service::Process()
             for(uint32 j = 0; j < messageCount; j++)
             {
                 Message* message = session->getIncomingQueueMessage();
+                if(!message)
+                    break;
 
                 message->ResetIndex();
 

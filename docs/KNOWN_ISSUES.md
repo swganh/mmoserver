@@ -1188,6 +1188,17 @@ far as we remember, only a critical failure did.
 Experimenting itself works: with Engineering I and the matching station,
 the experimentation step came up after assembly.
 
+### 42. ConnectionServer crashed overnight on a missing message — fixed, to retest
+
+Found on the VM (Nov 2026), after a night idle with a client that had
+connected and reconnected: SIGSEGV in `Message::ResetIndex` (this=0x0)
+from `Service::Process`. The loop asks the session how many messages are
+waiting and then takes that many; the count read the queue's size with no
+lock while the socket thread was adding to it, and `getIncomingQueueMessage`
+checked the size before taking the lock, so the loop could take a message
+that wasn't there. Both now hold the session's lock, and the loop stops at
+an empty queue. The same code runs in every server.
+
 Also seen, to check against the guides before changing:
 - `/imagedesign` opens the window with no prompt to the other player.
 - Changes can only be committed inside an image designer's tent. That is

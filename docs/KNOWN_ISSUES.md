@@ -1041,9 +1041,16 @@ The other kinds, tested in the step 2 pass (T43, Nov 2026):
   retest after that ran 11 minutes without completing: the buff scheduler
   runs a copy of each buff (`addBuffToProcess`), so the buff that ends is
   never the mission's own and the pointer check never matched (probably
-  why the original authors commented it out). The mission now asks its
-  own timer whether the time is up, read as signed (`GetRemainingTime` is
-  unsigned and wraps once past the end).
+  why the original authors commented it out). Asking the timer whether its
+  time was up didn't work either: the global tick it measures against
+  counts a once-a-second task and falls behind real time, so at the real
+  10 minutes it still had time left, and an abort later completed the
+  mission and then crashed (the abort's buff removal ran the completion,
+  which deleted the mission the abort was still using, and the buff was
+  deleted twice). Now the ending copy is matched to the mission's timer by
+  its start tick and length, the early-stop grace uses real time, and an
+  abort detaches the mission from its timer before removing the buff and
+  no longer deletes it itself.
 - Entertainer missions put their spot on a random outdoor townsfolk NPC
   (the generator borrows an NPC's position), so every one lands on or
   next to someone. Pre-CU sent the entertainer to a venue or a spot in

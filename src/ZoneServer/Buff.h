@@ -116,6 +116,9 @@ public:
     CreatureObject*	GetTarget();
     CreatureObject*	GetInstigator();
     uint64 GetTickLength();
+    // The global tick the buff started at: a scheduled copy keeps it, so
+    // it tells which buff a copy came from.
+    uint64 GetStartTime() const { return mStartTime; }
     uint32 GetNoOfTicks();
     uint32 GetCurrentTickNumber();
     uint32 GetIcon();

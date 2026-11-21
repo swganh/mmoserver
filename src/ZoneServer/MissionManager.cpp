@@ -41,6 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ResourceManager.h"
 #include "ResourceType.h"
 #include "Resource.h"
+#include "Utils/clock.h"
 #include <algorithm>
 #include <vector>
 #include "Terminal.h"
@@ -684,7 +685,10 @@ void MissionManager::entertainerStopped(PlayerObject* player)
 
         Buff* timer = mission->getEntertainingTimer();
         // In its last seconds the timer is as good as done: let it end.
-        if(timer && static_cast<int64>(timer->GetRemainingTime(gWorldManager->GetCurrentGlobalTick())) <= 2000)
+        // Measured from when the mission's performance started, in real
+        // time (the global tick falls behind).
+        if(timer && mission->getPerformanceStart()
+                && Anh_Utils::Clock::getSingleton()->getLocalTime() + 2000 >= mission->getPerformanceStart() + timer->GetTickLength())
             continue;
 
         // The timer buff runs on and ends unmatched (the mission no longer
@@ -721,11 +725,13 @@ void MissionManager::missionCompleteEntertainer(PlayerObject* player,Buff* timer
                 // player performed the whole time; a stop in the last
                 // seconds (out of action as the timer ended) still counts.
                 // The scheduler runs a copy of the buff (addBuffToProcess),
-                // so the buff ending here is never the mission's own: ask
-                // the mission's timer whether its time is up instead.
+                // so the buff ending here is never the mission's own object;
+                // the copy keeps its start tick and length, which identify
+                // it. (The global tick can't tell whether the time is up: it
+                // counts a once-a-second task and falls behind real time.)
                 Buff* own = mission->getEntertainingTimer();
-                // (Unsigned: past the end it wraps, so read it as signed.)
-                if(!own || static_cast<int64>(own->GetRemainingTime(gWorldManager->GetCurrentGlobalTick())) > 2000) { ++it; continue; }
+                if(!own || own->GetStartTime() != timer->GetStartTime()
+                        || own->GetTickLength() != timer->GetTickLength()) { ++it; continue; }
 
                 if(glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
                 {
@@ -769,11 +775,14 @@ void MissionManager::missionAbort(PlayerObject* player, uint64 mission_id)
         {
             if(mission->getInProgress())
             {
+                // Detach the mission first: removing the buff runs its final
+                // step, which would otherwise complete the mission and delete
+                // it under us. RemoveBuff marks the buff for deletion; it is
+                // freed with the player's buffs, not here.
                 Buff* timer = mission->getEntertainingTimer();
-                player->RemoveBuff(timer);
                 mission->setInProgress(false);
-                SAFE_DELETE(timer);
                 mission->setEntertainingTimer(NULL);
+                player->RemoveBuff(timer);
             }
         }
 
@@ -944,6 +953,7 @@ void MissionManager::checkMusicianMission(PlayerObject* player)
                     // deleted timer that never ended.
                     player->AddBuff(timer, true);
                     mission->setEntertainingTimer(timer);
+                    mission->setPerformanceStart(Anh_Utils::Clock::getSingleton()->getLocalTime());
                     // The timer buff has no icon: say that it started.
                     gMessageLib->SendSystemMessage(L"You start performing for your mission. Keep it up here for 10 minutes.", player);
                     mission->setInProgress(true);
@@ -983,6 +993,7 @@ void MissionManager::checkDancerMission(PlayerObject* player)
                     // deleted timer that never ended.
                     player->AddBuff(timer, true);
                     mission->setEntertainingTimer(timer);
+                    mission->setPerformanceStart(Anh_Utils::Clock::getSingleton()->getLocalTime());
                     // The timer buff has no icon: say that it started.
                     gMessageLib->SendSystemMessage(L"You start performing for your mission. Keep it up here for 10 minutes.", player);
                     mission->setInProgress(true);

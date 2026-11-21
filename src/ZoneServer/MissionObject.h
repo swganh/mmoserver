@@ -226,6 +226,8 @@ public:
     Buff*				getEntertainingTimer() {
         return mEntertainingTimer;
     }
+    uint64				getPerformanceStart() const { return mPerformanceStart; }
+    void				setPerformanceStart(uint64 time) { mPerformanceStart = time; }
     void				setEntertainingTimer(Buff* timer) {
         mEntertainingTimer = timer;
     }
@@ -298,6 +300,7 @@ protected:
     bool					mInProgress;			//set to true when the player starts the buff used in entertainer missions
 
     uint64					mTaskId;
+    uint64					mPerformanceStart;		// entertainer missions: local time the timed performance began
     uint64					mLairsTypeId;
     uint64					mLairId;
 

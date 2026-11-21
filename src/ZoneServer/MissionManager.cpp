@@ -909,6 +909,8 @@ void MissionManager::checkMusicianMission(PlayerObject* player)
                     timer->AddAttribute(performance_timer);
                     player->AddBuff(timer);
                     mission->setEntertainingTimer(timer);
+                    // The timer buff has no icon: say that it started.
+                    gMessageLib->SendSystemMessage(L"You start performing for your mission. Keep it up here for 10 minutes.", player);
                     mission->setInProgress(true);
                 }
             }
@@ -942,6 +944,8 @@ void MissionManager::checkDancerMission(PlayerObject* player)
                     timer->AddAttribute(performance_timer);
                     player->AddBuff(timer);
                     mission->setEntertainingTimer(timer);
+                    // The timer buff has no icon: say that it started.
+                    gMessageLib->SendSystemMessage(L"You start performing for your mission. Keep it up here for 10 minutes.", player);
                     mission->setInProgress(true);
                 }
             }

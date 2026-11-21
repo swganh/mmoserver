@@ -684,7 +684,7 @@ void MissionManager::entertainerStopped(PlayerObject* player)
 
         Buff* timer = mission->getEntertainingTimer();
         // In its last seconds the timer is as good as done: let it end.
-        if(timer && timer->GetRemainingTime(gWorldManager->GetCurrentGlobalTick()) <= 2000)
+        if(timer && static_cast<int64>(timer->GetRemainingTime(gWorldManager->GetCurrentGlobalTick())) <= 2000)
             continue;
 
         // The timer buff runs on and ends unmatched (the mission no longer
@@ -720,7 +720,12 @@ void MissionManager::missionCompleteEntertainer(PlayerObject* player,Buff* timer
                 // early already cancelled it (entertainerStopped), so the
                 // player performed the whole time; a stop in the last
                 // seconds (out of action as the timer ended) still counts.
-                if(mission->getEntertainingTimer() != timer) { ++it; continue; }
+                // The scheduler runs a copy of the buff (addBuffToProcess),
+                // so the buff ending here is never the mission's own: ask
+                // the mission's timer whether its time is up instead.
+                Buff* own = mission->getEntertainingTimer();
+                // (Unsigned: past the end it wraps, so read it as signed.)
+                if(!own || static_cast<int64>(own->GetRemainingTime(gWorldManager->GetCurrentGlobalTick())) > 2000) { ++it; continue; }
 
                 if(glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
                 {

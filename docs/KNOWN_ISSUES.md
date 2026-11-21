@@ -1037,7 +1037,13 @@ The other kinds, tested in the step 2 pass (T43, Nov 2026):
   ended, and the mission, which required the player to be performing at
   that moment, didn't complete. Now stopping early cancels the timer at
   once (with a message), and at the end the mission completes if the
-  player is still at the spot; a stop in the last two seconds still counts.
+  player is still at the spot; a stop in the last two seconds still counts. The
+  retest after that ran 11 minutes without completing: the buff scheduler
+  runs a copy of each buff (`addBuffToProcess`), so the buff that ends is
+  never the mission's own and the pointer check never matched (probably
+  why the original authors commented it out). The mission now asks its
+  own timer whether the time is up, read as signed (`GetRemainingTime` is
+  unsigned and wraps once past the end).
 - Entertainer missions put their spot on a random outdoor townsfolk NPC
   (the generator borrows an NPC's position), so every one lands on or
   next to someone. Pre-CU sent the entertainer to a venue or a spot in

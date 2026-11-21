@@ -1251,6 +1251,22 @@ in a camp: the player mounted the speeder and it stayed put, with the
 HUD's posture icon not standing. `VehicleController::MountPlayer` set the
 riding state but left the posture as it was, and the client doesn't drive
 a seated or kneeling rider. Mounting now stands the player up first.
+
+### 45. Placing an instrument crashed the zone — fixed, to retest
+
+Found in the step 2 test pass (entertainer missions, Nov 2026): using a
+Nalargon from the inventory (it places a temporary copy) logged "You have
+an error in your SQL syntax ... near 'swganh.JOIN attributes'" and the
+ZoneServer crashed in `FactoryBase::_buildAttributeMap`. The
+non-persistent item factory's query read `INNER %s.JOIN attributes`
+instead of `INNER JOIN %s.attributes`, so it always failed, and the
+attribute map read the missing result. The query is fixed, and
+`_buildAttributeMap` (shared by every item factory) loads the object
+without its defaults if a query fails, instead of crashing.
+
+The instrument's default attributes in the database are placeholders:
+condition "###/###" and an owner of "Players Name here (Needs code)". Small
+data to fix with a migration.
 Storing the speeder and calling it again freed it (the player was
 standing by then), which fits.
 

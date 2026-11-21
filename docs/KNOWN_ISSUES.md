@@ -1187,6 +1187,12 @@ far as we remember, only a critical failure did.
 
 Experimenting itself works: with Engineering I and the matching station,
 the experimentation step came up after assembly.
+A third carbine, after a great success, confirms it: its crafted values
+rose (Maximum Damage 46.71, Minimum 22.85, Unit Integrity 1012.68 against
+43.11, 21.05 and 952.68 without experimenting) while the template block
+stayed at Damage 25-50, speed 3.5. Its crafted Attack Speed also rose
+(37.46 against 35.78); if that is the time between attacks, a success
+should lower it, so the attribute may be the wrong way round too.
 
 ### 42. ConnectionServer crashed overnight on a missing message — fixed, to retest
 

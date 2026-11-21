@@ -1275,6 +1275,8 @@ Found in the step 2 test pass (Nov 2026): `/tip bank Obitwo 100`, and
 or /tip bank to other players". The handler only recognised "bank" as the
 last word (`/tip Obitwo 100 bank`, pre-CU's own order). It now accepts it
 anywhere.
+Confirmed on the VM: `/tip Obitwo 100 bank` sent the credits to the other
+character's bank.
 Storing the speeder and calling it again freed it (the player was
 standing by then), which fits.
 

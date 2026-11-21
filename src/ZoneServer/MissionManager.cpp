@@ -670,9 +670,14 @@ void MissionManager::missionComplete(PlayerObject* player, MissionObject* missio
 
 void MissionManager::missionCompleteEntertainer(PlayerObject* player,Buff* timer)
 {
+    // Buffs also end when a player logs out: only a connected player with a
+    // datapad can complete anything.
+    if(!player || !timer || !player->isConnected())
+        return;
+
     Datapad* datapad			= player->getDataPad();
 
-    if(datapad->hasMission()) //player has a mission
+    if(datapad && datapad->hasMission()) //player has a mission
     {
         MissionList::iterator it = datapad->getMissions()->begin();
         while(it != datapad->getMissions()->end())
@@ -684,14 +689,26 @@ void MissionManager::missionCompleteEntertainer(PlayerObject* player,Buff* timer
             }
             if(mission->getMissionType() == dancer || mission->getMissionType() == musician)
             {
-                //if(mission->getEntertainingTimer() != timer) { ++it; continue; } //check to see if this is the mission who's timer is expiring
-                if(glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
+                // Only this mission's own timer ending counts.
+                if(mission->getEntertainingTimer() != timer) { ++it; continue; }
+
+                const bool performing = (mission->getMissionType() == dancer)
+                    ? player->getPerformingState() == PlayerPerformance_Dance
+                    : player->getPerformingState() == PlayerPerformance_Music;
+                if(performing && glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
                 {
                     missionComplete(player,mission);
                     datapad->removeMission(mission);
                     delete mission;
                     return;
                 }
+
+                // Stopped, or moved away: the performance doesn't count.
+                // Performing at the spot again starts a new timer.
+                mission->setInProgress(false);
+                mission->setEntertainingTimer(NULL);
+                gMessageLib->SendSystemMessage(L"You must keep performing at the mission's location for the whole time. Start again there to try once more.", player);
+                return;
             }
             ++it;
         }
@@ -887,7 +904,8 @@ void MissionManager::checkMusicianMission(PlayerObject* player)
                 if(glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
                 {
                     BuffAttribute* performance_timer = new BuffAttribute(time_remaining, 0,0,0);
-                    Buff* timer = Buff::SimpleBuff(player, player, 60000, 0, gWorldManager->GetCurrentGlobalTick());
+                    // 10 minutes, as the missions say (it was 1 for music).
+                    Buff* timer = Buff::SimpleBuff(player, player, 600000, 0, gWorldManager->GetCurrentGlobalTick());
                     timer->AddAttribute(performance_timer);
                     player->AddBuff(timer);
                     mission->setEntertainingTimer(timer);
@@ -923,6 +941,7 @@ void MissionManager::checkDancerMission(PlayerObject* player)
                     Buff* timer = Buff::SimpleBuff(player, player, 600000, 0, gWorldManager->GetCurrentGlobalTick());
                     timer->AddAttribute(performance_timer);
                     player->AddBuff(timer);
+                    mission->setEntertainingTimer(timer);
                     mission->setInProgress(true);
                 }
             }

@@ -1050,7 +1050,8 @@ The other kinds, tested in the step 2 pass (T43, Nov 2026):
   deleted twice). Now the ending copy is matched to the mission's timer by
   its start tick and length, the early-stop grace uses real time, and an
   abort detaches the mission from its timer before removing the buff and
-  no longer deletes it itself.
+  no longer deletes it itself. Confirmed on the VM (build 2fcf713): the timer started at
+  23:02:24 and the mission completed at 23:12:24, paying 1,458 credits.
 - Entertainer missions put their spot on a random outdoor townsfolk NPC
   (the generator borrows an NPC's position), so every one lands on or
   next to someone. Pre-CU sent the entertainer to a venue or a spot in

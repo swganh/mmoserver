@@ -40,6 +40,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerObject.h"
 #include "ResourceManager.h"
 #include "ResourceType.h"
+#include "Resource.h"
+#include <algorithm>
+#include <vector>
 #include "Terminal.h"
 #include "TreasuryManager.h"
 #include "UIManager.h"
@@ -1582,43 +1585,31 @@ MissionObject* MissionManager::generateSurveyMission(MissionObject* mission)
     mission->setDetailFile("mission/mission_npc_survey_neutral_easy");
     mission->setDetail(md);
 
-    bool found = false;
-
-    ResourceTypeMap*	rtMap = gResourceManager->getResourceTypeMap();
-    ResourceTypeMap::iterator it = rtMap->begin();
-
-    uint32 cntLoop = 0;
-    while(!found && !rtMap->empty())//?????
+    // A mineral spawned on this planet now: the mission picked any mineral
+    // type, often one not spawned anywhere, so it couldn't be completed. The
+    // zone loads only this planet's spawns, marked current.
+    std::vector<ResourceType*> spawned;
+    ResourceIdMap* resources = gResourceManager->getResourceIdMap();
+    for(ResourceIdMap::iterator rit = resources->begin(); rit != resources->end(); ++rit)
     {
-        cntLoop ++;
-        // Fewer than two suitable NPCs (or resources) in range: give up rather
-        // than loop for ever.
-        if(cntLoop > 4 * rtMap->size() + 8)
-        {
-            LOG(INFO) << "MissionManager: nothing suitable in range for this mission (" << rtMap->size() << " candidates)";
-            return NULL;
-        }
-
-        ++it;
-        if(it == rtMap->end())
-            it = rtMap->begin();
-
-        if(!strcmp((*it->second).getResourceType().getRawData(),"mineral_resource"))/* ||
-		   !strcmp((*(*it).second).getResourceType().getRawData(),"energy_resource")) */
-        {
-            uint32 roll		= static_cast<uint32>(gRandom->getRand() / (RAND_MAX + 1.0) * (9 - 1) + 1);
-
-            if((roll == 5)||(cntLoop > rtMap->size()))
-            {
-                mission->setTarget((*it->second).getName().getRawData());
-                mission->setTargetModel((*it->second).getContainerModel().getCrc());
-                mission->setTargetResource(((*it).second));
-                found = true;
-                break;
-            }
-        }
-
+        Resource* resource = rit->second;
+        if(!resource || !resource->getCurrent() || !resource->getType())
+            continue;
+        ResourceType* type = resource->getType();
+        if(strcmp(type->getResourceType().getRawData(), "mineral_resource") != 0)
+            continue;
+        if(std::find(spawned.begin(), spawned.end(), type) == spawned.end())
+            spawned.push_back(type);
     }
+    if(spawned.empty())
+    {
+        LOG(INFO) << "MissionManager: no mineral spawned on this planet for a survey mission";
+        return NULL;
+    }
+    ResourceType* target = spawned[gRandom->getRand() % spawned.size()];
+    mission->setTarget(target->getName().getRawData());
+    mission->setTargetModel(target->getContainerModel().getCrc());
+    mission->setTargetResource(target);
 
     //efficiency - A range from 30 - 70 is the best I can do without
     //knowning the min and max concentration of the given resource.

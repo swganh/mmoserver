@@ -1120,7 +1120,7 @@ length (the name is entered in the rename window).
 
 Confirmed on the VM (Nov 2026): a house renamed from its terminal.
 
-### 30. No sign outside a placed house — built, to test
+### 30. No sign outside a placed house — fixed for Tatooine small houses; other types to check
 
 Found in the step 2 test pass (T31, Nov 2026). Pre-CU houses had a sign by
 the door showing the house's name. The code that made one is commented out
@@ -1144,7 +1144,11 @@ never initialised; it starts empty now.
 First test (Nov 2026): the sign came up beside the door of a Tatooine
 small house, on the ground and edge-on. Mounted on the wall with
 migration 023: 2.5 m up, turned 135 degrees, for every house type (chosen
-on the Tatooine small house). Other types' offsets still to check.
+on the Tatooine small house). Then turned 180 degrees (migration 024) so
+its wall post is against the wall and the board stands out, matching
+screenshots of pre-CU Tatooine houses: confirmed on the VM for the
+Tatooine small house, with the Tatooine sign (`thm_sign_tato_hanging`).
+Other types' offsets still to check.
 Reading the sign (the client's Read) did nothing; it now shows the
 house's name in a window (to test). The menu item's number is logged
 ("House sign ...: menu item") to record what the client sends.

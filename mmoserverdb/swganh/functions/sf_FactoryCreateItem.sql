@@ -87,6 +87,16 @@ BEGIN
 
 
 --
+-- the ingredients for one item must be in the input hopper (checked before
+-- a crate is made, taken after): without them the factory stops (4)
+--
+
+IF (sf_FactoryIngredients(fID, 0) = 0) THEN
+  UPDATE factories f SET f.active = 0 WHERE f.ID = fID;
+  return 4;
+END IF;
+
+--
 -- returns with the id of a crate that isnt full yet, creates if necessary an empty crate
 -- returns 0 when the hopper is full or 1 if the item is not packaged in crates
 
@@ -107,6 +117,7 @@ END IF;
 
 IF (crateID = 1) THEN
   SELECT sf_DefaultItemCreatebyTangibleTemplate(OutHopper,templateID) INTO dummy;
+  SELECT sf_FactoryIngredients(fID, 1) INTO dummy;
   return 1;
 END IF;
 
@@ -121,6 +132,8 @@ SELECT CAST(valuechar AS SIGNED) INTO quantity;
 SELECT CAST(quantity+1 AS CHAR) INTO valuechar;
 
 UPDATE item_attributes ia SET ia.VALUE = valuechar WHERE ia.item_id = crateID AND ia.attribute_id = 400;
+
+SELECT sf_FactoryIngredients(fID, 1) INTO dummy;
 
 
 

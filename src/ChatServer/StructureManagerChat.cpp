@@ -28,6 +28,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Mail.h"
 #include "Player.h"
 #include "StructureManagerChat.h"
+
+#include <sstream>
+#include <string>
+
+#include <cppconn/resultset.h>
 #include "TradeManagerChat.h"
 
 #include "ZoneServer/TangibleEnums.h"
@@ -493,19 +498,30 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
         {
             result->getNextRow(binding,&exitCode);
 
-            if(exitCode == 1)
+            // sf_FactoryProduce / sf_FactoryCreateItem: 2 the output hopper
+            // is full, 4 the input hopper lacks an ingredient; either way
+            // the factory has stopped. Tell its owner (it stopped silently).
+            if(exitCode == 2 || exitCode == 4)
             {
-                //resource never existed in the first place
+                const uint64 factoryId = asynContainer->harvesterID;
+                const std::string reason = (exitCode == 2)
+                    ? "its output hopper is full"
+                    : "its input hopper is out of an ingredient (use List Ingredients on the factory)";
+                std::stringstream sql;
+                sql << "SELECT owner FROM " << mDatabase->galaxy() << ".structures WHERE ID = " << factoryId;
+                mDatabase->executeAsyncSql(sql, [reason] (DatabaseResult* ownerResult) {
+                    if(!ownerResult || !ownerResult->getResultSet() || !ownerResult->getResultSet()->next())
+                        return;
+                    const uint64 owner = ownerResult->getResultSet()->getUInt64(1);
+                    Mail* mail = new Mail();
+                    mail->setSender(BString("@player_structure:management"));
+                    mail->setSubject(BString("Factory stopped"));
+                    mail->setText(BString((std::string("Your factory has stopped manufacturing: ") + reason + ".").c_str()));
+                    mail->setStatus(MailStatus_New);
+                    mail->setTime(static_cast<uint32>(time(NULL)));
+                    gChatManager->sendSystemMailMessage(mail, owner);
+                });
             }
-            if(exitCode == 2)
-            {
-                //resource never existed in the first place
-            }
-            if(exitCode == 3)
-            {
-                //resource never existed in the first place
-            }
-
         }
 
         mDatabase->destroyDataBinding(binding);

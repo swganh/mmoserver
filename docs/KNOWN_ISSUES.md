@@ -1216,6 +1216,8 @@ as if the rate were per week and charged every half hour; the status
 window shows the same column as a rate per hour. At 50 that is about 0.15
 credits an hour, which rounds to nothing. `sf_FactoryUseMaintenance` and
 `sf_FactoryUsePower` are never called, so factories use no power either.
+The maintenance mail's 24-hour throttle in the chat server reads
+`lastMail < now + 24h`, always true, so that mail is never sent.
 To settle from the guides: whether the rate is per hour or per week, how
 often it is charged, and whether factories use power. Then charge each
 kind of structure with its own function. With #34 (factories count
@@ -1445,17 +1447,20 @@ schematic). Removing it now stops the factory as Stop Manufacturing does
 (fixed, to retest).
 
 Still open:
-- **Factories don't use ingredients.** A manufacturing schematic's
-  ingredients are never stored: `manufactureschematic` holds the amount,
-  complexity, serial and prototype item only. So `sf_FactoryCreateItem`
-  makes items whatever the input hopper holds (confirmed: emptying it
-  doesn't stop the factory), and **List ingredients** on the factory's
-  menu has nothing to show (it has no handler either). To build: save each
-  slot's resource or component and quantity when the manufacturing
-  schematic is made (a migration for the table), check and take them from
-  the input hopper before each item and stop the factory with a message
-  when one is missing, and list them for List ingredients. Planned after
-  the step 2 test pass, with the other fixes it found.
+- **Factories don't use ingredients** — built, to retest. A manufacturing
+  schematic's ingredients are now stored when it is made (migration 018,
+  `manufactureschematic_ingredients`: per slot, the resource or the
+  component's item type and, for an identical component, its serial, and
+  the amount one item takes). `sf_FactoryIngredients` checks the input
+  hopper before each item and takes the ingredients after the item is
+  made; without them the factory stops (return 4) and the owner gets a
+  "Factory stopped" mail, as for a full output hopper (2). List
+  ingredients on the factory's menu shows them. Limits: components are
+  single items in the hopper (not crates), an emptied resource container
+  stays at 0 for the player to take out, and schematics made before this
+  have no ingredients recorded and keep producing for free. The zone
+  still shows a factory the database stopped as running until it is
+  restarted from its menu.
 - The factory functions turn a factory off without a word when something
   they need is missing (return 3), and the chat server ignores the return
   code.

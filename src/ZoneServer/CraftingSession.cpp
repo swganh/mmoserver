@@ -1289,6 +1289,45 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 
     mDatabase->executeSqlAsync(0, 0, "INSERT INTO %s.manufactureschematic VALUES (%" PRIu64 ",%u,%u,%" PRIu64 ",'%s',%f)",mDatabase->galaxy(),mManufacturingSchematic->getId(),this->getProductionAmount(),this->mSchematicCRC,mItem->getId(),serial.c_str(),mManufacturingSchematic->getComplexity());
 
+    // What one item takes, slot by slot, for the factory to draw from its
+    // input hopper and for List Ingredients (#36). Before destroyComponents
+    // below: the slots still say what filled them.
+    ManufactureSlots* slots = mManufacturingSchematic->getManufactureSlots();
+    for(size_t slotIndex = 0; slotIndex < slots->size(); ++slotIndex)
+    {
+        ManufactureSlot* manSlot = slots->at(slotIndex);
+        if(!manSlot || !manSlot->mDraftSlot || manSlot->getFilledType() == DST_Empty)
+            continue;
+
+        const uint32 kind = static_cast<uint32>(manSlot->getFilledType());
+        const uint32 amount = manSlot->mDraftSlot->getNecessaryAmount();
+        uint64 resourceId = 0;
+        uint32 itemType = 0;
+        std::string slotSerial;
+
+        if(manSlot->getFilledType() == DST_Resource)
+        {
+            resourceId = manSlot->getResourceId();
+        }
+        else
+        {
+            if(!manSlot->mUsedComponentStacks.empty())
+            {
+                if(Item* component = dynamic_cast<Item*>(manSlot->mUsedComponentStacks.front().first))
+                    itemType = component->getItemType();
+            }
+            if(manSlot->getFilledType() == DST_IdentComponent)
+                slotSerial = manSlot->getSerial().getAnsi();
+        }
+
+        mDatabase->executeSqlAsync(0, 0,
+            "INSERT INTO %s.manufactureschematic_ingredients VALUES (%" PRIu64 ",%u,%u,%" PRIu64 ",%u,'%s',%u,'%s','%s')",
+            mDatabase->galaxy(), mManufacturingSchematic->getId(), static_cast<uint32>(slotIndex), kind, resourceId, itemType,
+            mDatabase->escapeString(slotSerial).c_str(), amount,
+            mDatabase->escapeString(manSlot->mDraftSlot->getComponentFile().getAnsi()).c_str(),
+            mDatabase->escapeString(manSlot->mDraftSlot->getComponentName().getAnsi()).c_str());
+    }
+
 
     //save the customization - thats part of the item!!!!
 

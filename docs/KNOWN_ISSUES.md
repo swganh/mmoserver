@@ -1145,6 +1145,9 @@ First test (Nov 2026): the sign came up beside the door of a Tatooine
 small house, on the ground and edge-on. Mounted on the wall with
 migration 023: 2.5 m up, turned 135 degrees, for every house type (chosen
 on the Tatooine small house). Other types' offsets still to check.
+Reading the sign (the client's Read) did nothing; it now shows the
+house's name in a window (to test). The menu item's number is logged
+("House sign ...: menu item") to record what the client sends.
 
 ### 32. Zone and chat servers crashed after "Lost connection to MySQL server" — fixed, to retest
 

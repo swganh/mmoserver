@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "nonPersistantObjectFactory.h"
 #include "HarvesterObject.h"
 #include "HouseObject.h"
+#include "HouseSign.h"
 #include "FactoryObject.h"
 #include "Inventory.h"
 #include "Datapad.h"
@@ -199,7 +200,7 @@ void StructureManager::spawnHouseSign(HouseObject* house)
     }
     const HouseSignPlacement& placement = it->second;
 
-    TangibleObject* sign = new TangibleObject();
+    TangibleObject* sign = new HouseSign();
     sign->setId(gWorldManager->getRandomNpId());
     sign->setParentId(0);
     sign->setModelString(placement.signTemplate.c_str());

@@ -1307,8 +1307,9 @@ A look through the client found no template named for a camp terminal.
 To settle before building: what pre-CU camps offered for status and
 disbanding (a terminal under another name, or the camp's own menu).
 
-The guild hall (T32) placed; it has no guild terminal because guilds
-aren't built (roadmap step 7).
+The Tatooine guild hall (T32) placed with no guild terminal; the generic
+one (after #48) has a Guild Management Terminal. Guilds themselves aren't
+built (roadmap step 7), so the terminal does nothing yet.
 
 ### 44. A vehicle wouldn't move after mounting again — fixed
 
@@ -1342,7 +1343,7 @@ it. Pre-CU, the performer heard their own performance. Most likely the
 performer's own client isn't sent what the listeners get (the performance
 id, or listening to themselves). To look at.
 
-### 48. A generic guild hall wasn't placed, and its lots were lost — fixed, to retest
+### 48. A generic guild hall wasn't placed, and its lots were lost — fixed
 
 Found in the step 2 test pass (Nov 2026): placing a generic guild hall
 with 5 lots free built nothing and left the character with 0 lots.
@@ -1363,6 +1364,8 @@ The first retest crashed the zone on placement: the command map binds
 so the handler runs with a null `this`; the new lots check called
 `getDeedData` on it. It goes through `gStructureManager`, as the rest of
 the handler does.
+Confirmed on the VM (build b0ff0c5): the generic guild hall placed, with a
+Guild Management Terminal inside.
 
 ### 46. /tip bank refused with "bank" first — fixed, to retest
 

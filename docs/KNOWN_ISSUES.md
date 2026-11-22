@@ -1348,7 +1348,8 @@ terminals: `object/tangible/camp/shared_camp_control_panel.iff`.
 Migration 019 adds it to `terminal_types` and gives each of the six camps a
 terminal row, so the camp spawns its control panel with Status and Disband
 (owner only). Its spot, 2 m right of and 3 m ahead of where the camp is
-placed, is reconstructed. Layout: each camp's model is a client POI
+placed, and its −45° turn (migration 020, chosen in a test placement)
+are reconstructed. Status and the panel were confirmed in game. Layout: each camp's model is a client POI
 (`object/building/poi/shared_scout_camp_s0`–`s5`) that brings its own tent
 and furniture; the server adds only the basic camp's campfire and chair
 (item rows), which may double what the POI already has. Still open.

@@ -390,11 +390,14 @@ install() {
     echo
     flask check || true
     echo
-    echo "The portal is installed. Next:"
-    [[ $admin_name ]] || echo "    $(basename "$0") create-admin <your game account>"
-    echo "    $(basename "$0") run              # try it at http://127.0.0.1:$port"
-    echo "    sudo $(basename "$0") service     # run it at boot"
-    echo "Email for password resets is set up in portal.cfg ([mail])."
+    local me="$portal_dir/install.sh"
+    echo "The portal is installed, but not running yet. Next:"
+    [[ $admin_name ]] || echo "    $me create-admin <your game account>"
+    echo "  Try it (runs until you close the terminal or press Ctrl+C), then open http://127.0.0.1:$port:"
+    echo "    $me run"
+    echo "  Or run it in the background and at every boot:"
+    echo "    sudo $me service"
+    echo "Email for password resets is set up in $portal_dir/portal.cfg ([mail])."
 }
 
 flask() {
@@ -412,7 +415,7 @@ run() {
 }
 
 service() {
-    [[ $EUID -eq 0 ]] || die "run 'sudo $(basename "$0") service'"
+    [[ $EUID -eq 0 ]] || die "run 'sudo $portal_dir/install.sh service'"
     [[ -x $venv/bin/gunicorn ]] || die "the portal is not installed: run '$(basename "$0") install' first"
     command -v systemctl >/dev/null || die "systemd not found; see README.md for other ways to run the portal"
     id "$service_user" >/dev/null 2>&1 || die "no user '$service_user'"

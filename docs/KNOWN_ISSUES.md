@@ -1460,7 +1460,15 @@ Still open:
   stays at 0 for the player to take out, and schematics made before this
   have no ingredients recorded and keep producing for free. The zone
   still shows a factory the database stopped as running until it is
-  restarted from its menu.
+  restarted from its menu. First test (Nov 2026): a new schematic recorded its
+  ingredient and List ingredients showed it ("100 units of Osheig"), but
+  some resource stacks, all gemstones and every newly split stack, were
+  refused by the input hopper. `Object::mCapacity` was never initialised,
+  and resource containers never set it, so it held garbage; the transfer
+  check refuses an item whose capacity isn't below the container's as
+  "too bulky". It starts at 0 now. Inserting a schematic also printed
+  debug text about schematic and factory masks (tested with `&&` for
+  `&`); that is a log line now, and the match isn't enforced yet.
 - The factory functions turn a factory off without a word when something
   they need is missing (return 3), and the chat server ignores the return
   code.

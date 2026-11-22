@@ -968,21 +968,17 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			TangibleObject* tO = dynamic_cast<TangibleObject*>(datapad->getManufacturingSchematicById(command.SchematicId));
 			if(!tO->hasInternalAttribute("craft_tool_typemask"))
 			{
-				gMessageLib->SendSystemMessage(L"old schematic it will be deprecated once factory schematic type checks are implemented", player);
 				tO->addInternalAttribute("craft_tool_typemask","0xffffffff");
 			}
 
+			// Which factory a schematic fits isn't enforced yet; note a
+			// mismatch in the log (it was told to the player as debug text,
+			// and tested with && instead of &).
 			uint32 mask = tO->getInternalAttribute<uint32>("craft_tool_typemask");
-			
-			if((mask&&factory->getMask())!=mask)
+			if((mask & factory->getMask()) != mask)
 			{
-					gMessageLib->SendSystemMessage(L"this schematic will not fit into the factory anymore as soon as schematictype checks are implemented", player);
-					
-					int8 s[512];
-					sprintf(s,"schematic Mask %u vs factory Mask %u",mask,factory->getMask());
-					BString message(s);
-					message.convert(BSTRType_Unicode16);
-					gMessageLib->SendSystemMessage(message.getUnicode16(), player);
+				DLOG(INFO) << "Schematic " << command.SchematicId << " (mask " << mask << ") doesn't match factory "
+				           << factory->getId() << " (mask " << factory->getMask() << "); not enforced yet";
 			}
 
 			factory->setManSchemID(command.SchematicId);

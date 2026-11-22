@@ -56,6 +56,8 @@ Object::Object()
     , mSubZoneId(0)
     , mTypeOptions(0)
     , mDataTransformCounter(0)
+    , mCapacity(0)	// was never set for resource containers: random, so
+                    // some were "too bulky" for a factory hopper (#36)
     , zmapCellID(0xffffffff)
 {
     mDirection = glm::quat();
@@ -78,6 +80,8 @@ Object::Object(uint64 id,uint64 parentId,BString model,ObjectType type)
     , mSubZoneId(0)
     , mTypeOptions(0)
     , mDataTransformCounter(0)
+    , mCapacity(0)	// was never set for resource containers: random, so
+                    // some were "too bulky" for a factory hopper (#36)
     , zmapCellID(0xffffffff)
 {
     mObjectController.setObject(this);

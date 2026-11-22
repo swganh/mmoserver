@@ -164,6 +164,15 @@ check() {
         fail "only ${free_mb} MB free disk space; 200 MB is needed"
     fi
 
+    # The folder: install creates .venv and portal.cfg in it as the user who
+    # ran sudo, so that user must be able to write there.
+    local owner=${SUDO_USER:-$(id -un)}
+    if as_user test -w "$portal_dir"; then
+        ok "$owner can write to $portal_dir"
+    else
+        fail "$owner cannot write to $portal_dir (copied with sudo?): sudo chown -R $owner: $portal_dir"
+    fi
+
     # Port.
     if command -v ss >/dev/null; then
         if ss -ltnH "sport = :$port" 2>/dev/null | grep -q .; then

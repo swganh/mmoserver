@@ -1233,7 +1233,7 @@ memory, swap and CPU were flat up to the last sample at 04:00, so it is
 put down to the host PC (the VM runs in VirtualBox on it). A long run on a
 rented cloud VM would rule the host out (ROADMAP, Parked).
 
-### 41. Crafted values don't become the item's stats — open
+### 41. Crafted values didn't become the item's stats — fixed for weapons, to retest
 
 Found in the step 2 test pass (T27, Nov 2026): two CDEF carbines, one
 assembled only and one after a failed experiment. Each tooltip shows the
@@ -1251,6 +1251,20 @@ far as we remember, only a critical failure did.
 
 Experimenting itself works: with Engineering I and the matching station,
 the experimentation step came up after assembly.
+
+Fixed for weapons: when a prototype is made, and when a manufacturing
+schematic's template item is stored (factories copy it), `applyCraftedStats`
+copies each crafted value onto the weapon's own attribute, the one
+`CombatManager` reads, in its units (attack speed in tenths of a second
+becomes seconds), and removes the crafted duplicate (new
+`Object::removeAttributeIncDB`, which also drops it from the display order
+and the item's row): minimum and maximum damage, wound chance, attack
+speed, the range modifiers, the three attack costs, and unit integrity as
+the condition. Attack speed and the attack costs are lower-is-better:
+experimenting now moves them down their range (`modifyAttributeValue`).
+Other kinds of crafted item (armour, food, clothing...) keep their crafted
+attributes as before; their mapping is still to do, kind by kind. Items
+crafted before this keep both sets.
 A third carbine, after a great success, confirms it: its crafted values
 rose (Maximum Damage 46.71, Minimum 22.85, Unit Integrity 1012.68 against
 43.11, 21.05 and 952.68 without experimenting) while the template block

@@ -954,6 +954,9 @@ void CraftingSession::createPrototype(uint32 noPractice,uint32 counter)
         t->execute();
         
 
+        // the crafted results become the item's own stats
+        applyCraftedStats();
+
         // add the crafter name attribute
         // adds automatically when necessary
         mItem->setAttributeIncDB("crafter",mOwner->getFirstName().getAnsi());
@@ -1224,6 +1227,9 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
     //this means we can safely delete them and put the datapad associated attributes there
     //as long as we make sure that the message lib will not send those attributes in the MSCO3 when
     //we have a datapad associated man schematic
+
+    // the template item factories copy gets the item's own stats too
+    applyCraftedStats();
 
     //set the datapad Id of the man schematic so it wont get deleted
     Datapad* datapad = mOwner->getDataPad();

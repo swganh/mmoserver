@@ -1437,8 +1437,25 @@ void CraftingSession::emptySlots(uint32 counter)
 // modifies an items attribute value
 //
 
+// Crafted attributes where a lower value is better. Experimenting raises a
+// value through its range from min to max, so for these the value is
+// mirrored within the range: a better result is a lower number (#41).
+static bool lowerIsBetter(const char* key)
+{
+    static const char* const keys[] = {
+        "attackspeed", "attackhealthcost", "attackactioncost", "attackmindcost",
+    };
+    for (const char* k : keys)
+        if (strcmp(key, k) == 0)
+            return true;
+    return false;
+}
+
 void CraftingSession::modifyAttributeValue(CraftAttribute* att, float attValue)
 {
+    if(lowerIsBetter(att->getAttributeKey().getAnsi()))
+        attValue = att->getMin() + att->getMax() - attValue;
+
     if(att->getType())
     {
         int32 intAtt = 0;
@@ -1548,4 +1565,74 @@ uint8 CraftingSession::getExperimentationRoll(ExperimentationProperty* expProper
 
     return roll;
 
+}
+
+
+//===============================================================
+// A crafted weapon's results are written under the crafting attributes'
+// names (mindamage, attackspeed...), while the weapon is used by its own
+// (cat_wpn_damage.wpn_damage_min, wpn_attack_speed...: CombatManager reads
+// those). So the item showed both and fought with the template's values.
+// Copy each crafted value onto the item's own attribute, in its units, and
+// drop the crafted one (#41).
+
+void CraftingSession::applyCraftedStats()
+{
+    if(!mItem)
+        return;
+
+    struct Mapping { const char* crafted; const char* item; float scale; int decimals; };
+    static const Mapping mappings[] = {
+        {"mindamage",        "cat_wpn_damage.wpn_damage_min",              1.0f, 0},
+        {"maxdamage",        "cat_wpn_damage.wpn_damage_max",              1.0f, 0},
+        {"woundchance",      "cat_wpn_damage.wpn_wound_chance",            1.0f, 2},
+        {"attackspeed",      "wpn_attack_speed",                           0.1f, 2},	// tenths of a second
+        {"zerorangemod",     "cat_wpn_rangemods.wpn_range_zero",           1.0f, 0},
+        {"midrangemod",      "cat_wpn_rangemods.wpn_range_mid",            1.0f, 0},
+        {"maxrangemod",      "cat_wpn_rangemods.wpn_range_max",            1.0f, 0},
+        {"attackhealthcost", "cat_wpn_attack_cost.wpn_attack_cost_health", 1.0f, 0},
+        {"attackactioncost", "cat_wpn_attack_cost.wpn_attack_cost_action", 1.0f, 0},
+        {"attackmindcost",   "cat_wpn_attack_cost.wpn_attack_cost_mind",   1.0f, 0},
+    };
+
+    for (const Mapping& m : mappings)
+    {
+        if(!mItem->hasAttribute(m.crafted) || !mItem->hasAttribute(m.item))
+            continue;
+
+        float value = 0.0f;
+        try {
+            value = boost::lexical_cast<float>(mItem->getAttribute<std::string>(m.crafted));
+        } catch(...) {
+            continue;
+        }
+        value *= m.scale;
+
+        char text[32];
+        if(m.decimals == 0)
+            snprintf(text, sizeof(text), "%d", static_cast<int>(value + (value < 0 ? -0.5f : 0.5f)));
+        else
+            snprintf(text, sizeof(text), "%.*f", m.decimals, value);
+
+        mItem->setAttributeIncDB(m.item, text);
+        mItem->removeAttributeIncDB(m.crafted);
+    }
+
+    // Unit integrity is the item's condition.
+    if(mItem->hasAttribute("hitpoints") && mItem->hasAttribute("condition"))
+    {
+        int hitpoints = 0;
+        try {
+            hitpoints = static_cast<int>(boost::lexical_cast<float>(mItem->getAttribute<std::string>("hitpoints")) + 0.5f);
+        } catch(...) {
+            hitpoints = 0;
+        }
+        if(hitpoints > 0)
+        {
+            char text[32];
+            snprintf(text, sizeof(text), "%d/%d", hitpoints, hitpoints);
+            mItem->setAttributeIncDB("condition", text);
+            mItem->removeAttributeIncDB("hitpoints");
+        }
+    }
 }

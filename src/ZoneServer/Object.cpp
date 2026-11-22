@@ -421,6 +421,25 @@ bool Object::hasAttribute(BString key) const
 
 //=============================================================================
 
+void Object::removeAttributeIncDB(BString key)
+{
+    const uint32 crc = key.getCrc();
+    AttributeMap::iterator it = mAttributeMap.find(crc);
+    if(it == mAttributeMap.end())
+        return;
+    mAttributeMap.erase(it);
+    mAttributeOrderList.remove(crc);
+
+    uint32 attributeID = gWorldManager->getAttributeId(crc);
+    if(!attributeID)
+        return;
+    Database* db = gWorldManager->getDatabase();
+    db->executeSqlAsync(0, 0, "DELETE FROM %s.item_attributes WHERE item_id=%" PRIu64 " AND attribute_id=%u",
+        db->galaxy(), this->getId(), attributeID);
+}
+
+//=============================================================================
+
 void Object::removeAttribute(BString key)
 {
     AttributeMap::iterator it = mAttributeMap.find(key.getCrc());

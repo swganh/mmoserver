@@ -204,17 +204,14 @@ void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,Objec
                 ansiData.setLength(dataStr.getLength());
                 dataStr.substring(ansiData,static_cast<uint16>(index), dataStr.getLength());
 
-                // Now ADD a proper spelled command. It HAS to match the crc.
-                char* newCommandString = new char[adminCommands[commandIndex].command.getLength() + ansiData.getLength() + 1];
-                sprintf(newCommandString,"%s %s", adminCommands[commandIndex].command.getAnsi(), ansiData.getAnsi());
-
-                // Execute the command.
+                // Execute the command under its proper name (it HAS to match
+                // the crc), with the arguments only, as the client sends them
+                // when the command is typed directly.
                 BString opcodeStr(adminCommands[commandIndex].command);
                 opcodeStr.toLower();
 
-				std::string stdnewCommandString(newCommandString);
+				std::string stdnewCommandString(ansiData.getAnsi());
 				std::wstring wstdnewCommandString(stdnewCommandString.begin(), stdnewCommandString.end());
-				delete[] newCommandString;
 
                 // Now let's parse it BACK to objectcontroller, so we can continue to maintain access rights control as initial designed.
                 gMessageFactory->StartMessage();
@@ -267,8 +264,9 @@ void ObjectController::_handleBroadcast(uint64 targetId, Message* message, Objec
     message->getStringUnicode16(msgString);
     msgString.convert(BSTRType_ANSI);
 
-    // Remove current command and leadig white space.
-    msgString = skipToNextField(msgString);
+    // The client sends the arguments only, without the command's name (and
+    // /admin_sys_msg passes them on the same way): drop leading white space.
+    msgString = removeWhiteSpace(msgString);
 
     BString feedback(this->handleBroadcast(msgString));
     sprintf(rawData,"%s: [%s]", cmdProperties->mCommandStr.getAnsi(), feedback.getAnsi());
@@ -326,9 +324,9 @@ void ObjectController::_handleBroadcastPlanet(uint64 targetId, Message* message,
     message->getStringUnicode16(msgString);
     msgString.convert(BSTRType_ANSI);
 
-    // Remove current command and leadig white space.
-    // msgString = skipToNextField(msgString);
-    msgString = skipToNextField(msgString);
+    // The client sends the arguments only, without the command's name (and
+    // /admin_sys_msg passes them on the same way): drop leading white space.
+    msgString = removeWhiteSpace(msgString);
 
     BString feedback = this->handleBroadcastPlanet(msgString);
     sprintf(rawData,"%s: [%s]", cmdProperties->mCommandStr.getAnsi(), feedback.getAnsi());
@@ -407,8 +405,9 @@ void ObjectController::_handleBroadcastGalaxy(uint64 targetId, Message* message,
     message->getStringUnicode16(msgString);
     msgString.convert(BSTRType_ANSI);
 
-    // Remove current command and leadig white space.
-    msgString = skipToNextField(msgString);
+    // The client sends the arguments only, without the command's name (and
+    // /admin_sys_msg passes them on the same way): drop leading white space.
+    msgString = removeWhiteSpace(msgString);
 
     BString feedback = this->handleBroadcastGalaxy(msgString);
     sprintf(rawData,"%s: [%s]", cmdProperties->mCommandStr.getAnsi(), feedback.getAnsi());
@@ -468,8 +467,9 @@ void ObjectController::_handleShutdownGalaxy(uint64 targetId, Message* message, 
     message->getStringUnicode16(msgString);
     msgString.convert(BSTRType_ANSI);
 
-    // Remove current command and leadig white space.
-    msgString = skipToNextField(msgString);
+    // The client sends the arguments only, without the command's name (and
+    // /admin_sys_msg passes them on the same way): drop leading white space.
+    msgString = removeWhiteSpace(msgString);
 
     BString feedback = this->handleShutdownGalaxy(msgString);
     sprintf(rawData,"%s: [%s]", cmdProperties->mCommandStr.getAnsi(), feedback.getAnsi());
@@ -551,8 +551,9 @@ void ObjectController::_handleCancelShutdownGalaxy(uint64 targetId, Message* mes
     message->getStringUnicode16(msgString);
     msgString.convert(BSTRType_ANSI);
 
-    // Remove current command and leadig white space.
-    msgString = skipToNextField(msgString);
+    // The client sends the arguments only, without the command's name (and
+    // /admin_sys_msg passes them on the same way): drop leading white space.
+    msgString = removeWhiteSpace(msgString);
 
     BString feedback = this->handleCancelShutdownGalaxy(msgString);
     sprintf(rawData,"%s: [%s]", cmdProperties->mCommandStr.getAnsi(), feedback.getAnsi());

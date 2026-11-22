@@ -1159,7 +1159,7 @@ server status reads online as soon as the login server is up, even while
 the zones are still loading and a login would fail or wait. It should say
 the galaxy is loading until the zones are ready. For later.
 
-### 37. OK on a list window with nothing selected crashed the zone — fixed, to retest
+### 37. OK on a list window with nothing selected crashed the zone — fixed
 
 Found in the step 2 test pass (Nov 2026), teaching another character: OK on
 the teaching window with no skill picked sent row -1, and
@@ -1170,6 +1170,8 @@ music, the character builder, the factory's schematic list). `UIListBox`
 now treats OK with no valid row as Cancel, before any handler sees it,
 except for the factory's Remove Schematic (a third button that needs no
 row) and the structure status window (its OK is Refresh).
+Confirmed on the VM (Nov 2026): OK on the teaching window with nothing
+picked just closes it.
 
 ### 38. Image design session crashed the zone on a new hairstyle — fixed, to retest
 
@@ -1266,6 +1268,9 @@ lock while the socket thread was adding to it, and `getIncomingQueueMessage`
 checked the size before taking the lock, so the loop could take a message
 that wasn't there. Both now hold the session's lock, and the loop stops at
 an empty queue. The same code runs in every server.
+Not retested: overnight runs on the test VM have had mixed results that
+look like the host (#40), so long runs wait for a separate machine
+(ROADMAP, Parked).
 
 ### 43. Camps have no terminal, and their layout and chair look wrong — open
 

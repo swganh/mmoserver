@@ -18,15 +18,17 @@ base_url=
 registration=closed
 admin_name=
 service_user=${SUDO_USER:-$(id -un)}
+assume_yes=
 
 usage() {
     cat <<EOF
 Usage: $(basename "$0") <command> [options]
 
 Commands:
-  check                   Check this server has what the portal needs; change
-                          nothing. Prints how to install anything missing
-  install                 check, then: create the Python environment
+  check                   Check this server has what the portal needs. If
+                          packages are missing or the folder belongs to
+                          another user, offers to fix that (asks first)
+  install                 check (and offer the same fixes), then: create the Python environment
                           (portal/.venv), the '$portal_db' database and a
                           '$db_user' database user, write portal/portal.cfg
                           (kept if it exists) and create the portal's tables.
@@ -49,6 +51,7 @@ Options:
   --admin NAME            With install: make NAME an Administrator at the end
   --user USER             With service: the system user to run it as
                           (default $service_user)
+  -y, --yes               Fix what check finds without asking (for scripts)
 
 The game database must be installed first (mmoserverdb/setup.sh install).
 Database administrator access works as for setup.sh: on Ubuntu run with
@@ -66,6 +69,8 @@ die() {
 
 failures=0
 packages=()
+family=other
+fix_owner=
 
 ok()   { printf '  \033[32mok\033[0m    %s\n' "$*"; }
 warn() { printf '  \033[33mwarn\033[0m  %s\n' "$*"; }
@@ -123,7 +128,7 @@ check() {
         os_name=$(. /etc/os-release; echo "${PRETTY_NAME:-Linux}")
     fi
     ok "$os_name"
-    local family=other
+    family=other
     case " $os_id $os_like " in
         *" debian "*|*" ubuntu "*) family=debian ;;
         *" fedora "*|*" rhel "*|*" centos "*) family=fedora ;;
@@ -171,6 +176,7 @@ check() {
         ok "$owner can write to $portal_dir"
     else
         fail "$owner cannot write to $portal_dir (copied with sudo?): sudo chown -R $owner: $portal_dir"
+        fix_owner=$owner
     fi
 
     # Port.
@@ -253,11 +259,74 @@ check_database() {
     fi
 }
 
+# --- Fixing what check found ----------------------------------------------------
+
+# Offers to install the missing packages and give the folder to the user who
+# ran sudo. Returns 0 when it fixed something (so check should run again).
+offer_fixes() {
+    local unique="" todo=()
+    if (( ${#packages[@]} )); then
+        unique=$(printf '%s\n' "${packages[@]}" | sort -u | tr '\n' ' ')
+        case $family in
+            debian) todo+=("install packages: $unique") ;;
+            fedora) unique=${unique//mariadb-client/mariadb}; todo+=("install packages: $unique") ;;
+            *) unique="" ;;   # unknown package manager: the hint is all we can do
+        esac
+    fi
+    [[ $fix_owner ]] && todo+=("give $portal_dir to $fix_owner")
+    (( ${#todo[@]} )) || return 1
+
+    if [[ $EUID -ne 0 ]]; then
+        echo "Run with sudo to let this script fix that for you."
+        return 1
+    fi
+    if [[ ! $assume_yes ]]; then
+        [[ -t 0 ]] || { echo "Run with --yes to let this script fix that."; return 1; }
+        echo "This script can fix that:"
+        printf '    %s\n' "${todo[@]}"
+        local answer
+        read -r -p "Go ahead? [Y/n] " answer
+        [[ -z $answer || $answer =~ ^[Yy] ]] || return 1
+    fi
+
+    if [[ $unique ]]; then
+        echo "Installing: $unique"
+        case $family in
+            # Word splitting of $unique is wanted: one package per word.
+            debian) apt-get update -q && DEBIAN_FRONTEND=noninteractive apt-get install -y -q $unique ;;
+            fedora) dnf install -y $unique ;;
+        esac || die "installing the packages failed (see above)"
+    fi
+    if [[ $fix_owner ]]; then
+        echo "Giving $portal_dir to $fix_owner"
+        chown -R "$fix_owner": "$portal_dir"
+    fi
+
+    # Look again with what is there now.
+    failures=0
+    packages=()
+    fix_owner=
+    hash -r
+    if [[ -z $client ]]; then
+        for candidate in mariadb mysql; do
+            command -v "$candidate" >/dev/null && { client=$candidate; break; }
+        done
+    fi
+    echo
+    return 0
+}
+
+# check, and if something can be fixed, offer to and check again.
+check_and_fix() {
+    check && return 0
+    offer_fixes && check
+}
+
 # --- install ------------------------------------------------------------------
 
 install() {
     [[ $game_db =~ ^[A-Za-z0-9_]+$ && $portal_db =~ ^[A-Za-z0-9_]+$ ]] || die "database names are letters, digits and underscores"
-    check || die "fix the problems above, then run install again"
+    check_and_fix || die "fix the problems above, then run install again"
     echo
 
     echo "Creating the Python environment in $venv"
@@ -378,13 +447,14 @@ while [[ $# -gt 0 ]]; do
             registration=$2; shift 2 ;;
         --admin) admin_name=${2:?--admin needs a name}; shift 2 ;;
         --user) service_user=${2:?--user needs a name}; shift 2 ;;
+        -y|--yes) assume_yes=1; shift ;;
         -h|--help) usage; exit 0 ;;
         *) args+=("$1"); shift ;;
     esac
 done
 
 case $command in
-    check) check ;;
+    check) check_and_fix ;;
     install) install ;;
     create-admin)
         [[ ${#args[@]} -eq 1 ]] || die "usage: $(basename "$0") create-admin NAME"

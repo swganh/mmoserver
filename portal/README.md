@@ -33,7 +33,10 @@ or `setup.sh update` on an older install). Then, on the server:
     sudo portal/install.sh check
 
 lists what is missing, with the command to install it (Debian/Ubuntu: `sudo
-apt install python3 python3-venv mariadb-client`). It checks the Linux
+apt install python3 python3-venv mariadb-client`), and offers to install it
+for you (apt on Debian/Ubuntu, dnf on Fedora). It also offers to give the
+folder to your user if it belongs to root, e.g. after copying it with sudo.
+Add `--yes` to do that without asking. It checks the Linux
 distribution, Python 3.10 or newer with venv, memory, disk, the port, the
 database client, administrator access to the database, the game database
 and its version, and whether systemd and a web server are there.

@@ -1,0 +1,25 @@
+{% extends "admin/_layout.html" %}
+{% block title %}Admin{% endblock %}
+{% block content %}
+<section class="stats">
+  <div><strong>{{ stats.accounts }}</strong><span>accounts</span></div>
+  <div><strong>{{ stats.online }}</strong><span>in game now</span></div>
+  <div><strong>{{ stats.banned }}</strong><span>banned</span></div>
+  <div><strong>{{ stats.staff }}</strong><span>staff</span></div>
+</section>
+{% if has_permission('accounts.view') %}
+<section class="card">
+  <form method="get" action="{{ url_for('admin.accounts_list') }}" class="row">
+    <input type="search" name="q" placeholder="Find an account by name, email or id" aria-label="Find an account">
+    <button>Find</button>
+    {% if has_permission('accounts.create') %}<a class="button secondary" href="{{ url_for('admin.account_new') }}">New account</a>{% endif %}
+  </form>
+</section>
+{% endif %}
+{% if recent %}
+<section class="card">
+  <h2>Recent changes</h2>
+  {% with rows = recent %}{% include "admin/_audit_table.html" %}{% endwith %}
+</section>
+{% endif %}
+{% endblock %}

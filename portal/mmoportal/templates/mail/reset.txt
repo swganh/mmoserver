@@ -1,0 +1,9 @@
+Hello {{ username }},
+
+Someone (hopefully you) asked to reset the password of your {{ site_name }} account.
+Open this link to choose a new one:
+
+{{ link }}
+
+The link works once, for {{ minutes }} minutes. If you did not ask for it,
+ignore this email; your password stays as it is.

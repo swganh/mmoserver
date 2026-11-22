@@ -1,0 +1,6 @@
+.venv/
+portal.cfg
+__pycache__/
+*.pyc
+.pytest_cache/
+deploy/mmoportal.service

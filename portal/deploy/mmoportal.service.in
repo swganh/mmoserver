@@ -1,0 +1,18 @@
+# Written by portal/install.sh service from deploy/mmoportal.service.in.
+[Unit]
+Description=MMOServer portal
+After=network.target mariadb.service mysql.service
+
+[Service]
+User=@USER@
+WorkingDirectory=@DIR@
+Environment=PORTAL_CONFIG=@DIR@/portal.cfg
+# Two workers: each password check takes 64 MB for a moment.
+ExecStart=@DIR@/.venv/bin/gunicorn --workers 2 --bind 127.0.0.1:@PORT@ --access-logfile - wsgi:app
+Restart=on-failure
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

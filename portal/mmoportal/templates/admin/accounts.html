@@ -1,0 +1,40 @@
+{% extends "admin/_layout.html" %}
+{% from "macros.html" import when with context %}
+{% block title %}Accounts{% endblock %}
+{% block content %}
+<section class="card">
+  <form method="get" class="row">
+    <input type="search" name="q" value="{{ search }}" placeholder="Name, email or id" aria-label="Search">
+    <button>Find</button>
+    {% if has_permission('accounts.create') %}<a class="button secondary" href="{{ url_for('admin.account_new') }}">New account</a>{% endif %}
+  </form>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Id</th><th>Username</th><th>Email</th><th>Joined</th><th>Last login</th><th>Status</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr>
+        <td>{{ r.account_id }}</td>
+        <td><a href="{{ url_for('admin.account', account_id=r.account_id) }}">{{ r.account_username }}</a></td>
+        <td>{{ r.account_email }}</td>
+        <td class="nowrap">{{ when(r.account_joindate) }}</td>
+        <td class="nowrap">{{ when(r.account_lastlogin) }}</td>
+        <td>
+          {% if r.account_banned %}<span class="tag bad">banned</span>{% endif %}
+          {% if r.account_loggedin %}<span class="tag good">in game</span>{% endif %}
+          {% if r.account_csr %}<span class="tag">CSR</span>{% endif %}
+          {% for name in staff.get(r.account_id, []) %}<span class="tag staff">{{ name }}</span>{% endfor %}
+        </td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6" class="muted">No accounts found.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  <p class="pager">
+    {% if page > 1 %}<a href="{{ url_for('admin.accounts_list', q=search, page=page-1) }}">← Newer</a>{% endif %}
+    {% if more %}<a href="{{ url_for('admin.accounts_list', q=search, page=page+1) }}">Older →</a>{% endif %}
+  </p>
+</section>
+{% endblock %}

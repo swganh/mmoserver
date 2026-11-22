@@ -185,6 +185,19 @@ If the client gets no response, run `sudo tcpdump -ni any udp port 44990`
 on the server while logging in. No packets means a network problem between
 the machines; packets arriving with no reply usually means the firewall.
 
+### 4. The web portal (optional) ###
+
+`portal/` is a small web application for players and staff: players sign in
+with their game account to change their password or email, or reset a
+forgotten password; staff look up, create, ban and reset accounts, with
+permissions set per role. It is separate from the servers and optional:
+
+    sudo portal/install.sh check
+    sudo portal/install.sh install --admin <your account>
+    portal/install.sh run
+
+See [portal/README.md](portal/README.md).
+
 ## Windows ##
 
 Windows is supported for development: build, run and debug the servers with

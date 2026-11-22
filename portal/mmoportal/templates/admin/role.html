@@ -1,0 +1,26 @@
+{% extends "admin/_layout.html" %}
+{% from "macros.html" import csrf with context %}
+{% block title %}{{ role.name if role else "New role" }}{% endblock %}
+{% block content %}
+<section class="card narrow">
+  <h1>{{ role.name if role and role.role_id else "New role" }}</h1>
+  <form method="post">
+    {{ csrf() }}
+    <label>Name <input type="text" name="name" value="{{ role.name if role else '' }}" maxlength="64" required></label>
+    <label>Description <input type="text" name="description" value="{{ role.description if role else '' }}" maxlength="255"></label>
+    <fieldset>
+      <legend>Permissions</legend>
+      {% for key, text in PERMISSIONS.items() %}
+        <label class="check"><input type="checkbox" name="permission" value="{{ key }}"{% if key in held %} checked{% endif %}> <code>{{ key }}</code> <small>{{ text }}</small></label>
+      {% endfor %}
+    </fieldset>
+    <button>Save role</button>
+  </form>
+  {% if role and role.role_id %}
+  <form method="post" action="{{ url_for('admin.role_delete', role_id=role.role_id) }}">
+    {{ csrf() }}
+    <button class="danger">Delete role</button>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

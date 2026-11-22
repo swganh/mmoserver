@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf, field with context %}
+{% block title %}Forgot password{% endblock %}
+{% block content %}
+<section class="card narrow">
+  <h1>Forgot your password?</h1>
+  <p class="muted">We will email a link to reset it to the address on the account.</p>
+  <form method="post">
+    {{ csrf() }}
+    {{ field("username", "Username", autocomplete="username") }}
+    <button>Send reset link</button>
+  </form>
+</section>
+{% endblock %}

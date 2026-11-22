@@ -1456,8 +1456,7 @@ Still open:
   made; without them the factory stops (return 4) and the owner gets a
   "Factory stopped" mail, as for a full output hopper (2). List
   ingredients on the factory's menu shows them. Limits: components are
-  single items in the hopper (not crates), an emptied resource container
-  stays at 0 for the player to take out, and schematics made before this
+  single items in the hopper (not crates), and schematics made before this
   have no ingredients recorded and keep producing for free. The zone
   learns that the database stopped a factory when its menu is next
   opened (below). First test (Nov 2026): a new schematic recorded its
@@ -1477,7 +1476,12 @@ Still open:
   stack out could have written 100 back). It overrides it now. And the
   factory's menu re-reads its running state from the database each time
   it opens (the chat server stops it there), updating the work animation
-  if it changed; the menu just opened can still be one step behind.
+  if it changed; the menu just opened can still be one step behind. Confirmed
+  on the VM: the hopper showed 0, the menu offered Start, and two more
+  glasses came out before it stopped and mailed again. An emptied resource
+  container is now deleted by `sf_FactoryIngredients`, and opening a
+  hopper removes any container or item the zone still holds there that
+  the database no longer lists (run `setup.sh update-procedures`).
 - The factory functions turn a factory off without a word when something
   they need is missing (return 3), and the chat server ignores the return
   code.

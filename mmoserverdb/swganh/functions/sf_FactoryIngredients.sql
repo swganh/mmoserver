@@ -41,8 +41,8 @@ USE swganh;
 -- set, takes it. Returns 1 when everything is there (or the schematic has
 -- no ingredients recorded: made before they were), 0 when something is
 -- missing. Resources come out of the hopper's resource containers (an
--- emptied container stays, at 0, for the player to take out: the zone may
--- still hold it); components are items of the slot's type, with the same
+-- emptied container is deleted; the zone drops its copy when the hopper is
+-- next opened); components are items of the slot's type, with the same
 -- serial for an identical component, one item each (no crates).
 --
 
@@ -101,6 +101,9 @@ BEGIN
             ORDER BY amount LIMIT 1 INTO containerID, containerAmount;
           SET take = LEAST(need, containerAmount);
           UPDATE resource_containers SET amount = amount - take WHERE id = containerID;
+          -- an emptied container goes; the zone drops its copy when the
+          -- hopper is next opened (FactoryFactory, FFQuery_HopperUpdate)
+          DELETE FROM resource_containers WHERE id = containerID AND amount = 0;
           SET need = need - take;
         END WHILE;
       END IF;

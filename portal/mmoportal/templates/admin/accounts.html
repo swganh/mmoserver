@@ -22,7 +22,7 @@
         <td>
           {% if r.account_banned %}<span class="tag bad">banned</span>{% endif %}
           {% if r.account_loggedin %}<span class="tag good">in game</span>{% endif %}
-          {% if r.account_csr %}<span class="tag">CSR</span>{% endif %}
+          {% if r.account_csr %}<span class="tag">CSR {{ r.account_csr }}</span>{% endif %}
           {% for name in staff.get(r.account_id, []) %}<span class="tag staff">{{ name }}</span>{% endfor %}
         </td>
       </tr>

@@ -2,10 +2,13 @@
 
 The servers have two kinds of in-game staff power:
 
-* The account's CSR flag (account.account_csr), set on the account page.
-  The client is told the character is a CSR; the account may log in while
-  the galaxy is locked; and the Character Builder terminals show the CSR
-  menu (CharacterBuilderTerminal.cpp).
+* The account's CSR level (account.account_csr), set on the account page.
+  It is sent to the client in the player baseline (PLAY 6) as the god
+  level: the client shows GOD MODE and sends the commands its command
+  table marks for that level or lower (the broadcasts need 5; tested with
+  a Publish 14 client). Any level above 0 also lets the account log in
+  while the galaxy is locked and shows the CSR menu on Character Builder
+  terminals (CharacterBuilderTerminal.cpp).
 
 * The hidden admin profession: skills admin_skill_* in the skills table,
   whose skill commands are the abilities the admin slash commands need
@@ -21,10 +24,19 @@ client knows many more with the 'admin' ability that do nothing yet.
 What the client allows, from its own datatables/command/command_table.iff
 (Publish 14): only the three broadcasts are client commands, and all three
 need god level 5 (the client's godLevel column). The other four are not in
-the client's table, so the client cannot send them when typed. Where the
-client takes the character's god level from is not known yet; the CSR flag
-is sent to it in the player baseline (PLAY 6), so it may be that.
+the client's table, so the client cannot send them when typed.
 """
+
+# CSR levels the portal offers: the god levels the client's command table
+# uses (0 none, 5 most admin commands, 10 and 15 a few more), and 1 for
+# the CSR menu and locked galaxies without GM commands.
+CSR_LEVELS = {
+    0: "Off",
+    1: "1: CSR menu and locked galaxy only",
+    5: "5: also the GM commands (broadcasts)",
+    10: "10",
+    15: "15: every GM command the client has",
+}
 from . import db
 
 # The admin skills that grant working commands, in the order they build on
@@ -58,7 +70,8 @@ COMMANDS = [
 ]
 
 CSR_FLAG_EFFECTS = [
-    "The client is told the character is a CSR.",
+    "It is the character's god level in the client: above 0 the client shows GOD MODE, "
+    "and it sends the GM commands marked for that level or lower. The broadcasts need 5.",
     "The account can log in while the galaxy is locked (the ConnectionServer's 'l' key).",
     "Character Builder terminals show the CSR menu: Personal Blue Frog, experience, "
     "credits, buffs, items, resources, get an item by id, professions, wounds, states, "

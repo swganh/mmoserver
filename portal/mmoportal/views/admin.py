@@ -126,6 +126,7 @@ def account(account_id):
         admin_skills=admin_skills,
         skills_readable=skills_readable,
         SKILLS=game.SKILLS,
+        CSR_LEVELS=game.CSR_LEVELS,
         may_change=permissions.may_act_on(account_id),
         history=_audit_rows(target=account_id, limit=20) if permissions.has("audit.view") else [],
     )
@@ -231,10 +232,15 @@ def account_unban(account_id):
 def account_csr(account_id):
     acc = _account_or_404(account_id)
     _guard(acc)
-    value = 1 if request.form.get("csr") == "1" else 0
+    try:
+        value = int(request.form.get("csr", ""))
+    except ValueError:
+        value = -1
+    if value not in game.CSR_LEVELS:
+        abort(400, "Choose one of the CSR levels offered.")
     db.run("UPDATE {game}.account SET account_csr = %s WHERE account_id = %s", value, account_id)
     auth_state.audit("admin.game_csr", account_id, f"csr={value}")
-    flash("In-game CSR flag " + ("given" if value else "taken away") + "; it applies " + RELOAD_HINT + ".", "success")
+    flash(f"In-game CSR level set to {value}; it applies " + RELOAD_HINT + ".", "success")
     return _back(account_id)
 
 
@@ -290,7 +296,7 @@ def csr():
     except game.NoAccess:
         holders, client_only, readable = [], [], False
     csr_accounts = db.all(
-        "SELECT account_id, account_username FROM {game}.account WHERE account_csr <> 0 ORDER BY account_username"
+        "SELECT account_id, account_username, account_csr FROM {game}.account WHERE account_csr <> 0 ORDER BY account_username"
     )
     return render_template(
         "admin/csr.html",

@@ -27,7 +27,7 @@ label { display: block; margin-bottom: 12px; font-weight: 500; }
 label small { display: block; font-weight: 400; }
 label.check { font-weight: 400; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
 label.check small { display: inline; }
-input[type=text], input[type=password], input[type=email], input[type=number], input[type=search] {
+input[type=text], input[type=password], input[type=email], input[type=number], input[type=search], select {
   display: block; width: 100%; margin-top: 4px; padding: 8px 10px; font: inherit; color: var(--text);
   background: var(--bg); border: 1px solid var(--line); border-radius: 6px; }
 fieldset { border: 1px solid var(--line); border-radius: 6px; margin: 0 0 12px; }

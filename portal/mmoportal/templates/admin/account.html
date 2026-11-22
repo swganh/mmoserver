@@ -15,7 +15,7 @@
     <dt>Last game login</dt><dd>{{ when(account.account_lastlogin) }}</dd>
     <dt>Characters allowed</dt><dd>{{ account.account_characters_allowed }}</dd>
     <dt>Active</dt><dd>{{ "yes" if account.account_active else "no" }}</dd>
-    <dt>In-game CSR</dt><dd>{{ "yes" if account.account_csr else "no" }}</dd>
+    <dt>In-game CSR level</dt><dd>{{ account.account_csr or "none" }}</dd>
     {% if account.account_banned %}
       <dt>Banned</dt><dd>{{ when(account.banned_date) }}, {{ "until " ~ when(account.banned_until) if account.banned_until else "permanently" }}</dd>
     {% endif %}
@@ -102,10 +102,16 @@
   <h2>In-game CSR</h2>
   <form method="post" action="{{ url_for('admin.account_csr', account_id=account.account_id) }}">
     {{ csrf() }}
-    <input type="hidden" name="csr" value="{{ 0 if account.account_csr else 1 }}">
-    <p class="muted">The CSR menu on Character Builder terminals, and logging in while the galaxy is locked. In game it applies 5 minutes after the character logs out, or after its zone server restarts.
-    The admin slash commands are given per character, under Characters. <a href="{{ url_for('admin.csr') }}">More</a></p>
-    <button class="secondary">{{ "Take away CSR flag" if account.account_csr else "Give CSR flag" }}</button>
+    <p class="muted">The god level the game client gets (GOD MODE). The GM commands need 5, and the character also needs
+    them given under Characters. Above 0: the CSR menu on Character Builder terminals and logging in while the galaxy is locked.
+    Applies 5 minutes after the character logs out, or after its zone server restarts. <a href="{{ url_for('admin.csr') }}">More</a></p>
+    <label>Level
+      <select name="csr">
+        {% for level, text in CSR_LEVELS.items() %}<option value="{{ level }}"{% if level == account.account_csr %} selected{% endif %}>{{ text }}</option>{% endfor %}
+        {% if account.account_csr not in CSR_LEVELS %}<option value="" selected disabled>{{ account.account_csr }} (set outside the portal)</option>{% endif %}
+      </select>
+    </label>
+    <button class="secondary">Set level</button>
   </form>
 </section>
 {% endif %}

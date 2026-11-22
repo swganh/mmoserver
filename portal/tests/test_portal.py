@@ -364,3 +364,17 @@ def test_csr_role_cannot_give_admin_commands(browser, make_account, sql):
     browser.get(f"/admin/accounts/{player}")
     assert browser.post(f"/admin/characters/{char}/admin-skills", {"skill": ["admin_skill_novice"]}).status_code == 403
     assert _skills(sql, char) == set()
+
+
+def test_csr_level(browser, make_account, sql):
+    make_account("boss", roles=[ADMIN])
+    player = make_account("player1")
+    browser.login("boss", "password123")
+    browser.get(f"/admin/accounts/{player}")
+    browser.post(f"/admin/accounts/{player}/csr", {"csr": "5"})
+    assert account(sql, "player1")["account_csr"] == 5
+    assert b"CSR 5" in browser.get("/admin/accounts").data
+    assert browser.post(f"/admin/accounts/{player}/csr", {"csr": "7"}).status_code == 400
+    browser.get(f"/admin/accounts/{player}")
+    browser.post(f"/admin/accounts/{player}/csr", {"csr": "0"})
+    assert account(sql, "player1")["account_csr"] == 0

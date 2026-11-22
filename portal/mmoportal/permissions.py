@@ -27,7 +27,7 @@ PERMISSIONS = {
     "accounts.edit": "Change an account's email, character limit and active flag",
     "accounts.reset_password": "Set an account's password or send it a reset link",
     "accounts.ban": "Ban and unban accounts",
-    "accounts.game_csr": "Give or take the in-game CSR flag",
+    "accounts.game_csr": "Set an account's in-game CSR (god) level",
     "game.admin_commands": "Give characters the in-game admin commands (broadcasts, shutdown, warp)",
     "audit.view": "Read the audit log",
 }

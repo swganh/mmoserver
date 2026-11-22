@@ -18,7 +18,7 @@ other way round (both hash with libsodium's Argon2id, the same way).
 - create accounts; change email, character limit and the active flag
 - send a reset link, or set a password
 - ban (for some days, or permanently) and lift bans
-- give or take the in-game CSR flag, and give characters the in-game admin
+- set the in-game CSR (god) level, and give characters the in-game admin
   commands (In-game CSR page; see below)
 - (Administrators) make roles from permissions, and give roles to accounts
 - read the audit log of every change
@@ -119,9 +119,12 @@ the `accounts.game_csr` permission sets that flag.
 The In-game CSR page lists what staff can do inside the game today. The
 servers have two kinds of staff power:
 
-- the account's **CSR flag**: the CSR menu on Character Builder terminals
-  (blue frog, experience, credits, items, professions, teleport...) and
-  logging in while the galaxy is locked
+- the account's **CSR level** (`account_csr`): the client takes it as the
+  character's god level, shows GOD MODE and sends the GM commands marked
+  for that level or lower (the broadcasts need 5). Any level above 0 also
+  gives the CSR menu on Character Builder terminals (blue frog,
+  experience, credits, items, professions, teleport...) and logging in
+  while the galaxy is locked
 - the hidden **admin profession**, whose skills unlock the admin slash
   commands that have server code: `/broadcast`, `/broadcastPlanet`,
   `/broadcastGalaxy`, `/shutdownGalaxy`, `/cancelShutdownGalaxy`,
@@ -132,9 +135,8 @@ servers have two kinds of staff power:
 The game client limits what can be typed, by its own command table
 (`datatables/command/command_table.iff`): only the three broadcasts are
 client commands, marked for god level 5, and the other four are not in it,
-so the client does not send them. Where the client takes a character's god
-level from is still being tested; the CSR flag's value is sent to it, so it
-may be that.
+so the client does not send them. So to broadcast, a character needs both
+its account at CSR level 5 or more and the broadcast skills.
 
 Both apply when the zone server next loads the character. After a logout
 it keeps the character loaded for 5 minutes (`Zone_Player_Logout` in the

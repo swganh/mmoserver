@@ -13,9 +13,9 @@
 <section class="card">
   <h2>Admin commands with server code</h2>
   <p class="muted">The servers carry these out for a character with the admin skill shown, given on its account's page.
-  Whether the game client sends them is another matter: only the three broadcasts are commands the client knows, and it
-  marks them for god level 5. Where the client takes a character's god level from is being tested (it may be the CSR flag's value).
-  The other four are not in the client's command table, so typing them does nothing until the client can be made to send them.</p>
+  The game client must send them too: only the three broadcasts are commands the client knows, and it sends them for a
+  character whose account has a CSR level of 5 or more (the client shows GOD MODE). The other four are not in the client's
+  command table, so typing them does nothing until the client can be made to send them.</p>
   <div class="scroll">
   <table>
     <thead><tr><th>Command</th><th>Usage</th><th>What it does</th><th>Server needs</th><th>Game client</th></tr></thead>
@@ -31,11 +31,11 @@
 
 <div class="grid">
 <section class="card">
-  <h2>The CSR flag</h2>
+  <h2>The CSR level</h2>
   <ul>{% for line in flag_effects %}<li>{{ line }}</li>{% endfor %}</ul>
   <h3>Accounts with it</h3>
   {% if csr_accounts %}
-    <ul class="plain">{% for a in csr_accounts %}<li><a href="{{ url_for('admin.account', account_id=a.account_id) }}">{{ a.account_username }}</a></li>{% endfor %}</ul>
+    <ul class="plain">{% for a in csr_accounts %}<li><a href="{{ url_for('admin.account', account_id=a.account_id) }}">{{ a.account_username }}</a> <span class="muted">level {{ a.account_csr }}</span></li>{% endfor %}</ul>
   {% else %}<p class="muted">None.</p>{% endif %}
 </section>
 

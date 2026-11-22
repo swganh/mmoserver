@@ -291,6 +291,7 @@ public:
         HeightmapStructureHandler(ref);
     }
     void					HeightmapStructureHandler(HeightmapAsyncContainer* ref);
+    void					_regainPlacementLots(StructureHeightmapAsyncContainer* container);
 
     void					handleObjectReady(Object* object,DispatchClient* client);
 

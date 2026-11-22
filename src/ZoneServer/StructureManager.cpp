@@ -1501,6 +1501,16 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
         return false;
     }
 
+    // The lots are taken now that the structure is being placed (the deed
+    // only checked them), and given back if placement fails below.
+    StructureDeedLink* lotsData = getDeedData(deed->getItemType());
+    const uint8 lots = lotsData ? static_cast<uint8>(lotsData->requiredLots) : 0;
+    if(!player->useLots(lots))
+    {
+        gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "not_enough_lots", 0, 0, 0, lots, 0.0f), player);
+        return false;
+    }
+
     switch(deed->getItemType())
     {
     case	ItemType_generator_fusion_personal:
@@ -1576,6 +1586,7 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
             if(!player->checkSkill(623)) //novice Politician
             {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "place_cityhall"), player);
+                player->regainLots(lots);
                 break;
             }
         }
@@ -1587,6 +1598,7 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
     }
 
     case	ItemType_deed_guildhall_corellian:
+    case	ItemType_deed_guildhall_generic:
     case	ItemType_deed_guildhall_naboo:
     case	ItemType_deed_guildhall_tatooine:
     case	ItemType_deed_naboo_large_house:
@@ -1659,9 +1671,26 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
     }
     break;
 
+    default:
+        // A deed this code doesn't place (the generic guild hall wasn't
+        // listed, and its lots were lost).
+        DLOG(INFO) << "StructureManager::HandlePlaceStructure: no placement for item type " << deed->getItemType();
+        player->regainLots(lots);
+        break;
     }
     return true;
 }
+// Placement failed after the lots were taken (no height for the spot):
+// give them back.
+void StructureManager::_regainPlacementLots(StructureHeightmapAsyncContainer* container)
+{
+    PlayerObject* player = dynamic_cast<PlayerObject*>(container->player);
+    if(!player || !container->deed)
+        return;
+    if(StructureDeedLink* data = getDeedData(container->deed->getItemType()))
+        player->regainLots(static_cast<uint8>(data->requiredLots));
+}
+
 void StructureManager::HeightmapStructureHandler(HeightmapAsyncContainer* ref)
 {
     StructureHeightmapAsyncContainer* container = static_cast<StructureHeightmapAsyncContainer*>(ref);
@@ -1701,6 +1730,10 @@ void StructureManager::HeightmapStructureHandler(HeightmapAsyncContainer* ref)
                     container->x,highest,container->z,container->dir,container->customName,
                     container->player);
         }
+        else
+        {
+            _regainPlacementLots(container);
+        }
         break;
     }
 
@@ -1714,6 +1747,10 @@ void StructureManager::HeightmapStructureHandler(HeightmapAsyncContainer* ref)
                     it->first.first,it->second->height,it->first.second,container->dir,
                     container->customName, container->player);
         }
+        else
+        {
+            _regainPlacementLots(container);
+        }
         break;
     }
     case HeightmapCallback_StructureHarvester:
@@ -1725,6 +1762,10 @@ void StructureManager::HeightmapStructureHandler(HeightmapAsyncContainer* ref)
             container->oCallback->requestnewHarvesterbyDeed(container->ofCallback,container->deed,container->player->getClient(),
                     it->first.first,it->second->height,it->first.second,container->dir,container->customName,
                     container->player);
+        }
+        else
+        {
+            _regainPlacementLots(container);
         }
         break;
     }

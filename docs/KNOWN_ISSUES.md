@@ -1342,6 +1342,23 @@ it. Pre-CU, the performer heard their own performance. Most likely the
 performer's own client isn't sent what the listeners get (the performance
 id, or listening to themselves). To look at.
 
+### 48. A generic guild hall wasn't placed, and its lots were lost — fixed, to retest
+
+Found in the step 2 test pass (Nov 2026): placing a generic guild hall
+with 5 lots free built nothing and left the character with 0 lots.
+- `StructureManager::HandlePlaceStructure` listed the Corellian, Naboo and
+  Tatooine guild hall deeds but not the generic one, so its placement
+  fell through and nothing was built.
+- The deed took the lots when placement mode began, before anything was
+  placed (the client doesn't say when the player presses Escape), so any
+  placement that didn't finish, or was refused, or was on the wrong
+  planet, lost them.
+The generic guild hall is placed like the others now; the deed only checks
+the lots, and they are taken when the structure is placed and given back
+if placement fails there (no height for the spot, a deed with no
+placement, a city hall without the skill). Lots are counted from the
+structures owned at login, so relogging gave back the lost ones anyway.
+
 ### 46. /tip bank refused with "bank" first — fixed, to retest
 
 Found in the step 2 test pass (Nov 2026): `/tip bank Obitwo 100`, and

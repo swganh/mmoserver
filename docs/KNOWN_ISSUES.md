@@ -1141,6 +1141,11 @@ place for it, so every offset is a first guess (3 m right, 8 m ahead; 12 m
 for large houses), to correct from screenshots. `HouseObject::mSign` was
 never initialised; it starts empty now.
 
+First test (Nov 2026): the sign came up beside the door of a Tatooine
+small house, on the ground and edge-on. Mounted on the wall with
+migration 023: 2.5 m up, turned 135 degrees, for every house type (chosen
+on the Tatooine small house). Other types' offsets still to check.
+
 ### 32. Zone and chat servers crashed after "Lost connection to MySQL server" — fixed, to retest
 
 The chat server crashed overnight (Nov 2026), and a ZoneServer crashed

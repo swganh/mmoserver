@@ -129,6 +129,13 @@ servers have two kinds of staff power:
   game; staff with the `game.admin_commands` permission give them per
   character on the account's page (rows in `character_skills`)
 
+The game client limits what can be typed, by its own command table
+(`datatables/command/command_table.iff`): only the three broadcasts are
+client commands, marked for god level 5, and the other four are not in it,
+so the client does not send them. Where the client takes a character's god
+level from is still being tested; the CSR flag's value is sent to it, so it
+may be that.
+
 Both apply from the character's next login. The page also lists the 129
 other admin commands the client knows that the servers do not carry out
 yet. Installs from before this page need `install.sh install` run again,

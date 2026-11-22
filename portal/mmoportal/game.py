@@ -15,6 +15,13 @@ The servers have two kinds of in-game staff power:
 
 Only the commands in COMMANDS have server code (OCAdminHandlers.cpp); the
 client knows many more with the 'admin' ability that do nothing yet.
+
+What the client allows, from its own datatables/command/command_table.iff
+(Publish 14): only the three broadcasts are client commands, and all three
+need god level 5 (the client's godLevel column). The other four are not in
+the client's table, so the client cannot send them when typed. Where the
+client takes the character's god level from is not known yet; the CSR flag
+is sent to it in the player baseline (PLAY 6), so it may be that.
 """
 from . import db
 
@@ -28,23 +35,24 @@ SKILLS = {
     "admin_skill_03_01": "Warping yourself anywhere",
 }
 
-# (command, skill that grants it, syntax, what it does)
+# (command, skill that grants it, syntax, what it does, in the client:
+#  the god level it needs, or None when the client has no such command)
 COMMANDS = [
     ("/broadcast", "admin_skill_novice", "/broadcast <message>",
-     "System message to every player on your planet (your zone server)."),
+     "System message to every player on your planet (your zone server).", 5),
     ("/broadcastPlanet", "admin_skill_01_01", "/broadcastPlanet <planet> <message>",
-     "System message to every player on the planet named; part of a name is enough (e.g. tat)."),
+     "System message to every player on the planet named; part of a name is enough (e.g. tat).", 5),
     ("/broadcastGalaxy", "admin_skill_01_01", "/broadcastGalaxy <message>",
-     "System message to every player in the galaxy."),
+     "System message to every player in the galaxy.", 5),
     ("/shutdownGalaxy", "admin_skill_02_01", "/shutdownGalaxy <minutes> <reason>",
-     "Announces a shutdown of the galaxy in that many minutes, with the reason."),
+     "Announces a shutdown of the galaxy in that many minutes, with the reason.", None),
     ("/cancelShutdownGalaxy", "admin_skill_02_01", "/cancelShutdownGalaxy <reason>",
-     "Cancels a scheduled shutdown and tells the players why."),
+     "Cancels a scheduled shutdown and tells the players why.", None),
     ("/admin_warp_self", "admin_skill_03_01", "/admin_warp_self <x> <z> [planet]",
-     "Moves you to x, z on this planet, or on another (by name)."),
+     "Moves you to x, z on this planet, or on another (by name).", None),
     ("/admin_sys_msg", "admin_skill_novice", "/admin_sys_msg <command> <arguments>",
      "Runs one of the commands above by name, which may be shortened, e.g. "
-     "/admin_sys_msg broadcastG Server restart soon. Still needs that command's skill."),
+     "/admin_sys_msg broadcastG Server restart soon. Still needs that command's skill.", None),
 ]
 
 CSR_FLAG_EFFECTS = [

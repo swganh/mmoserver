@@ -9,15 +9,18 @@
 </section>
 
 <section class="card">
-  <h2>Admin commands that work</h2>
-  <p class="muted">Type them in the game's chat box. Each needs the admin skill shown, given to the character on its account's page.
-  These have server code but have not been through the client tests yet (docs/TEST_PLAN.md).</p>
+  <h2>Admin commands with server code</h2>
+  <p class="muted">The servers carry these out for a character with the admin skill shown, given on its account's page.
+  Whether the game client sends them is another matter: only the three broadcasts are commands the client knows, and it
+  marks them for god level 5. Where the client takes a character's god level from is being tested (it may be the CSR flag's value).
+  The other four are not in the client's command table, so typing them does nothing until the client can be made to send them.</p>
   <div class="scroll">
   <table>
-    <thead><tr><th>Command</th><th>Usage</th><th>What it does</th><th>Needs</th></tr></thead>
+    <thead><tr><th>Command</th><th>Usage</th><th>What it does</th><th>Server needs</th><th>Game client</th></tr></thead>
     <tbody>
-    {% for name, skill, syntax, text in commands %}
-      <tr><td class="nowrap"><code>{{ name }}</code></td><td class="nowrap"><code>{{ syntax }}</code></td><td>{{ text }}</td><td>{{ skills[skill] }}</td></tr>
+    {% for name, skill, syntax, text, god in commands %}
+      <tr><td class="nowrap"><code>{{ name }}</code></td><td class="nowrap"><code>{{ syntax }}</code></td><td>{{ text }}</td><td>{{ skills[skill] }}</td>
+        <td>{% if god is none %}<span class="tag bad">not a client command</span>{% else %}<span class="tag">god level {{ god }}</span>{% endif %}</td></tr>
     {% endfor %}
     </tbody>
   </table>

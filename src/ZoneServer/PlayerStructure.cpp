@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "PlayerStructure.h"
+#include "HouseObject.h"
+#include "StructureManager.h"
 #include "PlayerObject.h"
 #include "Inventory.h"
 #include "CellObject.h"
@@ -456,6 +458,13 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,BString inputStr
         this->setCustomName(inputStr.getAnsi());
 
         gMessageLib->sendNewHarvesterName(this);
+
+        // A house's sign shows its name: put it up again with the new one.
+        if(HouseObject* house = dynamic_cast<HouseObject*>(this))
+        {
+            gStructureManager->removeHouseSign(house);
+            gStructureManager->spawnHouseSign(house);
+        }
 
         //update db!!!
         // pull the db query

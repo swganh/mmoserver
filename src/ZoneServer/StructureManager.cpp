@@ -57,8 +57,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/OutOfBand.h"
 #include "MessageLib/MessageLib.h"
 #include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseResult.h"
 #include "Utils/rand.h"
 #include "Utils/MathFunctions.h"
+#include "SpatialIndexManager.h"
+
+#include <sstream>
+
+#include <cppconn/resultset.h>
+#include <glm/gtc/quaternion.hpp>
 
 #include <cassert>
 
@@ -101,6 +108,9 @@ StructureManager::StructureManager(Database* database,MessageDispatch* dispatch)
     asyncContainer = new StructureManagerAsyncContainer(Structure_Query_LoadstructureItem, 0);
     mDatabase->executeSqlAsync(this,asyncContainer,"SELECT sit.structure_id, sit.cell, sit.item_type , sit.relX, sit.relY, sit.relZ, sit.dirX, sit.dirY, sit.dirZ, sit.dirW, sit.tan_type, tt.object_string, tt.name, tt.file from %s.structure_item_template sit INNER JOIN %s.terminal_types tt ON (tt.id = sit.item_type) WHERE sit.tan_type = %u",mDatabase->galaxy(),mDatabase->galaxy(),TanGroup_Terminal);
 
+    // house signs (KNOWN_ISSUES #30)
+    loadHouseSigns();
+
     // load our NoBuildRegions
     asyncContainer = new StructureManagerAsyncContainer(Structure_Query_NoBuildRegionData, 0);
     mDatabase->executeProcedureAsync(this,asyncContainer,"CALL %s.sp_PlanetNoBuildRegions", mDatabase->galaxy());
@@ -136,6 +146,92 @@ StructureManager*	StructureManager::Init(Database* database, MessageDispatch* di
 }
 
 //======================================================================================================================
+
+void StructureManager::loadHouseSigns()
+{
+    std::stringstream sql;
+    sql << "SELECT s.object_string, h.sign_template, h.x, h.y, h.z, h.heading FROM "
+        << mDatabase->galaxy() << ".house_sign_placement h INNER JOIN " << mDatabase->galaxy()
+        << ".structure_type_data s ON (s.type = h.structure_type)";
+    mDatabase->executeAsyncSql(sql, [this] (DatabaseResult* result) {
+        if(!result || !result->getResultSet())
+        {
+            LOG(WARNING) << "House signs: no house_sign_placement table (has migration 022 run?)";
+            return;
+        }
+        std::unique_ptr<sql::ResultSet>& rows = result->getResultSet();
+        while(rows->next())
+        {
+            HouseSignPlacement placement;
+            placement.signTemplate = rows->getString(2);
+            placement.offset = glm::vec3(static_cast<float>(rows->getDouble(3)), static_cast<float>(rows->getDouble(4)), static_cast<float>(rows->getDouble(5)));
+            placement.heading = static_cast<float>(rows->getDouble(6));
+            mHouseSigns[std::string(rows->getString(1))] = placement;
+        }
+
+        // Houses that entered the world before this arrived.
+        ObjectIDList* structures = gWorldManager->getStructureList();
+        for(uint64 id : *structures)
+        {
+            if(HouseObject* house = dynamic_cast<HouseObject*>(gWorldManager->getObjectById(id)))
+            {
+                spawnHouseSign(house);
+            }
+        }
+    });
+}
+
+//=======================================================================================================================
+// The sign stands at its house type's offset, turned with the house, and
+// shows the house's name. It is not saved: it is made again whenever the
+// house enters the world.
+
+void StructureManager::spawnHouseSign(HouseObject* house)
+{
+    if(!house || house->getSign())
+    {
+        return;
+    }
+    auto it = mHouseSigns.find(std::string(house->getModelString().getAnsi()));
+    if(it == mHouseSigns.end())
+    {
+        return;
+    }
+    const HouseSignPlacement& placement = it->second;
+
+    TangibleObject* sign = new TangibleObject();
+    sign->setId(gWorldManager->getRandomNpId());
+    sign->setParentId(0);
+    sign->setModelString(placement.signTemplate.c_str());
+    sign->setName("sign");
+    sign->setNameFile("sign_name");
+    sign->setCustomName(house->getCustomName().getAnsi());
+    sign->setMaxCondition(1000);
+    sign->setStatic(true);
+
+    sign->mPosition = house->mPosition + (house->mDirection * placement.offset);
+    sign->mDirection = house->mDirection * glm::angleAxis(glm::radians(placement.heading), glm::vec3(0.0f, 1.0f, 0.0f));
+
+    gWorldManager->addObject(sign, true);
+    gSpatialIndexManager->createInWorld(sign);
+    house->setSign(sign);
+}
+
+//=======================================================================================================================
+
+void StructureManager::removeHouseSign(HouseObject* house)
+{
+    if(!house || !house->getSign())
+    {
+        return;
+    }
+    TangibleObject* sign = house->getSign();
+    house->setSign(NULL);
+    gSpatialIndexManager->RemoveObjectFromWorld(sign);
+    gWorldManager->destroyObject(sign);
+}
+
+//=======================================================================================================================
 
 void StructureManager::Shutdown()
 {
@@ -591,6 +687,10 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 
 			//create the structure in the world
 			gSpatialIndexManager->createInWorld(structure);
+			if(HouseObject* house = dynamic_cast<HouseObject*>(structure))
+			{
+				spawnHouseSign(house);
+			}
 
 			//send the EMail
 			gMessageLib->sendConstructionComplete(player,structure);

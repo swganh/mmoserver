@@ -67,10 +67,12 @@ public:
     void			prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
     void			handleObjectMenuSelect(uint8 messageType,Object* srcObject);
 
-    PlayerStructure*	getSign() {
+    // The sign by the door (KNOWN_ISSUES #30): not saved, made by the
+    // StructureManager whenever the house enters the world.
+    TangibleObject*	getSign() {
         return mSign;
     }
-    void				setSign(PlayerStructure* sign) {
+    void				setSign(TangibleObject* sign) {
         mSign = sign;
     }
 
@@ -86,7 +88,7 @@ private:
 
     uint32			mTotalLoadCount;
 
-    PlayerStructure* mSign;
+    TangibleObject*	mSign;
 
 };
 

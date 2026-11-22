@@ -933,6 +933,11 @@ holds anything. The box holds 100 items: reconstructed, not from the client
 (the client's bank template may say otherwise); `Player_Bank_Capacity` in
 the zone config changes it.
 
+First test: after joining, the terminal still offered Join Bank and no
+Bank Items. The bank terminal kept the first menu it built, from before
+the join, for every player (`Object::ResetRadialMenu` does nothing); it
+is built for each request now (fixed, to retest).
+
 ### 28. Missions were switched off — back on, needs testing
 
 Found in the step 2 test pass (T33-T35, Nov 2026): the terminals answered
@@ -1115,7 +1120,7 @@ length (the name is entered in the rename window).
 
 Confirmed on the VM (Nov 2026): a house renamed from its terminal.
 
-### 30. No sign outside a placed house — open
+### 30. No sign outside a placed house — built, to test
 
 Found in the step 2 test pass (T31, Nov 2026). Pre-CU houses had a sign by
 the door showing the house's name. The code that made one is commented out
@@ -1123,6 +1128,18 @@ in `StructureManager::_handleStructureObjectTimers`: it put a street sign
 at a fixed offset from the house whatever its rotation, and the sign was
 not saved, so it would be gone after a restart. A proper sign needs each
 house type's sign position and model, saved with the house.
+
+Built (Nov 2026): the ZoneServer puts a sign up whenever a house enters the
+world (zone start, and when construction finishes), and takes it down with
+the house; renaming the house puts it up again with the new name. It is
+not saved. The models are the client's (`object/tangible/sign/player/
+shared_house_address.iff` and its `_corellia`, `_naboo`, `_tatooine`
+versions, by the house's style). Where it stands is per house type in
+`house_sign_placement` (migration 022: offset in the house's frame and a
+heading, turned with the house); the client's house templates mark no
+place for it, so every offset is a first guess (3 m right, 8 m ahead; 12 m
+for large houses), to correct from screenshots. `HouseObject::mSign` was
+never initialised; it starts empty now.
 
 ### 32. Zone and chat servers crashed after "Lost connection to MySQL server" — fixed, to retest
 
@@ -1361,7 +1378,11 @@ Migration 019 adds it to `terminal_types` and gives each of the six camps a
 terminal row, so the camp spawns its control panel with Status and Disband
 (owner only). Its spot, 2 m right of and 3 m ahead of where the camp is
 placed, and its −45° turn (migration 020, chosen in a test placement)
-are reconstructed. Status and the panel were confirmed in game. Layout: each camp's model is a client POI
+are reconstructed. Status and the panel were confirmed in game, and a
+guest gets Status but not Disband. The terminal kept the first menu it
+built, for everyone (`ResetRadialMenu` does nothing by default), so which
+one a player saw depended on who opened it first; it is built per
+request now (to retest that the owner still gets Disband). Layout: each camp's model is a client POI
 (`object/building/poi/shared_scout_camp_s0`–`s5`) that brings its own tent
 and furniture; the server adds only the basic camp's campfire and chair
 (item rows), which may double what the POI already has. Still open.

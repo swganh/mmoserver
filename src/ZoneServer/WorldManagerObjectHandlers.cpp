@@ -49,6 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CellObject.h"
 #include "Datapad.h"
 #include "HouseObject.h"
+#include "StructureManager.h"
 #include "PlayerObject.h"
 #include "CharacterLoginHandler.h"
 #include "Container.h"
@@ -212,6 +213,13 @@ bool WorldManager::addObject(Object* object,bool manual)
 			// and the NPCs that were loaded in its cells
 			if(building)
 				gSpatialIndexManager->addCellCreaturesToGrid(building);
+
+			// a house's sign by the door (KNOWN_ISSUES #30)
+			if(HouseObject* house = dynamic_cast<HouseObject*>(object))
+			{
+				if(gStructureManager)
+					gStructureManager->spawnHouseSign(house);
+			}
 		}
 		break;
 
@@ -427,6 +435,11 @@ void WorldManager::destroyObject(Object* object)
 		{
 
 			BuildingObject* building = dynamic_cast<BuildingObject*>(object);
+			if(HouseObject* house = dynamic_cast<HouseObject*>(object))
+			{
+				if(gStructureManager)
+					gStructureManager->removeHouseSign(house);
+			}
 			if(building)
 			{				
 				//remove it out of the worldmanagers structurelist now that it is deleted

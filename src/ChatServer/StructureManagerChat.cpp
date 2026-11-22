@@ -184,7 +184,9 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 
         result->getNextRow(binding,&st);
 
-        if(st.lastMail < (gTradeManagerChat->getGlobalTickCount() + (24*3600*1000)))
+        // Last mail less than 24 hours ago: don't send another. (It read
+        // lastMail < now + 24h, always true, so these mails never went.)
+        if(gTradeManagerChat->getGlobalTickCount() < st.lastMail + (24ull*3600*1000))
         {
             //last Mail less than 24hours no need to send it again
             mDatabase->destroyDataBinding(binding);
@@ -253,7 +255,9 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 
         result->getNextRow(binding,&st);
 
-        if(st.lastMail < (gTradeManagerChat->getGlobalTickCount() + (24*3600*1000)))
+        // Last mail less than 24 hours ago: don't send another. (It read
+        // lastMail < now + 24h, always true, so these mails never went.)
+        if(gTradeManagerChat->getGlobalTickCount() < st.lastMail + (24ull*3600*1000))
         {
             //last Mail less than 24hours no need to send it again
             mDatabase->destroyDataBinding(binding);
@@ -320,7 +324,9 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 
         result->getNextRow(binding,&st);
 
-        if(st.lastMail < (gTradeManagerChat->getGlobalTickCount() + (24*3600*1000)))
+        // Last mail less than 24 hours ago: don't send another. (It read
+        // lastMail < now + 24h, always true, so these mails never went.)
+        if(gTradeManagerChat->getGlobalTickCount() < st.lastMail + (24ull*3600*1000))
         {
             //last Mail less than 24hours no need to send it again
             mDatabase->destroyDataBinding(binding);
@@ -793,6 +799,41 @@ void StructureManagerChatHandler::handleCheckHarvesterPower()
     sprintf(sql,"SELECT h.ID FROM %s.harvesters h WHERE h.active > 0 ",mDatabase->galaxy());
 
     mDatabase->executeSqlAsync(this,asyncContainer,sql);
+
+    // Running factories use power too (structure_type_data.power_used per
+    // hour, from the power pool): sf_FactoryUsePower existed but was never
+    // called (#39). Out of power, it stops the factory (1): mail the owner.
+    std::stringstream factories;
+    factories << "SELECT f.ID, s.owner FROM " << mDatabase->galaxy() << ".factories f INNER JOIN "
+              << mDatabase->galaxy() << ".structures s ON (s.ID = f.ID) WHERE f.active > 0";
+    Database* db = mDatabase;
+    mDatabase->executeAsyncSql(factories, [db] (DatabaseResult* result) {
+        if(!result || !result->getResultSet())
+            return;
+        std::unique_ptr<sql::ResultSet>& rows = result->getResultSet();
+        while(rows->next())
+        {
+            const uint64 factoryId = rows->getUInt64(1);
+            const uint64 owner = rows->getUInt64(2);
+            std::stringstream use;
+            use << "SELECT " << db->galaxy() << ".sf_FactoryUsePower(" << factoryId << ")";
+            db->executeAsyncSql(use, [owner] (DatabaseResult* used) {
+                if(!used || !used->getResultSet() || !used->getResultSet()->next())
+                    return;
+                // 1 out of power; 3 no power pool at all: stopped either way
+                const int code = used->getResultSet()->getInt(1);
+                if(code != 1 && code != 3)
+                    return;
+                Mail* mail = new Mail();
+                mail->setSender(BString("@player_structure:management"));
+                mail->setSubject(BString("Factory stopped"));
+                mail->setText(BString("Your factory has stopped manufacturing: it is out of power (use Deposit Power on the factory)."));
+                mail->setStatus(MailStatus_New);
+                mail->setTime(static_cast<uint32>(time(NULL)));
+                gChatManager->sendSystemMailMessage(mail, owner);
+            });
+        }
+    });
 
 }
 

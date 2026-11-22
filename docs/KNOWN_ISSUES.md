@@ -1143,14 +1143,16 @@ The log also showed "Record has changed since last read in table
 update to a row another server changed in the same moment. That query
 fails and runs again at the next maintenance interval.
 
-### 34. Factories count condition the other way — open
+### 34. Factories count condition the other way — moot
 
 Found while fixing #33. `sf_FactoryUseMaintenance` treats a structure's
 `condition` as damage, rising to the maximum ("condition is actually
 damage"), while the C++ (`PlayerStructure`), the chat server's mails and
 `sf_HarvesterUseMaintenance` treat it as health falling to 0. A factory
 left without maintenance would show as healthier as it decays, and be
-condemned at full condition. To fix before relying on factory decay.
+condemned at full condition. Moot since #39: factories are charged by
+`sf_HarvesterUseMaintenance` like every structure, which treats condition
+as health; `sf_FactoryUseMaintenance` was never called and still isn't.
 
 ### 35. Character select shows a galaxy as online while its zones load — open
 
@@ -1205,23 +1207,35 @@ customer straight away shows them bald in the designer's preview, with
 reuses the old hair's object ID (customer + 8), which the designer's
 client may still hold as destroyed; to look at if it matters.
 
-### 39. Structures are barely charged maintenance — open
+### 39. Structures were barely charged maintenance, and factories no power — fixed, to retest
 
 Found in the step 2 test pass (T30, Nov 2026): a factory ran for hours,
 filling four crates of small glasses, and its maintenance pool stayed at
-the 50 credits put in ("50/hr" on the status window). The chat server
-charges every structure (houses, harvesters, factories) hourly with
-`sf_HarvesterUseMaintenance`, which takes `maint_cost_wk / 336` each time,
-as if the rate were per week and charged every half hour; the status
-window shows the same column as a rate per hour. At 50 that is about 0.15
-credits an hour, which rounds to nothing. `sf_FactoryUseMaintenance` and
-`sf_FactoryUsePower` are never called, so factories use no power either.
-The maintenance mail's 24-hour throttle in the chat server reads
-`lastMail < now + 24h`, always true, so that mail is never sent.
-To settle from the guides: whether the rate is per hour or per week, how
-often it is charged, and whether factories use power. Then charge each
-kind of structure with its own function. With #34 (factories count
-condition the other way) and #36 (ingredients).
+the 50 credits put in ("50/hr" on the status window).
+
+`structure_type_data.maint_cost_wk` is per week: the status window divides
+it by 168 for the hourly rate (a factory's 8,400 is 50/hr). The chat
+server charges every structure hourly with `sf_HarvesterUseMaintenance`,
+which took a 336th, half the hour's charge, which rounded to nothing,
+and compared the pool with the weekly rate. Rewritten: each hour it takes
+the hourly rate from the maintenance pool; when the pool runs out the
+owner's bank pays the rest (as before); with nothing left, harvesters and
+factories stop and the structure loses condition, `decay_rate` percent of
+its maximum per unpaid hour (a factory lasts about 17 hours, a small
+house about 33; reconstructed, not from a source). Tested on a copy: 120
+credits in the pool paid two hours, the bank's 30 the third, and in the
+fourth the factory stopped and fell from 1,000 to 940.
+
+Factories now use power: the hourly power check charges running
+factories their `power_used` with `sf_FactoryUsePower` (it existed but
+was never called), and mails the owner when one stops for want of power.
+
+The structure mails (out of maintenance, damaged, condition zero) never
+went out: their 24-hour throttle read `lastMail < now + 24h`, always true.
+It reads the right way now.
+
+To check against the guides: whether the bank paid for maintenance
+pre-CU, and how fast an unpaid structure decayed.
 
 ### 40. Idle servers use a lot of CPU — open
 

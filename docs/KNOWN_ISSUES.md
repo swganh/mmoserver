@@ -1233,7 +1233,7 @@ memory, swap and CPU were flat up to the last sample at 04:00, so it is
 put down to the host PC (the VM runs in VirtualBox on it). A long run on a
 rented cloud VM would rule the host out (ROADMAP, Parked).
 
-### 41. Crafted values didn't become the item's stats — fixed for weapons, to retest
+### 41. Crafted values didn't become the item's stats — fixed for weapons
 
 Found in the step 2 test pass (T27, Nov 2026): two CDEF carbines, one
 assembled only and one after a failed experiment. Each tooltip shows the
@@ -1265,6 +1265,11 @@ experimenting now moves them down their range (`modifyAttributeValue`).
 Other kinds of crafted item (armour, food, clothing...) keep their crafted
 attributes as before; their mapping is still to do, kind by kind. Items
 crafted before this keep both sets.
+Confirmed on the VM (build b0ff0c5): an experimented CDEF carbine shows
+one set of stats (damage 22-45, speed 4.14, wound 4.33, ideal range 43,
+costs 9/20/9, condition 1005/1005). Still shown twice: the item's
+condition (the 100/100 at the top comes from the object itself, the
+1005/1005 below from the attribute); to make one follow the other.
 A third carbine, after a great success, confirms it: its crafted values
 rose (Maximum Damage 46.71, Minimum 22.85, Unit Integrity 1012.68 against
 43.11, 21.05 and 952.68 without experimenting) while the template block
@@ -1357,7 +1362,8 @@ with 5 lots free built nothing and left the character with 0 lots.
 The generic guild hall is placed like the others now; the deed only checks
 the lots, and they are taken when the structure is placed and given back
 if placement fails there (no height for the spot, a deed with no
-placement, a city hall without the skill). Lots are counted from the
+placement, a city hall without the skill); pressing Escape out of a
+placement now keeps them (confirmed). Lots are counted from the
 structures owned at login, so relogging gave back the lost ones anyway.
 The first retest crashed the zone on placement: the command map binds
 `HandlePlaceStructure` to `gStructureManager` before the manager exists,

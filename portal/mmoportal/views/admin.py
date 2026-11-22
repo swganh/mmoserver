@@ -234,7 +234,7 @@ def account_csr(account_id):
     value = 1 if request.form.get("csr") == "1" else 0
     db.run("UPDATE {game}.account SET account_csr = %s WHERE account_id = %s", value, account_id)
     auth_state.audit("admin.game_csr", account_id, f"csr={value}")
-    flash("In-game CSR flag " + ("given" if value else "taken away") + "; it applies from the next login.", "success")
+    flash("In-game CSR flag " + ("given" if value else "taken away") + "; it applies " + RELOAD_HINT + ".", "success")
     return _back(account_id)
 
 
@@ -269,6 +269,12 @@ def account_roles(account_id):
 
 
 # --- In-game staff commands -------------------------------------------------------
+
+# The ZoneServer keeps a logged-out character in memory for Zone_Player_Logout
+# seconds (300 by default) so a dropped connection can resume, and a login in
+# that time reuses it: skills and the CSR flag are only read from the
+# database when the character is loaded again.
+RELOAD_HINT = "once the character is fully out of the game: 5 minutes after logging out, or after its zone server restarts"
 
 NO_SKILL_ACCESS = (
     "The portal's database user cannot read or change character skills yet: "
@@ -313,7 +319,7 @@ def character_admin_skills(character_id):
             f"{row['firstname']} (#{character_id}): +{','.join(sorted(added)) or '-'} "
             f"-{','.join(sorted(removed)) or '-'}",
         )
-        flash(f"In-game admin commands for {row['firstname']} saved; they apply from the character's next login.", "success")
+        flash(f"In-game admin commands for {row['firstname']} saved; they apply " + RELOAD_HINT + ".", "success")
     else:
         flash("Nothing changed.", "info")
     return _back(acc["account_id"])

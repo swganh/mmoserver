@@ -11,7 +11,9 @@ The servers have two kinds of in-game staff power:
   whose skill commands are the abilities the admin slash commands need
   (command_table.characterability, checked by EVAbility). Nothing gives
   these skills in game; staff give them here, as character_skills rows.
-  The ZoneServer reads a character's skills when it logs in.
+  The ZoneServer reads a character's skills when it loads the character;
+  after a logout it keeps the character loaded for Zone_Player_Logout
+  seconds (300), and a login in that time reuses it, old skills and all.
 
 Only the commands in COMMANDS have server code (OCAdminHandlers.cpp); the
 client knows many more with the 'admin' ability that do nothing yet.

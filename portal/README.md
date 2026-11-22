@@ -136,7 +136,11 @@ so the client does not send them. Where the client takes a character's god
 level from is still being tested; the CSR flag's value is sent to it, so it
 may be that.
 
-Both apply from the character's next login. The page also lists the 129
+Both apply when the zone server next loads the character. After a logout
+it keeps the character loaded for 5 minutes (`Zone_Player_Logout` in the
+server configuration) so a dropped connection can resume, and logging in
+again within that time reuses it, without the change. Log out and stay out
+5 minutes, or restart the zone server, before testing. The page also lists the 129
 other admin commands the client knows that the servers do not carry out
 yet. Installs from before this page need `install.sh install` run again,
 which lets the portal's database user change character skills.

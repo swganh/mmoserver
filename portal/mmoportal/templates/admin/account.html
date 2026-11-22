@@ -33,7 +33,7 @@
             {% for name, text in SKILLS.items() %}
               <label class="check"><input type="checkbox" name="skill" value="{{ name }}"{% if name in admin_skills.get(c.id, []) %} checked{% endif %}> {{ text }}</label>
             {% endfor %}
-            <small>Any of these includes the first. Applies from the character's next login. <a href="{{ url_for('admin.csr') }}">What each command does</a></small>
+            <small>Any of these includes the first. Applies 5 minutes after the character logs out, or after its zone server restarts. <a href="{{ url_for('admin.csr') }}">What each command does</a></small>
             <button class="secondary">Save</button>
           </form>
         </details>
@@ -103,7 +103,7 @@
   <form method="post" action="{{ url_for('admin.account_csr', account_id=account.account_id) }}">
     {{ csrf() }}
     <input type="hidden" name="csr" value="{{ 0 if account.account_csr else 1 }}">
-    <p class="muted">The CSR menu on Character Builder terminals, and logging in while the galaxy is locked, from the next login.
+    <p class="muted">The CSR menu on Character Builder terminals, and logging in while the galaxy is locked. In game it applies 5 minutes after the character logs out, or after its zone server restarts.
     The admin slash commands are given per character, under Characters. <a href="{{ url_for('admin.csr') }}">More</a></p>
     <button class="secondary">{{ "Take away CSR flag" if account.account_csr else "Give CSR flag" }}</button>
   </form>

@@ -5,7 +5,9 @@
   <h1>In-game staff tools</h1>
   <p class="muted">What staff can do inside the game today, and who can. The servers give staff two things:
   the account's <strong>CSR flag</strong>, and the hidden <strong>admin profession</strong> whose skills unlock
-  the admin slash commands. Both are set on an account's page and apply from the character's next login.</p>
+  the admin slash commands. Both are set on an account's page. They apply when the character is next loaded: the zone server keeps a
+  character in memory for 5 minutes after it logs out (<code>Zone_Player_Logout</code>), so log out and stay out for 5 minutes,
+  or restart its zone server, before trying them.</p>
 </section>
 
 <section class="card">

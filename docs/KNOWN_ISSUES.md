@@ -1059,8 +1059,10 @@ The other kinds, tested in the step 2 pass (T43, Nov 2026):
   NPCs, for later.
 - Survey missions showed "Unknown Planet" in the mission list's Start
   column: they set a start but no destination, which the list shows. The
-  destination is now the spot where the mission was taken (fixed, to
-  retest).
+  destination is now the spot where the mission was taken; the list shows
+  "0m to the N" now. Confirmed on the VM: a survey mission completed. For
+  a later pass: give each survey mission its own distance from the start
+  (the 1,024 m now fixed in code), and show it in that column.
 - Aborting an entertainer mission part-way no longer crashes (confirmed).
 The accepted mission's datapad entry (description, creator, payment,
 difficulty) was filled in; the empty one seen earlier was from a mission

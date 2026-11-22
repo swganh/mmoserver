@@ -1021,7 +1021,7 @@ The other kinds, tested in the step 2 pass (T43, Nov 2026):
   the first NPC and then the second; nothing gives a schematic or checks
   that anything was crafted. Pre-CU, the first NPC gave a mission
   schematic and parts, and the crafted item was handed to the second.
-  Built (Nov 2026, to test): accepting lends the part's schematic (it
+  Built and confirmed in game (Nov 2026): accepting lends the part's schematic (it
   shows in the crafting tool's list); the first NPC hands over its three
   components; the second takes the finished part from the inventory (not
   from a bag inside it) and completes the mission. Aborting or failing

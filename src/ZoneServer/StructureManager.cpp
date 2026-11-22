@@ -172,13 +172,16 @@ void StructureManager::loadHouseSigns()
 
         // Houses that entered the world before this arrived.
         ObjectIDList* structures = gWorldManager->getStructureList();
+        uint32 houses = 0;
         for(uint64 id : *structures)
         {
             if(HouseObject* house = dynamic_cast<HouseObject*>(gWorldManager->getObjectById(id)))
             {
+                ++houses;
                 spawnHouseSign(house);
             }
         }
+        LOG(INFO) << "House signs: " << mHouseSigns.size() << " house types; " << houses << " houses already loaded";
     });
 }
 
@@ -193,9 +196,15 @@ void StructureManager::spawnHouseSign(HouseObject* house)
     {
         return;
     }
+    if(mHouseSigns.empty())
+    {
+        // Not loaded yet: loadHouseSigns puts it up when it arrives.
+        return;
+    }
     auto it = mHouseSigns.find(std::string(house->getModelString().getAnsi()));
     if(it == mHouseSigns.end())
     {
+        LOG(INFO) << "House signs: no sign for house " << house->getId() << " (" << house->getModelString().getAnsi() << ")";
         return;
     }
     const HouseSignPlacement& placement = it->second;
@@ -216,6 +225,7 @@ void StructureManager::spawnHouseSign(HouseObject* house)
     gWorldManager->addObject(sign, true);
     gSpatialIndexManager->createInWorld(sign);
     house->setSign(sign);
+    LOG(INFO) << "House signs: sign " << sign->getId() << " for house " << house->getId();
 }
 
 //=======================================================================================================================

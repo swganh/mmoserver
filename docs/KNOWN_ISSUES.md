@@ -1149,6 +1149,11 @@ its wall post is against the wall and the board stands out, matching
 screenshots of pre-CU Tatooine houses: confirmed on the VM for the
 Tatooine small house, with the Tatooine sign (`thm_sign_tato_hanging`).
 Other types' offsets still to check.
+Next test: houses built before this (a large Tatooine house) and guild
+halls had no sign. Guild halls weren't in the table: added (migration
+025, first-guess offset). The large house is, so the zone log now says
+for each house whether it got a sign and, if not, its template
+("House signs: ..."), to find out why.
 Reading the sign (the client's Read) did nothing; it now shows the
 house's name in a window (to test). The menu item's number is logged
 ("House sign ...: menu item") to record what the client sends.

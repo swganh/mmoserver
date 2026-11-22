@@ -1322,7 +1322,7 @@ Not retested: overnight runs on the test VM have had mixed results that
 look like the host (#40), so long runs wait for a separate machine
 (ROADMAP, Parked).
 
-### 43. Camps have no terminal, and their layout and chair look wrong — open
+### 43. Camps have no terminal, and their layout and chair look wrong — terminal fixed, needs testing; layout open
 
 Found in the step 2 test pass (T39, Nov 2026): a basic camp placed with
 its tent, torches, decorative campfire and chair, but no camp terminal,
@@ -1342,6 +1342,16 @@ decoration rather than as a seat).
 A look through the client found no template named for a camp terminal.
 To settle before building: what pre-CU camps offered for status and
 disbanding (a terminal under another name, or the camp's own menu).
+
+Settled (Nov 2026): the client has it under the camp objects, not the
+terminals: `object/tangible/camp/shared_camp_control_panel.iff`.
+Migration 019 adds it to `terminal_types` and gives each of the six camps a
+terminal row, so the camp spawns its control panel with Status and Disband
+(owner only). Its spot, 2 m right of and 3 m ahead of where the camp is
+placed, is reconstructed. Layout: each camp's model is a client POI
+(`object/building/poi/shared_scout_camp_s0`–`s5`) that brings its own tent
+and furniture; the server adds only the basic camp's campfire and chair
+(item rows), which may double what the POI already has. Still open.
 
 The Tatooine guild hall (T32) placed with no guild terminal; the generic
 one (after #48) has a Guild Management Terminal. Guilds themselves aren't

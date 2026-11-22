@@ -1,0 +1,42 @@
+name: Portal
+
+on:
+  push:
+    paths: ['portal/**', '.github/workflows/portal.yml']
+  pull_request:
+    paths: ['portal/**', '.github/workflows/portal.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Portal tests
+    runs-on: ubuntu-24.04
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: test
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        working-directory: portal
+        run: pip install -r requirements-dev.txt
+      - name: Check the install script
+        run: bash -n portal/install.sh
+      - name: Test
+        working-directory: portal
+        env:
+          PORTAL_TEST_DB_HOST: 127.0.0.1
+          PORTAL_TEST_DB_USER: root
+          PORTAL_TEST_DB_PASSWORD: test
+        run: python -m pytest -q tests

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf, field with context %}
+{% block title %}Create account{% endblock %}
+{% block content %}
+<section class="card narrow">
+  <h1>Create an account</h1>
+  <p class="muted">This is your game login: use the same username and password in the client.</p>
+  <form method="post">
+    {{ csrf() }}
+    {{ field("username", "Username", value=form.username, autocomplete="username", hint="3 to 32 letters, digits or underscores") }}
+    {{ field("email", "Email", type="email", value=form.email, autocomplete="email", hint="Only used to reset your password") }}
+    {{ field("password", "Password", type="password", autocomplete="new-password", hint="At least 8 characters") }}
+    {{ field("confirm", "Repeat password", type="password", autocomplete="new-password") }}
+    <button>Create account</button>
+  </form>
+</section>
+{% endblock %}

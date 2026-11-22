@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% from "macros.html" import when with context %}
+{% block title %}My account{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>{{ g.user.account_username }}</h1>
+  <dl class="facts">
+    <dt>Email</dt><dd>{{ g.user.account_email or "none — add one so you can reset your password" }}</dd>
+    <dt>Joined</dt><dd>{{ when(g.user.account_joindate) }}</dd>
+    <dt>Last game login</dt><dd>{{ when(g.user.account_lastlogin) }}</dd>
+    <dt>Characters allowed</dt><dd>{{ g.user.account_characters_allowed }}</dd>
+    {% if g.user.roles %}<dt>Staff roles</dt><dd>{{ g.user.roles|sort|join(", ") }}</dd>{% endif %}
+  </dl>
+  <p class="actions">
+    <a class="button" href="{{ url_for('account.password') }}">Change password</a>
+    <a class="button secondary" href="{{ url_for('account.email') }}">Change email</a>
+  </p>
+</section>
+<section class="card">
+  <h2>Characters</h2>
+  {% if characters %}
+    <ul class="plain">
+    {% for c in characters %}<li>{{ c.firstname }} {{ c.lastname or "" }}{% if c.archived %} <span class="tag">being deleted</span>{% endif %}</li>{% endfor %}
+    </ul>
+  {% else %}
+    <p class="muted">No characters yet.</p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "admin/_layout.html" %}
+{% block title %}Audit log{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Audit log</h1>
+  {% include "admin/_audit_table.html" %}
+  <p class="pager">
+    {% if page > 1 %}<a href="{{ url_for('admin.audit', page=page-1) }}">← Newer</a>{% endif %}
+    {% if more %}<a href="{{ url_for('admin.audit', page=page+1) }}">Older →</a>{% endif %}
+  </p>
+</section>
+{% endblock %}

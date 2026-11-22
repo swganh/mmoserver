@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf, field with context %}
+{% block title %}Reset password{% endblock %}
+{% block content %}
+<section class="card narrow">
+  <h1>New password for {{ account.account_username }}</h1>
+  <form method="post">
+    {{ csrf() }}
+    <input type="text" name="username" value="{{ account.account_username }}" autocomplete="username" hidden>
+    {{ field("password", "New password", type="password", autocomplete="new-password", hint="At least 8 characters") }}
+    {{ field("confirm", "Repeat password", type="password", autocomplete="new-password") }}
+    <button>Set password</button>
+  </form>
+</section>
+{% endblock %}

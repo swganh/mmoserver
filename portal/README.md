@@ -18,7 +18,8 @@ other way round (both hash with libsodium's Argon2id, the same way).
 - create accounts; change email, character limit and the active flag
 - send a reset link, or set a password
 - ban (for some days, or permanently) and lift bans
-- give or take the in-game CSR flag
+- give or take the in-game CSR flag, and give characters the in-game admin
+  commands (In-game CSR page; see below)
 - (Administrators) make roles from permissions, and give roles to accounts
 - read the audit log of every change
 
@@ -49,8 +50,9 @@ does the check, then
   `requirements.txt`
 - creates a `swganh_portal` database and a `swganh_portal` database user
   with a random password. That user can read and write the game's
-  `account` table, read `characters`, and use its own database; nothing
-  else
+  `account` table, read `characters`, `skills` and `command_table`, add and
+  remove rows of `character_skills` (the admin skills), and use its own
+  database; nothing else
 - writes `portal/portal.cfg` (from `portal.cfg.example`; kept if it exists)
 - creates the portal's tables
 - makes your game account an Administrator (or creates the account, asking
@@ -111,6 +113,26 @@ a role), so a CSR cannot reset an Administrator's password.
 The portal's roles are separate from the game's CSR flag
 (`account.account_csr`), which gives a character the in-game admin commands;
 the `accounts.game_csr` permission sets that flag.
+
+### In-game staff tools
+
+The In-game CSR page lists what staff can do inside the game today. The
+servers have two kinds of staff power:
+
+- the account's **CSR flag**: the CSR menu on Character Builder terminals
+  (blue frog, experience, credits, items, professions, teleport...) and
+  logging in while the galaxy is locked
+- the hidden **admin profession**, whose skills unlock the admin slash
+  commands that have server code: `/broadcast`, `/broadcastPlanet`,
+  `/broadcastGalaxy`, `/shutdownGalaxy`, `/cancelShutdownGalaxy`,
+  `/admin_warp_self` and `/admin_sys_msg`. Nothing gives these skills in
+  game; staff with the `game.admin_commands` permission give them per
+  character on the account's page (rows in `character_skills`)
+
+Both apply from the character's next login. The page also lists the 129
+other admin commands the client knows that the servers do not carry out
+yet. Installs from before this page need `install.sh install` run again,
+which lets the portal's database user change character skills.
 
 `install.sh create-admin NAME` makes an account an Administrator from the
 command line, e.g. if every Administrator is locked out.

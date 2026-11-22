@@ -1,0 +1,62 @@
+{% extends "admin/_layout.html" %}
+{% block title %}In-game CSR{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>In-game staff tools</h1>
+  <p class="muted">What staff can do inside the game today, and who can. The servers give staff two things:
+  the account's <strong>CSR flag</strong>, and the hidden <strong>admin profession</strong> whose skills unlock
+  the admin slash commands. Both are set on an account's page and apply from the character's next login.</p>
+</section>
+
+<section class="card">
+  <h2>Admin commands that work</h2>
+  <p class="muted">Type them in the game's chat box. Each needs the admin skill shown, given to the character on its account's page.
+  These have server code but have not been through the client tests yet (docs/TEST_PLAN.md).</p>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Command</th><th>Usage</th><th>What it does</th><th>Needs</th></tr></thead>
+    <tbody>
+    {% for name, skill, syntax, text in commands %}
+      <tr><td class="nowrap"><code>{{ name }}</code></td><td class="nowrap"><code>{{ syntax }}</code></td><td>{{ text }}</td><td>{{ skills[skill] }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<div class="grid">
+<section class="card">
+  <h2>The CSR flag</h2>
+  <ul>{% for line in flag_effects %}<li>{{ line }}</li>{% endfor %}</ul>
+  <h3>Accounts with it</h3>
+  {% if csr_accounts %}
+    <ul class="plain">{% for a in csr_accounts %}<li><a href="{{ url_for('admin.account', account_id=a.account_id) }}">{{ a.account_username }}</a></li>{% endfor %}</ul>
+  {% else %}<p class="muted">None.</p>{% endif %}
+</section>
+
+<section class="card">
+  <h2>Characters with admin commands</h2>
+  {% if not readable %}
+    <p class="flash error">{{ no_access }}</p>
+  {% elif holders %}
+    <ul class="plain">
+    {% for h in holders %}
+      <li><a href="{{ url_for('admin.account', account_id=h.account_id) }}">{{ h.firstname }} {{ h.lastname or "" }}</a>
+        <span class="muted">({{ h.account_username }})</span><br>
+        {% for s in h.skills.split(",") %}<span class="tag staff">{{ skills.get(s, s) }}</span> {% endfor %}</li>
+    {% endfor %}
+    </ul>
+  {% else %}<p class="muted">None yet. Give them on an account's page, under Characters.</p>{% endif %}
+</section>
+</div>
+
+{% if client_only %}
+<section class="card">
+  <details>
+    <summary>{{ client_only|length }} more admin commands the client knows, not built on the server yet</summary>
+    <p class="muted">Typing these does nothing yet. They are candidates for the in-game tools to build next.</p>
+    <p>{% for c in client_only %}<code class="tag">/{{ c }}</code> {% endfor %}</p>
+  </details>
+</section>
+{% endif %}
+{% endblock %}

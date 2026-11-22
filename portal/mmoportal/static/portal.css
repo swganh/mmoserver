@@ -62,3 +62,8 @@ ul.plain { list-style: none; padding: 0; margin: 0; }
 .pager { display: flex; gap: 16px; }
 code { font-size: .9em; }
 @media (max-width: 560px) { .facts { grid-template-columns: 1fr; } .facts dd { margin-bottom: 8px; } }
+ul.characters > li { padding: 6px 0; border-bottom: 1px solid var(--line); }
+ul.characters > li:last-child { border-bottom: none; }
+details summary { cursor: pointer; color: var(--accent); margin: 4px 0; }
+details form { margin: 8px 0 4px; }
+h3 { font-size: 1rem; margin: 16px 0 8px; }

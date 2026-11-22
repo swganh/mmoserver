@@ -28,6 +28,7 @@ PERMISSIONS = {
     "accounts.reset_password": "Set an account's password or send it a reset link",
     "accounts.ban": "Ban and unban accounts",
     "accounts.game_csr": "Give or take the in-game CSR flag",
+    "game.admin_commands": "Give characters the in-game admin commands (broadcasts, shutdown, warp)",
     "audit.view": "Read the audit log",
 }
 

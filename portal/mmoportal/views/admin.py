@@ -3,7 +3,7 @@ import re
 
 from flask import Blueprint, abort, flash, g, redirect, render_template, request, url_for
 
-from .. import accounts, auth_state, db, passwords, permissions
+from .. import accounts, auth_state, db, game, passwords, permissions
 from ..auth_state import USERNAME_RULE
 from ..permissions import ADMINISTRATOR_ROLE, PERMISSIONS, require, require_admin
 from .auth import EMAIL_RULE
@@ -111,12 +111,21 @@ def account_new():
 def account(account_id):
     acc = _account_or_404(account_id)
     roles, _, _ = permissions.load_for(account_id)
+    characters = accounts.characters(account_id)
+    try:
+        admin_skills = game.held([c["id"] for c in characters])
+        skills_readable = True
+    except game.NoAccess:
+        admin_skills, skills_readable = {}, False
     return render_template(
         "admin/account.html",
         account=acc,
         roles=roles,
         all_roles=db.all("SELECT role_id, name, description FROM {portal}.role ORDER BY role_id"),
-        characters=accounts.characters(account_id),
+        characters=characters,
+        admin_skills=admin_skills,
+        skills_readable=skills_readable,
+        SKILLS=game.SKILLS,
         may_change=permissions.may_act_on(account_id),
         history=_audit_rows(target=account_id, limit=20) if permissions.has("audit.view") else [],
     )
@@ -257,6 +266,57 @@ def account_roles(account_id):
         )
     flash("Roles saved.", "success")
     return _back(account_id)
+
+
+# --- In-game staff commands -------------------------------------------------------
+
+NO_SKILL_ACCESS = (
+    "The portal's database user cannot read or change character skills yet: "
+    "run install.sh install again to give it access."
+)
+
+
+@bp.route("/csr")
+@require("admin.access", "accounts.view")
+def csr():
+    try:
+        holders, client_only, readable = game.holders(), game.client_only_commands(), True
+    except game.NoAccess:
+        holders, client_only, readable = [], [], False
+    csr_accounts = db.all(
+        "SELECT account_id, account_username FROM {game}.account WHERE account_csr <> 0 ORDER BY account_username"
+    )
+    return render_template(
+        "admin/csr.html",
+        commands=game.COMMANDS, skills=game.SKILLS, flag_effects=game.CSR_FLAG_EFFECTS,
+        holders=holders, client_only=client_only, readable=readable, csr_accounts=csr_accounts,
+        no_access=NO_SKILL_ACCESS,
+    )
+
+
+@bp.route("/characters/<int:character_id>/admin-skills", methods=["POST"])
+@require("admin.access", "game.admin_commands")
+def character_admin_skills(character_id):
+    row = db.one("SELECT account_id, firstname FROM {game}.characters WHERE id = %s", character_id)
+    if row is None:
+        abort(404)
+    acc = _account_or_404(row["account_id"])
+    _guard(acc)
+    try:
+        added, removed = game.set_skills(character_id, request.form.getlist("skill"))
+    except game.NoAccess:
+        flash(NO_SKILL_ACCESS, "error")
+        return _back(acc["account_id"])
+    if added or removed:
+        auth_state.audit(
+            "admin.game_admin_skills", acc["account_id"],
+            f"{row['firstname']} (#{character_id}): +{','.join(sorted(added)) or '-'} "
+            f"-{','.join(sorted(removed)) or '-'}",
+        )
+        flash(f"In-game admin commands for {row['firstname']} saved; they apply from the character's next login.", "success")
+    else:
+        flash("Nothing changed.", "info")
+    return _back(acc["account_id"])
 
 
 # --- Roles ----------------------------------------------------------------------

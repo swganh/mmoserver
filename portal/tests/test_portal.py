@@ -310,6 +310,57 @@ def test_pages_render(browser, make_account):
     boss = make_account("boss", roles=[ADMIN])
     browser.login("boss", "password123")
     for url in ("/account/", "/account/password", "/account/email", "/admin/", "/admin/accounts",
-                f"/admin/accounts/{boss}", "/admin/accounts/new", "/admin/roles", "/admin/roles/new",
+                f"/admin/accounts/{boss}", "/admin/accounts/new", "/admin/csr", "/admin/roles", "/admin/roles/new",
                 "/admin/roles/2", "/admin/audit"):
         assert browser.get(url).status_code == 200, url
+
+
+# --- In-game admin commands ------------------------------------------------------------
+
+def _character(sql, account_id, name="Kyla"):
+    sql("INSERT INTO {game}.characters (account_id, firstname) VALUES (%s, %s)", account_id, name)
+    return sql("SELECT MAX(id) AS id FROM {game}.characters")[0]["id"]
+
+
+def _skills(sql, character_id):
+    return {r["skill_id"] for r in sql("SELECT skill_id FROM {game}.character_skills WHERE character_id = %s", character_id)}
+
+
+def test_csr_page_lists_commands(browser, make_account, sql):
+    boss = make_account("boss", roles=[ADMIN])
+    sql("UPDATE {game}.account SET account_csr = 1 WHERE account_id = %s", boss)
+    browser.login("boss", "password123")
+    page = browser.get("/admin/csr").data
+    assert b"/broadcastGalaxy" in page and b"/admin_warp_self" in page
+    assert b"/goto" in page          # known to the client only
+    assert b"/kneel" not in page     # not an admin command
+    assert b">boss</a>" in page      # has the CSR flag
+
+
+def test_admin_gives_and_takes_admin_commands(browser, make_account, sql):
+    make_account("boss", roles=[ADMIN])
+    player = make_account("player1")
+    char = _character(sql, player)
+    sql("INSERT INTO {game}.character_skills VALUES (%s, 1)", char)   # an ordinary skill stays
+    browser.login("boss", "password123")
+    browser.get(f"/admin/accounts/{player}")
+    # Shutdown alone also brings the novice skill it builds on.
+    browser.post(f"/admin/characters/{char}/admin-skills", {"skill": ["admin_skill_02_01", "made_up"]})
+    assert _skills(sql, char) == {1, 1070, 1076}
+    assert b"Galaxy shutdown" in browser.get(f"/admin/accounts/{player}").data
+    assert b"Kyla" in browser.get("/admin/csr").data
+    browser.post(f"/admin/characters/{char}/admin-skills", {})
+    assert _skills(sql, char) == {1}
+    actions = [r["action"] for r in sql("SELECT action FROM {portal}.audit_log WHERE target_account_id = %s", player)]
+    assert actions.count("admin.game_admin_skills") == 2
+
+
+def test_csr_role_cannot_give_admin_commands(browser, make_account, sql):
+    make_account("helper", roles=[CSR])
+    player = make_account("player1")
+    char = _character(sql, player)
+    browser.login("helper", "password123")
+    assert browser.get("/admin/csr").status_code == 200
+    browser.get(f"/admin/accounts/{player}")
+    assert browser.post(f"/admin/characters/{char}/admin-skills", {"skill": ["admin_skill_novice"]}).status_code == 403
+    assert _skills(sql, char) == set()

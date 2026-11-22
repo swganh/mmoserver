@@ -22,7 +22,24 @@
   </dl>
   <h2>Characters</h2>
   {% if characters %}
-    <ul class="plain">{% for c in characters %}<li>{{ c.firstname }} {{ c.lastname or "" }} <span class="muted">#{{ c.id }}</span>{% if c.archived %} <span class="tag">being deleted</span>{% endif %}</li>{% endfor %}</ul>
+    <ul class="plain characters">{% for c in characters %}
+      <li>{{ c.firstname }} {{ c.lastname or "" }} <span class="muted">#{{ c.id }}</span>{% if c.archived %} <span class="tag">being deleted</span>{% endif %}
+        {% for s in admin_skills.get(c.id, [])|sort if s in SKILLS %}<span class="tag staff">{{ SKILLS[s] }}</span> {% endfor %}
+        {% if may_change and has_permission('game.admin_commands') and skills_readable %}
+        <details>
+          <summary>In-game admin commands</summary>
+          <form method="post" action="{{ url_for('admin.character_admin_skills', character_id=c.id) }}">
+            {{ csrf() }}
+            {% for name, text in SKILLS.items() %}
+              <label class="check"><input type="checkbox" name="skill" value="{{ name }}"{% if name in admin_skills.get(c.id, []) %} checked{% endif %}> {{ text }}</label>
+            {% endfor %}
+            <small>Any of these includes the first. Applies from the character's next login. <a href="{{ url_for('admin.csr') }}">What each command does</a></small>
+            <button class="secondary">Save</button>
+          </form>
+        </details>
+        {% endif %}
+      </li>{% endfor %}
+    </ul>
   {% else %}<p class="muted">None.</p>{% endif %}
 </section>
 
@@ -86,7 +103,8 @@
   <form method="post" action="{{ url_for('admin.account_csr', account_id=account.account_id) }}">
     {{ csrf() }}
     <input type="hidden" name="csr" value="{{ 0 if account.account_csr else 1 }}">
-    <p class="muted">Gives the character the game's CSR (admin) commands from its next login.</p>
+    <p class="muted">The CSR menu on Character Builder terminals, and logging in while the galaxy is locked, from the next login.
+    The admin slash commands are given per character, under Characters. <a href="{{ url_for('admin.csr') }}">More</a></p>
     <button class="secondary">{{ "Take away CSR flag" if account.account_csr else "Give CSR flag" }}</button>
   </form>
 </section>

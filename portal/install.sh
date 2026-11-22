@@ -181,9 +181,18 @@ check() {
 
     # Port.
     if command -v ss >/dev/null; then
-        if ss -ltnH "sport = :$port" 2>/dev/null | grep -q .; then
-            if [[ -f /etc/systemd/system/mmoportal.service ]] && systemctl is-active --quiet mmoportal 2>/dev/null; then
-                ok "port $port is used by the portal's own service"
+        local listening
+        listening=$(ss -ltnpH "sport = :$port" 2>/dev/null || true)
+        if [[ $listening ]]; then
+            # This portal itself (install.sh run, or its service) is fine.
+            local pid ours=""
+            for pid in $(grep -o 'pid=[0-9]*' <<< "$listening" | cut -d= -f2); do
+                if tr '\0' ' ' < "/proc/$pid/cmdline" 2>/dev/null | grep -qF "$portal_dir/.venv/"; then
+                    ours=1
+                fi
+            done
+            if [[ $ours ]] || { [[ -f /etc/systemd/system/mmoportal.service ]] && systemctl is-active --quiet mmoportal 2>/dev/null; }; then
+                ok "port $port is used by this portal (restart it after installing)"
             else
                 fail "port $port is in use; choose another with --port"
             fi
@@ -347,8 +356,9 @@ install() {
     [[ $password =~ ^[A-Za-z0-9]+$ ]] || die "the database password in portal.cfg must be letters and digits only"
 
     echo "Creating the '$portal_db' database and the '$db_user' database user"
-    # The portal reads and writes game accounts, reads characters, and owns
-    # its own database; nothing else in the game database.
+    # The portal reads and writes game accounts, reads characters, gives
+    # characters the admin skills, and owns its own database; nothing else
+    # in the game database.
     local host grants="CREATE DATABASE IF NOT EXISTS \`$portal_db\` CHARACTER SET utf8mb4;"
     for host in localhost 127.0.0.1; do
         grants+="CREATE USER IF NOT EXISTS '$db_user'@'$host';"
@@ -356,6 +366,10 @@ install() {
         grants+="GRANT ALL PRIVILEGES ON \`$portal_db\`.* TO '$db_user'@'$host';"
         grants+="GRANT SELECT, INSERT, UPDATE ON \`$game_db\`.account TO '$db_user'@'$host';"
         grants+="GRANT SELECT ON \`$game_db\`.characters TO '$db_user'@'$host';"
+        # In-game admin commands: the admin skills of characters.
+        grants+="GRANT SELECT, INSERT, DELETE ON \`$game_db\`.character_skills TO '$db_user'@'$host';"
+        grants+="GRANT SELECT ON \`$game_db\`.skills TO '$db_user'@'$host';"
+        grants+="GRANT SELECT ON \`$game_db\`.command_table TO '$db_user'@'$host';"
     done
     sql -e "$grants FLUSH PRIVILEGES;"
 

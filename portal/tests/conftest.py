@@ -49,7 +49,28 @@ CREATE TABLE {GAME}.characters (
   lastname char(32) DEFAULT NULL,
   archived tinyint(1) unsigned DEFAULT '0',
   PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE {GAME}.skills (
+  skill_id int(10) unsigned NOT NULL,
+  skill_name char(255) NOT NULL,
+  PRIMARY KEY (skill_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+INSERT INTO {GAME}.skills VALUES (1, 'combat_brawler_novice'), (1069, 'admin_skill'),
+  (1070, 'admin_skill_novice'), (1071, 'admin_skill_01_01'), (1076, 'admin_skill_02_01'),
+  (1080, 'admin_skill_03_01');
+CREATE TABLE {GAME}.character_skills (
+  character_id bigint(20) unsigned NOT NULL DEFAULT 0,
+  skill_id int(10) unsigned NOT NULL,
+  PRIMARY KEY (character_id, skill_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE {GAME}.command_table (
+  id int(10) unsigned NOT NULL,
+  commandname char(255) NOT NULL,
+  characterability char(255) NOT NULL,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+INSERT INTO {GAME}.command_table VALUES (1, 'broadcast', 'admin_broadcast'), (2, 'goto', 'admin'),
+  (3, 'kneel', '')
 """
 
 

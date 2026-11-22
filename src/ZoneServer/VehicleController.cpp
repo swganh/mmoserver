@@ -260,8 +260,13 @@ void VehicleController::DismountPlayer() {
 	gMessageLib->sendUpdateTransformMessage(body_);
 
     // TODO: make this more automatic...
-    gStateManager.removeActionState(owner_, CreatureState_RidingMount);   
-    gStateManager.removeActionState(body_, CreatureState_MountedCreature);   
+    gStateManager.removeActionState(owner_, CreatureState_RidingMount);
+    // The vehicle's flag directly, as MountPlayer sets it, and the clients
+    // told: through removeActionState it could stay set (a refused removal
+    // is only logged), and the next mount then changed nothing the client
+    // could see, so the vehicle wouldn't move until stored and called (#44).
+    body_->states.toggleActionOff(CreatureState_MountedCreature);
+    gMessageLib->sendStateUpdate(body_);
 
     owner_->setMounted(false);
     gMessageLib->sendPostureAndStateUpdate(owner_);  
@@ -282,6 +287,13 @@ void VehicleController::MountPlayer()
     gMessageLib->sendContainmentMessage_InRange(owner_->getId(), body_->getId(), 4, owner_);
     gMessageLib->sendUpdateTransformMessage(body_);
   
+    // A flag left set from an earlier ride: clear it and say so first, so
+    // the client sees the vehicle become mounted again.
+    if (body_->states.checkState(CreatureState_MountedCreature))
+    {
+        body_->states.toggleActionOff(CreatureState_MountedCreature);
+        gMessageLib->sendStateUpdate(body_);
+    }
     body_->states.toggleActionOn(CreatureState_MountedCreature);
     gMessageLib->sendStateUpdate(body_);
 

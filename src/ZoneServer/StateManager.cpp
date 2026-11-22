@@ -240,8 +240,8 @@ void StateManager::removeActionState(CreatureObject* obj, CreatureState stateToR
         }
         else
         {
-            DLOG(WARNING) << "unable to remove action state " << static_cast<uint64_t>(stateToRemove);
-            gMessageLib->SendSystemMessage(L"You cannot remove this Action state");
+            LOG(WARNING) << "Action state of " << obj->getId() << ": unable to remove " << static_cast<uint64_t>(stateToRemove) << " from " << obj->states.getAction();
+            gMessageLib->SendSystemMessage(L"You cannot remove this Action state", dynamic_cast<PlayerObject*>(obj));
         }
         gEventDispatcher.Notify(action_update_event);
 }

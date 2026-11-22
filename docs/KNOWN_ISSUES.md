@@ -1339,6 +1339,15 @@ again frees it. Still open. A refused state change (such as becoming a
 rider) sent its "You cannot transition from this ... state" message to no
 one; it now goes to the player and is logged with the states, to find
 what blocks it.
+A cleaner reproduction followed: call the speeder, mount and drive,
+dismount, mount again, and it won't move; nothing was refused. Mounting
+sets the vehicle's MountedCreature flag directly and sends it; dismounting
+cleared it through `removeActionState`, which leaves it set if the
+removal is refused (that was only a debug log line, a different one from
+the search). With the flag still set, the second mount changed nothing the
+client could see. Dismounting now clears the flag directly and sends it,
+mounting clears a stale one first so the change is always seen, and a
+refused removal is logged and told to the player (fixed, to retest).
 
 Also seen, to check against the guides before changing:
 - `/imagedesign` opens the window with no prompt to the other player.

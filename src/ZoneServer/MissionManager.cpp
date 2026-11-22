@@ -992,32 +992,12 @@ bool MissionManager::checkDeliverMission(PlayerObject* player,NPCObject* npc)
             {
                 if(mission->getStartNPC() == npc)
                 {
-                    //This is the supplier: the part's three components.
-                    const int part = mission->getCraftingPart();
-                    Inventory* inventory = player->getInventory();
-                    if(part >= 0 && inventory)
-                    {
-                        if(!inventory->checkCapacity(3, player, true))
-                        {
-                            return true;
-                        }
-                        for(int slot = 0; slot < 3; ++slot)
-                        {
-                            uint32 type = _craftingItemType(slotPartTemplate(part, slot));
-                            if(type)
-                            {
-                                gObjectFactory->requestNewDefaultItem(inventory, ItemFamily_Component, type, inventory->getId(), 99, glm::vec3(), "");
-                            }
-                        }
-                    }
+                    //This is the start npc for the deliver mission
                     char mp[10];
                     sprintf(mp,"m%dp",mission->getNum());
                     gMessageLib->SendSpatialChat(npc, OutOfBand(mission->getTitleFile().getAnsi(), mp), NULL, player->getId());
                     mission->setStartNPC(NULL);
-                    if(part >= 0)
-                        gMessageLib->SendSystemMessage(L"You have received the components. Assemble the part with a crafting tool, then take it to the waypoint.", player);
-                    else
-                        gMessageLib->SendSystemMessage(::common::OutOfBand("mission/mission_generic", "deliver_received_data"), player);
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("mission/mission_generic", "deliver_received_data"), player);
                     MissionObject* updater = new MissionObject();
                     updater->clear();
                     updater->setId(mission->getId());
@@ -1034,30 +1014,7 @@ bool MissionManager::checkDeliverMission(PlayerObject* player,NPCObject* npc)
                 }
                 else if(mission->getDestinationNPC() == npc && mission->getStartNPC() == NULL)
                 {
-                    //This is the customer: they take the finished part.
-                    const int part = mission->getCraftingPart();
-                    Inventory* inventory = player->getInventory();
-                    if(part >= 0 && inventory)
-                    {
-                        const uint32 partType = _craftingItemType(craftedPartTemplate(part));
-                        Item* finished = NULL;
-                        for(uint64 id : *inventory->getObjects())
-                        {
-                            Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(id));
-                            if(item && item->getItemFamily() == ItemFamily_Mission && item->getItemType() == partType)
-                            {
-                                finished = item;
-                                break;
-                            }
-                        }
-                        if(!finished)
-                        {
-                            gMessageLib->SendSystemMessage(L"You do not have the finished part in your inventory.", player);
-                            return true;
-                        }
-                        gContainerManager->deleteObject(finished, inventory);
-                        _returnCraftingSchematic(player, mission);
-                    }
+                    //This is the end npc for the deliver mission.
                     char mr[10];
                     sprintf(mr,"m%dr",mission->getNum());
                     gMessageLib->SendSpatialChat(npc, OutOfBand(mission->getTitleFile().getAnsi(), mr), NULL, player->getId());
@@ -1213,6 +1170,7 @@ void MissionManager::checkSurveyMission(PlayerObject* player,CurrentResource* re
 bool MissionManager::checkCraftingMission(PlayerObject* player,NPCObject* npc)
 {
     Datapad* datapad			= player->getDataPad();
+
     if(datapad->hasMission()) //player has a mission
     {
         MissionList::iterator it = datapad->getMissions()->begin();
@@ -1223,12 +1181,32 @@ bool MissionManager::checkCraftingMission(PlayerObject* player,NPCObject* npc)
             {
                 if(mission->getStartNPC() == npc)
                 {
-                    //This is the start npc for the deliver mission
+                    //This is the supplier: the part's three components.
+                    const int part = mission->getCraftingPart();
+                    Inventory* inventory = player->getInventory();
+                    if(part >= 0 && inventory)
+                    {
+                        if(!inventory->checkCapacity(3, player, true))
+                        {
+                            return true;
+                        }
+                        for(int slot = 0; slot < 3; ++slot)
+                        {
+                            uint32 type = _craftingItemType(slotPartTemplate(part, slot));
+                            if(type)
+                            {
+                                gObjectFactory->requestNewDefaultItem(inventory, ItemFamily_Component, type, inventory->getId(), 99, glm::vec3(), "");
+                            }
+                        }
+                    }
                     char mp[10];
                     sprintf(mp,"m%dp",mission->getNum());
                     gMessageLib->SendSpatialChat(npc, OutOfBand(mission->getTitleFile().getAnsi(), mp), NULL, player->getId());
                     mission->setStartNPC(NULL);
-                    gMessageLib->SendSystemMessage(::common::OutOfBand("mission/mission_generic", "deliver_received_data"), player);
+                    if(part >= 0)
+                        gMessageLib->SendSystemMessage(L"You have received the components. Assemble the part with a crafting tool, then take it to the waypoint.", player);
+                    else
+                        gMessageLib->SendSystemMessage(::common::OutOfBand("mission/mission_generic", "deliver_received_data"), player);
                     MissionObject* updater = new MissionObject();
                     updater->clear();
                     updater->setId(mission->getId());
@@ -1245,7 +1223,30 @@ bool MissionManager::checkCraftingMission(PlayerObject* player,NPCObject* npc)
                 }
                 else if(mission->getDestinationNPC() == npc && mission->getStartNPC() == NULL)
                 {
-                    //This is the end npc for the deliver mission.
+                    //This is the customer: they take the finished part.
+                    const int part = mission->getCraftingPart();
+                    Inventory* inventory = player->getInventory();
+                    if(part >= 0 && inventory)
+                    {
+                        const uint32 partType = _craftingItemType(craftedPartTemplate(part));
+                        Item* finished = NULL;
+                        for(uint64 id : *inventory->getObjects())
+                        {
+                            Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(id));
+                            if(item && item->getItemFamily() == ItemFamily_Mission && item->getItemType() == partType)
+                            {
+                                finished = item;
+                                break;
+                            }
+                        }
+                        if(!finished)
+                        {
+                            gMessageLib->SendSystemMessage(L"You do not have the finished part in your inventory.", player);
+                            return true;
+                        }
+                        gContainerManager->deleteObject(finished, inventory);
+                        _returnCraftingSchematic(player, mission);
+                    }
                     char mr[10];
                     sprintf(mr,"m%dr",mission->getNum());
                     gMessageLib->SendSpatialChat(npc, OutOfBand(mission->getTitleFile().getAnsi(), mr), NULL, player->getId());

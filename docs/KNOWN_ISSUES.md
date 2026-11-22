@@ -914,13 +914,24 @@ a new one, but the database update writes the overflowing total, not the
 maximum, so the container holds more than it can after a reload. Found
 while writing the scout harvest, which does not share the bug.
 
-### 27. Items can't be put in the bank — open
+### 27. Items can't be put in the bank — fixed, needs testing
 
 Found in the step 2 test pass (T40, Nov 2026). Joining a bank, depositing
 and withdrawing credits work, but the bank terminal's item box (the safety
 deposit container) does nothing: `TreasuryManager::bankOpenSafetyDepositContainer`
-is empty. Pre-CU banks stored items as well as credits. Needs the bank's
-container opened for the player and items kept in it, as an inventory is.
+is empty. Pre-CU banks stored items as well as credits.
+
+Fix (Nov 2026): the bank object (id = character + 4) is already created
+for its owner at login with the other equipped objects, so **Bank Items**
+now loads what is stored in it (items, resource containers and containers
+whose parent is the bank) the first time, then opens it. Items move in and
+out by dragging, through the ordinary transfer, which saves the new parent.
+Moving into or out of the box needs the box opened this session, a bank
+terminal within 16 m, and membership of this planet's bank ("You are not a
+member of this bank." otherwise). Quitting a bank is refused while the box
+holds anything. The box holds 100 items: reconstructed, not from the client
+(the client's bank template may say otherwise); `Player_Bank_Capacity` in
+the zone config changes it.
 
 ### 28. Missions were switched off — back on, needs testing
 

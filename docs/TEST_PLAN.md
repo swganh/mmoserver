@@ -77,6 +77,7 @@ Credits). Run with `./server.sh debug -g`, so a crash leaves a backtrace.
 | T38 | Image design | Image Designer from the terminal; with the second character as the target, open the design window, change a hair style and a colour, both accept | The window opens on both clients; the change applies and stays after relogging |
 | T39 | Camps | Novice Scout; get a Basic Camp (Camps menu), place it in the wild, sit in it and wait with some wounds | The camp appears with its terminal; wounds and battle fatigue heal faster inside; it goes away after its time |
 | T40 | Bank and trading | Deposit and withdraw at a bank terminal; then trade an item and some credits with the second character through the trade window | Credits move as shown; the item changes owner and stays after relogging |
+| T40a | Bank items [27] | At a bank terminal of the planet you joined: radial **Bank Items**; drag an item and a resource stack from the inventory into the box; close it, relog, open it again; drag one back out; try **Quit** with something still in the box; walk away from the terminal and try to drag an item in | The box opens; the items stay in it after relogging and come back out; quitting is refused while it holds something; away from a terminal you're told to be at one. On another planet's bank: "You are not a member of this bank." |
 
 ## Confirmed
 

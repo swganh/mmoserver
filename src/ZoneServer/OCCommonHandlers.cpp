@@ -239,6 +239,35 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 
 //=============================================================================
 //
+// The bank's safe deposit box (KNOWN_ISSUES #27): only its owner, at a bank
+// terminal on the bank's planet, once the box has been opened (loaded).
+//
+static bool safetyDepositReachable(Bank* bank, PlayerObject* player)
+{
+	if(!player || bank->getParentId() != player->getId())
+	{
+		return false;
+	}
+	if(static_cast<uint32>(bank->planet()) != gWorldManager->getZoneId())
+	{
+		gMessageLib->SendSystemMessage(L"You are not a member of this bank.", player);
+		return false;
+	}
+	if(bank->getLoadState() != LoadState_Loaded)
+	{
+		return false;
+	}
+	Object* terminal = gWorldManager->getNearestTerminal(player, TanType_BankTerminal, 16);
+	if(!terminal || glm::distance(terminal->getWorldPosition(), player->getWorldPosition()) > 16.0f)
+	{
+		gMessageLib->SendSystemMessage(L"You must be at a bank terminal to use your safe deposit box.", player);
+		return false;
+	}
+	return true;
+}
+
+//=============================================================================
+//
 // checks whether we have access to the container containing the item
 //
 
@@ -278,6 +307,11 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 	{
 		//its us
 		return true;
+	}
+
+	if(Bank* bank = dynamic_cast<Bank*>(container))
+	{
+		return safetyDepositReachable(bank, dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId)));
 	}
 
 	uint64 ownerId = gSpatialIndexManager->getObjectMainParent(container);
@@ -392,6 +426,14 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 			return false;
 		}
 		
+	}
+
+	if(Bank* bank = dynamic_cast<Bank*>(targetContainer))
+	{
+		if(!safetyDepositReachable(bank, playerObject))
+		{
+			return false;
+		}
 	}
 
 	//====================================================================00

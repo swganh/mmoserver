@@ -1697,6 +1697,10 @@ MissionObject* MissionManager::generateSurveyMission(MissionObject* mission)
     destination.CellID = 0;
     destination.PlanetCRC = BString(gWorldManager->getPlanetNameThis()).getCrc();
     mission->setStart(destination);
+    // The mission list and details show the destination's planet: without
+    // one, survey missions read "Unknown Planet". The survey can be done
+    // anywhere on this planet, so the destination is where it was taken.
+    mission->setDestination(destination);
 
 
     return mission;

@@ -1459,8 +1459,8 @@ Still open:
   single items in the hopper (not crates), an emptied resource container
   stays at 0 for the player to take out, and schematics made before this
   have no ingredients recorded and keep producing for free. The zone
-  still shows a factory the database stopped as running until it is
-  restarted from its menu. First test (Nov 2026): a new schematic recorded its
+  learns that the database stopped a factory when its menu is next
+  opened (below). First test (Nov 2026): a new schematic recorded its
   ingredient and List ingredients showed it ("100 units of Osheig"), but
   some resource stacks, all gemstones and every newly split stack, were
   refused by the input hopper. `Object::mCapacity` was never initialised,
@@ -1468,7 +1468,16 @@ Still open:
   check refuses an item whose capacity isn't below the container's as
   "too bulky". It starts at 0 now. Inserting a schematic also printed
   debug text about schematic and factory masks (tested with `&&` for
-  `&`); that is a log line now, and the match isn't enforced yet.
+  `&`); that is a log line now, and the match isn't enforced yet. The retest worked in the database: one large glass made, the
+  100 Osheig taken (the container at 0), then the factory stopped and
+  mailed its owner. The zone still showed 100 in the hopper:
+  `ResourceContainer::upDateFactoryVolume` took a `BString` where
+  `TangibleObject`'s takes a `std::string`, so it never overrode it and the
+  amount read back on opening the hopper was dropped (taking the stale
+  stack out could have written 100 back). It overrides it now. And the
+  factory's menu re-reads its running state from the database each time
+  it opens (the chat server stops it there), updating the work animation
+  if it changed; the menu just opened can still be one step behind.
 - The factory functions turn a factory off without a word when something
   they need is missing (return 3), and the chat server ignores the return
   code.

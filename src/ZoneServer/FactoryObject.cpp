@@ -321,6 +321,27 @@ void FactoryObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint
         return;
     }
 
+    // The chat server stops a factory in the database (out of ingredients,
+    // output full) without telling the zone: read the running state back so
+    // the next menu offers Start or Stop as it should. This menu is built
+    // before the answer comes, so it may still be one step behind.
+    {
+        const uint64 factoryId = getId();
+        std::stringstream sql;
+        sql << "SELECT active FROM " << gWorldManager->getDatabase()->galaxy() << ".factories WHERE ID = " << factoryId;
+        gWorldManager->getDatabase()->executeAsyncSql(sql, [factoryId] (DatabaseResult* result) {
+            if(!result || !result->getResultSet() || !result->getResultSet()->next())
+                return;
+            FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(factoryId));
+            const bool active = result->getResultSet()->getInt(1) != 0;
+            if(factory && factory->getActive() != active)
+            {
+                factory->setActive(active);
+                gMessageLib->SendUpdateFactoryWorkAnimation(factory);
+            }
+        });
+    }
+
     RadialMenu* radial	= new RadialMenu();
 
 

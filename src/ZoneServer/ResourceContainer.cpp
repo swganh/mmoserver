@@ -290,10 +290,14 @@ void ResourceContainer::prepareCustomRadialMenuInCell(CreatureObject* creatureOb
     radial->addItem(i++,u,radId_itemRotateRight,radAction_Default, "");
     radial->addItem(i++,u,radId_itemRotateLeft,radAction_Default, "");
 }
-void ResourceContainer::upDateFactoryVolume(BString amount)
+void ResourceContainer::upDateFactoryVolume(const std::string& amount)
 {	
     uint32 a = 0;
-	a = boost::lexical_cast<uint32>(amount.getAnsi());
+	try {
+		a = boost::lexical_cast<uint32>(amount);
+	} catch(...) {
+		return;
+	}
 	
 	if(a == this->getAmount())
 	{

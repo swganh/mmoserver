@@ -1291,7 +1291,7 @@ disbanding (a terminal under another name, or the camp's own menu).
 The guild hall (T32) placed; it has no guild terminal because guilds
 aren't built (roadmap step 7).
 
-### 44. A vehicle won't move after mounting, at times — open
+### 44. A vehicle wouldn't move after mounting again — fixed
 
 Seen twice in the step 2 pass (Nov 2026), the second time after sitting
 in a camp: the player mounted the speeder and it stayed put, with the
@@ -1349,7 +1349,8 @@ removal is refused (that was only a debug log line, a different one from
 the search). With the flag still set, the second mount changed nothing the
 client could see. Dismounting now clears the flag directly and sends it,
 mounting clears a stale one first so the change is always seen, and a
-refused removal is logged and told to the player (fixed, to retest).
+refused removal is logged and told to the player. Confirmed on the VM:
+mount, dismount and mount again, and the speeder drives each time.
 
 Also seen, to check against the guides before changing:
 - `/imagedesign` opens the window with no prompt to the other player.

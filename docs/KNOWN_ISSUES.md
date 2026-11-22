@@ -1207,7 +1207,7 @@ customer straight away shows them bald in the designer's preview, with
 reuses the old hair's object ID (customer + 8), which the designer's
 client may still hold as destroyed; to look at if it matters.
 
-### 39. Structures were barely charged maintenance, and factories no power — fixed, to retest
+### 39. Structures were barely charged maintenance, and factories no power — fixed
 
 Found in the step 2 test pass (T30, Nov 2026): a factory ran for hours,
 filling four crates of small glasses, and its maintenance pool stayed at
@@ -1233,6 +1233,10 @@ was never called), and mails the owner when one stops for want of power.
 The structure mails (out of maintenance, damaged, condition zero) never
 went out: their 24-hour throttle read `lastMail < now + 24h`, always true.
 It reads the right way now.
+
+Confirmed on the VM (build 3162f7e): a running factory's maintenance pool
+went from 18,665 to 18,615 and its power from 19,008 to 18,958 in the
+hour.
 
 To check against the guides: whether the bank paid for maintenance
 pre-CU, and how fast an unpaid structure decayed.

@@ -76,6 +76,7 @@ MissionObject::MissionObject() : Object(0,0,"object/mission/shared_mission_objec
     mEntertainingTimer = NULL;
     mTaskId = 0;
     mPerformanceStart = 0;
+    mCraftingPart = -1;
     mLairsTypeId = 0;
     mLairId = 0;
 }
@@ -124,6 +125,7 @@ MissionObject::MissionObject(PlayerObject * owner, uint64 parent_id) : Object(
     mEntertainingTimer = NULL;
     mTaskId = 0;
     mPerformanceStart = 0;
+    mCraftingPart = -1;
     mLairsTypeId = 0;
     mLairId = 0;
 }
@@ -175,6 +177,7 @@ void MissionObject::clear()
 
     mInProgress		=	false;
     mPerformanceStart	=	0;
+    mCraftingPart		=	-1;
     mLairsTypeId	=	0;
     mLairId			=	0;
 

@@ -350,6 +350,9 @@ Item* ItemFactory::_createItem(DatabaseResult* result)
     case ItemFamily_Component:
         item	= new Item();
         break;
+    case ItemFamily_Mission:
+        item	= new Item();
+        break;
     case ItemFamily_Terminal:
         item  = new ItemTerminal();
         break;

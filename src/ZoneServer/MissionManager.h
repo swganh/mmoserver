@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define gMissionManager MissionManager::getSingletonPtr()
 
 #include <map>
+#include <string>
 #include "Utils/bstring.h"
 #include "Utils/typedefs.h"
 #include "DatabaseManager/DatabaseCallback.h"
@@ -278,6 +279,15 @@ private:
         glm::vec3	position;
     };
     std::map<uint64, PendingLair>	mPendingLairs;	// by the lair's new object id
+
+    // Crafting missions (KNOWN_ISSUES #28): item type ids of the parts and
+    // their slot parts, by template, loaded at start (migration 021).
+    std::map<std::string, uint32>	mCraftingItemTypes;
+    uint32	_craftingItemType(const std::string& objectString) const;
+    // The mission-lent schematic's id for a crafting part, 0 if not loaded.
+    uint64	_craftingSchematicId(int part) const;
+    // Gives back the schematic a crafting mission lent.
+    void	_returnCraftingSchematic(PlayerObject* player, MissionObject* mission);
 };
 
 #endif

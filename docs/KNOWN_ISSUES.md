@@ -1020,8 +1020,20 @@ The other kinds, tested in the step 2 pass (T43, Nov 2026):
 - **Crafting** (artisan terminal): works like a deliver mission, talk to
   the first NPC and then the second; nothing gives a schematic or checks
   that anything was crafted. Pre-CU, the first NPC gave a mission
-  schematic and parts, and the crafted item was handed to the second. To
-  build.
+  schematic and parts, and the crafted item was handed to the second.
+  Built (Nov 2026, to test): accepting lends the part's schematic (it
+  shows in the crafting tool's list); the first NPC hands over its three
+  components; the second takes the finished part from the inventory (not
+  from a bag inside it) and completes the mission. Aborting or failing
+  takes the schematic back. From the client: the five schematics
+  (`draft_schematic/item/quest_item`: attunement grid, current
+  alternator, feedback controller, output governor, power regulator),
+  their slot names and parts. Reconstructed (migration 021): one part per
+  slot, complexity 5, no experimentation or XP, a schematic group no
+  skill grants. Assembly uses the player's general assembly mod, and a
+  schematic with no resource slots no longer divides by zero when
+  averaging malleability (it would have crashed the zone). The
+  `fs_craft_puzzle` schematics are later (patch_10) and left out.
 - **Survey** (artisan terminal): `checkSurveyMission` completes it when a
   survey of the named resource reads at least the mission's efficiency
   more than 1,024 m from the terminal. The first test asked for Class 1

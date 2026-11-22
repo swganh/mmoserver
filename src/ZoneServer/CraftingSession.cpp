@@ -206,6 +206,17 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         uint32 count = static_cast<uint32>(result->getRowCount());
 
         mOwnerAssSkillMod = 0;
+        // A schematic no skill grants (a crafting mission's): the player's
+        // general assembly.
+        if(!count)
+        {
+            int32 general = mOwner->getSkillModValue(SMod_general_assembly);
+            if(general > 0)
+            {
+                mAssSkillModId = SMod_general_assembly;
+                mOwnerAssSkillMod = general;
+            }
+        }
         if(count)
         {
 

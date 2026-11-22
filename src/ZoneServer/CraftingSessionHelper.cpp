@@ -1202,6 +1202,14 @@ float CraftingSession::_calcAverageMalleability()
         ++manIt;
     }
 
+    // No resource slots (the crafting mission parts take components only):
+    // no malleability to average, so take the middle of the 1-1000 range
+    // rather than divide by zero.
+    if(!slotCount)
+    {
+        return 500.0f;
+    }
+
     return static_cast<float>(resAtt/slotCount);
 }
 

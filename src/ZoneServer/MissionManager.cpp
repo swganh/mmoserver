@@ -30,6 +30,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "LairObject.h"
 
 #include "Bank.h"
+#include "ContainerManager.h"
+#include "DraftSchematic.h"
+#include "Inventory.h"
+#include "Item.h"
+#include "ObjectFactory.h"
+#include "SchematicManager.h"
 #include "Buff.h"
 #include "CreatureObject.h"
 #include "Datapad.h"
@@ -67,6 +73,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/rand.h"
 #include <cmath>
 #include <cstdio>
+#include <sstream>
+
+#include <cppconn/resultset.h>
 
 using ::common::OutOfBand;
 
@@ -104,6 +113,41 @@ void townsfolkInRange(const Object* from, float range, ObjectSet* result)
             result->insert(npc);
         }
     }
+}
+
+}
+
+namespace {
+
+// Crafting missions (KNOWN_ISSUES #28). From the Publish 14 client: the five
+// mission schematics object/draft_schematic/item/quest_item/shared_<part>.iff,
+// each with three slots named after the part that fills it,
+// object/tangible/component/item/quest_item/shared_<slot>.iff, and making
+// object/tangible/mission/quest_item/shared_<part>.iff. Data: migration 021.
+struct CraftingPart
+{
+    const char* name;
+    const char* slots[3];
+};
+
+const CraftingPart kCraftingParts[] =
+{
+    {"attunement_grid",     {"particle_sensor", "spin_alignment_inducer", "momentum_compensator"}},
+    {"current_alternator",  {"cycle_control", "transductive_shunt", "directional_sensor"}},
+    {"feedback_controller", {"loop_auditor", "variance_throttle", "corrective_inducer"}},
+    {"output_governor",     {"decoherence_sensor", "signal_cleanup_unit", "signal_rerouter"}},
+    {"power_regulator",     {"voltage_inducer", "current_motivator", "tuning_cell"}},
+};
+const int kCraftingPartCount = sizeof(kCraftingParts) / sizeof(kCraftingParts[0]);
+
+std::string craftedPartTemplate(int part)
+{
+    return std::string("object/tangible/mission/quest_item/shared_") + kCraftingParts[part].name + ".iff";
+}
+
+std::string slotPartTemplate(int part, int slot)
+{
+    return std::string("object/tangible/component/item/quest_item/shared_") + kCraftingParts[part].slots[slot] + ".iff";
 }
 
 }
@@ -160,6 +204,23 @@ MissionManager::MissionManager(Database* database, uint32 zone) :
 
     asyncContainer = new MissionManagerAsyncContainer(MissionQuery_Load_Names, 0);
     mDatabase->executeSqlAsync(this,asyncContainer,"SELECT name FROM %s.mission_names WHERE planet = %u",mDatabase->galaxy(), zone);
+
+    // Crafting missions: the parts' item types (migration 021).
+    std::stringstream sql;
+    sql << "SELECT id, object_string FROM " << mDatabase->galaxy() << ".item_types"
+        << " WHERE object_string LIKE 'object/tangible/component/item/quest_item/%'"
+        << " OR object_string LIKE 'object/tangible/mission/quest_item/%'";
+    mDatabase->executeAsyncSql(sql, [this] (DatabaseResult* result) {
+        if(!result || !result->getResultSet())
+        {
+            return;
+        }
+        std::unique_ptr<sql::ResultSet>& rows = result->getResultSet();
+        while(rows->next())
+        {
+            mCraftingItemTypes[std::string(rows->getString(2))] = rows->getUInt(1);
+        }
+    });
 
 
 }
@@ -542,6 +603,42 @@ void MissionManager::createRequest(PlayerObject* player)
 /*
  * Player Accepted Mission
 */
+uint32 MissionManager::_craftingItemType(const std::string& objectString) const
+{
+    auto it = mCraftingItemTypes.find(objectString);
+    return (it == mCraftingItemTypes.end()) ? 0 : it->second;
+}
+
+//======================================================================================================================
+
+uint64 MissionManager::_craftingSchematicId(int part) const
+{
+    if(part < 0 || part >= kCraftingPartCount)
+    {
+        return 0;
+    }
+    std::string schematic = std::string("object/draft_schematic/item/quest_item/shared_") + kCraftingParts[part].name + ".iff";
+    DraftSchematic* draft = gSchematicManager->getSchematicBySlotId(BString(schematic.c_str()).getCrc());
+    return draft ? draft->getId() : 0;
+}
+
+//======================================================================================================================
+
+void MissionManager::_returnCraftingSchematic(PlayerObject* player, MissionObject* mission)
+{
+    if(mission->getMissionType() != crafting || mission->getCraftingPart() < 0)
+    {
+        return;
+    }
+    if(uint64 schematicId = _craftingSchematicId(mission->getCraftingPart()))
+    {
+        player->removeMissionSchematic(schematicId);
+    }
+    mission->setCraftingPart(-1);
+}
+
+//======================================================================================================================
+
 void MissionManager::missionRequest(PlayerObject* player, uint64 mission_id)
 {
     Datapad* datapad			= player->getDataPad();
@@ -620,6 +717,16 @@ void MissionManager::missionRequest(PlayerObject* player, uint64 mission_id)
     mission->sendAttributes(mission->getOwner());
 
     delete updater;
+
+    // Crafting missions: the giver hands over the part's schematic.
+    if(mission->getMissionType() == crafting && mission->getCraftingPart() >= 0)
+    {
+        if(uint64 schematicId = _craftingSchematicId(mission->getCraftingPart()))
+        {
+            player->addMissionSchematic(schematicId);
+            gMessageLib->SendSystemMessage(L"You have been given the schematic for this part. Collect its components at the waypoint.", player);
+        }
+    }
 
     if(mission->getMissionType() == recon)	mission->setTaskId(gWorldManager->addMissionToProcess(mission));
     if(mission->getMissionType() == destroy && mission->getLairsTypeId() != 0)
@@ -786,6 +893,8 @@ void MissionManager::missionAbort(PlayerObject* player, uint64 mission_id)
             }
         }
 
+        _returnCraftingSchematic(player, mission);
+
         datapad->removeMission(mission);
         gMessageLib->SendSystemMessage(::common::OutOfBand("mission/mission_generic", "incomplete"), player);
         gMessageLib->sendSetWaypointActiveStatus(mission->getWaypoint(),false,player);
@@ -827,6 +936,8 @@ void MissionManager::missionFailed(PlayerObject* player, MissionObject* mission)
             mission->setEntertainingTimer(NULL);
         }
     }
+
+    _returnCraftingSchematic(player, mission);
 
     //remove mission
     gMessageLib->sendSetWaypointActiveStatus(mission->getWaypoint(),false,player);
@@ -881,12 +992,32 @@ bool MissionManager::checkDeliverMission(PlayerObject* player,NPCObject* npc)
             {
                 if(mission->getStartNPC() == npc)
                 {
-                    //This is the start npc for the deliver mission
+                    //This is the supplier: the part's three components.
+                    const int part = mission->getCraftingPart();
+                    Inventory* inventory = player->getInventory();
+                    if(part >= 0 && inventory)
+                    {
+                        if(!inventory->checkCapacity(3, player, true))
+                        {
+                            return true;
+                        }
+                        for(int slot = 0; slot < 3; ++slot)
+                        {
+                            uint32 type = _craftingItemType(slotPartTemplate(part, slot));
+                            if(type)
+                            {
+                                gObjectFactory->requestNewDefaultItem(inventory, ItemFamily_Component, type, inventory->getId(), 99, glm::vec3(), "");
+                            }
+                        }
+                    }
                     char mp[10];
                     sprintf(mp,"m%dp",mission->getNum());
                     gMessageLib->SendSpatialChat(npc, OutOfBand(mission->getTitleFile().getAnsi(), mp), NULL, player->getId());
                     mission->setStartNPC(NULL);
-                    gMessageLib->SendSystemMessage(::common::OutOfBand("mission/mission_generic", "deliver_received_data"), player);
+                    if(part >= 0)
+                        gMessageLib->SendSystemMessage(L"You have received the components. Assemble the part with a crafting tool, then take it to the waypoint.", player);
+                    else
+                        gMessageLib->SendSystemMessage(::common::OutOfBand("mission/mission_generic", "deliver_received_data"), player);
                     MissionObject* updater = new MissionObject();
                     updater->clear();
                     updater->setId(mission->getId());
@@ -903,7 +1034,30 @@ bool MissionManager::checkDeliverMission(PlayerObject* player,NPCObject* npc)
                 }
                 else if(mission->getDestinationNPC() == npc && mission->getStartNPC() == NULL)
                 {
-                    //This is the end npc for the deliver mission.
+                    //This is the customer: they take the finished part.
+                    const int part = mission->getCraftingPart();
+                    Inventory* inventory = player->getInventory();
+                    if(part >= 0 && inventory)
+                    {
+                        const uint32 partType = _craftingItemType(craftedPartTemplate(part));
+                        Item* finished = NULL;
+                        for(uint64 id : *inventory->getObjects())
+                        {
+                            Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(id));
+                            if(item && item->getItemFamily() == ItemFamily_Mission && item->getItemType() == partType)
+                            {
+                                finished = item;
+                                break;
+                            }
+                        }
+                        if(!finished)
+                        {
+                            gMessageLib->SendSystemMessage(L"You do not have the finished part in your inventory.", player);
+                            return true;
+                        }
+                        gContainerManager->deleteObject(finished, inventory);
+                        _returnCraftingSchematic(player, mission);
+                    }
                     char mr[10];
                     sprintf(mr,"m%dr",mission->getNum());
                     gMessageLib->SendSpatialChat(npc, OutOfBand(mission->getTitleFile().getAnsi(), mr), NULL, player->getId());
@@ -1712,22 +1866,25 @@ MissionObject* MissionManager::generateCraftingMission(MissionObject* mission)
 {
     mission->setMissionType(crafting);
 
-    //TEMP!
-    BString targets[8][2] =
+    // The part to build: one whose schematic and items are loaded
+    // (migration 021).
+    int parts[kCraftingPartCount];
+    int partCount = 0;
+    for(int part = 0; part < kCraftingPartCount; ++part)
     {
-        {"@item_n:output_governor","object/tangible/mission/quest_item/shared_attunement_grid.iff"},
-        {"@item_n:current_alternator","object/tangible/mission/quest_item/shared_current_alternator.iff"},
-        {"@item_n:nym_hard_drive","object/tangible/loot/quest/shared_nym_hard_drive.iff"},
-        {"@item_n:hyperdrive_part_s01","object/tangible/loot/misc/shared_hyperdrive_part_s01.iff"},
-        {"@item_n:dermal_analyzer","object/tangible/loot/npc_loot/shared_dermal_analyzer_generic.iff"},
-        {"@item_n:feedback_controller","object/tangible/mission/quest_item/shared_feedback_controller.iff"},
-        {"@item_n:power_regulator","object/tangible/mission/quest_item/shared_power_regulator.iff"},
-        {"@item_n:attunement_grid","object/tangible/mission/quest_item/shared_attunement_grid.iff"}
-    };
-
-    int target_num = gRandom->getRand() % 8;
-
-    //END TEMP
+        bool ready = _craftingSchematicId(part) && _craftingItemType(craftedPartTemplate(part));
+        for(int slot = 0; ready && slot < 3; ++slot)
+            ready = _craftingItemType(slotPartTemplate(part, slot)) != 0;
+        if(ready)
+            parts[partCount++] = part;
+    }
+    if(!partCount)
+    {
+        LOG(WARNING) << "MissionManager: no crafting mission parts loaded (has migration 021 run?)";
+        return NULL;
+    }
+    const int target_part = parts[gRandom->getRand() % partCount];
+    mission->setCraftingPart(target_part);
 
     // Title, description and creator: mission_npc_crafting_neutral_easy has
     // m1t-m50t (title) and m1d-m50d (description) in the Publish 14 client.
@@ -1811,11 +1968,10 @@ MissionObject* MissionManager::generateCraftingMission(MissionObject* mission)
     //Reward
     mission->setReward(mission->getDifficulty() * ((gRandom->getRand() % 14) + 15)); //Difficulty * rand: 15-28
 
-    //Target
-    mission->setTarget((targets[target_num][0]).getRawData()); //will need to be located from the db
-
-    //Mission Target
-    mission->setTargetModel((targets[target_num][1]).getCrc()); //crc = object/tangible/mission/quest_item/shared_attunement_grid.iff
+    //Target: the part, as the client names it and its template's crc
+    std::string targetName = std::string("@item_n:") + kCraftingParts[target_part].name;
+    mission->setTarget(targetName.c_str());
+    mission->setTargetModel(BString(craftedPartTemplate(target_part).c_str()).getCrc());
 
     return mission;
 }

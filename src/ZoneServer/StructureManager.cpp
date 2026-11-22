@@ -1503,7 +1503,9 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
 
     // The lots are taken now that the structure is being placed (the deed
     // only checked them), and given back if placement fails below.
-    StructureDeedLink* lotsData = getDeedData(deed->getItemType());
+    // Through gStructureManager: the command map binds this handler before
+    // the manager exists, so `this` is null here (#48).
+    StructureDeedLink* lotsData = gStructureManager->getDeedData(deed->getItemType());
     const uint8 lots = lotsData ? static_cast<uint8>(lotsData->requiredLots) : 0;
     if(!player->useLots(lots))
     {

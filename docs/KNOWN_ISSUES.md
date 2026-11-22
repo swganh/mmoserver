@@ -1358,6 +1358,11 @@ the lots, and they are taken when the structure is placed and given back
 if placement fails there (no height for the spot, a deed with no
 placement, a city hall without the skill). Lots are counted from the
 structures owned at login, so relogging gave back the lost ones anyway.
+The first retest crashed the zone on placement: the command map binds
+`HandlePlaceStructure` to `gStructureManager` before the manager exists,
+so the handler runs with a null `this`; the new lots check called
+`getDeedData` on it. It goes through `gStructureManager`, as the rest of
+the handler does.
 
 ### 46. /tip bank refused with "bank" first — fixed, to retest
 

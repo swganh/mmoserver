@@ -914,7 +914,7 @@ a new one, but the database update writes the overflowing total, not the
 maximum, so the container holds more than it can after a reload. Found
 while writing the scout harvest, which does not share the bug.
 
-### 27. Items can't be put in the bank — fixed, needs testing
+### 27. Items can't be put in the bank — fixed
 
 Found in the step 2 test pass (T40, Nov 2026). Joining a bank, depositing
 and withdrawing credits work, but the bank terminal's item box (the safety
@@ -936,7 +936,8 @@ the zone config changes it.
 First test: after joining, the terminal still offered Join Bank and no
 Bank Items. The bank terminal kept the first menu it built, from before
 the join, for every player (`Object::ResetRadialMenu` does nothing); it
-is built for each request now (fixed, to retest).
+is built for each request now. Confirmed on the VM (Nov 2026): the bank
+menu and the safe deposit box work.
 
 ### 28. Missions were switched off — back on, needs testing
 
@@ -1399,7 +1400,7 @@ are reconstructed. Status and the panel were confirmed in game, and a
 guest gets Status but not Disband. The terminal kept the first menu it
 built, for everyone (`ResetRadialMenu` does nothing by default), so which
 one a player saw depended on who opened it first; it is built per
-request now (to retest that the owner still gets Disband). Layout: each camp's model is a client POI
+request now; confirmed on the VM: the owner gets Disband, a guest doesn't. Layout: each camp's model is a client POI
 (`object/building/poi/shared_scout_camp_s0`–`s5`) that brings its own tent
 and furniture; the server adds only the basic camp's campfire and chair
 (item rows), which may double what the POI already has. Still open.

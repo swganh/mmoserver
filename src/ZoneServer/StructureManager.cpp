@@ -231,6 +231,37 @@ void StructureManager::spawnHouseSign(HouseObject* house)
 }
 
 //=======================================================================================================================
+// Reads the house type's sign placement again, then puts the sign up again:
+// renaming a house does this, so a placement changed in the database can be
+// tried without restarting the zone.
+
+void StructureManager::reloadHouseSign(HouseObject* house)
+{
+    const uint64 houseId = house->getId();
+    const std::string model = house->getModelString().getAnsi();
+    std::stringstream sql;
+    sql << "SELECT h.sign_template, h.x, h.y, h.z, h.heading FROM "
+        << mDatabase->galaxy() << ".house_sign_placement h INNER JOIN " << mDatabase->galaxy()
+        << ".structure_type_data s ON (s.type = h.structure_type) WHERE s.object_string = '" << model << "'";
+    mDatabase->executeAsyncSql(sql, [this, houseId, model] (DatabaseResult* result) {
+        if(result && result->getResultSet() && result->getResultSet()->next())
+        {
+            std::unique_ptr<sql::ResultSet>& rows = result->getResultSet();
+            HouseSignPlacement placement;
+            placement.signTemplate = rows->getString(1);
+            placement.offset = glm::vec3(static_cast<float>(rows->getDouble(2)), static_cast<float>(rows->getDouble(3)), static_cast<float>(rows->getDouble(4)));
+            placement.heading = static_cast<float>(rows->getDouble(5));
+            mHouseSigns[model] = placement;
+        }
+        if(HouseObject* house = dynamic_cast<HouseObject*>(gWorldManager->getObjectById(houseId)))
+        {
+            removeHouseSign(house);
+            spawnHouseSign(house);
+        }
+    });
+}
+
+//=======================================================================================================================
 
 void StructureManager::removeHouseSign(HouseObject* house)
 {

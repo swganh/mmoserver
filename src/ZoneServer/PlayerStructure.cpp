@@ -459,11 +459,11 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,BString inputStr
 
         gMessageLib->sendNewHarvesterName(this);
 
-        // A house's sign shows its name: put it up again with the new one.
+        // A house's sign shows its name: put it up again with the new one,
+        // re-reading where it goes (so a changed placement can be tried).
         if(HouseObject* house = dynamic_cast<HouseObject*>(this))
         {
-            gStructureManager->removeHouseSign(house);
-            gStructureManager->spawnHouseSign(house);
+            gStructureManager->reloadHouseSign(house);
         }
 
         //update db!!!

@@ -403,6 +403,8 @@ public:
     void					loadHouseSigns();
     void					spawnHouseSign(HouseObject* house);
     void					removeHouseSign(HouseObject* house);
+    // Re-reads the house type's placement, then puts the sign up again.
+    void					reloadHouseSign(HouseObject* house);
 
 private:
     struct HouseSignPlacement

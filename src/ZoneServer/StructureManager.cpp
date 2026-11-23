@@ -225,7 +225,9 @@ void StructureManager::spawnHouseSign(HouseObject* house)
     gWorldManager->addObject(sign, true);
     gSpatialIndexManager->createInWorld(sign);
     house->setSign(sign);
-    LOG(INFO) << "House signs: sign " << sign->getId() << " for house " << house->getId();
+    LOG(INFO) << "House signs: sign " << sign->getId() << " for house " << house->getId()
+              << " (" << house->getModelString().getAnsi() << ") at " << sign->mPosition.x << ", " << sign->mPosition.z
+              << "; house at " << house->mPosition.x << ", " << house->mPosition.z;
 }
 
 //=======================================================================================================================

@@ -89,6 +89,14 @@ bool FactoryBase::_removeFromObjectLoadMap(uint64 id)
 // this should always be last in load order
 void FactoryBase::_buildAttributeMap(Object* object,DatabaseResult* result)
 {
+    // A failed query (logged when it ran) has no result: load the object
+    // without its default attributes rather than crash (#45).
+    if(!result)
+    {
+        object->setLoadState(LoadState_Loaded);
+        return;
+    }
+
     std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
     Attribute_QueryContainer	attribute;

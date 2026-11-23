@@ -178,7 +178,9 @@ void Database::process() {
             // is stored with the result, otherwise it is added back to the 
             // idle pool.
             // A failed query (SQL error) has no result.
-            if (job->result && job->result->isMultiResult()) {
+            // A prepared statement's result likewise: freeing it talks to
+            // the server (see DatabaseResult::holdsConnection).
+            if (job->result && job->result->holdsConnection()) {
                 job->result->setWorkerReference(worker);
             } else {
                 idle_worker_queue_.push(worker);

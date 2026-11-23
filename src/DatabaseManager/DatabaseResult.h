@@ -86,6 +86,20 @@ public:
     */
     bool isMultiResult();
 
+    /*! Marks the result of a prepared statement. Freeing it closes the
+    * statement on the server, over the connection that ran it.
+    */
+    void setPrepared();
+
+    /*! Whether the connection that ran the query must stay with this result
+    * until it is freed: multi-result statements (the rest of their results
+    * are read when freed) and prepared statements (freeing one sends the
+    * server a close). Freeing either on the main thread while the worker ran
+    * its next query on the same connection garbled the connection ("Lost
+    * connection to MySQL server during query") and crashed in libssl.
+    */
+    bool holdsConnection() const;
+
     /*! Returns the number of rows returned by the query.
     */
     uint64_t getRowCount();
@@ -105,6 +119,7 @@ private:
 
     DatabaseWorkerThread* worker_;
     bool multi_result_;
+    bool prepared_;
 };
 
 #endif //MMOSERVER_DATABASEMANAGER_DATABASERESULT_H

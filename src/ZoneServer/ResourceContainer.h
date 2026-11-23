@@ -47,7 +47,9 @@ public:
     ~ResourceContainer();
 
     virtual void	setParentIdIncDB(uint64 parentId);
-    virtual void	upDateFactoryVolume(BString amount);
+    // Overrides TangibleObject (it took a BString, so it never did: the
+    // amount read back from the database was ignored, #36).
+    void			upDateFactoryVolume(const std::string& amount) override;
     virtual void	updateWorldPosition();
 
     void prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount);

@@ -1,0 +1,26 @@
+{% extends "admin/_layout.html" %}
+{% block title %}Roles{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Roles &amp; permissions</h1>
+  <p class="muted">Give staff a role on their account page. Only Administrators manage roles, and only they can change a staff account.</p>
+  <table>
+    <thead><tr><th>Role</th><th>Permissions</th><th>Members</th><th></th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr>
+        <td><strong>{{ r.name }}</strong><br><small class="muted">{{ r.description }}</small></td>
+        <td>{% if r.builtin %}All{% else %}{% for p in perms.get(r.role_id, [])|sort %}<span class="tag">{{ p }}</span> {% else %}<span class="muted">none</span>{% endfor %}{% endif %}</td>
+        <td>{{ r.members }}</td>
+        <td>{% if not r.builtin %}<a href="{{ url_for('admin.role', role_id=r.role_id) }}">Edit</a>{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <p><a class="button" href="{{ url_for('admin.role') }}">New role</a></p>
+</section>
+<section class="card">
+  <h2>What each permission allows</h2>
+  <dl class="facts">{% for key, text in PERMISSIONS.items() %}<dt><code>{{ key }}</code></dt><dd>{{ text }}</dd>{% endfor %}</dl>
+</section>
+{% endblock %}

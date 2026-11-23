@@ -1817,8 +1817,10 @@ void MessageLib::sendIDChangeMessage(PlayerObject* targetObject,PlayerObject* sr
     mMessageFactory->addUint32(srcObject->getSkillModValue(SMod_body));
     mMessageFactory->addUint32(srcObject->getSkillModValue(SMod_face));
 
+    // The changes are kept on the customer (otherObject), whichever side
+    // this goes to.
     //body options
-    AttributesList* aList = targetObject->getIdAttributesList();
+    AttributesList* aList = otherObject->getIdAttributesList();
     AttributesList::iterator it = aList->begin();
     mMessageFactory->addUint32(aList->size());
 
@@ -1830,7 +1832,7 @@ void MessageLib::sendIDChangeMessage(PlayerObject* targetObject,PlayerObject* sr
     }
 
     //body options
-    ColorList* cList = targetObject->getIdColorList();
+    ColorList* cList = otherObject->getIdColorList();
     ColorList::iterator cIt = cList->begin();
     mMessageFactory->addUint32(cList->size());
 

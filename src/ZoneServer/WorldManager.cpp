@@ -148,8 +148,9 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
     TreasuryManager::Init(database);
     ConversationManager::Init(database);
     CraftingSessionFactory::Init(database);
-    /*if(zoneId != 41)
-        MissionManager::Init(database,mZoneId);*/
+    // Missions: not in the tutorial (which has no mission terminals in use)
+    if(zoneId != 41)
+        MissionManager::Init(database,mZoneId);
 
     // register world script hooks
     _registerScriptHooks();

@@ -141,7 +141,6 @@ private:
     TRMPermissionType			mPermissionTyp;
     bool						mBazaarsLoaded;
     uint32						mBazaarCount;
-    PlayerAccountMap			mPlayerAccountMap;
 
     ChatManager*				mChatManager;
 

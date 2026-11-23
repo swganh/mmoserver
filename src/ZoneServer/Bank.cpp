@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageLib/MessageLib.h"
 
 #include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/WorldConfig.h"
 #include "ZoneServer/WorldManager.h"
 
 using std::stringstream;
@@ -47,6 +48,9 @@ Bank::Bank(PlayerObject* owner)
     mId = owner->getId() + BANK_OFFSET;
     mTanGroup = TanGroup_PlayerInternal;
     mTanType = TanType_Bank;
+    // The safe deposit box's item limit (KNOWN_ISSUES #27). Reconstructed,
+    // not from the client: set Player_Bank_Capacity to change it.
+    mCapacity = gWorldConfig->getConfiguration<uint16>("Player_Bank_Capacity", (uint16)100);
 }
 
 

@@ -93,12 +93,27 @@ bool CraftingManager::HandleRequestDraftslotsBatch(Object* object,Object* target
     {
         // since we currently store everything in 1 schematic object, just look up by the crc
         // lookup of weights is done in requestresourceweightsbatch
-        uint64 itemId = boost::lexical_cast<uint64>(dataElements[i].getAnsi());
-        DraftSchematic* schematic = gSchematicManager->getSchematicBySlotId(static_cast<uint32>(itemId));
+        // The schematic's crc. It may come signed (half the crcs are above
+        // 2^31), which a parse as unsigned would refuse with an exception.
+        uint32 crc = 0;
+        try
+        {
+            crc = static_cast<uint32>(boost::lexical_cast<int64>(dataElements[i].getAnsi()));
+        }
+        catch(const boost::bad_lexical_cast&)
+        {
+            LOG(INFO) << "Draft slots request: unreadable schematic " << dataElements[i].getAnsi();
+            continue;
+        }
+        DraftSchematic* schematic = gSchematicManager->getSchematicBySlotId(crc);
 
         if(schematic)
         {
             gMessageLib->sendDraftslotsResponse(schematic,playerObject);
+        }
+        else
+        {
+            LOG(INFO) << "Draft slots request: no schematic with crc " << crc << " (" << requestStr.getAnsi() << ")";
         }
     }
     return true;
@@ -128,8 +143,16 @@ bool CraftingManager::HandleRequestResourceWeightsBatch(Object* object,Object* t
 
     for(uint16 i = 0; i < elementCount; i++)
     {
-        uint64 itemId = boost::lexical_cast<uint64>(dataElements[i].getAnsi());
-        DraftSchematic* schematic = gSchematicManager->getSchematicByWeightId(static_cast<uint32>(itemId));
+        uint32 weightsId = 0;
+        try
+        {
+            weightsId = static_cast<uint32>(boost::lexical_cast<int64>(dataElements[i].getAnsi()));
+        }
+        catch(const boost::bad_lexical_cast&)
+        {
+            continue;
+        }
+        DraftSchematic* schematic = gSchematicManager->getSchematicByWeightId(weightsId);
 
         if(schematic)
         {

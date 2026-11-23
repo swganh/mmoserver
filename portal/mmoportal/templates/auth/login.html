@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf, field with context %}
+{% block title %}Sign in{% endblock %}
+{% block content %}
+<section class="card narrow">
+  <h1>Sign in</h1>
+  <p class="muted">Use your game account's username and password.</p>
+  <form method="post">
+    {{ csrf() }}
+    {{ field("username", "Username", value=username, autocomplete="username") }}
+    {{ field("password", "Password", type="password", autocomplete="current-password") }}
+    <button>Sign in</button>
+  </form>
+  <p><a href="{{ url_for('auth.forgot') }}">Forgot your password?</a>
+  {% if registration_open %} · <a href="{{ url_for('auth.register') }}">Create an account</a>{% endif %}</p>
+</section>
+{% endblock %}

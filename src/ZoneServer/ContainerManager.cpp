@@ -168,7 +168,7 @@ void ContainerManager::registerPlayerToStaticContainer(Object* container, Player
     }
 
     if(container->getType() == ObjType_Player) {
-        DLOG(INFO) << "SpatialIndexManager::registerPlayerToContainer :: registered player (container) " << container->getId() <<" to player %I64u" << player->getId();
+        DLOG(INFO) << "SpatialIndexManager::registerPlayerToContainer :: registered player (container) " << container->getId() << " to player " << player->getId();
         return;
     }
 

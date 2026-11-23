@@ -26,8 +26,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "MissionManager.h"
+#include "NonPersistentNpcFactory.h"
+#include "LairObject.h"
 
 #include "Bank.h"
+#include "ContainerManager.h"
+#include "DraftSchematic.h"
+#include "Inventory.h"
+#include "Item.h"
+#include "ObjectFactory.h"
+#include "SchematicManager.h"
 #include "Buff.h"
 #include "CreatureObject.h"
 #include "Datapad.h"
@@ -38,6 +46,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerObject.h"
 #include "ResourceManager.h"
 #include "ResourceType.h"
+#include "Resource.h"
+#include "Utils/clock.h"
+#include <algorithm>
+#include <vector>
 #include "Terminal.h"
 #include "TreasuryManager.h"
 #include "UIManager.h"
@@ -61,6 +73,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/rand.h"
 #include <cmath>
 #include <cstdio>
+#include <sstream>
+
+#include <cppconn/resultset.h>
 
 using ::common::OutOfBand;
 
@@ -73,10 +88,66 @@ namespace {
 glm::vec3 randomGroundOffset(float min_distance, float max_distance)
 {
     const float two_pi = 6.2831853f;
-    float angle = two_pi * (gRandom->getRand() / 32768.0f);
-    float distance = min_distance + (max_distance - min_distance) * (gRandom->getRand() / 32767.0f);
+    // rand() goes up to RAND_MAX: 32767 with MSVC, 2147483647 with glibc.
+    // Dividing by 32767 sent Linux missions thousands of kilometres away.
+    float angle = static_cast<float>(two_pi * (gRandom->getRand() / (RAND_MAX + 1.0)));
+    float distance = static_cast<float>(min_distance + (max_distance - min_distance) * (gRandom->getRand() / static_cast<double>(RAND_MAX)));
 
     return glm::vec3(std::cos(angle) * distance, 0.0f, std::sin(angle) * distance);
+}
+
+// Outdoor townsfolk (filler NPCs) within `range` of `from`. The spatial
+// index's range query covers only three grid cells (about 150 m) whatever
+// range it is given, which at many terminals held fewer than the two NPCs a
+// deliver mission needs, so this goes through the zone's objects instead.
+void townsfolkInRange(const Object* from, float range, ObjectSet* result)
+{
+    const glm::vec3 position = from->getWorldPosition();
+    ObjectMap* objects = gWorldManager->getWorldObjectMap();
+    for(ObjectMap::iterator it = objects->begin(); it != objects->end(); ++it)
+    {
+        NPCObject* npc = dynamic_cast<NPCObject*>(it->second);
+        if(npc && npc->getParentId() == 0 && npc->getNpcFamily() == NpcFamily_Filler
+                && glm::distance(position, npc->mPosition) <= range)
+        {
+            result->insert(npc);
+        }
+    }
+}
+
+}
+
+namespace {
+
+// Crafting missions (KNOWN_ISSUES #28). From the Publish 14 client: the five
+// mission schematics object/draft_schematic/item/quest_item/shared_<part>.iff,
+// each with three slots named after the part that fills it,
+// object/tangible/component/item/quest_item/shared_<slot>.iff, and making
+// object/tangible/mission/quest_item/shared_<part>.iff. Data: migration 021.
+struct CraftingPart
+{
+    const char* name;
+    const char* slots[3];
+};
+
+const CraftingPart kCraftingParts[] =
+{
+    {"attunement_grid",     {"particle_sensor", "spin_alignment_inducer", "momentum_compensator"}},
+    {"current_alternator",  {"cycle_control", "transductive_shunt", "directional_sensor"}},
+    {"feedback_controller", {"loop_auditor", "variance_throttle", "corrective_inducer"}},
+    {"output_governor",     {"decoherence_sensor", "signal_cleanup_unit", "signal_rerouter"}},
+    {"power_regulator",     {"voltage_inducer", "current_motivator", "tuning_cell"}},
+};
+const int kCraftingPartCount = sizeof(kCraftingParts) / sizeof(kCraftingParts[0]);
+
+std::string craftedPartTemplate(int part)
+{
+    return std::string("object/tangible/mission/quest_item/shared_") + kCraftingParts[part].name + ".iff";
+}
+
+std::string slotPartTemplate(int part, int slot)
+{
+    return std::string("object/tangible/component/item/quest_item/shared_") + kCraftingParts[part].slots[slot] + ".iff";
 }
 
 }
@@ -133,6 +204,23 @@ MissionManager::MissionManager(Database* database, uint32 zone) :
 
     asyncContainer = new MissionManagerAsyncContainer(MissionQuery_Load_Names, 0);
     mDatabase->executeSqlAsync(this,asyncContainer,"SELECT name FROM %s.mission_names WHERE planet = %u",mDatabase->galaxy(), zone);
+
+    // Crafting missions: the parts' item types (migration 021).
+    std::stringstream sql;
+    sql << "SELECT id, object_string FROM " << mDatabase->galaxy() << ".item_types"
+        << " WHERE object_string LIKE 'object/tangible/component/item/quest_item/%'"
+        << " OR object_string LIKE 'object/tangible/mission/quest_item/%'";
+    mDatabase->executeAsyncSql(sql, [this] (DatabaseResult* result) {
+        if(!result || !result->getResultSet())
+        {
+            return;
+        }
+        std::unique_ptr<sql::ResultSet>& rows = result->getResultSet();
+        while(rows->next())
+        {
+            mCraftingItemTypes[std::string(rows->getString(2))] = rows->getUInt(1);
+        }
+    });
 
 
 }
@@ -427,6 +515,11 @@ void MissionManager::listRequest(PlayerObject* player, uint64 terminal_id,uint8 
 {
     Terminal*	terminal		= dynamic_cast<Terminal*> (gWorldManager->getObjectById(terminal_id));
     //uint32		terminal_type	= terminal->getTerminalType();
+    if(!terminal)
+    {
+        LOG(WARNING) << "Mission list: " << terminal_id << " is not a terminal";
+        return;
+    }
 
     int8		terminal_name[255];
     strcpy(terminal_name,terminal->getName().getAnsi());
@@ -434,6 +527,11 @@ void MissionManager::listRequest(PlayerObject* player, uint64 terminal_id,uint8 
     int count = 0;
     int len = strlen(terminal_name);
     MissionBag* mission_bag = dynamic_cast<MissionBag*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Mission));
+    if(!mission_bag)
+    {
+        LOG(WARNING) << "Mission list: player " << player->getId() << " has no mission bag";
+        return;
+    }
 
     MissionList::iterator it = mission_bag->getMissions()->begin();
     while(it != mission_bag->getMissions()->end())
@@ -442,26 +540,36 @@ void MissionManager::listRequest(PlayerObject* player, uint64 terminal_id,uint8 
         mission->clear();
         mission->setIssuingTerminal(terminal);
         mission->setRefreshCount(refresh_count);
+        MissionObject* generated = NULL;
         switch(len)
         {
         case 16: //terminal_mission
-            count < 5 ? generateDestroyMission(mission,terminal_id) : generateDeliverMission(mission);
+            generated = count < 5 ? generateDestroyMission(mission,terminal_id) : generateDeliverMission(mission);
             break;
         case 22: //terminal_mission_scout
-            if (count < 5) {
-                mission->setRefreshCount(0);
-            } else {
-                generateReconMission(mission);
+            if (count >= 5) {
+                generated = generateReconMission(mission);
             }
             break;
         case 24: //terminal_mission_artisan
-            count < 5 ? generateCraftingMission(mission) : generateSurveyMission(mission);
-
+            generated = count < 5 ? generateCraftingMission(mission) : generateSurveyMission(mission);
             break;
         case 28: //terminal_mission_entertainer
-            generateEntertainerMission(mission,count);
+            generated = generateEntertainerMission(mission,count);
             break;
         default:
+            break;
+        }
+
+        // A mission that could not be generated keeps an old refresh count,
+        // so the client leaves it out of this list. Otherwise it showed with
+        // the previous list's title and creator: the delta below sends only
+        // the fields that are set.
+        if(!generated)
+        {
+            LOG(INFO) << "Mission list: terminal " << terminal_id << " (" << terminal_name
+                      << ") could not generate mission " << count;
+            mission->clear();
             mission->setRefreshCount(0);
         }
 
@@ -495,12 +603,53 @@ void MissionManager::createRequest(PlayerObject* player)
 /*
  * Player Accepted Mission
 */
+uint32 MissionManager::_craftingItemType(const std::string& objectString) const
+{
+    auto it = mCraftingItemTypes.find(objectString);
+    return (it == mCraftingItemTypes.end()) ? 0 : it->second;
+}
+
+//======================================================================================================================
+
+uint64 MissionManager::_craftingSchematicId(int part) const
+{
+    if(part < 0 || part >= kCraftingPartCount)
+    {
+        return 0;
+    }
+    std::string schematic = std::string("object/draft_schematic/item/quest_item/shared_") + kCraftingParts[part].name + ".iff";
+    DraftSchematic* draft = gSchematicManager->getSchematicBySlotId(BString(schematic.c_str()).getCrc());
+    return draft ? draft->getId() : 0;
+}
+
+//======================================================================================================================
+
+void MissionManager::_returnCraftingSchematic(PlayerObject* player, MissionObject* mission)
+{
+    if(mission->getMissionType() != crafting || mission->getCraftingPart() < 0)
+    {
+        return;
+    }
+    if(uint64 schematicId = _craftingSchematicId(mission->getCraftingPart()))
+    {
+        player->removeMissionSchematic(schematicId);
+    }
+    mission->setCraftingPart(-1);
+}
+
+//======================================================================================================================
+
 void MissionManager::missionRequest(PlayerObject* player, uint64 mission_id)
 {
     Datapad* datapad			= player->getDataPad();
 
     //Move the mission from the player's mission bag to his datapad.
     MissionBag* mission_bag = dynamic_cast<MissionBag*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Mission));
+    if(!mission_bag || !datapad)
+    {
+        LOG(WARNING) << "Mission accept: player " << player->getId() << " has no mission bag or datapad";
+        return;
+    }
     MissionObject* mission =  mission_bag->getMissionById(mission_id);
     if(mission == NULL)
     {
@@ -538,6 +687,13 @@ void MissionManager::missionRequest(PlayerObject* player, uint64 mission_id)
             updater->getWaypoint()->setCoords(mission->getStart().Coordinates);
             updater->getWaypoint()->setPlanetCRC(mission->getStart().PlanetCRC);
         }
+        else if(mission->getMissionType() == destroy && mission->getLairsTypeId() != 0)
+        {
+            // Near the target, not on it: the exact location comes as the
+            // player gets close (checkDestroyMission).
+            updater->getWaypoint()->setCoords(mission->getDestination().Coordinates + randomGroundOffset(20.0f, 60.0f));
+            updater->getWaypoint()->setPlanetCRC(mission->getDestination().PlanetCRC);
+        }
         else
         {
             updater->getWaypoint()->setCoords(mission->getDestination().Coordinates);
@@ -562,7 +718,21 @@ void MissionManager::missionRequest(PlayerObject* player, uint64 mission_id)
 
     delete updater;
 
+    // Crafting missions: the giver hands over the part's schematic.
+    if(mission->getMissionType() == crafting && mission->getCraftingPart() >= 0)
+    {
+        if(uint64 schematicId = _craftingSchematicId(mission->getCraftingPart()))
+        {
+            player->addMissionSchematic(schematicId);
+            gMessageLib->SendSystemMessage(L"You have been given the schematic for this part. Collect its components at the waypoint.", player);
+        }
+    }
+
     if(mission->getMissionType() == recon)	mission->setTaskId(gWorldManager->addMissionToProcess(mission));
+    if(mission->getMissionType() == destroy && mission->getLairsTypeId() != 0)
+    {
+        mission->setTaskId(gWorldManager->addMissionToProcess(mission));
+    }
 
 
     //check if we need to inform our group
@@ -592,18 +762,60 @@ void MissionManager::missionComplete(PlayerObject* player, MissionObject* missio
     gMessageLib->sendPlayMusicMessage(2501,player); //sound/music_mission_complete.snd
     gMessageLib->sendMissionComplete(player);
     Bank* bank = dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
-    bank->updateCredits(mission->getReward());
+    if(bank)
+    {
+        bank->updateCredits(mission->getReward());
+    }
+    else
+    {
+        LOG(WARNING) << "Mission complete: player " << player->getId() << " has no bank for the reward";
+    }
 
     return;
 }
 //======================================================================================================================
 
 
+void MissionManager::entertainerStopped(PlayerObject* player)
+{
+    Datapad* datapad = player ? player->getDataPad() : NULL;
+    if(!datapad || !datapad->hasMission())
+        return;
+
+    MissionList::iterator it = datapad->getMissions()->begin();
+    for(; it != datapad->getMissions()->end(); ++it)
+    {
+        MissionObject* mission = dynamic_cast<MissionObject*>(*it);
+        if(!mission || !mission->getInProgress()
+                || (mission->getMissionType() != dancer && mission->getMissionType() != musician))
+            continue;
+
+        Buff* timer = mission->getEntertainingTimer();
+        // In its last seconds the timer is as good as done: let it end.
+        // Measured from when the mission's performance started, in real
+        // time (the global tick falls behind).
+        if(timer && mission->getPerformanceStart()
+                && Anh_Utils::Clock::getSingleton()->getLocalTime() + 2000 >= mission->getPerformanceStart() + timer->GetTickLength())
+            continue;
+
+        // The timer buff runs on and ends unmatched (the mission no longer
+        // points at it).
+        mission->setInProgress(false);
+        mission->setEntertainingTimer(NULL);
+        gMessageLib->SendSystemMessage(L"You stopped performing before your mission's time was up. Perform at the mission's location again to start over.", player);
+    }
+}
+
 void MissionManager::missionCompleteEntertainer(PlayerObject* player,Buff* timer)
 {
+    // Buffs also end when a player logs out: only a connected player with a
+    // datapad can complete anything.
+    if(!player || !timer || !player->isConnected())
+        return;
+
     Datapad* datapad			= player->getDataPad();
 
-    if(datapad->hasMission()) //player has a mission
+    if(datapad && datapad->hasMission()) //player has a mission
     {
         MissionList::iterator it = datapad->getMissions()->begin();
         while(it != datapad->getMissions()->end())
@@ -615,7 +827,19 @@ void MissionManager::missionCompleteEntertainer(PlayerObject* player,Buff* timer
             }
             if(mission->getMissionType() == dancer || mission->getMissionType() == musician)
             {
-                //if(mission->getEntertainingTimer() != timer) { ++it; continue; } //check to see if this is the mission who's timer is expiring
+                // Only this mission's own timer ending counts. Stopping
+                // early already cancelled it (entertainerStopped), so the
+                // player performed the whole time; a stop in the last
+                // seconds (out of action as the timer ended) still counts.
+                // The scheduler runs a copy of the buff (addBuffToProcess),
+                // so the buff ending here is never the mission's own object;
+                // the copy keeps its start tick and length, which identify
+                // it. (The global tick can't tell whether the time is up: it
+                // counts a once-a-second task and falls behind real time.)
+                Buff* own = mission->getEntertainingTimer();
+                if(!own || own->GetStartTime() != timer->GetStartTime()
+                        || own->GetTickLength() != timer->GetTickLength()) { ++it; continue; }
+
                 if(glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
                 {
                     missionComplete(player,mission);
@@ -623,6 +847,12 @@ void MissionManager::missionCompleteEntertainer(PlayerObject* player,Buff* timer
                     delete mission;
                     return;
                 }
+
+                // Moved away: the performance doesn't count.
+                mission->setInProgress(false);
+                mission->setEntertainingTimer(NULL);
+                gMessageLib->SendSystemMessage(L"You must stay at the mission's location to complete it. Perform there again to try once more.", player);
+                return;
             }
             ++it;
         }
@@ -639,6 +869,10 @@ void MissionManager::missionCompleteEntertainer(PlayerObject* player,Buff* timer
 void MissionManager::missionAbort(PlayerObject* player, uint64 mission_id)
 {
     Datapad* datapad			= player->getDataPad();
+    if(!datapad)
+    {
+        return;
+    }
 
     MissionObject* mission = datapad->getMissionById(mission_id);
     if(mission)
@@ -648,13 +882,18 @@ void MissionManager::missionAbort(PlayerObject* player, uint64 mission_id)
         {
             if(mission->getInProgress())
             {
+                // Detach the mission first: removing the buff runs its final
+                // step, which would otherwise complete the mission and delete
+                // it under us. RemoveBuff marks the buff for deletion; it is
+                // freed with the player's buffs, not here.
                 Buff* timer = mission->getEntertainingTimer();
-                player->RemoveBuff(timer);
                 mission->setInProgress(false);
-                SAFE_DELETE(timer);
                 mission->setEntertainingTimer(NULL);
+                player->RemoveBuff(timer);
             }
         }
+
+        _returnCraftingSchematic(player, mission);
 
         datapad->removeMission(mission);
         gMessageLib->SendSystemMessage(::common::OutOfBand("mission/mission_generic", "incomplete"), player);
@@ -697,6 +936,8 @@ void MissionManager::missionFailed(PlayerObject* player, MissionObject* mission)
             mission->setEntertainingTimer(NULL);
         }
     }
+
+    _returnCraftingSchematic(player, mission);
 
     //remove mission
     gMessageLib->sendSetWaypointActiveStatus(mission->getWaypoint(),false,player);
@@ -814,10 +1055,18 @@ void MissionManager::checkMusicianMission(PlayerObject* player)
                 if(glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
                 {
                     BuffAttribute* performance_timer = new BuffAttribute(time_remaining, 0,0,0);
-                    Buff* timer = Buff::SimpleBuff(player, player, 60000, 0, gWorldManager->GetCurrentGlobalTick());
+                    // 10 minutes, as the missions say (it was 1 for music).
+                    Buff* timer = Buff::SimpleBuff(player, player, 600000, 0, gWorldManager->GetCurrentGlobalTick());
                     timer->AddAttribute(performance_timer);
-                    player->AddBuff(timer);
+                    // Stackable: the timer has no icon (0), like other
+                    // internal buffs, and AddBuff deleted a second icon-0
+                    // buff as a duplicate, leaving the mission with a
+                    // deleted timer that never ended.
+                    player->AddBuff(timer, true);
                     mission->setEntertainingTimer(timer);
+                    mission->setPerformanceStart(Anh_Utils::Clock::getSingleton()->getLocalTime());
+                    // The timer buff has no icon: say that it started.
+                    gMessageLib->SendSystemMessage(L"You start performing for your mission. Keep it up here for 10 minutes.", player);
                     mission->setInProgress(true);
                 }
             }
@@ -849,7 +1098,15 @@ void MissionManager::checkDancerMission(PlayerObject* player)
                     BuffAttribute* performance_timer = new BuffAttribute(time_remaining, 0,0,0);
                     Buff* timer = Buff::SimpleBuff(player, player, 600000, 0, gWorldManager->GetCurrentGlobalTick());
                     timer->AddAttribute(performance_timer);
-                    player->AddBuff(timer);
+                    // Stackable: the timer has no icon (0), like other
+                    // internal buffs, and AddBuff deleted a second icon-0
+                    // buff as a duplicate, leaving the mission with a
+                    // deleted timer that never ended.
+                    player->AddBuff(timer, true);
+                    mission->setEntertainingTimer(timer);
+                    mission->setPerformanceStart(Anh_Utils::Clock::getSingleton()->getLocalTime());
+                    // The timer buff has no icon: say that it started.
+                    gMessageLib->SendSystemMessage(L"You start performing for your mission. Keep it up here for 10 minutes.", player);
                     mission->setInProgress(true);
                 }
             }
@@ -913,6 +1170,7 @@ void MissionManager::checkSurveyMission(PlayerObject* player,CurrentResource* re
 bool MissionManager::checkCraftingMission(PlayerObject* player,NPCObject* npc)
 {
     Datapad* datapad			= player->getDataPad();
+
     if(datapad->hasMission()) //player has a mission
     {
         MissionList::iterator it = datapad->getMissions()->begin();
@@ -923,12 +1181,32 @@ bool MissionManager::checkCraftingMission(PlayerObject* player,NPCObject* npc)
             {
                 if(mission->getStartNPC() == npc)
                 {
-                    //This is the start npc for the deliver mission
+                    //This is the supplier: the part's three components.
+                    const int part = mission->getCraftingPart();
+                    Inventory* inventory = player->getInventory();
+                    if(part >= 0 && inventory)
+                    {
+                        if(!inventory->checkCapacity(3, player, true))
+                        {
+                            return true;
+                        }
+                        for(int slot = 0; slot < 3; ++slot)
+                        {
+                            uint32 type = _craftingItemType(slotPartTemplate(part, slot));
+                            if(type)
+                            {
+                                gObjectFactory->requestNewDefaultItem(inventory, ItemFamily_Component, type, inventory->getId(), 99, glm::vec3(), "");
+                            }
+                        }
+                    }
                     char mp[10];
                     sprintf(mp,"m%dp",mission->getNum());
                     gMessageLib->SendSpatialChat(npc, OutOfBand(mission->getTitleFile().getAnsi(), mp), NULL, player->getId());
                     mission->setStartNPC(NULL);
-                    gMessageLib->SendSystemMessage(::common::OutOfBand("mission/mission_generic", "deliver_received_data"), player);
+                    if(part >= 0)
+                        gMessageLib->SendSystemMessage(L"You have received the components. Assemble the part with a crafting tool, then take it to the waypoint.", player);
+                    else
+                        gMessageLib->SendSystemMessage(::common::OutOfBand("mission/mission_generic", "deliver_received_data"), player);
                     MissionObject* updater = new MissionObject();
                     updater->clear();
                     updater->setId(mission->getId());
@@ -945,7 +1223,30 @@ bool MissionManager::checkCraftingMission(PlayerObject* player,NPCObject* npc)
                 }
                 else if(mission->getDestinationNPC() == npc && mission->getStartNPC() == NULL)
                 {
-                    //This is the end npc for the deliver mission.
+                    //This is the customer: they take the finished part.
+                    const int part = mission->getCraftingPart();
+                    Inventory* inventory = player->getInventory();
+                    if(part >= 0 && inventory)
+                    {
+                        const uint32 partType = _craftingItemType(craftedPartTemplate(part));
+                        Item* finished = NULL;
+                        for(uint64 id : *inventory->getObjects())
+                        {
+                            Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(id));
+                            if(item && item->getItemFamily() == ItemFamily_Mission && item->getItemType() == partType)
+                            {
+                                finished = item;
+                                break;
+                            }
+                        }
+                        if(!finished)
+                        {
+                            gMessageLib->SendSystemMessage(L"You do not have the finished part in your inventory.", player);
+                            return true;
+                        }
+                        gContainerManager->deleteObject(finished, inventory);
+                        _returnCraftingSchematic(player, mission);
+                    }
                     char mr[10];
                     sprintf(mr,"m%dr",mission->getNum());
                     gMessageLib->SendSpatialChat(npc, OutOfBand(mission->getTitleFile().getAnsi(), mr), NULL, player->getId());
@@ -986,6 +1287,108 @@ bool MissionManager::checkReconMission(MissionObject* mission)
 //======================================================================================================================
 
 
+bool MissionManager::checkDestroyMission(MissionObject* mission)
+{
+    PlayerObject* owner = mission->getOwner();
+    if(mission->getMissionType() != destroy || mission->getLairsTypeId() == 0 || !owner)
+    {
+        mission->setTaskId(0);	// the scheduler drops the task
+        return false;
+    }
+
+    // keep checking until the owner is close (outside, positions are world)
+    if(owner->getParentId() != 0 ||
+       glm::distance(owner->mPosition, mission->getDestination().Coordinates) > 128.0f)
+    {
+        return true;
+    }
+
+    uint64 lairId = gWorldManager->getRandomNpNpcIdSequence();
+    if(lairId == 0)
+    {
+        return true;	// no id free now, try again next time
+    }
+
+    PendingLair pending;
+    pending.missionId = mission->getId();
+    pending.ownerId = owner->getId();
+    pending.position = mission->getDestination().Coordinates;
+    mPendingLairs[lairId] = pending;
+    mission->setLairId(lairId);
+    gNonPersistentNpcFactory->requestLairObject(this, mission->getLairsTypeId(), lairId);
+
+    // The exact location.
+    MissionObject* updater = new MissionObject();
+    updater->clear();
+    updater->setId(mission->getId());
+    updater->getWaypoint()->setId(mission->getId()+1);
+    updater->getWaypoint()->setCoords(mission->getDestination().Coordinates);
+    updater->getWaypoint()->setPlanetCRC(mission->getDestination().PlanetCRC);
+    char name[150];
+    sprintf(name, "@%s:%s",mission->getTitleFile().getRawData(),mission->getTitle().getRawData());
+    updater->getWaypoint()->setName(name);
+    updater->getWaypoint()->setActive(true);
+    gMessageLib->sendMISO_Delta(updater, owner);
+    delete updater;
+
+    LOG(INFO) << "Destroy mission " << mission->getId() << ": lair " << lairId << " (lairs " << mission->getLairsTypeId()
+              << ") requested at " << pending.position.x << ", " << pending.position.z;
+
+    mission->setTaskId(0);	// done: the scheduler drops the task
+    return false;
+}
+
+//======================================================================================================================
+
+void MissionManager::handleObjectReady(Object* object)
+{
+    LairObject* lair = dynamic_cast<LairObject*>(object);
+    if(!lair)
+    {
+        return;
+    }
+
+    std::map<uint64, PendingLair>::iterator it = mPendingLairs.find(lair->getId());
+    if(it == mPendingLairs.end())
+    {
+        LOG(WARNING) << "Mission lair " << lair->getId() << " has no mission";
+        lair->respawn();
+        return;
+    }
+    PendingLair pending = it->second;
+    mPendingLairs.erase(it);
+
+    lair->setMission(pending.missionId, pending.ownerId);
+    lair->mPosition.x = pending.position.x;
+    lair->mPosition.z = pending.position.z;
+    lair->mPosition.y = lair->getHeightAt2DPosition(pending.position.x, pending.position.z, true);
+    lair->respawn();
+}
+
+//======================================================================================================================
+
+void MissionManager::missionLairDestroyed(uint64 missionId, uint64 ownerId)
+{
+    PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(ownerId));
+    if(!player)
+    {
+        return;	// logged off: the mission went with the datapad
+    }
+    Datapad* datapad = player->getDataPad();
+    MissionObject* mission = datapad ? datapad->getMissionById(missionId) : NULL;
+    if(!mission || mission->getMissionType() != destroy)
+    {
+        return;	// aborted meanwhile
+    }
+
+    LOG(INFO) << "Destroy mission " << missionId << " completed by " << ownerId;
+    missionComplete(player, mission);
+    datapad->removeMission(mission);
+    delete mission;
+}
+
+//======================================================================================================================
+
 MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, uint64 terminal)
 {
 
@@ -1004,6 +1407,10 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 
         //now get the amount of stfs and get one per chance
         uint32 amount = terminal->list.size();
+        if(amount == 0)
+        {
+            return NULL;
+        }
         uint32 chosen = gRandom->getRand() % amount;
 
         DLOG(INFO) << "MissionManager : random : " <<  chosen;
@@ -1029,6 +1436,12 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 
             }
             it = terminal->list.begin();
+
+            // this terminal offers no destroy missions
+            if(!found && counter > 2 * amount + 2)
+            {
+                break;
+            }
 
         }
 
@@ -1081,6 +1494,23 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
     //Randomly choose a target
     int target = gRandom->getRand() % 4;
 
+    // Lairs that destroy missions can spawn: rows of `lairs` with a fixed
+    // position and no natural spawns (count 0), on Tatooine only for now.
+    // More come with the lairs of every planet (roadmap step 3).
+    struct MissionLair { uint64 lairsId; const char* name; const char* model; };
+    static const MissionLair kMissionLairs[2] =
+    {
+        {1, "@lair_n:rocks", "object/tangible/lair/base/shared_poi_all_lair_rocks_small.iff"},	// womp rats
+        {2, "@lair_n:nest",  "object/tangible/lair/base/shared_poi_all_lair_nest_small.iff"},	// rills
+    };
+    const MissionLair* missionLair = NULL;
+    mission->setLairsTypeId(0);
+    if(gWorldManager->getZoneId() == 8)	// Tatooine
+    {
+        missionLair = &kMissionLairs[gRandom->getRand() % 2];
+        mission->setLairsTypeId(missionLair->lairsId);
+    }
+
     //END TEMP
 
     //Position
@@ -1123,8 +1553,16 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
     mission->setReward((gRandom->getRand() % 10000)+1000);
 
     //Target
-    mission->setTargetModel(missionTarget[target].crc);
-    mission->setTarget(missionTarget[target].name);
+    if(missionLair)
+    {
+        mission->setTargetModel(BString(missionLair->model).getCrc());
+        mission->setTarget(missionLair->name);
+    }
+    else
+    {
+        mission->setTargetModel(missionTarget[target].crc);
+        mission->setTarget(missionTarget[target].name);
+    }
 
     return mission;
 }
@@ -1154,13 +1592,23 @@ MissionObject* MissionManager::generateDeliverMission(MissionObject* mission)
 
     ObjectSet inRangeNPCs;
 
-    gSpatialIndexManager->getObjectsInRange(mission->getOwner(),&inRangeNPCs,ObjType_Creature,30.0,true);
+    // The pickup and drop-off NPCs are townsfolk within reach, as for
+    // crafting missions; 30 m around the terminal rarely held two.
+    townsfolkInRange(mission->getOwner(),1500,&inRangeNPCs);
     ObjectSet::iterator it = inRangeNPCs.begin();
 
     //Start & End
     bool found = false;
     Location mission_start;
+    // glm leaves a vec3 uninitialised: the loop below tests for x == 0.
+    mission_start.Coordinates = glm::vec3(0.0f);
+    mission_start.CellID = 0;
+    mission_start.PlanetCRC = 0;
     Location mission_dest;
+    // glm leaves a vec3 uninitialised: the loop below tests for x == 0.
+    mission_dest.Coordinates = glm::vec3(0.0f);
+    mission_dest.CellID = 0;
+    mission_dest.PlanetCRC = 0;
 
     //we may stall the main thread with the way it was done ???? however often enough the mission generation never finished!!!!!!!!!!!!!!!
 
@@ -1168,7 +1616,10 @@ MissionObject* MissionManager::generateDeliverMission(MissionObject* mission)
     //get a list containing all suitable npcs and generate a random number corresponding to one of the npcs
 
     if(inRangeNPCs.size() < 2)
+    {
+        LOG(INFO) << "Deliver mission: " << inRangeNPCs.size() << " townsfolk within 1500 m of the player";
         return NULL;
+    }
 
 
     uint32 count = 0;
@@ -1176,15 +1627,24 @@ MissionObject* MissionManager::generateDeliverMission(MissionObject* mission)
     while(!found && !inRangeNPCs.empty())
     {
         count ++;
+        // Fewer than two suitable NPCs (or resources) in range: give up rather
+        // than loop for ever.
+        if(count > 4 * inRangeNPCs.size() + 8)
+        {
+            LOG(INFO) << "MissionManager: nothing suitable in range for this mission (" << inRangeNPCs.size() << " candidates)";
+            return NULL;
+        }
         ++it;
         if(it == inRangeNPCs.end())
             it = inRangeNPCs.begin();
 
+        // Outdoor townsfolk only: an NPC in a building has its position in
+        // the room's coordinates, which would put the waypoint elsewhere.
         NPCObject* npc = dynamic_cast<NPCObject*>(*it);
-        if(npc->getNpcFamily() == NpcFamily_Filler)
+        if(npc && npc->getParentId() == 0 && npc->getNpcFamily() == NpcFamily_Filler)
         {
-            uint32 roll		= (gRandom->getRand() / (RAND_MAX  + 1ul) * (9 - 1) + 1);
-            if((roll = 5)||(count > inRangeNPCs.size()))
+            uint32 roll		= static_cast<uint32>(gRandom->getRand() / (RAND_MAX + 1.0) * (9 - 1) + 1);
+            if((roll == 5)||(count > inRangeNPCs.size()))
             {
                 if(mission_dest.Coordinates.x == 0)
                 {
@@ -1249,24 +1709,37 @@ MissionObject* MissionManager::generateEntertainerMission(MissionObject* mission
 
     ObjectSet inRangeNPCs;
 
-    gSpatialIndexManager->getObjectsInRange(mission->getOwner(),&inRangeNPCs,ObjType_NPC,3000,false);
+    townsfolkInRange(mission->getOwner(),3000,&inRangeNPCs);
     //Start
     uint32 cntLoop = 0;
     bool found = false;
     Location mission_dest;
+    // glm leaves a vec3 uninitialised: the loop below tests for x == 0.
+    mission_dest.Coordinates = glm::vec3(0.0f);
+    mission_dest.CellID = 0;
+    mission_dest.PlanetCRC = 0;
     ObjectSet::iterator it = inRangeNPCs.begin();
     while(!found && !inRangeNPCs.empty())
     {
         cntLoop++;
+        // Fewer than two suitable NPCs (or resources) in range: give up rather
+        // than loop for ever.
+        if(cntLoop > 4 * inRangeNPCs.size() + 8)
+        {
+            LOG(INFO) << "MissionManager: nothing suitable in range for this mission (" << inRangeNPCs.size() << " candidates)";
+            return NULL;
+        }
         ++it;
         if(it == inRangeNPCs.end())
             it = inRangeNPCs.begin();
 
+        // Outdoor townsfolk only: an NPC in a building has its position in
+        // the room's coordinates, which would put the waypoint elsewhere.
         NPCObject* npc = dynamic_cast<NPCObject*>(*it);
-        if(npc->getNpcFamily() == NpcFamily_Filler)
+        if(npc && npc->getParentId() == 0 && npc->getNpcFamily() == NpcFamily_Filler)
         {
-            uint32 roll		= (gRandom->getRand() / (RAND_MAX  + 1ul) * (9 - 1) + 1);
-            if((roll = 5)||(cntLoop > inRangeNPCs.size()))
+            uint32 roll		= static_cast<uint32>(gRandom->getRand() / (RAND_MAX + 1.0) * (9 - 1) + 1);
+            if((roll == 5)||(cntLoop > inRangeNPCs.size()))
             {
                 if(mission_dest.Coordinates.x == 0 && mission->getDestinationNPC() != npc)
                 {
@@ -1340,36 +1813,31 @@ MissionObject* MissionManager::generateSurveyMission(MissionObject* mission)
     mission->setDetailFile("mission/mission_npc_survey_neutral_easy");
     mission->setDetail(md);
 
-    bool found = false;
-
-    ResourceTypeMap*	rtMap = gResourceManager->getResourceTypeMap();
-    ResourceTypeMap::iterator it = rtMap->begin();
-
-    uint32 cntLoop = 0;
-    while(!found && !rtMap->empty())//?????
+    // A mineral spawned on this planet now: the mission picked any mineral
+    // type, often one not spawned anywhere, so it couldn't be completed. The
+    // zone loads only this planet's spawns, marked current.
+    std::vector<ResourceType*> spawned;
+    ResourceIdMap* resources = gResourceManager->getResourceIdMap();
+    for(ResourceIdMap::iterator rit = resources->begin(); rit != resources->end(); ++rit)
     {
-        cntLoop ++;
-
-        ++it;
-        if(it == rtMap->end())
-            it = rtMap->begin();
-
-        if(!strcmp((*it->second).getResourceType().getRawData(),"mineral_resource"))/* ||
-		   !strcmp((*(*it).second).getResourceType().getRawData(),"energy_resource")) */
-        {
-            uint32 roll		= (gRandom->getRand() / (RAND_MAX  + 1ul) * (9 - 1) + 1);
-
-            if((roll == 5)||(cntLoop > rtMap->size()))
-            {
-                mission->setTarget((*it->second).getName().getRawData());
-                mission->setTargetModel((*it->second).getContainerModel().getCrc());
-                mission->setTargetResource(((*it).second));
-                found = true;
-                break;
-            }
-        }
-
+        Resource* resource = rit->second;
+        if(!resource || !resource->getCurrent() || !resource->getType())
+            continue;
+        ResourceType* type = resource->getType();
+        if(strcmp(type->getResourceType().getRawData(), "mineral_resource") != 0)
+            continue;
+        if(std::find(spawned.begin(), spawned.end(), type) == spawned.end())
+            spawned.push_back(type);
     }
+    if(spawned.empty())
+    {
+        LOG(INFO) << "MissionManager: no mineral spawned on this planet for a survey mission";
+        return NULL;
+    }
+    ResourceType* target = spawned[gRandom->getRand() % spawned.size()];
+    mission->setTarget(target->getName().getRawData());
+    mission->setTargetModel(target->getContainerModel().getCrc());
+    mission->setTargetResource(target);
 
     //efficiency - A range from 30 - 70 is the best I can do without
     //knowning the min and max concentration of the given resource.
@@ -1384,6 +1852,10 @@ MissionObject* MissionManager::generateSurveyMission(MissionObject* mission)
     destination.CellID = 0;
     destination.PlanetCRC = BString(gWorldManager->getPlanetNameThis()).getCrc();
     mission->setStart(destination);
+    // The mission list and details show the destination's planet: without
+    // one, survey missions read "Unknown Planet". The survey can be done
+    // anywhere on this planet, so the destination is where it was taken.
+    mission->setDestination(destination);
 
 
     return mission;
@@ -1395,45 +1867,77 @@ MissionObject* MissionManager::generateCraftingMission(MissionObject* mission)
 {
     mission->setMissionType(crafting);
 
-    //TEMP!
-    BString targets[8][2] =
+    // The part to build: one whose schematic and items are loaded
+    // (migration 021).
+    int parts[kCraftingPartCount];
+    int partCount = 0;
+    for(int part = 0; part < kCraftingPartCount; ++part)
     {
-        {"@item_n:output_governor","object/tangible/mission/quest_item/shared_attunement_grid.iff"},
-        {"@item_n:current_alternator","object/tangible/mission/quest_item/shared_current_alternator.iff"},
-        {"@item_n:nym_hard_drive","object/tangible/loot/quest/shared_nym_hard_drive.iff"},
-        {"@item_n:hyperdrive_part_s01","object/tangible/loot/misc/shared_hyperdrive_part_s01.iff"},
-        {"@item_n:dermal_analyzer","object/tangible/loot/npc_loot/shared_dermal_analyzer_generic.iff"},
-        {"@item_n:feedback_controller","object/tangible/mission/quest_item/shared_feedback_controller.iff"},
-        {"@item_n:power_regulator","object/tangible/mission/quest_item/shared_power_regulator.iff"},
-        {"@item_n:attunement_grid","object/tangible/mission/quest_item/shared_attunement_grid.iff"}
-    };
+        bool ready = _craftingSchematicId(part) && _craftingItemType(craftedPartTemplate(part));
+        for(int slot = 0; ready && slot < 3; ++slot)
+            ready = _craftingItemType(slotPartTemplate(part, slot)) != 0;
+        if(ready)
+            parts[partCount++] = part;
+    }
+    if(!partCount)
+    {
+        LOG(WARNING) << "MissionManager: no crafting mission parts loaded (has migration 021 run?)";
+        return NULL;
+    }
+    const int target_part = parts[gRandom->getRand() % partCount];
+    mission->setCraftingPart(target_part);
 
-    int target_num = gRandom->getRand() % 8;
-
-    //END TEMP
+    // Title, description and creator: mission_npc_crafting_neutral_easy has
+    // m1t-m50t (title) and m1d-m50d (description) in the Publish 14 client.
+    int mission_num = (gRandom->getRand() % 50)+1;
+    mission->setNum(mission_num);
+    mission->setCreator(creators[gRandom->getRand() % 9]);
+    sprintf(mt,"m%dt",mission_num);
+    mission->setTitleFile("mission/mission_npc_crafting_neutral_easy");
+    mission->setTitle(mt);
+    sprintf(md,"m%dd",mission_num);
+    mission->setDetailFile("mission/mission_npc_crafting_neutral_easy");
+    mission->setDetail(md);
 
     ObjectSet inRangeNPCs;
-    gSpatialIndexManager->getObjectsInRange(mission->getOwner(),&inRangeNPCs,ObjType_NPC,1500,false);
+    townsfolkInRange(mission->getOwner(),1500,&inRangeNPCs);
 
     uint32 cntLoop = 0;
     //Start & End
     bool found = false;
     Location mission_start;
+    // glm leaves a vec3 uninitialised: the loop below tests for x == 0.
+    mission_start.Coordinates = glm::vec3(0.0f);
+    mission_start.CellID = 0;
+    mission_start.PlanetCRC = 0;
     Location mission_dest;
+    // glm leaves a vec3 uninitialised: the loop below tests for x == 0.
+    mission_dest.Coordinates = glm::vec3(0.0f);
+    mission_dest.CellID = 0;
+    mission_dest.PlanetCRC = 0;
     ObjectSet::iterator it = inRangeNPCs.begin();
     while(!found && !inRangeNPCs.empty())
     {
         cntLoop++;
+        // Fewer than two suitable NPCs (or resources) in range: give up rather
+        // than loop for ever.
+        if(cntLoop > 4 * inRangeNPCs.size() + 8)
+        {
+            LOG(INFO) << "MissionManager: nothing suitable in range for this mission (" << inRangeNPCs.size() << " candidates)";
+            return NULL;
+        }
         ++it;
 
         if(it == inRangeNPCs.end())
             it = inRangeNPCs.begin();
 
+        // Outdoor townsfolk only: an NPC in a building has its position in
+        // the room's coordinates, which would put the waypoint elsewhere.
         NPCObject* npc = dynamic_cast<NPCObject*>(*it);
-        if(npc->getNpcFamily() == NpcFamily_Filler)
+        if(npc && npc->getParentId() == 0 && npc->getNpcFamily() == NpcFamily_Filler)
         {
-            uint32 roll		= (gRandom->getRand() / (RAND_MAX  + 1ul) * (9 - 1) + 1);
-            if((roll = 5)||(cntLoop > inRangeNPCs.size()))
+            uint32 roll		= static_cast<uint32>(gRandom->getRand() / (RAND_MAX + 1.0) * (9 - 1) + 1);
+            if((roll == 5)||(cntLoop > inRangeNPCs.size()))
             {
                 if(mission_dest.Coordinates.x == 0)
                 {
@@ -1465,11 +1969,10 @@ MissionObject* MissionManager::generateCraftingMission(MissionObject* mission)
     //Reward
     mission->setReward(mission->getDifficulty() * ((gRandom->getRand() % 14) + 15)); //Difficulty * rand: 15-28
 
-    //Target
-    mission->setTarget((targets[target_num][0]).getRawData()); //will need to be located from the db
-
-    //Mission Target
-    mission->setTargetModel((targets[target_num][1]).getCrc()); //crc = object/tangible/mission/quest_item/shared_attunement_grid.iff
+    //Target: the part, as the client names it and its template's crc
+    std::string targetName = std::string("@item_n:") + kCraftingParts[target_part].name;
+    mission->setTarget(targetName.c_str());
+    mission->setTargetModel(BString(craftedPartTemplate(target_part).c_str()).getCrc());
 
     return mission;
 }

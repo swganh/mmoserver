@@ -48,6 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 HouseObject::HouseObject() : BuildingObject()
 {
     mType = ObjType_Building;
+    mSign = NULL;
 
     setWidth(64);
     setHeight(64);

@@ -46,149 +46,82 @@ CREATE FUNCTION `sf_HarvesterUseMaintenance`(hID BIGINT(20)) RETURNS int(11) SQL
 BEGIN
 
 --
--- Declare Variables
--- it
+-- One hour's maintenance for a structure of any kind: the chat server runs
+-- it hourly for every structure (houses, harvesters, factories...).
+-- structure_type_data.maint_cost_wk is per week; the hour's charge is a
+-- 168th of it (the status window shows the same rate). It took a 336th,
+-- half the hour's charge, which rounded to nothing, and compared the pool
+-- with the weekly rate (#39).
+--
+-- Returns 0 paid from the pool, 1 the pool ran out and the owner's bank
+-- paid the rest, 2 nothing left to pay with: the structure loses
+-- condition, and a harvester or factory stops, 3 its condition reached 0,
+-- 5 not a structure with maintenance.
+--
 
-  DECLARE maint INTEGER;
-  DECLARE maintcalc INTEGER;
-  DECLARE maintchar VARCHAR(128);
-  DECLARE rate INTEGER;
-  DECLARE decayrate INTEGER;
-  DECLARE quantity INTEGER;
-
-  DECLARE active INTEGER;
+  DECLARE owner BIGINT(20) DEFAULT NULL;
+  DECLARE weekly INTEGER DEFAULT NULL;
+  DECLARE decayRate INTEGER DEFAULT 0;
+  DECLARE maxCondition INTEGER DEFAULT 0;
+  DECLARE hourly INTEGER;
+  DECLARE poolChar VARCHAR(128) DEFAULT NULL;
+  DECLARE pool INTEGER DEFAULT 0;
+  DECLARE bank INTEGER DEFAULT 0;
+  DECLARE shortfall INTEGER;
   DECLARE struct_condition INTEGER;
-  DECLARE percent FLOAT;
-  DECLARE owner BIGINT(20);
-  DECLARE bank INTEGER;
-  DECLARE cr INTEGER;
-  DECLARE ret INTEGER;
 
---
--- set a proper exit handler in case we have a faulty resource ID
---
+  -- a missing row leaves the variable as it was
+  DECLARE CONTINUE HANDLER FOR NOT FOUND BEGIN END;
 
-  DECLARE CONTINUE HANDLER FOR SQLSTATE '02000'
-  BEGIN
-    UPDATE harvesters h SET h.active = 0 WHERE h.ID = hID;
+  SELECT s.owner, st.maint_cost_wk, st.decay_rate, st.max_condition
+    FROM structures s INNER JOIN structure_type_data st ON (s.type = st.type)
+    WHERE s.ID = hID INTO owner, weekly, decayRate, maxCondition;
+  IF weekly IS NULL OR weekly <= 0 THEN
+    RETURN 5;
+  END IF;
+  SET hourly = CEIL(weekly / 168);
+
+  SELECT sa.value FROM structure_attributes sa
+    WHERE sa.structure_id = hID AND sa.attribute_id = 382 INTO poolChar;
+  SET pool = COALESCE(CAST(poolChar AS SIGNED), 0);
+
+  IF pool >= hourly THEN
+    UPDATE structure_attributes sa SET sa.value = CAST(pool - hourly AS CHAR(128))
+      WHERE sa.structure_id = hID AND sa.attribute_id = 382;
+    RETURN 0;
+  END IF;
+
+  -- the pool runs out: the bank pays the rest if it can
+  SET shortfall = hourly - GREATEST(pool, 0);
+  UPDATE structure_attributes sa SET sa.value = '0'
+    WHERE sa.structure_id = hID AND sa.attribute_id = 382;
+
+  SELECT b.credits FROM banks b WHERE b.id = owner + 4 INTO bank;
+  IF bank >= shortfall THEN
+    UPDATE banks SET credits = credits - shortfall WHERE id = owner + 4;
+    RETURN 1;
+  END IF;
+  IF bank > 0 THEN
+    UPDATE banks SET credits = 0 WHERE id = owner + 4;
+    SET shortfall = shortfall - bank;
+  END IF;
+
+  -- nothing left to pay with: harvesters and factories stop, and the
+  -- structure loses condition (health, down to 0): decay_rate percent of
+  -- its maximum per unpaid hour (a factory, 6, lasts about 17 hours; a
+  -- small house, 3, about 33). Reconstructed, not from a source: the old
+  -- formula took 60% of a factory's condition in an unpaid hour.
+  UPDATE harvesters h SET h.active = 0 WHERE h.ID = hID;
+  UPDATE factories f SET f.active = 0 WHERE f.ID = hID;
+  UPDATE structures s
+    SET s.condition = GREATEST(0, CAST(s.condition AS SIGNED) - CEIL(maxCondition * decayRate / 100 * shortfall / hourly))
+    WHERE s.ID = hID;
+
+  SELECT s.condition FROM structures s WHERE s.ID = hID INTO struct_condition;
+  IF struct_condition <= 0 THEN
     RETURN 3;
-  END;
-
---
--- Get the owners id in case the maintenance is drained
---
-  SELECT s.owner FROM structures s WHERE s.ID =hID INTO owner;
-  SELECT b.credits FROM banks b WHERE b.id =(owner+4) INTO bank;
-
---
--- get the maintenance reserves
---
-
-  SELECT sa.value FROM structure_attributes sa WHERE sa.structure_id =hID AND sa.attribute_id = 382 INTO maintchar;
-  SELECT CAST(maintchar AS SIGNED) INTO maint;
-
---
--- get the maintenance rate
---
-
-  SELECT st.maint_cost_wk FROM structures s INNER JOIN structure_type_data st ON (s.type = st.type) WHERE s.ID =hID  INTO rate;
-  SELECT st.decay_rate FROM structures s INNER JOIN structure_type_data st ON (s.type = st.type) WHERE s.ID =hID  INTO decayrate;
-
---
--- rate/168 is hourly maintenance - we need to deduct it every half hour as every 30 min is the condition damage intervall
---
-
-  IF(maint >= rate)THEN
-      SELECT CAST((maint - (rate/336)) AS SIGNED) INTO maintcalc;
-      SELECT CAST((maintcalc) AS CHAR(128)) INTO maintchar;
-      UPDATE structure_attributes sa SET sa.VALUE = maintchar WHERE sa.structure_id =hID AND sa.attribute_id = 382;
-
---
--- Return 0 for everything ok
---
-
-
-      return 0;
-
-
-   END IF;
-
-  IF(maint < rate)THEN
-    SELECT ((rate/336)-maint) INTO cr;
-
-    SELECT '0' INTO maintchar;
-
-    UPDATE structure_attributes sa SET sa.VALUE = maintchar WHERE sa.structure_id =hID AND sa.attribute_id = 382;
-    UPDATE harvesters h SET h.active = 0 WHERE h.ID = hID;
-
-
   END IF;
-
-
-
-  IF(bank >= cr) THEN
-
-    UPDATE banks SET credits = credits-cr WHERE id =(owner+4);
-
---
--- Return 1 for structure out of maintenance having taken maintenance out of the bank
---
-
-    return 1;
-
-  END IF;
-
-
-  IF(bank < cr) THEN
-
-    UPDATE banks SET credits = 0 WHERE id =(owner+4);
-
-    SELECT((rate/336) - bank) INTO cr;
---
--- reduce the condition partly due to partly maintenance missing
---
-
-    SELECT (cr/(rate/100)) INTO percent;
-    UPDATE structures s SET s.condition = (s.condition -(decayrate*percent)) WHERE s.ID =hID;
-
---
--- damage the structures Condition
---
-
-    SELECT s.condition FROM structures s WHERE s.ID =hID  INTO struct_condition;
-
---
--- notify if the structure needs to be condemned thats return code 3
---
-
-    if(struct_condition <= 0) THEN
-      UPDATE structures s SET s.condition = 0 WHERE s.ID =hID;
-      return 3;
-    END IF;
-
-
-
-    UPDATE harvesters h SET h.active = 0 WHERE h.ID = hID;
---
--- Return 2 for structure out of maintenance AND Bank account empty - structure damaged
---
-
-    return 2;
-
-  END IF;
-
-
-
---
--- Return 5 for mess up
---
-
-  RETURN 5;
-
---
--- Exit
---
-
+  RETURN 2;
 END $$
 /*!50003 SET SESSION SQL_MODE=@TEMP_SQL_MODE */  $$
 

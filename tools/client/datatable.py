@@ -39,7 +39,12 @@ def cstrings(blob):
 
 
 def read(path):
-    data = open(path, "rb").read()
+    with open(path, "rb") as f:
+        return parse(f.read())
+
+
+def parse(data):
+    """Columns and rows of a datatable given as bytes."""
     b, e = find(data, 0, len(data), ["COLS"])
     columns = cstrings(data[b + 4:e])
     b, e = find(data, 0, len(data), ["TYPE"])

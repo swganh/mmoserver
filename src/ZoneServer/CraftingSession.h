@@ -184,6 +184,8 @@ public:
 
     //an attributes value is updated depending on the attribute type (int/float)
     void					modifyAttributeValue(CraftAttribute* att, float attValue);
+    // Copy the crafted results onto the attributes the item is used by (#41).
+    void					applyCraftedStats();
 
     //the percentage modifying our attribute based on the roll
     float					getPercentage(uint8 roll);

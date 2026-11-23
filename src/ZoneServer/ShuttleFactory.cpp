@@ -182,7 +182,7 @@ Shuttle* ShuttleFactory::_createShuttle(DatabaseResult* result)
         // The rand value will land in either the InPort or in the Away part of the values.
         // Use that state as initial state and set the value as time that have already expired.
         uint32 maxInPortAndAwayIntervalTime = shuttle->getInPortInterval() + shuttle->getAwayInterval();
-        uint32 shuttleTimeExpired = static_cast<uint32>(gRandom->getRand() / RAND_MAX) * (maxInPortAndAwayIntervalTime);
+        uint32 shuttleTimeExpired = static_cast<uint32>(gRandom->getRand() / (RAND_MAX + 1.0) * maxInPortAndAwayIntervalTime);
 
         if (shuttleTimeExpired <= shuttle->getInPortInterval())
         {

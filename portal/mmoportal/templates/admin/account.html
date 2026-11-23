@@ -1,0 +1,139 @@
+{% extends "admin/_layout.html" %}
+{% from "macros.html" import csrf, when with context %}
+{% block title %}{{ account.account_username }}{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>{{ account.account_username }} <span class="muted">#{{ account.account_id }}</span>
+    {% if account.account_banned %}<span class="tag bad">banned</span>{% endif %}
+    {% if account.account_loggedin %}<span class="tag good">in game</span>{% endif %}
+    {% for name in roles|sort %}<span class="tag staff">{{ name }}</span>{% endfor %}
+  </h1>
+  <dl class="facts">
+    <dt>Email</dt><dd>{{ account.account_email or "none" }}</dd>
+    <dt>Station id</dt><dd>{{ account.account_station_id }}</dd>
+    <dt>Joined</dt><dd>{{ when(account.account_joindate) }}</dd>
+    <dt>Last game login</dt><dd>{{ when(account.account_lastlogin) }}</dd>
+    <dt>Characters allowed</dt><dd>{{ account.account_characters_allowed }}</dd>
+    <dt>Active</dt><dd>{{ "yes" if account.account_active else "no" }}</dd>
+    <dt>In-game CSR level</dt><dd>{{ account.account_csr or "none" }}</dd>
+    {% if account.account_banned %}
+      <dt>Banned</dt><dd>{{ when(account.banned_date) }}, {{ "until " ~ when(account.banned_until) if account.banned_until else "permanently" }}</dd>
+    {% endif %}
+  </dl>
+  <h2>Characters</h2>
+  {% if characters %}
+    <ul class="plain characters">{% for c in characters %}
+      <li>{{ c.firstname }} {{ c.lastname or "" }} <span class="muted">#{{ c.id }}</span>{% if c.archived %} <span class="tag">being deleted</span>{% endif %}
+        {% for s in admin_skills.get(c.id, [])|sort if s in SKILLS %}<span class="tag staff">{{ SKILLS[s] }}</span> {% endfor %}
+        {% if may_change and has_permission('game.admin_commands') and skills_readable %}
+        <details>
+          <summary>In-game admin commands</summary>
+          <form method="post" action="{{ url_for('admin.character_admin_skills', character_id=c.id) }}">
+            {{ csrf() }}
+            {% for name, text in SKILLS.items() %}
+              <label class="check"><input type="checkbox" name="skill" value="{{ name }}"{% if name in admin_skills.get(c.id, []) %} checked{% endif %}> {{ text }}</label>
+            {% endfor %}
+            <small>Any of these includes the first. Applies 5 minutes after the character logs out, or after its zone server restarts. <a href="{{ url_for('admin.csr') }}">What each command does</a></small>
+            <button class="secondary">Save</button>
+          </form>
+        </details>
+        {% endif %}
+      </li>{% endfor %}
+    </ul>
+  {% else %}<p class="muted">None.</p>{% endif %}
+</section>
+
+{% if not may_change %}
+<p class="flash info">This is a staff account: only an Administrator can change it.</p>
+{% endif %}
+
+<div class="grid">
+{% if may_change and has_permission('accounts.edit') %}
+<section class="card">
+  <h2>Details</h2>
+  <form method="post" action="{{ url_for('admin.account_edit', account_id=account.account_id) }}">
+    {{ csrf() }}
+    <label>Email <input type="email" name="email" value="{{ account.account_email }}"></label>
+    <label>Characters allowed <input type="number" name="characters_allowed" min="0" max="10" value="{{ account.account_characters_allowed }}" required></label>
+    <label class="check"><input type="checkbox" name="active" value="1"{% if account.account_active %} checked{% endif %}> Active</label>
+    <button>Save</button>
+  </form>
+</section>
+{% endif %}
+
+{% if may_change and has_permission('accounts.reset_password') %}
+<section class="card">
+  <h2>Password</h2>
+  <form method="post" action="{{ url_for('admin.account_send_reset', account_id=account.account_id) }}">
+    {{ csrf() }}
+    <p class="muted">Email the player a link to choose a new password{% if not account.account_email %} (the account has no email address){% endif %}.</p>
+    <button{% if not account.account_email %} disabled{% endif %}>Send reset link</button>
+  </form>
+  <form method="post" action="{{ url_for('admin.account_password', account_id=account.account_id) }}">
+    {{ csrf() }}
+    <label>Or set a new password <input type="password" name="password" autocomplete="new-password" minlength="8" required></label>
+    <button class="secondary">Set password</button>
+  </form>
+</section>
+{% endif %}
+
+{% if may_change and has_permission('accounts.ban') and account.account_id != g.user.account_id %}
+<section class="card">
+  <h2>Ban</h2>
+  {% if account.account_banned %}
+    <form method="post" action="{{ url_for('admin.account_unban', account_id=account.account_id) }}">
+      {{ csrf() }}
+      <button>Lift ban</button>
+    </form>
+  {% else %}
+    <form method="post" action="{{ url_for('admin.account_ban', account_id=account.account_id) }}">
+      {{ csrf() }}
+      <label>Reason <input type="text" name="reason" maxlength="200" required></label>
+      <label>Days <input type="number" name="days" min="1" max="3650"><small>Leave empty for a permanent ban</small></label>
+      <button class="danger">Ban</button>
+    </form>
+    <p class="muted">A player in game stays until they log out; the ban stops the next login.</p>
+  {% endif %}
+</section>
+{% endif %}
+
+{% if may_change and has_permission('accounts.game_csr') %}
+<section class="card">
+  <h2>In-game CSR</h2>
+  <form method="post" action="{{ url_for('admin.account_csr', account_id=account.account_id) }}">
+    {{ csrf() }}
+    <p class="muted">The god level the game client gets (GOD MODE). The GM commands need 5, and the character also needs
+    them given under Characters. Above 0: the CSR menu on Character Builder terminals and logging in while the galaxy is locked.
+    Applies 5 minutes after the character logs out, or after its zone server restarts. <a href="{{ url_for('admin.csr') }}">More</a></p>
+    <label>Level
+      <select name="csr">
+        {% for level, text in CSR_LEVELS.items() %}<option value="{{ level }}"{% if level == account.account_csr %} selected{% endif %}>{{ text }}</option>{% endfor %}
+        {% if account.account_csr not in CSR_LEVELS %}<option value="" selected disabled>{{ account.account_csr }} (set outside the portal)</option>{% endif %}
+      </select>
+    </label>
+    <button class="secondary">Set level</button>
+  </form>
+</section>
+{% endif %}
+
+{% if is_admin() %}
+<section class="card">
+  <h2>Portal roles</h2>
+  <form method="post" action="{{ url_for('admin.account_roles', account_id=account.account_id) }}">
+    {{ csrf() }}
+    {% for r in all_roles %}
+      <label class="check"><input type="checkbox" name="role" value="{{ r.role_id }}"{% if r.name in roles %} checked{% endif %}> {{ r.name }} <small>{{ r.description }}</small></label>
+    {% endfor %}
+    <button>Save roles</button>
+  </form>
+</section>
+{% endif %}
+</div>
+
+{% if history %}
+<section class="card">
+  <h2>History</h2>
+  {% with rows = history %}{% include "admin/_audit_table.html" %}{% endwith %}
+</section>
+{% endif %}
+{% endblock %}

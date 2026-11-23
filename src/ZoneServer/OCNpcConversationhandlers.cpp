@@ -132,9 +132,10 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
     }
 
     //check to see if he is part of a mission
-    /*if(gMissionManager->checkDeliverMission(player,npc) ||
-            gMissionManager->checkCraftingMission(player,npc)
-        ) return;*/
+    // (no mission manager in the tutorial)
+    if(gMissionManager && (gMissionManager->checkDeliverMission(player,npc) ||
+            gMissionManager->checkCraftingMission(player,npc))
+        ) return;
 
     // we don't want him to talk
     if(npc->hasInternalAttribute("no_chat"))

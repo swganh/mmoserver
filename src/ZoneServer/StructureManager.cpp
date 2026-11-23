@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "nonPersistantObjectFactory.h"
 #include "HarvesterObject.h"
 #include "HouseObject.h"
+#include "HouseSign.h"
 #include "FactoryObject.h"
 #include "Inventory.h"
 #include "Datapad.h"
@@ -57,8 +58,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/OutOfBand.h"
 #include "MessageLib/MessageLib.h"
 #include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseResult.h"
 #include "Utils/rand.h"
 #include "Utils/MathFunctions.h"
+#include "SpatialIndexManager.h"
+
+#include <sstream>
+
+#include <cppconn/resultset.h>
+#include <glm/gtc/quaternion.hpp>
 
 #include <cassert>
 
@@ -101,6 +109,9 @@ StructureManager::StructureManager(Database* database,MessageDispatch* dispatch)
     asyncContainer = new StructureManagerAsyncContainer(Structure_Query_LoadstructureItem, 0);
     mDatabase->executeSqlAsync(this,asyncContainer,"SELECT sit.structure_id, sit.cell, sit.item_type , sit.relX, sit.relY, sit.relZ, sit.dirX, sit.dirY, sit.dirZ, sit.dirW, sit.tan_type, tt.object_string, tt.name, tt.file from %s.structure_item_template sit INNER JOIN %s.terminal_types tt ON (tt.id = sit.item_type) WHERE sit.tan_type = %u",mDatabase->galaxy(),mDatabase->galaxy(),TanGroup_Terminal);
 
+    // house signs (KNOWN_ISSUES #30)
+    loadHouseSigns();
+
     // load our NoBuildRegions
     asyncContainer = new StructureManagerAsyncContainer(Structure_Query_NoBuildRegionData, 0);
     mDatabase->executeProcedureAsync(this,asyncContainer,"CALL %s.sp_PlanetNoBuildRegions", mDatabase->galaxy());
@@ -136,6 +147,135 @@ StructureManager*	StructureManager::Init(Database* database, MessageDispatch* di
 }
 
 //======================================================================================================================
+
+void StructureManager::loadHouseSigns()
+{
+    std::stringstream sql;
+    sql << "SELECT s.object_string, h.sign_template, h.x, h.y, h.z, h.heading FROM "
+        << mDatabase->galaxy() << ".house_sign_placement h INNER JOIN " << mDatabase->galaxy()
+        << ".structure_type_data s ON (s.type = h.structure_type)";
+    mDatabase->executeAsyncSql(sql, [this] (DatabaseResult* result) {
+        if(!result || !result->getResultSet())
+        {
+            LOG(WARNING) << "House signs: no house_sign_placement table (has migration 022 run?)";
+            return;
+        }
+        std::unique_ptr<sql::ResultSet>& rows = result->getResultSet();
+        while(rows->next())
+        {
+            HouseSignPlacement placement;
+            placement.signTemplate = rows->getString(2);
+            placement.offset = glm::vec3(static_cast<float>(rows->getDouble(3)), static_cast<float>(rows->getDouble(4)), static_cast<float>(rows->getDouble(5)));
+            placement.heading = static_cast<float>(rows->getDouble(6));
+            mHouseSigns[std::string(rows->getString(1))] = placement;
+        }
+
+        // Houses that entered the world before this arrived.
+        ObjectIDList* structures = gWorldManager->getStructureList();
+        uint32 houses = 0;
+        for(uint64 id : *structures)
+        {
+            if(HouseObject* house = dynamic_cast<HouseObject*>(gWorldManager->getObjectById(id)))
+            {
+                ++houses;
+                spawnHouseSign(house);
+            }
+        }
+        LOG(INFO) << "House signs: " << mHouseSigns.size() << " house types; " << houses << " houses already loaded";
+    });
+}
+
+//=======================================================================================================================
+// The sign stands at its house type's offset, turned with the house, and
+// shows the house's name. It is not saved: it is made again whenever the
+// house enters the world.
+
+void StructureManager::spawnHouseSign(HouseObject* house)
+{
+    if(!house || house->getSign())
+    {
+        return;
+    }
+    if(mHouseSigns.empty())
+    {
+        // Not loaded yet: loadHouseSigns puts it up when it arrives.
+        return;
+    }
+    auto it = mHouseSigns.find(std::string(house->getModelString().getAnsi()));
+    if(it == mHouseSigns.end())
+    {
+        LOG(INFO) << "House signs: no sign for house " << house->getId() << " (" << house->getModelString().getAnsi() << ")";
+        return;
+    }
+    const HouseSignPlacement& placement = it->second;
+
+    TangibleObject* sign = new HouseSign();
+    sign->setId(gWorldManager->getRandomNpId());
+    sign->setParentId(0);
+    sign->setModelString(placement.signTemplate.c_str());
+    sign->setName("sign");
+    sign->setNameFile("sign_name");
+    sign->setCustomName(house->getCustomName().getAnsi());
+    sign->setMaxCondition(1000);
+    sign->setStatic(true);
+
+    sign->mPosition = house->mPosition + (house->mDirection * placement.offset);
+    sign->mDirection = house->mDirection * glm::angleAxis(glm::radians(placement.heading), glm::vec3(0.0f, 1.0f, 0.0f));
+
+    gWorldManager->addObject(sign, true);
+    gSpatialIndexManager->createInWorld(sign);
+    house->setSign(sign);
+    LOG(INFO) << "House signs: sign " << sign->getId() << " for house " << house->getId()
+              << " (" << house->getModelString().getAnsi() << ") at " << sign->mPosition.x << ", " << sign->mPosition.z
+              << "; house at " << house->mPosition.x << ", " << house->mPosition.z;
+}
+
+//=======================================================================================================================
+// Reads the house type's sign placement again, then puts the sign up again:
+// renaming a house does this, so a placement changed in the database can be
+// tried without restarting the zone.
+
+void StructureManager::reloadHouseSign(HouseObject* house)
+{
+    const uint64 houseId = house->getId();
+    const std::string model = house->getModelString().getAnsi();
+    std::stringstream sql;
+    sql << "SELECT h.sign_template, h.x, h.y, h.z, h.heading FROM "
+        << mDatabase->galaxy() << ".house_sign_placement h INNER JOIN " << mDatabase->galaxy()
+        << ".structure_type_data s ON (s.type = h.structure_type) WHERE s.object_string = '" << model << "'";
+    mDatabase->executeAsyncSql(sql, [this, houseId, model] (DatabaseResult* result) {
+        if(result && result->getResultSet() && result->getResultSet()->next())
+        {
+            std::unique_ptr<sql::ResultSet>& rows = result->getResultSet();
+            HouseSignPlacement placement;
+            placement.signTemplate = rows->getString(1);
+            placement.offset = glm::vec3(static_cast<float>(rows->getDouble(2)), static_cast<float>(rows->getDouble(3)), static_cast<float>(rows->getDouble(4)));
+            placement.heading = static_cast<float>(rows->getDouble(5));
+            mHouseSigns[model] = placement;
+        }
+        if(HouseObject* house = dynamic_cast<HouseObject*>(gWorldManager->getObjectById(houseId)))
+        {
+            removeHouseSign(house);
+            spawnHouseSign(house);
+        }
+    });
+}
+
+//=======================================================================================================================
+
+void StructureManager::removeHouseSign(HouseObject* house)
+{
+    if(!house || !house->getSign())
+    {
+        return;
+    }
+    TangibleObject* sign = house->getSign();
+    house->setSign(NULL);
+    gSpatialIndexManager->RemoveObjectFromWorld(sign);
+    gWorldManager->destroyObject(sign);
+}
+
+//=======================================================================================================================
 
 void StructureManager::Shutdown()
 {
@@ -591,6 +731,10 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 
 			//create the structure in the world
 			gSpatialIndexManager->createInWorld(structure);
+			if(HouseObject* house = dynamic_cast<HouseObject*>(structure))
+			{
+				spawnHouseSign(house);
+			}
 
 			//send the EMail
 			gMessageLib->sendConstructionComplete(player,structure);
@@ -772,7 +916,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			//set to private
 			if(house->getPublic())
 			{
-				mDatabase->executeSqlAsync(0,0,"UPDATE %s.houses h SET h.private = 0 WHERE h.ID = %I64u",mDatabase->galaxy(),command.StructureId);
+				mDatabase->executeSqlAsync(0,0,"UPDATE %s.houses h SET h.private = 0 WHERE h.ID = %" PRIu64 "",mDatabase->galaxy(),command.StructureId);
 				house->setPublic(false);
 				gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure","structure_now_private"),player);
 				updateKownPlayerPermissions(house);
@@ -781,7 +925,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
 			house->setPublic(true);
 			gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure","structure_now_public"),player);
-			mDatabase->executeSqlAsync(0,0,"UPDATE %s.houses h SET h.private = 1 WHERE h.ID = %I64u",mDatabase->galaxy(),command.StructureId);
+			mDatabase->executeSqlAsync(0,0,"UPDATE %s.houses h SET h.private = 1 WHERE h.ID = %" PRIu64 "",mDatabase->galaxy(),command.StructureId);
 			updateKownPlayerPermissions(house);
 		}
 		break;
@@ -800,7 +944,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			factory->setActive(false);
 
 			//now turn the factory on - in db and otherwise
-			mDatabase->executeSqlAsync(0,0,"UPDATE %s.factories f SET f.active = 0 WHERE f.ID = %I64u",mDatabase->galaxy(),command.StructureId);
+			mDatabase->executeSqlAsync(0,0,"UPDATE %s.factories f SET f.active = 0 WHERE f.ID = %" PRIu64 "",mDatabase->galaxy(),command.StructureId);
 			gMessageLib->SendUpdateFactoryWorkAnimation(factory);
 
 		}
@@ -827,7 +971,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			factory->setActive(true);
 
 			//now turn the factory on - in db and otherwise
-			mDatabase->executeSqlAsync(0,0,"UPDATE %s.factories f SET f.active = 1 WHERE f.ID = %I64u",mDatabase->galaxy(),command.StructureId);
+			mDatabase->executeSqlAsync(0,0,"UPDATE %s.factories f SET f.active = 1 WHERE f.ID = %" PRIu64 "",mDatabase->galaxy(),command.StructureId);
 			gMessageLib->SendUpdateFactoryWorkAnimation(factory);
 
 		}
@@ -917,10 +1061,17 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			
 			//change the ManSchems Owner ID and load it into the datapad
 			gObjectFactory->requestTanoNewParent(datapad,factory->getManSchemID() ,datapad->getId(),TanGroup_ManufacturingSchematic);
-			mDatabase->executeSqlAsync(0,0,"UPDATE %s.factories SET ManSchematicID = 0 WHERE ID = %I64u",mDatabase->galaxy(),command.StructureId);
+			// A factory without a schematic can't run: stop it as Stop
+			// Manufacturing does (it kept showing as running before).
+			mDatabase->executeSqlAsync(0,0,"UPDATE %s.factories SET ManSchematicID = 0, active = 0 WHERE ID = %" PRIu64 "",mDatabase->galaxy(),command.StructureId);
 
 			//finally reset the schem ID in the factory
 			factory->setManSchemID(0);
+			if(factory->getActive())
+			{
+				factory->setActive(false);
+				gMessageLib->SendUpdateFactoryWorkAnimation(factory);
+			}
 			gMessageLib->SendSystemMessage(L"",player,"manf_station","schematic_removed");
 			
 		}
@@ -961,28 +1112,32 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			TangibleObject* tO = dynamic_cast<TangibleObject*>(datapad->getManufacturingSchematicById(command.SchematicId));
 			if(!tO->hasInternalAttribute("craft_tool_typemask"))
 			{
-				gMessageLib->SendSystemMessage(L"old schematic it will be deprecated once factory schematic type checks are implemented", player);
 				tO->addInternalAttribute("craft_tool_typemask","0xffffffff");
 			}
 
+			// Which factory a schematic fits isn't enforced yet; note a
+			// mismatch in the log (it was told to the player as debug text,
+			// and tested with && instead of &).
 			uint32 mask = tO->getInternalAttribute<uint32>("craft_tool_typemask");
-			
-			if((mask&&factory->getMask())!=mask)
+			if((mask & factory->getMask()) != mask)
 			{
-					gMessageLib->SendSystemMessage(L"this schematic will not fit into the factory anymore as soon as schematictype checks are implemented", player);
-					
-					int8 s[512];
-					sprintf(s,"schematic Mask %u vs factory Mask %u",mask,factory->getMask());
-					BString message(s);
-					message.convert(BSTRType_Unicode16);
-					gMessageLib->SendSystemMessage(message.getUnicode16(), player);
+				DLOG(INFO) << "Schematic " << command.SchematicId << " (mask " << mask << ") doesn't match factory "
+				           << factory->getId() << " (mask " << factory->getMask() << "); not enforced yet";
 			}
 
 			factory->setManSchemID(command.SchematicId);
+
+			// The schematic's name, for the message below; read it before the
+			// datapad lets go of the schematic.
+			const std::string schematicNameFile = tO->getNameFile().getAnsi();
+			const std::string schematicName = tO->getName().getAnsi();
+			BString custom = tO->getCustomName();
+			custom.convert(BSTRType_Unicode16);
+			const std::wstring schematicCustomName = custom.getLength() ? std::wstring(custom.getUnicode16()) : std::wstring();
 			
 			//link the schematic to the factory in the db
-			mDatabase->executeSqlAsync(0,0,"UPDATE %s.factories SET ManSchematicID = %I64u WHERE ID = %I64u",mDatabase->galaxy(),command.SchematicId,command.StructureId);
-			mDatabase->executeSqlAsync(0,0,"UPDATE %s.items SET parent_id = %I64u WHERE ID = %I64u",mDatabase->galaxy(),command.StructureId,command.SchematicId);
+			mDatabase->executeSqlAsync(0,0,"UPDATE %s.factories SET ManSchematicID = %" PRIu64 " WHERE ID = %" PRIu64 "",mDatabase->galaxy(),command.SchematicId,command.StructureId);
+			mDatabase->executeSqlAsync(0,0,"UPDATE %s.items SET parent_id = %" PRIu64 " WHERE ID = %" PRIu64 "",mDatabase->galaxy(),command.StructureId,command.SchematicId);
 			
 			//remove the schematic from the player
 			
@@ -991,7 +1146,11 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			gMessageLib->sendDestroyObject(command.SchematicId,player);
 
 			
-			gMessageLib->SendSystemMessage(common::OutOfBand("manf_station","schematic_added"),player);
+			// "Schematic %TT has been inserted into the station": TT is the
+			// schematic's name (its custom name if it has one).
+			gMessageLib->SendSystemMessage(common::OutOfBand("manf_station", "schematic_added",
+				0, "", "", L"",
+				0, schematicNameFile, schematicName, schematicCustomName), player);
 			//gMessageLib->sendSystemMessage(player,
 			
 			//remove the added Manufacturing schematic
@@ -1009,9 +1168,9 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			asyncContainer->mPlayerId		= command.PlayerId;
 			asyncContainer->command			= command;
 			mDatabase->executeSqlAsync(this,asyncContainer,
-				 "		(SELECT \'schematicCustom\', i.customName FROM %s.factories f INNER JOIN %s.items i ON (i.id = f.ManSchematicID) WHERE f.ID = %I64u)"
-				 "UNION (SELECT \'schematicName\', it.stf_name FROM %s.factories f INNER JOIN %s.items i ON (i.id = f.ManSchematicID) INNER JOIN %s.item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)"
-				 "UNION (SELECT \'schematicFile\', it.stf_file FROM %s.factories f INNER JOIN %s.items i ON (i.id = f.ManSchematicID) INNER JOIN %s.item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)",
+				 "		(SELECT \'schematicCustom\', i.customName FROM %s.factories f INNER JOIN %s.items i ON (i.id = f.ManSchematicID) WHERE f.ID = %" PRIu64 ")"
+				 "UNION (SELECT \'schematicName\', it.stf_name FROM %s.factories f INNER JOIN %s.items i ON (i.id = f.ManSchematicID) INNER JOIN %s.item_types it ON (i.item_type = it.id) WHERE f.ID = %" PRIu64 ")"
+				 "UNION (SELECT \'schematicFile\', it.stf_file FROM %s.factories f INNER JOIN %s.items i ON (i.id = f.ManSchematicID) INNER JOIN %s.item_types it ON (i.item_type = it.id) WHERE f.ID = %" PRIu64 ")",
 				mDatabase->galaxy(),mDatabase->galaxy(),command.StructureId,
                 mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),command.StructureId,
                 mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),command.StructureId);
@@ -1140,7 +1299,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			asyncContainer = new StructureManagerAsyncContainer(Structure_HopperDiscard, 0);
 			asyncContainer->mStructureId	= command.StructureId;
 			asyncContainer->mPlayerId		= command.PlayerId;
-			mDatabase->executeSqlAsync(harvester,asyncContainer,"select %s.sf_DiscardHopper(%I64u)",mDatabase->galaxy(),command.StructureId);
+			mDatabase->executeSqlAsync(harvester,asyncContainer,"select %s.sf_DiscardHopper(%" PRIu64 ")",mDatabase->galaxy(),command.StructureId);
 
 		}
 		break;	 
@@ -1482,6 +1641,18 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
         return false;
     }
 
+    // The lots are taken now that the structure is being placed (the deed
+    // only checked them), and given back if placement fails below.
+    // Through gStructureManager: the command map binds this handler before
+    // the manager exists, so `this` is null here (#48).
+    StructureDeedLink* lotsData = gStructureManager->getDeedData(deed->getItemType());
+    const uint8 lots = lotsData ? static_cast<uint8>(lotsData->requiredLots) : 0;
+    if(!player->useLots(lots))
+    {
+        gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "not_enough_lots", 0, 0, 0, lots, 0.0f), player);
+        return false;
+    }
+
     switch(deed->getItemType())
     {
     case	ItemType_generator_fusion_personal:
@@ -1557,6 +1728,7 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
             if(!player->checkSkill(623)) //novice Politician
             {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "place_cityhall"), player);
+                player->regainLots(lots);
                 break;
             }
         }
@@ -1568,6 +1740,7 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
     }
 
     case	ItemType_deed_guildhall_corellian:
+    case	ItemType_deed_guildhall_generic:
     case	ItemType_deed_guildhall_naboo:
     case	ItemType_deed_guildhall_tatooine:
     case	ItemType_deed_naboo_large_house:
@@ -1640,9 +1813,26 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
     }
     break;
 
+    default:
+        // A deed this code doesn't place (the generic guild hall wasn't
+        // listed, and its lots were lost).
+        DLOG(INFO) << "StructureManager::HandlePlaceStructure: no placement for item type " << deed->getItemType();
+        player->regainLots(lots);
+        break;
     }
     return true;
 }
+// Placement failed after the lots were taken (no height for the spot):
+// give them back.
+void StructureManager::_regainPlacementLots(StructureHeightmapAsyncContainer* container)
+{
+    PlayerObject* player = dynamic_cast<PlayerObject*>(container->player);
+    if(!player || !container->deed)
+        return;
+    if(StructureDeedLink* data = getDeedData(container->deed->getItemType()))
+        player->regainLots(static_cast<uint8>(data->requiredLots));
+}
+
 void StructureManager::HeightmapStructureHandler(HeightmapAsyncContainer* ref)
 {
     StructureHeightmapAsyncContainer* container = static_cast<StructureHeightmapAsyncContainer*>(ref);
@@ -1682,6 +1872,10 @@ void StructureManager::HeightmapStructureHandler(HeightmapAsyncContainer* ref)
                     container->x,highest,container->z,container->dir,container->customName,
                     container->player);
         }
+        else
+        {
+            _regainPlacementLots(container);
+        }
         break;
     }
 
@@ -1695,6 +1889,10 @@ void StructureManager::HeightmapStructureHandler(HeightmapAsyncContainer* ref)
                     it->first.first,it->second->height,it->first.second,container->dir,
                     container->customName, container->player);
         }
+        else
+        {
+            _regainPlacementLots(container);
+        }
         break;
     }
     case HeightmapCallback_StructureHarvester:
@@ -1706,6 +1904,10 @@ void StructureManager::HeightmapStructureHandler(HeightmapAsyncContainer* ref)
             container->oCallback->requestnewHarvesterbyDeed(container->ofCallback,container->deed,container->player->getClient(),
                     it->first.first,it->second->height,it->first.second,container->dir,container->customName,
                     container->player);
+        }
+        else
+        {
+            _regainPlacementLots(container);
         }
         break;
     }

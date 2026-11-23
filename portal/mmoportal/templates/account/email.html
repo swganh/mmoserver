@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf, field with context %}
+{% block title %}Change email{% endblock %}
+{% block content %}
+<section class="card narrow">
+  <h1>Change email</h1>
+  <form method="post">
+    {{ csrf() }}
+    {{ field("email", "Email", type="email", value=address, autocomplete="email") }}
+    {{ field("current", "Your password", type="password", autocomplete="current-password") }}
+    <button>Save</button>
+  </form>
+</section>
+{% endblock %}

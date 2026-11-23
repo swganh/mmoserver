@@ -1,0 +1,8 @@
+{% macro csrf() %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% endmacro %}
+{% macro field(name, label, type="text", value="", autocomplete="", required=true, hint="") %}
+<label>{{ label }}
+  <input type="{{ type }}" name="{{ name }}" value="{{ value }}"{% if autocomplete %} autocomplete="{{ autocomplete }}"{% endif %}{% if required %} required{% endif %}>
+  {% if hint %}<small>{{ hint }}</small>{% endif %}
+</label>
+{% endmacro %}
+{% macro when(value) %}{{ value.strftime('%Y-%m-%d %H:%M') if value else '—' }}{% endmacro %}

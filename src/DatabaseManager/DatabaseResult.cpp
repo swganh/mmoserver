@@ -44,7 +44,8 @@ DatabaseResult::DatabaseResult(const DatabaseImplementation& impl, sql::Statemen
 	, statement_(statement)
     , impl_(impl)
     , worker_(nullptr)
-    , multi_result_(multi_result) {}
+    , multi_result_(multi_result)
+    , prepared_(false) {}
 
 
 DatabaseResult::~DatabaseResult() {}
@@ -83,6 +84,16 @@ DatabaseWorkerThread* DatabaseResult::getWorkerReference() {
 
 bool DatabaseResult::isMultiResult() {
     return multi_result_;
+}
+
+
+void DatabaseResult::setPrepared() {
+    prepared_ = true;
+}
+
+
+bool DatabaseResult::holdsConnection() const {
+    return multi_result_ || prepared_;
 }
 
 

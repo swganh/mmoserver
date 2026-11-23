@@ -920,7 +920,13 @@ void ObjectController::handleImageDesignChangeMessage(Message* message,uint64 ta
 
     //if(imageDesigner->getImageDesignSession() == IDSessionID)
     //{
-    gMessageLib->sendIDChangeMessage(customer,imageDesigner,customer,hair, sessionId,creditsOffered, creditsDemanded,customerAccept,designerCommit,statMigration,smTimer,flagHair,buildingId,holoEmote);
+    // Pass the update to the other side of the session: the customer's
+    // offer and acceptance to the designer, the designer's changes, fee and
+    // commit to the customer. It only ever went to the customer, so the
+    // designer never saw the offer and couldn't commit with a fee set.
+    PlayerObject* recipient = (messageGenerator == customer) ? imageDesigner : customer;
+    // (Designing yourself: it goes back to you, as it always did.)
+    gMessageLib->sendIDChangeMessage(recipient,imageDesigner,customer,hair, sessionId,creditsOffered, creditsDemanded,customerAccept,designerCommit,statMigration,smTimer,flagHair,buildingId,holoEmote);
     //}
 
 }

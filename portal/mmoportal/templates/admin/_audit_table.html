@@ -1,0 +1,20 @@
+{% from "macros.html" import when with context %}
+<div class="scroll">
+<table>
+  <thead><tr><th>When</th><th>Who</th><th>What</th><th>Account</th><th>Details</th><th>Address</th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+    <tr>
+      <td class="nowrap">{{ when(r.at) }}</td>
+      <td>{{ r.actor_name or ("console" if not r.actor_account_id else "#" ~ r.actor_account_id) }}</td>
+      <td><code>{{ r.action }}</code></td>
+      <td>{% if r.target_account_id %}<a href="{{ url_for('admin.account', account_id=r.target_account_id) }}">{{ r.target_name or "#" ~ r.target_account_id }}</a>{% endif %}</td>
+      <td>{{ r.detail }}</td>
+      <td>{{ r.ip }}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="6" class="muted">Nothing yet.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>

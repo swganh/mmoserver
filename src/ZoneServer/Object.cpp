@@ -56,6 +56,8 @@ Object::Object()
     , mSubZoneId(0)
     , mTypeOptions(0)
     , mDataTransformCounter(0)
+    , mCapacity(0)	// was never set for resource containers: random, so
+                    // some were "too bulky" for a factory hopper (#36)
     , zmapCellID(0xffffffff)
 {
     mDirection = glm::quat();
@@ -78,6 +80,8 @@ Object::Object(uint64 id,uint64 parentId,BString model,ObjectType type)
     , mSubZoneId(0)
     , mTypeOptions(0)
     , mDataTransformCounter(0)
+    , mCapacity(0)	// was never set for resource containers: random, so
+                    // some were "too bulky" for a factory hopper (#36)
     , zmapCellID(0xffffffff)
 {
     mObjectController.setObject(this);
@@ -417,6 +421,25 @@ bool Object::hasAttribute(BString key) const
         return(true);
 
     return(false);
+}
+
+//=============================================================================
+
+void Object::removeAttributeIncDB(BString key)
+{
+    const uint32 crc = key.getCrc();
+    AttributeMap::iterator it = mAttributeMap.find(crc);
+    if(it == mAttributeMap.end())
+        return;
+    mAttributeMap.erase(it);
+    mAttributeOrderList.remove(crc);
+
+    uint32 attributeID = gWorldManager->getAttributeId(crc);
+    if(!attributeID)
+        return;
+    Database* db = gWorldManager->getDatabase();
+    db->executeSqlAsync(0, 0, "DELETE FROM %s.item_attributes WHERE item_id=%" PRIu64 " AND attribute_id=%u",
+        db->galaxy(), this->getId(), attributeID);
 }
 
 //=============================================================================

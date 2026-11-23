@@ -42,6 +42,11 @@ public:
     ~CampTerminal();
 
     virtual void			prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
+    // The menu depends on who asks (their bank / the camp's owner): built
+    // afresh for each request rather than kept from the first one.
+    virtual void	ResetRadialMenu() {
+        mRadialMenu.reset();
+    }
     virtual void			handleObjectMenuSelect(uint8 messageType,Object* srcObject);
 
     void					setOwner(uint64 owner) {

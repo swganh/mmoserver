@@ -153,6 +153,8 @@ public:
 	void						addAttributeIncDB(BString key,std::string value);
 	bool						hasAttribute(BString key) const;
 	void						removeAttribute(BString key);
+	// Removes it from the map, the display order and the item's row.
+	void						removeAttributeIncDB(BString key);
 	AttributeOrderList*			getAttributeOrder(){ return &mAttributeOrderList; }
 
 	// internal attributes, only used server side

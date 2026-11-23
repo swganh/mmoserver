@@ -1,0 +1,30 @@
+# An nginx site that publishes the portal over HTTPS. Copy it to
+# /etc/nginx/sites-available/mmoportal, change portal.example.com, get a
+# certificate (for example: sudo certbot --nginx -d portal.example.com),
+# link it into sites-enabled and reload nginx. Then set in portal.cfg:
+#   base_url = https://portal.example.com
+#   secure_cookies = true
+#   behind_proxy = true
+
+server {
+    listen 80;
+    server_name portal.example.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name portal.example.com;
+
+    ssl_certificate     /etc/letsencrypt/live/portal.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/portal.example.com/privkey.pem;
+
+    client_max_body_size 64k;
+
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}

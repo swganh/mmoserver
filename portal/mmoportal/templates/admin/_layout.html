@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block subnav %}
+<nav class="subnav">
+  <a href="{{ url_for('admin.index') }}">Overview</a>
+  {% if has_permission('accounts.view') %}<a href="{{ url_for('admin.accounts_list') }}">Accounts</a>{% endif %}
+  {% if has_permission('accounts.view') %}<a href="{{ url_for('admin.csr') }}">In-game CSR</a>{% endif %}
+  {% if is_admin() %}<a href="{{ url_for('admin.roles') }}">Roles &amp; permissions</a>{% endif %}
+  {% if has_permission('audit.view') %}<a href="{{ url_for('admin.audit') }}">Audit log</a>{% endif %}
+</nav>
+{% endblock %}

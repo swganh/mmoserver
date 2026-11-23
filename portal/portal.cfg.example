@@ -1,0 +1,44 @@
+# MMOServer portal settings. install.sh writes portal.cfg from this file;
+# portal.cfg is not in version control. Another location can be given with
+# the PORTAL_CONFIG environment variable.
+
+[portal]
+# Name shown in the page header and in emails.
+site_name = MMOServer Portal
+# The address players reach the portal at, used in password reset links.
+base_url = http://127.0.0.1:8080
+# Signs session cookies. install.sh generates one; keep it secret.
+secret_key =
+# open: anyone can create a game account here. closed: only staff can.
+registration = closed
+# true when the portal is served over HTTPS (it should be on the internet).
+secure_cookies = false
+# true when nginx or another reverse proxy sits in front of the portal and
+# sets X-Forwarded-For / X-Forwarded-Proto. Leave false otherwise, or
+# clients could choose the address that rate limits are counted against.
+behind_proxy = false
+# Minutes a password reset link stays valid.
+reset_link_minutes = 60
+
+[database]
+host = 127.0.0.1
+port = 3306
+# A Unix socket instead of host and port, e.g. /run/mysqld/mysqld.sock
+socket =
+user = swganh_portal
+password =
+# The game's database (accounts, characters) and the portal's own one
+# (roles, permissions, reset links, audit log).
+game_database = swganh
+portal_database = swganh_portal
+
+[mail]
+# Leave smtp_host empty to send no email: password reset links are then
+# written to the portal's log for an admin to pass on.
+smtp_host =
+smtp_port = 587
+# none, starttls or ssl
+security = starttls
+user =
+password =
+from_address = portal@example.com

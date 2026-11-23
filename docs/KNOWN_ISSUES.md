@@ -1374,6 +1374,8 @@ an empty queue. The same code runs in every server.
 Not retested: overnight runs on the test VM have had mixed results that
 look like the host (#40), so long runs wait for a separate machine
 (ROADMAP, Parked).
+On the VM (Nov 2026), all the servers then ran about 19 hours, idle and
+with a client connecting, without a crash.
 
 ### 43. Camps have no terminal, and their layout and chair look wrong — terminal fixed, needs testing; layout open
 

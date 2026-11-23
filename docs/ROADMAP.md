@@ -68,7 +68,7 @@ and what still needs a client test is in `docs/TEST_PLAN.md`.
 | 3. Refactoring: scripts first, then modernisation | Planned (`docs/SCRIPTING.md`) |
 | 4. Content | Planned |
 | 5. Pre-CU gameplay | Combat in progress: data-driven rules (`data/script/combat/rules.lua`), specials, brawler moves, incapacitation and cloning, wounds, bleeding and battle fatigue, medic and entertainer healing; creature AI (roam, aggro, fight back, leash); lairs spawn (`docs/COMBAT.md`) |
-| Tools: portal, load testing | Planned (below) |
+| Tools: portal, load testing | Portal started: accounts, password resets, staff roles and permissions (`portal/`). The rest of the portal and load testing planned (below) |
 
 ## Next steps
 
@@ -129,8 +129,9 @@ when it unblocks the current step.
 | Per-planet MOTD | Cosmetic | |
 | Sampling into a full container (#26) | Rare, small | |
 | T24 leftovers (waypoint rename, bank tip), T25 clone data | Tests of the security work, low risk | |
-| Management portal, load testing (Tools, below) | After the gameplay steps | |
+| Management portal (beyond accounts), load testing (Tools, below) | After the gameplay steps | `portal/`: accounts, resets, roles and permissions, audit log, Linux installer |
 | A long run on a rented cloud VM (Azure, AWS or similar) | The test VM froze once overnight with memory, swap and CPU flat, put down to the host PC (KNOWN_ISSUES #40); a cloud VM would rule the host out, and is a step towards a public server | |
+| Housing set-up and test steps | Record how to place, sign, name and test each house type once Tatooine is populated; signs are tuned so far for the Tatooine large and small houses and the guild halls (KNOWN_ISSUES #30) | |
 | Deleting test characters in bulk | The test server has about 40 test characters; the character select screen's Delete removes them properly, one at a time. A `tools/` script through the same deletion procedure would do a list | |
 
 ## Database
@@ -260,6 +261,14 @@ system looks like in this codebase.
 
 For admins, QA and community leaders; a web application, reachable only
 from trusted networks or behind a login, never open by default.
+
+Started in `portal/` (`portal/README.md`): players' own accounts (password,
+email, reset by email, optional registration) and, for staff, accounts
+(create, ban, reset password, character limit, in-game CSR flag), roles
+made of permissions, and an audit log; `portal/install.sh` checks a Linux
+server and installs it. Still to do from the list below, and later ideas
+from the community: an in-game item shop, in-game mail, a skill
+calculator.
 
 - **Read and edit data** (works against the database directly): accounts
   (create, ban, reset password, permissions, character limit), characters (find, inspect,

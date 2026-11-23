@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "PlayerObject.h"
+
+#include <algorithm>
 #include "CombatManager.h"
 #include "Badge.h"
 #include "Bank.h"
@@ -912,6 +914,38 @@ void PlayerObject::prepareSchematicIds()
 
         ++skillIt;
     }
+
+    for(uint64 id : mMissionSchematicIds)
+    {
+        if(!checkSchematicId(id))
+        {
+            mSchematicIdList.push_back(id);
+        }
+    }
+}
+
+//=============================================================================
+
+void PlayerObject::addMissionSchematic(uint64 id)
+{
+    mMissionSchematicIds.push_back(id);
+    prepareSchematicIds();
+    gMessageLib->sendSchematicDeltasPLAY_9(this);
+}
+
+//=============================================================================
+
+void PlayerObject::removeMissionSchematic(uint64 id)
+{
+    // One copy per mission: two missions for the same part lend it twice.
+    auto it = std::find(mMissionSchematicIds.begin(), mMissionSchematicIds.end(), id);
+    if(it == mMissionSchematicIds.end())
+    {
+        return;
+    }
+    mMissionSchematicIds.erase(it);
+    prepareSchematicIds();
+    gMessageLib->sendSchematicDeltasPLAY_9(this);
 }
 
 //=============================================================================

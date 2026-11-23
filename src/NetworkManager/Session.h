@@ -126,8 +126,11 @@ public:
    
     bool						getOutgoingUnreliablePacket(Packet*& packet);
 
+    // Under the session's lock: the socket thread adds to the queue while
+    // the main thread reads it.
     uint32                      getIncomingQueueMessageCount()    {
-        return mIncomingMessageQueue.size();
+        boost::recursive_mutex::scoped_lock lk(mSessionMutex);
+        return static_cast<uint32>(mIncomingMessageQueue.size());
     }
     Message*                    getIncomingQueueMessage();
     uint32                      getEncryptKey(void)                             {

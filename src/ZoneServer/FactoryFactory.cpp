@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "FactoryFactory.h"
+#include <set>
+#include "ContainerManager.h"
 
 
 #include "Utils/logger.h"
@@ -178,6 +180,36 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         uint64 count;
         count = result->getRowCount();
+
+        // What the database holds in the hopper. The chat server's factory
+        // run deletes used-up resource containers and components there, so
+        // any the zone still has that aren't listed are gone: remove them,
+        // for the players watching too.
+        {
+            std::set<uint64> listed;
+            for(uint64 i = 0; i < count; i++)
+            {
+                result->getNextRow(binding,&queryContainer);
+                listed.insert(queryContainer.mId);
+            }
+            result->resetRowIndex();
+
+            if(TangibleObject* hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(asyncContainer->mHopper)))
+            {
+                ObjectIDList held = *hopper->getObjects();
+                for(ObjectIDList::iterator it = held.begin(); it != held.end(); ++it)
+                {
+                    if(listed.count(*it))
+                        continue;
+                    Object* gone = gWorldManager->getObjectById(*it);
+                    if(!dynamic_cast<ResourceContainer*>(gone) && !dynamic_cast<Item*>(gone))
+                        continue;
+                    gContainerManager->removeObject(gone, hopper);
+                    gWorldManager->destroyObject(gone);
+                }
+            }
+        }
+
         if(!count)
         {
             asyncContainer->mOfCallback->handleObjectReady(asyncContainer->mObject,asyncContainer->mClient,asyncContainer->mHopper);

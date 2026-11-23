@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "BuffDBItem.h"
 #include "CreatureObject.h"
-//#include "MissionManager.h"
+#include "MissionManager.h"
 #include "PlayerObject.h"
 #include "WorldManager.h"
 #include "SkillEnums.h"
@@ -417,8 +417,11 @@ void Buff::FinalChanges()
         }
     }
 
-    //Complete entertainer mission
-    //gMissionManager->missionCompleteEntertainer(Player,this);
+    // An entertainer mission's 10-minute timer is a buff: when one ends,
+    // see whether it completes a mission (only an entertainer mission in
+    // progress, with the player still performing at its spot, does).
+    if(Player && gMissionManager)
+        gMissionManager->missionCompleteEntertainer(Player,this);
 
 
 }

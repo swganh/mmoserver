@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ResourceContainer.h"
 #include "StructureManager.h"
 #include "UIManager.h"
+#include "WorldManager.h"
 
 #include "MessageLib/MessageLib.h"
 
@@ -41,6 +42,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DataBinding.h"
 
 #include <cassert>
+#include <sstream>
+#include <string>
+
+#include <cppconn/resultset.h>
 
 //============================================================================
 FactoryObject::FactoryObject() : PlayerStructure()
@@ -107,6 +112,60 @@ void FactoryObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
     switch(messageType)
     {
+    case radId_ListIngredients:
+    {
+        // What the installed manufacturing schematic takes per item (#36).
+        if(!getManSchemID())
+        {
+            gMessageLib->SendSystemMessage(L"No schematic is installed in this station.", player);
+            break;
+        }
+        Database* db = gWorldManager->getDatabase();
+        const uint64 playerId = player->getId();
+        std::stringstream sql;
+        sql << "SELECT mi.kind, mi.amount, COALESCE(r.name, ''), mi.name_file, mi.name FROM "
+            << db->galaxy() << ".manufactureschematic_ingredients mi LEFT JOIN " << db->galaxy()
+            << ".resources r ON (r.id = mi.resource_id) WHERE mi.schematic_id = " << getManSchemID()
+            << " ORDER BY mi.slot";
+        db->executeAsyncSql(sql, [playerId] (DatabaseResult* result) {
+            PlayerObject* owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
+            if(!owner || !owner->isConnected())
+                return;
+            BStringVector lines;
+            if(result && result->getResultSet())
+            {
+                std::unique_ptr<sql::ResultSet>& rows = result->getResultSet();
+                while(rows->next())
+                {
+                    const uint32 kind = rows->getUInt(1);
+                    const uint32 amount = rows->getUInt(2);
+                    if(kind == 4)
+                    {
+                        std::string line = std::to_string(amount) + " units of " + std::string(rows->getString(3));
+                        lines.push_back(line.c_str());
+                    }
+                    else
+                    {
+                        // The component's name is a string reference, which
+                        // the client only resolves as a whole line.
+                        std::string name = std::string("@") + std::string(rows->getString(4)) + ":" + std::string(rows->getString(5));
+                        lines.push_back(name.c_str());
+                        std::string count = "    " + std::to_string(amount) + " needed";
+                        lines.push_back(count.c_str());
+                    }
+                }
+            }
+            if(lines.empty())
+            {
+                gMessageLib->SendSystemMessage(L"This schematic was made before ingredients were recorded: it takes nothing from the input hopper.", owner);
+                return;
+            }
+            gUIManager->createNewListBox(NULL, "handleListIngredients", "Ingredients",
+                "Needed in the input hopper for each item made:", lines, owner);
+        });
+    }
+    break;
+
     case radId_StopManufacture:
     {
         StructureAsyncCommand command;
@@ -260,6 +319,27 @@ void FactoryObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint
     if(!player)
     {
         return;
+    }
+
+    // The chat server stops a factory in the database (out of ingredients,
+    // output full) without telling the zone: read the running state back so
+    // the next menu offers Start or Stop as it should. This menu is built
+    // before the answer comes, so it may still be one step behind.
+    {
+        const uint64 factoryId = getId();
+        std::stringstream sql;
+        sql << "SELECT active FROM " << gWorldManager->getDatabase()->galaxy() << ".factories WHERE ID = " << factoryId;
+        gWorldManager->getDatabase()->executeAsyncSql(sql, [factoryId] (DatabaseResult* result) {
+            if(!result || !result->getResultSet() || !result->getResultSet()->next())
+                return;
+            FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(factoryId));
+            const bool active = result->getResultSet()->getInt(1) != 0;
+            if(factory && factory->getActive() != active)
+            {
+                factory->setActive(active);
+                gMessageLib->SendUpdateFactoryWorkAnimation(factory);
+            }
+        });
     }
 
     RadialMenu* radial	= new RadialMenu();

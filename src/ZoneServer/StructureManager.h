@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_STRUCTUREMANAGER_H
 #define ANH_ZONESERVER_STRUCTUREMANAGER_H
 
+#include <map>
+#include <string>
 #include <vector>
 #include <list>
 
@@ -50,6 +52,7 @@ class UIWindow;
 class StructureManagerCommandMapClass;
 class StructureHeightmapAsyncContainer;
 class NoBuildRegion;
+class HouseObject;
 class ObjectController;
 
 namespace Anh_Utils
@@ -291,6 +294,7 @@ public:
         HeightmapStructureHandler(ref);
     }
     void					HeightmapStructureHandler(HeightmapAsyncContainer* ref);
+    void					_regainPlacementLots(StructureHeightmapAsyncContainer* container);
 
     void					handleObjectReady(Object* object,DispatchClient* client);
 
@@ -393,7 +397,24 @@ public:
      */
     bool HandlePlaceStructure(Object* object, Object* target,Message* message, ObjectControllerCmdProperties* cmdProperties);
 
+    // House signs (KNOWN_ISSUES #30): the sign's model and place for each
+    // house type, from house_sign_placement (migration 022). A sign is made
+    // when a house enters the world and removed with it.
+    void					loadHouseSigns();
+    void					spawnHouseSign(HouseObject* house);
+    void					removeHouseSign(HouseObject* house);
+    // Re-reads the house type's placement, then puts the sign up again.
+    void					reloadHouseSign(HouseObject* house);
+
 private:
+    struct HouseSignPlacement
+    {
+        std::string	signTemplate;
+        glm::vec3	offset;
+        float		heading;	// degrees, about the vertical, from the house's facing
+    };
+    std::map<std::string, HouseSignPlacement>	mHouseSigns;	// by the house's template
+
 
     //callback functions
     void				_HandleQueryHopperPermissionData(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);

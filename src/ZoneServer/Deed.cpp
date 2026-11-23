@@ -120,8 +120,12 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
                     return;
                 }
 
-                //check available Lots and remove ... grml
-                if(!player->useLots(data->requiredLots))
+                // Only check the lots here: they are taken when the structure
+                // is placed (StructureManager::HandlePlaceStructure). Taken
+                // here, they were lost whenever placement didn't finish (the
+                // client doesn't say when the player presses Escape) or was
+                // refused.
+                if(player->getLots() < data->requiredLots)
                 {
                     gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "not_enough_lots", 0, 0, 0, data->requiredLots, 0.0f), player);
                     return;

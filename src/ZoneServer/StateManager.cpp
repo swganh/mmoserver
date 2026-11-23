@@ -160,8 +160,10 @@ void StateManager::setCurrentPostureState(CreatureObject* object, CreaturePostur
         }
         else
         {
-            DLOG(WARNING) << "unable to transition from " << object->states.getPosture() << " to" << newPosture;
-            gMessageLib->SendSystemMessage(L"You cannot transition from this Posture state");
+            // Logged and told to the player (it went to no one, so a
+            // refused change, such as mounting, failed silently).
+            LOG(WARNING) << "Posture state of " << object->getId() << ": unable to transition from " << object->states.getPosture() << " to " << newPosture;
+            gMessageLib->SendSystemMessage(L"You cannot transition from this Posture state", dynamic_cast<PlayerObject*>(object));
         }
         gEventDispatcher.Notify(posture_update_event);
     } 
@@ -188,8 +190,10 @@ void StateManager::setCurrentActionState(CreatureObject* object, CreatureState n
         }
         else
         {
-            DLOG(WARNING) << "unable to transition from " << object->states.getAction() << " to" << static_cast<uint64_t>(newState);
-            gMessageLib->SendSystemMessage(L"You cannot transition from this Action state");
+            // Logged and told to the player (it went to no one, so a
+            // refused change, such as mounting, failed silently).
+            LOG(WARNING) << "Action state of " << object->getId() << ": unable to transition from " << object->states.getAction() << " to " << static_cast<uint64_t>(newState);
+            gMessageLib->SendSystemMessage(L"You cannot transition from this Action state", dynamic_cast<PlayerObject*>(object));
         }
         gEventDispatcher.Notify(action_update_event);
     }
@@ -217,8 +221,10 @@ void StateManager::setCurrentLocomotionState(CreatureObject* object, CreatureLoc
         }
         else
         {
-            DLOG(WARNING) << "unable to transition from " << object->states.getLocomotion() << " to" << static_cast<uint64_t>(newLocomotion);
-            gMessageLib->SendSystemMessage(L"You cannot transition from this Locomotion state");
+            // Logged and told to the player (it went to no one, so a
+            // refused change, such as mounting, failed silently).
+            LOG(WARNING) << "Locomotion state of " << object->getId() << ": unable to transition from " << object->states.getLocomotion() << " to " << static_cast<uint64_t>(newLocomotion);
+            gMessageLib->SendSystemMessage(L"You cannot transition from this Locomotion state", dynamic_cast<PlayerObject*>(object));
         }
         gEventDispatcher.Notify(locomotion_update_event);
     }
@@ -234,8 +240,8 @@ void StateManager::removeActionState(CreatureObject* obj, CreatureState stateToR
         }
         else
         {
-            DLOG(WARNING) << "unable to remove action state " << static_cast<uint64_t>(stateToRemove);
-            gMessageLib->SendSystemMessage(L"You cannot remove this Action state");
+            LOG(WARNING) << "Action state of " << obj->getId() << ": unable to remove " << static_cast<uint64_t>(stateToRemove) << " from " << obj->states.getAction();
+            gMessageLib->SendSystemMessage(L"You cannot remove this Action state", dynamic_cast<PlayerObject*>(obj));
         }
         gEventDispatcher.Notify(action_update_event);
 }

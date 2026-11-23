@@ -28,8 +28,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "TreasuryManager.h"
 #include "Bank.h"
 #include "BankTerminal.h"
+#include "ContainerManager.h"
 #include "Inventory.h"
 #include "PlayerObject.h"
+#include "TangibleFactory.h"
 #include "UIManager.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
@@ -37,6 +39,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
+
+#include <sstream>
+
+#include <cppconn/resultset.h>
 
 
 //======================================================================================================================
@@ -262,8 +268,145 @@ void TreasuryManager::bankTransfer(int32 inventoryMoneyDelta, int32 bankMoneyDel
 
 //======================================================================================================================
 
+// The bank's safe deposit box (KNOWN_ISSUES #27). The bank is a container
+// the client already has (it is created with the other equipped objects at
+// login, and its owner is registered to it), so opening it is: load what is
+// in it the first time, then tell the client it is open. Items moved in or
+// out go through the ordinary transfer, which saves the new parent.
 void TreasuryManager::bankOpenSafetyDepositContainer(PlayerObject* playerObject)
 {
+    Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
+    if(!bank)
+    {
+        return;
+    }
+
+    // The box is kept at the bank you are a member of.
+    if(static_cast<uint32>(bank->planet()) != gWorldManager->getZoneId())
+    {
+        gMessageLib->SendSystemMessage(L"You are not a member of this bank.", playerObject);
+        return;
+    }
+
+    if(bank->getLoadState() == LoadState_Loaded)
+    {
+        _openLoadedSafetyDeposit(bank);
+        return;
+    }
+
+    // Already loading: it opens when the last item arrives.
+    if(mSafetyDepositLoads.find(bank->getId()) != mSafetyDepositLoads.end())
+    {
+        return;
+    }
+    mSafetyDepositLoads[bank->getId()] = 0;
+
+    const uint64 bankId = bank->getId();
+    std::stringstream sql;
+    sql << "(SELECT 'containers', containers.id FROM " << mDatabase->galaxy() << ".containers INNER JOIN " << mDatabase->galaxy()
+        << ".container_types ON (containers.container_type = container_types.id) WHERE container_types.name NOT LIKE 'unknown' AND containers.parent_id = " << bankId << ")"
+        << " UNION (SELECT 'items', id FROM " << mDatabase->galaxy() << ".items WHERE parent_id = " << bankId << ")"
+        << " UNION (SELECT 'resource_containers', id FROM " << mDatabase->galaxy() << ".resource_containers WHERE parent_id = " << bankId << ")";
+
+    mDatabase->executeAsyncSql(sql, [this, bankId] (DatabaseResult* result) {
+        std::vector<std::pair<uint16, uint64>> contents;
+        if(result && result->getResultSet())
+        {
+            std::unique_ptr<sql::ResultSet>& rows = result->getResultSet();
+            while(rows->next())
+            {
+                const std::string table = rows->getString(1);
+                const uint16 group = (table == "items") ? TanGroup_Item
+                                   : (table == "containers") ? TanGroup_Container : TanGroup_ResourceContainer;
+                contents.push_back(std::make_pair(group, rows->getUInt64(2)));
+            }
+        }
+
+        Bank* bank = dynamic_cast<Bank*>(gWorldManager->getObjectById(bankId));
+        if(!bank)
+        {
+            // The owner has gone.
+            mSafetyDepositLoads.erase(bankId);
+            return;
+        }
+
+        if(contents.empty())
+        {
+            mSafetyDepositLoads.erase(bankId);
+            bank->setLoadState(LoadState_Loaded);
+            _openLoadedSafetyDeposit(bank);
+            return;
+        }
+
+        PlayerObject* owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(bank->getParentId()));
+        DispatchClient* client = owner ? owner->getClient() : NULL;
+
+        mSafetyDepositLoads[bankId] = static_cast<uint32>(contents.size());
+        for(auto& entry : contents)
+        {
+            gTangibleFactory->requestObject(this, entry.second, entry.first, 0, client);
+        }
+    });
+}
+
+//======================================================================================================================
+
+void TreasuryManager::handleObjectReady(Object* object,DispatchClient* client)
+{
+    const uint64 bankId = object->getParentId();
+    auto load = mSafetyDepositLoads.find(bankId);
+    if(load == mSafetyDepositLoads.end())
+    {
+        LOG(WARNING) << "TreasuryManager: item " << object->getId() << " loaded for no safe deposit box (" << bankId << ")";
+        delete object;
+        return;
+    }
+
+    Bank* bank = dynamic_cast<Bank*>(gWorldManager->getObjectById(bankId));
+    if(!bank)
+    {
+        // The owner logged out while the box loaded.
+        delete object;
+        if(--load->second == 0)
+        {
+            mSafetyDepositLoads.erase(load);
+        }
+        return;
+    }
+
+    if(!gWorldManager->existObject(object))
+    {
+        bank->addObject(object);
+        gWorldManager->addObject(object, true);
+        // The owner is registered to the bank: this creates the item for them.
+        gContainerManager->createObjectToRegisteredPlayers(bank, object);
+    }
+    else
+    {
+        delete object;
+    }
+
+    if(--load->second == 0)
+    {
+        mSafetyDepositLoads.erase(load);
+        bank->setLoadState(LoadState_Loaded);
+        _openLoadedSafetyDeposit(bank);
+    }
+}
+
+//======================================================================================================================
+
+void TreasuryManager::_openLoadedSafetyDeposit(Bank* bank)
+{
+    PlayerObject* owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(bank->getParentId()));
+    if(!owner || !owner->isConnected())
+    {
+        return;
+    }
+
+    // Normally done at login; a no-op when it is.
+    gContainerManager->registerPlayerToContainer(bank, owner);
+    gMessageLib->sendOpenedContainer(bank->getId(), owner);
 }
 
 //======================================================================================================================
@@ -279,16 +422,48 @@ void TreasuryManager::bankQuit(PlayerObject* playerObject)
             return;
         }
 
-        // check if the bank item box is empty
+        // The safe deposit box must be empty (KNOWN_ISSUES #27): its items
+        // are kept at this bank.
+        const uint64 bankId = bank->getId();
+        std::stringstream sql;
+        sql << "SELECT (SELECT COUNT(*) FROM " << mDatabase->galaxy() << ".items WHERE parent_id = " << bankId << ")"
+            << " + (SELECT COUNT(*) FROM " << mDatabase->galaxy() << ".resource_containers WHERE parent_id = " << bankId << ")"
+            << " + (SELECT COUNT(*) FROM " << mDatabase->galaxy() << ".containers WHERE parent_id = " << bankId << ")";
 
-        // update the playerObject
-        bank->planet(-1);
+        mDatabase->executeAsyncSql(sql, [this, bankId] (DatabaseResult* result) {
+            Bank* bank = dynamic_cast<Bank*>(gWorldManager->getObjectById(bankId));
+            if(!bank)
+            {
+                return;
+            }
+            PlayerObject* owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(bank->getParentId()));
+            if(!owner || !owner->isConnected())
+            {
+                return;
+            }
 
-        // save to db
-        mDatabase->executeSqlAsync(NULL,NULL,"UPDATE %s.banks SET planet_id = -1 WHERE id=%" PRIu64 "",mDatabase->galaxy(),bank->getId());
+            uint64 stored = 0;
+            if(result && result->getResultSet() && result->getResultSet()->next())
+            {
+                stored = result->getResultSet()->getUInt64(1);
+            }
+            // Items moved in this session are counted too, should their
+            // save not have reached the database yet.
+            if(stored > 0 || (bank->getLoadState() == LoadState_Loaded && !bank->getObjects()->empty()))
+            {
+                gMessageLib->SendSystemMessage(L"You must empty your safe deposit box before you can quit this bank.", owner);
+                return;
+            }
 
-        //This message has a period added to the end as it was missing from client.
-        gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "succesfully_quit_bank"), playerObject);
+            // update the playerObject
+            bank->planet(-1);
+
+            // save to db
+            mDatabase->executeSqlAsync(NULL,NULL,"UPDATE %s.banks SET planet_id = -1 WHERE id=%" PRIu64 "",mDatabase->galaxy(),bank->getId());
+
+            //This message has a period added to the end as it was missing from client.
+            gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "succesfully_quit_bank"), owner);
+        });
     }
 }
 

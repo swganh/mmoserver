@@ -33,9 +33,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "RadialMenu.h"
 #include "UIManager.h"
 #include "UICallback.h"
+#include "ObjectFactoryCallback.h"
 #include "Utils/typedefs.h"
 #include "DatabaseManager/DatabaseCallback.h"
 
+#include <map>
 #include <memory>
 
 //======================================================================================================================
@@ -45,6 +47,8 @@ class Database;
 class DatabaseCallback;
 class DatabaseResult;
 class DispatchClient;
+class Bank;
+class Object;
 class PlayerObject;
 
 //======================================================================================================================
@@ -123,7 +127,7 @@ public:
 
 //======================================================================================================================
 
-class TreasuryManager : public DatabaseCallback, UICallback
+class TreasuryManager : public DatabaseCallback, UICallback, public ObjectFactoryCallback
 {
 public:
 
@@ -137,6 +141,9 @@ public:
 
     virtual void				    handleDatabaseJobComplete(void* ref,DatabaseResult* result);
     virtual void					handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window);
+
+    // An item of a safe deposit box has loaded (bankOpenSafetyDepositContainer).
+    virtual void					handleObjectReady(Object* object,DispatchClient* client);
 
     void						    bankDepositAll(PlayerObject* playerObject);
     void						    bankWithdrawAll(PlayerObject* playerObject);
@@ -156,6 +163,12 @@ public:
     void						    bankTipOnline(int32 amount, PlayerObject* playerObject, PlayerObject* targetObject );
 
 private:
+
+    // Shows the box's contents to its owner; they are loaded.
+    void							_openLoadedSafetyDeposit(Bank* bank);
+
+    // Safe deposit boxes whose items are loading: bank id -> items still to come.
+    std::map<uint64, uint32>		mSafetyDepositLoads;
 
     static bool					mInsFlag;
     static TreasuryManager*		mSingleton;

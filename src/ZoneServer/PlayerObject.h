@@ -364,6 +364,12 @@ class PlayerObject : public CreatureObject
 
         SchematicsIdList*	getSchematicsAddList(){ return &mSchematicAddList; }
 
+        // Schematics a mission lends (crafting missions, KNOWN_ISSUES #28):
+        // kept in the list prepareSchematicIds builds from skills. Both send
+        // the player's new schematic list.
+        void				addMissionSchematic(uint64 id);
+        void				removeMissionSchematic(uint64 id);
+
         // groups
         PlayerList			getInRangeGroupMembers(bool self = false);
         uint64				getLastGroupMissionUpdateTime(){return mLastGroupMissionUpdateTime;}
@@ -469,6 +475,7 @@ class PlayerObject : public CreatureObject
         ColorList			mIDColorList;
         SchematicsIdList	mSchematicAddList;
         SchematicsIdList	mSchematicIdList;
+        SchematicsIdList	mMissionSchematicIds;
         UIWindowList		mUIWindowList;
         XPCapList			mXpCapList;
         XPList				mXpList;

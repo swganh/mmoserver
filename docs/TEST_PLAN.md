@@ -41,6 +41,7 @@ server crashes, gdb stops it and the backtrace is at the end of its log.
 | T24 | Security | Player text built into SQL [3c] | Log in (client and launcher); create a character with a biography; send a mail with an attachment (a waypoint) to yourself; add and remove a friend; rename a waypoint; make and join a chat channel; list an item on the bazaar with a description containing `'` and `%`; tip someone at the bank; set your biography | Everything works as before; the bazaar description shows exactly as typed; no `Prepared statement failed` in the logs (if there is one, send it to me) |
 | T25 | Cloning | Storing clone data was invalid SQL [3d] | At a cloning terminal, store your clone data | "Clone data saved"; the zone keeps running; `tatooine.out` has no SQL error |
 | T41 | Bazaar | Retrieve and cancel worked on anyone's listing | Normal use still works (sending another player's listing id needs a modified client): retrieve and cancel your own listings; with the second character bid on an auction, then cancel it as its seller | Your own listings retrieve and cancel as before; the bidder gets one cancellation mail; `chat.out` has no `refused` lines |
+| T43 | Missions | Switched off by the original team [28] | On Tatooine at a Bestine mission terminal: Refresh and open some details. Accept a destroy mission and go to its waypoint; within about 128 m the waypoint should jump to the lair. Destroy the lair. Accept and abort a second one. Then a deliver mission (talk to both NPCs), and see what the artisan, entertainer and scout terminals list. Run under `debug -g` | Destroy: a womp rat or rill lair with creatures at the exact waypoint; destroying it gives "mission complete" and the credits; `tatooine.out`: `Destroy mission ... lair ... requested` and `... completed by`. Aborting leaves no crash. Which other kinds work; a crash gives a backtrace |
 | T18 | Creatures | No killers | Get incapacitated by a killer (none spawn on Tatooine yet; for now check that a womp rat leaves you incapacitated) | A womp rat does not deathblow; `deathblows` appears only for creatures marked Killer |
 
 ## Step 2: built but never played
@@ -49,6 +50,13 @@ Roadmap step 2 (`docs/PRECU_AUDIT.md`, the "Code" rows): systems whose
 code is there but that no one has played on this server. The point is to
 find out what works, so for each test note what happened, even when it
 fails part way; a failure here is an issue to file, not a bug in a fix.
+
+The character builder terminal (the frog) has a **Currently testing** menu
+at the top with what this pass needs: each crafting tool with its station
+(experimenting needs both, within 25 m; the generic tool has no station),
+guild hall deeds and camp kits. Its menus have a Back button, picking an
+item keeps the menu open, and Manage Resources lists only resources
+spawned now, by group (Mineral, Chemical, Flora...).
 Items, professions, resources and credits come from the character builder
 terminal (Manage Professions, Manage Items, Manage Resources, Manage
 Credits). Run with `./server.sh debug -g`, so a crash leaves a backtrace.
@@ -69,16 +77,29 @@ Credits). Run with `./server.sh debug -g`, so a crash leaves a backtrace.
 | T38 | Image design | Image Designer from the terminal; with the second character as the target, open the design window, change a hair style and a colour, both accept | The window opens on both clients; the change applies and stays after relogging |
 | T39 | Camps | Novice Scout; get a Basic Camp (Camps menu), place it in the wild, sit in it and wait with some wounds | The camp appears with its terminal; wounds and battle fatigue heal faster inside; it goes away after its time |
 | T40 | Bank and trading | Deposit and withdraw at a bank terminal; then trade an item and some credits with the second character through the trade window | Credits move as shown; the item changes owner and stays after relogging |
+| T35a | Crafting mission [28] | Run `./setup.sh migrate`, restart; as an artisan with a generic crafting tool, take a crafting mission from an artisan terminal; open the crafting tool; go to the first waypoint and talk to the NPC; craft the part from the three components; take it to the second waypoint and talk to the NPC. Take a second one and abort it | On accepting, a message that you have the schematic, and it is in the tool's list; the NPC gives three components; the part crafts (no experimentation); the second NPC takes it and the mission pays. After the abort the schematic is gone from the list. Talking to the second NPC without the part: "You do not have the finished part" |
+| T31a | House sign [30] | Run `./setup.sh migrate`, restart; walk to a house you own; place a new house and wait for construction; rename one (structure terminal) | Each house has a sign near its door with the house's name; the new house gets one when it finishes; renaming changes the sign. Send a screenshot of each house type so the sign's place can be corrected |
+| T39a | Camp terminal [43] | Run `./setup.sh migrate`, restart; place a basic camp and one other camp; use the control panel: **Status**, then **Disband** as the owner; have the second character check that they get Status but not Disband | Every camp has a control panel next to the fire; Status lists owner, up-time and visitors; Disband removes the whole camp and you can place another. Send a screenshot of where the panel stands |
+| T40a | Bank items [27] | At a bank terminal of the planet you joined: radial **Bank Items**; drag an item and a resource stack from the inventory into the box; close it, relog, open it again; drag one back out; try **Quit** with something still in the box; walk away from the terminal and try to drag an item in | The box opens; the items stay in it after relogging and come back out; quitting is refused while it holds something; away from a terminal you're told to be at one. On another planet's bank: "You are not a member of this bank." |
 
 ## Confirmed
 
 | Area | What was wrong | Confirmed by |
 |---|---|---|
+| Step 2 | Destroy missions (T43) | Accepted and aborted one; another's waypoint moved to the rill nest as the player came close, destroying it completed the mission and paid 3,546 credits; after the lair fixes, its creatures defended it and the combat music stopped when they died (Nov 2026) |
+| Step 2 | Deliver missions (T43) | Listed at the Bestine terminal after the fixes in [28]; picked up from one NPC and delivered to the other, mission completed (Nov 2026). Refinement for later: the NPCs are any townsfolk, so the people don't match the mission's text (a birthday cake from an Imperial officer delivered to a Jabba thug) |
+| Step 2 | House rename (T42) | Renamed from the terminal's Name Structure (Nov 2026). No sign outside [30] |
+| Step 2 | Harvesters (T29) | A mineral and a moisture harvester placed and extracting: 0.65 units after about 20 minutes at rate 1.87 (Nov 2026). Too slow to show in the hopper [31] |
 | Step 2 | Trading between players (T40) | Items and credits traded between two characters (Nov 2026) |
 | Step 2 | Bank credits, tipping (T40) | Joined a bank, deposited and withdrew credits; tipping works. Items can't be banked [27] (Nov 2026) |
 | Step 2 | Vehicles (T37) | A speeder from the character builder: called, mounted, driven, dismounted, stored. Calling one in a city takes a moment longer (Nov 2026) |
 | Step 2 | Groups (T36) | Formed and disbanded a group, teaching works. No Make Leader on the radial; `/makeleader` works (Nov 2026) |
-| Step 2 | Crafting (T27, T28) | Crafted items; experimentation offered at a crafting station (Nov 2026). Experimenting itself still to try |
+| Step 2 | Factory (T30) | After #36's fix: the schematic inserted and named in the message, the factory started, and a crate of 4 small glasses in the output hopper a few minutes later (Nov 2026). After the factory work: ingredients listed, taken from the input hopper (100 Osheig per large glass) and the factory stopped and mailed its owner when they ran out [36]; maintenance and power charged 50 an hour each [39]. After the earlier crash the client showed no draft schematics until it was closed completely |
+| Step 2 | Image design (T38) | After #38's fixes: a new hairstyle for a 50-credit fee; the offer showed on both sides, designer committed, customer accepted, hair changed, Image Designer experience given (Nov 2026). Opening a second session at once shows the customer bald to the designer; no prompt to the customer; committing needs a tent (client rule); the commit timer reads Ready at once [38] |
+| Step 2 | Other missions (T43) | Recon completed at its waypoint; an entertainer mission completed after 10 minutes of music at its spot, after the fixes in [28]; crafting missions work like deliver missions (no schematic or crafting, to build); a survey mission completed after the fixes in [28] (Nov 2026) |
+| Step 2 | Guild hall (T32) | A Tatooine guild hall placed, with no guild terminal; a generic guild hall placed after [48], with a Guild Management Terminal (guilds aren't built yet) (Nov 2026) |
+| Step 2 | Camps (T39) | A basic camp placed (tent, torches, campfire, chair); no camp terminal (data missing), layout and sitting look off [43] (Nov 2026) |
+| Step 2 | Crafting (T27, T28) | Crafted items; experimentation offered at a crafting station (Nov 2026). Experimenting works with Engineering I and the station (two CDEF carbines), but the crafted values don't become the item's stats [41] |
 | Tools | New: the Jump to Lightspeed inventory (T26) | Run on the Windows PC against the test client's folder: 50 Publish 14 archives read, the later ones left out, 125,572 files; summary in `docs/JTL.md` (Nov 2026) |
 | Bazaar | Listings showed "Unknown Object Type"; listing deleted the item; a purchase crashed the zone [2i, 2j, 2k] | On the VM: a melon and a house deed listed with their types (food, building deed) and kept in `items`; the melon bought by the other character reached their inventory; an instant sale and an auction with `'` and `"` in their descriptions listed, their details shown, bid on, retrieved and cancelled (Nov 2026) |
 | Chat | Rooms without names; planet channels outside the galaxy [2g] | On the VM: planets inside SWGANH - Test Center, a new room under dathomir/Chat keeps its name (Nov 2026) |

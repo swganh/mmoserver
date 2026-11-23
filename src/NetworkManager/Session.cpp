@@ -990,11 +990,13 @@ Message* Session::getIncomingQueueMessage()
 {
     Message* message = 0;
 
-
-    if (!mIncomingMessageQueue.size())
-        return message;
-
+    // Check and take under the lock: the size read without it, while the
+    // socket thread was adding, could be wrong, and the ConnectionServer
+    // then took a message that wasn't there (#42).
     boost::recursive_mutex::scoped_lock lk(mSessionMutex);
+
+    if (mIncomingMessageQueue.empty())
+        return message;
 
     message = mIncomingMessageQueue.front();
     mIncomingMessageQueue.pop();
@@ -1655,12 +1657,12 @@ void Session::_resendData()
         }
         else
         {
-            //gLogger->log(LogManager::WARNING, "_resendData WaitTime : %I64u; Packets send %u", waitTime, packetsSend);
+            //gLogger->log(LogManager::WARNING, "_resendData WaitTime : %" PRIu64 "; Packets send %u", waitTime, packetsSend);
             return;
         }
     }
 
-    //gLogger->log(LogManager::WARNING, "_resendData WaitTime : %I64u; Packets send %u", waitTime, packetsSend);
+    //gLogger->log(LogManager::WARNING, "_resendData WaitTime : %" PRIu64 "; Packets send %u", waitTime, packetsSend);
 }
 
 

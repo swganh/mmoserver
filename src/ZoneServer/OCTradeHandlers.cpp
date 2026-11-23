@@ -200,6 +200,23 @@ void ObjectController::_handleTip(uint64 targetId,Message* message,ObjectControl
         return;
     }
 
+    // "bank" may come anywhere: pre-CU wrote /tip <name> <amount> bank, and
+    // /tip bank <name> <amount> was refused with "You may only /tip or /tip
+    // bank to other players". Move it to the end, where the code below
+    // looks for it.
+    for(uint32 i = 0; i + 1 < elementCount; ++i)
+    {
+        BString word = dataElements[i];
+        word.toLower();
+        if(word.getCrc() == BString("bank").getCrc())
+        {
+            BString bankWord = dataElements[i];
+            dataElements.erase(dataElements.begin() + i);
+            dataElements.push_back(bankWord);
+            break;
+        }
+    }
+
     BString lower = dataElements[elementCount-1];
 
     // Have to convert BEFORE using toLower, since the conversion done there is removed It will assert().

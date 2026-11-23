@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_ZONESERVER_TANGIBLE_CHARACTERBUILDERTERMINAL_H
 
 #include "Terminal.h"
+#include <map>
+#include <string>
 #include <vector>
 
 class PlayerObject;
@@ -53,6 +55,35 @@ public:
     void		handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window);
 
 private:
+
+    // A menu as it was opened, so Back can reopen the one before it.
+    struct OpenMenu
+    {
+        std::string		event;
+        std::string		caption;
+        std::string		prompt;
+        BStringVector	items;
+        std::vector<uint64> resourceIds;	// resource lists only
+        bool			resourceList;
+        uint8			windowType;
+    };
+
+    // Open a frog list with OK and Back, remembering it on the player's
+    // trail of menus.
+    void _openList(PlayerObject* player, const char* event, const char* caption, const char* prompt, const BStringVector& items, uint8 windowType);
+    void _openResourceList(PlayerObject* player, const char* caption, const BStringVector& items, const std::vector<uint64>& ids, uint8 windowType);
+    void _showMenu(PlayerObject* player, const OpenMenu& menu);
+    void _sendMainMenu(PlayerObject* player);
+    // Back (or Cancel) on a frog window: reopen the menu before it.
+    void _goBack(PlayerObject* player, uint8 windowType);
+    // Reopen the current menu, after giving an item.
+    void _reopenCurrent(PlayerObject* player);
+    void _dispatchUIEvent(PlayerObject* player, uint32 action, int32 element, BString inputStr, UIWindow* window);
+    void _handleTestKitMenu(PlayerObject* player, uint32 action, int32 element, BString inputStr, UIWindow* window);
+
+    std::map<uint64, std::vector<OpenMenu> > mMenuTrail;
+    BStringVector		mTestKitMenu;
+    std::vector<uint32>	mTestKitItems;
 
     void GiveItem(PlayerObject* player, uint32 id);
     void InitMenus();

@@ -167,6 +167,7 @@ DatabaseResult* DatabaseImplementationMySql::executePrepared(const std::string& 
 
         // A PreparedStatement is a Statement: the result owns and frees it.
         result = new(ResultPool::ordered_malloc()) DatabaseResult(*this, statement.release(), result_set, procedure);
+        result->setPrepared();
     } catch(const sql::SQLException& e) {
         // The values come from players: a value the database refuses (too
         // long for its column, say) fails this query, not the server.

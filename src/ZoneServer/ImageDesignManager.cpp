@@ -562,8 +562,6 @@ void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
 			customer->getEquipManager()->removeEquippedObject(CreatureEquipSlot_Hair);
 			
 			gContainerManager->updateEquipListToRegisteredPlayers(customer);
-		
-			gContainerManager->destroyObjectToRegisteredPlayers(customer,playerHair->getId(), true);
 
 
 			//Update the db only if we remain bald
@@ -574,6 +572,17 @@ void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
 				mDatabase->executeSqlAsync(NULL,NULL,sql);
 			}
 		}
+		// Unregister the old hair from everyone watching the customer (which
+		// also destroys it on their clients) before deleting it.
+		// destroyObjectToRegisteredPlayers looked the hair up in the world's
+		// object map, where hair isn't, so nobody was unregistered: the
+		// players kept a dangling pointer, and the new hair, often given the
+		// same address, failed the "already known" assert in
+		// registerPlayerToContainer.
+		gContainerManager->sendToRegisteredWatchers(customer, [playerHair] (PlayerObject* const watcher) {
+			gContainerManager->unRegisterPlayerFromContainer(playerHair, watcher);
+		});
+
 		//destroy serverside
 		delete(playerHair);
 		customer->setHair(NULL);

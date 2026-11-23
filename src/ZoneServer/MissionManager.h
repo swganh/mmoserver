@@ -31,9 +31,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define gMissionManager MissionManager::getSingletonPtr()
 
 #include <map>
+#include <string>
 #include "Utils/bstring.h"
 #include "Utils/typedefs.h"
 #include "DatabaseManager/DatabaseCallback.h"
+#include "ObjectFactoryCallback.h"
+#include <glm/glm.hpp>
 
 //======================================================================================================================
 
@@ -185,7 +188,7 @@ public:
 ///
 /// This class processes Player mission actions.
 
-class MissionManager : public DatabaseCallback
+class MissionManager : public DatabaseCallback, public ObjectFactoryCallback
 {
 public:     // methods
     MissionManager(Database* database, uint32 zone);
@@ -226,6 +229,9 @@ public:     // methods
     void	missionRequest(PlayerObject* player, uint64 mission_id);
     void    missionComplete(PlayerObject* player, MissionObject* mission);
     void	missionCompleteEntertainer(PlayerObject* player,Buff* timer);
+    // The player stopped performing: cancel an entertainer mission's timer
+    // that still has time to run.
+    void	entertainerStopped(PlayerObject* player);
     void	missionAbort(PlayerObject* player, uint64 mission_id);
     void	missionFailed(PlayerObject* player, MissionObject* mission);
     void	missionFailedEntertainer(PlayerObject* player);
@@ -237,6 +243,15 @@ public:     // methods
     void    checkSurveyMission(PlayerObject* player,CurrentResource* resource,ResourceLocation highestDist);
     bool	checkCraftingMission(PlayerObject* player,NPCObject* npc);
     bool	checkReconMission(MissionObject* mission);
+
+    // Destroy missions: every 10 s until the owner is near the target, then
+    // spawn its lair and send the exact location. Returns false when done.
+    bool	checkDestroyMission(MissionObject* mission);
+    // A mission's lair was destroyed: complete the mission if its owner
+    // still has it.
+    void	missionLairDestroyed(uint64 missionId, uint64 ownerId);
+    // A mission's lair has been created by the npc factory.
+    virtual void handleObjectReady(Object* object);
 
 
 
@@ -256,6 +271,23 @@ private:
     MissionMap				mMissionMap;
     TerminalMap				mTerminalMap;
     NameMap					mNameMap;
+
+    struct PendingLair
+    {
+        uint64		missionId;
+        uint64		ownerId;
+        glm::vec3	position;
+    };
+    std::map<uint64, PendingLair>	mPendingLairs;	// by the lair's new object id
+
+    // Crafting missions (KNOWN_ISSUES #28): item type ids of the parts and
+    // their slot parts, by template, loaded at start (migration 021).
+    std::map<std::string, uint32>	mCraftingItemTypes;
+    uint32	_craftingItemType(const std::string& objectString) const;
+    // The mission-lent schematic's id for a crafting part, 0 if not loaded.
+    uint64	_craftingSchematicId(int part) const;
+    // Gives back the schematic a crafting mission lent.
+    void	_returnCraftingSchematic(PlayerObject* player, MissionObject* mission);
 };
 
 #endif

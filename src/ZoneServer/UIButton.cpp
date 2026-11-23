@@ -142,9 +142,11 @@ void UIButton::addMessageData()
 
                     gMessageFactory->addUint8(3);
                     gMessageFactory->addUint32(1);
-                    
-					for(unsigned short i=0; i < mId; i++)
-						gMessageFactory->addString(BString(L"p,f"));
+                    // One value: the property was declared with a count of 1.
+                    // Writing one per button id (the Use button 2, Remove 3)
+                    // put the rest of the window out of step and crashed
+                    // the client.
+                    gMessageFactory->addString(BString(L"p,f"));
 
                     gMessageFactory->addUint32(2);
                     gMessageFactory->addString(mName);
@@ -153,9 +155,11 @@ void UIButton::addMessageData()
 
                     gMessageFactory->addUint8(3);
                     gMessageFactory->addUint32(1);
-
-					for(unsigned short i = 0; i < mId; i++)
-						gMessageFactory->addString(BString(L"fpf,fff"));
+                    // One value: the property was declared with a count of 1.
+                    // Writing one per button id (the Use button 2, Remove 3)
+                    // put the rest of the window out of step and crashed
+                    // the client.
+                    gMessageFactory->addString(BString(L"fpf,fff"));
 
                     gMessageFactory->addUint32(2);
                     gMessageFactory->addString(mName);

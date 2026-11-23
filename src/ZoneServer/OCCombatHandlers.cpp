@@ -320,39 +320,11 @@ void ObjectController::_handleLoot(uint64 targetId, Message *message, ObjectCont
     // Loot creatures
     this->lootAll(targetId, player);
 
-    MissionList::iterator it = datapad->getMissions()->begin();
-    while(it != datapad->getMissions()->end())
-    {
-       MissionObject* mission = dynamic_cast<MissionObject*>(*it);
-       if(mission->getMissionType() != destroy) { ++it; continue; }
-
-       if (glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
-       {
-		/*MissionList::iterator it = datapad->getMissions()->begin();
-		while(it != datapad->getMissions()->end())
-		{
-			MissionObject* mission = dynamic_cast<MissionObject*>(*it);
-			if(mission->getMissionType() != destroy) {
-				++it;
-				continue;
-			}
-
-			if (glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
-			{
-				gMessageLib->sendPlayClientEffectLocMessage("clienteffect/combat_explosion_lair_large.cef",mission->getDestination().Coordinates,player);
-				gMissionManager->missionComplete(player,mission);
-
-				it = datapad->removeMission(it);
-				delete mission;
-			}
-			else
-			{
-				++it;
-			}
-
-		}*/
-	   }
-	}
+    // Destroy missions used to complete here when the player looted near the
+    // mission's destination; that code is disabled until missions spawn their
+    // lair (KNOWN_ISSUES #28). The loop that remained never advanced past a
+    // destroy mission, so looting with one in the datapad hung the zone.
+    (void)datapad;
 
     return;
 }

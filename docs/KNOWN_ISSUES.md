@@ -914,21 +914,676 @@ a new one, but the database update writes the overflowing total, not the
 maximum, so the container holds more than it can after a reload. Found
 while writing the scout harvest, which does not share the bug.
 
-### 27. Items can't be put in the bank — open
+### 27. Items can't be put in the bank — fixed
 
 Found in the step 2 test pass (T40, Nov 2026). Joining a bank, depositing
 and withdrawing credits work, but the bank terminal's item box (the safety
 deposit container) does nothing: `TreasuryManager::bankOpenSafetyDepositContainer`
-is empty. Pre-CU banks stored items as well as credits. Needs the bank's
-container opened for the player and items kept in it, as an inventory is.
+is empty. Pre-CU banks stored items as well as credits.
 
-### 28. Mission terminals give no missions — to investigate
+Fix (Nov 2026): the bank object (id = character + 4) is already created
+for its owner at login with the other equipped objects, so **Bank Items**
+now loads what is stored in it (items, resource containers and containers
+whose parent is the bank) the first time, then opens it. Items move in and
+out by dragging, through the ordinary transfer, which saves the new parent.
+Moving into or out of the box needs the box opened this session, a bank
+terminal within 16 m, and membership of this planet's bank ("You are not a
+member of this bank." otherwise). Quitting a bank is refused while the box
+holds anything. The box holds 100 items: reconstructed, not from the client
+(the client's bank template may say otherwise); `Player_Bank_Capacity` in
+the zone config changes it.
 
-Found in the step 2 test pass (T33-T35, Nov 2026): missions "seem to be
-disabled". The terminals and mission generation exist
-(`MissionManager.cpp`: destroy, deliver, survey, crafting, entertainer,
-recon), so what the client shows is needed first: an empty list, no
-radial option, or a message.
+First test: after joining, the terminal still offered Join Bank and no
+Bank Items. The bank terminal kept the first menu it built, from before
+the join, for every player (`Object::ResetRadialMenu` does nothing); it
+is built for each request now. Confirmed on the VM (Nov 2026): the bank
+menu and the safe deposit box work.
+
+### 28. Missions were switched off — back on, needs testing
+
+Found in the step 2 test pass (T33-T35, Nov 2026): the terminals answered
+"Missions are currently disabled, do not report this as a bug". The
+original team had made every mission handler (`OCMissionHandlers.cpp`)
+send that message and return before the mission code, with no reason
+recorded. They run again, with checks added where the code assumed a
+terminal, mission bag, datapad or bank existed. Setting `Missions_Enabled`
+to `0` in `config_server` switches them off again.
+
+The first test crashed the zone at the first mission list: the mission
+manager itself was never created, its `Init` commented out in
+`WorldManager.cpp`. It is created again on every zone but the tutorial,
+and the survey check that calls it is guarded. Mission names
+(`mission_names`) exist for Tatooine only; the mission givers are still
+the original placeholder list in `MissionManager.cpp`.
+
+With the manager back, missions listed, showed their details and were
+accepted to the datapad with a waypoint, but every distance was thousands
+of kilometres. The random offset divided `rand()` by 32767, MSVC's
+`RAND_MAX`; glibc's is 2147483647, so on Linux "50 to 500 m" reached about
+29,000 km. It uses `RAND_MAX` now. The same search found the NPC choice of
+deliver, entertainer and survey missions always rolling 1 and testing it
+with `=` (so always the first NPC), loops that never ended when fewer than
+two suitable NPCs were near the terminal, a division by zero for a
+terminal without destroy missions, and shuttles' start-up timing always
+0. All fixed.
+
+Two more switched-off pieces:
+- Looting with a destroy mission in the datapad hung the zone: what was
+  left of the old "loot near the target completes the mission" code looped
+  over the missions without ever moving past a destroy mission. Removed.
+- Talking to a deliver or crafting mission's NPC did nothing: the check
+  was commented out of the conversation handler. It runs again.
+
+Destroy missions spawned nothing at their waypoint, so they could not be
+completed. They now work as remembered from pre-CU: the waypoint is 20-60 m
+from the target; within 128 m of it, the mission's lair spawns and the
+waypoint moves to the exact location; destroying the lair completes the
+mission and pays its owner. The lair does not respawn. The lairs are the
+two fixed-position templates in `lairs` (1, womp rat rocks; 2, rill nest),
+so this works on Tatooine only until step 3 adds lairs for every planet;
+elsewhere destroy missions still have no target. Not done: credit for the
+owner's group, and a mission lair matched to the mission's difficulty.
+Missions also clear their scheduled check when deleted: an aborted recon
+mission left the scheduler calling a deleted mission.
+
+Confirmed on the VM (Nov 2026): a destroy mission's waypoint moved to the
+lair as the player came close, the rill nest was there, destroying it
+completed the mission and paid 3,546 credits. The test showed two lair
+bugs, for every lair, not just missions' (fixed, to retest):
+- Attacking a lair never called its creatures: `requestLairAssistance`
+  and the creatures' lair-assist code were never called. An attacked lair
+  now calls its living creatures that aren't fighting, as a pack does.
+- Lairs took combat states (knockdown, stun, blind, intimidate, posture
+  changes). Attackable objects (lairs, debris) take none now.
+Retested on the VM (Nov 2026): the lair's creatures came to defend it, and
+the combat music stopped once they were dead.
+
+The next test (Nov 2026) found every terminal listing the same kind of
+mission, and no deliver missions. Two causes (fixed, to retest):
+- Crafting missions were given no title, description or creator. The
+  mission delta sends only the fields that are set, so the client kept the
+  previous list's text: crafting missions showed as destroy missions. They
+  now take theirs from `mission_npc_crafting_neutral_easy` (50 missions).
+- Deliver missions looked for two NPCs within 30 m of the player, which a
+  terminal rarely has, and gave up. They now look within 1,500 m, as
+  crafting missions do. The spatial index's range search turned out to
+  stop at about 150 m (three grid cells) whatever range it is given, so
+  deliver, crafting and entertainer missions now go through the zone's
+  NPCs instead, taking outdoor townsfolk only. The log then showed 127
+  candidates and still no mission: the loop that picks the two NPCs tests
+  whether a position is still (0,0,0), and the position started
+  uninitialised (glm does not zero a vec3), so it never picked one. It
+  worked at the first terminal by luck. Crafting and entertainer missions
+  had the same fault.
+Confirmed on the VM (Nov 2026): a deliver mission listed in Bestine, picked
+up and delivered. For later: its NPCs are any outdoor townsfolk, so they
+don't fit the mission's text (an Imperial officer's cake went to a Jabba
+thug); pre-CU deliver missions spawned their own NPCs for the mission.
+
+The other kinds, tested in the step 2 pass (T43, Nov 2026):
+- **Recon** (scout terminal): accepted, waypoint 50-500 m from where it was
+  taken (inside the city, here); completed within 20 m of it (confirmed).
+- **Crafting** (artisan terminal): works like a deliver mission, talk to
+  the first NPC and then the second; nothing gives a schematic or checks
+  that anything was crafted. Pre-CU, the first NPC gave a mission
+  schematic and parts, and the crafted item was handed to the second.
+  Built and confirmed in game (Nov 2026): accepting lends the part's schematic (it
+  shows in the crafting tool's list); the first NPC hands over its three
+  components; the second takes the finished part from the inventory (not
+  from a bag inside it) and completes the mission. Aborting or failing
+  takes the schematic back. From the client: the five schematics
+  (`draft_schematic/item/quest_item`: attunement grid, current
+  alternator, feedback controller, output governor, power regulator),
+  their slot names and parts. Reconstructed (migration 021): one part per
+  slot, complexity 5, no experimentation or XP, a schematic group no
+  skill grants. Assembly uses the player's general assembly mod, and a
+  schematic with no resource slots no longer divides by zero when
+  averaging malleability (it would have crashed the zone). The
+  `fs_craft_puzzle` schematics are later (patch_10) and left out.
+- **Survey** (artisan terminal): `checkSurveyMission` completes it when a
+  survey of the named resource reads at least the mission's efficiency
+  more than 1,024 m from the terminal. The first test asked for Class 1
+  Radioactive, which wasn't spawned: the mission picked any mineral type.
+  It now picks a mineral spawned on the planet (fixed, to retest). The
+  efficiency asked for (30-70%) still ignores how rich the spawn is.
+- **Entertainer** (entertainer terminal): accepted, performed at the
+  waypoint, never completed. Switched off since the original import: the
+  calls that start the mission's timer when a performance starts
+  (`checkMusicianMission`, `checkDancerMission`) and the one that
+  completes it when the timer buff ends (`missionCompleteEntertainer` in
+  `Buff.cpp`) were commented out. Back on (fixed, to retest): performing
+  within 20 m of the waypoint starts a 10-minute timer (music had 1
+  minute), and when it ends the mission completes if the player is still
+  performing there; otherwise it says so, and performing there again
+  starts a new timer. The timer buff has no icon, so a system message now says when it
+  starts. Missions in the datapad don't survive a server restart. The
+  first retest ran 15 minutes without completing: the timer has icon 0,
+  like other internal buffs, and `AddBuff` deletes a buff whose icon the
+  player already has unless it is stackable, so the timer was thrown away
+  at once. It is added as stackable now (fixed, to retest). The next retest
+  started the timer, but the musician ran out of action ("You are too
+  tired to continue playing music") in the same second the 10 minutes
+  ended, and the mission, which required the player to be performing at
+  that moment, didn't complete. Now stopping early cancels the timer at
+  once (with a message), and at the end the mission completes if the
+  player is still at the spot; a stop in the last two seconds still counts. The
+  retest after that ran 11 minutes without completing: the buff scheduler
+  runs a copy of each buff (`addBuffToProcess`), so the buff that ends is
+  never the mission's own and the pointer check never matched (probably
+  why the original authors commented it out). Asking the timer whether its
+  time was up didn't work either: the global tick it measures against
+  counts a once-a-second task and falls behind real time, so at the real
+  10 minutes it still had time left, and an abort later completed the
+  mission and then crashed (the abort's buff removal ran the completion,
+  which deleted the mission the abort was still using, and the buff was
+  deleted twice). Now the ending copy is matched to the mission's timer by
+  its start tick and length, the early-stop grace uses real time, and an
+  abort detaches the mission from its timer before removing the buff and
+  no longer deletes it itself. Confirmed on the VM (build 2fcf713): the timer started at
+  23:02:24 and the mission completed at 23:12:24, paying 1,458 credits.
+- Entertainer missions put their spot on a random outdoor townsfolk NPC
+  (the generator borrows an NPC's position), so every one lands on or
+  next to someone. Pre-CU sent the entertainer to a venue or a spot in
+  town ("the patrons at this establishment"). With the deliver missions'
+  NPCs, for later.
+- Survey missions showed "Unknown Planet" in the mission list's Start
+  column: they set a start but no destination, which the list shows. The
+  destination is now the spot where the mission was taken; the list shows
+  "0m to the N" now. Confirmed on the VM: a survey mission completed. For
+  a later pass: give each survey mission its own distance from the start
+  (the 1,024 m now fixed in code), and show it in that column.
+- Aborting an entertainer mission part-way no longer crashes (confirmed).
+The accepted mission's datapad entry (description, creator, payment,
+difficulty) was filled in; the empty one seen earlier was from a mission
+generated by the faulty code.
+A mission that can't be generated is now left out of the list (an old
+refresh count) instead of showing stale text.
+
+### 31. Harvesters extract per hour, not per minute — to check
+
+Found in the step 2 test pass (T29, Nov 2026): after about 20 minutes, a
+harvester with a rate of 1.87 held 0.65 units, so its hopper still looked
+empty. `sf_HarvestResource` adds `rate / 60` every minute, which makes the
+rate units per hour. Pre-CU harvesters' extraction rates were, as far as
+we remember, units per minute, which would make harvesting 60 times too
+slow. To check against a source before changing.
+
+### 29. Houses could not be renamed from their terminal — fixed
+
+Found in the step 2 test pass (T31, Nov 2026). The house terminal's
+Structure Management menu had no way to name the house (harvesters and
+factories have Set Name on their own radial), and `/nameStructure` only
+took the building itself as target, which can't be targeted from inside.
+The terminal now offers Name Structure, and `/nameStructure` also works
+with the terminal targeted from the same room. The command also read the
+typed name with `sscanf` into an unsized buffer; it now only checks its
+length (the name is entered in the rename window).
+
+Confirmed on the VM (Nov 2026): a house renamed from its terminal.
+
+### 30. No sign outside a placed house — fixed for the Tatooine houses and the guild halls; other types to check
+
+Found in the step 2 test pass (T31, Nov 2026). Pre-CU houses had a sign by
+the door showing the house's name. The code that made one is commented out
+in `StructureManager::_handleStructureObjectTimers`: it put a street sign
+at a fixed offset from the house whatever its rotation, and the sign was
+not saved, so it would be gone after a restart. A proper sign needs each
+house type's sign position and model, saved with the house.
+
+Built (Nov 2026): the ZoneServer puts a sign up whenever a house enters the
+world (zone start, and when construction finishes), and takes it down with
+the house; renaming the house puts it up again with the new name. It is
+not saved. The models are the client's (`object/tangible/sign/player/
+shared_house_address.iff` and its `_corellia`, `_naboo`, `_tatooine`
+versions, by the house's style). Where it stands is per house type in
+`house_sign_placement` (migration 022: offset in the house's frame and a
+heading, turned with the house); the client's house templates mark no
+place for it, so every offset is a first guess (3 m right, 8 m ahead; 12 m
+for large houses), to correct from screenshots. `HouseObject::mSign` was
+never initialised; it starts empty now.
+
+First test (Nov 2026): the sign came up beside the door of a Tatooine
+small house, on the ground and edge-on. Mounted on the wall with
+migration 023: 2.5 m up, turned 135 degrees, for every house type (chosen
+on the Tatooine small house). Then turned 180 degrees (migration 024) so
+its wall post is against the wall and the board stands out, matching
+screenshots of pre-CU Tatooine houses: confirmed on the VM for the
+Tatooine small house, with the Tatooine sign (`thm_sign_tato_hanging`).
+Other types' offsets still to check.
+Next test: houses built before this (a large Tatooine house) and guild
+halls had no sign. Guild halls weren't in the table: added (migration
+025, first-guess offset). The large house is, so the zone log now says
+for each house whether it got a sign and, if not, its template
+("House signs: ..."), to find out why.
+It had one, inside the walls: the log gave each sign's position. Renaming
+a house now re-reads its type's placement before putting the sign up
+again, so a position can be tried without a restart. Tuned that way and
+confirmed on the VM (migration 026): the Tatooine large house, the
+Tatooine guild hall and the generic guild hall. Still the first guess:
+the Naboo, Corellia and generic houses and the other Tatooine styles.
+Reading the sign (the client's Read) did nothing; it now shows the
+house's name in a window (to test). The menu item's number is logged
+("House sign ...: menu item") to record what the client sends.
+
+### 32. Zone and chat servers crashed after "Lost connection to MySQL server" — fixed, to retest
+
+The chat server crashed overnight (Nov 2026), and a ZoneServer crashed
+when a manufacturing schematic was made for a factory (T30). Both
+backtraces end in `Database::process` freeing a query's result, the zone's
+inside `mysql_stmt_close` in libssl after "Lost connection to MySQL server
+during query".
+
+The cause was ours, from the change to prepared statements (#24): each
+database worker thread has its own connection, but results are freed on
+the main thread after the worker has moved on to its next query. Freeing
+a prepared statement's result sends the server a close over that
+connection, so two threads used one connection at once, which garbled it
+and crashed. Plain queries' results don't talk to the server when freed.
+A prepared statement's result now keeps its worker, and its connection,
+until it is freed, as multi-result (stored procedure) results already did.
+
+Retested on the VM (Nov 2026): all the servers ran through a day of
+testing and an idle afternoon without a crash.
+
+### 33. Chat server crashed when a harvester's maintenance ran out — fixed, to retest
+
+Found on the VM (Nov 2026): the chat server crashed in
+`StructureManagerChatHandler::handleDatabaseJobComplete` after logging
+"Out of range value for column 'condition'". A harvester had run out of
+maintenance and its owner's bank couldn't cover it, so
+`sf_HarvesterUseMaintenance` lowered the structure's `condition` below
+zero. The column is unsigned, so the update failed, the query returned no
+result, and the handler read the row count of a result it didn't have.
+
+- `sf_HarvesterUseMaintenance` stops `condition` at 0 (run
+  `mmoserverdb/setup.sh update-procedures`).
+- The chat server's structure handler skips a failed query, as the
+  zone's handlers that use prepared statements already do. Other handlers
+  that don't check for a failed query remain; each would crash the same way
+  if its query failed.
+
+The log also showed "Record has changed since last read in table
+'structure_attributes'": MariaDB 11.8's snapshot isolation refusing an
+update to a row another server changed in the same moment. That query
+fails and runs again at the next maintenance interval.
+
+### 34. Factories count condition the other way — moot
+
+Found while fixing #33. `sf_FactoryUseMaintenance` treats a structure's
+`condition` as damage, rising to the maximum ("condition is actually
+damage"), while the C++ (`PlayerStructure`), the chat server's mails and
+`sf_HarvesterUseMaintenance` treat it as health falling to 0. A factory
+left without maintenance would show as healthier as it decays, and be
+condemned at full condition. Moot since #39: factories are charged by
+`sf_HarvesterUseMaintenance` like every structure, which treats condition
+as health; `sf_FactoryUseMaintenance` was never called and still isn't.
+
+### 35. Character select shows a galaxy as online while its zones load — open
+
+Raised in the step 2 test pass (Nov 2026): the character select screen's
+server status reads online as soon as the login server is up, even while
+the zones are still loading and a login would fail or wait. It should say
+the galaxy is loading until the zones are ready. For later.
+
+### 37. OK on a list window with nothing selected crashed the zone — fixed
+
+Found in the step 2 test pass (Nov 2026), teaching another character: OK on
+the teaching window with no skill picked sent row -1, and
+`PlayerObject::handleUIEvent` looked it up unchecked (`std::out_of_range`,
+the ZoneServer aborted). About fifteen list windows index their rows the
+same way (teaching, travel and ticket collectors, insurance, dances and
+music, the character builder, the factory's schematic list). `UIListBox`
+now treats OK with no valid row as Cancel, before any handler sees it,
+except for the factory's Remove Schematic (a third button that needs no
+row) and the structure status window (its OK is Refresh).
+Confirmed on the VM (Nov 2026): OK on the teaching window with nothing
+picked just closes it.
+
+### 38. Image design session crashed the zone on a new hairstyle — fixed, to retest
+
+Found in the step 2 test pass (T38, Nov 2026): the changes went through,
+then the ZoneServer aborted on `assert(false)` in
+`ContainerManager::registerPlayerToContainer`, from
+`EntertainerManager::applyHair`. The old hair was removed with
+`destroyObjectToRegisteredPlayers`, which looks the object up in the
+world's object map; hair isn't there, so no watcher was unregistered from
+it. The old hair was then deleted, leaving the watching players with a
+dangling pointer, and the new hair, often at the same address, was
+"already known". `applyHair` now unregisters the old hair from every
+watcher (which also destroys it on their clients) before deleting it.
+
+The retest showed the fee never worked: with a fee set, the designer's
+Commit stayed greyed out, because the customer's offer never reached the
+designer (their window showed Offered Credits 0, and the client only
+enables Commit once the offer covers the fee). The server sent every
+update to the customer, the customer's own included, and built it from the
+receiver's change list, which is kept on the customer. Updates now go to
+the other side of the session, built from the customer's changes (fixed,
+to retest). Without a fee, the session completed and the credits offered
+were paid.
+
+Retested on the VM (Nov 2026): a new hairstyle with a 50-credit fee; the
+offer showed on both sides, the designer committed, the customer accepted,
+the hair changed, no crash, and the designer got 50 Image Designer
+experience. Still open, minor: opening a second session on the same
+customer straight away shows them bald in the designer's preview, with
+"You are already in the process of an Image Design action". The new hair
+reuses the old hair's object ID (customer + 8), which the designer's
+client may still hold as destroyed; to look at if it matters.
+
+### 39. Structures were barely charged maintenance, and factories no power — fixed
+
+Found in the step 2 test pass (T30, Nov 2026): a factory ran for hours,
+filling four crates of small glasses, and its maintenance pool stayed at
+the 50 credits put in ("50/hr" on the status window).
+
+`structure_type_data.maint_cost_wk` is per week: the status window divides
+it by 168 for the hourly rate (a factory's 8,400 is 50/hr). The chat
+server charges every structure hourly with `sf_HarvesterUseMaintenance`,
+which took a 336th, half the hour's charge, which rounded to nothing,
+and compared the pool with the weekly rate. Rewritten: each hour it takes
+the hourly rate from the maintenance pool; when the pool runs out the
+owner's bank pays the rest (as before); with nothing left, harvesters and
+factories stop and the structure loses condition, `decay_rate` percent of
+its maximum per unpaid hour (a factory lasts about 17 hours, a small
+house about 33; reconstructed, not from a source). Tested on a copy: 120
+credits in the pool paid two hours, the bank's 30 the third, and in the
+fourth the factory stopped and fell from 1,000 to 940.
+
+Factories now use power: the hourly power check charges running
+factories their `power_used` with `sf_FactoryUsePower` (it existed but
+was never called), and mails the owner when one stops for want of power.
+
+The structure mails (out of maintenance, damaged, condition zero) never
+went out: their 24-hour throttle read `lastMail < now + 24h`, always true.
+It reads the right way now.
+
+Confirmed on the VM (build 3162f7e): a running factory's maintenance pool
+went from 18,665 to 18,615 and its power from 19,008 to 18,958 in the
+hour.
+
+To check against the guides: whether the bank paid for maintenance
+pre-CU, and how fast an unpaid structure decayed.
+
+### 40. Idle servers use a lot of CPU — open
+
+Found on the VM (Nov 2026, `sar` over a night with no players): about 25%
+of four cores went to kernel time and 9-10% to user time, flat, with the
+servers running under `debug -g` and nobody logged in. Most likely the
+servers' main loops poll their sockets with very short sleeps instead of
+waiting for packets. To measure per server (`pidstat -u -p <pid> 60`) and
+fix after the step 2 pass. Not the cause of the VM freeze on 18 November:
+memory, swap and CPU were flat up to the last sample at 04:00, so it is
+put down to the host PC (the VM runs in VirtualBox on it). A long run on a
+rented cloud VM would rule the host out (ROADMAP, Parked).
+
+### 41. Crafted values didn't become the item's stats — fixed for weapons
+
+Found in the step 2 test pass (T27, Nov 2026): two CDEF carbines, one
+assembled only and one after a failed experiment. Each tooltip shows the
+template's stats (Damage 25-50, Attack Speed 3.5, Condition 100/100),
+identical on both, and below them the crafted results as extra attributes
+(Minimum and Maximum Damage, Attack Speed, Wound Chance, Condition
+1000/1000, the special move costs), which differ. So crafting and
+experimenting compute values but don't apply them to the item's real
+attributes; combat most likely uses the template's. The crafted values
+also look unscaled (Attack Speed 35.78 for 3.578 s). To fix: map each
+crafted attribute onto the item's own (damage, speed, range, wound chance,
+condition, costs) with its scale, and drop the duplicates. To check from
+the guides: a plain experiment failure lowered the values here; pre-CU, as
+far as we remember, only a critical failure did.
+
+Experimenting itself works: with Engineering I and the matching station,
+the experimentation step came up after assembly.
+
+Fixed for weapons: when a prototype is made, and when a manufacturing
+schematic's template item is stored (factories copy it), `applyCraftedStats`
+copies each crafted value onto the weapon's own attribute, the one
+`CombatManager` reads, in its units (attack speed in tenths of a second
+becomes seconds), and removes the crafted duplicate (new
+`Object::removeAttributeIncDB`, which also drops it from the display order
+and the item's row): minimum and maximum damage, wound chance, attack
+speed, the range modifiers, the three attack costs, and unit integrity as
+the condition. Attack speed and the attack costs are lower-is-better:
+experimenting now moves them down their range (`modifyAttributeValue`).
+Other kinds of crafted item (armour, food, clothing...) keep their crafted
+attributes as before; their mapping is still to do, kind by kind. Items
+crafted before this keep both sets.
+Confirmed on the VM (build b0ff0c5): an experimented CDEF carbine shows
+one set of stats (damage 22-45, speed 4.14, wound 4.33, ideal range 43,
+costs 9/20/9, condition 1005/1005). Still shown twice: the item's
+condition (the 100/100 at the top comes from the object itself, the
+1005/1005 below from the attribute); to make one follow the other.
+A third carbine, after a great success, confirms it: its crafted values
+rose (Maximum Damage 46.71, Minimum 22.85, Unit Integrity 1012.68 against
+43.11, 21.05 and 952.68 without experimenting) while the template block
+stayed at Damage 25-50, speed 3.5. Its crafted Attack Speed also rose
+(37.46 against 35.78); if that is the time between attacks, a success
+should lower it, so the attribute may be the wrong way round too.
+
+### 42. ConnectionServer crashed overnight on a missing message — fixed, to retest
+
+Found on the VM (Nov 2026), after a night idle with a client that had
+connected and reconnected: SIGSEGV in `Message::ResetIndex` (this=0x0)
+from `Service::Process`. The loop asks the session how many messages are
+waiting and then takes that many; the count read the queue's size with no
+lock while the socket thread was adding to it, and `getIncomingQueueMessage`
+checked the size before taking the lock, so the loop could take a message
+that wasn't there. Both now hold the session's lock, and the loop stops at
+an empty queue. The same code runs in every server.
+Not retested: overnight runs on the test VM have had mixed results that
+look like the host (#40), so long runs wait for a separate machine
+(ROADMAP, Parked).
+On the VM (Nov 2026), all the servers then ran about 19 hours, idle and
+with a client connecting, without a crash.
+
+### 43. Camps have no terminal, and their layout and chair look wrong — terminal fixed, needs testing; layout open
+
+Found in the step 2 test pass (T39, Nov 2026): a basic camp placed with
+its tent, torches, decorative campfire and chair, but no camp terminal,
+so it can't be checked or disbanded. The code is there (`CampTerminal`,
+with Status and Disband, spawned by `ScoutManager::createCamp` from the
+camp's rows in `structure_item_template` marked as a terminal); the data
+isn't: no camp has a terminal row, and `terminal_types` has no camp
+terminal. To fix with a migration: the camp terminal's template (its name
+from the client: `tools/client/tre.py list <client>
+'object/tangible/terminal/*camp*'`) in `terminal_types`, and a terminal
+row in each of the six camps' layouts. The layout itself looked off (a
+basic camp lists only the campfire and the chair; the furniture positions
+were server data pre-CU, so a screenshot of each camp type is the best
+source), and the character sat on the chair oddly (it may be placed as a
+decoration rather than as a seat).
+
+A look through the client found no template named for a camp terminal.
+To settle before building: what pre-CU camps offered for status and
+disbanding (a terminal under another name, or the camp's own menu).
+
+Settled (Nov 2026): the client has it under the camp objects, not the
+terminals: `object/tangible/camp/shared_camp_control_panel.iff`.
+Migration 019 adds it to `terminal_types` and gives each of the six camps a
+terminal row, so the camp spawns its control panel with Status and Disband
+(owner only). Its spot, 2 m right of and 3 m ahead of where the camp is
+placed, and its −45° turn (migration 020, chosen in a test placement)
+are reconstructed. Status and the panel were confirmed in game, and a
+guest gets Status but not Disband. The terminal kept the first menu it
+built, for everyone (`ResetRadialMenu` does nothing by default), so which
+one a player saw depended on who opened it first; it is built per
+request now; confirmed on the VM: the owner gets Disband, a guest doesn't. Layout: each camp's model is a client POI
+(`object/building/poi/shared_scout_camp_s0`–`s5`) that brings its own tent
+and furniture; the server adds only the basic camp's campfire and chair
+(item rows), which may double what the POI already has. Still open.
+
+The Tatooine guild hall (T32) placed with no guild terminal; the generic
+one (after #48) has a Guild Management Terminal. Guilds themselves aren't
+built (roadmap step 7), so the terminal does nothing yet.
+
+### 44. A vehicle wouldn't move after mounting again — fixed
+
+Seen twice in the step 2 pass (Nov 2026), the second time after sitting
+in a camp: the player mounted the speeder and it stayed put, with the
+HUD's posture icon not standing. `VehicleController::MountPlayer` set the
+riding state but left the posture as it was, and the client doesn't drive
+a seated or kneeling rider. Mounting now stands the player up first.
+
+### 45. Placing an instrument crashed the zone — fixed, to retest
+
+Found in the step 2 test pass (entertainer missions, Nov 2026): using a
+Nalargon from the inventory (it places a temporary copy) logged "You have
+an error in your SQL syntax ... near 'swganh.JOIN attributes'" and the
+ZoneServer crashed in `FactoryBase::_buildAttributeMap`. The
+non-persistent item factory's query read `INNER %s.JOIN attributes`
+instead of `INNER JOIN %s.attributes`, so it always failed, and the
+attribute map read the missing result. The query is fixed, and
+`_buildAttributeMap` (shared by every item factory) loads the object
+without its defaults if a query fails, instead of crashing.
+
+The instrument's default attributes in the database are placeholders:
+condition "###/###" and an owner of "Players Name here (Needs code)". Small
+data to fix with a migration.
+
+### 47. A musician doesn't hear their own music — open
+
+Found in the step 2 test pass (Nov 2026): playing the Nalargon, the
+musician's own client plays no music; another character listening hears
+it. Pre-CU, the performer heard their own performance. Most likely the
+performer's own client isn't sent what the listeners get (the performance
+id, or listening to themselves). To look at.
+
+### 48. A generic guild hall wasn't placed, and its lots were lost — fixed
+
+Found in the step 2 test pass (Nov 2026): placing a generic guild hall
+with 5 lots free built nothing and left the character with 0 lots.
+- `StructureManager::HandlePlaceStructure` listed the Corellian, Naboo and
+  Tatooine guild hall deeds but not the generic one, so its placement
+  fell through and nothing was built.
+- The deed took the lots when placement mode began, before anything was
+  placed (the client doesn't say when the player presses Escape), so any
+  placement that didn't finish, or was refused, or was on the wrong
+  planet, lost them.
+The generic guild hall is placed like the others now; the deed only checks
+the lots, and they are taken when the structure is placed and given back
+if placement fails there (no height for the spot, a deed with no
+placement, a city hall without the skill); pressing Escape out of a
+placement now keeps them (confirmed). Lots are counted from the
+structures owned at login, so relogging gave back the lost ones anyway.
+The first retest crashed the zone on placement: the command map binds
+`HandlePlaceStructure` to `gStructureManager` before the manager exists,
+so the handler runs with a null `this`; the new lots check called
+`getDeedData` on it. It goes through `gStructureManager`, as the rest of
+the handler does.
+Confirmed on the VM (build b0ff0c5): the generic guild hall placed, with a
+Guild Management Terminal inside.
+
+### 46. /tip bank refused with "bank" first — fixed, to retest
+
+Found in the step 2 test pass (Nov 2026): `/tip bank Obitwo 100`, and
+`/tip bank 100` with the player targeted, both answered "You may only /tip
+or /tip bank to other players". The handler only recognised "bank" as the
+last word (`/tip Obitwo 100 bank`, pre-CU's own order). It now accepts it
+anywhere.
+Confirmed on the VM: `/tip Obitwo 100 bank` sent the credits to the other
+character's bank.
+Storing the speeder and calling it again freed it (the player was
+standing by then), which fits.
+The retest disproved that part: the client (the server's command check)
+refuses to mount while kneeling or sitting, correctly, but after standing
+up and mounting, the speeder still didn't move; storing and calling it
+again frees it. Still open. A refused state change (such as becoming a
+rider) sent its "You cannot transition from this ... state" message to no
+one; it now goes to the player and is logged with the states, to find
+what blocks it.
+A cleaner reproduction followed: call the speeder, mount and drive,
+dismount, mount again, and it won't move; nothing was refused. Mounting
+sets the vehicle's MountedCreature flag directly and sends it; dismounting
+cleared it through `removeActionState`, which leaves it set if the
+removal is refused (that was only a debug log line, a different one from
+the search). With the flag still set, the second mount changed nothing the
+client could see. Dismounting now clears the flag directly and sends it,
+mounting clears a stale one first so the change is always seen, and a
+refused removal is logged and told to the player. Confirmed on the VM:
+mount, dismount and mount again, and the speeder drives each time.
+
+Also seen, to check against the guides before changing:
+- `/imagedesign` opens the window with no prompt to the other player.
+- Changes can only be committed inside an image designer's tent. That is
+  the client's rule; the server doesn't check it.
+- "Time until committable" reads Ready at once: the session timer isn't
+  sent.
+
+### 36. Factories never got their schematic on Linux — fixed, to retest
+
+Found in the step 2 test pass (T30, Nov 2026): a factory said "Schematic
+%TT has been inserted into the station", started, and made nothing; in the
+database both factories had `ManSchematicID = 0` and were switched off.
+
+The factory commands built their SQL with `%I64u`, Microsoft's printf
+notation for a 64-bit number. glibc reads it as a 32-bit `%u` 64 characters
+wide, so only the low half of each ID reached the database: inserting a
+schematic updated no factory, and starting or stopping one changed nothing.
+Sixteen uses, all now `PRIu64`: the factory commands (start, stop, insert
+and remove a schematic, the schematic's details, discarding a hopper),
+making a house private or public, and saving where a moved item or
+resource container was put (`OCCommonHandlers.cpp`), so items moved in
+the world may not have kept their place across a restart on Linux.
+
+Also fixed: the message now names the schematic (`%TT` was never filled).
+
+Confirmed on the VM (Nov 2026): the schematic linked, the factory ran and
+its output hopper held a crate of 4 small glasses a few minutes later.
+
+Opening the schematic slot of a factory that holds a schematic then
+crashed the client, with no crash log. That window adds a third button
+(Remove Schematic), and the buttons' PackSize and PackLocation properties
+were declared with one value but written with one per button number (two
+for Use, three for Remove), so the client read the rest of the window out
+of step. Never seen before because no factory had held a schematic on
+Linux. Each property now has its one value. Confirmed on the VM: the
+window opens, and Remove Schematic returns the schematic to the datapad.
+
+Removing the schematic didn't stop the factory: the zone kept it running
+(the database switched it off at its next step, silently, for want of a
+schematic). Removing it now stops the factory as Stop Manufacturing does
+(fixed, to retest).
+
+Still open:
+- **Factories don't use ingredients** — built, to retest. A manufacturing
+  schematic's ingredients are now stored when it is made (migration 018,
+  `manufactureschematic_ingredients`: per slot, the resource or the
+  component's item type and, for an identical component, its serial, and
+  the amount one item takes). `sf_FactoryIngredients` checks the input
+  hopper before each item and takes the ingredients after the item is
+  made; without them the factory stops (return 4) and the owner gets a
+  "Factory stopped" mail, as for a full output hopper (2). List
+  ingredients on the factory's menu shows them. Limits: components are
+  single items in the hopper (not crates), and schematics made before this
+  have no ingredients recorded and keep producing for free. The zone
+  learns that the database stopped a factory when its menu is next
+  opened (below). First test (Nov 2026): a new schematic recorded its
+  ingredient and List ingredients showed it ("100 units of Osheig"), but
+  some resource stacks, all gemstones and every newly split stack, were
+  refused by the input hopper. `Object::mCapacity` was never initialised,
+  and resource containers never set it, so it held garbage; the transfer
+  check refuses an item whose capacity isn't below the container's as
+  "too bulky". It starts at 0 now. Inserting a schematic also printed
+  debug text about schematic and factory masks (tested with `&&` for
+  `&`); that is a log line now, and the match isn't enforced yet. The retest worked in the database: one large glass made, the
+  100 Osheig taken (the container at 0), then the factory stopped and
+  mailed its owner. The zone still showed 100 in the hopper:
+  `ResourceContainer::upDateFactoryVolume` took a `BString` where
+  `TangibleObject`'s takes a `std::string`, so it never overrode it and the
+  amount read back on opening the hopper was dropped (taking the stale
+  stack out could have written 100 back). It overrides it now. And the
+  factory's menu re-reads its running state from the database each time
+  it opens (the chat server stops it there), updating the work animation
+  if it changed; the menu just opened can still be one step behind. Confirmed
+  on the VM: the hopper showed 0, the menu offered Start, and two more
+  glasses came out before it stopped and mailed again. An emptied resource
+  container is now deleted by `sf_FactoryIngredients`, and opening a
+  hopper removes any container or item the zone still holds there that
+  the database no longer lists (run `setup.sh update-procedures`).
+- The factory functions turn a factory off without a word when something
+  they need is missing (return 3), and the chat server ignores the return
+  code.
 
 ### 24. A cloned player stays a corpse — fixed
 

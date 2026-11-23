@@ -1121,7 +1121,7 @@ length (the name is entered in the rename window).
 
 Confirmed on the VM (Nov 2026): a house renamed from its terminal.
 
-### 30. No sign outside a placed house — fixed for Tatooine small houses; other types to check
+### 30. No sign outside a placed house — fixed for the Tatooine houses and the guild halls; other types to check
 
 Found in the step 2 test pass (T31, Nov 2026). Pre-CU houses had a sign by
 the door showing the house's name. The code that made one is commented out
@@ -1155,6 +1155,12 @@ halls had no sign. Guild halls weren't in the table: added (migration
 025, first-guess offset). The large house is, so the zone log now says
 for each house whether it got a sign and, if not, its template
 ("House signs: ..."), to find out why.
+It had one, inside the walls: the log gave each sign's position. Renaming
+a house now re-reads its type's placement before putting the sign up
+again, so a position can be tried without a restart. Tuned that way and
+confirmed on the VM (migration 026): the Tatooine large house, the
+Tatooine guild hall and the generic guild hall. Still the first guess:
+the Naboo, Corellia and generic houses and the other Tatooine styles.
 Reading the sign (the client's Read) did nothing; it now shows the
 house's name in a window (to test). The menu item's number is logged
 ("House sign ...: menu item") to record what the client sends.
